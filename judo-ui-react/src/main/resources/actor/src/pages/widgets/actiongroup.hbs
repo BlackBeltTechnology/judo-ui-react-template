@@ -1,0 +1,41 @@
+{{# if child.hiddenBy }}( !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item {{# unless (isParentDirectionColumn child) }}xs={12}{{/ unless }} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
+    <Grid container xs={12} spacing={2}>
+        {{# each (featuredActionsForActionGroup child) as |action| }}
+            {{# if action.hiddenBy }}( !data.{{ action.hiddenBy.name }} }} && {{/ if }}
+            <Grid item>
+                <Button onClick={ () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) } disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }>
+                    {{# if action.icon }}
+                        <MdiIcon path="{{ action.icon.name }}" />
+                    {{/ if }}
+                    { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) }
+                </Button>
+            </Grid>
+            {{# if action.hiddenBy }}){{/ if }}
+        {{/ each }}
+        {{# if (displayDropdownForActionGroup child) }}
+            <Grid item>
+                <DropdownButton
+                    disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
+                    menuItems={[
+                        {{# each (nonFeaturedActionsForActionGroup child) as |action| }}
+                            {
+                                label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
+                                onClick: () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
+                                startIcon: <MdiIcon path="arrow_right" />,
+                                disabled: {{# if action.enabledBy }}!data.{{ action.enabledBy.name }} ||{{/ if }} isLoading || editMode,
+                                {{# if action.hiddenBy }}visible: !data.{{ action.hiddenBy.name }},{{/ if }}
+                            },
+                        {{/ each }}
+                    ]}
+                >
+                    {{# if child.icon }}
+                        <MdiIcon path="{{ child.icon.name }}" />
+                    {{/ if }}
+                    { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+                </DropdownButton>
+            </Grid>
+        {{/ if }}
+    </Grid>
+</Grid>
+{{# if child.hiddenBy }}){{/ if }}

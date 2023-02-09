@@ -1,0 +1,50 @@
+return async function {{ actionFunctionName action page }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
+    createDialog({
+        fullWidth: true,
+        maxWidth: 'lg',
+        onClose: (event: object, reason: string) => {
+            if (reason !== 'backdropClick') {
+                closeDialog();
+            }
+        },
+        children: (
+            <{{ pageActionFormComponentName action page }}
+                successCallback={ ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => {
+                    closeDialog();
+                    enqueueSnackbar(title, {
+                        variant: 'success',
+                        ...toastConfig.success,
+                    });
+                    {{# if action.outputParameterPage }}
+                        if (result) {
+                            {{# unless (actionHasUnmappedOutputForm action) }}
+                                navigate(`{{ getNavigationForPage action.outputParameterPage 'result.__signedIdentifier' }}`);
+                            {{ else }}
+                                createOutputDialog({
+                                    fullWidth: true,
+                                    maxWidth: 'lg',
+                                    onClose: (event: object, reason: string) => {
+                                        if (reason !== 'backdropClick') {
+                                            closeOutputDialog();
+                                        }
+                                    },
+                                    children: (
+                                        <{{ pageName action.outputParameterPage }} result={result} close={() => closeOutputDialog()} />
+                                    )
+                                });
+                            {{/ unless }}
+                        } else {
+                            successCallback();
+                        }
+                    {{ else }}
+                        successCallback();
+                    {{/ if }}
+                } }
+                cancel={closeDialog}
+                {{# if action.operation.isMapped }}
+                    owner={owner}
+                {{/ if }}
+            />
+        ),
+    });
+}

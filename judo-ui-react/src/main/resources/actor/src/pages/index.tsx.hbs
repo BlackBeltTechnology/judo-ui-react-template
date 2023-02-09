@@ -1,0 +1,32 @@
+{{# if page.dataElement }}
+    {{# if page.dataElement.isAccess }}
+        {{# if page.isPageTypeCreate }}
+            {{> actor/src/pages/access/create.hbs }}
+        {{/ if }}
+        {{# if page.isPageTypeTable }}
+            {{> actor/src/pages/access/table.hbs }}
+        {{/ if }}
+        {{# if page.isPageTypeView }}
+            {{> actor/src/pages/access/view.hbs }}
+        {{/ if }}
+        {{# if page.isPageTypeDashboard }}
+            {{# if page.dataElement.isCollection }}
+                {{> actor/src/pages/access/table.hbs }}
+            {{ else }}
+                {{> actor/src/pages/access/view.hbs }}
+            {{/ if }}
+        {{/ if }}
+    {{ else }}
+        {{# if page.isPageTypeTable }}
+            {{> actor/src/pages/relation/table.hbs }}
+        {{/ if }}
+        {{# if page.isPageTypeView }}
+            {{> actor/src/pages/relation/view.hbs }}
+        {{/ if }}
+        {{# if page.isPageTypeOperationOutput }}
+            {{> actor/src/pages/operation-output/view.hbs }}
+        {{/ if }}
+    {{/ if }}
+{{ else }}
+    {{> actor/src/pages/page-fallback.hbs }}
+{{/ if }}

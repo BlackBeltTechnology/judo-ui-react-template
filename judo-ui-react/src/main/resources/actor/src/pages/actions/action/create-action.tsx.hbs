@@ -1,0 +1,53 @@
+// Action: CreateAction
+
+import { useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+    Button,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Grid,
+} from '@mui/material';
+import type { DialogOption } from '{{ relativePathFromAction page action 'components' }}';
+import { useSnackbar, useDialog } from '{{ relativePathFromAction page action 'components' }}';
+import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
+
+import {
+    {{# each (getApiImportsForCreateAction action) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+import {
+    {{ serviceRelationName action.target.dataElement }}Impl,
+    {{ classServiceName action.target.dataElement.target }}Impl,
+} from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+import { {{ pageActionFormComponentName action page }} } from './{{ pageActionFormComponentName action page }}';
+
+export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActionAccess action) }}owner: {{ classDataName page.dataElement.target 'Stored' }},{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) => void;
+
+export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+    const [createDialog, closeDialog] = useDialog();
+
+    return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: {{ classDataName page.dataElement.target 'Stored' }},{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) {
+        createDialog({
+            fullWidth: true,
+            maxWidth: 'lg',
+            onClose: (event: object, reason: string) => {
+                if (reason !== 'backdropClick') {
+                    closeDialog();
+                }
+            },
+            children: (
+                <{{ pageActionFormComponentName action page }}
+                    successCallback={(result) => { closeDialog(); successCallback(result); }}
+                    cancel={closeDialog}
+                    {{# unless (isActionAccess action) }}
+                        owner={owner}
+                    {{/ unless }}
+                />
+            ),
+        });
+    }
+}

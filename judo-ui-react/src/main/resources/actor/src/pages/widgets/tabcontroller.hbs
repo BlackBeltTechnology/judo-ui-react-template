@@ -1,0 +1,25 @@
+{{# if child.hiddenBy }}( !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid container item {{# unless (isParentDirectionColumn child) }}xs={12}{{/ unless }} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
+    <ModeledTabs
+        activeIndex={0}
+        childTabs={[
+            {{# each child.tabs as |tab| }}
+                {
+                    id: '{{ tab.name }}',
+                    name: '{{ tab.name }}',
+                    label: '{{ tab.element.label }}',
+                    {{# if tab.child.icon }}
+                        icon: '{{ tab.child.icon.name }}',
+                    {{/ if }}
+                },
+            {{/ each }}
+        ]}
+    >
+        {{# each child.tabs as |tab| }}
+            {{# with tab.element as |child| }}
+                {{> (getWidgetTemplate child) }}
+            {{/ with }}
+        {{/ each }}
+    </ModeledTabs>
+</Grid>
+{{# if child.hiddenBy }}){{/ if }}

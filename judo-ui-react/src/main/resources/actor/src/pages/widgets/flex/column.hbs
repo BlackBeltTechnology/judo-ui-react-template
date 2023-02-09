@@ -1,0 +1,11 @@
+{{# if this.hiddenBy }}( !data.{{ this.hiddenBy.name }} && {{/ if }}
+<Grid container item xs={12} sm={ {{ calculateSize this }} } direction="column" alignItems="stretch" justifyContent="{{ justifyContent this }}" {{# if (spacingForFlex this) }}spacing={2}{{/ if }}>
+    {{# if this.card }}<Card>{{/ if }}
+        {{# each this.children as |child| }}
+            {{# if child }}
+                {{> (getWidgetTemplate child) }}
+            {{/ if }}
+        {{/ each }}
+    {{# if this.card }}</Card>{{/ if }}
+</Grid>
+{{# if this.hiddenBy }}){{/ if }}

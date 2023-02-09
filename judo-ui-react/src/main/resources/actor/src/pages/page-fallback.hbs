@@ -1,0 +1,35 @@
+///////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// ------------------------------
+// Factory expression: {{{ cleanup template.factoryExpression }}}
+// Path expression: {{{ cleanup template.pathExpression }}}
+// Template name: {{ template.templateName }}
+
+import { Fragment } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Paper, Box } from '@mui/material';
+import { PageHeader, CustomBreadcrumb, useSnackbar } from '{{ relativePathFromPage page 'components' }}';
+
+/**
+ * Name: {{ page.name }}
+ * Is Access: {{ boolValue page.relationType.isAccess }}
+ * Is Dashboard: {{ boolValue page.isPageTypeDashboard }}
+ *
+ * > This is a page fallback, has no content! <
+ */
+export default function {{ pageName page }}() {
+    const { t } = useTranslation();
+
+    return (
+        <Fragment>
+            <PageHeader
+                title={t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' })}
+            >
+                <Fragment />
+            </PageHeader>
+            <Box component="main" color="inherit" sx={ { flex: 1, py: 6, px: 4 } }>
+                <Paper variant="elevation" sx={ { maxWidth: 1280, margin: 'auto', overflow: 'hidden' } } />
+            </Box>
+        </Fragment>
+    );
+}

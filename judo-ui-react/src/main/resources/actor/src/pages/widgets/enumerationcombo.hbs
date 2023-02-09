@@ -1,0 +1,32 @@
+{{# if child.hiddenBy }}( !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item {{# unless (isParentDirectionColumn child) }}xs={12}{{/ unless }} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
+    <TextField
+        name="{{ child.attributeType.name }}"
+        id="{{ getXMIID child }}"
+        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+        value={ data.{{ child.attributeType.name }} || '' }
+        error={ !!validation.get('{{ child.attributeType.name }}') }
+        helperText={ validation.get('{{ child.attributeType.name }}') }
+        onChange={ (event) => storeDiff('{{ child.attributeType.name }}', event.target.value as {{ restParamName child.attributeType.dataType }}) }
+        className={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode ? 'Mui-readOnly' : undefined }
+        InputLabelProps={ { shrink: true } }
+        InputProps={ {
+            readOnly: {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode,
+            {{# if child.icon }}
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <MdiIcon path="{{ child.icon.name }}" />
+                    </InputAdornment>
+                ),
+            {{/ if }}
+        } }
+        select
+    >
+        {{# each child.attributeType.dataType.members as |member| }}
+            <MenuItem value={ '{{ member.name }}' }>
+                { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }
+            </MenuItem>
+        {{/ each }}
+    </TextField>
+</Grid>
+{{# if child.hiddenBy }}){{/ if }}

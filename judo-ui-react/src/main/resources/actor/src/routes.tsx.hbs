@@ -1,0 +1,38 @@
+///////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// ------------------------------
+// Factory expression: {{{ cleanup template.factoryExpression }}}
+// Path expression: {{{ cleanup template.pathExpression }}}
+// Template name: {{ template.templateName }}
+
+import { Navigate, Route } from 'react-router-dom';
+import { lazy, ReactElement, Suspense } from 'react';
+
+let routes: Array<{path: string, element: ReactElement, exact?: boolean}> = [];
+
+{{# each (getPagesForRouting application) as |page| }}
+    {{# if page.isPageTypeDashboard }}
+        const DashboardRoute = lazy(() => import('./pages/{{ pageIndexRelativeImportPath page }}'));
+
+        routes.push({
+            path: '',
+            exact: true,
+            element: <Suspense>
+                <DashboardRoute />
+            </Suspense>,
+        });
+    {{ else }}
+        const {{ pageName page }} = lazy(() => import('./pages/{{ pageIndexRelativeImportPath page }}'));
+
+        routes.push({
+            path: '{{ getPageRoute page }}',
+            element: <Suspense>
+                <{{ pageName page }} />
+            </Suspense>,
+        });
+    {{/ if }}
+{{/ each }}
+
+export {
+    routes,
+};

@@ -1,0 +1,139 @@
+///////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// ------------------------------
+// Factory expression: {{{ cleanup template.factoryExpression }}}
+// Path expression: {{{ cleanup template.pathExpression }}}
+// Template name: {{ template.templateName }}
+// Action name: {{ action.name }}
+// Owner Page name: {{ ownerPage.name }}
+// Page name: {{ page.name }}
+
+import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import {
+    Button,
+    IconButton,
+    DialogActions,
+    DialogContent,
+    DialogContentText,
+    DialogTitle,
+    Paper,
+    Box,
+    Container,
+    Grid,
+    InputAdornment,
+    TextField,
+    MenuItem,
+    Typography,
+    Card,
+} from '@mui/material';
+import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
+import { DataGrid, GridRowId, GridSortModel, GridSelectionModel, GridToolbarContainer, GridRenderCellParams, GridRowParams, GridColDef } from '@mui/x-data-grid';
+import { JudoIdentifiable } from '@judo/data-api-common';
+import type { Dayjs } from 'dayjs';
+import {
+    MdiIcon,
+    ModeledTabs,
+    TrinaryLogicCombobox,
+    AggregationInput,
+    useSnackbar,
+    useRangeDialog,
+    columnsActionCalculator,
+} from '{{ relativePathFromPage page 'components' }}';
+import { FilterOption, FilterType } from '{{ relativePathFromPage page 'components-api' }}';
+import {
+    {{# each (getApiImportsForUnmappedOperationOutputAction action page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '{{ relativePathFromPage page 'generated/data-api' }}';
+import {
+    {{ classServiceName page.dataElement.target }}Impl,
+    {{ classServiceName action.dataElement.owner }}Impl,
+} from '{{ relativePathFromPage page 'generated/data-axios'}}';
+import { errorHandling, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromPage page 'utilities' }}';
+import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathFromPage page 'config' }}';
+import {
+    {{# each (getUniquePageActions page) as |actionOnAction| }}
+        {{ actionFunctionHookName actionOnAction page }},
+    {{/ each }}
+} from './actions';
+
+export interface {{ pageName page }}Props {
+    close: () => void;
+    result: {{ classDataName page.dataElement.target '' }};
+}
+
+export function {{ pageName page }}({ close, result } : {{ pageName page }}Props) {
+    const { t } = useTranslation();
+    const { downloadFile, uploadFile } = fileHandling();
+
+    const [enqueueSnackbar] = useSnackbar();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({ ...result });
+    const [validation, setValidation] = useState<Map<string, string>>(new Map());
+    const [editMode] = useState<boolean>(false);
+    const { openRangeDialog } = useRangeDialog();
+    const storeDiff: (attributeName: string, value: any) => void = useCallback((attributeName: string, value: any) => {
+        setData({ ...data, [attributeName]: value });
+    }, [data]);
+    {{# each (getUniquePageActions page) as |action| }}
+        const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+    {{/ each }}
+    {{# if (titleComesFromAttribute page) }}
+        const title: string = data.{{ page.titleAttribute.name }} as string;
+    {{ else }}
+        const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
+    {{/ if }}
+
+    {{# if (hasVisualReferences page) }}
+        {{# each (getPageTables page) as |table| }}
+            {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=table }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement action=action }}
+            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+        {{/ each }}
+        {{# each (getPageWritableLinks page) as |link| }}
+            {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=link }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement action=action }}
+            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=link.dataElement }}
+        {{/ each }}
+    {{/ if }}
+    {{# each (getPageTables page) as |table| }}
+        const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [];
+    {{/ each }}
+
+    return (
+        {{# with (firstViewChildForContainer page.containers.[0]) as |rootChild| }}
+            <>
+                <DialogTitle>
+                    {title}
+                    <IconButton
+                        aria-label="close"
+                        onClick={ () => close() }
+                        sx={ {
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                            color: (theme) => theme.palette.grey[500],
+                        } }
+                    >
+                        <MdiIcon path="close" />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}">
+                        {{# each rootChild.children as |child| }}
+                            {{# unless (excludeWidgetFromTree child) }}
+                                {{> (getWidgetTemplate child) }}
+                            {{/ unless }}
+                        {{/ each }}
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button variant="contained" onClick={ () => close() } disabled={isLoading}>
+                        { t('judo.modal.close', { defaultValue: 'Close' }) as string }
+                    </Button>
+                </DialogActions>
+            </>
+        {{/ with }}
+    );
+}

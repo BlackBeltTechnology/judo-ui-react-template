@@ -1,0 +1,9 @@
+{{# if child.hiddenBy }}( !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item {{# unless (isParentDirectionColumn child) }}xs={12}{{/ unless }} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
+    <Grid container sx={ { height: dividerHeight } } alignItems="center">
+        <Grid item xs={12}>
+            <Divider></Divider>
+        </Grid>
+    </Grid>
+</Grid>
+{{# if child.hiddenBy }}){{/ if }}
