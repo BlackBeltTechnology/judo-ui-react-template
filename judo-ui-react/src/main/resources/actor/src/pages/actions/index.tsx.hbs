@@ -1,0 +1,10 @@
+{{# unless (hasElements (getUniquePageActions page)) }}
+    // page has no actions
+    export {};
+{{/ unless }}
+{{# each (getUniquePageActions page) as |action| }}
+    {{# if (actionHasInputForm action) }}
+        export * from './{{ pageActionFormPathSuffix action page }}';
+    {{/ if }}
+    export * from './{{ pageActionPathSuffix action page }}';
+{{/ each }}

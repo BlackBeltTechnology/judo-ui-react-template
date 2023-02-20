@@ -1,0 +1,33 @@
+///////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// ------------------------------
+// Path expression: {{{ cleanup template.pathExpression }}}
+// Template name: {{ template.templateName }}
+// Action name: {{ action.name }}
+{{# if action.isFilterAction }}
+    {{> actor/src/pages/actions/action/filter-action.tsx.hbs }}
+{{ else if action.isRefreshAction }}
+    {{> actor/src/pages/actions/action/refresh-action.tsx.hbs }}
+{{ else if action.isCreateAction }}
+    {{> actor/src/pages/actions/action/create-action.tsx.hbs }}
+{{ else if action.isClearAction }}
+    {{> actor/src/pages/actions/action/clear-action.tsx.hbs }}
+{{ else if action.isAddAction }}
+    {{> actor/src/pages/actions/action/add-action.tsx.hbs }}
+{{ else if action.isViewAction }}
+    {{> actor/src/pages/actions/action/row/row-view-action.tsx.hbs }}
+{{ else if action.isRemoveAction }}
+    {{> actor/src/pages/actions/action/row/row-remove-action.tsx.hbs }}
+{{ else if action.isDeleteAction }}
+    {{> actor/src/pages/actions/action/row/row-delete-action.tsx.hbs }}
+{{ else if action.isNavigationToPageAction }}
+    {{> actor/src/pages/actions/action/navigate-to-page-action.tsx.hbs }}
+{{ else if action.isCallOperationAction }}
+    {{> actor/src/pages/actions/action/call-operation-action.tsx.hbs }}
+{{ else }}
+    export const {{ actionFunctionHookName action page }} = () => {
+        return async function {{ actionFunctionName action page }}() {
+            alert('{{ action.name }} not supported yet!');
+        }
+    };
+{{/ if }}

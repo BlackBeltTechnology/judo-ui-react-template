@@ -1,0 +1,25 @@
+{{# if this.hiddenBy }} { !data.{{ this.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize this) 12.0 }}md={ {{ calculateSize this }} }{{/ neq }}>
+    {{# if this.card }}
+        <Card>
+            <CardContent>
+                <Grid container direction="column" alignItems="stretch" justifyContent="flex-start" spacing={2}>
+                    {{# each this.children as |child| }}
+                        {{# if child }}
+                            {{> (getWidgetTemplate child) }}
+                        {{/ if }}
+                    {{/ each }}
+                </Grid>
+            </CardContent>
+        </Card>
+    {{ else }}
+        <Grid container direction="column" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+            {{# each this.children as |child| }}
+                {{# if child }}
+                    {{> (getWidgetTemplate child) }}
+                {{/ if }}
+            {{/ each }}
+        </Grid>
+    {{/ if }}
+</Grid>
+{{# if this.hiddenBy }} } {{/ if }}

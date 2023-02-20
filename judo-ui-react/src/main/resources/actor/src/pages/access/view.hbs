@@ -1,0 +1,314 @@
+///////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// ------------------------------
+// Path expression: {{{ cleanup template.pathExpression }}}
+// Template name: {{ template.templateName }}
+// Page name: {{ page.name }}
+// Page owner name: {{ page.owner.name }}
+// Page DataElement name: {{ page.dataElement.name }}
+// Page DataElement owner name: {{ page.dataElement.owner.name }}
+
+import { useEffect, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Box, Button, Card, CardContent, Container, Grid, InputAdornment, TextField, MenuItem, Typography, Paper, Divider, RadioGroup, FormControlLabel, Radio } from '@mui/material';
+import { DataGrid, GridRowId, GridSortModel, GridSortItem, GridToolbarContainer, GridRowParams } from '@mui/x-data-grid';
+import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
+import { useParams } from 'react-router-dom';
+import type { Dayjs } from 'dayjs';
+import {
+    columnsActionCalculator,
+    MdiIcon,
+    ModeledTabs,
+    PageHeader,
+    DropdownButton,
+    CustomBreadcrumb,
+    TrinaryLogicCombobox,
+    useJudoNavigation,
+    useRangeDialog,
+    AggregationInput,
+    useSnackbar,
+} from '{{ relativePathFromPage page 'components' }}';
+import { errorHandling, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromPage page 'utilities' }}';
+import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
+import {
+    {{# each (getApiImportsForViewPage page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '{{ relativePathFromPage page 'generated/data-api' }}';
+import {
+    {{ serviceRelationName page.dataElement }}Impl,
+    {{ classServiceName page.dataElement.target }}Impl,
+} from '{{ relativePathFromPage page 'generated/data-axios'}}';
+import { JudoIdentifiable } from '@judo/data-api-common';
+import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
+import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
+import {
+{{# each (getUniquePageActions page) as |action| }}
+    {{ actionFunctionHookName action page }},
+{{/ each }}
+} from './actions';
+
+/**
+ * Name: {{ page.name }}
+ * Is Access: {{ boolValue page.relationType.isAccess }}
+ * Is Dashboard: {{ boolValue page.isPageTypeDashboard }}
+ * Type: View
+ * Edit Mode Available: {{ boolValue page.relationType.isUpdatable }}
+ **/
+export default function {{ pageName page }}() {
+    const { t } = useTranslation();
+    const { navigate, back } = useJudoNavigation();
+    {{# if (isSingleAccessPage page) }}
+        const [signedIdentifier, setSignedIdentifier] = useState<string>();
+    {{ else }}
+        const { signedIdentifier } = useParams();
+    {{/ if }}
+    {{# each (getUniquePageActions page) as |action| }}
+        const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+    {{/ each }}
+
+    const { openRangeDialog } = useRangeDialog();
+    const { downloadFile, uploadFile } = fileHandling();
+    const {
+        queryCustomizer,
+        {{# each (getPageTables page) as |table| }}
+            {{ table.dataElement.name }}Columns,
+            {{ table.dataElement.name }}RangeFilterOptions,
+            {{ table.dataElement.name }}InitialQueryCustomizer,
+        {{/ each }}
+        {{# each (getPageWritableLinks page) as |link| }}
+            {{ link.dataElement.name }}Columns,
+            {{ link.dataElement.name }}RangeFilterOptions,
+            {{ link.dataElement.name }}InitialQueryCustomizer,
+        {{/ each }}
+    } = use{{ pageName page }}();
+
+    const [enqueueSnackbar] = useSnackbar();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
+    const [payloadDiff, setPayloadDiff] = useState<Record<string, any>>({});
+    const storeDiff: (attributeName: string, value: any) => void = useCallback((attributeName: string, value: any) => {
+        payloadDiff[attributeName] = value;
+        setData({ ...data, [attributeName]: value });
+    }, [data]);
+    const [editMode, setEditMode] = useState<boolean>(false);
+    const [validation, setValidation] = useState<Map<string, string>>(new Map());
+    {{# each (getPageTables page) as |table| }}
+        {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
+    {{/ each }}
+
+    {{# each (getPageTables page) as |table| }}
+        const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
+            {{# each table.rowActions as |action| }}
+                {{# if action.isRemoveAction }}
+                    {
+                        label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
+                        icon: <MdiIcon path="{{ action.icon.name }}" />,
+                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}(data, row, () => fetchData()),
+                    },
+                {{/ if }}
+                {{# if action.isDeleteAction }}
+                    {
+                        label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
+                        icon: <MdiIcon path="{{ action.icon.name }}" />,
+                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetchData()),
+                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
+                    },
+                {{/ if }}
+                {{# if action.isCallOperationAction }}
+                    {
+                        label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
+                        icon: <MdiIcon path="{{ action.icon.name }}" />,
+                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
+                    },
+                {{/ if }}
+            {{/ each }}
+        ];
+    {{/ each }}
+    {{# if (titleComesFromAttribute page) }}
+        const title: string = data.{{ page.titleAttribute.name }} as string;
+    {{ else }}
+        const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
+    {{/ if }}
+
+    {{# if (isSingleAccessPage page) }}
+        const init = async () => {
+            setIsLoading(true);
+
+            try {
+                const res = await {{ serviceRelationName page.dataElement }}Impl.get{{ ucFirst page.dataElement.name }}('{}');
+
+                setIsLoading(false);
+
+                if (res?.__signedIdentifier) {
+                    setData(res);
+                    setSignedIdentifier(res.__signedIdentifier);
+                } else {
+                    {{# if page.relationType.isCreatable }}
+                        navigate('/{{ page.relationType.name }}/create');
+                    {{ else }}
+                        navigate('*');
+                    {{/ if }}
+
+                }
+            } catch (error) {
+                errorHandling(error, enqueueSnackbar);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        useEffect(() => {
+            init();
+        }, []);
+    {{/ if }}
+
+    const fetchData = async () => {
+        setIsLoading(true);
+
+        try {
+            const res = await {{ classServiceName page.dataElement.target }}Impl.refresh(
+                { __signedIdentifier: signedIdentifier } as {{ classDataName page.dataElement.target 'Stored' }},
+                processQueryCustomizer(queryCustomizer),
+            );
+
+            setData(res);
+            setPayloadDiff({
+                __identifier: res.__identifier,
+                __signedIdentifier: res.__signedIdentifier,
+                __version: res.__version,
+                __entityType: res.__entityType,
+            });
+        } catch (error) {
+            errorHandling(error, enqueueSnackbar);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    {{# if page.relationType.isUpdatable }}
+        const saveData = async () => {
+            setIsLoading(true);
+
+            try {
+                const res = await {{ classServiceName page.dataElement.target }}Impl.update(payloadDiff);
+
+                if (res) {
+                    await fetchData();
+                    setEditMode(false);
+                }
+            } catch (error) {
+                errorHandling(error, enqueueSnackbar, { setValidation });
+            } finally {
+                setIsLoading(false);
+            }
+        };
+    {{/ if }}
+
+    {{# if page.relationType.isDeletable }}
+        const deleteData = async () => {
+            setIsLoading(true);
+
+            try {
+                await {{ classServiceName page.dataElement.target }}Impl.delete(data as {{ classDataName page.dataElement.target 'Stored' }});
+
+                {{# if (isSingleAccessPage page) }}
+                    navigate('/{{ page.relationType.name }}/create');
+                {{ else }}
+                    back();
+                {{/ if }}
+            } catch (error) {
+                errorHandling(error, enqueueSnackbar);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+    {{/ if }}
+
+    {{# if (isSingleAccessPage page) }}
+        useEffect(() => {
+            if (signedIdentifier) {
+                fetchData();
+            }
+        }, [signedIdentifier]);
+    {{ else }}
+        useEffect(() => {
+            fetchData();
+        }, []);
+    {{/ if }}
+
+    useEffect(() => {
+        setValidation(new Map<string, string>());
+    }, [editMode]);
+
+    return (
+        <>
+            {{# with (getDataContainerForPage page) as |rootChild| }}
+                <PageHeader title={title}>
+                    {{# if page.relationType.isRefreshable }}
+                        {!editMode && (
+                            <Grid item>
+                                <Button onClick={() => fetchData()} disabled={isLoading}>
+                                    <MdiIcon path="refresh" />
+                                    {t('judo.pages.refresh', { defaultValue: 'Refresh' })}
+                                </Button>
+                            </Grid>
+                        )}
+                    {{/ if }}
+                    {{# if page.relationType.isDeletable }}
+                        {!editMode && (
+                            <Grid item>
+                                <Button onClick={() => deleteData()} disabled={isLoading || !data.__deleteable}>
+                                    <MdiIcon path="delete" />
+                                    {t('judo.pages.delete', { defaultValue: 'Delete' })}
+                                </Button>
+                            </Grid>
+                        )}
+                    {{/ if }}
+                    {{# if page.relationType.isUpdatable }}
+                        {!editMode && (
+                            <Grid item>
+                                <Button onClick={() => setEditMode(true)} disabled={isLoading || !data.__updateable}>
+                                    <MdiIcon path="pencil" />
+                                    {t('judo.pages.edit', { defaultValue: 'Edit' })}
+                                </Button>
+                            </Grid>
+                        )}
+                        {editMode && (
+                            <Grid item>
+                                <Button
+                                    variant="outlined"
+                                    onClick={() => {
+                                        setEditMode(false);
+                                        fetchData();
+                                    }}
+                                    disabled={isLoading}
+                                >
+                                    <MdiIcon path="cancel" />
+                                    {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
+                                </Button>
+                            </Grid>
+                        )}
+                        {editMode && (
+                            <Grid item>
+                                <Button onClick={() => saveData()} disabled={isLoading}>
+                                    <MdiIcon path="content-save" />
+                                    {t('judo.pages.save', { defaultValue: 'Save' })}
+                                </Button>
+                            </Grid>
+                        )}
+                    {{/ if }}
+                </PageHeader>
+                <Container component="main" maxWidth="xl">
+                    <Box sx={mainContainerPadding}>
+                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+                            {{# each rootChild.children as |child| }}
+                                {{> (getWidgetTemplate child) }}
+                            {{/ each }}
+                        </Grid>
+                    </Box>
+                </Container>
+            {{/ with }}
+        </>
+    );
+}

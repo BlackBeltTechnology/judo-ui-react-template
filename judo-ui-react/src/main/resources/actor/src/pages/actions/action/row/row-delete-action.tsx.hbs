@@ -1,0 +1,36 @@
+// Action: DeleteAction
+
+import type { JudoIdentifiable } from '@judo/data-api-common';
+import { useSnackbar } from '{{ relativePathFromAction page action 'components' }}';
+import { errorHandling } from '{{ relativePathFromAction page action 'utilities' }}';
+import {
+    {{# each (getApiImportsForRowAction action) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+import {
+    {{ serviceRelationName action.dataElement }}Impl,
+    {{# neq (serviceRelationName action.dataElement) (classServiceName action.dataElement.target) }}
+        {{ classServiceName action.dataElement.target }}Impl,
+    {{/ neq }}
+} from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+
+export type {{ actionFunctionTypeName action page }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
+
+export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+    const [enqueueSnackbar] = useSnackbar();
+
+    return async function {{ actionFunctionName action page }} ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) {
+        try {
+            {{# if (hasDataElementOwner action.dataElement) }}
+                await {{ serviceRelationName action.dataElement }}Impl.delete{{ ucFirst action.dataElement.name }}(owner, selected);
+            {{ else }}
+                await {{ classServiceName action.dataElement.target }}Impl.delete(selected);
+            {{/ if }}
+
+            successCallback();
+        } catch (error) {
+            errorHandling(error, enqueueSnackbar);
+        }
+    }
+};

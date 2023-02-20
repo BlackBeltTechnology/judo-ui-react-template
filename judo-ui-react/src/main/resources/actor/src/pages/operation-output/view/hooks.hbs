@@ -1,0 +1,55 @@
+///////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// ------------------------------
+// Path expression: {{{ cleanup template.pathExpression }}}
+// Template name: {{ template.templateName }}
+// Hook: OperationOutput View
+
+import { useTranslation } from 'react-i18next';
+import { GridColDef, GridSortModel, GridRowParams, GridRenderCellParams } from '@mui/x-data-grid';
+import { Button } from '@mui/material';
+import { MdiIcon } from '../{{ relativePathFromPage page 'components' }}';
+import { FilterOption, FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
+import {
+    {{# each (getApiImportsForViewPage page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '../{{ relativePathFromPage page 'generated/data-api' }}';
+import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
+import { fileHandling } from '../{{ relativePathFromPage page 'utilities' }}';
+
+export const use{{ pageName page }} = () => {
+    const { t } = useTranslation();
+    const { downloadFile, uploadFile } = fileHandling();
+
+    const queryCustomizer: {{ classDataName page.dataElement.target 'QueryCustomizer' }} = {
+        _mask: '{{ page.formattedMask }}',
+    };
+
+    {{# if (hasVisualReferences page) }}
+        {{# each (getPageTables page) as |table| }}
+            {{> actor/src/fragments/table/hook-variables.fragment.hbs table=table }}
+        {{/ each }}
+        {{# each (getPageLinks page) as |link| }}
+            {{> actor/src/fragments/link/hook-variables.fragment.hbs link=link }}
+        {{/ each }}
+
+        return {
+            queryCustomizer,
+            {{# each (getPageTables page) as |table| }}
+                {{ table.dataElement.name }}Columns,
+                {{ table.dataElement.name }}RangeFilterOptions,
+                {{ table.dataElement.name }}InitialQueryCustomizer,
+            {{/ each }}
+            {{# each (getPageWritableLinks page) as |link| }}
+                {{ link.dataElement.name }}Columns,
+                {{ link.dataElement.name }}RangeFilterOptions,
+                {{ link.dataElement.name }}InitialQueryCustomizer,
+            {{/ each }}
+        };
+    {{ else }}
+        return {
+            queryCustomizer,
+        };
+    {{/ if }}
+};

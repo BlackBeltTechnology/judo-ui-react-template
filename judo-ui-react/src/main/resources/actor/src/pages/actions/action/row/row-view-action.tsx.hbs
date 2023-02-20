@@ -1,0 +1,19 @@
+// Action: ViewAction
+
+import type { JudoIdentifiable } from '@judo/data-api-common';
+import type {
+    {{# each (getApiImportsForRowAction action) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
+
+export type {{ actionFunctionTypeName action page }} = () => (entry: JudoIdentifiable<{{ classDataName action.target.dataElement.target '' }}>) => Promise<void>;
+
+export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+    const { navigate } = useJudoNavigation();
+
+    return async function (entry: JudoIdentifiable<{{ classDataName action.target.dataElement.target '' }}>) {
+        navigate(`{{ getNavigationForPage action.target 'entry.__signedIdentifier' }}`);
+    }
+};

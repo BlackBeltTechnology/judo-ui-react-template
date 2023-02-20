@@ -1,0 +1,61 @@
+// Action: CallOperationAction
+// Is Access: {{# if page.dataElement.isAccess }}yes{{ else }}no{{/ if }}
+// Is Mapped: {{# if action.operation.isMapped }}yes{{ else }}no{{/ if }}
+// Is Static: {{# if action.operation.isStatic }}yes{{ else }}no{{/ if }}
+// Input: {{# if action.operation.input }}yes{{ else }}no{{/ if }}
+// InputParameterPage: {{# if action.inputParameterPage }}yes{{ else }}no{{/ if }}
+// OutputParameterPage: {{# if action.outputParameterPage }}yes{{ else }}no{{/ if }}
+
+import { useTranslation } from 'react-i18next';
+import { Button } from '@mui/material';
+import type { GridColDef, GridRenderCellParams, GridRowParams, GridSortModel } from '@mui/x-data-grid';
+import {
+    useDialog,
+    useSnackbar,
+    useRangeDialog,
+    useJudoNavigation,
+    MdiIcon,
+} from '{{ relativePathFromAction page action 'components' }}';
+import { baseColumnConfig, toastConfig } from '{{ relativePathFromAction page action 'config' }}';
+import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
+import { errorHandling, fileHandling, processQueryCustomizer } from '{{ relativePathFromAction page action 'utilities' }}';
+{{# if (actionHasInputForm action) }}
+    import { {{ pageActionFormComponentName action page }} } from './{{ pageActionFormComponentName action page }}';
+{{/ if }}
+{{# if (actionHasUnmappedOutputForm action) }}
+    import { {{ pageName action.outputParameterPage }} } from '{{ relativePathToPageActionOutputViewComponent action page }}';
+{{/ if }}
+import {
+    {{# each (getApiImportsForCallOperationAction action page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+{{# unless (actionHasInputForm action) }}
+    import {
+        {{ classServiceName page.dataElement.target }}Impl,
+        {{# neq (classServiceName page.dataElement.target) (classServiceName action.dataElement.owner) }}
+            {{ classServiceName action.dataElement.owner }}Impl,
+        {{/ neq }}
+    } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+{{/ unless }}
+
+export type {{ actionFunctionTypeName action page }} = () => ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) => Promise<void>;
+
+export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+    const { t } = useTranslation();
+    const { downloadFile, uploadFile } = fileHandling();
+    const [enqueueSnackbar] = useSnackbar();
+    const { openRangeDialog } = useRangeDialog();
+    const [createDialog, closeDialog] = useDialog();
+    {{# if (actionHasUnmappedOutputForm action) }}
+        const [createOutputDialog, closeOutputDialog] = useDialog();
+    {{/ if }}
+    const { navigate } = useJudoNavigation();
+    const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
+
+    {{# if (actionHasInputForm action) }}
+        {{> actor/src/pages/actions/action/call-operation-action/with-input-form.fragment.hbs action=action page=page }}
+    {{ else }}
+        {{> actor/src/pages/actions/action/call-operation-action/without-input-form.fragment.hbs action=action page=page }}
+    {{/ if }}
+}

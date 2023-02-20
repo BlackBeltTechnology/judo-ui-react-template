@@ -1,0 +1,38 @@
+///////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// ------------------------------
+// Path expression: {{{ cleanup template.pathExpression }}}
+// Template name: {{ template.templateName }}
+
+import type { MenuItem } from './components-api';
+
+export const menuItems: MenuItem[] = [
+    {{# each application.navigationController.items as |item| }}
+    {
+        {{# unless (isNavItemAGroup item) }}
+            to: '{{ getPageRoute item.target }}',
+        {{/ unless }}
+        {{# if item.icon }}
+            icon: '{{ item.icon.name }}',
+        {{/ if }}
+        {{# if item.label }}
+            label: '{{ item.label }}',
+        {{/ if }}
+        items: [
+        {{# each item.items as |subItem| }}
+            {
+            {{# unless (isNavItemAGroup subItem) }}
+                to: '{{ getPageRoute subItem.target }}',
+            {{/ unless }}
+            {{# if subItem.icon }}
+                icon: '{{ item.icon.name }}',
+            {{/ if }}
+            {{# if subItem.label }}
+                label: '{{ subItem.label }}',
+            {{/ if }}
+            },
+        {{/ each }}
+        ],
+    },
+    {{/ each }}
+];

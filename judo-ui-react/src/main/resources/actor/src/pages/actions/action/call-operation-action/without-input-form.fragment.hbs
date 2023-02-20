@@ -1,0 +1,90 @@
+return async function {{ actionFunctionName action page }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
+    {{# if action.operation.input }}
+        {{# with action.inputParameterPage.containers.[0].tables.[0] as |table| }}
+            const columns: GridColDef<{{ classDataName action.inputParameterPage.dataElement.target 'Stored' }}>[] = [
+                {{# each table.columns as |column| }}
+                    {
+                        ...baseColumnConfig,
+                        field: '{{ column.attributeType.name }}',
+                        headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
+                        {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
+                    },
+                {{/ each }}
+            ];
+
+            const filterOptions: FilterOption[] = [
+                {{# each table.filters as |filter| }}
+                    {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
+                {{/ each }}
+            ];
+
+            const sortModel: GridSortModel = {{{ getDefaultSortParamsForTable table }}};
+
+            const initialQueryCustomizer: {{ classDataName action.inputParameterPage.dataElement.target 'QueryCustomizer' }} = {
+                _mask: '{{ table.formattedMaskForRange }}',
+                _orderBy: sortModel.length ? [
+                    {
+                        attribute: sortModel[0].field,
+                        descending: sortModel[0].sort === 'desc',
+                    },
+                ] : [],
+            };
+
+            const res = await openRangeDialog<{{ classDataName action.inputParameterPage.dataElement.target 'Stored' }}, {{ classDataName action.inputParameterPage.dataElement.target 'QueryCustomizer' }}>({
+                columns,
+                defaultSortField: sortModel[0],
+                rangeCall: async (queryCustomizer) => await {{ classServiceName action.dataElement.owner }}Impl.getRangeFor{{ firstToUpper action.dataElement.name }}({{# if action.operation.isMapped }}owner{{ else }}undefined{{/ if }}, processQueryCustomizer(queryCustomizer)),
+                single: true,
+                alreadySelectedItems: '', // TODO: ???
+                filterOptions,
+                initialQueryCustomizer,
+            });
+
+            if (res === undefined) return;
+        {{/ with }}
+
+    {{ else }}
+        {{# if (hasConfirmation action) }}
+            // TODO: implement shiny MUI Dialog here
+            const result = confirm(t('{{ idToTranslationKey action.fQName application }}.confirmation', { defaultValue: '{{ action.confirmationMessage }}' }) as string);
+
+            if (!result) {
+                return;
+            }
+        {{/ if }}
+    {{/ if }}
+
+    try {
+        const result = await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner{{/ if }}{{# if action.operation.input }}{{# if action.operation.isMapped }},{{/ if }}res as {{ classDataName action.inputParameterPage.dataElement.target 'Stored' }}{{/ if }});
+        {{# if action.outputParameterPage }}
+            if (result) {
+                {{# unless (actionHasUnmappedOutputForm action) }}
+                    navigate(`{{ getNavigationForPage action.outputParameterPage 'result.__signedIdentifier' }}`);
+                {{ else }}
+                    createOutputDialog({
+                        fullWidth: true,
+                        maxWidth: 'lg',
+                        onClose: (event: object, reason: string) => {
+                            if (reason !== 'backdropClick') {
+                                closeOutputDialog();
+                            }
+                        },
+                        children: (
+                            <{{ pageName action.outputParameterPage }} result={result} close={() => closeOutputDialog()} />
+                        )
+                    });
+                {{/ unless }}
+            } else {
+                successCallback();
+            }
+        {{ else }}
+            successCallback();
+        {{/ if }}
+        enqueueSnackbar(title, {
+            variant: 'success',
+            ...toastConfig.success,
+        });
+    } catch (error) {
+        errorHandling(error, enqueueSnackbar);
+    }
+}

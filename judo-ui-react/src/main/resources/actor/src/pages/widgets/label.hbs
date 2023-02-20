@@ -1,0 +1,12 @@
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    <Grid container direction="row" alignItems="center" justifyContent="flex-start">
+        {{# if child.icon }}
+            <MdiIcon path="{{ child.icon.name }}" />
+        {{/ if }}
+        <Typography variant="h6" component="h1">
+            { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+        </Typography>
+    </Grid>
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}

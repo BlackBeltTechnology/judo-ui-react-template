@@ -1,0 +1,29 @@
+width: {{ columnWidth column }},
+type: '{{ columnType column }}',
+{{# unless (isColumnSortable column) }}
+    sortable: false,
+{{/ unless }}
+{{# if (isColumnBoolean column) }}
+    align: 'center',
+    renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {
+        return params.row.{{ column.attributeType.name }} ? <MdiIcon path="check-circle" color="green" /> : <MdiIcon path="close-circle" color="red" />;
+    },
+{{/ if }}
+{{# if (isColumnBinary column) }}
+    align: 'center',
+    renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {
+        return params.row.{{ column.attributeType.name }}
+            ? <Button size="small" variant="contained" onClick={ (event: any) => {
+                event.preventDefault();
+                event.stopPropagation();
+                downloadFile(params.row, '{{ column.attributeType.name }}');
+              } }>
+                <MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />
+                { t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string }
+              </Button>
+            : <MdiIcon path="minus" />;
+    },
+{{/ if }}
+{{# unless (isColumnSortable column) }}
+    description: t('judo.pages.table.column.not-sortable', { defaultValue: 'This column is not sortable.' }) as string,
+{{/ unless }}
