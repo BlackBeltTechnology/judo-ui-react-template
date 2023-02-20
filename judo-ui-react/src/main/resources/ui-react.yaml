@@ -1,580 +1,586 @@
-# Actor
 templates:
-  - name: .prettierrc
-    pathExpression: >
-      '.prettierrc'
+  - name: actor/.prettierrc
+    pathExpression: "'.prettierrc'"
     templateName: actor/.prettierrc
+    applicationBased: true
     copy: true
 
-  - name: .npmrc
-    pathExpression: >
-        '.npmrc'
+  - name: actor/.npmrc
+    pathExpression: "'.npmrc'"
     templateName: actor/.npmrc
+    applicationBased: true
     copy: true
 
-  - name: gitignore
-    pathExpression: >
-      '.gitignore'
+  - name: actor/gitignore
+    pathExpression: "'.gitignore'"
     templateName: actor/gitignore
+    applicationBased: true
     copy: true
 
-  - name: package.json.hbs
-    pathExpression: >
-      'package.json'
+  - name: actor/package.json
+    pathExpression: "'package.json'"
     templateName: actor/package.json.hbs
+    applicationBased: true
 
-  - name: pnpm-lock.yaml
-    pathExpression: >
-      'pnpm-lock.yaml'
+  - name: actor/pnpm-lock.yaml
+    pathExpression: "'pnpm-lock.yaml'"
     templateName: actor/pnpm-lock.yaml
+    applicationBased: true
     copy: true
 
-  - name: package.json.hbs
-    pathExpression: >
-      'package.json'
-    templateName: actor/package.json.hbs
-
-  - name: .nvmrc.hbs
-    pathExpression: >
-      '.nvmrc'
+  - name: actor/.nvmrc
+    pathExpression: "'.nvmrc'"
     templateName: actor/.nvmrc.hbs
+    applicationBased: true
 
-  - name: tsconfig.json
-    pathExpression: >
-      'tsconfig.json'
+  - name: actor/tsconfig.json
+    pathExpression: "'tsconfig.json'"
     templateName: actor/tsconfig.json
+    applicationBased: true
     copy: true
 
-  - name: tsconfig.node.json
-    pathExpression: >
-      'tsconfig.node.json'
+  - name: actor/tsconfig.node.json
+    pathExpression: "'tsconfig.node.json'"
     templateName: actor/tsconfig.node.json
+    applicationBased: true
     copy: true
 
-  - name:
-    pathExpression: >
-      'rollup.config.mjs'
+  - name: actor/rollup.config.mjs
+    pathExpression: "'rollup.config.mjs'"
     templateName: actor/rollup.config.mjs.hbs
+    applicationBased: true
 
-  - name:
-    pathExpression: >
-      'serve.json'
+  - name: actor/serve.json
+    pathExpression: "'serve.json'"
     templateName: actor/serve.json.hbs
+    applicationBased: true
     copy: true
 
-    # Actor - rollup
+  # Actor - rollup
 
-  - name: rollup/utils.js
-    pathExpression: >
-      'rollup/utils.js'
+  - name: actor/rollup/utils.js
+    pathExpression: "'rollup/utils.js'"
     templateName: actor/rollup/utils.js
+    applicationBased: true
     copy: true
 
-    # Actor - public
+  # Actor - public
 
-  - name: public/index.html.hbs
-    pathExpression: >
-      'public/index.html'
+  - name: actor/public/index.html
+    pathExpression: "'public/index.html'"
     templateName: actor/public/index.html.hbs
+    applicationBased: true
 
-  - name: public/map.json
-    pathExpression: >
-      'public/map.json'
+  - name: actor/public/map.json
+    pathExpression: "'public/map.json'"
     templateName: actor/public/map.json
+    applicationBased: true
     copy: true
 
-  - name: public/favicon.ico
-    pathExpression: >
-      'public/favicon.ico'
+  - name: actor/public/favicon.ico
+    pathExpression: "'public/favicon.ico'"
     templateName: actor/public/favicon.ico
+    applicationBased: true
     copy: true
 
-  - name: public/judo-color-logo.png
-    pathExpression: >
-      'public/judo-color-logo.png'
+  - name: actor/public/judo-color-logo.png
+    pathExpression: "'public/judo-color-logo.png'"
     templateName: actor/public/judo-color-logo.png
+    applicationBased: true
     copy: true
 
-  - name: public/logo192.png
-    pathExpression: >
-      'public/logo192.png'
+  - name: actor/public/logo192.png
+    pathExpression: "'public/logo192.png'"
     templateName: actor/public/logo192.png
+    applicationBased: true
     copy: true
 
-  - name: public/logo512.png
-    pathExpression: >
-      'public/logo512.png'
+  - name: actor/public/logo512.png
+    pathExpression: "'public/logo512.png'"
     templateName: actor/public/logo512.png
+    applicationBased: true
     copy: true
 
-  - name: public/ninja.png
-    pathExpression: >
-      'public/ninja.png'
+  - name: actor/public/ninja.png
+    pathExpression: "'public/ninja.png'"
     templateName: actor/public/ninja.png
+    applicationBased: true
     copy: true
 
-  - name: public/robots.txt
-    pathExpression: >
-      'public/robots.txt'
+  - name: actor/public/robots.txt
+    pathExpression: "'public/robots.txt'"
     templateName: actor/public/robots.txt
+    applicationBased: true
     copy: true
 
-  - name: public/i18n/application_default.json.hbs
-    pathExpression: >
-      'public/i18n/application_default.json'
+  - name: actor/public/i18n/application_default.json
+    pathExpression: "'public/i18n/application_default.json'"
     templateName: actor/public/i18n/application_default.json.hbs
+    applicationBased: true
     templateContext:
       - name: application
         expression: "#application"
 
-  - name: public/i18n/application_default.json.hbs
-    pathExpression: >
-      'public/i18n/application_' + #getDefaultLanguage(#defaultLanguage) + '.json'
+  - name: actor/public/i18n/application_default.json
+    pathExpression: "'public/i18n/application_' + #getDefaultLanguage(#defaultLanguage) + '.json'"
     templateName: actor/public/i18n/application_default.json.hbs
+    applicationBased: true
     templateContext:
       - name: application
         expression: "#application"
 
-  - name: public/i18n/system_default.json.hbs
-    pathExpression: >
-      'public/i18n/system_default.json'
+  - name: actor/public/i18n/system_default.json
+    pathExpression: "'public/i18n/system_default.json'"
     templateName: actor/public/i18n/system_default.json.hbs
+    applicationBased: true
     templateContext:
       - name: application
         expression: "#application"
 
-  - name: public/i18n/system_en-US.json.hbs
-    pathExpression: >
-      'public/i18n/system_en-US.json'
+  - name: actor/public/i18n/system_en-US.json
+    pathExpression: "'public/i18n/system_en-US.json'"
     templateName: actor/public/i18n/system_en-US.json.hbs
+    applicationBased: true
     templateContext:
       - name: application
         expression: "#application"
 
-  - name: public/i18n/system_hu-HU.json.hbs
-    pathExpression: >
-      'public/i18n/system_hu-HU.json'
+  - name: actor/public/i18n/system_hu-HU.json
+    pathExpression: "'public/i18n/system_hu-HU.json'"
     templateName: actor/public/i18n/system_hu-HU.json.hbs
+    applicationBased: true
     templateContext:
       - name: application
         expression: "#application"
 
-  - name: public/manifest.json.hbs
-    pathExpression: >
-      'public/manifest.json'
+  - name: actor/public/manifest.json
+    pathExpression: "'public/manifest.json'"
     templateName: actor/public/manifest.json.hbs
+    applicationBased: true
 
-    # Actor - src
+  # Actor - src
 
-  - name: src/App.tsx.hbs
-    pathExpression: >
-      'src/App.tsx'
+  - name: actor/src/App.tsx
+    pathExpression: "'src/App.tsx'"
     templateName: actor/src/App.tsx.hbs
+    applicationBased: true
 
-  - name: src/menu-items.tsx.hbs
-    pathExpression: >
-      'src/menu-items.tsx'
+  - name: actor/src/menu-items.tsx
+    pathExpression: "'src/menu-items.tsx'"
     templateName: actor/src/menu-items.tsx.hbs
+    applicationBased: true
 
-  - name: src/routes.tsx.hbs
-    pathExpression: >
-      'src/routes.tsx'
+  - name: actor/src/routes.tsx
+    pathExpression: "'src/routes.tsx'"
     templateName: actor/src/routes.tsx.hbs
+    applicationBased: true
 
-  - name: src/main.tsx.hbs
-    pathExpression: >
-      'src/main.tsx'
+  - name: actor/src/main.tsx
+    pathExpression: "'src/main.tsx'"
     templateName: actor/src/main.tsx.hbs
+    applicationBased: true
 
-    # Actor - src - hooks
+  # Actor - src - hooks
 
-  - name: src/hooks/index.ts.hbs
-    pathExpression: >
-      'src/hooks/index.ts'
+  - name: actor/src/hooks/index.ts
+    pathExpression: "'src/hooks/index.ts'"
     templateName: actor/src/hooks/index.ts.hbs
+    applicationBased: true
 
-  - name: src/hooks/useHeroProps.ts.hbs
-    pathExpression: >
-      'src/hooks/useHeroProps.ts'
+  - name: actor/src/hooks/useHeroProps.ts
+    pathExpression: "'src/hooks/useHeroProps.ts'"
     templateName: actor/src/hooks/useHeroProps.ts.hbs
+    applicationBased: true
 
-  - name: src/hooks/useLogoProps.ts.hbs
-    pathExpression: >
-      'src/hooks/useLogoProps.ts'
+  - name: actor/src/hooks/useLogoProps.ts
+    pathExpression: "'src/hooks/useLogoProps.ts'"
     templateName: actor/src/hooks/useLogoProps.ts.hbs
+    applicationBased: true
 
-    # Actor - src - config
+  # Actor - src - config
 
-  - name: src/config/index.ts.hbs
-    pathExpression: >
-      'src/config/index.ts'
+  - name: actor/src/config/index.ts
+    pathExpression: "'src/config/index.ts'"
     templateName: actor/src/config/index.ts.hbs
+    applicationBased: true
 
-  - name: src/config/general.ts.hbs
-    pathExpression: >
-      'src/config/general.ts'
+  - name: actor/src/config/general.ts
+    pathExpression: "'src/config/general.ts'"
     templateName: actor/src/config/general.ts.hbs
+    applicationBased: true
 
-  - name: src/config/table.ts.hbs
-    pathExpression: >
-      'src/config/table.ts'
+  - name: actor/src/config/table.ts
+    pathExpression: "'src/config/table.ts'"
     templateName: actor/src/config/table.ts.hbs
+    applicationBased: true
 
-  - name: src/config/layout.ts.hbs
-    pathExpression: >
-      'src/config/layout.ts'
+  - name: actor/src/config/layout.ts
+    pathExpression: "'src/config/layout.ts'"
     templateName: actor/src/config/layout.ts.hbs
+    applicationBased: true
 
-    # Actor - src - auth
+  # Actor - src - auth
 
-  - name: index.tsx.hbs
-    pathExpression: >
-      'src/auth/index.tsx'
+  - name: actor/src/auth/index.tsx
+    pathExpression: "'src/auth/index.tsx'"
     templateName: actor/src/auth/index.tsx.hbs
+    applicationBased: true
 
-  - name: constants.ts.hbs
-    pathExpression: >
-      'src/auth/constants.ts'
+  - name: actor/src/auth/constants.t
+    pathExpression: "'src/auth/constants.ts'"
     templateName: actor/src/auth/constants.ts.hbs
+    applicationBased: true
 
-  - name: Auth.tsx.hbs
-    pathExpression: >
-      'src/auth/Auth.tsx'
+  - name: actor/src/auth/Auth.tsx
+    pathExpression: "'src/auth/Auth.tsx'"
     templateName: actor/src/auth/Auth.tsx.hbs
+    applicationBased: true
 
-  - name: axiosInterceptor.ts.hbs
-    pathExpression: >
-      'src/auth/axiosInterceptor.ts'
+  - name: actor/src/auth/axiosInterceptor.ts
+    pathExpression: "'src/auth/axiosInterceptor.ts'"
     templateName: actor/src/auth/axiosInterceptor.ts.hbs
+    applicationBased: true
 
-  - name: principal-context.tsx.hbs
-    pathExpression: >
-      'src/auth/principal-context.tsx'
+  - name: actor/src/auth/principal-context.tsx
+    pathExpression: "'src/auth/principal-context.tsx'"
     templateName: actor/src/auth/principal-context.tsx.hbs
+    applicationBased: true
 
-    # Actor - src - components
+  # Actor - src - components
 
-  - name: ConfirmationDialog.tsx.hbs
-    pathExpression: >
-      'src/components/dialog/ConfirmationDialog.tsx'
+  - name: actor/src/components/dialog/ConfirmationDialog.tsx
+    pathExpression: "'src/components/dialog/ConfirmationDialog.tsx'"
     templateName: actor/src/components/dialog/ConfirmationDialog.tsx.hbs
+    applicationBased: true
 
-  - name: DialogProvider.tsx.hbs
-    pathExpression: >
-      'src/components/dialog/DialogProvider.tsx'
+  - name: actor/src/components/dialog/DialogProvider.tsx
+    pathExpression: "'src/components/dialog/DialogProvider.tsx'"
     templateName: actor/src/components/dialog/DialogProvider.tsx.hbs
+    applicationBased: true
 
-  - name: FilterDialog.tsx.hbs
-    pathExpression: >
-      'src/components/dialog/FilterDialog.tsx'
+  - name: actor/src/components/dialog/FilterDialog.tsx
+    pathExpression: "'src/components/dialog/FilterDialog.tsx'"
     templateName: actor/src/components/dialog/FilterDialog.tsx.hbs
+    applicationBased: true
 
-  - name: hooks.tsx.hbs
-    pathExpression: >
-      'src/components/dialog/hooks.tsx'
+  - name: actor/src/components/dialog/hooks.tsx
+    pathExpression: "'src/components/dialog/hooks.tsx'"
     templateName: actor/src/components/dialog/hooks.tsx.hbs
+    applicationBased: true
 
-  - name: index.tsx.hbs
-    pathExpression: >
-      'src/components/dialog/index.tsx'
+  - name: actor/src/components/dialog/index.tsx
+    pathExpression: "'src/components/dialog/index.tsx'"
     templateName: actor/src/components/dialog/index.tsx.hbs
+    applicationBased: true
 
-  - name: PageDialog.tsx.hbs
-    pathExpression: >
-      'src/components/dialog/PageDialog.tsx'
+  - name: actor/src/components/dialog/PageDialog.tsx
+    pathExpression: "'src/components/dialog/PageDialog.tsx'"
     templateName: actor/src/components/dialog/PageDialog.tsx.hbs
+    applicationBased: true
 
-  - name: RangeDialog.tsx.hbs
-    pathExpression: >
-      'src/components/dialog/RangeDialog.tsx'
+  - name: actor/src/components/dialog/RangeDialog.tsx
+    pathExpression: "'src/components/dialog/RangeDialog.tsx'"
     templateName: actor/src/components/dialog/RangeDialog.tsx.hbs
+    applicationBased: true
 
-  - name: index.tsx.hbs
-    pathExpression: >
-      'src/components/table/index.tsx'
+  - name: actor/src/components/table/index.tsx
+    pathExpression: "'src/components/table/index.tsx'"
     templateName: actor/src/components/table/index.tsx.hbs
+    applicationBased: true
 
-  - name: table-row-actions.tsx.hbs
-    pathExpression: >
-      'src/components/table/table-row-actions.tsx'
+  - name: actor/src/components/table/table-row-actions.tsx
+    pathExpression: "'src/components/table/table-row-actions.tsx'"
     templateName: actor/src/components/table/table-row-actions.tsx.hbs
+    applicationBased: true
 
-  - name: AggregationInput.tsx.hbs
-    pathExpression: >
-      'src/components/AggregationInput.tsx'
+  - name: actor/src/components/AggregationInput.tsx
+    pathExpression: "'src/components/AggregationInput.tsx'"
     templateName: actor/src/components/AggregationInput.tsx.hbs
+    applicationBased: true
 
-  - name: CustomBreadcrumb.tsx.hbs
-    pathExpression: >
-      'src/components/CustomBreadcrumb.tsx'
+  - name: actor/src/components/ApplicationSelector.tsx
+    pathExpression: "'src/components/ApplicationSelector.tsx'"
+    templateName: actor/src/components/ApplicationSelector.tsx.hbs
+    applicationBased: true
+
+  - name: actor/src/components/CustomBreadcrumb.tsx
+    pathExpression: "'src/components/CustomBreadcrumb.tsx'"
     templateName: actor/src/components/CustomBreadcrumb.tsx.hbs
+    applicationBased: true
 
-  - name: CustomTablePagination.tsx.hbs
-    pathExpression: >
-      'src/components/CustomTablePagination.tsx'
+  - name: actor/src/components/CustomTablePagination.tsx
+    pathExpression: "'src/components/CustomTablePagination.tsx'"
     templateName: actor/src/components/CustomTablePagination.tsx.hbs
+    applicationBased: true
 
-  - name: DropdownButton.tsx.hbs
-    pathExpression: >
-      'src/components/DropdownButton.tsx'
+  - name: actor/src/components/DropdownButton.tsx
+    pathExpression: "'src/components/DropdownButton.tsx'"
     templateName: actor/src/components/DropdownButton.tsx.hbs
+    applicationBased: true
 
-  - name: Hero.tsx.hbs
-    pathExpression: >
-      'src/components/Hero.tsx'
+  - name: actor/src/components/Hero.tsx
+    pathExpression: "'src/components/Hero.tsx'"
     templateName: actor/src/components/Hero.tsx.hbs
+    applicationBased: true
 
-  - name: index.tsx.hbs
-    pathExpression: >
-      'src/components/index.tsx'
+  - name: actor/src/components/index.tsx
+    pathExpression: "'src/components/index.tsx'"
     templateName: actor/src/components/index.tsx.hbs
+    applicationBased: true
 
-  - name: Logo.tsx.hbs
-    pathExpression: >
-      'src/components/Logo.tsx'
+  - name: actor/src/components/Logo.tsx
+    pathExpression: "'src/components/Logo.tsx'"
     templateName: actor/src/components/Logo.tsx.hbs
+    applicationBased: true
 
-  - name: MdiIcon.tsx.hbs
-    pathExpression: >
-      'src/components/MdiIcon.tsx'
+  - name: actor/src/components/MdiIcon.tsx
+    pathExpression: "'src/components/MdiIcon.tsx'"
     templateName: actor/src/components/MdiIcon.tsx.hbs
+    applicationBased: true
 
-  - name: ModeledTabs.tsx.hbs
-    pathExpression: >
-      'src/components/ModeledTabs.tsx'
+  - name: actor/src/components/ModeledTabs.tsx
+    pathExpression: "'src/components/ModeledTabs.tsx'"
     templateName: actor/src/components/ModeledTabs.tsx.hbs
+    applicationBased: true
 
-  - name: PageHeader.tsx.hbs
-    pathExpression: >
-      'src/components/PageHeader.tsx'
+  - name: actor/src/components/PageHeader.tsx
+    pathExpression: "'src/components/PageHeader.tsx'"
     templateName: actor/src/components/PageHeader.tsx.hbs
+    applicationBased: true
 
-  - name: SnackProvider.tsx.hbs
-    pathExpression: >
-      'src/components/SnackProvider.tsx'
+  - name: actor/src/components/SnackProvider.tsx
+    pathExpression: "'src/components/SnackProvider.tsx'"
     templateName: actor/src/components/SnackProvider.tsx.hbs
+    applicationBased: true
 
-  - name: StackableDialogProvider.tsx.hbs
-    pathExpression: >
-      'src/components/StackableDialogProvider.tsx'
+  - name: actor/src/components/StackableDialogProvider.tsx
+    pathExpression: "'src/components/StackableDialogProvider.tsx'"
     templateName: actor/src/components/StackableDialogProvider.tsx.hbs
+    applicationBased: true
 
-  - name: TrinaryLogicCombobox.tsx.hbs
-    pathExpression: >
-      'src/components/TrinaryLogicCombobox.tsx'
+  - name: actor/src/components/TrinaryLogicCombobox.tsx
+    pathExpression: "'src/components/TrinaryLogicCombobox.tsx'"
     templateName: actor/src/components/TrinaryLogicCombobox.tsx.hbs
+    applicationBased: true
 
-    # Actor - src - components-api
+  # Actor - src - components-api
 
-  - name: Action.ts.hbs
-    pathExpression: >
-      'src/components-api/components/Action.ts'
+  - name: actor/src/components-api/components/Action.ts
+    pathExpression: "'src/components-api/components/Action.ts'"
     templateName: actor/src/components-api/components/Action.ts.hbs
+    applicationBased: true
 
-  - name: ActionGroup.ts.hbs
-    pathExpression: >
-      'src/components-api/components/ActionGroup.ts'
+  - name: actor/src/components-api/components/ActionGroup.ts
+    pathExpression: "'src/components-api/components/ActionGroup.ts'"
     templateName: actor/src/components-api/components/ActionGroup.ts.hbs
+    applicationBased: true
 
-  - name: Button.ts.hbs
-    pathExpression: >
-      'src/components-api/components/Button.ts'
+  - name: actor/src/components-api/components/Button.ts
+    pathExpression: "'src/components-api/components/Button.ts'"
     templateName: actor/src/components-api/components/Button.ts.hbs
+    applicationBased: true
 
-  - name: Hero.ts.hbs
-    pathExpression: >
-      'src/components-api/components/Hero.ts'
+  - name: actor/src/components-api/components/Hero.ts
+    pathExpression: "'src/components-api/components/Hero.ts'"
     templateName: actor/src/components-api/components/Hero.ts.hbs
+    applicationBased: true
 
-  - name: index.ts.hbs
-    pathExpression: >
-      'src/components-api/components/index.ts'
+  - name: actor/src/components-api/components/index.ts
+    pathExpression: "'src/components-api/components/index.ts'"
     templateName: actor/src/components-api/components/index.ts.hbs
+    applicationBased: true
 
-  - name: LabeledElement.ts.hbs
-    pathExpression: >
-      'src/components-api/components/LabeledElement.ts'
+  - name: actor/src/components-api/components/LabeledElement.ts
+    pathExpression: "'src/components-api/components/LabeledElement.ts'"
     templateName: actor/src/components-api/components/LabeledElement.ts.hbs
+    applicationBased: true
 
-  - name: Logo.ts.hbs
-    pathExpression: >
-      'src/components-api/components/Logo.ts'
+  - name: actor/src/components-api/components/Logo.ts
+    pathExpression: "'src/components-api/components/Logo.ts'"
     templateName: actor/src/components-api/components/Logo.ts.hbs
+    applicationBased: true
 
-  - name: MenuTree.ts.hbs
-    pathExpression: >
-      'src/components-api/components/MenuTree.ts'
+  - name: actor/src/components-api/components/MenuTree.ts
+    pathExpression: "'src/components-api/components/MenuTree.ts'"
     templateName: actor/src/components-api/components/MenuTree.ts.hbs
+    applicationBased: true
 
-  - name: NamedElement.ts.hbs
-    pathExpression: >
-      'src/components-api/components/NamedElement.ts'
+  - name: actor/src/components-api/components/NamedElement.ts
+    pathExpression: "'src/components-api/components/NamedElement.ts'"
     templateName: actor/src/components-api/components/NamedElement.ts.hbs
+    applicationBased: true
 
-  - name: ReferenceTypedVisualElement.ts.hbs
-    pathExpression: >
-      'src/components-api/components/ReferenceTypedVisualElement.ts'
+  - name: actor/src/components-api/components/ReferenceTypedVisualElement.ts
+    pathExpression: "'src/components-api/components/ReferenceTypedVisualElement.ts'"
     templateName: actor/src/components-api/components/ReferenceTypedVisualElement.ts.hbs
+    applicationBased: true
 
-  - name: TrinaryLogic.ts.hbs
-    pathExpression: >
-      'src/components-api/components/TrinaryLogic.ts'
+  - name: actor/src/components-api/components/TrinaryLogic.ts
+    pathExpression: "'src/components-api/components/TrinaryLogic.ts'"
     templateName: actor/src/components-api/components/TrinaryLogic.ts.hbs
+    applicationBased: true
 
-  - name: VisualElement.ts.hbs
-    pathExpression: >
-      'src/components-api/components/VisualElement.ts'
+  - name: actor/src/components-api/components/VisualElement.ts
+    pathExpression: "'src/components-api/components/VisualElement.ts'"
     templateName: actor/src/components-api/components/VisualElement.ts.hbs
+    applicationBased: true
 
-  - name: ConfirmationDialog.ts.hbs
-    pathExpression: >
-      'src/components-api/dialog/ConfirmationDialog.ts'
+  - name: actor/src/components-api/dialog/ConfirmationDialog.ts
+    pathExpression: "'src/components-api/dialog/ConfirmationDialog.ts'"
     templateName: actor/src/components-api/dialog/ConfirmationDialog.ts.hbs
+    applicationBased: true
 
-  - name: DialogContext.ts.hbs
-    pathExpression: >
-      'src/components-api/dialog/DialogContext.ts'
+  - name: actor/src/components-api/dialog/DialogContext.ts
+    pathExpression: "'src/components-api/dialog/DialogContext.ts'"
     templateName: actor/src/components-api/dialog/DialogContext.ts.hbs
+    applicationBased: true
 
-  - name: FilterDialog.ts.hbs
-    pathExpression: >
-      'src/components-api/dialog/FilterDialog.ts'
+  - name: actor/src/components-api/dialog/FilterDialog.ts
+    pathExpression: "'src/components-api/dialog/FilterDialog.ts'"
     templateName: actor/src/components-api/dialog/FilterDialog.ts.hbs
+    applicationBased: true
 
-  - name: index.ts.hbs
-    pathExpression: >
-      'src/components-api/dialog/index.ts'
+  - name: actor/src/components-api/dialog/index.ts
+    pathExpression: "'src/components-api/dialog/index.ts'"
     templateName: actor/src/components-api/dialog/index.ts.hbs
+    applicationBased: true
 
-  - name: index.ts.hbs
-    pathExpression: >
-      'src/components-api/index.ts'
+  - name: actor/src/components-api/index.ts
+    pathExpression: "'src/components-api/index.ts'"
     templateName: actor/src/components-api/index.ts.hbs
+    applicationBased: true
 
-    # Actor - src - theme
+  # Actor - src - theme
 
-  - name: extras.ts.hbs
-    pathExpression: >
-      'src/theme/extras.ts'
+  - name: actor/src/theme/extras.ts
+    pathExpression: "'src/theme/extras.ts'"
     templateName: actor/src/theme/extras.ts.hbs
+    applicationBased: true
 
-  - name: application-theme.ts.hbs
-    pathExpression: >
-      'src/theme/application-theme.ts'
+  - name: actor/src/theme/application-theme.ts
+    pathExpression: "'src/theme/application-theme.ts'"
     templateName: actor/src/theme/application-theme.ts.hbs
+    applicationBased: true
 
-  - name: index.ts.hbs
-    pathExpression: >
-      'src/theme/index.ts'
+  - name: actor/src/theme/index.ts
+    pathExpression: "'src/theme/index.ts'"
     templateName: actor/src/theme/index.ts.hbs
+    applicationBased: true
 
-    # Actor - src - utilities
+  # Actor - src - utilities
 
-  - name: error-handling.ts.hbs
-    pathExpression: >
-      'src/utilities/error-handling.ts'
+  - name: actor/src/utilities/change-application.ts
+    pathExpression: "'src/utilities/change-application.ts'"
+    templateName: actor/src/utilities/change-application.ts.hbs
+    applicationBased: true
+
+  - name: actor/src/utilities/error-handling.ts
+    pathExpression: "'src/utilities/error-handling.ts'"
     templateName: actor/src/utilities/error-handling.ts.hbs
+    applicationBased: true
 
-  - name: file-handling.ts.hbs
-    pathExpression: >
-      'src/utilities/file-handling.ts'
+  - name: actor/src/utilities/file-handling.ts
+    pathExpression: "'src/utilities/file-handling.ts'"
     templateName: actor/src/utilities/file-handling.ts.hbs
+    applicationBased: true
 
-  - name: filter-helper.ts.hbs
-    pathExpression: >
-      'src/utilities/filter-helper.ts'
+  - name: actor/src/utilities/filter-helper.ts
+    pathExpression: "'src/utilities/filter-helper.ts'"
     templateName: actor/src/utilities/filter-helper.ts.hbs
+    applicationBased: true
 
-  - name: form-utils.ts.hbs
-    pathExpression: >
-      'src/utilities/form-utils.ts'
+  - name: actor/src/utilities/form-utils.ts
+    pathExpression: "'src/utilities/form-utils.ts'"
     templateName: actor/src/utilities/form-utils.ts.hbs
+    applicationBased: true
 
-  - name: icon-mapping.ts.hbs
-    pathExpression: >
-      'src/utilities/icon-mapping.ts'
+  - name: actor/src/utilities/generate-alternative-applications.ts
+    pathExpression: "'src/utilities/generate-alternative-applications.ts'"
+    templateName: actor/src/utilities/generate-alternative-applications.ts.hbs
+    applicationBased: true
+
+  - name: actor/src/utilities/icon-mapping.ts
+    pathExpression: "'src/utilities/icon-mapping.ts'"
     templateName: actor/src/utilities/icon-mapping.ts.hbs
+    applicationBased: true
 
-  - name: helper.ts.hbs
-    pathExpression: >
-      'src/utilities/helper.ts'
+  - name: actor/src/utilities/helper.ts
+    pathExpression: "'src/utilities/helper.ts'"
     templateName: actor/src/utilities/helper.ts.hbs
+    applicationBased: true
 
-  - name: index.tsx.hbs
-    pathExpression: >
-      'src/utilities/index.tsx'
+  - name: actor/src/utilities/index.tsx
+    pathExpression: "'src/utilities/index.tsx'"
     templateName: actor/src/utilities/index.tsx.hbs
+    applicationBased: true
 
-  - name: interfaces.ts.hbs
-    pathExpression: >
-      'src/utilities/interfaces.ts'
+  - name: actor/src/utilities/interfaces.ts
+    pathExpression: "'src/utilities/interfaces.ts'"
     templateName: actor/src/utilities/interfaces.ts.hbs
+    applicationBased: true
 
-  - name: query-customizer-processor.ts.hbs
-    pathExpression: >
-      'src/utilities/query-customizer-processor.ts'
+  - name: actor/src/utilities/query-customizer-processor.ts
+    pathExpression: "'src/utilities/query-customizer-processor.ts'"
     templateName: actor/src/utilities/query-customizer-processor.ts.hbs
+    applicationBased: true
 
-  - name: table.ts.hbs
-    pathExpression: >
-      'src/utilities/table.ts'
+  - name: actor/src/utilities/table.ts
+    pathExpression: "'src/utilities/table.ts'"
     templateName: actor/src/utilities/table.ts.hbs
+    applicationBased: true
 
-  - name: table-row-actions.tsx.hbs
-    pathExpression: >
-      'src/utilities/table-row-actions.tsx'
+  - name: actor/src/utilities/table-row-actions.tsx
+    pathExpression: "'src/utilities/table-row-actions.tsx'"
     templateName: actor/src/utilities/table-row-actions.tsx.hbs
+    applicationBased: true
 
-    # Actor - src - l10n
 
-  - name: index.ts.hbs
-    pathExpression: >
-      'src/l10n/@mui/x-date-pickers/index.ts'
+  # Actor - src - l10n
+
+  - name: actor/src/l10n/@mui/x-date-pickers/index.ts
+    pathExpression: "'src/l10n/@mui/x-date-pickers/index.ts'"
     templateName: actor/src/l10n/@mui/x-date-pickers/index.ts.hbs
+    applicationBased: true
 
-  - name: huHU.ts.hbs
-    pathExpression: >
-      'src/l10n/@mui/x-date-pickers/huHU.ts'
+  - name: actor/src/l10n/@mui/x-date-pickers/huHU.ts
+    pathExpression: "'src/l10n/@mui/x-date-pickers/huHU.ts'"
     templateName: actor/src/l10n/@mui/x-date-pickers/huHU.ts.hbs
+    applicationBased: true
 
-    # Actor - src - pages
+  # Actor - src - pages
 
-  - name: index.tsx.hbs
-    factoryExpression: >
-      #getPagesForRouting(#application)
-    pathExpression: >
-      #pageIndexPath(#self)
+  - name: actor/src/pages/index.tsx
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "#pageIndexPath(#self)"
     templateName: actor/src/pages/index.tsx.hbs
+    applicationBased: true
     templateContext:
       - name: page
         expression: "#self"
 
-  - name: hooks.tsx.hbs
-    factoryExpression: >
-      #getPagesForRouting(#application)
-    pathExpression: >
-      #pagePath(#self) + 'hooks/use' + #pageName(#self) + '.tsx'
+  - name: actor/src/pages/hooks.tsx
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "#pagePath(#self) + 'hooks/use' + #pageName(#self) + '.tsx'"
     templateName: actor/src/pages/hooks.tsx.hbs
+    applicationBased: true
     templateContext:
       - name: page
         expression: "#self"
 
-  - name: index.tsx.hbs
-    factoryExpression: >
-      #getPagesForRouting(#application)
-    pathExpression: >
-      #actionsIndexPath(#self)
+  - name: actor/src/pages/actions/index.tsx
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "#actionsIndexPath(#self)"
     templateName: actor/src/pages/actions/index.tsx.hbs
+    applicationBased: true
     templateContext:
       - name: page
         expression: "#self"
 
-  - name: action.tsx.hbs
-    factoryExpression: >
-      #getActionsForPages(#application)
-    pathExpression: >
-      #pagePath(#self.value) + 'actions/' + #pageActionPathSuffix(#self.key, #self.value) + '.tsx'
+  - name: actor/src/pages/actions/action.tsx
+    factoryExpression: "#getActionsForPages(#application)"
+    pathExpression: "#pagePath(#self.value) + 'actions/' + #pageActionPathSuffix(#self.key, #self.value) + '.tsx'"
     templateName: actor/src/pages/actions/action.tsx.hbs
+    applicationBased: true
     templateContext:
       - name: kv
         expression: "#self"
@@ -583,14 +589,13 @@ templates:
       - name: page
         expression: "#self.value"
 
-    # Actor - src - pages - action forms
+  # Actor - src - pages - action forms
 
-  - name: actionForm.tsx.hbs
-    factoryExpression: >
-      #getActionFormsForPages(#application)
-    pathExpression: >
-      #pagePath(#self.value) + 'actions/' + #pageActionFormPathSuffix(#self.key, #self.value) + '.tsx'
+  - name: actor/src/pages/actions/actionForm.tsx
+    factoryExpression: "#getActionFormsForPages(#application)"
+    pathExpression: "#pagePath(#self.value) + 'actions/' + #pageActionFormPathSuffix(#self.key, #self.value) + '.tsx'"
     templateName: actor/src/pages/actions/actionForm.tsx.hbs
+    applicationBased: true
     templateContext:
       - name: kv
         expression: "#self"
@@ -599,15 +604,13 @@ templates:
       - name: ownerPage
         expression: "#self.value"
 
-    # Actor - src - pages - unmapped output modal    - name:
+  # Actor - src - pages - unmapped output modals
 
-
-  - name:
-    factoryExpression: >
-      #getUnmappedOutputViewsForPages(#application)
-    pathExpression: >
-      #pagePath(#self.key.outputParameterPage) + '/index.tsx'
+  - name: actor/src/pages/actions/action/call-operation-action/output-view/output-view.tsx
+    factoryExpression: "#getUnmappedOutputViewsForPages(#application)"
+    pathExpression: "#pagePath(#self.key.outputParameterPage) + '/index.tsx'"
     templateName: actor/src/pages/actions/action/call-operation-action/output-view/output-view.tsx.hbs
+    applicationBased: true
     templateContext:
       - name: kv
         expression: "#self"
@@ -618,22 +621,20 @@ templates:
       - name: page
         expression: "#self.key.outputParameterPage"
 
-  - name:
-    factoryExpression: >
-      #getUnmappedOutputViewsForPages(#application)
-    pathExpression: >
-      #pagePath(#self.key.outputParameterPage) + '/actions/index.tsx'
+  - name: actor/src/pages/actions/index.tsx
+    factoryExpression: "#getUnmappedOutputViewsForPages(#application)"
+    pathExpression: "#pagePath(#self.key.outputParameterPage) + '/actions/index.tsx'"
     templateName: actor/src/pages/actions/index.tsx.hbs
+    applicationBased: true
     templateContext:
       - name: page
         expression: "#self.key.outputParameterPage"
 
-  - name:
-    factoryExpression: >
-      #getActionsForOutputPages(#application)
-    pathExpression: >
-      #pagePath(#self.value) + '/actions/' + #pageActionPathSuffix(#self.key, #self.value) + '.tsx'
+  - name: actor/src/pages/actions/action.tsx
+    factoryExpression: "#getActionsForOutputPages(#application)"
+    pathExpression: "#pagePath(#self.value) + '/actions/' + #pageActionPathSuffix(#self.key, #self.value) + '.tsx'"
     templateName: actor/src/pages/actions/action.tsx.hbs
+    applicationBased: true
     templateContext:
       - name: kv
         expression: "#self"
@@ -642,29 +643,29 @@ templates:
       - name: page
         expression: "#self.value"
 
-    # Actor - src - layout
+  # Actor - src - layout
 
-  - name: Footer.tsx.hbs
-    pathExpression: >
-      'src/layout/Footer.tsx'
+  - name: actor/src/layout/Footer.tsx
+    pathExpression: "'src/layout/Footer.tsx'"
     templateName: actor/src/layout/Footer.tsx.hbs
+    applicationBased: true
 
-  - name: Header.tsx.hbs
-    pathExpression: >
-      'src/layout/Header.tsx'
+  - name: actor/src/layout/Header.tsx
+    pathExpression: "'src/layout/Header.tsx'"
     templateName: actor/src/layout/Header.tsx.hbs
+    applicationBased: true
 
-  - name: index.tsx.hbs
-    pathExpression: >
-      'src/layout/index.tsx'
+  - name: actor/src/layout/index.tsx
+    pathExpression: "'src/layout/index.tsx'"
     templateName: actor/src/layout/index.tsx.hbs
+    applicationBased: true
 
-  - name: Layout.tsx.hbs
-    pathExpression: >
-      'src/layout/Layout.tsx'
+  - name: actor/src/layout/Layout.tsx
+    pathExpression: "'src/layout/Layout.tsx'"
     templateName: actor/src/layout/Layout.tsx.hbs
+    applicationBased: true
 
-  - name: Navigator.tsx.hbs
-    pathExpression: >
-      'src/layout/Navigator.tsx'
+  - name: actor/src/layout/Navigator.tsx
+    pathExpression: "'src/layout/Navigator.tsx'"
     templateName: actor/src/layout/Navigator.tsx.hbs
+    applicationBased: true

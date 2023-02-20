@@ -97,6 +97,7 @@ public class UiPageHelper extends Helper {
     public static List<PageDefinition> getPagesForRouting(Application application) {
         return application.getPages().stream()
                 .filter(UiPageHelper::keepPageType)
+                .sorted(Comparator.comparing(NamedElement::getFQName))
                 .collect(Collectors.toList());
     }
 
@@ -410,7 +411,7 @@ public class UiPageHelper extends Helper {
     }
 
     public static VisualElement firstViewChildForContainer(PageContainer container) {
-        return container.getChildren()
+        Optional<VisualElement> element = container.getChildren()
                 .stream()
                 .filter(c -> {
                     if (c instanceof Flex) {
@@ -418,7 +419,17 @@ public class UiPageHelper extends Helper {
                     }
                     return false;
                 })
-                .findFirst()
-                .get();
+                .findFirst();
+        return element.orElse(null);
+    }
+
+    public static VisualElement getDataContainerForPage(PageDefinition pageDefinition) {
+        PageContainer defaultContainer = pageDefinition.getContainers().get(0);
+
+        if (defaultContainer != null) {
+            return firstViewChildForContainer(defaultContainer);
+        }
+
+        return null;
     }
 }

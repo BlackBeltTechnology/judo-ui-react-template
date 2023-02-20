@@ -1,7 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // G E N E R A T E D    S O U R C E
 // ------------------------------
-// Factory expression: {{{ cleanup template.factoryExpression }}}
 // Path expression: {{{ cleanup template.pathExpression }}}
 // Template name: {{ template.templateName }}
 // Action name: {{ action.name }}
@@ -26,6 +25,7 @@ import {
     MenuItem,
     Typography,
     Card,
+    CardContent,
 } from '@mui/material';
 import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
 import { DataGrid, GridRowId, GridSortModel, GridSelectionModel, GridToolbarContainer, GridRenderCellParams, GridRowParams, GridColDef } from '@mui/x-data-grid';
@@ -102,7 +102,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
     {{/ each }}
 
     return (
-        {{# with (firstViewChildForContainer page.containers.[0]) as |rootChild| }}
+        {{# with (getDataContainerForPage page) as |rootChild| }}
             <>
                 <DialogTitle>
                     {title}
@@ -120,7 +120,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
                     </IconButton>
                 </DialogTitle>
                 <DialogContent dividers>
-                    <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}">
+                    <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                         {{# each rootChild.children as |child| }}
                             {{# unless (excludeWidgetFromTree child) }}
                                 {{> (getWidgetTemplate child) }}

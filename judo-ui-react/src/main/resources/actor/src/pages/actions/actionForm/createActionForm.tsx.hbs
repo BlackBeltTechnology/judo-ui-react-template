@@ -18,7 +18,11 @@ import {
     MenuItem,
     Typography,
     Card,
+    CardContent,
     Divider,
+    RadioGroup,
+    FormControlLabel,
+    Radio,
 } from '@mui/material';
 import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
 import { DataGrid, GridRowId, GridSortModel, GridSortItem, GridToolbarContainer, GridRenderCellParams, GridRowParams, GridColDef } from '@mui/x-data-grid';
@@ -138,7 +142,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '{
         };
 
         return (
-            {{# with action.target.containers.[0].children.[0] as |rootChild| }}
+            {{# with (getDataContainerForPage action.target) as |rootChild| }}
                 <>
                     <DialogTitle>
                         {title}
@@ -156,7 +160,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '{
                         </IconButton>
                     </DialogTitle>
                     <DialogContent dividers>
-                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}">
+                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                             {{# each rootChild.children as |child| }}
                                 {{> (getWidgetTemplate child) }}
                             {{/ each }}

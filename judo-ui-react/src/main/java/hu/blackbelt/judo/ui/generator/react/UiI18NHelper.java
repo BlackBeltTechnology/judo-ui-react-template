@@ -163,7 +163,7 @@ public class UiI18NHelper extends Helper {
 
                 if (page.getIsPageTypeOperationOutput()) {
                     // OperationOutput pages ar special, because page containers behave differently
-                    VisualElement root = firstViewChildForContainer(page.getContainers().get(0));
+                    VisualElement root = getDataContainerForPage(page);
 
                     if (root != null) {
                         addTranslationForVisualElement(root, translations, application);
@@ -223,7 +223,7 @@ public class UiI18NHelper extends Helper {
             }
 
             // OperationOutput pages ar special, because page containers behave differently
-            VisualElement root = firstViewChildForContainer(page.getContainers().get(0));
+            VisualElement root = getDataContainerForPage(page);
 
             if (root != null) {
                 addTranslationForVisualElement(root, translations, application);

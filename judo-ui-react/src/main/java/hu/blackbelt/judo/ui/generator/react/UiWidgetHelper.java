@@ -6,6 +6,7 @@ import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Log
@@ -134,14 +135,15 @@ public class UiWidgetHelper extends Helper {
 
     public static String alignItems(Flex flex) {
         CrossAxisAlignment alignment = flex.getCrossAxisAlignment();
+        Stretch stretch = flex.getStretch();
 
-        if (flex.getIsDirectionVertical()) {
+        if (stretch.equals(Stretch.BOTH) || stretch.equals(Stretch.HORIZONTAL)) {
             return "stretch";
         }
 
         switch (alignment) {
-            case START:
-                return "flex-start";
+            case CENTER:
+                return "center";
             case END:
                 return "flex-end";
             case BASELINE:
@@ -149,7 +151,7 @@ public class UiWidgetHelper extends Helper {
             case STRETCH:
                 return "stretch";
             default:
-                return "center";
+                return "flex-start";
         }
     }
 

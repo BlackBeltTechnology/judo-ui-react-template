@@ -1,5 +1,5 @@
-{{# if child.hiddenBy }}( !data.{{ child.hiddenBy.name }} && {{/ if }}
-<Grid item {{# unless (isParentDirectionColumn child) }}xs={12}{{/ unless }} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     <AggregationInput
         name="{{ child.dataElement.name }}"
         id="{{ getXMIID child }}"
@@ -60,4 +60,4 @@
         {{/ each }}
     />
 </Grid>
-{{# if child.hiddenBy }}){{/ if }}
+{{# if child.hiddenBy }} } {{/ if }}

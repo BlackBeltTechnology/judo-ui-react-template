@@ -1,14 +1,19 @@
 ///////////////////////////////////////////////////////////////////////////////
 // G E N E R A T E D    S O U R C E
 // ------------------------------
-// Factory expression: {{{ cleanup template.factoryExpression }}}
 // Path expression: {{{ cleanup template.pathExpression }}}
 // Template name: {{ template.templateName }}
 
 import { Box, Typography } from '@mui/material';
+import { useTranslation } from 'react-i18next';
 import type { LogoProps } from '../components-api';
+{{# if (otherApplicationsAvailable application applications) }}
+    import { ApplicationSelector } from './ApplicationSelector';
+{{/ if }}
 
 export function Logo(props: LogoProps) {
+  const { t } = useTranslation();
+
   return (
     <Box
       sx={ {
@@ -25,14 +30,13 @@ export function Logo(props: LogoProps) {
           width: '100%',
         } }
       />
-      <Typography
-        sx={ {
-          fontSize: 18,
-          fontWeight: 'bold',
-        } }
-      >
-        {props.subTitle}
-      </Typography>
+      <div style={ { width: '100%', margin: '16px 0 0', textAlign: 'center' } }>
+        {{# unless (otherApplicationsAvailable application applications) }}
+          <Typography sx={ { fontWeight: 'bold' } }>{ t('applications.{{ application.actor.simpleName }}', { defaultValue: '{{ application.actor.simpleName }}' }) as string }</Typography>
+        {{ else }}
+          <ApplicationSelector />
+        {{/ unless }}
+      </div>
     </Box>
   );
 }

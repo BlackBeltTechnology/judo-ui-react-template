@@ -1,6 +1,5 @@
 package hu.blackbelt.judo.ui.generator.react;
 
-import hu.blackbelt.judo.generator.commons.StaticMethodValueResolver;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
@@ -11,9 +10,11 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
+
 @Log
 @TemplateHelper
-public class UiActionsHelper extends StaticMethodValueResolver {
+public class UiActionsHelper {
 
     public static String actionFunctionName(Action action, PageDefinition page) {
         String tmp = pageActionPathSuffix(action, page);
@@ -42,7 +43,7 @@ public class UiActionsHelper extends StaticMethodValueResolver {
 
         if (action instanceof CallOperationAction) {
             if (!action.getDataElement().getOwner().getName().equals(page.getDataElement().getOwner().getName())) {
-                String targetClassName = Helper.getClassName((ClassType) action.getDataElement().getOwner());
+                String targetClassName = getClassName((ClassType) action.getDataElement().getOwner());
                 first = targetClassName + StringUtils.capitalize(first);
                 return StringUtils.uncapitalize(targetClassName) + "/" + StringUtils.capitalize(first);
             }
@@ -79,12 +80,12 @@ public class UiActionsHelper extends StaticMethodValueResolver {
     public static String pageActionFormComponentName(Action action, PageDefinition page) {
         String full = pageActionFormPathSuffix(action, page);
 
-        return Helper.cutAtLastSlash(full);
+        return cutAtLastSlash(full);
     }
 
     public static String relativePathToPageActionOutputViewComponent(Action action, PageDefinition page) {
-        String pageTypePath = UiPageHelper.getPageTypePath(((CallOperationAction) action).getOutputParameterPage());
-        String full = Helper.removeTrailingSlash(pageTypePath);
+        String pageTypePath = getPageTypePath(((CallOperationAction) action).getOutputParameterPage());
+        String full = removeTrailingSlash(pageTypePath);
         String root = relativePathFromAction(page, action, full);
 
         // Both input forms and output modals are placed under `pages` therefore we can skip the first jump up
@@ -94,9 +95,9 @@ public class UiActionsHelper extends StaticMethodValueResolver {
 
     public static List<KeyValue<Action, PageDefinition>> getActionsForPages(Application application) {
         List<KeyValue<Action, PageDefinition>> actions = new ArrayList<>();
-        UiPageHelper.getPagesForRouting(application)
+        getPagesForRouting(application)
                 .forEach(p -> {
-                    UiPageHelper.getUniquePageActions(p).forEach(a -> {
+                    getUniquePageActions(p).forEach(a -> {
                         KeyValue<Action, PageDefinition> kv = new KeyValue<>();
                         kv.setKey(a);
                         kv.setValue(p);
@@ -112,7 +113,7 @@ public class UiActionsHelper extends StaticMethodValueResolver {
         getUnmappedOutputViewsForPages(application)
                 .forEach(p -> {
                     CallOperationAction action = (CallOperationAction) p.getKey();
-                    UiPageHelper.getUniquePageActions(action.getOutputParameterPage()).forEach(a -> {
+                    getUniquePageActions(action.getOutputParameterPage()).forEach(a -> {
                         KeyValue<Action, PageDefinition> kv = new KeyValue<>();
                         kv.setKey(a);
                         kv.setValue(action.getOutputParameterPage());
@@ -134,7 +135,7 @@ public class UiActionsHelper extends StaticMethodValueResolver {
     }
 
     public static String actionsPath(PageDefinition page) {
-        String base = UiPageHelper.pagesFolderPath(((Application)page.eContainer()).getActor()).concat(UiPageHelper.getPageTypePath(page));
+        String base = pagesFolderPath(((Application)page.eContainer()).getActor()).concat(getPageTypePath(page));
         return base.concat(base.endsWith("/") ? "" : "/").concat("actions");
     }
 
@@ -159,14 +160,14 @@ public class UiActionsHelper extends StaticMethodValueResolver {
             CallOperationAction callOperationAction = (CallOperationAction) action;
 
             if (callOperationAction.getOutputParameterPage() != null) {
-                return !UiPageHelper.isPageRefreshable(callOperationAction.getOutputParameterPage());
+                return !isPageRefreshable(callOperationAction.getOutputParameterPage());
             }
         }
         return false;
     }
 
     public static String relativePathFromAction(PageDefinition page, Action action, String suffix) {
-        String actionPath = UiPageHelper.pagePath(page) + "actions/" + pageActionPathSuffix(action, page);
+        String actionPath = pagePath(page) + "actions/" + pageActionPathSuffix(action, page);
 //        String actionPath = actionsPath(page);
         int srcSegment = actionPath.lastIndexOf("src");
         String srcPart = actionPath.substring(srcSegment);
@@ -185,5 +186,19 @@ public class UiActionsHelper extends StaticMethodValueResolver {
 
     public static boolean hasConfirmation(Action action) {
         return action.getIsConfirmationTypeConditional() || action.getIsConfirmationTypeMandatory();
+    }
+
+    public static boolean actionHasVisualElements(Action action) {
+        // At the time of writing we only wanted to use this functionality for create actions.
+        if (action instanceof CreateAction) {
+            CreateAction createAction = (CreateAction) action;
+            VisualElement dataContainer = getDataContainerForPage(createAction.getTarget());
+
+            if (dataContainer != null) {
+                return dataContainer instanceof Flex && ((Flex) dataContainer).getChildren().size() > 0;
+            }
+        }
+
+        return false;
     }
 }

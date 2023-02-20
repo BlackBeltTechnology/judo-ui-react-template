@@ -1,7 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // G E N E R A T E D    S O U R C E
 // ------------------------------
-// Factory expression: {{{ cleanup template.factoryExpression }}}
 // Path expression: {{{ cleanup template.pathExpression }}}
 // Template name: {{ template.templateName }}
 // Page name: {{ page.name }}
@@ -11,7 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Paper, Box, Grid, Button, Container } from '@mui/material';
+import { Paper, Card, CardContent, Box, Grid, Button, Container } from '@mui/material';
 import type { GridRowModel, GridRowParams, GridSortModel } from '@mui/x-data-grid';
 import { DataGrid, GridToolbarContainer } from '@mui/x-data-grid';
 import type { JudoIdentifiable } from '@judo/data-api-common';
@@ -183,6 +182,7 @@ export default function {{ pageName page }}() {
                         label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetchData()),
+                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
                     },
                 {{/ if }}
                 {{# if action.isCallOperationAction }}
@@ -222,49 +222,51 @@ export default function {{ pageName page }}() {
                 <Box sx={mainContainerPadding}>
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
-                            <Paper variant="elevation">
-                                <DataGrid
-                                    { ...pageServerTableConfig }
-                                    getRowId={(row: { __identifier: string }) => row.__identifier}
-                                    loading={isLoading}
-                                    rows={data}
-                                    rowCount={rowCount}
-                                    sortModel={sortModel}
-                                    onSortModelChange={handleSortModelChange}
-                                    columns={[...columns, ...columnsActionCalculator(rowActions, { shownActions: 2 })]}
-                                    {{# each (getUniquePageActions page) as |action| }}
-                                        {{# if action.isViewAction }}
-                                            onRowClick={ (params: GridRowParams<{{ classDataName page.dataElement.target 'Stored' }}>) => {{ actionFunctionName action page }}(params.row) }
-                                        {{/ if }}
-                                    {{/ each }}
-                                    components={ {
-                                        Toolbar: () => (
-                                            <GridToolbarContainer>
-                                                {{# each (getUniquePageActions page) as |action| }}
-                                                    {{# if action.isFilterAction }}
-                                                        <Button
-                                                            variant="outlined"
-                                                            onClick={ async () => {{ actionFunctionName action page }}(filterOptions, filters) }
-                                                            disabled={isLoading}
-                                                        >
-                                                            {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
-                                                        </Button>
-                                                    {{/ if }}
-                                                {{/ each }}
-                                            </GridToolbarContainer>
-                                        ),
-                                        Pagination: () => (
-                                            <CustomTablePagination
-                                                pageChange={handlePageChange}
-                                                isNextButtonEnabled={isNextButtonEnabled}
-                                                page={page}
-                                                setPage={setPage}
-                                                rowPerPage={ {{ calculateTablePageLimit tablePageLimit }} }
-                                            />
-                                        ),
-                                    } }
-                                />
-                            </Paper>
+                            <Card>
+                                <CardContent>
+                                    <DataGrid
+                                        { ...pageServerTableConfig }
+                                        getRowId={(row: { __identifier: string }) => row.__identifier}
+                                        loading={isLoading}
+                                        rows={data}
+                                        rowCount={rowCount}
+                                        sortModel={sortModel}
+                                        onSortModelChange={handleSortModelChange}
+                                        columns={[...columns, ...columnsActionCalculator(rowActions, { shownActions: 2 })]}
+                                        {{# each (getUniquePageActions page) as |action| }}
+                                            {{# if action.isViewAction }}
+                                                onRowClick={ (params: GridRowParams<{{ classDataName page.dataElement.target 'Stored' }}>) => {{ actionFunctionName action page }}(params.row) }
+                                            {{/ if }}
+                                        {{/ each }}
+                                        components={ {
+                                            Toolbar: () => (
+                                                <GridToolbarContainer>
+                                                    {{# each (getUniquePageActions page) as |action| }}
+                                                        {{# if action.isFilterAction }}
+                                                            <Button
+                                                                variant="outlined"
+                                                                onClick={ async () => {{ actionFunctionName action page }}(filterOptions, filters) }
+                                                                disabled={isLoading}
+                                                            >
+                                                                {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
+                                                            </Button>
+                                                        {{/ if }}
+                                                    {{/ each }}
+                                                </GridToolbarContainer>
+                                            ),
+                                            Pagination: () => (
+                                                <CustomTablePagination
+                                                    pageChange={handlePageChange}
+                                                    isNextButtonEnabled={isNextButtonEnabled}
+                                                    page={page}
+                                                    setPage={setPage}
+                                                    rowPerPage={ {{ calculateTablePageLimit tablePageLimit }} }
+                                                />
+                                            ),
+                                        } }
+                                    />
+                                </CardContent>
+                            </Card>
                         </Grid>
                     </Grid>
                 </Box>

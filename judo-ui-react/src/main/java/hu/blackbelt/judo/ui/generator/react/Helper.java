@@ -1,18 +1,14 @@
 package hu.blackbelt.judo.ui.generator.react;
 
 import com.github.jknack.handlebars.internal.lang3.StringUtils;
-import hu.blackbelt.judo.generator.commons.StaticMethodValueResolver;
-import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
 import hu.blackbelt.judo.meta.ui.data.RelationType;
-import lombok.extern.java.Log;
 
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
-@Log
-@TemplateHelper
-public class Helper extends StaticMethodValueResolver {
+
+public class Helper {
 
     protected static String getFileNameVersion(String token) {
         return token.replaceAll("([a-z])([A-Z]+)", "$1_$2").toLowerCase();

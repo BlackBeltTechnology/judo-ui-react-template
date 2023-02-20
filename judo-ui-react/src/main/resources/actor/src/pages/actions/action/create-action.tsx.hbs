@@ -13,6 +13,7 @@ import {
 import type { DialogOption } from '{{ relativePathFromAction page action 'components' }}';
 import { useSnackbar, useDialog } from '{{ relativePathFromAction page action 'components' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
+import { errorHandling } from '{{ relativePathFromAction page action 'utilities' }}';
 
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
@@ -29,25 +30,40 @@ export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActi
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const [createDialog, closeDialog] = useDialog();
+    const [enqueueSnackbar] = useSnackbar();
 
     return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: {{ classDataName page.dataElement.target 'Stored' }},{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) {
-        createDialog({
-            fullWidth: true,
-            maxWidth: 'lg',
-            onClose: (event: object, reason: string) => {
-                if (reason !== 'backdropClick') {
-                    closeDialog();
+        {{# if (actionHasVisualElements action) }}
+            createDialog({
+                fullWidth: true,
+                maxWidth: 'lg',
+                onClose: (event: object, reason: string) => {
+                    if (reason !== 'backdropClick') {
+                        closeDialog();
+                    }
+                },
+                children: (
+                    <{{ pageActionFormComponentName action page }}
+                        successCallback={(result) => { closeDialog(); successCallback(result); }}
+                        cancel={closeDialog}
+                        {{# unless (isActionAccess action) }}
+                            owner={owner}
+                        {{/ unless }}
+                    />
+                ),
+            });
+        {{ else }}
+            (async () => {
+                try {
+                    const res = await {{ serviceRelationName action.target.dataElement }}Impl.create{{ ucFirst action.target.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }} {});
+
+                    if (res) {
+                        successCallback(res);
+                    }
+                } catch (error) {
+                    errorHandling(error, enqueueSnackbar);
                 }
-            },
-            children: (
-                <{{ pageActionFormComponentName action page }}
-                    successCallback={(result) => { closeDialog(); successCallback(result); }}
-                    cancel={closeDialog}
-                    {{# unless (isActionAccess action) }}
-                        owner={owner}
-                    {{/ unless }}
-                />
-            ),
-        });
+            })();
+        {{/ if }}
     }
 }

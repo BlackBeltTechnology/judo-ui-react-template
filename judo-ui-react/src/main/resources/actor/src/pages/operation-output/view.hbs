@@ -1,7 +1,6 @@
 ///////////////////////////////////////////////////////////////////////////////
 // G E N E R A T E D    S O U R C E
 // ------------------------------
-// Factory expression: {{{ cleanup template.factoryExpression }}}
 // Path expression: {{{ cleanup template.pathExpression }}}
 // Template name: {{ template.templateName }}
 // Page name: {{ page.name }}
@@ -11,7 +10,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Button, Card, Container, Grid, InputAdornment, TextField, MenuItem, Typography, Paper } from '@mui/material';
+import { Box, Button, Card, CardContent, Container, Grid, InputAdornment, TextField, MenuItem, Typography, Paper } from '@mui/material';
 import { DataGrid, GridRowId, GridSortModel, GridSortItem, GridToolbarContainer, GridRowParams } from '@mui/x-data-grid';
 import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
 import { useParams } from 'react-router-dom';
@@ -102,6 +101,7 @@ export default function {{ pageName page }}() {
                         label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetchData()),
+                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
                     },
                 {{/ if }}
                 {{# if action.isCallOperationAction }}
@@ -189,7 +189,7 @@ export default function {{ pageName page }}() {
 
     return (
         <>
-            {{# with (firstViewChildForContainer page.containers.[0]) as |rootChild| }}
+            {{# with (getDataContainerForPage page) as |rootChild| }}
                 <PageHeader title={title}>
                     {{# if page.dataElement.isRefreshable }}
                         {!editMode && (
@@ -204,7 +204,7 @@ export default function {{ pageName page }}() {
                     {{# if page.dataElement.isDeletable }}
                         {!editMode && (
                             <Grid item>
-                                <Button onClick={() => deleteData()} disabled={isLoading}>
+                                <Button onClick={() => deleteData()} disabled={isLoading || !data.__deleteable}>
                                     <MdiIcon path="delete" />
                                     {t('judo.pages.delete', { defaultValue: 'Delete' })}
                                 </Button>
@@ -214,7 +214,7 @@ export default function {{ pageName page }}() {
                     {{# if page.dataElement.isUpdatable }}
                         {!editMode && (
                             <Grid item>
-                                <Button onClick={() => setEditMode(true)} disabled={isLoading}>
+                                <Button onClick={() => setEditMode(true)} disabled={isLoading || !data.__updateable}>
                                     <MdiIcon path="pencil" />
                                     {t('judo.pages.edit', { defaultValue: 'Edit' })}
                                 </Button>
@@ -247,7 +247,7 @@ export default function {{ pageName page }}() {
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
                     <Box sx={mainContainerPadding}>
-                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}">
+                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                             {{# each rootChild.children as |child| }}
                                 {{> (getWidgetTemplate child) }}
                             {{/ each }}

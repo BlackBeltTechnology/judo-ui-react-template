@@ -7,6 +7,8 @@ import hu.blackbelt.judo.meta.ui.Link;
 import hu.blackbelt.judo.meta.ui.Table;
 import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
+import org.eclipse.emf.common.util.EList;
+import org.w3c.dom.Attr;
 
 import java.util.Collection;
 

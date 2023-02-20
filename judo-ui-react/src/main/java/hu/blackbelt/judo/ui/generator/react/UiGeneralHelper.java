@@ -2,8 +2,10 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
+import hu.blackbelt.judo.meta.ui.Application;
 import hu.blackbelt.judo.meta.ui.NavigationItem;
 import hu.blackbelt.judo.meta.ui.Sort;
+import hu.blackbelt.judo.meta.ui.Stretch;
 import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
@@ -22,11 +24,18 @@ public class UiGeneralHelper extends Helper {
         System.out.print(obj);
     }
 
-    public static String cleanup(String string) {
-        if (string == null) {
-            return "";
-        }
-        return string.replaceAll("[\\n\\t ]", "");
+    public static String plainName(String input) {
+        return input.replaceAll("[^\\.A-Za-z0-9_]", "_").toLowerCase();
+    }
+
+    public static String projectPathName(String fqName) {
+        return fqName
+                .replaceAll("\\.", "__")
+                .replaceAll("::", "__")
+                .replaceAll("#", "__")
+                .replaceAll("/", "__")
+                .replaceAll("([a-z])([A-Z]+)", "$1_$2")
+                .toLowerCase();
     }
 
     public static String pathName(String fqName) {
@@ -123,5 +132,27 @@ public class UiGeneralHelper extends Helper {
             return !((RelationType) dataElement).isIsAccess();
         }
         return false;
+    }
+
+    public static String appBaseHref(Application application) {
+        return String.join("/", modelName(application.getName()) + "_react", projectPathName(application.getName()));
+    }
+
+    public static Collection<Application> getAlternativeApplications(Application application, Collection<Application> applications) {
+        // if current actor has a principal, only return other actors with the same realm
+        if (application.getAuthentication() != null) {
+            return applications.stream()
+                    .filter(a -> a.getAuthentication() != null && !a.getFQName().equals(application.getFQName()) && a.getAuthentication().getRealm().equals(application.getAuthentication().getRealm()))
+                    .collect(Collectors.toList());
+        }
+
+        // if current actor has no principal, only return other actors without principals
+        return applications.stream()
+                .filter(a -> a.getAuthentication() == null && !a.getFQName().equals(application.getFQName()))
+                .collect(Collectors.toList());
+    }
+
+    public static boolean otherApplicationsAvailable(Application application, Collection<Application> applications) {
+        return getAlternativeApplications(application, applications).size() > 0;
     }
 }
