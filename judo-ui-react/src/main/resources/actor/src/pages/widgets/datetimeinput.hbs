@@ -1,0 +1,27 @@
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    <DateTimePicker
+        renderInput={ (props: any) => (
+            <TextField
+                {...props}
+                error={!!validation.get('{{ child.attributeType.name }}')}
+                helperText={validation.get('{{ child.attributeType.name }}')}
+            />
+        ) }
+        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+        value={ data.{{ child.attributeType.name }} ?? null }
+        className={ {{ boolValue child.attributeType.isReadOnly }} || !editMode ? 'Mui-readOnly' : undefined}
+        readOnly={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode }
+        onChange={ (newValue: any) => storeDiff('{{ child.attributeType.name }}', newValue) }
+        {{# if child.icon }}
+            InputProps={ {
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <MdiIcon path="{{ child.icon.name }}" />
+                    </InputAdornment>
+                ),
+            } }
+        {{/ if }}
+    />
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}

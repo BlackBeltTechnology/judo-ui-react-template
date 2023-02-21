@@ -1,0 +1,10 @@
+const {{ dataElement.name }}RangeCall = async () => openRangeDialog<{{ classDataName dataElement.target 'Stored' }}, {{ classDataName dataElement.target 'QueryCustomizer' }}>({
+    columns: {{ dataElement.name }}Columns,
+    defaultSortField: {{ dataElement.name }}SortModel[0],
+    rangeCall: async (queryCustomizer) =>
+        await {{ classServiceName dataElement.owner }}Impl.getRangeFor{{ firstToUpper dataElement.name }}(undefined, processQueryCustomizer(queryCustomizer)),
+    single: false,
+    alreadySelectedItems: {{ dataElement.name }}SelectionModel,
+    filterOptions: {{ dataElement.name }}RangeFilterOptions,
+    initialQueryCustomizer: {{ dataElement.name }}InitialQueryCustomizer,
+});

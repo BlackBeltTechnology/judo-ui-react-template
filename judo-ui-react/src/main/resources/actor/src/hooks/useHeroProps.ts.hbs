@@ -1,0 +1,19 @@
+import type { HeroProps } from '../components-api';
+{{# if application.authentication }}
+  import { getUser } from '../auth';
+{{/ if }}
+
+export function useHeroProps(): HeroProps {
+  {{# if application.authentication }}
+    const { profile } = getUser();
+  {{/ if }}
+
+  return {
+    imgSrc: 'ninja.png',
+    actorName: '{{ application.actor.simpleName }}',
+    {{# if application.authentication }}
+      preferredUsername: profile?.preferred_username,
+      email: profile?.email,
+    {{/ if }}
+  };
+}

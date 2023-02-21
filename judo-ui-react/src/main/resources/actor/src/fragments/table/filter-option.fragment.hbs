@@ -1,0 +1,12 @@
+{
+    attributeName: '{{ filter.attributeType.name }}',
+    label: t('{{ idToTranslationKey filter.fQName application }}', { defaultValue: '{{ filter.label }}' }) as string,
+    filterType: FilterType.{{ getFilterTypeForFilter filter }},
+    {{# if (isAttributeTypeEnumeration filter.attributeType) }}
+        enumValues: [
+            {{# each filter.attributeType.dataType.members as |member| }}
+                '{{ member.name }}',
+            {{/ each }}
+        ],
+    {{/ if }}
+},

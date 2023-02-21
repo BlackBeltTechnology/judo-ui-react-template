@@ -1,0 +1,9 @@
+// Action: RefreshAction
+
+export type {{ actionFunctionTypeName action page }} = () => (fetchData: () => Promise<void>) => Promise<void>;
+
+export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+    return async function {{ actionFunctionName action page }}(fetchData: () => Promise<void>) {
+        return fetchData();
+    }
+}

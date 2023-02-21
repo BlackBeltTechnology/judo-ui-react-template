@@ -1,0 +1,83 @@
+// Action: AddAction
+
+import type { JudoIdentifiable } from '@judo/data-api-common';
+import { useTranslation } from 'react-i18next';
+import { GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid';
+import { useRangeDialog, useSnackbar, MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
+import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
+import { baseColumnConfig, toastConfig } from '{{ relativePathFromAction page action 'config' }}';
+import { errorHandling, processQueryCustomizer } from '{{ relativePathFromAction page action 'utilities' }}';
+import {
+    {{# each (getApiImportsForRowAction action) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+import {
+    {{ classServiceName action.dataElement.owner }}Impl,
+} from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+
+export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
+
+export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+    const { openRangeDialog } = useRangeDialog();
+    const { t } = useTranslation();
+    const [enqueueSnackbar] = useSnackbar();
+    const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
+
+    return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, successCallback: () => void) {
+        {{# with (getTableForTablePage page) as |table| }}
+            const columns: GridColDef<{{ classDataName page.dataElement.target 'Stored' }}>[] = [
+                {{# each table.columns as |column| }}
+                    {
+                        ...baseColumnConfig,
+                        field: '{{ column.attributeType.name }}',
+                        headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
+                        {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
+                    },
+                {{/ each }}
+            ];
+
+            const filterOptions: FilterOption[] = [
+                {{# each table.filters as |filter| }}
+                    {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
+                {{/ each }}
+            ];
+
+            const sortModel: GridSortModel = {{{ getDefaultSortParamsForTable table }}};
+
+            const initialQueryCustomizer: {{ classDataName page.dataElement.target 'QueryCustomizer' }} = {
+                _mask: '{{ table.formattedMaskForRange }}',
+                _orderBy: sortModel.length ? [
+                    {
+                        attribute: sortModel[0].field,
+                        descending: sortModel[0].sort === 'desc',
+                    },
+                ] : [],
+            };
+
+            const res = await openRangeDialog<{{ classDataName action.dataElement.target 'Stored' }}, {{ classDataName action.dataElement.target 'QueryCustomizer' }}>({
+                columns,
+                defaultSortField: sortModel[0],
+                rangeCall: async (queryCustomizer) =>
+                    await {{ classServiceName action.dataElement.owner }}Impl.getRangeFor{{ firstToUpper action.dataElement.name }}(owner, processQueryCustomizer(queryCustomizer)),
+                single: false,
+                alreadySelectedItems: '',
+                filterOptions,
+                initialQueryCustomizer,
+            });
+
+            if (res === undefined) return;
+
+            try {
+                await {{ classServiceName action.dataElement.owner }}Impl.add{{ firstToUpper action.dataElement.name }}(
+                    { __signedIdentifier: owner.__signedIdentifier } as JudoIdentifiable<{{ classDataName page.dataElement.target 'Stored' }}>,
+                    res as Array<{{ classDataName action.dataElement.target 'Stored' }}>,
+                );
+
+                successCallback();
+            } catch (error) {
+                errorHandling(error, enqueueSnackbar);
+            }
+        {{/ with }}
+    }
+};

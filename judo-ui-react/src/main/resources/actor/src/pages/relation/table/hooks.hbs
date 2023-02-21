@@ -1,0 +1,50 @@
+///////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// ------------------------------
+// Path expression: {{{ cleanup template.pathExpression }}}
+// Template name: {{ template.templateName }}
+// Hook: Relation Table
+
+import type { GridColDef, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
+import { useTranslation } from 'react-i18next';
+import { Button } from '@mui/material';
+import { FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
+import type { FilterOption } from '../{{ relativePathFromPage page 'components-api' }}';
+import { useJudoNavigation, MdiIcon } from '../{{ relativePathFromPage page 'components' }}';
+import {
+    {{ classDataName page.dataElement.target 'Stored' }},
+} from '../{{ relativePathFromPage page 'generated/data-api' }}';
+import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
+import { fileHandling } from '../{{ relativePathFromPage page 'utilities' }}';
+
+export const use{{ pageName page }} = () => {
+    const { navigate } = useJudoNavigation();
+    const { t } = useTranslation();
+    const { downloadFile, uploadFile } = fileHandling();
+
+    const columns: GridColDef<{{ classDataName page.dataElement.target 'Stored' }}>[] = [
+        {{# with (getTableForTablePage page) as |table| }}
+            {{# each table.columns as |column| }}
+                {
+                    ...baseColumnConfig,
+                    field: '{{ column.attributeType.name }}',
+                    headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
+                    {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
+                },
+            {{/ each }}
+        {{/ with }}
+    ];
+
+    const filterOptions: FilterOption[] = [
+        {{# with (getTableForTablePage page) as |table| }}
+            {{# each table.filters as |filter| }}
+                {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
+            {{/ each }}
+        {{/ with }}
+    ];
+
+    return {
+        columns,
+        filterOptions,
+    };
+};

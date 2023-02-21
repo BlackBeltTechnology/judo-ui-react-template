@@ -1,0 +1,14 @@
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    <TrinaryLogicCombobox
+        name="{{ child.attributeType.name }}"
+        id="{{ getXMIID child }}"
+        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+        value={ data?.{{ child.attributeType.name }} }
+        error={ !!validation.get('{{ child.attributeType.name }}') }
+        helperText={ validation.get('{{ child.attributeType.name }}') }
+        onChange={ (value) => storeDiff('{{ child.attributeType.name }}', value) }
+        readOnly={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode }
+    />
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}
