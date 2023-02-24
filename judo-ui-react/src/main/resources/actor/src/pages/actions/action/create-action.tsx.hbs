@@ -21,7 +21,7 @@ import {
     {{/ each }}
 } from '{{ relativePathFromAction page action 'generated/data-api' }}';
 import {
-    {{ serviceRelationName action.target.dataElement }}Impl,
+    {{ dataElementRelationName action.target.dataElement }}Impl,
     {{ classServiceName action.target.dataElement.target }}Impl,
 } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 import { {{ pageActionFormComponentName action page }} } from './{{ pageActionFormComponentName action page }}';
@@ -55,7 +55,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
         {{ else }}
             (async () => {
                 try {
-                    const res = await {{ serviceRelationName action.target.dataElement }}Impl.create{{ ucFirst action.target.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }} {});
+                    const res = await {{ dataElementRelationName action.target.dataElement }}Impl.create{{ ucFirst action.target.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }} {});
 
                     if (res) {
                         successCallback(res);

@@ -94,20 +94,6 @@ public class UiGeneralHelper extends Helper {
         return input.equals(Sort.NONE) ? Sort.ASC.toString().toLowerCase() : input.toString().toLowerCase();
     }
 
-    public static String getXMIID(EObject element) {
-        return ((XMIResource) element.eResource()).getID(element);
-    }
-
-    public static String restParamName(DataType dataType) {
-        String[] tokens = dataType.getName().split("::");
-        String last = tokens[tokens.length - 1];
-        return stream(last.split("\\.")).map(StringUtils::capitalize).collect(Collectors.joining(""));
-    }
-
-    public static String firstToUpper(String input) {
-        return StringUtils.capitalize(input);
-    }
-
     public static boolean boolValue(Boolean original) {
         return original != null && original;
     }
