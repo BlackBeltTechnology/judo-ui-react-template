@@ -5,7 +5,7 @@
     <version>${revision}</version>
     <packaging>pom</packaging>
 
-    <name>JUDO UI React Frontend Generator</name>
+    <name>JUDO UI React Frontend Generator Parent</name>
     <description>JUDO UI React Frontend Generator helpers and templates</description>
 
     <developers>
@@ -50,11 +50,20 @@
         <ecore-xmi-version>2.2.3</ecore-xmi-version>
         <spring-expression-version>5.0.0.RELEASE</spring-expression-version>
         <lombok-version>1.18.22</lombok-version>
+        <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
+
+        <node-version>18.14.2</node-version>
+        <pnpm-version>7.27.1</pnpm-version>
 
         <judo-meta-ui-version>1.0.1.20230213_193724_b9e98a1c_develop</judo-meta-ui-version>
         <judo-generator-commons-version>1.0.0.20230120_203628_b0fbaa8e_develop</judo-generator-commons-version>
         <judo-ui-typescript-rest-version>1.0.0-SNAPSHOT</judo-ui-typescript-rest-version>
     </properties>
+
+    <modules>
+        <module>judo-ui-react</module>
+        <module>judo-ui-react-itest</module>
+    </modules>
 
     <url>http://github.com/${project-repositoryId}</url>
 
@@ -70,16 +79,6 @@
         </developerConnection>
         <url>http://github.com/${project-repositoryId}</url>
     </scm>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>hu.blackbelt.judo.generator</groupId>
-                <artifactId>judo-ui-react</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <pluginManagement>
@@ -174,16 +173,15 @@
 
     <profiles>
         <profile>
-            <id>modules</id>
+            <id>external-packages</id>
             <activation>
                 <property>
-                    <name>skipModules</name>
+                    <name>skipExternalPackages</name>
                     <value>!true</value>
                 </property>
             </activation>
             <modules>
-                <module>judo-ui-react</module>
-                <module>judo-ui-react-itest</module>
+                <module>judo-ui-react-external-packages</module>
             </modules>
         </profile>
 
