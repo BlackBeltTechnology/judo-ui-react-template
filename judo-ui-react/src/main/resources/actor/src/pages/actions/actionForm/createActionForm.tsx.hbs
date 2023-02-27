@@ -44,7 +44,7 @@ import {
     {{/ each }}
 } from '{{ relativePathFromAction ownerPage action 'generated/data-api' }}';
 import {
-    {{ serviceRelationName action.target.dataElement }}Impl,
+    {{ dataElementRelationName action.target.dataElement }}Impl,
     {{ classServiceName action.target.dataElement.target }}Impl,
 } from '{{ relativePathFromAction ownerPage action 'generated/data-axios'}}';
 import { errorHandling, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromAction ownerPage action 'utilities' }}';
@@ -129,7 +129,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '{
             setIsLoading(true);
 
             try {
-                const res = await {{ serviceRelationName page.dataElement }}Impl.create{{ ucFirst page.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }}data);
+                const res = await {{ dataElementRelationName page.dataElement }}Impl.create{{ ucFirst page.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }}data);
 
                 if (res) {
                     successCallback(res);

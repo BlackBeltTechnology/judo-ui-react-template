@@ -10,125 +10,58 @@
     </parent>
 
     <artifactId>judo-ui-react-itest</artifactId>
-    <packaging>jar</packaging>
+    <packaging>pom</packaging>
 
-    <name>JUDO UI React Frontend Generator API ITest</name>
+    <name>JUDO UI React Frontend Generator ITest</name>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <judo-tatami-version>${project.version}</judo-tatami-version>
+
+        <node-install-dir>${project.parent.basedir}/.nodejs</node-install-dir>
+
+        <appScope>@blackbelt</appScope>
+        <appVersion>1.0.0</appVersion>
+        <tablePageLimit>10</tablePageLimit>
     </properties>
 
-    <build>
-        <plugins>
+    <modules>
+        <module>ActionGroupTest</module>
+        <module>ApplicationSelectionTest</module>
+        <module>FormsTest</module>
+    </modules>
 
-            <plugin>
-                <groupId>hu.blackbelt.judo.meta</groupId>
-                <artifactId>judo-ui-generator-maven-plugin</artifactId>
-                <version>${judo-meta-ui-version}</version>
-                <executions>
-
-                    <execution>
-                        <id>execute-ui-test-model-from-file</id>
-                        <phase>generate-test-resources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-
+    <profiles>
+        <profile>
+            <id>prepare-nodejs</id>
+            <activation>
+                <property>
+                    <name>!skipPrepareNodeJS</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>com.github.eirslett</groupId>
+                        <artifactId>frontend-maven-plugin</artifactId>
+                        <version>${frontend-maven-plugin-version}</version>
+                        <executions>
+                            <execution>
+                                <id>install node and pnpm</id>
+                                <goals>
+                                    <goal>install-node-and-pnpm</goal>
+                                </goals>
+                                <phase>generate-resources</phase>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <uris>
-                                <uri>mvn:hu.blackbelt.judo.generator:judo-ui-react:${revision}</uri>
-                            </uris>
-                            <type>ui-react</type>
-                            <ui>${basedir}/src/test/resources/ActionGroupTest-ui.model</ui>
-                            <destination>${basedir}/target/test-classes/ui/file</destination>
-                            <templateParameters>
-                                <groupId>${project.groupId}</groupId>
-                                <artifactId>${project.artifactId}</artifactId>
-                                <version>${project.version}</version>
-                                <projectPostfix>-custom</projectPostfix>
-                                <languages></languages>
-                            </templateParameters>
+                            <nodeVersion>v${node-version}</nodeVersion>
+                            <pnpmVersion>${pnpm-version}</pnpmVersion>
+                            <installDirectory>${node-install-dir}</installDirectory>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.eclipse.m2e</groupId>
-                    <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
-                    <configuration>
-                        <lifecycleMappingMetadata>
-                            <pluginExecutions>
-                                <pluginExecution>
-                                    <pluginExecutionFilter>
-                                        <groupId>
-                                            hu.blackbelt.judo.generator
-                                        </groupId>
-                                        <artifactId>
-                                            judo-ui-generator-maven-plugin
-                                        </artifactId>
-                                        <versionRange>
-                                            [1.0.0-SNAPSHOT,)
-                                        </versionRange>
-                                        <goals>
-                                            <goal>generate</goal>
-                                        </goals>
-                                    </pluginExecutionFilter>
-                                    <action>
-                                        <ignore></ignore>
-                                    </action>
-                                </pluginExecution>
-                            </pluginExecutions>
-                        </lifecycleMappingMetadata>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-    </build>
-
-    <dependencies>
-
-        <dependency>
-            <groupId>com.jcabi</groupId>
-            <artifactId>jcabi-log</artifactId>
-            <version>0.19.0</version>
-        </dependency>
-
-
-        <dependency>
-            <groupId>com.github.jknack</groupId>
-            <artifactId>handlebars</artifactId>
-            <version>4.1.2</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-expression</artifactId>
-            <version>5.0.0.RELEASE</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.blackbelt.judo.meta</groupId>
-            <artifactId>hu.blackbelt.judo.meta.ui.model</artifactId>
-            <version>${judo-meta-ui-version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.blackbelt.judo.generator</groupId>
-            <artifactId>judo-generator-commons</artifactId>
-            <version>${judo-generator-commons-version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>hu.blackbelt.judo.generator</groupId>
-            <artifactId>judo-ui-react</artifactId>
-        </dependency>
-
-    </dependencies>
-
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>

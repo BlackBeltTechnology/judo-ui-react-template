@@ -4,6 +4,7 @@ import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
+import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
 
 import java.util.*;
@@ -11,6 +12,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.hasDataElementOwner;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
 
 
@@ -169,7 +172,7 @@ public class UiPageHelper extends Helper {
         Collection<Action> actions = new ArrayList<>(page.getActions());
         return actions.stream()
                 .filter(a -> !a.getIsBackAction())
-                .collect(Collectors.toMap(UiGeneralHelper::getXMIID, p -> p, (p, q) -> p)).values();
+                .collect(Collectors.toMap(UiCommonsHelper::getXMIID, p -> p, (p, q) -> p)).values();
     }
 
     public static String getNavigationForPage(PageDefinition page, String signedId) {
@@ -183,13 +186,6 @@ public class UiPageHelper extends Helper {
         int tokens = (int) Arrays.stream(pageIndex.split("")).filter(t -> t.equals("/")).count();
 
         return "../".repeat(tokens + 1) + suffix;
-    }
-
-    public static String classDataName(ClassType classType, String suffix) {
-        String className = classType.getName();
-        String base = nameWithoutModel(className);
-
-        return base += suffix;
     }
 
     public static Boolean hasVisualReferences(PageDefinition pageDefinition) {
@@ -322,7 +318,7 @@ public class UiPageHelper extends Helper {
         }
 
         getEnumAttributesForPage(pageDefinition).forEach(a -> {
-            res.add(UiGeneralHelper.restParamName(a.getDataType()));
+            res.add(restParamName(a.getDataType()));
         });
 
         addReferenceTypesToCollection(pageDefinition, res);
@@ -340,7 +336,7 @@ public class UiPageHelper extends Helper {
         addReferenceTypesToCollection(pageDefinition, res);
 
         getEnumAttributesForPage(pageDefinition).forEach(a -> {
-            res.add(UiGeneralHelper.restParamName(a.getDataType()));
+            res.add(restParamName(a.getDataType()));
         });
 
         return res;
