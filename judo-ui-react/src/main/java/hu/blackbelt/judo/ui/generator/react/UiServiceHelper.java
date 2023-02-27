@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 @Log
 @TemplateHelper
 public class UiServiceHelper extends Helper {
-    public static String serviceRelationName(DataElement dataElement) {
+    public static String dataElementRelationName(DataElement dataElement) {
         if (dataElement instanceof RelationType) {
             RelationType relation = (RelationType) dataElement;
 
@@ -30,7 +30,7 @@ public class UiServiceHelper extends Helper {
             return classServiceName(operationParameterType.getTarget());
         }
 
-        throw new RuntimeException("Unable to process DataElement for serviceRelationName: " + dataElement.getName());
+        throw new RuntimeException("Unable to process DataElement for dataElementRelationName: " + dataElement.getName());
     }
 
     public static String classServiceName(ClassType classType) {

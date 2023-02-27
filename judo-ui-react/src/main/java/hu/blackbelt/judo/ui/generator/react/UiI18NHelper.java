@@ -16,8 +16,8 @@ import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.modelName;
-import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.restParamName;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
 
 @Log

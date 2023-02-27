@@ -1,57 +1,47 @@
-# judo-ui-react-template
-
-UI based JUDO React Frontend TypeScript generator
-
-## Dependencies
-
-The source code which this template can generate depends on the generated services of https://github.com/BlackBeltTechnology/judo-ui-typescript-rest-template[judo-ui-typescript-rest-template].
-
-The following example will showcase both plugins working together to generate a fully functional application.
-
-## Usage
-
-[code, xml]
-----
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.example</groupId>
-    <artifactId>actiongrouptest-frontend-react-action_group_test__god</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-
-    <name>ActionGroupTest - God</name>
-    <description>ActionGroupTest - God react frontend</description>
+    <parent>
+        <groupId>hu.blackbelt.judo.generator</groupId>
+        <artifactId>applicationselectiontest-frontend-react</artifactId>
+        <version>${revision}</version>
+    </parent>
+    <artifactId>applicationselectiontest-frontend-react-application_selection_test__actor_with_other_realm</artifactId>
+    <name>JUDO UI React Frontend Generator ITest - ApplicationSelectionTest - ActorWithOtherRealm</name>
+    <description>ApplicationSelectionTest - ActorWithOtherRealm react frontend</description>
 
     <packaging>bundle</packaging>
 
     <properties>
-        <!-- dependencies -->
-        <judo-meta-ui-version>1.0.1.20230213_193724_b9e98a1c_develop</judo-meta-ui-version>
-        <judo-generator-commons-version>1.0.0.20230120_203628_b0fbaa8e_develop</judo-generator-commons-version>
-        <judo-ui-typescript-rest-version>1.0.0.20230227_135344_7ab7117b_develop</judo-ui-typescript-rest-version>
-        <judo-ui-react-version>1.0.0.20230222_040743_a6270e05_develop</judo-ui-react-version>
+        <actor>applicationselectiontest__actorwithotherrealm</actor>
+        <actor-shortname>actor_with_other_realm</actor-shortname>
+        <actor-name>ActorWithOtherRealm</actor-name>
+        <actor-fq-name>ApplicationSelectionTest::ActorWithOtherRealm</actor-fq-name>
 
-        <!-- model properties -->
-        <model-name>ActionGroupTest</model-name>
-        <actor>actiongrouptest__god</actor>
-        <actor-shortname>god</actor-shortname>
-        <actor-name>God</actor-name>
-        <actor-fq-name>ActionGroupTest::God</actor-fq-name>
+        <ui-model>${project.parent.basedir}/model/${model-name}-ui.model</ui-model>
 
-        <!-- generator properties -->
-        <ui-model>${project.basedir}/model/${model-name}-ui.model</ui-model>
-        <override-dir>${project.basedir}/generator-overrides</override-dir>
-        <generation-target>${project.basedir}/target/frontend-react</generation-target>
-
-        <!-- npm package properties -->
-        <appScope>@example</appScope>
-        <appVersion>1.0.0</appVersion>
-        <tablePageLimit>10</tablePageLimit>
+        <node-install-dir>${project.parent.parent.parent.basedir}/.nodejs</node-install-dir>
+        <generation-target>${basedir}/target/frontend-react</generation-target>
     </properties>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.8</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <instructions>
+                        <Web-ContextPath>/${model-name}/${actor}</Web-ContextPath>
+                        <Include-Resource>
+                            /=${generation-target}/dist
+                        </Include-Resource>
+                    </instructions>
+                </configuration>
+            </plugin>
+
             <plugin>
                 <groupId>hu.blackbelt.judo.meta</groupId>
                 <artifactId>judo-ui-generator-maven-plugin</artifactId>
@@ -77,7 +67,6 @@ The following example will showcase both plugins working together to generate a 
                             <destination>${generation-target}/src/generated</destination>
                         </configuration>
                     </execution>
-
                     <execution>
                         <id>execute-ui-generation</id>
                         <phase>generate-sources</phase>
@@ -86,7 +75,7 @@ The following example will showcase both plugins working together to generate a 
                         </goals>
                         <configuration>
                             <uris>
-                                <uri>mvn:hu.blackbelt.judo.generator:judo-ui-react:${judo-ui-react-version}</uri>
+                                <uri>mvn:hu.blackbelt.judo.generator:judo-ui-react:${revision}</uri>
                             </uris>
                             <type>ui-react</type>
                             <applications>
@@ -104,7 +93,6 @@ The following example will showcase both plugins working together to generate a 
                         </configuration>
                     </execution>
                 </executions>
-
                 <dependencies>
                     <dependency>
                         <groupId>hu.blackbelt.judo.generator</groupId>
@@ -129,7 +117,7 @@ The following example will showcase both plugins working together to generate a 
                     <dependency>
                         <groupId>hu.blackbelt.judo.generator</groupId>
                         <artifactId>judo-ui-react</artifactId>
-                        <version>${judo-ui-react-version}</version>
+                        <version>${revision}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -150,7 +138,7 @@ The following example will showcase both plugins working together to generate a 
                                 <artifactItem>
                                     <groupId>hu.blackbelt.judo.generator</groupId>
                                     <artifactId>judo-ui-react-external-packages</artifactId>
-                                    <version>${judo-ui-react-version}</version>
+                                    <version>${revision}</version>
                                     <type>jar</type>
                                     <overWrite>true</overWrite>
                                 </artifactItem>
@@ -160,25 +148,58 @@ The following example will showcase both plugins working together to generate a 
                         </configuration>
                     </execution>
                 </executions>
-
                 <dependencies>
                     <dependency>
                         <groupId>hu.blackbelt.judo.generator</groupId>
                         <artifactId>judo-ui-react-external-packages</artifactId>
-                        <version>${judo-ui-react-version}</version>
+                        <version>${revision}</version>
                     </dependency>
                 </dependencies>
+            </plugin>
+
+            <plugin>
+                <groupId>com.github.eirslett</groupId>
+                <artifactId>frontend-maven-plugin</artifactId>
+                <version>${frontend-maven-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>pnpm install</id>
+                        <goals>
+                            <goal>pnpm</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <arguments>install</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>format code</id>
+                        <goals>
+                            <goal>pnpm</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <arguments>run format</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>build</id>
+                        <goals>
+                            <goal>pnpm</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <arguments>run build:ci</arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+                <configuration>
+                    <installDirectory>${node-install-dir}</installDirectory>
+                    <workingDirectory>${generation-target}</workingDirectory>
+                </configuration>
             </plugin>
         </plugins>
     </build>
 </project>
-----
-
-This example generates a complete application into the `target/frontend-react` directory.
-
-The `judo-ui-generator-maven-plugin` documentation is placed inside
-the plugin documentation itself. https://github.com/BlackBeltTechnology/judo-meta-ui/tree/develop/generator-maven-plugin
-
-## Notes
-
-The `maven-dependency-plugin` copies repackaged dependencies from the module `judo-ui-react-external-packages`.

@@ -36,7 +36,7 @@ import {
     {{/ each }}
 } from '{{ relativePathFromPage page 'generated/data-api' }}';
 import {
-    {{ serviceRelationName page.dataElement }}Impl,
+    {{ dataElementRelationName page.dataElement }}Impl,
 } from '{{ relativePathFromPage page 'generated/data-axios'}}';
 import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
 import {
@@ -135,7 +135,7 @@ export default function {{ pageName page }}() {
         setIsLoading(true);
 
         try {
-            const res = await {{ serviceRelationName page.dataElement }}Impl.list{{ ucFirst page.dataElement.name }}(
+            const res = await {{ dataElementRelationName page.dataElement }}Impl.list{{ ucFirst page.dataElement.name }}(
                 { __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName page.dataElement.target '' }}>,
                 processQueryCustomizer(queryCustomizer),
             );
