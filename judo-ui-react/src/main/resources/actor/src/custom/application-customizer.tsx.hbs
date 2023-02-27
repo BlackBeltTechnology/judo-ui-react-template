@@ -1,0 +1,18 @@
+import type { BundleContext } from '@pandino/pandino-api';
+import { ApplicationCustomizer } from './interfaces';
+import { ROUTE_DASHBOARD_INTERFACE_KEY } from '../routes';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+    async customize(context: BundleContext): Promise<void> {
+        const reg = context.registerService(ROUTE_DASHBOARD_INTERFACE_KEY, CustomDashboard);
+        console.log(reg);
+    }
+}
+
+export const CustomDashboard = () => {
+    return (
+        <div className="custom-dash">
+            Hello from custom Dashboard!
+        </div>
+    );
+};
