@@ -1,6 +1,7 @@
 {{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     <TextField
+        {{# if child.attributeType.isRequired }}required {{/ if }}
         name="{{ child.attributeType.name }}"
         id="{{ getXMIID child }}"
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
