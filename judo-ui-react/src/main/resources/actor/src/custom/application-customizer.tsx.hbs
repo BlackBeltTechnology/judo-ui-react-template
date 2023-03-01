@@ -1,48 +1,8 @@
 import type { BundleContext } from '@pandino/pandino-api';
 import { ApplicationCustomizer } from './interfaces';
-import { ROUTE_GOD_GALAXIES_TABLE_INTERFACE_KEY } from '../routes';
-import { L10N_TRANSLATION_PROVIDER_INTERFACE_KEY, L10NTranslationProvider, L10NTranslations } from '../l10n/l10n-context';
 
 export class DefaultApplicationCustomizer implements ApplicationCustomizer {
     async customize(context: BundleContext): Promise<void> {
-        // window.setTimeout(() => {
-        //   const reg = context.registerService(ROUTE_GOD_GALAXIES_TABLE_INTERFACE_KEY, CustomGalaxies);
-        //
-        //   window.setTimeout(() => {
-        //     reg.unregister();
-        //   }, 3000);
-        // }, 3000);
-
-        const provider: L10NTranslationProvider = {
-            provideTranslations: (locale: string): Promise<L10NTranslations> => {
-                return Promise.resolve({
-                    systemTranslations: {
-                        'judo.pages.create': 'YOLO',
-                        'judo.pages.table.set-filters': 'blablabla',
-                    },
-                    applicationTranslations: {
-                        'God.galaxies.Table.View.Galaxy.createDarkMatter': 'csinalj nekem sotet anyagot',
-                        'God.galaxies.View.group.group.2.group.2.constellation': 'lalala'
-                    },
-                });
-            }
-        };
-
-        // const reg = context.registerService(L10N_TRANSLATION_PROVIDER_INTERFACE_KEY, provider);
-
-        window.setTimeout(() => {
-            const reg = context.registerService(L10N_TRANSLATION_PROVIDER_INTERFACE_KEY, provider);
-            window.setTimeout(() => {
-                reg.unregister();
-            }, 2000);
-        }, 2000);
+        // register your implementations here
     }
 }
-
-export const CustomGalaxies = () => {
-    return (
-        <div className="galaxies">
-            <img src="https://c.tenor.com/rtnshG9YFykAAAAM/rick-astley-rick-roll.gif" />
-        </div>
-    );
-};
