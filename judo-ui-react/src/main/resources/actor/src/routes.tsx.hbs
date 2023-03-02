@@ -6,27 +6,35 @@
 
 import { Navigate, Route } from 'react-router-dom';
 import { lazy, ReactElement, Suspense } from 'react';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy } from '@pandino/react-hooks';
 
 let routes: Array<{path: string, element: ReactElement, exact?: boolean}> = [];
 
 {{# each (getPagesForRouting application) as |page| }}
     {{# if page.isPageTypeDashboard }}
+        export const ROUTE_DASHBOARD_INTERFACE_KEY = 'DashboardRoute';
         const DashboardRoute = lazy(() => import('./pages/{{ pageIndexRelativeImportPath page }}'));
 
         routes.push({
             path: '',
             exact: true,
             element: <Suspense>
-                <DashboardRoute />
+                <ComponentProxy filter={`(${OBJECTCLASS}=${ROUTE_DASHBOARD_INTERFACE_KEY})`}>
+                    <DashboardRoute />
+                </ComponentProxy>
             </Suspense>,
         });
     {{ else }}
+        export const ROUTE_{{ camelCaseNameToInterfaceKey (pageName page) }}_INTERFACE_KEY = '{{ pageName page }}Route';
         const {{ pageName page }} = lazy(() => import('./pages/{{ pageIndexRelativeImportPath page }}'));
 
         routes.push({
             path: '{{ getPageRoute page }}',
             element: <Suspense>
-                <{{ pageName page }} />
+                <ComponentProxy filter={`(${OBJECTCLASS}=${ROUTE_{{ camelCaseNameToInterfaceKey (pageName page) }}_INTERFACE_KEY})`}>
+                    <{{ pageName page }} />
+                </ComponentProxy>
             </Suspense>,
         });
     {{/ if }}
