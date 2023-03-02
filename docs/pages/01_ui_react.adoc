@@ -1,0 +1,130 @@
+= UI React
+ifndef::env-site,env-github[]
+endif::[]
+// Settings
+:idprefix:
+:idseparator: -
+:icons: font
+:KW: [purple]##**
+:KWE: **##
+
+JUDO React frontend generator templates.
+
+== Architecture
+
+WIP
+
+=== Fixed dependency versions and the map.json file
+
+In order for projects to be consistently re-built without changing versions and effective version mismatches, we fixed
+in all dependency versions, and are providing a `pnpm.lock` file as well.
+
+Without fix versions, and a reproducible lock file, the dependency versions in `map.json` could differ, causing runtime
+errors.
+
+== Customization
+
+There are two major ways how JUDO apps can be customized with various pros / cons:
+
+- Template overrides
+- Providing custom implementations for certain interfaces
+
+Customization via template overrides is discussed at the https://github.com/BlackBeltTechnology/judo-meta-ui/tree/develop/generator-maven-plugin[ judo-meta-ui/generator-maven-plugin]
+repository.
+
+In this documentation we will only discuss customization via interface implementation.
+
+=== Context
+
+JUDO frontend applications utilize the https://github.com/BlackBeltTechnology/pandino[Pandino] library. This library can
+be considered as a "dependency injection framework on steroids".
+
+For details about Pandino, please check its corresponding documentation.
+
+Regardless of documentation, the fastest way of figuring out what interfaces can be re-implemented is by searching for:
+
+- `ComponentProxy` components
+- `useTrackService<T>()` hooks
+
+All of these usually consume at least a `filter` parameter and where applicable refer to a `T` generic type.
+
+> All customizable interfaces have a `string` representation (INTERFACE_KEY) since at the end of the day, JavaScript doesn't support
+  interfaces and we need to pair them up.
+
+=== First step
+
+The entry point for registering implementations is `src/custom/application-customizer.tsx`.
+
+[WARNING]
+====
+This file MUST be put into the `.generator-ignore` file and should be added to Git, otherwise whatever we put into it
+will be replaced by the generator.
+====
+
+You may put your implementations anywhere inside the project, the only purpose of the `application-customizer.tsx` file
+is to be the entry point for registration.
+
+=== Implementing pages
+
+Interface keys for pages can be found at `src/routes.tsx` with their actual implementation pairs next to them.
+
+[source,typescriptjsx]
+----
+import type { FC } from 'react';
+import type { BundleContext } from '@pandino/pandino-api';
+import { ApplicationCustomizer } from './interfaces';
+import { ROUTE_GOD_GALAXIES_TABLE_INTERFACE_KEY } from '../routes';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<FC>(ROUTE_GOD_GALAXIES_TABLE_INTERFACE_KEY, CustomGalaxies);
+  }
+}
+
+export const CustomGalaxies = () => {
+  return (
+    <div className="galaxies">
+      <img src="https://c.tenor.com/rtnshG9YFykAAAAM/rick-astley-rick-roll.gif" />
+    </div>
+  );
+};
+----
+
+=== Implementing the localization loader
+
+The localization loader is responsible for loading the translations for the application.
+
+We need to implement the `L10NTranslationProvider` interface (`L10N_TRANSLATION_PROVIDER_INTERFACE_KEY`).
+
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { ApplicationCustomizer } from './interfaces';
+import {
+  L10N_TRANSLATION_PROVIDER_INTERFACE_KEY,
+  L10NTranslationProvider,
+  L10NTranslations,
+} from '../l10n/l10n-context';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(L10N_TRANSLATION_PROVIDER_INTERFACE_KEY, new CustomL10NProvider());
+  }
+}
+
+class CustomL10NProvider implements L10NTranslationProvider {
+  async provideTranslations(locale: string): Promise<L10NTranslations> {
+    return Promise.resolve({
+      systemTranslations: {
+        'judo.pages.create': 'My Create Label',
+        // ...
+      },
+      applicationTranslations: {
+        'God.galaxies.View.group.group.2.group.2.constellation': 'cOnStElLaTiOn',
+        // ...
+      },
+    });
+  }
+}
+----
+

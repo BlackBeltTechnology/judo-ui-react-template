@@ -63,7 +63,9 @@ export function Navigator(props: DrawerProps & NavigatorProps) {
   return (
     <Drawer variant="permanent" {...other}>
       <Logo {...logoProps} />
-      <Hero {...heroProps} />
+      {{# if application.authentication }}
+        <Hero {...heroProps} />
+      {{/ if }}
       <Divider variant="middle" />
       <List component="nav">
         {items.map(item => item.items && item.items.length ? <List component="nav" key={item.label} subheader={
