@@ -27,7 +27,7 @@ import {
     AggregationInput,
     useSnackbar,
 } from '{{ relativePathFromPage page 'components' }}';
-import { errorHandling, ERROR_PROCESSOR_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
 import {
     {{# each (getApiImportsForCreatePage page) as |imp| }}
@@ -51,8 +51,8 @@ export default function {{ pageName page }}() {
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
     const { openRangeDialog } = useRangeDialog();
-    const handleFetchError = useErrorHandling(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_INTERFACE_KEY})(operation=Fetch))`);
-    const handleCreateError = useErrorHandling(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_INTERFACE_KEY})(operation=Create)(component={{ pageName page }}))`);
+    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+    const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageName page }}))`);
     const { downloadFile, uploadFile } = fileHandling();
     const {
         {{# each (getPageTables page) as |table| }}

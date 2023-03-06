@@ -21,7 +21,7 @@ import type { JudoStored, QueryCustomizer } from '@judo/data-api-common';
 import { useTranslation } from 'react-i18next';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import type { Filter, FilterOption } from '../../components-api';
-import { useErrorHandling, processQueryCustomizer, ERROR_PROCESSOR_INTERFACE_KEY } from '../../utilities';
+import { useErrorHandler, processQueryCustomizer, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '../../utilities';
 import { serverTableConfig, rangeDialogConfig } from '../../config';
 import { CustomTablePagination } from '../CustomTablePagination';
 import { useSnackbar } from '../../components';
@@ -55,7 +55,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
   const { openFilterDialog } = useFilterDialog();
   const { t } = useTranslation();
   const descriptionElementRef = useRef<HTMLElement>(null);
-  const handleError = useErrorHandling(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_INTERFACE_KEY})(operation=Fetch)(component=RangeDialog))`);
+  const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
   const [enqueueSnackbar] = useSnackbar();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowCount, setRowCount] = useState<number>(0);
@@ -107,7 +107,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
       setLastItem(res[res.length - 1]);
       setRowCount(res.length || 0);
     } catch (error) {
-      handleError(error);
+      handleFetchError(error);
     }
     setIsLoading(false);
   };
