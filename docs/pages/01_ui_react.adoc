@@ -138,7 +138,7 @@ Errors which may be triggered by the application can be customized. The level of
 
 Whether and what errors are triggered cannot be modified!
 
-The pattern with regard to how can this be achieved is similar to the previous.
+The pattern with regards to how can this be achieved is similar to the previous.
 
 You need to register a service for the `ERROR_PROCESSOR_HOOK_INTERFACE_KEY` with variable service parameters depending
 on the error handler in question.
@@ -173,25 +173,26 @@ const galaxiesCreateFormErrorHook: ErrorProcessorHook<ViewGalaxy> = () => {
   const { t } = useTranslation();
   const [enqueueSnackbar] = useSnackbar();
 
+  /**
+   * @param {ErrorProcessResult} defaultResults Contains the pre-filled results, the usage is optional
+   * @param {any} [payload] Is present depending on the use-case, usually contains the data sent to the backend
+   */
   return (error: any, defaultResults: ErrorProcessResult, options?: ErrorHandlingOption, payload?: ViewGalaxy) => {
     // only modify validation results
     if (error?.response?.status === 400) {
       const errorList = error.response.data as ServerError[];
-      // if the host page has set the `setValidation` option
-      if (typeof options?.setValidation === 'function') {
-        // filter errors where we know what field is affected
+      // if the host page has validation errors turned on
+      if (typeof options?.setValidation === 'function' && defaultResults.validation) {
+        // filter errors where we know the affected field's name
         errorList.filter((e) => e.location).forEach((error) => {
           // only modify prepared results for required errors
           if (error.code === 'MISSING_REQUIRED_ATTRIBUTE') {
-            defaultResults.validation!.set(error.location, t('you forgot to fill this') as string);
+            defaultResults.validation.set(error.location, t('you forgot to fill this') as string);
           }
         });
-      }
-    }
 
-    // fail-safe mode of making sure we do not error out
-    if (typeof options?.setValidation === 'function' && defaultResults.validation) {
-      options?.setValidation(defaultResults.validation);
+        options.setValidation(defaultResults.validation);
+      }
     }
 
     // if by default we have a toast message, display it, but we can enforce the same by calling
@@ -205,5 +206,5 @@ const galaxiesCreateFormErrorHook: ErrorProcessorHook<ViewGalaxy> = () => {
 
 As explained in the comments, **the provisioning of service parameters is mandatory!**
 
-The best way to find out what services require what parameters, you only need to search for the `useErrorHandler` hook's
+The best way to find out what services requires what parameters, you only need to search for the `useErrorHandler` hook's
 usage, and you should be able to see how does the corresponding `filter` look like.
