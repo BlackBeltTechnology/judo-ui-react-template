@@ -31,7 +31,9 @@ export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActi
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const [createDialog, closeDialog] = useDialog();
-    const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CreateAction)(action={{ actionFunctionTypeName action page }}))`);
+    {{# unless (actionHasVisualElements action) }}
+        const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageActionFormComponentName action page }}))`);
+    {{/ unless }}
     const [enqueueSnackbar] = useSnackbar();
 
     return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: {{ classDataName page.dataElement.target 'Stored' }},{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) {
