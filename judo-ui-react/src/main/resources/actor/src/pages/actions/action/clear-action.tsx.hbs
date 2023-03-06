@@ -1,8 +1,9 @@
 // Action: ClearAction
 
 import type { JudoIdentifiable } from '@judo/data-api-common';
+import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from '{{ relativePathFromAction page action 'components' }}';
-import { errorHandling } from '{{ relativePathFromAction page action 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
 import {
     {{ classDataName action.dataElement.owner '' }},
 } from '{{ relativePathFromAction page action 'generated/data-api' }}';
@@ -13,6 +14,7 @@ import {
 export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+    const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=ClearAction))`);
     const [enqueueSnackbar] = useSnackbar();
 
     return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, successCallback: () => void) {
@@ -24,7 +26,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
 
             successCallback();
         } catch (error) {
-            errorHandling(error, enqueueSnackbar);
+            handleActionError(error);
         }
     }
 };
