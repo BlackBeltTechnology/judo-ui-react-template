@@ -3,10 +3,11 @@
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import { useTranslation } from 'react-i18next';
 import { GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid';
+import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useRangeDialog, useSnackbar, MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
 import { baseColumnConfig, toastConfig } from '{{ relativePathFromAction page action 'config' }}';
-import { errorHandling, processQueryCustomizer } from '{{ relativePathFromAction page action 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer } from '{{ relativePathFromAction page action 'utilities' }}';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
@@ -21,6 +22,7 @@ export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentif
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const { openRangeDialog } = useRangeDialog();
     const { t } = useTranslation();
+    const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=AddAction))`);
     const [enqueueSnackbar] = useSnackbar();
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
 
@@ -76,7 +78,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
 
                 successCallback();
             } catch (error) {
-                errorHandling(error, enqueueSnackbar);
+                handleActionError(error, undefined, owner);
             }
         {{/ with }}
     }
