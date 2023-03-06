@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Box, Button, Card, CardContent, Container, Grid, InputAdornment, TextField, MenuItem, Typography, Paper, Divider, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { DataGrid, GridRowId, GridSortModel, GridSortItem, GridToolbarContainer, GridRowParams } from '@mui/x-data-grid';
 import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
+import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useParams } from 'react-router-dom';
 import type { Dayjs } from 'dayjs';
 import {
@@ -28,7 +29,7 @@ import {
     AggregationInput,
     useSnackbar,
 } from '{{ relativePathFromPage page 'components' }}';
-import { errorHandling, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromPage page 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
 import {
     {{# each (getApiImportsForViewPage page) as |imp| }}
@@ -80,6 +81,13 @@ export default function {{ pageName page }}() {
         {{/ each }}
     } = use{{ pageName page }}();
 
+    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+    {{# if page.relationType.isUpdatable }}
+        const handleUpdateError = useErrorHandler<{{ classDataName page.dataElement.target 'Stored' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
+    {{/ if }}
+    {{# if page.relationType.isDeletable }}
+        const handleDeleteError = useErrorHandler<{{ classDataName page.dataElement.target 'Stored' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
+    {{/ if }}
     const [enqueueSnackbar] = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
@@ -145,7 +153,7 @@ export default function {{ pageName page }}() {
                 __entityType: res.__entityType,
             });
         } catch (error) {
-            errorHandling(error, enqueueSnackbar);
+            handleFetchError(error);
         } finally {
             setIsLoading(false);
         }
@@ -163,7 +171,7 @@ export default function {{ pageName page }}() {
                     setEditMode(false);
                 }
             } catch (error) {
-                errorHandling(error, enqueueSnackbar, { setValidation });
+                handleUpdateError(error, { setValidation }, data);
             } finally {
                 setIsLoading(false);
             }
@@ -179,7 +187,7 @@ export default function {{ pageName page }}() {
 
                 back();
             } catch (error) {
-                errorHandling(error, enqueueSnackbar);
+                handleDeleteError(error, undefined, data);
             } finally {
                 setIsLoading(false);
             }

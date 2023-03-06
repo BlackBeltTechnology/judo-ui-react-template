@@ -12,6 +12,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Paper, Box, Button, Container, Grid, InputAdornment, TextField, MenuItem, Typography, Card, CardContent, Divider, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
+import { OBJECTCLASS } from '@pandino/pandino-api';
 import { DataGrid, GridRowId, GridSortModel, GridSortItem, GridToolbarContainer, GridRowParams } from '@mui/x-data-grid';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import type { Dayjs } from 'dayjs';
@@ -26,7 +27,7 @@ import {
     AggregationInput,
     useSnackbar,
 } from '{{ relativePathFromPage page 'components' }}';
-import { errorHandling, processQueryCustomizer, fileHandling, uiDateToServiceDate, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
 import {
     {{# each (getApiImportsForCreatePage page) as |imp| }}
@@ -50,6 +51,8 @@ export default function {{ pageName page }}() {
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
     const { openRangeDialog } = useRangeDialog();
+    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+    const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageName page }}))`);
     const { downloadFile, uploadFile } = fileHandling();
     const {
         {{# each (getPageTables page) as |table| }}
@@ -87,7 +90,7 @@ export default function {{ pageName page }}() {
                 const res = await {{ classServiceName page.dataElement.target }}Impl.getTemplate();
                 setData(res);
             } catch (error) {
-                errorHandling(error, enqueueSnackbar);
+                handleFetchError(error);
             } finally {
                 setIsLoading(false);
             }
@@ -108,7 +111,7 @@ export default function {{ pageName page }}() {
                 back();
             }
         } catch (error) {
-            errorHandling(error, enqueueSnackbar, { setValidation });
+            handleCreateError(error, { setValidation }, data);
         } finally {
             setIsLoading(false);
         }
