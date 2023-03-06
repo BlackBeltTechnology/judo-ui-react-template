@@ -32,7 +32,7 @@ export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActi
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const [createDialog, closeDialog] = useDialog();
     {{# unless (actionHasVisualElements action) }}
-        const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageActionFormComponentName action page }}))`);
+        const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ actionFunctionTypeName action page }}))`);
     {{/ unless }}
     const [enqueueSnackbar] = useSnackbar();
 
