@@ -3,6 +3,7 @@
     { editMode
         ? (
             <TextField
+                {{# if child.attributeType.isRequired }} required {{/ if }}
                 name="{{ child.attributeType.name }}"
                 id="{{ getXMIID child }}"
                 label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
