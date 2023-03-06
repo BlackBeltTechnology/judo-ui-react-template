@@ -3,7 +3,7 @@
     <AggregationInput
         name="{{ child.dataElement.name }}"
         id="{{ getXMIID child }}"
-        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string {{# if child.attributeType.isRequired }} + " *" {{/ if }} }
         labelList={[
             {{# each child.parts as |part| }}
                 data.{{ child.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
