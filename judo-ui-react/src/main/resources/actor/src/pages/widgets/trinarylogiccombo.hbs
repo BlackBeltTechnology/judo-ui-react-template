@@ -3,7 +3,7 @@
     <TrinaryLogicCombobox
         name="{{ child.attributeType.name }}"
         id="{{ getXMIID child }}"
-        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string {{# if child.attributeType.isRequired }} + " *" {{/ if }} }
         value={ data?.{{ child.attributeType.name }} }
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
