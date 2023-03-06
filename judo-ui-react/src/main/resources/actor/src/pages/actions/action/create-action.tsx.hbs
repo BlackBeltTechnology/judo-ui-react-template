@@ -10,10 +10,11 @@ import {
     DialogTitle,
     Grid,
 } from '@mui/material';
+import { OBJECTCLASS } from '@pandino/pandino-api';
 import type { DialogOption } from '{{ relativePathFromAction page action 'components' }}';
 import { useSnackbar, useDialog } from '{{ relativePathFromAction page action 'components' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
-import { errorHandling } from '{{ relativePathFromAction page action 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
 
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
@@ -30,6 +31,7 @@ export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActi
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const [createDialog, closeDialog] = useDialog();
+    const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CreateAction)(action={{ actionFunctionTypeName action page }}))`);
     const [enqueueSnackbar] = useSnackbar();
 
     return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: {{ classDataName page.dataElement.target 'Stored' }},{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) {
@@ -61,7 +63,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
                         successCallback(res);
                     }
                 } catch (error) {
-                    errorHandling(error, enqueueSnackbar);
+                    handleActionError(error);
                 }
             })();
         {{/ if }}
