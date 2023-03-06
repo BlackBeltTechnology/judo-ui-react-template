@@ -85,6 +85,6 @@ return async function {{ actionFunctionName action page }} ({{# if action.operat
             ...toastConfig.success,
         });
     } catch (error) {
-        errorHandling(error, enqueueSnackbar);
+        handleActionError(error{{# if action.operation.isMapped }}, undefined, owner{{/ if }});
     }
 }
