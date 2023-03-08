@@ -68,30 +68,23 @@ export function copyTasks(inventory, prefix = 'dist/externals/') {
         for (const fileName in inventory[packageName]) {
             const f = inventory[packageName][fileName];
             const targetSuffix = fileName.includes('/') ? '/' + fileName.substring(0, fileName.lastIndexOf('/')) : '';
+            const dest = `${prefix}${packageName}@${f.version}${targetSuffix}`;
+
             if (f.tags.includes('npm')) {
                 const src = `node_modules/${packageName}/${fileName}`;
-                tasks.push({
-                    src,
-                    dest: `${prefix}${packageName}@${f.version}${targetSuffix}`,
-                });
+                tasks.push({ src, dest });
+
                 if (fileName.match(isMinifiedJS) && existsSync(src + mapSuffix)) {
-                    tasks.push({
-                        src: src + mapSuffix,
-                        dest: `${prefix}${packageName}@${f.version}${targetSuffix}`,
-                    });
+                    tasks.push({ src: src + mapSuffix, dest });
                 }
             }
+
             if (f.tags.includes('external')) {
-                const src = `externals/` + packageName + '@' + f.version + '/' + fileName;
-                tasks.push({
-                    src,
-                    dest: `${prefix}${packageName}@${f.version}${targetSuffix}`,
-                });
+                const src = `externals/${packageName}@${f.version}/${fileName}`;
+                tasks.push({ src, dest });
+
                 if (fileName.match(isMinifiedJS) && existsSync(src + mapSuffix)) {
-                    tasks.push({
-                        src: src + mapSuffix,
-                        dest: `${prefix}${packageName}@${f.version}${targetSuffix}`,
-                    });
+                    tasks.push({ src: src + mapSuffix, dest });
                 }
             }
         }
