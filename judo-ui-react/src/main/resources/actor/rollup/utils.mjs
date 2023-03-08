@@ -85,19 +85,18 @@ export function copyTasks(inventory, prefix = 'dist/externals/') {
 }
 
 export function getExternals(inventory) {
-    const excludes = [];
+    const excludes = new Set();
 
     for (const packageName in inventory) {
         for (const fileName in inventory[packageName]) {
             const f = inventory[packageName][fileName];
             if (f.tags.includes('importMap')) {
-                excludes.push(packageName);
-                break;
+                excludes.add(f.exports);
             }
         }
     }
 
-    return excludes;
+    return Array.from(excludes);
 }
 
 export function getCSSLinks(inventory, prefix = 'dist/externals/') {

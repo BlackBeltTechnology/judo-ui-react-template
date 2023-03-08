@@ -9,38 +9,22 @@
 
 import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-    Button,
-    IconButton,
-    DialogActions,
-    DialogContent,
-    DialogContentText,
-    DialogTitle,
-    Paper,
-    Box,
-    Container,
-    Grid,
-    InputAdornment,
-    TextField,
-    MenuItem,
-    Typography,
-    Card,
-    CardContent,
-} from '@mui/material';
-import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
-import { DataGrid, GridRowId, GridSortModel, GridSelectionModel, GridToolbarContainer, GridRenderCellParams, GridRowParams, GridColDef } from '@mui/x-data-grid';
+import { Grid, {{ getMuiMaterialImportsForActionForm page }} } from '@mui/material';
+import { {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
+{{# if (hasPageDateTimePickers page) }}
+    import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
+{{/ if }}
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import type { Dayjs } from 'dayjs';
 import {
     MdiIcon,
     ModeledTabs,
-    TrinaryLogicCombobox,
-    AggregationInput,
     useSnackbar,
-    useRangeDialog,
-    columnsActionCalculator,
 } from '{{ relativePathFromPage page 'components' }}';
+import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
+import { useDialog, useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
+import { AggregationInput, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromPage page 'components-api' }}';
 import {
     {{# each (getApiImportsForUnmappedOperationOutputAction action page) as |imp| }}
