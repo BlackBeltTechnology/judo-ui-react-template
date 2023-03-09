@@ -10,25 +10,26 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Box, Button, Card, CardContent, Container, Grid, InputAdornment, TextField, MenuItem, Typography, Paper, Divider, RadioGroup, FormControlLabel, Radio } from '@mui/material';
-import { DataGrid, GridRowId, GridSortModel, GridSortItem, GridToolbarContainer, GridRowParams } from '@mui/x-data-grid';
-import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
+import { Box, Container, Grid, {{ getMuiMaterialImportsForPage page }} } from '@mui/material';
+import { {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
+{{# if (hasPageDateTimePickers page) }}
+    import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
+{{/ if }}
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useParams } from 'react-router-dom';
 import type { Dayjs } from 'dayjs';
 import {
-    columnsActionCalculator,
     MdiIcon,
     ModeledTabs,
     PageHeader,
     DropdownButton,
     CustomBreadcrumb,
-    TrinaryLogicCombobox,
     useJudoNavigation,
-    useRangeDialog,
-    AggregationInput,
     useSnackbar,
 } from '{{ relativePathFromPage page 'components' }}';
+import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
+import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
+import { AggregationInput, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
 import {
