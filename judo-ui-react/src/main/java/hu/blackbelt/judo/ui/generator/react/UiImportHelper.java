@@ -1,12 +1,11 @@
 package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.Container;
-import hu.blackbelt.judo.meta.ui.PageDefinition;
-import hu.blackbelt.judo.meta.ui.VisualElement;
+import hu.blackbelt.judo.meta.ui.*;
 import lombok.extern.java.Log;
 
 import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Log
@@ -167,5 +166,24 @@ public class UiImportHelper {
         contents.stream()
                 .filter(c -> c instanceof Container)
                 .forEach(c -> fillFlattenedVisualElements(((Container) c), elements));
+
+        List<TabController> tabControllers = contents.stream()
+                .filter(c -> c instanceof TabController)
+                .map(t -> ((TabController) t))
+                .collect(Collectors.toList());
+
+        elements.addAll(tabControllers);
+
+        List<Tab> tabs = tabControllers.stream()
+                .flatMap(t -> t.getTabs().stream())
+                .collect(Collectors.toList());
+
+        tabs.forEach(t -> {
+            VisualElement element = t.getElement();
+            elements.add(element);
+            if (element instanceof Container) {
+                fillFlattenedVisualElements(((Container) element), elements);
+            }
+        });
     }
 }
