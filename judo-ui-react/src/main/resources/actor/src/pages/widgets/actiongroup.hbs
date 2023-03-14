@@ -4,7 +4,7 @@
         {{# each (featuredActionsForActionGroup child) as |action| }}
             {{# if action.hiddenBy }}( !data.{{ action.hiddenBy.name }} }} && {{/ if }}
             <Grid item>
-                <Button onClick={ () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) } disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }>
+                <Button id="{{ createId action }}" onClick={ () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) } disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }>
                     {{# if action.icon }}
                         <MdiIcon path="{{ action.icon.name }}" />
                     {{/ if }}
@@ -16,10 +16,12 @@
         {{# if (displayDropdownForActionGroup child) }}
             <Grid item>
                 <DropdownButton
+                    id="{{ createId child }}-action-group"
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
                     menuItems={[
                         {{# each (nonFeaturedActionsForActionGroup child) as |action| }}
                             {
+                                id: '{{ createId action }}',
                                 label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
                                 onClick: () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
                                 startIcon: <MdiIcon path="arrow_right" />,

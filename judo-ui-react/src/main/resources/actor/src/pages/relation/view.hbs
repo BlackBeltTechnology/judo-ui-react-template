@@ -108,6 +108,7 @@ export default function {{ pageName page }}() {
             {{# each table.rowActions as |action| }}
                 {{# if action.isRemoveAction }}
                     {
+                        id: '{{ createId action }}',
                         label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}(data, row, () => fetchData()),
@@ -115,6 +116,7 @@ export default function {{ pageName page }}() {
                 {{/ if }}
                 {{# if action.isDeleteAction }}
                     {
+                        id: '{{ createId action }}',
                         label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetchData()),
@@ -123,6 +125,7 @@ export default function {{ pageName page }}() {
                 {{/ if }}
                 {{# if action.isCallOperationAction }}
                     {
+                        id: '{{ createId action }}',
                         label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
@@ -210,7 +213,7 @@ export default function {{ pageName page }}() {
                     {{# if page.relationType.isRefreshable }}
                         {!editMode && (
                             <Grid item>
-                                <Button onClick={() => fetchData()} disabled={isLoading}>
+                                <Button id="page-action-refresh" onClick={() => fetchData()} disabled={isLoading}>
                                     <MdiIcon path="refresh" />
                                     {t('judo.pages.refresh', { defaultValue: 'Refresh' })}
                                 </Button>
@@ -220,7 +223,7 @@ export default function {{ pageName page }}() {
                     {{# if page.relationType.isDeletable }}
                         {!editMode && (
                             <Grid item>
-                                <Button onClick={() => deleteData()} disabled={isLoading || !data.__deleteable}>
+                                <Button id="page-action-delete" onClick={() => deleteData()} disabled={isLoading || !data.__deleteable}>
                                     <MdiIcon path="delete" />
                                     {t('judo.pages.delete', { defaultValue: 'Delete' })}
                                 </Button>
@@ -230,7 +233,7 @@ export default function {{ pageName page }}() {
                     {{# if page.relationType.isUpdatable }}
                         {!editMode && (
                             <Grid item>
-                                <Button onClick={() => setEditMode(true)} disabled={isLoading || !data.__updateable}>
+                                <Button id="page-action-edit" onClick={() => setEditMode(true)} disabled={isLoading || !data.__updateable}>
                                     <MdiIcon path="pencil" />
                                     {t('judo.pages.edit', { defaultValue: 'Edit' })}
                                 </Button>
@@ -239,6 +242,7 @@ export default function {{ pageName page }}() {
                         {editMode && (
                             <Grid item>
                                 <Button
+                                    id="page-action-edit-cancel"
                                     variant="outlined"
                                     onClick={() => {
                                         setEditMode(false);
@@ -253,7 +257,7 @@ export default function {{ pageName page }}() {
                         )}
                         {editMode && (
                             <Grid item>
-                                <Button onClick={() => saveData()} disabled={isLoading}>
+                                <Button id="page-action-edit-save" onClick={() => saveData()} disabled={isLoading}>
                                     <MdiIcon path="content-save" />
                                     {t('judo.pages.save', { defaultValue: 'Save' })}
                                 </Button>

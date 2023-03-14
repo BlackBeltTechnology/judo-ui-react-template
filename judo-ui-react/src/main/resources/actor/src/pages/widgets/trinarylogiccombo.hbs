@@ -2,7 +2,7 @@
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     <TrinaryLogicCombobox
         name="{{ child.attributeType.name }}"
-        id="{{ getXMIID child }}"
+        id="{{ createId child }}"
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string {{# if child.attributeType.isRequired }} + " *" {{/ if }} }
         value={ data?.{{ child.attributeType.name }} }
         error={ !!validation.get('{{ child.attributeType.name }}') }

@@ -76,6 +76,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '{
                 {{# each table.rowActions as |action| }}
                     {{# if action.isRemoveAction }}
                         {
+                            id: '{{ createId action }}',
                             label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                             icon: <MdiIcon path="{{ action.icon.name }}" />,
                             action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
@@ -131,6 +132,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '{
                     <DialogTitle>
                         {title}
                         <IconButton
+                            id="{{ createId action }}-dialog-close"
                             aria-label="close"
                             onClick={ () => cancel() }
                             sx={ {
@@ -151,10 +153,10 @@ import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '{
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="text" onClick={ () => cancel() } disabled={isLoading}>
+                        <Button id="{{ createId action }}-action-form-action-cancel" variant="text" onClick={ () => cancel() } disabled={isLoading}>
                             {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
                         </Button>
-                        <Button variant="contained" onClick={ () => saveData() } disabled={isLoading}>
+                        <Button id="{{ createId action }}-action-form-action-create" variant="contained" onClick={ () => saveData() } disabled={isLoading}>
                             {t('judo.pages.create', { defaultValue: 'Create' })}
                         </Button>
                     </DialogActions>
