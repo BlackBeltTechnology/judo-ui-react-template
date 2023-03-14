@@ -344,6 +344,10 @@ export const FilterDialog = ({ filters, filterOptions, resolve, open, handleClos
     resolve(tempFilters);
   };
 
+  const clear = () => {
+    setTempFilters([]);
+  };
+
   return (
     <Dialog
       open={open}
@@ -422,6 +426,10 @@ export const FilterDialog = ({ filters, filterOptions, resolve, open, handleClos
         <Button fullWidth variant="outlined" onClick={cancel}>
           { t('judo.modal.filter.cancel', { defaultValue: 'Cancel' }) as string }
         </Button>
+        { tempFilters.length > 0 &&
+        <Button id="clear-all-filters" fullWidth variant="outlined" onClick={clear}>
+            {t('judo.modal.filter.clear-all', { defaultValue: 'Clear all' }) as string}
+        </Button> }
         <Button fullWidth onClick={ok}>
           { t('judo.modal.filter.apply', { defaultValue: 'Apply' }) as string } {'(' + tempFilters.length + ')'}
         </Button>
