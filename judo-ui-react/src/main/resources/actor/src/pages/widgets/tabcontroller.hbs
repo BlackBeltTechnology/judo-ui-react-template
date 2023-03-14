@@ -1,11 +1,12 @@
 {{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
 <Grid container item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     <ModeledTabs
+        id="{{ createId child }}"
         activeIndex={0}
         childTabs={[
             {{# each child.tabs as |tab| }}
                 {
-                    id: '{{ tab.name }}',
+                    id: '{{ createId tab }}',
                     name: '{{ tab.name }}',
                     label: '{{ tab.element.label }}',
                     {{# if tab.child.icon }}

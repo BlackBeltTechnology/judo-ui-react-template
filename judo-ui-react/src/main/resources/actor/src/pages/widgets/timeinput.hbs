@@ -5,6 +5,7 @@
             <TextField
                 {{# if child.attributeType.isRequired }} required {{/ if }}
                 {...props}
+                id="{{ createId child }}"
                 error={!!validation.get('{{ child.attributeType.name }}')}
                 helperText={validation.get('{{ child.attributeType.name }}')}
             />

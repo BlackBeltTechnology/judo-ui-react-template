@@ -9,6 +9,7 @@ import type { MenuItem } from './components-api';
 export const menuItems: MenuItem[] = [
     {{# each application.navigationController.items as |item| }}
     {
+        id: '{{ createId item }}',
         {{# unless (isNavItemAGroup item) }}
             to: '{{ getPageRoute item.target }}',
         {{/ unless }}
@@ -21,6 +22,7 @@ export const menuItems: MenuItem[] = [
         items: [
         {{# each item.items as |subItem| }}
             {
+            id: '{{ createId item }}',
             {{# unless (isNavItemAGroup subItem) }}
                 to: '{{ getPageRoute subItem.target }}',
             {{/ unless }}

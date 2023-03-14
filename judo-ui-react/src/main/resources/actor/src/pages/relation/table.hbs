@@ -185,6 +185,7 @@ export default function {{ pageName page }}() {
             {{# each table.rowActions as |action| }}
                 {{# if action.isRemoveAction }}
                     {
+                        id: '{{ createId action }}',
                         label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, row, () => fetchData()),
@@ -192,6 +193,7 @@ export default function {{ pageName page }}() {
                 {{/ if }}
                 {{# if action.isDeleteAction }}
                     {
+                        id: '{{ createId action }}',
                         label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, row, () => fetchData()),
@@ -200,6 +202,7 @@ export default function {{ pageName page }}() {
                 {{/ if }}
                 {{# if action.isCallOperationAction }}
                     {
+                        id: '{{ createId action }}',
                         label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }} ({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
@@ -214,7 +217,7 @@ export default function {{ pageName page }}() {
                     {{# each (getUniquePageActions page) as |action| }}
                         {{# if action.isRefreshAction }}
                             <Grid item>
-                                <Button onClick={ () => {{ actionFunctionName action page }}(() => fetchData()) } disabled={isLoading}>
+                                <Button id="page-action-refresh" onClick={ () => {{ actionFunctionName action page }}(() => fetchData()) } disabled={isLoading}>
                                     <MdiIcon path="refresh" />
                                     {t('judo.pages.table.refresh', { defaultValue: 'Refresh' })}
                                 </Button>
@@ -222,7 +225,7 @@ export default function {{ pageName page }}() {
                         {{/ if }}
                         {{# if action.isAddAction }}
                             <Grid item>
-                                <Button onClick={ () => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, () => fetchData()) } disabled={isLoading}>
+                                <Button id="page-action-add" onClick={ () => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, () => fetchData()) } disabled={isLoading}>
                                     <MdiIcon path="attachment-plus" />
                                     {t('judo.pages.table.add', { defaultValue: 'Add' })}
                                 </Button>
@@ -230,7 +233,7 @@ export default function {{ pageName page }}() {
                         {{/ if }}
                         {{# if action.isClearAction }}
                             <Grid item>
-                                <Button onClick={ () => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, () => fetchData()) } disabled={isLoading}>
+                                <Button id="page-action-clear" onClick={ () => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, () => fetchData()) } disabled={isLoading}>
                                     <MdiIcon path="link_off" />
                                     {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
                                 </Button>
@@ -243,7 +246,7 @@ export default function {{ pageName page }}() {
                         <Grid container spacing={2}>
                             <Grid item xs={12}>
                                 <Card>
-                                    <CardContent>
+                                    <CardContent id="{{ createId page }}-data-grid">
                                         <DataGrid
                                             { ...pageServerTableConfig }
                                             getRowId={(row: { __identifier: string }) => row.__identifier}
@@ -252,7 +255,7 @@ export default function {{ pageName page }}() {
                                             rowCount={rowCount}
                                             sortModel={sortModel}
                                             onSortModelChange={handleSortModelChange}
-                                            columns={[...columns, ...columnsActionCalculator(rowActions, { shownActions: 2 })]}
+                                            columns={[...columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, { shownActions: 2 })]}
                                             {{# each (getUniquePageActions page) as |action| }}
                                                 {{# if action.isViewAction }}
                                                     onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action page }}(params.row) }
@@ -264,8 +267,9 @@ export default function {{ pageName page }}() {
                                                         {{# each (getUniquePageActions page) as |action| }}
                                                             {{# if action.isFilterAction }}
                                                                 <Button
+                                                                    id="{{ createId action }}"
                                                                     variant="outlined"
-                                                                    onClick={ async () => {{ actionFunctionName action page }}(filterOptions, filters) }
+                                                                    onClick={ async () => {{ actionFunctionName action page }}('{{ createId action }}-filter', filterOptions, filters) }
                                                                     disabled={isLoading}
                                                                 >
                                                                     {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}

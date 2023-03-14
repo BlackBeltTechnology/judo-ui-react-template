@@ -101,6 +101,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
                 <DialogTitle>
                     {title}
                     <IconButton
+                        id="{{ createId page }}-output-view-close"
                         aria-label="close"
                         onClick={ () => close() }
                         sx={ {
@@ -123,7 +124,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button variant="contained" onClick={ () => close() } disabled={isLoading}>
+                    <Button id="{{ createId page }}-output-view-action-close" variant="contained" onClick={ () => close() } disabled={isLoading}>
                         { t('judo.modal.close', { defaultValue: 'Close' }) as string }
                     </Button>
                 </DialogActions>

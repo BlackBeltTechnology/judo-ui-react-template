@@ -5,15 +5,14 @@ import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.Application;
 import hu.blackbelt.judo.meta.ui.NavigationItem;
 import hu.blackbelt.judo.meta.ui.Sort;
-import hu.blackbelt.judo.meta.ui.Stretch;
 import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.xmi.XMIResource;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.getXMIID;
 import static java.util.Arrays.stream;
 
 @Log
@@ -73,6 +72,10 @@ public class UiGeneralHelper extends Helper {
                 .split("::"))
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
+    }
+
+    public static String createId(EObject element) {
+        return fqClass(getXMIID(element).replaceAll("@", ""));
     }
 
     public static Boolean isNavItemAGroup(NavigationItem navigationItem) {

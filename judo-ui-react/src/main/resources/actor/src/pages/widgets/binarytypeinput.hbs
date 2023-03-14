@@ -5,7 +5,7 @@
             <TextField
                 {{# if child.attributeType.isRequired }} required {{/ if }}
                 name="{{ child.attributeType.name }}"
-                id="{{ getXMIID child }}"
+                id="{{ createId child }}"
                 label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
                 type="file"
                 error={ !!validation.get('{{ child.attributeType.name }}') }
@@ -51,7 +51,7 @@
             />
           )
         : (
-            <Button variant="contained" disabled={ !data?.{{ child.attributeType.name }} } onClick={ () => downloadFile(data, '{{ child.attributeType.name }}') }>
+            <Button id="{{ createId child }}-download" variant="contained" disabled={ !data?.{{ child.attributeType.name }} } onClick={ () => downloadFile(data, '{{ child.attributeType.name }}') }>
                 {{# if child.icon }}
                     <MdiIcon path="{{ child.icon.name }}" {{# neq child.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ child.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ child.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />
                 {{/ if }}

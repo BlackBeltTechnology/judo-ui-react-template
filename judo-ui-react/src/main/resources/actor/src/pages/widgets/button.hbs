@@ -2,7 +2,7 @@
     {{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
     <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
         {{# if action.isCallOperationAction }}
-            <Button onClick={() => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())} disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading  || editMode }>
+            <Button id="{{ createId action }}" onClick={() => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())} disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading  || editMode }>
                 {{# if child.icon }}
                     <MdiIcon path="{{ child.icon.name }}" />
                 {{/ if }}
@@ -11,7 +11,7 @@
         {{/ if }}
 
         {{# if action.isNavigationToPageAction }}
-            <Button onClick={() => {{ actionFunctionName action page }}(data)} disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading  || editMode }>
+            <Button id="{{ createId action }}" onClick={() => {{ actionFunctionName action page }}(data)} disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading  || editMode }>
                 {{# if child.icon }}
                     <MdiIcon path="{{ child.icon.name }}" />
                 {{/ if }}

@@ -3,7 +3,7 @@
     <TextField
         {{# if child.attributeType.isRequired }} required {{/ if }}
         name="{{ child.attributeType.name }}"
-        id="{{ getXMIID child }}"
+        id="{{ createId child }}"
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         type="number"
         value={ data.{{ child.attributeType.name }} }
