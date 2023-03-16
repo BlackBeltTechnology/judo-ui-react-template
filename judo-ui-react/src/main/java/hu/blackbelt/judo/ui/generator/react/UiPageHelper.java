@@ -71,7 +71,7 @@ public class UiPageHelper extends Helper {
                     }
                     // Currently there is a shady behaviour where in for single relations we would generate TABLE screens
                     // as well. We think this is a transformation bug, therefore for now we exclude these.
-                    return pageType.equals(PageType.VIEW);
+                    return pageType.equals(PageType.VIEW) || pageType.equals(PageType.OPERATION_OUTPUT);
                 }
             }
 
