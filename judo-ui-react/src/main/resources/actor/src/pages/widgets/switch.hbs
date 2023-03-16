@@ -3,7 +3,7 @@
     <TextField
         {{# if child.attributeType.isRequired }} required {{/ if }}
         name="{{ child.attributeType.name }}"
-        id="{{ getXMIID child }}"
+        id="{{ createId child }}"
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         select
         value={ booleanToStringSelect( data.{{ child.attributeType.name }} )}
@@ -25,9 +25,9 @@
                 {{/ if }}
         } }
     >
-        <MenuItem value={'true'}>{ t('judo.form.switch.true', { defaultValue: 'Yes' }) as string }</MenuItem>
-        <MenuItem value={'false'}>{ t('judo.form.switch.false', { defaultValue: 'No' }) as string }</MenuItem>
-        <MenuItem value={' '}>{ t('judo.form.switch.unknown', { defaultValue: 'Unknown' }) as string }</MenuItem>
+        <MenuItem id="{{ createId child }}-true" value={'true'}>{ t('judo.form.switch.true', { defaultValue: 'Yes' }) as string }</MenuItem>
+        <MenuItem id="{{ createId child }}-false" value={'false'}>{ t('judo.form.switch.false', { defaultValue: 'No' }) as string }</MenuItem>
+        <MenuItem id="{{ createId child }}-undefined" value={' '}>{ t('judo.form.switch.unknown', { defaultValue: 'Unknown' }) as string }</MenuItem>
     </TextField>
 </Grid>
 {{# if child.hiddenBy }} } {{/ if }}

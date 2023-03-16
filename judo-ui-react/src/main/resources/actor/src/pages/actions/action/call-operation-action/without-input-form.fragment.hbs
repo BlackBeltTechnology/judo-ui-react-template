@@ -31,6 +31,7 @@ return async function {{ actionFunctionName action page }} ({{# if action.operat
             };
 
             const res = await openRangeDialog<{{ classDataName action.inputParameterPage.dataElement.target 'Stored' }}, {{ classDataName action.inputParameterPage.dataElement.target 'QueryCustomizer' }}>({
+                id: '{{ createId action.inputParameterPage }}',
                 columns,
                 defaultSortField: sortModel[0],
                 rangeCall: async (queryCustomizer) => await {{ classServiceName action.dataElement.owner }}Impl.getRangeFor{{ firstToUpper action.dataElement.name }}({{# if action.operation.isMapped }}owner{{ else }}undefined{{/ if }}, processQueryCustomizer(queryCustomizer)),

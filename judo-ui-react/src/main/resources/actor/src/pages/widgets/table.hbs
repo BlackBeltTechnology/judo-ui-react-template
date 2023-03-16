@@ -1,12 +1,12 @@
 {{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
-    <Grid container direction="column" alignItems="stretch" justifyContent="flex-start">
+    <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
         <DataGrid
             { ...baseTableConfig }
             getRowId={(row: { __identifier: string }) => row.__identifier}
             loading={isLoading}
             rows={data?.{{ child.dataElement.name }} ?? []}
-            columns={[ ...{{ child.dataElement.name }}Columns, ...columnsActionCalculator({{ child.dataElement.name }}RowActions, { shownActions: 2 }) ]}
+            columns={[ ...{{ child.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId child.dataElement }}', {{ child.dataElement.name }}RowActions, { shownActions: 2 }) ]}
             disableSelectionOnClick
             {{# each child.rowActions as |action| }}
                 {{# if action.isViewAction }}
@@ -25,6 +25,7 @@
                                 {{# if page.isPageTypeOperationInput }}
                                     {{# if action.isClearAction }}
                                         <Button
+                                            id="{{ createId action }}"
                                             onClick={ () => {
                                                 setData({
                                                     ...data,
@@ -41,6 +42,7 @@
                                     {{/ if }}
                                     {{# if action.isAddAction }}
                                         <Button
+                                            id="{{ createId action }}"
                                             onClick={ async () => {
                                                 const res = await {{ action.dataElement.name }}RangeCall();
 
@@ -62,6 +64,7 @@
                                 {{ else }}
                                     {{# if action.isCreateAction }}
                                         <Button
+                                            id="{{ createId action }}"
                                             onClick={ () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetchData()) }
                                             disabled={isLoading || editMode}
                                         >

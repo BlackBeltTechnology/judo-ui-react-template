@@ -28,11 +28,11 @@ export function ApplicationSelector() {
 
     return (
         <>
-            <Button variant="text" sx={ { width: '100%' } } onClick={handleClickListItem} endIcon={<MdiIcon path="chevron_down" />}>
+            <Button id="application-selector" variant="text" sx={ { width: '100%' } } onClick={handleClickListItem} endIcon={<MdiIcon path="chevron_down" />}>
                 <Typography sx={ { fontWeight: 500 } }>{ t('applications.{{ application.actor.simpleName }}', { defaultValue: '{{ application.actor.simpleName }}' }) as string }</Typography>
             </Button>
             <Menu
-                id="app-selector-menu"
+                id="application-selector-menu"
                 anchorEl={anchorEl}
                 open={applicationSelectorOpen}
                 onClose={handleClose}
@@ -45,7 +45,7 @@ export function ApplicationSelector() {
                     <Typography>{ t('judo.applications.available_applications', { defaultValue: 'Available applications' }) as string }</Typography>
                 </MenuItem>
                 {Object.keys(alternativeApplications).map(key => (
-                    <MenuItem key={key} onClick={() => handleMenuItemClick(key)}>
+                    <MenuItem id={key} key={key} onClick={() => handleMenuItemClick(key)}>
                         <Typography>{alternativeApplications[key]}</Typography>
                     </MenuItem>
                 ))}

@@ -3,7 +3,7 @@
     <TextField
         {{# if child.attributeType.isRequired }} required {{/ if }}
         name="{{ child.attributeType.name }}"
-        id="{{ getXMIID child }}"
+        id="{{ createId child }}"
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} || '' }
         error={ !!validation.get('{{ child.attributeType.name }}') }
@@ -24,7 +24,7 @@
         select
     >
         {{# each child.attributeType.dataType.members as |member| }}
-            <MenuItem value={ '{{ member.name }}' }>
+            <MenuItem id="{{ createId member }}" value={ '{{ member.name }}' }>
                 { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }
             </MenuItem>
         {{/ each }}

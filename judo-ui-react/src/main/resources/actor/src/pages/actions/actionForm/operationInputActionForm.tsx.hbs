@@ -80,6 +80,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathF
                 {{# each table.rowActions as |action| }}
                     {{# if action.isRemoveAction }}
                         {
+                            id: '{{ createId action }}',
                             label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                             icon: <MdiIcon path="{{ action.icon.name }}" />,
                             action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
@@ -142,6 +143,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathF
                     <DialogTitle>
                         {title}
                         <IconButton
+                            id="{{ createId action }}-dialog-close"
                             aria-label="close"
                             onClick={ () => cancel() }
                             sx={ {
@@ -164,7 +166,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathF
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button variant="text" onClick={ () => cancel() } disabled={isLoading}>
+                        <Button id="{{ createId action }}-action-form-action-cancel" variant="text" onClick={ () => cancel() } disabled={isLoading}>
                             {{# if (getBackButtonForOperationInputPage action.inputParameterPage) }}
                                 {{# with (getBackButtonForOperationInputPage action.inputParameterPage) as |backButton| }}
                                     { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ backButton.label }}' }) as string }
@@ -173,7 +175,7 @@ import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathF
                                 { t('judo.pages.cancel', { defaultValue: 'Cancel' }) as string }
                             {{/ if }}
                         </Button>
-                        <Button variant="contained" onClick={ () => submit() } disabled={isLoading}>
+                        <Button id="{{ createId action }}-action-form-action-submit" variant="contained" onClick={ () => submit() } disabled={isLoading}>
                             {{# if (getSaveButtonForOperationInputPage action.inputParameterPage) }}
                                 {{# with (getSaveButtonForOperationInputPage action.inputParameterPage) as |saveButton| }}
                                     { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ saveButton.label }}' }) as string }

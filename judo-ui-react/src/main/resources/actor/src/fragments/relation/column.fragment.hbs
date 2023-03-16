@@ -13,7 +13,7 @@ type: '{{ columnType column }}',
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {
         return params.row.{{ column.attributeType.name }}
-            ? <Button size="small" variant="contained" onClick={ (event: any) => {
+            ? <Button id="{{ createId column }}-download" size="small" variant="contained" onClick={ (event: any) => {
                 event.preventDefault();
                 event.stopPropagation();
                 downloadFile(params.row, '{{ column.attributeType.name }}');

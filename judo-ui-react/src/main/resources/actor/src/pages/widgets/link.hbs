@@ -2,7 +2,7 @@
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     <AggregationInput
         name="{{ child.dataElement.name }}"
-        id="{{ getXMIID child }}"
+        id="{{ createId child }}"
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string {{# if child.attributeType.isRequired }} + " *" {{/ if }} }
         labelList={[
             {{# each child.parts as |part| }}
@@ -24,6 +24,7 @@
                 {{# unless child.dataElement.isReadOnly }}
                     onSet={ async () => {
                         const res = await openRangeDialog<{{ classDataName child.dataElement.target 'Stored' }}, {{ classDataName child.dataElement.target 'QueryCustomizer' }}>({
+                            id: '{{ createId child.dataElement }}',
                             columns: {{ child.dataElement.name }}Columns,
                             defaultSortField: ({{{ getDefaultSortParamsForLink child }}} as GridSortItem[])[0],
                             rangeCall: async (queryCustomizer) =>
