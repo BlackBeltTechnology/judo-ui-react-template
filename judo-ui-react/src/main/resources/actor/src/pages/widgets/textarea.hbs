@@ -1,5 +1,15 @@
 {{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.customImplementation }}
+        <ComponentProxy
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            data={data}
+            validation={validation}
+            editMode={editMode}
+            storeDiff={storeDiff}
+            payloadDiff={payloadDiff}
+        >
+    {{/ if }}
     <TextField
         {{# if child.attributeType.isRequired }} required {{/ if }}
         name="{{ child.attributeType.name }}"
@@ -24,5 +34,8 @@
             {{/ if }}
         } }
     />
+    {{# if child.customImplementation }}
+        </ComponentProxy>
+    {{/ if }}
 </Grid>
 {{# if child.hiddenBy }} } {{/ if }}

@@ -7,7 +7,7 @@
 // Owner Page name: {{ ownerPage.name }}
 // Page name: {{ page.name }}
 
-import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
+import { useState, useEffect, useCallback, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Grid, {{ getMuiMaterialImportsForActionForm page }} } from '@mui/material';
 import { GridColDef, GridSelectionModel, GridRenderCellParams, {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
@@ -15,6 +15,7 @@ import { GridColDef, GridSelectionModel, GridRenderCellParams, {{ getMuiDataGrid
     import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
 {{/ if }}
 import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import type { Dayjs } from 'dayjs';
 import {
@@ -46,11 +47,17 @@ import {
     booleanToStringSelect,
 } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathFromPage page 'config' }}';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromPage page 'custom' }}';
 import {
     {{# each (getUniquePageActions page) as |actionOnAction| }}
         {{ actionFunctionHookName actionOnAction page }},
     {{/ each }}
 } from './actions';
+
+{{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
+    export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
+    export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName page.dataElement.target '' }}>> {}
+{{/ each }}
 
 export interface {{ pageName page }}Props {
     close: () => void;
@@ -67,7 +74,9 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
     const [validation, setValidation] = useState<Map<string, string>>(new Map());
     const [editMode] = useState<boolean>(false);
     const { openRangeDialog } = useRangeDialog();
+    const [payloadDiff] = useState<Record<string, any>>({});
     const storeDiff: (attributeName: string, value: any) => void = useCallback((attributeName: string, value: any) => {
+        payloadDiff[attributeName] = value;
         setData({ ...data, [attributeName]: value });
     }, [data]);
     {{# each (getUniquePageActions page) as |action| }}
