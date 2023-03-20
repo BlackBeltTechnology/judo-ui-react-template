@@ -1,6 +1,6 @@
 // Action: CallOperationAction
 
-import { useState, useEffect, useCallback, Dispatch, SetStateAction } from 'react';
+import { useState, useEffect, useCallback, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Grid, {{ getMuiMaterialImportsForActionForm action.inputParameterPage }} } from '@mui/material';
 {{# if (hasPageDateTimePickers action.inputParameterPage) }}
@@ -8,6 +8,7 @@ import { Grid, {{ getMuiMaterialImportsForActionForm action.inputParameterPage }
 {{/ if }}
 import { {{ getMuiDataGridImportsForActionForm action.inputParameterPage }} } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import type { Dayjs } from 'dayjs';
 import {
@@ -30,8 +31,14 @@ import {
 } from '{{ relativePathFromAction ownerPage action 'generated/data-axios'}}';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromAction ownerPage action 'utilities' }}';
 import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathFromAction ownerPage action 'config' }}';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromAction ownerPage action 'custom' }}';
 
 {{# with action.inputParameterPage as |page| }}
+    {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
+        export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
+        export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName page.dataElement.target '' }}>> {}
+    {{/ each }}
+
     export interface {{ pageActionFormComponentName action ownerPage }}Props {
         successCallback: ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => void;
         cancel: () => void;
@@ -58,7 +65,9 @@ import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathF
         const [data, setData] = useState<{{ classDataName action.inputParameterPage.dataElement.target '' }}>({} as unknown as {{ classDataName action.inputParameterPage.dataElement.target '' }});
         const [validation, setValidation] = useState<Map<string, string>>(new Map());
         const [editMode] = useState<boolean>(true);
+        const [payloadDiff] = useState<Record<string, any>>({});
         const storeDiff: (attributeName: string, value: any) => void = useCallback((attributeName: string, value: any) => {
+            payloadDiff[attributeName] = value;
             setData({ ...data, [attributeName]: value });
         }, [data]);
         const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
