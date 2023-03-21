@@ -33,7 +33,7 @@ export function Logo(props: LogoProps) {
       />
       <div style={ { width: '100%', margin: '16px 0 0', textAlign: 'center' } }>
         {{# unless (otherApplicationsAvailable application applications) }}
-          <Typography sx={ { fontWeight: 'bold' } }>{ t('applications.{{ application.actor.simpleName }}', { defaultValue: '{{ application.actor.simpleName }}' }) as string }</Typography>
+          <Typography id="application-name" sx={ { fontWeight: 'bold' } }>{ t('applications.{{ application.actor.simpleName }}', { defaultValue: '{{ application.actor.simpleName }}' }) as string }</Typography>
         {{ else }}
           <ApplicationSelector />
         {{/ unless }}
