@@ -208,3 +208,104 @@ As explained in the comments, **the provisioning of service parameters is mandat
 
 The best way to find out what services requires what parameters, you only need to search for the `useErrorHandler` hook's
 usage, and you should be able to see how does the corresponding `filter` look like.
+
+=== Implementing a custom visual element
+
+Every Visual element implementation can be replaced by a custom one, given in the model the `customImplementation`
+flag has been set for such element.
+
+Types of elements included:
+
+- Boxes / Cards (flex)
+- Inputs
+- Labels
+- etc...
+
+Once the flag has been set, a corresponding interface and `ComponentProxy` will be generated into the Page where the
+visual element resides in.
+
+Example: If we toggle the `customImplementation` flag for a TextInput element called `yayy` on the create page of
+`CustomStuffz`, The following will be generated:
+
+*PageCreateStuffzForm.tsx:*
+[source,typescriptjsx]
+----
+import { FC } from 'react';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { SomethingTransfer, SomethingTransferStored } from '../../../../../generated/data-api';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '../../../../../custom';
+
+export const COMPONENT_ACTOR_CREATE_YAYY = 'ComponentActorCreateYayy';
+export interface ComponentActorCreateYayy extends FC<CustomFormVisualElementProps<SomethingTransfer>> {}
+
+export interface PageCreateStuffzFormProps {
+  successCallback: (result: SomethingTransferStored) => void;
+  cancel: () => void;
+}
+
+export function PageCreateStuffzForm({ successCallback, cancel }: PageCreateStuffzFormProps) {
+  // ...
+
+  return (
+    <>
+      {/* ... */}
+        <ComponentProxy
+          filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${COMPONENT_ACTOR_CREATE_YAYY}))`}
+          data={data}
+          validation={validation}
+          editMode={editMode}
+          storeDiff={storeDiff}
+          payloadDiff={payloadDiff}
+        >
+          <TextField
+              name="yayy"
+              {/* ... */}
+          />
+        </ComponentProxy>
+      {/* ... */}
+    </>
+  );
+}
+----
+
+As we can see the `TextField` component has been wrapped in a `ComponentProxy` component which will search for an
+implementation, and if not found, loads the child.
+
+If we would like to re-implement this component, we will need to use the following (as per the filter criteria):
+
+- `CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY`: which is the generic interface for custom components
+- `ComponentActorCreateYayy`: which is the non-generic / resolved interface for our component
+- `COMPONENT_ACTOR_CREATE_YAYY`: which is a unique string representing the corresponding  interface above
+
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import { useMemo } from 'react';
+import type { BundleContext } from '@pandino/pandino-api';
+import { ComponentActorCreateYayy, COMPONENT_ACTOR_CREATE_YAYY } from '../pages/component_actor/stuffz/table/actions/PageCreateStuffzForm';
+import { ApplicationCustomizer } from './interfaces';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from './custom-element-types';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, OptimisticImplementationForYayy, {
+      component: COMPONENT_ACTOR_CREATE_YAYY,
+    })
+  }
+}
+
+const OptimisticImplementationForYayy: ComponentActorCreateYayy = ({ data, storeDiff }) => {
+  const yayy = useMemo<string | undefined | null>(() => data.yayy, [data.yayy]);
+
+  return (
+    <div>
+      <label htmlFor="custom-yayy">Our own Yayy:</label>
+      <input type="text" id="custom-yayy" maxLength={12} value={yayy as string} onChange={(event) => storeDiff('yayy', event.target.value)} />
+    </div>
+  );
+};
+----
+
+> Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
+  the use-case above.
