@@ -99,13 +99,13 @@ export default function {{ pageName page }}() {
     const [enqueueSnackbar] = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
-    const [payloadDiff, setPayloadDiff] = useState<Record<string, any>>({});
-    const storeDiff: (attributeName: string, value: any) => void = useCallback((attributeName: string, value: any) => {
+    const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
+    const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => {
         payloadDiff[attributeName] = value;
         setData({ ...data, [attributeName]: value });
     }, [data]);
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [validation, setValidation] = useState<Map<string, string>>(new Map());
+    const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target 'Stored' }}, string>>(new Map());
     {{# each (getPageTables page) as |table| }}
         {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
     {{/ each }}
@@ -162,7 +162,7 @@ export default function {{ pageName page }}() {
                 __signedIdentifier: res.__signedIdentifier,
                 __version: res.__version,
                 __entityType: res.__entityType,
-            });
+            } as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
         } catch (error) {
             handleFetchError(error);
         } finally {
@@ -210,7 +210,7 @@ export default function {{ pageName page }}() {
     }, []);
 
     useEffect(() => {
-        setValidation(new Map<string, string>());
+        setValidation(new Map<keyof {{ classDataName page.dataElement.target 'Stored' }}, string>());
     }, [editMode]);
 
     return (
