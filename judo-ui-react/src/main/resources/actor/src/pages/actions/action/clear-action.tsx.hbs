@@ -2,7 +2,7 @@
 
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import { useSnackbar } from '{{ relativePathFromAction page action 'components' }}';
+import { useSnackbar } from 'notistack';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
 import {
     {{ classDataName action.dataElement.owner '' }},
@@ -15,7 +15,7 @@ export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentif
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=ClearAction))`);
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
 
     return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, successCallback: () => void) {
         try {

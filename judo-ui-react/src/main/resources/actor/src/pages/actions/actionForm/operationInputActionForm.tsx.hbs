@@ -11,11 +11,8 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import type { Dayjs } from 'dayjs';
-import {
-    MdiIcon,
-    ModeledTabs,
-    useSnackbar,
-} from '{{ relativePathFromAction ownerPage action 'components' }}';
+import { useSnackbar } from 'notistack';
+import { MdiIcon, ModeledTabs } from '{{ relativePathFromAction ownerPage action 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromAction ownerPage action 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromAction ownerPage action 'components/dialog' }}';
 import { AggregationInput, TrinaryLogicCombobox } from '{{ relativePathFromAction ownerPage action 'components/widgets' }}';
@@ -60,7 +57,7 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } fro
 
         const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
         const handleActionError = useErrorHandler<{{ classDataName action.inputParameterPage.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ pageActionFormComponentName action ownerPage }}))`);
-        const [enqueueSnackbar] = useSnackbar();
+        const { enqueueSnackbar } = useSnackbar();
         const [isLoading, setIsLoading] = useState<boolean>(false);
         const [data, setData] = useState<{{ classDataName action.inputParameterPage.dataElement.target '' }}>({} as unknown as {{ classDataName action.inputParameterPage.dataElement.target '' }});
         const [validation, setValidation] = useState<Map<string, string>>(new Map());

@@ -20,11 +20,11 @@ import { useEffect, useRef, useState } from 'react';
 import type { JudoStored, QueryCustomizer } from '@judo/data-api-common';
 import { useTranslation } from 'react-i18next';
 import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useSnackbar } from 'notistack';
 import type { Filter, FilterOption } from '../../components-api';
 import { useErrorHandler, processQueryCustomizer, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '../../utilities';
 import { serverTableConfig, rangeDialogConfig } from '../../config';
 import { CustomTablePagination } from '../CustomTablePagination';
-import { useSnackbar } from '../../components';
 import { useFilterDialog } from './hooks';
 
 interface RangeDialogProps<T extends JudoStored<T>, U extends QueryCustomizer<T>> {
@@ -58,7 +58,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
   const { t } = useTranslation();
   const descriptionElementRef = useRef<HTMLElement>(null);
   const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-  const [enqueueSnackbar] = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [rowCount, setRowCount] = useState<number>(0);
   const [sortModel, setSortModel] = useState<GridSortModel>([defaultSortField]);

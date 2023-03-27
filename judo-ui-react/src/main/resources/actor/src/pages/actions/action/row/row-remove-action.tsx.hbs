@@ -2,7 +2,7 @@
 
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import { useSnackbar } from '{{ relativePathFromAction page action 'components' }}';
+import { useSnackbar } from 'notistack';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
@@ -16,7 +16,7 @@ import {
 export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, selected: {{ classDataName page.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=RowRemoveAction))`);
 
     return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, selected: {{ classDataName page.dataElement.target 'Stored' }}, successCallback: () => void) {

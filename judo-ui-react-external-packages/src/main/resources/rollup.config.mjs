@@ -39,6 +39,7 @@ const mappings = [
     ['mui-x-data-grid', '@mui/x-data-grid', deps['@mui/x-data-grid'], ['@mui/material', '@mui/system', '@mui/material/locale', 'react', 'react-dom', 'react-is', 'react/jsx-runtime']],
     ['mui-x-date-pickers', '@mui/x-date-pickers', deps['@mui/x-date-pickers'], ['@emotion/react', '@emotion/styled', '@mui/material', '@mui/system', '@mui/material/locale', 'date-fns', 'dayjs', 'luxon', 'moment', 'react', 'react-dom', 'react-is']],
     ['mui-x-date-pickers-adapter-day-js', '@mui/x-date-pickers', deps['@mui/x-date-pickers'], ['@emotion/react', '@emotion/styled', '@mui/material', '@mui/system', '@mui/material/locale', 'date-fns', 'dayjs', 'luxon', 'moment', 'react', 'react-dom', 'react-is']],
+    ['notistack', 'notistack', deps.notistack, ['react', 'react-dom', 'react-is']],
 ];
 
 function generateConfigs(mappings) {

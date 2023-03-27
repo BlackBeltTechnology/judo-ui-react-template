@@ -11,7 +11,7 @@ import {
     Grid,
 } from '@mui/material';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import { useSnackbar } from '{{ relativePathFromAction page action 'components' }}';
+import { useSnackbar } from 'notistack';
 import type { DialogOption } from '{{ relativePathFromAction page action 'components/dialog' }}';
 import { useDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
@@ -35,7 +35,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     {{# unless (actionHasVisualElements action) }}
         const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ actionFunctionTypeName action page }}))`);
     {{/ unless }}
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
 
     return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: {{ classDataName page.dataElement.target 'Stored' }},{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) {
         {{# if (actionHasVisualElements action) }}
