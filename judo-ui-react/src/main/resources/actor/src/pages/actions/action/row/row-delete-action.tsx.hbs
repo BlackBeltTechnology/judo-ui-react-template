@@ -2,7 +2,7 @@
 
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import { useSnackbar } from '{{ relativePathFromAction page action 'components' }}';
+import { useSnackbar } from 'notistack';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
@@ -19,7 +19,7 @@ import {
 export type {{ actionFunctionTypeName action page }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const handleActionError = useErrorHandler{{# if (hasDataElementOwner action.dataElement) }}<JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>>{{/ if }}(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=RowDeleteAction))`);
 
     return async function {{ actionFunctionName action page }} ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) {
