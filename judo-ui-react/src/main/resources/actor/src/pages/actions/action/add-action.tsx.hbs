@@ -4,7 +4,8 @@ import type { JudoIdentifiable } from '@judo/data-api-common';
 import { useTranslation } from 'react-i18next';
 import { GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import { useSnackbar, MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
+import { useSnackbar } from 'notistack';
+import { MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
 import { useRangeDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
 import { baseColumnConfig, toastConfig } from '{{ relativePathFromAction page action 'config' }}';
@@ -24,7 +25,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     const { openRangeDialog } = useRangeDialog();
     const { t } = useTranslation();
     const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=AddAction))`);
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
 
     return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, successCallback: () => void) {

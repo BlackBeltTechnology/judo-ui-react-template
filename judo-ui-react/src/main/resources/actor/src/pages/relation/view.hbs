@@ -19,6 +19,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
 import { useParams } from 'react-router-dom';
 import type { Dayjs } from 'dayjs';
+import { useSnackbar } from 'notistack';
 import {
     MdiIcon,
     ModeledTabs,
@@ -26,7 +27,6 @@ import {
     DropdownButton,
     CustomBreadcrumb,
     useJudoNavigation,
-    useSnackbar,
 } from '{{ relativePathFromPage page 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
@@ -96,7 +96,7 @@ export default function {{ pageName page }}() {
     {{# if page.relationType.isDeletable }}
         const handleDeleteError = useErrorHandler<{{ classDataName page.dataElement.target 'Stored' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
     {{/ if }}
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
     const [payloadDiff, setPayloadDiff] = useState<Record<string, any>>({});
