@@ -7,12 +7,15 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTrackService } from '@pandino/react-hooks';
+import { SnackbarMessage, OptionsObject, SnackbarKey, useSnackbar } from 'notistack';
 import { exists } from './helper';
-import type { SnackOptions, EnqueueSnackbarCallback } from '../components';
-import { useSnackbar } from '../components';
 import { toastConfig } from '../config';
 
+
+type EnqueueSnackbarCallback = (message: SnackbarMessage, options?: OptionsObject | undefined) => SnackbarKey;
+
 export interface ErrorHandlingOption<T> {
+
     /**
     * Duration to use for potential toasts, could be ignored in actual implementations.
     */
@@ -50,22 +53,22 @@ export type ErrorProcessorHook<T> = () => ErrorProcessor<T>;
 export type ErrorHandler<T> = (error: any, options?: ErrorHandlingOption<T>, payload?: T) => void;
 
 export interface ErrorProcessResult<T> {
-    errorToastConfig: SnackOptions,
+    errorToastConfig: OptionsObject,
     toastMessage?: string | undefined;
     validation?: Map<keyof T, string>;
 }
 
 export const useErrorHandler = <T>(filter: string): ErrorHandler<T> => {
     const { t } = useTranslation();
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const { service: processorHook } = useTrackService<ErrorProcessorHook<T>>(filter);
     const customErrorProcessor = processorHook && processorHook();
 
     return (error: any, options?: ErrorHandlingOption<T>, payload?: T) => {
         const errorResults: ErrorProcessResult<T> = {
             errorToastConfig: {
-                variant: 'error',
                 ...toastConfig.error,
+                variant: 'error',
             },
         };
 

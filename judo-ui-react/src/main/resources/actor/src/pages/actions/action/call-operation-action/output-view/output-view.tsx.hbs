@@ -18,11 +18,8 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import type { Dayjs } from 'dayjs';
-import {
-    MdiIcon,
-    ModeledTabs,
-    useSnackbar,
-} from '{{ relativePathFromPage page 'components' }}';
+import { useSnackbar } from 'notistack';
+import { MdiIcon, ModeledTabs } from '{{ relativePathFromPage page 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useDialog, useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
 import { AggregationInput, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
@@ -68,7 +65,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
     const { t } = useTranslation();
     const { downloadFile, uploadFile } = fileHandling();
 
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({ ...result });
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map());

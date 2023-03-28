@@ -10,6 +10,7 @@
 
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useSnackbar } from 'notistack';
 import { Paper, Card, CardContent, Box, Grid, Button, Container } from '@mui/material';
 import type { GridRowModel, GridRowParams, GridSortModel } from '@mui/x-data-grid';
 import { DataGrid, GridToolbarContainer } from '@mui/x-data-grid';
@@ -22,7 +23,6 @@ import {
   CustomBreadcrumb,
   CustomTablePagination,
   useJudoNavigation,
-  useSnackbar,
 } from '{{ relativePathFromPage page 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useFilterDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
@@ -67,7 +67,7 @@ export default function {{ pageName page }}() {
     {{/ each }}
 
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-    const [enqueueSnackbar] = useSnackbar();
+    const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [rowCount, setRowCount] = useState<number>(0);
     const [sortModel, setSortModel] = useState<GridSortModel>(
