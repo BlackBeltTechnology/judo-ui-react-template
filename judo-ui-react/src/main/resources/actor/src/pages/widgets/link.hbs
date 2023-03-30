@@ -38,7 +38,7 @@
                             columns: {{ child.dataElement.name }}Columns,
                             defaultSortField: ({{{ getDefaultSortParamsForLink child }}} as GridSortItem[])[0],
                             rangeCall: async (queryCustomizer) =>
-                                await {{ classServiceName child.dataElement.owner }}Impl.getRangeFor{{ firstToUpper child.dataElement.name }}(undefined, processQueryCustomizer(queryCustomizer)),
+                                await {{ classServiceName child.dataElement.owner }}Impl.getRangeFor{{ firstToUpper child.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
                             single: true,
                             alreadySelectedItems: data.{{ child.dataElement.name }}?.__identifier as GridRowId,
                             filterOptions: {{ child.dataElement.name }}RangeFilterOptions,
