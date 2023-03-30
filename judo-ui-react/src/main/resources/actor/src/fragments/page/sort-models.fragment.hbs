@@ -1,9 +1,1 @@
-const [{{ dataElement.name }}SortModel, set{{ ucFirst dataElement.name }}SortModel] = useState<GridSortModel>([
-    { {{# if defaultSortColumn }}
-        field: '{{ defaultSortColumn.attributeType.name }}',
-        sort: '{{ safeSort defaultSortColumn.attributeType.sort }}',
-    {{ else }}
-        field: '{{ columns.[0].attributeType.name }}',
-        sort: '{{ safeSort columns.[0].attributeType.sort }}',
-    {{/ if }} }
-]);
+const [{{ dataElement.name }}SortModel, set{{ ucFirst dataElement.name }}SortModel] = useState<GridSortModel>({{{ getDefaultSortParams defaultSortColumn columns }}});

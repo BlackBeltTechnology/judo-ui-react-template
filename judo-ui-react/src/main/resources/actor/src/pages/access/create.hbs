@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { Paper, Box, Button, Container, Grid, InputAdornment, TextField, MenuItem, Typography, Card, CardContent, Divider, RadioGroup, FormControlLabel, Radio } from '@mui/material';
 import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers';
 import { useSnackbar } from 'notistack';
+import { v1 as uuidv1 } from 'uuid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
 import { DataGrid, GridRowId, GridSortModel, GridSortItem, GridToolbarContainer, GridRowParams } from '@mui/x-data-grid';
@@ -75,7 +76,9 @@ export default function {{ pageName page }}() {
 
     const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({} as unknown  as {{ classDataName page.dataElement.target 'Stored' }});
+    const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({
+      __referenceId: uuidv1(),
+    } as unknown  as {{ classDataName page.dataElement.target '' }});
     const [payloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
         payloadDiff[attributeName] = value;
@@ -94,7 +97,7 @@ export default function {{ pageName page }}() {
 
             try {
                 const res = await {{ classServiceName page.dataElement.target }}Impl.getTemplate();
-                setData(res);
+                setData((prevData) => ({ ...prevData, ...res }));
             } catch (error) {
                 handleFetchError(error);
             } finally {
