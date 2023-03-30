@@ -12,6 +12,7 @@ import { ComponentProxy } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import type { Dayjs } from 'dayjs';
 import { useSnackbar } from 'notistack';
+import { v1 as uuidv1 } from 'uuid';
 import { MdiIcon, ModeledTabs } from '{{ relativePathFromAction ownerPage action 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromAction ownerPage action 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromAction ownerPage action 'components/dialog' }}';
@@ -59,7 +60,9 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } fro
         const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageActionFormComponentName action ownerPage }}))`);
         const { enqueueSnackbar } = useSnackbar();
         const [isLoading, setIsLoading] = useState<boolean>(false);
-        const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({} as unknown as {{ classDataName page.dataElement.target '' }});
+        const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({
+          __referenceId: uuidv1(),
+        } as unknown as {{ classDataName page.dataElement.target '' }});
         const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map());
         const [editMode] = useState<boolean>(true);
         const [payloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
@@ -103,7 +106,7 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } fro
 
                 try {
                     const res = await {{ classServiceName page.dataElement.target }}Impl.getTemplate();
-                    setData(res);
+                    setData((prevData) => ({ ...prevData, ...res }));
                 } catch(error) {
                     handleFetchError(error);
                 } finally {
