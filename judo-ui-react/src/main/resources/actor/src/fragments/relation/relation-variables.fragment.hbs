@@ -1,14 +1,4 @@
-const [{{ rel.dataElement.name }}SortModel, set{{ ucFirst rel.dataElement.name }}SortModel] = useState<GridSortModel>([
-    {
-        {{# if rel.defaultSortColumn }}
-            field: '{{ rel.defaultSortColumn.attributeType.name }}',
-            sort: '{{ safeSort rel.defaultSortColumn.attributeType.sort }}',
-        {{ else }}
-            field: '{{ rel.columns.[0].attributeType.name }}',
-            sort: '{{ safeSort rel.columns.[0].attributeType.sort }}',
-        {{/ if }}
-    }
-]);
+const [{{ rel.dataElement.name }}SortModel, set{{ ucFirst rel.dataElement.name }}SortModel] = useState<GridSortModel>({{{ getDefaultSortParams rel.defaultSortColumn rel.columns }}});
 
 const {{ rel.dataElement.name }}Columns: GridColDef<{{ classDataName rel.dataElement.target 'Stored' }}>[] = [
     {{# each rel.columns as |column| }}
