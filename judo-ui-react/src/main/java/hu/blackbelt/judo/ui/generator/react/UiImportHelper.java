@@ -46,7 +46,7 @@ public class UiImportHelper {
             Map.entry("link", Set.of()),
             Map.entry("numericinput", Set.of("TextField", "InputAdornment")),
             Map.entry("spacer", Set.of()),
-            Map.entry("switch", Set.of("TextField", "MenuItem", "InputAdornment")),
+            Map.entry("switch", Set.of("TextField", "MenuItem", "InputAdornment", "FormGroup", "FormControlLabel", "Checkbox")),
             Map.entry("tabcontroller", Set.of()),
             Map.entry("table", Set.of("Button")),
             Map.entry("text", Set.of("Typography")),
