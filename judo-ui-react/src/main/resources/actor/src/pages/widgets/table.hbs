@@ -32,58 +32,54 @@
                     {{# if (tableHasActions child) }}
                         <GridToolbarContainer>
                             {{# each child.actions as |action| }}
-                                {{# if page.isPageTypeOperationInput }}
-                                    {{# if action.isClearAction }}
-                                        <Button
-                                            id="{{ createId action }}"
-                                            onClick={ () => {
-                                                setData({
-                                                    ...data,
-                                                    ['{{ action.dataElement.name }}']: [],
-                                                });
-                                            } }
-                                            disabled={isLoading}
-                                        >
-                                            {{# if action.icon }}
-                                                <MdiIcon path="{{ action.icon.name }}" />
-                                            {{/ if }}
-                                            {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
-                                        </Button>
-                                    {{/ if }}
-                                    {{# if action.isAddAction }}
-                                        <Button
-                                            id="{{ createId action }}"
-                                            onClick={ async () => {
-                                                const res = await {{ action.dataElement.name }}RangeCall();
-
-                                                if (res) {
-                                                    setData({
-                                                        ...data,
-                                                        ['{{ action.dataElement.name }}']: [...(res as {{ classDataName action.dataElement.target 'Stored' }}[])],
-                                                    });
-                                                }
-                                            } }
-                                            disabled={isLoading}
-                                        >
-                                            {{# if action.icon }}
-                                                <MdiIcon path="{{ action.icon.name }}" />
-                                            {{/ if }}
-                                            {t('judo.pages.table.add', { defaultValue: 'Add' })}
-                                        </Button>
-                                    {{/ if }}
-                                {{ else }}
+                                {{# unless page.isPageTypeOperationInput }}
                                     {{# if action.isCreateAction }}
                                         <Button
                                             id="{{ createId action }}"
+                                            variant="text"
                                             onClick={ () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetchData()) }
                                             disabled={isLoading || editMode}
                                         >
-                                            {{# if action.icon }}
-                                                <MdiIcon path="{{ action.icon.name }}" />
-                                            {{/ if }}
+                                            <MdiIcon path="file_document_plus" />
                                             {t('judo.pages.table.create', { defaultValue: 'Create' })}
                                         </Button>
                                     {{/ if }}
+                                {{/ unless }}
+                                {{# if action.isAddAction }}
+                                    <Button
+                                        id="{{ createId action }}"
+                                        variant="text"
+                                        onClick={ async () => {
+                                            const res = await {{ action.dataElement.name }}RangeCall();
+
+                                            if (res) {
+                                                setData({
+                                                    ...data,
+                                                    ['{{ action.dataElement.name }}']: [...(res as {{ classDataName action.dataElement.target 'Stored' }}[])],
+                                                });
+                                            }
+                                        } }
+                                        disabled={isLoading}
+                                    >
+                                        <MdiIcon path="attachment-plus" />
+                                        {t('judo.pages.table.add', { defaultValue: 'Add' })}
+                                    </Button>
+                                {{/ if }}
+                                {{# if action.isClearAction }}
+                                    <Button
+                                        id="{{ createId action }}"
+                                        variant="text"
+                                        onClick={ () => {
+                                            setData({
+                                                ...data,
+                                                ['{{ action.dataElement.name }}']: [],
+                                            });
+                                        } }
+                                        disabled={isLoading}
+                                    >
+                                        <MdiIcon path="link_off" />
+                                        {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
+                                    </Button>
                                 {{/ if }}
                             {{/ each }}
                         </GridToolbarContainer>

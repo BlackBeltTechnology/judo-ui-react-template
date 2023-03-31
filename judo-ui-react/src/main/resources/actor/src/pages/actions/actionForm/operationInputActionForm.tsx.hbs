@@ -90,10 +90,9 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } fro
                             label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                             icon: <MdiIcon path="{{ action.icon.name }}" />,
                             action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                                const index = (data.{{ action.dataElement.name }} || []).findIndex((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier === row.__signedIdentifier);
                                 setData({
                                     ...data,
-                                    ['{{ action.dataElement.name }}']: [...(data.{{ action.dataElement.name }} || [])].splice(index, 1),
+                                    ['{{ action.dataElement.name }}']: [...(data.{{ action.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)],
                                 });
                             },
                         },
