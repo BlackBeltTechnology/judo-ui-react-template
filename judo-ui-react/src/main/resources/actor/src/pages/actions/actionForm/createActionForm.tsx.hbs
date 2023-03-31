@@ -75,9 +75,13 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } fro
         {{# if (hasVisualReferences action.target) }}
             {{# each (getPageTables action.target) as |table| }}
                 {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=table }}
+                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement action=action }}
+                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
             {{/ each }}
             {{# each (getPageWritableLinks action.target) as |link| }}
                 {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=link }}
+                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement action=action }}
+                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=link.dataElement }}
             {{/ each }}
         {{/ if }}
         {{# each (getPageTables action.target) as |table| }}
@@ -89,10 +93,9 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } fro
                             label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                             icon: <MdiIcon path="{{ action.icon.name }}" />,
                             action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                                const index = (data.{{ action.dataElement.name }} || []).findIndex((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier === row.__signedIdentifier);
                                 setData({
                                     ...data,
-                                    ['{{ action.dataElement.name }}']: [...(data.{{ action.dataElement.name }} || [])].splice(index, 1),
+                                    ['{{ action.dataElement.name }}']: [...(data.{{ action.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)],
                                 });
                             },
                         },

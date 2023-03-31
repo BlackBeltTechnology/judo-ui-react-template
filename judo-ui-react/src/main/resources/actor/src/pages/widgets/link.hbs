@@ -63,10 +63,16 @@
                 onRemove={ async () => storeDiff('{{ child.dataElement.name }}', null) }
             {{/ or }}
             {{# if action.isDeleteAction }}
-                onDelete={ async () => alert(' Delete action on Link Component not implemented yet') }
+                onDelete={ async () => alert('Delete action on Link Component not implemented yet') }
             {{/ if }}
             {{# if action.isUnsetAction }}
-                onUnset={ async () => alert('UnsetAction on Link Component not implemented yet') }
+                onUnset={ async () => {
+                    if (editMode) {
+                        storeDiff('{{ child.dataElement.name }}', null);
+                    } else {
+                        alert('Unset action on Link Component in View Mode not implemented yet')
+                    }
+                } }
             {{/ if }}
         {{/ each }}
     />
