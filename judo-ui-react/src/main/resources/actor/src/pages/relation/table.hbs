@@ -239,6 +239,14 @@ export default function {{ pageName page }}() {
                                 </Button>
                             </Grid>
                         {{/ if }}
+                        {{# if action.isCreateAction }}
+                            <Grid item>
+                                <Button id="page-action-create" onClick={ () => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, () => fetchData()) } disabled={isLoading}>
+                                    <MdiIcon path="file_document_plus" />
+                                    {t('judo.pages.table.create', { defaultValue: 'Create' })}
+                                </Button>
+                            </Grid>
+                        {{/ if }}
                     {{/ each }}
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
