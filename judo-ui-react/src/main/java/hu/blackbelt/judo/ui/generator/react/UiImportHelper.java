@@ -110,6 +110,8 @@ public class UiImportHelper {
     public static String getMuiDataGridImportsForPage(PageDefinition pageDefinition) {
         Set<String> imports = getMuiDataGridImports(pageDefinition);
 
+        imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef"));
+
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
 

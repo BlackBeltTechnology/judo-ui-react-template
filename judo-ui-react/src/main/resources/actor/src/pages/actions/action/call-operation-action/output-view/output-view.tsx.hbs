@@ -10,7 +10,7 @@
 import { useState, useEffect, useCallback, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Grid, {{ getMuiMaterialImportsForActionForm page }} } from '@mui/material';
-import { GridColDef, GridSelectionModel, GridRenderCellParams, {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
+import { {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
 {{# if (hasPageDateTimePickers page) }}
     import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
 {{/ if }}
@@ -22,7 +22,7 @@ import { useSnackbar } from 'notistack';
 import { MdiIcon, ModeledTabs } from '{{ relativePathFromPage page 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useDialog, useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
+import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromPage page 'components-api' }}';
 import {
     {{# each (getApiImportsForUnmappedOperationOutputAction action page) as |imp| }}
@@ -88,12 +88,12 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
     {{# if (hasVisualReferences page) }}
         {{# each (getPageTables page) as |table| }}
             {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=table }}
-            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement action=action }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
             {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
         {{/ each }}
         {{# each (getPageWritableLinks page) as |link| }}
             {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=link }}
-            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement action=action }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement }}
             {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=link.dataElement }}
         {{/ each }}
     {{/ if }}

@@ -24,11 +24,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
 
     return async function {{ actionFunctionName action page }} ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) {
         try {
-            {{# if (hasDataElementOwner action.dataElement) }}
-                await {{ dataElementRelationName action.dataElement }}Impl.delete{{ ucFirst action.dataElement.name }}(owner, selected);
-            {{ else }}
-                await {{ classServiceName action.dataElement.target }}Impl.delete(selected);
-            {{/ if }}
+            await {{ classServiceName action.dataElement.target }}Impl.delete(selected);
 
             successCallback();
         } catch (error) {

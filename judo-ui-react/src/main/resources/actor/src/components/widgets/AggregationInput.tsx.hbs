@@ -152,7 +152,7 @@ const ViewIcons = ({ value, disabled, onCreate, onDelete, onView, onEdit }: View
   return <>{icons}</>;
 };
 
-const EditIcons = ({ value, disabled, onRemove, onUnset }: EditIconsProps) => {
+const EditIcons = ({ value, disabled, onRemove, onSet, onUnset }: EditIconsProps) => {
   let icons: ReactNode;
 
   if (exists(value)) {
@@ -171,7 +171,13 @@ const EditIcons = ({ value, disabled, onRemove, onUnset }: EditIconsProps) => {
       </>
     );
   } else {
-    icons = <></>;
+    icons = <>
+      {onSet && (
+        <IconButton disabled={disabled} onClick={onSet}>
+          <MdiIcon path="link" />
+        </IconButton>
+      )}
+    </>;
   }
 
   return <>{icons}</>;

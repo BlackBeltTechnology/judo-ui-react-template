@@ -11,7 +11,7 @@
 import { useEffect, useState, useCallback, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Container, Grid, {{ getMuiMaterialImportsForPage page }} } from '@mui/material';
-import { GridColDef, GridSelectionModel, GridRenderCellParams, {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
+import { {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
 {{# if (hasPageDateTimePickers page) }}
     import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
 {{/ if }}
@@ -30,7 +30,7 @@ import {
 } from '{{ relativePathFromPage page 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
+import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, toastConfig } from '{{ relativePathFromPage page 'config' }}';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromPage page 'custom' }}';
@@ -104,15 +104,33 @@ export default function {{ pageName page }}() {
     {{/ each }}
     {{# each (getPageTables page) as |table| }}
         const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
-            {{# each table.rowActions as |action| }}
-                {{# if action.isRemoveAction }}
-                    {
-                        id: '{{ createId action }}',
-                        label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
-                        icon: <MdiIcon path="{{ action.icon.name }}" />,
-                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}(data, row, () => fetchData()),
+            {{# if table.dataElement.isRemovable }}
+                {
+                    id: '{{ createId table.dataElement }}-remove',
+                    label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
+                    icon: <MdiIcon path="link_off" />,
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
+                        if (editMode) {
+                            storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)]);
+                        } else {
+                            try {
+                                await {{ classServiceName table.dataElement.owner }}Impl.remove{{ firstToUpper table.dataElement.name }}(
+                                    { __signedIdentifier: data.__signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>,
+                                    [row],
+                                );
+
+                                fetchData();
+                            } catch (error) {
+                                enqueueSnackbar(t('judo.component.Table.error.remove', { defaultValue: 'Could not remove element!' }) as string, {
+                                    variant: 'error',
+                                });
+                                console.error(error);
+                            }
+                        }
                     },
-                {{/ if }}
+                },
+            {{/ if }}
+            {{# each table.rowActions as |action| }}
                 {{# if action.isDeleteAction }}
                     {
                         id: '{{ createId action }}',
