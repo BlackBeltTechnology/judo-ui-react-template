@@ -30,27 +30,6 @@
             {{# if action.isViewAction }}
                 onView={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data?.{{ child.dataElement.name }}!{{/ unless }}) }
             {{/ if }}
-            {{# if action.isSetAction }}
-                {{# unless child.dataElement.isReadOnly }}
-                    onSet={ async () => {
-                        const res = await openRangeDialog<{{ classDataName child.dataElement.target 'Stored' }}, {{ classDataName child.dataElement.target 'QueryCustomizer' }}>({
-                            id: '{{ createId child.dataElement }}',
-                            columns: {{ child.dataElement.name }}Columns,
-                            defaultSortField: ({{{ getDefaultSortParamsForLink child }}} as GridSortItem[])[0],
-                            rangeCall: async (queryCustomizer) =>
-                                await {{ classServiceName child.dataElement.owner }}Impl.getRangeFor{{ firstToUpper child.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
-                            single: true,
-                            alreadySelectedItems: data.{{ child.dataElement.name }}?.__identifier as GridRowId,
-                            filterOptions: {{ child.dataElement.name }}RangeFilterOptions,
-                            initialQueryCustomizer: {{ child.dataElement.name }}InitialQueryCustomizer,
-                        });
-
-                        if (res === undefined) return;
-
-                        storeDiff('{{ child.dataElement.name }}', res as {{ classDataName child.dataElement.target 'Stored' }});
-                    } }
-                {{/ unless }}
-            {{/ if }}
             {{# if action.isCreateAction }}
                 onCreate={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}(res) => {
                     storeDiff('{{ child.dataElement.name }}', res as {{ classDataName child.dataElement.target 'Stored' }});
@@ -59,22 +38,49 @@
                     {{/ if }}
                 }) }
             {{/ if }}
-            {{# or action.isRemoveAction }}
-                onRemove={ async () => storeDiff('{{ child.dataElement.name }}', null) }
-            {{/ or }}
             {{# if action.isDeleteAction }}
-                onDelete={ async () => alert('Delete action on Link Component not implemented yet') }
-            {{/ if }}
-            {{# if action.isUnsetAction }}
-                onUnset={ async () => {
-                    if (editMode) {
-                        storeDiff('{{ child.dataElement.name }}', null);
-                    } else {
-                        alert('Unset action on Link Component in View Mode not implemented yet')
+                onDelete={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}data?.{{ child.dataElement.name }}!, () => {
+                    try {
+                        if (!editMode) {
+                            fetchData();
+                        }
+                    } catch (e) {
+                        console.error(e);
                     }
-                } }
+                }) }
             {{/ if }}
         {{/ each }}
+        {{# or child.dataElement.isRemovable }}
+            onRemove={ async () => storeDiff('{{ child.dataElement.name }}', null) }
+        {{/ or }}
+        {{# if child.dataElement.isSetable }}
+            onSet={ async () => {
+                const res = await openRangeDialog<{{ classDataName child.dataElement.target 'Stored' }}, {{ classDataName child.dataElement.target 'QueryCustomizer' }}>({
+                    id: '{{ createId child.dataElement }}',
+                    columns: {{ child.dataElement.name }}Columns,
+                    defaultSortField: ({{{ getDefaultSortParamsForLink child }}} as GridSortItem[])[0],
+                    rangeCall: async (queryCustomizer) =>
+                    await {{ classServiceName child.dataElement.owner }}Impl.getRangeFor{{ firstToUpper child.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
+                    single: true,
+                    alreadySelectedItems: data.{{ child.dataElement.name }}?.__identifier as GridRowId,
+                    filterOptions: {{ child.dataElement.name }}RangeFilterOptions,
+                    initialQueryCustomizer: {{ child.dataElement.name }}InitialQueryCustomizer,
+                });
+
+                if (res === undefined) return;
+
+                storeDiff('{{ child.dataElement.name }}', res as {{ classDataName child.dataElement.target 'Stored' }});
+            } }
+        {{/ if }}
+        {{# if child.dataElement.isUnsetable }}
+            onUnset={ async () => {
+                if (editMode) {
+                    storeDiff('{{ child.dataElement.name }}', null);
+                } else {
+                    alert('Unset action on Link Component in View Mode not implemented yet')
+                }
+            } }
+        {{/ if }}
     />
     {{# if child.customImplementation }}
         </ComponentProxy>
