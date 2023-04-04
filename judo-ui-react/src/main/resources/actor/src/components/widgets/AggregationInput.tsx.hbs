@@ -18,7 +18,7 @@ interface AggregationInputProps {
   error?: boolean | undefined;
   helperText?: string | undefined;
   disabled?: boolean | undefined;
-  readonly?: boolean | undefined;
+  editMode?: boolean | undefined;
   labelList: string[];
   icon?: ReactNode;
   onCreate?: () => Promise<void> | undefined;
@@ -30,23 +30,6 @@ interface AggregationInputProps {
   onView?: () => Promise<void> | undefined;
 }
 
-interface ViewIconsProps {
-  value: any | undefined | null;
-  disabled: boolean;
-  onView?: () => Promise<void> | undefined;
-  onEdit?: () => Promise<void> | undefined;
-  onCreate?: () => Promise<void> | undefined;
-  onDelete?: () => Promise<void> | undefined;
-}
-
-interface EditIconsProps {
-  value: any | undefined | null;
-  disabled: boolean;
-  onRemove?: () => Promise<void> | undefined;
-  onSet?: () => Promise<void> | undefined;
-  onUnset?: () => Promise<void> | undefined;
-}
-
 export const AggregationInput = ({
   name,
   id,
@@ -55,7 +38,7 @@ export const AggregationInput = ({
   error = false,
   helperText,
   disabled = false,
-  readonly = true,
+  editMode = true,
   labelList,
   icon,
   onCreate,
@@ -68,19 +51,11 @@ export const AggregationInput = ({
 }: AggregationInputProps) => {
   const [focused, setFocused] = useState(false);
 
-  let icons: ReactNode;
-
-  if (readonly) {
-    icons = <ViewIcons value={value} disabled={disabled} onCreate={onCreate} onView={onView} onDelete={onDelete} onEdit={onEdit} />;
-  } else {
-    icons = <EditIcons value={value} disabled={disabled} onRemove={onRemove} onSet={onSet} onUnset={onUnset} />;
-  }
-
   return (
     <Grid container item direction="row" justifyContent="stretch" alignContent="stretch">
       <ButtonBase
         sx={ { padding: 0, flexGrow: 1 } }
-        disabled={disabled || readonly}
+        disabled={disabled || !onSet}
         onFocusCapture={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onClick={onSet}
@@ -94,7 +69,7 @@ export const AggregationInput = ({
           focused={focused}
           fullWidth
           value={labelList.filter(l => !!l && l.length > 0).join(' - ')}
-          className={!onSet || disabled || readonly ? 'Mui-readOnly' : undefined}
+          className={!onSet || disabled || !editMode ? 'Mui-readOnly' : undefined}
           sx={ {
             ':hover': {
               cursor: 'pointer',
@@ -104,81 +79,46 @@ export const AggregationInput = ({
             },
           } }
           InputProps={ {
-            readOnly: true,
+            readOnly: !onSet || disabled,
             startAdornment: <InputAdornment position="start">{icon}</InputAdornment>,
           } }
         />
       </ButtonBase>
-      {icons}
-    </Grid>
-  );
-};
-
-const ViewIcons = ({ value, disabled, onCreate, onDelete, onView, onEdit }: ViewIconsProps) => {
-  let icons: ReactNode;
-
-  if (exists(value)) {
-    icons = (
-      <>
-        {onView && (
-          <IconButton disabled={disabled} onClick={onView}>
-            <MdiIcon path="eye" />
-          </IconButton>
-        )}
-        {onEdit && (
-          <IconButton disabled={disabled} onClick={onEdit}>
-            <MdiIcon path="pencil" />
-          </IconButton>
-        )}
-        {onDelete && (
-          <IconButton disabled={disabled} onClick={onDelete}>
-            <MdiIcon path="delete" />
-          </IconButton>
-        )}
-      </>
-    );
-  } else {
-    icons = (
-      <>
-        {onCreate && (
-          <IconButton disabled={disabled} onClick={onCreate}>
-            <MdiIcon path="file_document_plus" />
-          </IconButton>
-        )}
-      </>
-    );
-  }
-
-  return <>{icons}</>;
-};
-
-const EditIcons = ({ value, disabled, onRemove, onSet, onUnset }: EditIconsProps) => {
-  let icons: ReactNode;
-
-  if (exists(value)) {
-    icons = (
-      <>
-        {onRemove && (
-          <IconButton disabled={disabled} onClick={onRemove}>
-            <MdiIcon path="link_off" />
-          </IconButton>
-        )}
-        {onUnset && (
-          <IconButton disabled={disabled} onClick={onUnset}>
-            <MdiIcon path="link_off" />
-          </IconButton>
-        )}
-      </>
-    );
-  } else {
-    icons = <>
-      {onSet && (
-        <IconButton disabled={disabled} onClick={onSet}>
-          <MdiIcon path="link" />
+      {exists(value) && onView && (
+        <IconButton disabled={disabled || editMode} onClick={onView}>
+          <MdiIcon path="eye" />
         </IconButton>
       )}
-    </>;
-  }
-
-  return <>{icons}</>;
+      {exists(value) && onEdit && (
+        <IconButton disabled={disabled || editMode} onClick={onEdit}>
+          <MdiIcon path="pencil" />
+        </IconButton>
+      )}
+      {exists(value) && onDelete && (
+        <IconButton disabled={disabled || editMode} onClick={onDelete}>
+          <MdiIcon path="delete" />
+        </IconButton>
+      )}
+      {exists(value) && onRemove && (
+        <IconButton disabled={disabled} onClick={onRemove}>
+            <MdiIcon path="link_off" />
+        </IconButton>
+      )}
+      {exists(value) && onUnset && (
+        <IconButton disabled={disabled} onClick={onUnset}>
+            <MdiIcon path="link_off" />
+        </IconButton>
+      )}
+      {!exists(value) && onCreate && (
+        <IconButton disabled={disabled || editMode} onClick={onCreate}>
+          <MdiIcon path="file_document_plus" />
+        </IconButton>
+      )}
+      {/*onSet && (
+        <IconButton disabled={disabled} onClick={onSet}>
+            <MdiIcon path="link" />
+        </IconButton>
+      )*/}
+    </Grid>
+  );
 };

@@ -25,7 +25,8 @@
         {{# if child.icon }}
             icon={<MdiIcon path="{{ child.icon.name }}" />}
         {{/ if }}
-        readonly={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !editMode }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} }
+        editMode={ editMode }
         {{# each child.actions as |action| }}
             {{# if action.isViewAction }}
                 onView={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data?.{{ child.dataElement.name }}!{{/ unless }}) }
@@ -69,16 +70,14 @@
 
                 if (res === undefined) return;
 
+                setEditMode(true);
                 storeDiff('{{ child.dataElement.name }}', res as {{ classDataName child.dataElement.target 'Stored' }});
             } }
         {{/ if }}
         {{# if child.dataElement.isUnsetable }}
             onUnset={ async () => {
-                if (editMode) {
-                    storeDiff('{{ child.dataElement.name }}', null);
-                } else {
-                    alert('Unset action on Link Component in View Mode not implemented yet')
-                }
+                setEditMode(true);
+                storeDiff('{{ child.dataElement.name }}', null);
             } }
         {{/ if }}
     />

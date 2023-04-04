@@ -20,7 +20,11 @@
             disableSelectionOnClick
             {{# each child.rowActions as |action| }}
                 {{# if action.isViewAction }}
-                    onRowClick={ (params: GridRowParams<{{ classDataName child.dataElement.target 'Stored' }}>) => {{ actionFunctionName action action.target }}(params.row) }
+                    onRowClick={ (params: GridRowParams<{{ classDataName child.dataElement.target 'Stored' }}>) => {
+                        if (!editMode) {
+                            {{ actionFunctionName action action.target }}(params.row);
+                        }
+                    } }
                 {{/ if }}
             {{/ each }}
             sortModel={ {{ child.dataElement.name }}SortModel }
@@ -60,7 +64,7 @@
 
                                         {{# if page.dataElement.isUpdatable }}
                                             if (!editMode) {
-                                                saveData();
+                                                setEditMode(true);
                                             }
                                         {{/ if }}
                                     }
@@ -80,7 +84,7 @@
 
                                     {{# if page.dataElement.isUpdatable }}
                                         if (!editMode) {
-                                            saveData();
+                                            setEditMode(true);
                                         }
                                     {{/ if }}
                                 } }

@@ -110,23 +110,8 @@ export default function {{ pageName page }}() {
                     label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                     icon: <MdiIcon path="link_off" />,
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                        if (editMode) {
-                            storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)]);
-                        } else {
-                            try {
-                                await {{ classServiceName table.dataElement.owner }}Impl.remove{{ firstToUpper table.dataElement.name }}(
-                                    { __signedIdentifier: data.__signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>,
-                                    [row],
-                                );
-
-                                fetchData();
-                            } catch (error) {
-                                enqueueSnackbar(t('judo.component.Table.error.remove', { defaultValue: 'Could not remove element!' }) as string, {
-                                    variant: 'error',
-                                });
-                                console.error(error);
-                            }
-                        }
+                        setEditMode(true);
+                        storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)]);
                     },
                 },
             {{/ if }}
@@ -137,7 +122,7 @@ export default function {{ pageName page }}() {
                         label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetchData()),
-                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
+                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode || !row.__deleteable,
                     },
                 {{/ if }}
                 {{# if action.isCallOperationAction }}
@@ -146,6 +131,7 @@ export default function {{ pageName page }}() {
                         label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
                         action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
+                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode,
                     },
                 {{/ if }}
             {{/ each }}
@@ -228,60 +214,7 @@ export default function {{ pageName page }}() {
         <>
             {{# with (getDataContainerForPage page) as |rootChild| }}
                 <PageHeader title={title}>
-                    {{# if page.dataElement.isRefreshable }}
-                        {!editMode && (
-                            <Grid item>
-                                <Button id="page-action-refresh" onClick={() => fetchData()} disabled={isLoading}>
-                                    <MdiIcon path="refresh" />
-                                    {t('judo.pages.refresh', { defaultValue: 'Refresh' })}
-                                </Button>
-                            </Grid>
-                        )}
-                    {{/ if }}
-                    {{# if page.dataElement.isDeletable }}
-                        {!editMode && (
-                            <Grid item>
-                                <Button id="page-action-delete" onClick={() => deleteData()} disabled={isLoading || !data.__deleteable}>
-                                    <MdiIcon path="delete" />
-                                    {t('judo.pages.delete', { defaultValue: 'Delete' })}
-                                </Button>
-                            </Grid>
-                        )}
-                    {{/ if }}
-                    {{# if page.dataElement.isUpdatable }}
-                        {!editMode && (
-                            <Grid item>
-                                <Button id="page-action-edit" onClick={() => setEditMode(true)} disabled={isLoading || !data.__updateable}>
-                                    <MdiIcon path="pencil" />
-                                    {t('judo.pages.edit', { defaultValue: 'Edit' })}
-                                </Button>
-                            </Grid>
-                        )}
-                        {editMode && (
-                            <Grid item>
-                                <Button
-                                    id="page-action-edit-cancel"
-                                    variant="outlined"
-                                    onClick={() => {
-                                        setEditMode(false);
-                                        fetchData();
-                                    }}
-                                    disabled={isLoading}
-                                >
-                                    <MdiIcon path="cancel" />
-                                    {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
-                                </Button>
-                            </Grid>
-                        )}
-                        {editMode && (
-                            <Grid item>
-                                <Button id="page-action-edit-save" onClick={() => saveData()} disabled={isLoading}>
-                                    <MdiIcon path="content-save" />
-                                    {t('judo.pages.save', { defaultValue: 'Save' })}
-                                </Button>
-                            </Grid>
-                        )}
-                    {{/ if }}
+                    {{> actor/src/fragments/page/page-crud-actions.hbs }}
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
                     <Box sx={mainContainerPadding}>

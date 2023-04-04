@@ -23,10 +23,8 @@
         {{# if action.isNavigationToPageAction }}
             {{# if action.dataElement.isCollection }}
                 <CollectionAssociationButton id="{{ createId action }}" editMode={editMode} navigateAction={() => {{ actionFunctionName action page }}(data)}>
-                    {{# if child.icon }}
-                        <MdiIcon path="{{ child.icon.name }}" />
-                    {{/ if }}
                     { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+                    <MdiIcon path="arrow-right" />
                 </CollectionAssociationButton>
             {{ else }}
                 <AssociationButton
@@ -37,10 +35,8 @@
                         _mask: '{}',
                     })}
                 >
-                    {{# if child.icon }}
-                        <MdiIcon path="{{ child.icon.name }}" />
-                    {{/ if }}
                     { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+                    <MdiIcon path="arrow-right" />
                 </AssociationButton>
             {{/ if }}
         {{/ if }}
