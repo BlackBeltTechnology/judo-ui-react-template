@@ -1,29 +1,25 @@
 // Action: NavigateToPageAction
 
+import { JudoIdentifiable } from '@judo/data-api-common';
 import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
 } from '{{ relativePathFromAction page action 'generated/data-api' }}';
-{{# unless action.dataElement.isCollection }}
-    import {
-        {{ classServiceName action.dataElement.owner }}Impl,
-    } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
-{{/ unless }}
 
-export type {{ actionFunctionTypeName action page }} = () => (owner: {{ classDataName page.dataElement.target 'Stored' }}) => Promise<void>;
+export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>{{# unless action.dataElement.isCollection}}, target: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>{{/ unless }}) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const { navigate } = useJudoNavigation();
 
-    return async function (owner: {{ classDataName page.dataElement.target 'Stored' }}) {
+    return async function (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>{{# unless action.dataElement.isCollection}}, target: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>{{/ unless }}) {
         {{# if action.dataElement.isCollection }}
             navigate(`{{ getNavigationForPage action.target 'owner.__signedIdentifier' }}`);
         {{ else }}
-            const target = await {{ classServiceName action.dataElement.owner }}Impl.get{{ firstToUpper action.dataElement.name }}(owner, {
+            /*const target = await {{ classServiceName action.dataElement.owner }}Impl.get{{ firstToUpper action.dataElement.name }}(owner, {
                 _mask: '{}',
-            });
+            });*/
             navigate(`{{ getNavigationForPage (getViewPageForPage action.target) 'target.__signedIdentifier' }}`);
         {{/ if }}
     }

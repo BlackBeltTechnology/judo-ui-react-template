@@ -21,12 +21,28 @@
         {{/ if }}
 
         {{# if action.isNavigationToPageAction }}
-            <Button id="{{ createId action }}" onClick={() => {{ actionFunctionName action page }}(data)} disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading  || editMode }>
-                {{# if child.icon }}
-                    <MdiIcon path="{{ child.icon.name }}" />
-                {{/ if }}
-                { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
-            </Button>
+            {{# if action.dataElement.isCollection }}
+                <CollectionAssociationButton id="{{ createId action }}" editMode={editMode} navigateAction={() => {{ actionFunctionName action page }}(data)}>
+                    {{# if child.icon }}
+                        <MdiIcon path="{{ child.icon.name }}" />
+                    {{/ if }}
+                    { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+                </CollectionAssociationButton>
+            {{ else }}
+                <AssociationButton
+                    id="{{ createId action }}"
+                    editMode={editMode}
+                    navigateAction={(target) => {{ actionFunctionName action page }}(data, target)}
+                    fetchCall={async () => await {{ classServiceName action.dataElement.owner }}Impl.get{{ firstToUpper action.dataElement.name }}(data, {
+                        _mask: '{}',
+                    })}
+                >
+                    {{# if child.icon }}
+                        <MdiIcon path="{{ child.icon.name }}" />
+                    {{/ if }}
+                    { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+                </AssociationButton>
+            {{/ if }}
         {{/ if }}
         {{# if child.customImplementation }}
             </ComponentProxy>

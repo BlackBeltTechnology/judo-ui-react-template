@@ -16,7 +16,7 @@ import { v1 as uuidv1 } from 'uuid';
 import { MdiIcon, ModeledTabs } from '{{ relativePathFromAction ownerPage action 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromAction ownerPage action 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromAction ownerPage action 'components/dialog' }}';
-import { AggregationInput, TrinaryLogicCombobox } from '{{ relativePathFromAction ownerPage action 'components/widgets' }}';
+import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromAction ownerPage action 'components/widgets' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction ownerPage action 'components-api' }}';
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
@@ -75,12 +75,12 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } fro
         {{# if (hasVisualReferences action.target) }}
             {{# each (getPageTables action.target) as |table| }}
                 {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=table }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement action=action }}
+                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
                 {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
             {{/ each }}
             {{# each (getPageWritableLinks action.target) as |link| }}
                 {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=link }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement action=action }}
+                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement }}
                 {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=link.dataElement }}
             {{/ each }}
         {{/ if }}
