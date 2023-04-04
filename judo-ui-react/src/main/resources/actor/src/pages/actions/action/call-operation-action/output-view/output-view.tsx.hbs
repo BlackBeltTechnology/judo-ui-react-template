@@ -69,7 +69,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({ ...result });
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map());
-    const [editMode] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>(false);
     const { openRangeDialog } = useRangeDialog();
     const [payloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
