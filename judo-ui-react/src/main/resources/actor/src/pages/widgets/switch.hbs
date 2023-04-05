@@ -18,22 +18,23 @@
             label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
             select
             value={ booleanToStringSelect( data.{{ child.attributeType.name }} )}
+            className={ !editMode ? 'JUDO-viewMode' : undefined }
+            disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
             error={ !!validation.get('{{ child.attributeType.name }}') }
             helperText={ validation.get('{{ child.attributeType.name }}') }
             onChange={ (event) => {
+                setEditMode(true);
                 storeDiff('{{ child.attributeType.name }}', stringToBooleanSelect(event.target.value));
             } }
-            className={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode ? 'Mui-readOnly' : undefined }
             InputLabelProps={ { shrink: true } }
             InputProps={ {
-                readOnly: {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode,
-                    {{# if child.icon }}
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <MdiIcon path="{{ child.icon.name }}" />
-                            </InputAdornment>
-                        ),
-                    {{/ if }}
+                {{# if child.icon }}
+                    startAdornment: (
+                        <InputAdornment position="start">
+                            <MdiIcon path="{{ child.icon.name }}" />
+                        </InputAdornment>
+                    ),
+                {{/ if }}
             } }
         >
             <MenuItem id="{{ createId child }}-true" value={'true'}>{ t('judo.form.switch.true', { defaultValue: 'Yes' }) as string }</MenuItem>
@@ -44,9 +45,12 @@
         <FormGroup>
             <FormControlLabel
                 sx={ { marginTop: '6px' } }
-                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode }
+                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
                 control={
-                    <Checkbox value={ data.{{ child.attributeType.name }} } />
+                    <Checkbox value={ data.{{ child.attributeType.name }} } onChange={ (event) => {
+                        setEditMode(true);
+                        storeDiff('{{ child.attributeType.name }}', event.target.value);
+                    } } />
                 }
                 label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
             />

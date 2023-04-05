@@ -1,14 +1,6 @@
 {{# if page.dataElement.isUpdatable }}
     {editMode && (
         <Grid item>
-            <Button id="page-action-edit-save" onClick={() => saveData()} disabled={isLoading}>
-                <MdiIcon path="content-save" />
-                {t('judo.pages.save', { defaultValue: 'Save' })}
-            </Button>
-        </Grid>
-    )}
-    {editMode && (
-        <Grid item>
             <Button
                 id="page-action-edit-cancel"
                 variant="outlined"
@@ -23,11 +15,11 @@
             </Button>
         </Grid>
     )}
-    {!editMode && (
+    {editMode && (
         <Grid item>
-            <Button id="page-action-edit" onClick={() => setEditMode(true)} disabled={isLoading || !data.__updateable}>
-                <MdiIcon path="pencil" />
-                {t('judo.pages.edit', { defaultValue: 'Edit' })}
+            <Button id="page-action-edit-save" onClick={() => saveData()} disabled={isLoading}>
+                <MdiIcon path="content-save" />
+                {t('judo.pages.save', { defaultValue: 'Save' })}
             </Button>
         </Grid>
     )}
