@@ -16,15 +16,16 @@
                 {{# if child.attributeType.isRequired }} required {{/ if }}
                 {...props}
                 id="{{ createId child }}"
+                className={ !editMode ? 'JUDO-viewMode' : undefined }
                 error={!!validation.get('{{ child.attributeType.name }}')}
                 helperText={validation.get('{{ child.attributeType.name }}')}
             />
         ) }
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} ?? null }
-        className={ {{ boolValue child.attributeType.isReadOnly }} || !editMode ? 'Mui-readOnly' : undefined }
-        readOnly={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
         onChange={ (newValue?: Dayjs | null) => {
+            setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', uiDateToServiceDate(newValue));
         } }
         {{# if child.icon }}

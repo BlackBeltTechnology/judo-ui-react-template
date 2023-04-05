@@ -16,13 +16,16 @@
         id="{{ createId child }}"
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} }
+        className={ !editMode ? 'JUDO-viewMode' : undefined }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
-        onChange={ (event) => storeDiff('{{ child.attributeType.name }}', event.target.value) }
-        className={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode ? 'Mui-readOnly' : undefined }
+        onChange={ (event) => {
+            setEditMode(true);
+            storeDiff('{{ child.attributeType.name }}', event.target.value);
+        } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {
-            readOnly: {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode,
             {{# if child.icon }}
                 startAdornment: (
                     <InputAdornment position="start">

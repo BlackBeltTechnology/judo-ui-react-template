@@ -12,6 +12,8 @@ import { MdiIcon } from '../MdiIcon';
 
 export const TrinaryLogicCombobox = ({
   readOnly = false,
+  disabled = false,
+  editMode = false,
   value = null,
   id,
   label,
@@ -36,12 +38,12 @@ export const TrinaryLogicCombobox = ({
       label={label}
       select
       value={TRINARY_LOGIC.get(value)}
+      className={ !editMode ? 'JUDO-viewMode' : undefined }
       onChange={onChangeHandler}
-      className={readOnly ? 'Mui-readOnly' : undefined}
+      disabled={disabled || readOnly}
       error={error}
       helperText={helperText}
       InputProps={ {
-        readOnly: readOnly,
         startAdornment: (
           <InputAdornment position="start">
             <MdiIcon path="format-list-bulleted" />
