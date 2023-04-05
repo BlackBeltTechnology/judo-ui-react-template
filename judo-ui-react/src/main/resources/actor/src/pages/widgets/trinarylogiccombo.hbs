@@ -15,10 +15,15 @@
         id="{{ createId child }}"
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string {{# if child.attributeType.isRequired }} + " *" {{/ if }} }
         value={ data?.{{ child.attributeType.name }} }
+        editMode={ editMode }
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
-        onChange={ (value) => storeDiff('{{ child.attributeType.name }}', value) }
-        readOnly={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode }
+        onChange={ (value) => {
+            setEditMode(true);
+            storeDiff('{{ child.attributeType.name }}', value);
+        } }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
+        readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
     />
     {{# if child.customImplementation }}
         </ComponentProxy>

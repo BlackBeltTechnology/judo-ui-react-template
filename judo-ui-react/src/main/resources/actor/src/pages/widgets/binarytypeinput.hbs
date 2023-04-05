@@ -20,6 +20,8 @@
                 type="file"
                 error={ !!validation.get('{{ child.attributeType.name }}') }
                 helperText={ validation.get('{{ child.attributeType.name }}') }
+                className={ !editMode ? 'JUDO-viewMode' : undefined }
+                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
                 onChange={ async (event: any) => {
                     try {
                         const uploadedData = await uploadFile(data, '{{ child.attributeType.name }}', event.target.files, '{{ attributePath child.attributeType }}');
@@ -32,6 +34,7 @@
                                 console.error(uploadedData);
                                 return;
                             }
+                            setEditMode(true);
                             storeDiff('{{ child.attributeType.name }}', uploadedData.token);
                             enqueueSnackbar(t('judo.files.upload-success', { defaultValue: 'File uploaded successfully.' }) as string, {
                                 variant: 'success',
@@ -46,10 +49,8 @@
                         console.error(err);
                     }
                 } }
-                className={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode ? 'Mui-readOnly' : undefined }
                 InputLabelProps={ { shrink: true } }
                 InputProps={ {
-                    readOnly: {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !editMode,
                     {{# if child.icon }}
                         startAdornment: (
                             <InputAdornment position="start">
@@ -61,7 +62,7 @@
             />
           )
         : (
-            <Button id="{{ createId child }}-download" variant="contained" disabled={ !data?.{{ child.attributeType.name }} } onClick={ () => downloadFile(data, '{{ child.attributeType.name }}') }>
+            <Button id="{{ createId child }}-download" variant="contained" disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} } onClick={ () => downloadFile(data, '{{ child.attributeType.name }}') }>
                 {{# if child.icon }}
                     <MdiIcon path="{{ child.icon.name }}" {{# neq child.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ child.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ child.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />
                 {{/ if }}
