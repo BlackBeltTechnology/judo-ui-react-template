@@ -62,7 +62,7 @@
             />
           )
         : (
-            <Button id="{{ createId child }}-download" variant="contained" disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} } onClick={ () => downloadFile(data, '{{ child.attributeType.name }}') }>
+            <Button id="{{ createId child }}-download" variant="contained" disabled={ !data?.{{ child.attributeType.name }} } onClick={ () => downloadFile(data, '{{ child.attributeType.name }}') }>
                 {{# if child.icon }}
                     <MdiIcon path="{{ child.icon.name }}" {{# neq child.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ child.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ child.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />
                 {{/ if }}
