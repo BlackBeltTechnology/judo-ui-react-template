@@ -5,9 +5,9 @@ import { JudoIdentifiable } from '@judo/data-api-common';
 import { useJudoNavigation } from '../CustomBreadcrumb';
 
 export interface AssociationBaseProps {
-id: string;
-editMode?: boolean;
-children?: ReactNode;
+    id: string;
+    editMode?: boolean;
+    children?: ReactNode;
 }
 
 export interface AssociationButtonProps<T> extends AssociationBaseProps {
@@ -38,7 +38,7 @@ export function AssociationButton<T> ({ id, editMode, fetchCall, navigateAction,
     }, []);
 
     return (
-        <Button id={id} variant="text" onClick={() => navigateAction(data!)} disabled={isLoading || !(data?.__signedIdentifier)}>
+        <Button id={id} variant="text" onClick={() => navigateAction(data!)} disabled={isLoading || editMode || !(data?.__signedIdentifier)}>
             {children}
         </Button>
     );
@@ -53,7 +53,7 @@ export function CollectionAssociationButton<O> ({ id, editMode, isLoading, navig
     const { navigate } = useJudoNavigation();
 
     return (
-        <Button id={id} variant="text" onClick={() => navigateAction()} disabled={isLoading}>
+        <Button id={id} variant="text" onClick={() => navigateAction()} disabled={isLoading || editMode}>
             {children}
         </Button>
     );
