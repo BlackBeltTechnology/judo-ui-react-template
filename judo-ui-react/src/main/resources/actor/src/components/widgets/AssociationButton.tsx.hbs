@@ -38,7 +38,7 @@ export function AssociationButton<T> ({ id, editMode, fetchCall, navigateAction,
     }, []);
 
     return (
-        <Button id={id} variant="text" onClick={() => navigateAction(data!)} disabled={isLoading || editMode || !(data?.__signedIdentifier)}>
+        <Button id={id} variant="text" onClick={() => navigateAction(data!)} disabled={isLoading || !(data?.__signedIdentifier)}>
             {children}
         </Button>
     );
@@ -53,7 +53,7 @@ export function CollectionAssociationButton<O> ({ id, editMode, isLoading, navig
     const { navigate } = useJudoNavigation();
 
     return (
-        <Button id={id} variant="text" onClick={() => navigateAction()} disabled={isLoading || editMode}>
+        <Button id={id} variant="text" onClick={() => navigateAction()} disabled={isLoading}>
             {children}
         </Button>
     );
