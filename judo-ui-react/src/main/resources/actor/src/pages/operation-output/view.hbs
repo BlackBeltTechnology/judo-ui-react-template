@@ -28,6 +28,7 @@ import {
     CustomBreadcrumb,
     useJudoNavigation,
 } from '{{ relativePathFromPage page 'components' }}';
+import { useConfirmationBeforeChange } from '{{ relativePathFromPage page 'hooks' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
 import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
@@ -148,6 +149,8 @@ export default function {{ pageName page }}() {
     {{ else }}
         const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
+
+    useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
 
     const fetchData = async () => {
         setIsLoading(true);
