@@ -41,7 +41,7 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } fro
         successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void;
         cancel: () => void;
         {{# if (hasDataElementOwner action.dataElement) }}
-            owner: {{ classDataName ownerPage.dataElement.target 'Stored' }};
+            owner: JudoIdentifiable<{{ classDataName ownerPage.dataElement.target '' }}>;
         {{/ if }}
     }
 

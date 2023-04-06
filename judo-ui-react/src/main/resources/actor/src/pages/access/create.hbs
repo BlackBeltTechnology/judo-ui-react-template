@@ -88,6 +88,10 @@ export default function {{ pageName page }}() {
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target ''}}, string>>(new Map());
     {{# each (getPageTables page) as |table| }}
         {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
+        {{# if table.dataElement.isAddable }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+        {{/ if }}
     {{/ each }}
     const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
