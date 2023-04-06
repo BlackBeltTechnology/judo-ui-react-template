@@ -63,6 +63,7 @@ import {
 **/
 export default function {{ pageName page }}() {
     const { t } = useTranslation();
+    const { openRangeDialog } = useRangeDialog();
     const { navigate, back } = useJudoNavigation();
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     {{# if page.dataElement.isUpdatable }}
@@ -101,6 +102,10 @@ export default function {{ pageName page }}() {
     {{/ each }}
     {{# each (getPageTables page) as |table| }}
         {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
+        {{# if table.dataElement.isAddable }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+        {{/ if }}
     {{/ each }}
     {{# each (getPageTables page) as |table| }}
         const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
