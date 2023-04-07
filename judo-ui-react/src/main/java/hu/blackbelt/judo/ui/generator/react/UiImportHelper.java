@@ -79,7 +79,7 @@ public class UiImportHelper {
         Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Set<String> imports = new HashSet<>();
+        SortedSet<String> imports = new TreeSet<>();
 
         muiDatePickerWidgetImportPairs.forEach((key, value) -> {
             if (uniqueVisualElementNames.contains(key)) {
@@ -90,11 +90,11 @@ public class UiImportHelper {
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
 
-    public static Set<String> getMuiDataGridImports(PageDefinition pageDefinition) {
+    public static SortedSet<String> getMuiDataGridImports(PageDefinition pageDefinition) {
         Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Set<String> imports = new HashSet<>();
+        SortedSet<String> imports = new TreeSet<>();
 
         muiDataGridWidgetImportPairs.forEach((key, value) -> {
             if (uniqueVisualElementNames.contains(key)) {
@@ -108,7 +108,7 @@ public class UiImportHelper {
     }
 
     public static String getMuiDataGridImportsForPage(PageDefinition pageDefinition) {
-        Set<String> imports = getMuiDataGridImports(pageDefinition);
+        SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
 
         imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef"));
 
@@ -116,18 +116,18 @@ public class UiImportHelper {
     }
 
     public static String getMuiDataGridImportsForActionForm(PageDefinition pageDefinition) {
-        Set<String> imports = getMuiDataGridImports(pageDefinition);
+        SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
 
         imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef"));
 
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
 
-    public static Set<String> getMaterialImportsForPage(PageDefinition pageDefinition) {
+    public static SortedSet<String> getMaterialImportsForPage(PageDefinition pageDefinition) {
         Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        Set<String> imports = new HashSet<>();
+        SortedSet<String> imports = new TreeSet<>();
 
         imports.addAll(Set.of("Button"));
 
@@ -141,22 +141,22 @@ public class UiImportHelper {
     }
 
     public static String getMuiMaterialImportsForPage(PageDefinition pageDefinition) {
-        Set<String> imports = getMaterialImportsForPage(pageDefinition);
+        SortedSet<String> imports = getMaterialImportsForPage(pageDefinition);
 
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
 
     public static String getMuiMaterialImportsForActionForm(PageDefinition pageDefinition) {
-        Set<String> imports = getMaterialImportsForPage(pageDefinition);
+        SortedSet<String> imports = getMaterialImportsForPage(pageDefinition);
 
         imports.addAll(Set.of("Button", "IconButton", "DialogActions", "DialogContent", "DialogContentText", "DialogTitle"));
 
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
 
-    public static Set<String> getUniqueVisualElementNamesForPage(PageDefinition pageDefinition) {
+    public static SortedSet<String> getUniqueVisualElementNamesForPage(PageDefinition pageDefinition) {
         Set<VisualElement> flattenedVisualElements = createFlattenedSetOfVisualElements(pageDefinition);
-        Set<String> uniqueVisualElementNames = new HashSet<>();
+        SortedSet<String> uniqueVisualElementNames = new TreeSet<>();
 
         flattenedVisualElements.forEach(v -> uniqueVisualElementNames.add(getVisualElementWidgetName(v)));
 
