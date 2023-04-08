@@ -4,6 +4,12 @@
 // Path expression: {{{ cleanup template.pathExpression }}}
 // Template name: {{ template.templateName }}
 
+import '@fontsource/roboto/300.css';
+import '@fontsource/roboto/400.css';
+import '@fontsource/roboto/500.css';
+import '@fontsource/roboto/700.css';
+import '@mdi/font/css/materialdesignicons.css';
+
 import { createRoot } from 'react-dom/client';
 import axios from 'axios';
 import { createHashRouter, RouterProvider } from 'react-router-dom';
@@ -23,61 +29,63 @@ import { routes } from './routes';
   axios.interceptors.request.use(axiosRequestInterceptor);
 {{/ if }}
 
-const API_DEFAULT_BASE_URL: string = process.env.API_DEFAULT_BASE_URL || window.location.origin;
-const API_RELATIVE_PATH: string = process.env.API_RELATIVE_PATH || '/api';
+const API_DEFAULT_BASE_URL: string = import.meta.env.VITE_API_DEFAULT_BASE_URL || window.location.origin;
+const API_RELATIVE_PATH: string = import.meta.env.VITE_API_RELATIVE_PATH || '/api';
 // precedence: explicit file -> explicit api -> window.location.origin
-const FILE_DEFAULT_BASE_URL: string = process.env.FILE_DEFAULT_BASE_URL || API_DEFAULT_BASE_URL;
+const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL || API_DEFAULT_BASE_URL;
 
-const pandino = new Pandino({
-  ...loaderConfiguration,
-});
+(async () => {
+    const pandino = new Pandino({
+        ...loaderConfiguration,
+    });
 
-await pandino.init();
-await pandino.start();
+    await pandino.init();
+    await pandino.start();
 
-await applicationCustomizer.customize(pandino.getBundleContext());
+    await applicationCustomizer.customize(pandino.getBundleContext());
 
-judoAxiosProvider.init({
-  axios,
-  basePathFactory: () => API_DEFAULT_BASE_URL + API_RELATIVE_PATH,
-  filePathFactory: () => FILE_DEFAULT_BASE_URL + '/{{ modelName application.actor.fQName }}',
-});
+    judoAxiosProvider.init({
+        axios,
+        basePathFactory: () => API_DEFAULT_BASE_URL + API_RELATIVE_PATH,
+        filePathFactory: () => FILE_DEFAULT_BASE_URL + '/{{ modelName application.actor.fQName }}',
+    });
 
-const root = createRoot(document.getElementById('root') as HTMLElement);
+    const root = createRoot(document.getElementById('root') as HTMLElement);
 
-const router = createHashRouter([
-    {
-        path: "/",
-        element: <App />,
-        children: [
-            ...routes.map(({ path, element }) => ({ path, element })),
-        ],
-    },
-]);
+    const router = createHashRouter([
+        {
+            path: "/",
+            element: <App />,
+            children: [
+                ...routes.map(({ path, element }) => ({ path, element })),
+            ],
+        },
+    ]);
 
-{{# if application.authentication }}
-  const meta = await accessServiceImpl.getMetaData();
-  const { clientId, defaultScopes, issuer } = meta.security[0];
-  storeMeta({ issuer, clientId });
+    {{# if application.authentication }}
+        const meta = await accessServiceImpl.getMetaData();
+        const { clientId, defaultScopes, issuer } = meta.security[0];
+        storeMeta({ issuer, clientId });
 
-  const oidcConfig = {
-    authority: issuer,
-    client_id: clientId,
-    redirect_uri: appBaseUri,
-    automaticSilentRenew: true,
-  };
-{{/ if }}
+        const oidcConfig = {
+            authority: issuer,
+            client_id: clientId,
+            redirect_uri: appBaseUri,
+            automaticSilentRenew: true,
+        };
+    {{/ if }}
 
-root.render(
-    <PandinoProvider ctx={pandino.getBundleContext()}>
-        {{# if application.authentication }}
-            <AuthProvider {...oidcConfig} >
-                <Auth>
-        {{/ if }}
-            <RouterProvider router={router} />
-        {{# if application.authentication }}
-                </Auth>
-            </AuthProvider>
-        {{/ if }}
-    </PandinoProvider>
-);
+    root.render(
+        <PandinoProvider ctx={pandino.getBundleContext()}>
+            {{# if application.authentication }}
+                <AuthProvider {...oidcConfig} >
+                    <Auth>
+            {{/ if }}
+                <RouterProvider router={router} />
+            {{# if application.authentication }}
+                    </Auth>
+                </AuthProvider>
+            {{/ if }}
+        </PandinoProvider>
+    );
+})();
