@@ -123,41 +123,6 @@
             </plugin>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-dependency-plugin</artifactId>
-                <version>3.3.0</version>
-                <executions>
-                    <execution>
-                        <id>external-packages</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>unpack</goal>
-                        </goals>
-                        <configuration>
-                            <artifactItems>
-                                <artifactItem>
-                                    <groupId>hu.blackbelt.judo.generator</groupId>
-                                    <artifactId>judo-ui-react-external-packages</artifactId>
-                                    <version>${revision}</version>
-                                    <type>jar</type>
-                                    <overWrite>true</overWrite>
-                                </artifactItem>
-                            </artifactItems>
-                            <includes>externals/**</includes>
-                            <outputDirectory>${generation-target}</outputDirectory>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>hu.blackbelt.judo.generator</groupId>
-                        <artifactId>judo-ui-react-external-packages</artifactId>
-                        <version>${revision}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-
-            <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>${frontend-maven-plugin-version}</version>
