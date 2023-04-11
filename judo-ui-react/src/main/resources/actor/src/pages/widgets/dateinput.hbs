@@ -24,7 +24,7 @@
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} ?? null }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
-        onChange={ (newValue?: Dayjs | null) => {
+        onChange={ (newValue?: any | null) => {
             setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', uiDateToServiceDate(newValue));
         } }
