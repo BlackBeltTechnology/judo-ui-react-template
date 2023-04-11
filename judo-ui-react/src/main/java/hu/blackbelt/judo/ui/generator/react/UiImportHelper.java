@@ -154,8 +154,8 @@ public class UiImportHelper {
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
 
-    public static SortedSet<String> getUniqueVisualElementNamesForPage(PageDefinition pageDefinition) {
-        Set<VisualElement> flattenedVisualElements = createFlattenedSetOfVisualElements(pageDefinition);
+    public static SortedSet<String>getUniqueVisualElementNamesForPage(PageDefinition pageDefinition) {
+        SortedSet<VisualElement> flattenedVisualElements = createFlattenedSetOfVisualElements(pageDefinition);
         SortedSet<String> uniqueVisualElementNames = new TreeSet<>();
 
         flattenedVisualElements.forEach(v -> uniqueVisualElementNames.add(getVisualElementWidgetName(v)));
@@ -171,8 +171,8 @@ public class UiImportHelper {
         return visualElement.eClass().getInstanceClass().getSimpleName();
     }
 
-    public static Set<VisualElement> createFlattenedSetOfVisualElements(PageDefinition pageDefinition) {
-        Set<VisualElement> flattenedVisualElements = new HashSet<>();
+    public static SortedSet<VisualElement> createFlattenedSetOfVisualElements(PageDefinition pageDefinition) {
+        SortedSet<VisualElement> flattenedVisualElements = new TreeSet<>(Comparator.comparing((VisualElement v) -> v.getFQName().trim()));
         Container container = pageDefinition.getContainers().get(0);
 
         fillFlattenedVisualElements(container, flattenedVisualElements);
@@ -180,7 +180,7 @@ public class UiImportHelper {
         return flattenedVisualElements;
     }
 
-    public static void fillFlattenedVisualElements(Container container, Set<VisualElement> elements) {
+    public static void fillFlattenedVisualElements(Container container, SortedSet<VisualElement> elements) {
         List<VisualElement> contents = container.getChildren();
 
         elements.addAll(contents);
