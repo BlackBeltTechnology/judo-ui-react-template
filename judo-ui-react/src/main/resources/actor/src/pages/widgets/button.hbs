@@ -31,7 +31,8 @@
                     id="{{ createId action }}"
                     editMode={editMode}
                     navigateAction={(target) => {{ actionFunctionName action page }}(data, target)}
-                    fetchCall={async () => await {{ classServiceName action.dataElement.owner }}Impl.get{{ firstToUpper action.dataElement.name }}(data, {
+                    owner={data}
+                    fetchCall={async (owner: JudoIdentifiable<any>) => {{ classServiceName action.dataElement.owner }}Impl.get{{ firstToUpper action.dataElement.name }}(owner, {
                         _mask: '{}',
                     })}
                 >
