@@ -1,8 +1,3 @@
-///////////////////////////////////////////////////////////////////////////////
-// G E N E R A T E D    S O U R C E
-// ------------------------------
-// Path expression: {{{ cleanup template.pathExpression }}}
-// Template name: {{ template.templateName }}
 // Action name: {{ action.name }}
 {{# if action.isFilterAction }}
     {{> actor/src/pages/actions/action/filter-action.tsx.hbs }}
@@ -25,6 +20,7 @@
 {{ else if action.isCallOperationAction }}
     {{> actor/src/pages/actions/action/call-operation-action.tsx.hbs }}
 {{ else }}
+    {{> fragment.header.hbs }}
     export const {{ actionFunctionHookName action page }} = () => {
         return async function {{ actionFunctionName action page }}() {
             alert('{{ action.name }} not supported yet!');
