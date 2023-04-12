@@ -13,12 +13,13 @@ export interface AssociationBaseProps {
 }
 
 export interface AssociationButtonProps<T> extends AssociationBaseProps {
-    fetchCall: () => Promise<JudoIdentifiable<T>>;
+    owner: JudoIdentifiable<any>;
+    fetchCall: (owner: JudoIdentifiable<any>) => Promise<JudoIdentifiable<T>>;
     navigateAction: (target: JudoIdentifiable<T>) => void;
     children?: ReactNode;
 }
 
-export function AssociationButton<T> ({ id, editMode, fetchCall, navigateAction, children }: AssociationButtonProps<T>) {
+export function AssociationButton<T> ({ id, editMode, owner, fetchCall, navigateAction, children }: AssociationButtonProps<T>) {
     const { t } = useTranslation();
     const [data, setData] = useState<JudoIdentifiable<T> | undefined>();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -26,18 +27,24 @@ export function AssociationButton<T> ({ id, editMode, fetchCall, navigateAction,
 
     useEffect(() => {
         (async () => {
-            try {
-                setIsLoading(true);
-                const res: JudoIdentifiable<T> | undefined = await fetchCall();
+            if (owner.__signedIdentifier) {
+                try {
+                    setIsLoading(true);
+                    const res: JudoIdentifiable<T> | undefined = await fetchCall(owner);
 
-                setData(res);
-            } catch (e) {
-                console.error(e);
-            } finally {
+                    setData(res);
+                } catch (e) {
+                    setData(undefined);
+                    console.error(e);
+                } finally {
+                    setIsLoading(false);
+                }
+            } else {
+                setData(undefined);
                 setIsLoading(false);
             }
         })();
-    }, []);
+    }, [owner]);
 
     return (
         <Button id={id} variant="text" onClick={() => navigateAction(data!)} disabled={isLoading || editMode || !(data?.__signedIdentifier)}>
