@@ -26,7 +26,7 @@ import hu.blackbelt.judo.meta.ui.VisualElement;
 import lombok.extern.java.Log;
 import org.springframework.util.StringUtils;
 
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiImportHelper.createFlattenedSetOfVisualElements;
@@ -39,9 +39,15 @@ public class UiPandinoHelper {
         return name.replaceAll("([a-z])([A-Z]+)", "$1_$2").toUpperCase();
     }
 
-    public static Set<VisualElement> getVisualElementsWithCustomImplementation(PageDefinition pageDefinition) {
-        return createFlattenedSetOfVisualElements(pageDefinition).stream()
+    public static SortedSet<VisualElement> getVisualElementsWithCustomImplementation(PageDefinition pageDefinition) {
+        Set<VisualElement> visualElements = createFlattenedSetOfVisualElements(pageDefinition).stream()
                 .filter(VisualElement::isCustomImplementation).collect(Collectors.toSet());
+
+        SortedSet<VisualElement> result = new TreeSet<>(Comparator.comparing((VisualElement v) -> v.getFQName().trim()));
+
+        result.addAll(visualElements);
+
+        return result;
     }
 
     public static String getCustomizationComponentInterface(VisualElement element) {
