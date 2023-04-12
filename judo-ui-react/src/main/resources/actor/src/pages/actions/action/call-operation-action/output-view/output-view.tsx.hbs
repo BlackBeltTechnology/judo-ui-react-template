@@ -97,6 +97,8 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
         const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [];
     {{/ each }}
 
+    {{> actor/src/fragments/page/unmapped-form-flags.hbs }}
+
     return (
         {{# with (getDataContainerForPage page) as |rootChild| }}
             <>

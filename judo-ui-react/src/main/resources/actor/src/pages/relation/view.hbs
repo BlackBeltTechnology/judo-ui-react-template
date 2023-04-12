@@ -57,9 +57,9 @@ import {
 
 /**
  * Name: {{ page.name }}
- * Is Access: {{ boolValue page.relationType.isAccess }}
+ * Is Access: {{ boolValue page.dataElement.isAccess }}
  * Type: View
- * Edit Mode Available: {{ boolValue page.relationType.isUpdatable }}
+ * Edit Mode Available: {{ boolValue page.dataElement.isUpdatable }}
  **/
 export default function {{ pageName page }}() {
     const { t } = useTranslation();
@@ -86,10 +86,10 @@ export default function {{ pageName page }}() {
     } = use{{ pageName page }}();
 
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-    {{# if page.relationType.isUpdatable }}
+    {{# if page.dataElement.isUpdatable }}
         const handleUpdateError = useErrorHandler<{{ classDataName page.dataElement.target 'Stored' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
     {{/ if }}
-    {{# if page.relationType.isDeletable }}
+    {{# if page.dataElement.isDeletable }}
         const handleDeleteError = useErrorHandler<{{ classDataName page.dataElement.target 'Stored' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
     {{/ if }}
     const { enqueueSnackbar } = useSnackbar();
@@ -151,6 +151,8 @@ export default function {{ pageName page }}() {
         const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
 
+    {{> actor/src/fragments/page/mapped-form-flags.hbs }}
+
     useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
 
     const fetchData = async () => {
@@ -176,7 +178,7 @@ export default function {{ pageName page }}() {
         }
     };
 
-    {{# if page.relationType.isUpdatable }}
+    {{# if page.dataElement.isUpdatable }}
         const saveData = async () => {
             setIsLoading(true);
 
@@ -195,7 +197,7 @@ export default function {{ pageName page }}() {
         };
     {{/ if }}
 
-    {{# if page.relationType.isDeletable }}
+    {{# if page.dataElement.isDeletable }}
         const deleteData = async () => {
             setIsLoading(true);
 

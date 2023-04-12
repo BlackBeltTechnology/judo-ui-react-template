@@ -22,7 +22,7 @@
             setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', value);
         } }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
     />
     {{# if child.customImplementation }}
