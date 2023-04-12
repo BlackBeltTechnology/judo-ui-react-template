@@ -19,7 +19,7 @@
             select
             value={ booleanToStringSelect( data.{{ child.attributeType.name }} )}
             className={ !editMode ? 'JUDO-viewMode' : undefined }
-            disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
+            disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
             error={ !!validation.get('{{ child.attributeType.name }}') }
             helperText={ validation.get('{{ child.attributeType.name }}') }
             onChange={ (event) => {

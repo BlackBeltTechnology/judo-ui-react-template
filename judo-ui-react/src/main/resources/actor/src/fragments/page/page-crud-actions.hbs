@@ -1,5 +1,5 @@
 {{# if page.dataElement.isUpdatable }}
-    {editMode && (
+    {editMode && isFormUpdateable() && (
         <Grid item>
             <Button
                 id="page-action-edit-cancel"
@@ -15,7 +15,7 @@
             </Button>
         </Grid>
     )}
-    {editMode && (
+    {editMode && isFormUpdateable() && (
         <Grid item>
             <Button id="page-action-edit-save" onClick={() => saveData()} disabled={isLoading}>
                 <MdiIcon path="content-save" />
@@ -35,7 +35,7 @@
     )}
 {{/ if }}
 {{# if page.dataElement.isDeletable }}
-    {!editMode && (
+    {!editMode && isFormDeleteable() && (
         <Grid item>
             <Button id="page-action-delete" onClick={() => deleteData()} disabled={isLoading || !data.__deleteable}>
                 <MdiIcon path="delete" />

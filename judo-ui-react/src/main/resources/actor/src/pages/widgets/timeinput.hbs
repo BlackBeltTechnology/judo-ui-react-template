@@ -17,14 +17,14 @@
                 {...props}
                 id="{{ createId child }}"
                 className={ !editMode ? 'JUDO-viewMode' : undefined }
-                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
+                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
                 error={!!validation.get('{{ child.attributeType.name }}')}
                 helperText={validation.get('{{ child.attributeType.name }}')}
             />
         ) }
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} ?? null }
-        readOnly={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
+        readOnly={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         onChange={ (newValue: string | null | undefined) => {
             setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', newValue);
