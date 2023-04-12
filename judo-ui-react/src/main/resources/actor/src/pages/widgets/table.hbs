@@ -41,7 +41,7 @@
                                         id="{{ createId action }}"
                                         variant="text"
                                         onClick={ () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetchData()) }
-                                        disabled={isLoading || !{{ boolValue page.dataElement.isUpdatable }} || editMode}
+                                        disabled={isLoading || !{{ boolValue page.dataElement.isUpdatable }} || editMode || !isFormUpdateable()}
                                     >
                                         <MdiIcon path="file_document_plus" />
                                         {t('judo.pages.table.create', { defaultValue: 'Create' })}
@@ -69,7 +69,7 @@
                                         {{/ if }}
                                     }
                                 } }
-                                disabled={ isLoading || !{{ boolValue page.dataElement.isUpdatable }} }
+                                disabled={ isLoading || !{{ boolValue page.dataElement.isUpdatable }} || !isFormUpdateable() }
                             >
                                 <MdiIcon path="attachment-plus" />
                                 {t('judo.pages.table.add', { defaultValue: 'Add' })}
@@ -88,7 +88,7 @@
                                         }
                                     {{/ if }}
                                 } }
-                                disabled={ isLoading || !{{ boolValue page.dataElement.isUpdatable }} }
+                                disabled={ isLoading || !{{ boolValue page.dataElement.isUpdatable }} || !isFormUpdateable() }
                             >
                                 <MdiIcon path="link_off" />
                                 {t('judo.pages.table.clear', { defaultValue: 'Clear' })}

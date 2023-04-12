@@ -145,6 +145,8 @@ export default function {{ pageName page }}() {
         const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
 
+    {{> actor/src/fragments/page/mapped-form-flags.hbs }}
+
     useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
 
     const fetchData = async () => {

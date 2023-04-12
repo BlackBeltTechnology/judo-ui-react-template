@@ -90,6 +90,8 @@ export default function {{ pageName page }}() {
     {{/ each }}
     const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
+    {{> actor/src/fragments/page/input-form-flags.hbs }}
+
     {{# if page.dataElement.target.isTemplateable }}
         const fetchData = async () => {
             setIsLoading(true);
