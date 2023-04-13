@@ -1,8 +1,15 @@
-
 {{> fragment.header.hbs }}
 
+import { format } from 'date-fns';
+
 export const uiDateToServiceDate = (date?: any | null): string | null => {
-  return date;
+  if (date === undefined || date === null) {
+    return null;
+  }
+
+  const resolved: Date = typeof date === 'string' ? new Date(date) : date;
+
+  return format(resolved, 'yyyy-MM-dd')
 };
 
 export const serviceDateToUiDate = (dateStr?: any) => {
