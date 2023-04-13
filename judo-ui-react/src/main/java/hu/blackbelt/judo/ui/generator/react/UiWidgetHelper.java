@@ -212,7 +212,7 @@ public class UiWidgetHelper extends Helper {
         if (pageDefinition.getIsPageTypeOperationInput() || pageDefinition.getIsPageTypeCreate()) {
             Input input = findFirstInput(pageDefinition.getContainers().get(0));
 
-            return element.getFQName().equals(input.getFQName());
+            return input != null && element.getFQName().equals(input.getFQName());
         }
 
         return false;
