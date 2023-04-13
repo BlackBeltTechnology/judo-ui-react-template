@@ -1,10 +1,12 @@
 {{> fragment.header.hbs }}
 // Action: DeleteAction
 
+import { useTranslation } from 'react-i18next';
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
+import { useConfirmDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
@@ -20,14 +22,24 @@ import {
 export type {{ actionFunctionTypeName action page }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+    const { t } = useTranslation();
     const { enqueueSnackbar } = useSnackbar();
+    const { openConfirmDialog } = useConfirmDialog();
     const handleActionError = useErrorHandler{{# if (hasDataElementOwner action.dataElement) }}<JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>>{{/ if }}(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=RowDeleteAction))`);
 
     return async function {{ actionFunctionName action page }} ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) {
         try {
-            await {{ classServiceName action.dataElement.target }}Impl.delete(selected);
+            const confirmed = await openConfirmDialog(
+                'row-delete-action',
+                t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
+                t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+            );
 
-            successCallback();
+            if (confirmed) {
+                await {{ classServiceName action.dataElement.target }}Impl.delete(selected);
+
+                successCallback();
+            }
         } catch (error) {
             handleActionError(error);
         }

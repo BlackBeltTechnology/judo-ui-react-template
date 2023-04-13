@@ -34,13 +34,25 @@
         </Grid>
     )}
 {{/ if }}
-{{# if page.dataElement.isDeletable }}
-    {!editMode && isFormDeleteable() && (
-        <Grid item>
-            <Button id="page-action-delete" onClick={() => deleteData()} disabled={isLoading || !data.__deleteable}>
-                <MdiIcon path="delete" />
-                {t('judo.pages.delete', { defaultValue: 'Delete' })}
-            </Button>
-        </Grid>
-    )}
-{{/ if }}
+{{# each page.pageActions as |action| }}
+    {{# if action.isDeleteAction }}
+        {!editMode && isFormDeleteable() && (
+            <Grid item>
+                <Button
+                    id="page-action-delete"
+                    onClick={() => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, {{/ if }}data, () => {
+                        {{# if (isSingleAccessPage page) }}
+                            navigate('/{{ page.dataElement.name }}/create');
+                        {{ else }}
+                            back();
+                        {{/ if }}
+                    })}
+                    disabled={isLoading || !data.__deleteable}
+                >
+                    <MdiIcon path="delete" />
+                    {t('judo.pages.delete', { defaultValue: 'Delete' })}
+                </Button>
+            </Grid>
+        )}
+    {{/ if }}
+{{/ each }}
