@@ -33,7 +33,7 @@ import java.util.stream.Collectors;
 public class UiImportHelper {
     private static final Map<String, Set<String>> muiMaterialWidgetImportPairs = Map.ofEntries(
             Map.entry("actiongroup", Set.of("Button")),
-            Map.entry("binarytypeinput", Set.of("TextField", "InputAdornment", "Button")),
+            Map.entry("binarytypeinput", Set.of("TextField", "InputAdornment", "Button", "ButtonGroup")),
             Map.entry("button", Set.of("Button")),
             Map.entry("dateinput", Set.of("TextField", "InputAdornment")),
             Map.entry("datetimeinput", Set.of("TextField", "InputAdornment")),

@@ -62,12 +62,22 @@
             />
           )
         : (
-            <Button id="{{ createId child }}-download" variant="contained" disabled={ !data?.{{ child.attributeType.name }} } onClick={ () => downloadFile(data, '{{ child.attributeType.name }}') }>
-                {{# if child.icon }}
-                    <MdiIcon path="{{ child.icon.name }}" {{# neq child.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ child.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ child.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />
-                {{/ if }}
-                { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
-            </Button>
+            <ButtonGroup>
+                <Button id="{{ createId child }}-download" variant="contained" disabled={ !data?.{{ child.attributeType.name }} } onClick={ () => downloadFile(data, '{{ child.attributeType.name }}') }>
+                    {{# if child.icon }}
+                        <MdiIcon path="{{ child.icon.name }}" {{# neq child.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ child.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ child.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />
+                    {{/ if }}
+                    { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+                </Button>
+                <Button
+                    id="{{ createId child }}-toggleEditMode"
+                    variant="contained"
+                    disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+                    onClick={() => setEditMode(true)}
+                >
+                    <MdiIcon path="upload" />
+                </Button>
+            </ButtonGroup>
           )
     }
     {{# if child.customImplementation }}
