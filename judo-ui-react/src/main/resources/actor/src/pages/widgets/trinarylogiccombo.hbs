@@ -13,6 +13,9 @@
     <TrinaryLogicCombobox
         name="{{ child.attributeType.name }}"
         id="{{ createId child }}"
+        {{# if (shouldElementHaveAutoFocus child) }}
+            autoFocus={true}
+        {{/ if }}
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string {{# if child.attributeType.isRequired }} + " *" {{/ if }} }
         value={ data?.{{ child.attributeType.name }} }
         editMode={ editMode }

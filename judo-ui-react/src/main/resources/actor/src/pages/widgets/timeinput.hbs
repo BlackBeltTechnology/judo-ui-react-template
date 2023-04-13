@@ -22,6 +22,9 @@
                 helperText={validation.get('{{ child.attributeType.name }}')}
             />
         ) }
+        {{# if (shouldElementHaveAutoFocus child) }}
+            autoFocus
+        {{/ if }}
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} ?? null }
         readOnly={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
