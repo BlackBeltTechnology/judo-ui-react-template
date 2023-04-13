@@ -205,4 +205,51 @@ public class UiWidgetHelper extends Helper {
     public static Boolean displayDropdownForActionGroup(ActionGroup actionGroup) {
         return nonFeaturedActionsForActionGroup(actionGroup).size() > 0;
     }
+
+    public static Boolean shouldElementHaveAutoFocus(VisualElement element) {
+        PageDefinition pageDefinition = element.getPageDefinition();
+
+        if (pageDefinition.getIsPageTypeOperationInput() || pageDefinition.getIsPageTypeCreate()) {
+            Input input = findFirstInput(pageDefinition.getContainers().get(0));
+
+            return input != null && element.getFQName().equals(input.getFQName());
+        }
+
+        return false;
+    }
+
+    private static Input findFirstInput(VisualElement root) {
+        if (root == null) {
+            return null;
+        }
+
+        if (root instanceof Input) {
+            Input input = (Input) root;
+            if (!input.getAttributeType().isIsReadOnly()) {
+                return input;
+            }
+        }
+
+        if (root instanceof Container) {
+            for (VisualElement child: ((Container) root).getChildren()) {
+                Input result = findFirstInput(child);
+
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+
+        if (root instanceof TabController) {
+            for (Tab tab: ((TabController) root).getTabs()) {
+                Input result = findFirstInput(tab.getElement());
+
+                if (result != null) {
+                    return result;
+                }
+            }
+        }
+
+        return null;
+    }
 }
