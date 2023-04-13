@@ -130,10 +130,10 @@ public class UiGeneralHelper extends Helper {
     }
 
     public static String attributePath(AttributeType attributeType) {
-        return "/".concat(String.join("/", attributeType.getOwnerPackageNameTokens())
+        return String.join("/", attributeType.getOwnerPackageNameTokens())
                 .concat("/")
                 .concat(attributeType.getOwnerSimpleName())
-                .concat("/")).concat(attributeType.getName());
+                .concat("/").concat(attributeType.getName());
     }
 
     public static boolean hasDataElementOwner(DataElement dataElement) {
