@@ -107,7 +107,7 @@ jobs:
       # Phase 1 - Build and deploy to judong nexus
       - name: 🔥 Build with Maven (build, test)
         run: |-
-          ./mvnw -B -Dstyle.color=always \
+          ./mvnw -T 1C -B -Dstyle.color=always \
           -Drevision=${{ steps.version.outputs.version }} \
           -Psign-artifacts \
           -Prelease-judong \
