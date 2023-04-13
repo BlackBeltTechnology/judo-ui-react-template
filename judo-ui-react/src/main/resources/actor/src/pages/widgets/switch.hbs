@@ -49,7 +49,7 @@
                 control={
                     <Checkbox value={ data.{{ child.attributeType.name }} } onChange={ (event) => {
                         setEditMode(true);
-                        storeDiff('{{ child.attributeType.name }}', event.target.value);
+                        storeDiff('{{ child.attributeType.name }}', String(event.target.value).toLowerCase() === 'true');
                     } } />
                 }
                 label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
