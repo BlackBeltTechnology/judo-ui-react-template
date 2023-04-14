@@ -18,7 +18,12 @@ import { useTranslation } from 'react-i18next';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
 import type { Filter, FilterOption } from '../../components-api';
-import { useErrorHandler, processQueryCustomizer, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '../../utilities';
+import {
+  useErrorHandler,
+  processQueryCustomizer,
+  ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
+  mapFiltersToQueryCustomizerProperty,
+} from '../../utilities';
 import { serverTableConfig, rangeDialogConfig } from '../../config';
 import { CustomTablePagination } from '../CustomTablePagination';
 import { useFilterDialog } from './hooks';
@@ -114,18 +119,15 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
     setPage(0);
     setFilters(newFilters);
 
-    // @ts-ignore
     setQueryCustomizer((prevQueryCustomizer) => {
-      const tempQueryCustomizer = { ...prevQueryCustomizer };
+      const tempQueryCustomizer: any = { ...prevQueryCustomizer };
 
-      filterOptions.forEach(
-        (filter) =>
-          // @ts-ignore
-          (tempQueryCustomizer[filter.attributeName] = mapFiltersToQueryCustomizerProperty(
-            newFilters,
-            filter.attributeName,
-          )),
-      );
+      filterOptions.forEach((filter) => {
+        tempQueryCustomizer[filter.attributeName] = mapFiltersToQueryCustomizerProperty(
+          newFilters,
+          filter.attributeName,
+        );
+      });
 
       return {
         ...prevQueryCustomizer,
