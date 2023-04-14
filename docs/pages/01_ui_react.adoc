@@ -14,14 +14,6 @@ JUDO React frontend generator templates.
 
 WIP
 
-=== Fixed dependency versions and the map.json file
-
-In order for projects to be consistently re-built without changing versions and effective version mismatches, we fixed
-in all dependency versions, and are providing a `pnpm.lock` file as well.
-
-Without fix versions, and a reproducible lock file, the dependency versions in `map.json` could differ, causing runtime
-errors.
-
 == Customization
 
 There are two major ways how JUDO apps can be customized with various pros / cons:
@@ -309,3 +301,71 @@ const OptimisticImplementationForYayy: ComponentActorCreateYayy = ({ data, store
 
 > Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
   the use-case above.
+
+=== Implementing custom navigation logic for components
+
+Navigation actions are implemented as hooks. These hooks have names starting with "useRow..." in case of tables and
+"useLink..." in case of single relations.
+
+Given we have a table screen listing galaxies, we can implement a custom navigation logic in the following way:
+
+*Generated hook (original code):*
+[source,typescriptjsx]
+----
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+import type { JudoIdentifiable } from '@judo/data-api-common';
+import type { ViewGalaxyQueryCustomizer, ViewGalaxy, ViewGalaxyStored } from '../../../../../../generated/data-api';
+import { useJudoNavigation } from '../../../../../../components';
+
+export const ROW_VIEW_GALAXIES_ACTION_INTERFACE_KEY = 'RowViewGalaxiesAction';
+export type RowViewGalaxiesAction = () => (entry: ViewGalaxyStored) => Promise<void>;
+
+export const useRowViewGalaxiesAction: RowViewGalaxiesAction = () => {
+  const { navigate } = useJudoNavigation();
+  const { service: useCustomNavigation } = useTrackService<RowViewGalaxiesAction>(
+    `(${OBJECTCLASS}=${ROW_VIEW_GALAXIES_ACTION_INTERFACE_KEY})`,
+  );
+
+  if (useCustomNavigation) {
+    const customNavigation = useCustomNavigation();
+    return customNavigation;
+  }
+
+  return async function (entry: ViewGalaxyStored) {
+    navigate(`god/galaxies/view/${entry.__signedIdentifier}`);
+  };
+};
+----
+
+Overriding the above logic can ge done by:
+
+- implementing the `RowViewGalaxiesAction` interface
+- registering this implementation in the `application-customizer.tsx` file
+
+> For brevity's sake we'll put all our code in a single file, but it's not mandatory
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { useJudoNavigation } from '../components';
+import { ViewGalaxyStored } from '../generated/data-api';
+import { RowViewGalaxiesAction, ROW_VIEW_GALAXIES_ACTION_INTERFACE_KEY } from '../pages/god/galaxies/table/actions';
+import { ApplicationCustomizer } from './interfaces';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<RowViewGalaxiesAction>(ROW_VIEW_GALAXIES_ACTION_INTERFACE_KEY, customRowViewGalaxiesAction);
+  }
+}
+
+const customRowViewGalaxiesAction: RowViewGalaxiesAction = () => {
+  const { navigate } = useJudoNavigation();
+
+  return async (entry: ViewGalaxyStored) => {
+    // regardless of what row we select, we will always go to the same page
+    navigate('god/earth/view');
+  }
+};
+----

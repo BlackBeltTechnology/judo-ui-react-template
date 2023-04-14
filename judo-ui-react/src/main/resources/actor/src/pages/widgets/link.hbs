@@ -29,7 +29,7 @@
         editMode={ editMode }
         {{# each child.actions as |action| }}
             {{# if action.isViewAction }}
-                onView={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data?.{{ child.dataElement.name }}!{{/ unless }}) }
+                onView={ async () => {{ actionFunctionName action page }}(data, data?.{{ child.dataElement.name }}!) }
             {{/ if }}
             {{# if action.isCreateAction }}
                 onCreate={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}(res) => {
