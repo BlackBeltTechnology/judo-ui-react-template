@@ -21,6 +21,7 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
+import hu.blackbelt.judo.meta.ui.Action;
 import hu.blackbelt.judo.meta.ui.PageDefinition;
 import hu.blackbelt.judo.meta.ui.VisualElement;
 import lombok.extern.java.Log;
@@ -29,6 +30,7 @@ import org.springframework.util.StringUtils;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.actionFunctionName;
 import static hu.blackbelt.judo.ui.generator.react.UiImportHelper.createFlattenedSetOfVisualElements;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.pageName;
 
@@ -56,5 +58,9 @@ public class UiPandinoHelper {
 
     public static String getCustomizationComponentInterfaceKey(VisualElement element) {
         return camelCaseNameToInterfaceKey(getCustomizationComponentInterface(element));
+    }
+
+    public static String getCustomizationActionFunctionInterfaceKey(Action action, PageDefinition page) {
+        return camelCaseNameToInterfaceKey(actionFunctionName(action, page)) + "_INTERFACE_KEY";
     }
 }

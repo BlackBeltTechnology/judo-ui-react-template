@@ -1,6 +1,8 @@
 {{> fragment.header.hbs }}
 // Action: ViewAction
 
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import type {
     {{# each (getApiImportsForRowAction action) as |imp| }}
@@ -9,12 +11,19 @@ import type {
 } from '{{ relativePathFromAction page action 'generated/data-api' }}';
 import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
 
-export type {{ actionFunctionTypeName action page }} = () => (entry: JudoIdentifiable<{{ classDataName action.target.dataElement.target '' }}>) => Promise<void>;
+export const {{ getCustomizationActionFunctionInterfaceKey action page }} = '{{ actionFunctionTypeName action page }}';
+export type {{ actionFunctionTypeName action page }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const { navigate } = useJudoNavigation();
+    const { service: useCustomNavigation } = useTrackService<{{ actionFunctionTypeName action page }}>(`(${OBJECTCLASS}=${ {{ getCustomizationActionFunctionInterfaceKey action page }} })`);
 
-    return async function (entry: JudoIdentifiable<{{ classDataName action.target.dataElement.target '' }}>) {
+    if (useCustomNavigation) {
+        const customNavigation = useCustomNavigation();
+        return customNavigation;
+    }
+
+    return async function ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) {
         navigate(`{{ getNavigationForPage action.target 'entry.__signedIdentifier' }}`);
     }
 };
