@@ -1,6 +1,8 @@
 {{> fragment.header.hbs }}
 // Action: NavigateToPageAction
 
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
 import {
@@ -9,18 +11,22 @@ import {
     {{/ each }}
 } from '{{ relativePathFromAction page action 'generated/data-api' }}';
 
+export const {{ getCustomizationActionFunctionInterfaceKey action page }} = '{{ actionFunctionTypeName action page }}';
 export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>{{# unless action.dataElement.isCollection}}, target: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>{{/ unless }}) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const { navigate } = useJudoNavigation();
+    const { service: useCustomNavigation } = useTrackService<{{ actionFunctionTypeName action page }}>(`(${OBJECTCLASS}=${ {{ getCustomizationActionFunctionInterfaceKey action page }} })`);
+
+    if (useCustomNavigation) {
+        const customNavigation = useCustomNavigation();
+        return customNavigation;
+    }
 
     return async function (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>{{# unless action.dataElement.isCollection}}, target: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>{{/ unless }}) {
         {{# if action.dataElement.isCollection }}
             navigate(`{{ getNavigationForPage action.target 'owner.__signedIdentifier' }}`);
         {{ else }}
-            /*const target = await {{ classServiceName action.dataElement.owner }}Impl.get{{ firstToUpper action.dataElement.name }}(owner, {
-                _mask: '{}',
-            });*/
             navigate(`{{ getNavigationForPage (getViewPageForPage action.target) 'target.__signedIdentifier' }}`);
         {{/ if }}
     }
