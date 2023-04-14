@@ -22,7 +22,7 @@
                 {{# if action.isViewAction }}
                     onRowClick={ (params: GridRowParams<{{ classDataName child.dataElement.target 'Stored' }}>) => {
                         if (!editMode) {
-                            {{ actionFunctionName action action.target }}(params.row);
+                            {{ actionFunctionName action action.target }}(data, params.row);
                         }
                     } }
                 {{/ if }}

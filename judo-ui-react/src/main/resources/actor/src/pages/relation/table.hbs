@@ -262,7 +262,7 @@ export default function {{ pageName page }}() {
                                             columns={[...columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, { shownActions: 2 })]}
                                             {{# each (getUniquePageActions page) as |action| }}
                                                 {{# if action.isViewAction }}
-                                                    onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action page }}(params.row) }
+                                                    onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, params.row) }
                                                 {{/ if }}
                                             {{/ each }}
                                             components={ {
