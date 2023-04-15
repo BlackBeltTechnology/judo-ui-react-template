@@ -85,7 +85,7 @@ public class UiPageHelper extends Helper {
                     return false;
                 }
                 ReferenceType referenceType = (ReferenceType) page.getDataElement();
-                if (referenceType.getIsRefreshable()) {
+                if (referenceType.getIsRefreshable() && pageHasContent(page)) {
                     if (referenceType.isIsCollection()) {
                         return pageType.equals(PageType.VIEW) || pageType.equals(PageType.TABLE);
                     }
@@ -95,7 +95,7 @@ public class UiPageHelper extends Helper {
                 }
             }
 
-            if (page.getIsPageTypeOperationOutput()) {
+            if (page.getIsPageTypeOperationOutput() && pageHasContent(page)) {
                 return isPageRefreshable(page);
             }
         }
@@ -447,5 +447,19 @@ public class UiPageHelper extends Helper {
         }
 
         return null;
+    }
+
+    public static boolean pageHasContent(PageDefinition pageDefinition) {
+        Optional<PageContainer> defaultContainer = pageDefinition.getContainers().stream().filter(c -> c.getName().equals("default")).findFirst();
+
+        if (defaultContainer.isPresent()) {
+            if (defaultContainer.get().getChildren().get(0) instanceof Flex) {
+                Flex root = (Flex) defaultContainer.get().getChildren().get(0);
+                return root.getChildren().size() > 0;
+            }
+        }
+
+        // we shouldn't arrive here so let's pass
+        return true;
     }
 }
