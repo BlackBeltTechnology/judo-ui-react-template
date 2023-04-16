@@ -255,8 +255,8 @@ public class UiWidgetHelper extends Helper {
         return null;
     }
 
-    public static Set<Action> getActionsForLink(Link link) {
-        Set<Action> actions = new HashSet<>(link.getActions());
+    public static List<Action> getActionsForLink(Link link) {
+        List<Action> actions = link.getActions();
         PageDefinition pageDefinition = link.getPageDefinition();
 
         if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
@@ -264,6 +264,21 @@ public class UiWidgetHelper extends Helper {
 
             if (pair != null) {
                 actions.addAll(((Link) pair).getActions());
+            }
+        }
+
+        return actions;
+    }
+
+    public static List<Action> getActionsForTable(Table table) {
+        List<Action> actions = table.getActions();
+        PageDefinition pageDefinition = table.getPageDefinition();
+
+        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
+            VisualElement pair = getFormVersionOfElement(table);
+
+            if (pair != null) {
+                actions.addAll(((Table) pair).getActions());
             }
         }
 
