@@ -20,18 +20,18 @@ import {
     {{ classServiceName action.dataElement.owner }}Impl,
 } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 
-export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
+export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const { openRangeDialog } = useRangeDialog();
     const { t } = useTranslation();
-    const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=AddAction))`);
+    const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=AddAction))`);
     const { enqueueSnackbar } = useSnackbar();
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
 
-    return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, successCallback: () => void) {
+    return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
         {{# with (getTableForTablePage page) as |table| }}
-            const columns: GridColDef<{{ classDataName page.dataElement.target 'Stored' }}>[] = [
+            const columns: GridColDef<{{ classDataName action.dataElement.target 'Stored' }}>[] = [
                 {{# each table.columns as |column| }}
                     {
                         ...baseColumnConfig,
@@ -50,7 +50,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
 
             const sortModel: GridSortModel = {{{ getDefaultSortParamsForTable table }}};
 
-            const initialQueryCustomizer: {{ classDataName page.dataElement.target 'QueryCustomizer' }} = {
+            const initialQueryCustomizer: {{ classDataName action.dataElement.target 'QueryCustomizer' }} = {
                 _mask: '{{ table.formattedMaskForRange }}',
                 _orderBy: sortModel.length ? [
                     {
@@ -76,7 +76,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
 
             try {
                 await {{ classServiceName action.dataElement.owner }}Impl.add{{ firstToUpper action.dataElement.name }}(
-                    { __signedIdentifier: owner.__signedIdentifier } as JudoIdentifiable<{{ classDataName page.dataElement.target 'Stored' }}>,
+                    { __signedIdentifier: owner.__signedIdentifier } as JudoIdentifiable<{{ classDataName action.dataElement.target 'Stored' }}>,
                     res as Array<{{ classDataName action.dataElement.target 'Stored' }}>,
                 );
 
