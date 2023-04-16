@@ -27,7 +27,7 @@
         {{/ if }}
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
         editMode={ editMode }
-        {{# each child.actions as |action| }}
+        {{# each (getActionsForLink child) as |action| }}
             {{# if action.isViewAction }}
                 onView={ async () => {{ actionFunctionName action page }}(data, data?.{{ child.dataElement.name }}!) }
             {{/ if }}
