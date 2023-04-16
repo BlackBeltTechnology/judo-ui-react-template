@@ -27,7 +27,7 @@
         {{/ if }}
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
         editMode={ editMode }
-        {{# each child.actions as |action| }}
+        {{# each (getActionsForLink child) as |action| }}
             {{# if action.isViewAction }}
                 onView={ async () => {{ actionFunctionName action page }}(data, data?.{{ child.dataElement.name }}!) }
             {{/ if }}
@@ -50,36 +50,39 @@
                     }
                 }) }
             {{/ if }}
+            {{# if action.isRemoveAction }}
+                onRemove={ async () => {
+                    setEditMode(true);
+                    storeDiff('{{ child.dataElement.name }}', null);
+                } }
+            {{/ if }}
+            {{# if action.isSetAction }}
+                onSet={ async () => {
+                    const res = await openRangeDialog<{{ classDataName child.dataElement.target 'Stored' }}, {{ classDataName child.dataElement.target 'QueryCustomizer' }}>({
+                        id: '{{ createId child.dataElement }}',
+                        columns: {{ child.dataElement.name }}Columns,
+                        defaultSortField: ({{{ getDefaultSortParamsForLink child }}} as GridSortItem[])[0],
+                        rangeCall: async (queryCustomizer) =>
+                            await {{ classServiceName child.dataElement.owner }}Impl.getRangeFor{{ firstToUpper child.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
+                        single: true,
+                        alreadySelectedItems: data.{{ child.dataElement.name }}?.__identifier as GridRowId,
+                        filterOptions: {{ child.dataElement.name }}RangeFilterOptions,
+                        initialQueryCustomizer: {{ child.dataElement.name }}InitialQueryCustomizer,
+                    });
+
+                    if (res === undefined) return;
+
+                    setEditMode(true);
+                    storeDiff('{{ child.dataElement.name }}', res as {{ classDataName child.dataElement.target 'Stored' }});
+                } }
+            {{/ if }}
+            {{# if action.isUnsetAction }}
+                onUnset={ async () => {
+                    setEditMode(true);
+                    storeDiff('{{ child.dataElement.name }}', null);
+                } }
+            {{/ if }}
         {{/ each }}
-        {{# or child.dataElement.isRemovable }}
-            onRemove={ async () => storeDiff('{{ child.dataElement.name }}', null) }
-        {{/ or }}
-        {{# if child.dataElement.isSetable }}
-            onSet={ async () => {
-                const res = await openRangeDialog<{{ classDataName child.dataElement.target 'Stored' }}, {{ classDataName child.dataElement.target 'QueryCustomizer' }}>({
-                    id: '{{ createId child.dataElement }}',
-                    columns: {{ child.dataElement.name }}Columns,
-                    defaultSortField: ({{{ getDefaultSortParamsForLink child }}} as GridSortItem[])[0],
-                    rangeCall: async (queryCustomizer) =>
-                    await {{ classServiceName child.dataElement.owner }}Impl.getRangeFor{{ firstToUpper child.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
-                    single: true,
-                    alreadySelectedItems: data.{{ child.dataElement.name }}?.__identifier as GridRowId,
-                    filterOptions: {{ child.dataElement.name }}RangeFilterOptions,
-                    initialQueryCustomizer: {{ child.dataElement.name }}InitialQueryCustomizer,
-                });
-
-                if (res === undefined) return;
-
-                setEditMode(true);
-                storeDiff('{{ child.dataElement.name }}', res as {{ classDataName child.dataElement.target 'Stored' }});
-            } }
-        {{/ if }}
-        {{# if child.dataElement.isUnsetable }}
-            onUnset={ async () => {
-                setEditMode(true);
-                storeDiff('{{ child.dataElement.name }}', null);
-            } }
-        {{/ if }}
     />
     {{# if child.customImplementation }}
         </ComponentProxy>
