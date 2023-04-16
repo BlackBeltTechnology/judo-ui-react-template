@@ -32,6 +32,7 @@ import org.eclipse.emf.ecore.EObject;
 import java.util.Collection;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.getXMIID;
 import static java.util.Arrays.stream;
 
@@ -163,5 +164,13 @@ public class UiGeneralHelper extends Helper {
 
     public static boolean otherApplicationsAvailable(Application application, Collection<Application> applications) {
         return getAlternativeApplications(application, applications).size() > 0;
+    }
+
+    public static String getTypeForRelationOwner(RelationType relationType) {
+        ClassType owner = (ClassType) relationType.getOwner();
+        if (owner.isIsMapped()) {
+            return String.format("JudoIdentifiable<%s>", classDataName(owner, ""));
+        }
+        return classDataName(owner, "");
     }
 }

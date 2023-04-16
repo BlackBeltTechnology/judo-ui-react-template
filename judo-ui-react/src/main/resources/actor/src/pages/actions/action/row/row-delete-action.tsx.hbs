@@ -19,7 +19,7 @@ import {
     {{/ neq }}
 } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 
-export type {{ actionFunctionTypeName action page }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
+export type {{ actionFunctionTypeName action page }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const { t } = useTranslation();
@@ -27,7 +27,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     const { openConfirmDialog } = useConfirmDialog();
     const handleActionError = useErrorHandler{{# if (hasDataElementOwner action.dataElement) }}<JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>>{{/ if }}(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=RowDeleteAction))`);
 
-    return async function {{ actionFunctionName action page }} ({{# if (hasDataElementOwner action.dataElement) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) {
+    return async function {{ actionFunctionName action page }} ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) {
         try {
             const confirmed = await openConfirmDialog(
                 'row-delete-action',
