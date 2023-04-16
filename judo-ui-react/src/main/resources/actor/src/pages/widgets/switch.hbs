@@ -45,7 +45,7 @@
         <FormGroup>
             <FormControlLabel
                 sx={ { marginTop: '6px' } }
-                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} }
+                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
                 control={
                     <Checkbox value={ data.{{ child.attributeType.name }} } onChange={ (event) => {
                         setEditMode(true);
