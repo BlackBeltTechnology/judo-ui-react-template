@@ -25,9 +25,11 @@ import hu.blackbelt.judo.meta.ui.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 
+import java.util.*;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static hu.blackbelt.judo.ui.generator.react.UiImportHelper.createFlattenedSetOfVisualElements;
 
 @Log
 @TemplateHelper
@@ -247,6 +249,73 @@ public class UiWidgetHelper extends Helper {
                 if (result != null) {
                     return result;
                 }
+            }
+        }
+
+        return null;
+    }
+
+    public static List<Action> getActionsForLink(Link link) {
+        List<Action> actions = link.getActions();
+        PageDefinition pageDefinition = link.getPageDefinition();
+
+        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
+            VisualElement pair = getFormVersionOfElement(link);
+
+            if (pair != null) {
+                actions.addAll(((Link) pair).getActions());
+            }
+        }
+
+        return actions;
+    }
+
+    public static List<Action> getActionsForTable(Table table) {
+        List<Action> actions = table.getActions();
+        PageDefinition pageDefinition = table.getPageDefinition();
+
+        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
+            VisualElement pair = getFormVersionOfElement(table);
+
+            if (pair != null) {
+                actions.addAll(((Table) pair).getActions());
+            }
+        }
+
+        return actions;
+    }
+
+    public static PageDefinition getFormVersionOfViewPage(PageDefinition pageDefinition) {
+        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
+            Optional<EditAction> editAction = pageDefinition.getPageActions().stream()
+                    .filter(a -> a instanceof EditAction)
+                    .map(a -> (EditAction) a)
+                    .findFirst();
+
+            if (editAction.isPresent()) {
+                return editAction.get().getTarget();
+            }
+        }
+
+        return null;
+    }
+
+    public static VisualElement getFormVersionOfElement(VisualElement input) {
+        final String VIEW_PART = "#View::";
+        final String EDIT_PART = "#Edit::";
+        PageDefinition pageDefinition = input.getPageDefinition();
+
+        if (pageDefinition.getIsPageTypeView()) {
+            PageDefinition formPage = getFormVersionOfViewPage(pageDefinition);
+
+            if (formPage != null) {
+                SortedSet<VisualElement> elements = createFlattenedSetOfVisualElements(formPage);
+
+                Optional<VisualElement> pair = elements.stream()
+                        .filter(e -> e.getFQName().equals(input.getFQName().replace(VIEW_PART, EDIT_PART)))
+                        .findFirst();
+
+                return pair.orElse(null);
             }
         }
 
