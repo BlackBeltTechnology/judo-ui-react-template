@@ -34,66 +34,66 @@
             components={ {
                 Toolbar: () => (
                     <GridToolbarContainer>
-                        {{# each child.actions as |action| }}
-                            {{# unless page.isPageTypeOperationInput }}
-                                {{# if action.isCreateAction }}
+                        {{# each (getActionsForTable child) as |action| }}
+                            {{# if action.isCreateAction }}
+                                {{# unless page.isPageTypeOperationInput }}
                                     <Button
                                         id="{{ createId action }}"
                                         variant="text"
                                         onClick={ () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetchData()) }
-                                        disabled={isLoading || !{{ boolValue page.dataElement.isUpdatable }} || editMode || !isFormUpdateable()}
+                                        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
                                     >
                                         <MdiIcon path="file_document_plus" />
                                         {t('judo.pages.table.create', { defaultValue: 'Create' })}
                                     </Button>
-                                {{/ if }}
-                            {{/ unless }}
-                        {{/ each }}
-                        {{# if child.dataElement.isAddable }}
-                            <Button
-                                id="{{ createId child.dataElement }}-add"
-                                variant="text"
-                                onClick={ async () => {
-                                    const res = await {{ child.dataElement.name }}RangeCall();
+                                {{/ unless }}
+                            {{/ if }}
+                            {{# if action.isAddAction }}
+                                <Button
+                                    id="{{ createId child.dataElement }}-add"
+                                    variant="text"
+                                    onClick={ async () => {
+                                        const res = await {{ child.dataElement.name }}RangeCall();
 
-                                    if (res) {
-                                        storeDiff('{{ child.dataElement.name }}', [
-                                            ...(data.{{ child.dataElement.name }} || []),
-                                            ...(res as {{ classDataName child.dataElement.target 'Stored' }}[])
-                                        ]);
+                                        if (res) {
+                                            storeDiff('{{ child.dataElement.name }}', [
+                                                ...(data.{{ child.dataElement.name }} || []),
+                                                ...(res as {{ classDataName child.dataElement.target 'Stored' }}[])
+                                            ]);
+
+                                            {{# if page.dataElement.isUpdatable }}
+                                                if (!editMode) {
+                                                    setEditMode(true);
+                                                }
+                                            {{/ if }}
+                                        }
+                                    } }
+                                    disabled={ isLoading || {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
+                                >
+                                    <MdiIcon path="attachment-plus" />
+                                    {t('judo.pages.table.add', { defaultValue: 'Add' })}
+                                </Button>
+                            {{/ if }}
+                            {{# if action.isClearAction }}
+                                <Button
+                                    id="{{ createId child.dataElement }}-clear"
+                                    variant="text"
+                                    onClick={ async () => {
+                                        storeDiff('{{ child.dataElement.name }}', []);
 
                                         {{# if page.dataElement.isUpdatable }}
                                             if (!editMode) {
                                                 setEditMode(true);
                                             }
                                         {{/ if }}
-                                    }
-                                } }
-                                disabled={ isLoading || !{{ boolValue page.dataElement.isUpdatable }} || !isFormUpdateable() }
-                            >
-                                <MdiIcon path="attachment-plus" />
-                                {t('judo.pages.table.add', { defaultValue: 'Add' })}
-                            </Button>
-                        {{/ if }}
-                        {{# if child.dataElement.isClearable }}
-                            <Button
-                                id="{{ createId child.dataElement }}-clear"
-                                variant="text"
-                                onClick={ async () => {
-                                    storeDiff('{{ child.dataElement.name }}', []);
-
-                                    {{# if page.dataElement.isUpdatable }}
-                                        if (!editMode) {
-                                            setEditMode(true);
-                                        }
-                                    {{/ if }}
-                                } }
-                                disabled={ isLoading || !{{ boolValue page.dataElement.isUpdatable }} || !isFormUpdateable() }
-                            >
-                                <MdiIcon path="link_off" />
-                                {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
-                            </Button>
-                        {{/ if }}
+                                    } }
+                                    disabled={ isLoading || {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
+                                >
+                                    <MdiIcon path="link_off" />
+                                    {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
+                                </Button>
+                            {{/ if }}
+                        {{/ each }}
                         <div>{/* Placeholder */}</div>
                     </GridToolbarContainer>
                 ),
