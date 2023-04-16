@@ -30,7 +30,7 @@ import {
 } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 import { {{ pageActionFormComponentName action page }} } from './{{ pageActionFormComponentName action page }}';
 
-export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName page.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) => void;
+export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) => void;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const [createDialog, closeDialog] = useDialog();
@@ -39,7 +39,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     {{/ unless }}
     const { enqueueSnackbar } = useSnackbar();
 
-    return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName page.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) {
+    return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) {
         {{# if (actionHasVisualElements action) }}
             createDialog({
                 fullWidth: true,
