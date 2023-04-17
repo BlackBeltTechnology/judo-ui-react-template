@@ -34,7 +34,7 @@ return async function {{ actionFunctionName action page }} ({{# if action.operat
                 id: '{{ createId action.inputParameterPage }}',
                 columns,
                 defaultSortField: sortModel[0],
-                rangeCall: async (queryCustomizer) => await {{ classServiceName action.dataElement.owner }}Impl.getRangeFor{{ firstToUpper action.dataElement.name }}({{# if action.operation.isMapped }}owner{{ else }}undefined{{/ if }}, processQueryCustomizer(queryCustomizer)),
+                rangeCall: async (queryCustomizer) => await {{ classServiceName action.dataElement.owner }}Impl.getRangeFor{{ firstToUpper action.operation.name }}({{# if action.operation.isMapped }}owner{{ else }}undefined{{/ if }}, processQueryCustomizer(queryCustomizer)),
                 single: true,
                 alreadySelectedItems: '', // TODO: ???
                 filterOptions,
