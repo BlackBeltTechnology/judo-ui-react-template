@@ -26,6 +26,7 @@ import {
 import { useConfirmationBeforeChange } from '{{ relativePathFromPage page 'hooks' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
+import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
 import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, serviceDateToUiDate, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, toastConfig } from '{{ relativePathFromPage page 'config' }}';
@@ -80,6 +81,7 @@ export default function {{ pageName page }}() {
         setData({ ...data, [attributeName]: value });
     }, [data]);
     const { downloadFile, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
     const {
         queryCustomizer,
         {{# each (getPageTables page) as |table| }}
