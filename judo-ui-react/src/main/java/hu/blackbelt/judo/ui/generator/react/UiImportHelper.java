@@ -123,6 +123,11 @@ public class UiImportHelper {
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
 
+    public static String getMuiDataGridImportsForHooks() {
+        SortedSet<String> imports = new TreeSet<>(Set.of("GridColDef", "GridSortModel", "GridRenderCellParams", "GridRowParams", "GridValueFormatterParams"));
+        return String.join(", ", imports);
+    }
+
     public static SortedSet<String> getMaterialImportsForPage(PageDefinition pageDefinition) {
         Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
                 .map(String::toLowerCase)
