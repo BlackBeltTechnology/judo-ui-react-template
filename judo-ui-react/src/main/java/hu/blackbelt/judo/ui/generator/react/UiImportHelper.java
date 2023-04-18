@@ -110,7 +110,7 @@ public class UiImportHelper {
     public static String getMuiDataGridImportsForPage(PageDefinition pageDefinition) {
         SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
 
-        imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef"));
+        imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
 
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
@@ -118,9 +118,14 @@ public class UiImportHelper {
     public static String getMuiDataGridImportsForActionForm(PageDefinition pageDefinition) {
         SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
 
-        imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef"));
+        imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
 
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
+    }
+
+    public static String getMuiDataGridImportsForHooks() {
+        SortedSet<String> imports = new TreeSet<>(Set.of("GridColDef", "GridSortModel", "GridRenderCellParams", "GridRowParams", "GridValueFormatterParams"));
+        return String.join(", ", imports);
     }
 
     public static SortedSet<String> getMaterialImportsForPage(PageDefinition pageDefinition) {
