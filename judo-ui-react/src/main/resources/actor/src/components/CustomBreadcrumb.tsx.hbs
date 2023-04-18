@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { Breadcrumbs, Typography } from '@mui/material';
+import { Breadcrumbs, Typography, Link } from '@mui/material';
 import { useState, useContext, createContext, useMemo, useEffect, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -149,7 +149,9 @@ export const CustomBreadcrumb = () => {
 
   return (
     <Breadcrumbs id="application-breadcrumb" maxItems={2} separator=">">
-      <MdiIcon path="home" />
+      <Link {{# if page.isPageTypeDashboard }} href="" {{/ if}} >
+        <MdiIcon path="home" />
+      </Link>
       {breadcrumbItems.map(({ label, key }, index) => {
         return (
           <Typography color="text.primary" key={key}>
