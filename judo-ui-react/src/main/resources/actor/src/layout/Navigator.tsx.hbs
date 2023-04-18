@@ -33,14 +33,14 @@ function ActionItem(props: MenuItem) {
   const { id, label, to, icon } = props;
 
   return (
-    <ListItemButton id={id} onClick={ () => to && clearNavigate(to) }>
+    <ListItemButton className="navigation-item" id={id} onClick={ () => to && clearNavigate(to) }>
       {icon
         ? <ListItemIcon>
-            <MdiIcon path={icon} />
+            <MdiIcon className="navigation-item-icon" path={icon} />
           </ListItemIcon>
         : null
       }
-        <ListItemText primary={t(`menuTree.${label}`, { defaultValue: label })} />
+        <ListItemText classes={ { primary: "navigation-item-label"} } primary={t(`menuTree.${label}`, { defaultValue: label })} />
     </ListItemButton>
   );
 }
