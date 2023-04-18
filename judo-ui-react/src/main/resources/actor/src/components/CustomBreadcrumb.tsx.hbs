@@ -149,15 +149,15 @@ export const CustomBreadcrumb = () => {
 
   return (
     <Breadcrumbs id="application-breadcrumb" maxItems={2} separator=">">
-      {{# each (getPagesForRouting application) as |page| }}
-          {{# if page.isPageTypeDashboard }}
-              <Link href="" >
-              <MdiIcon path="home" />
-              </Link>
-          {{ else }}
-              <MdiIcon path="home" />
-          {{/ if }}
-      {{/ each }}
+        <Link
+          {{# each (getPagesForRouting application) as |page| }}
+              {{# if page.isPageTypeDashboard }}
+                 href=""
+              {{/ if }}
+          {{/ each }}
+        >
+            <MdiIcon path="home" />
+        </Link>
       {breadcrumbItems.map(({ label, key }, index) => {
         return (
           <Typography color="text.primary" key={key}>
