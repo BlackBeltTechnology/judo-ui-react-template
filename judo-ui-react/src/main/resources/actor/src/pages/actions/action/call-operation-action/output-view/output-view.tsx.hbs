@@ -18,7 +18,7 @@ import { MdiIcon, ModeledTabs } from '{{ relativePathFromPage page 'components' 
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useDialog, useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
 import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
-import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromPage page 'components-api' }}';
 import {
     {{# each (getApiImportsForUnmappedOperationOutputAction action page) as |imp| }}
@@ -60,7 +60,7 @@ export interface {{ pageName page }}Props {
 
 export function {{ pageName page }}({ close, result } : {{ pageName page }}Props) {
     const { t } = useTranslation();
-    const { downloadFile, uploadFile } = fileHandling();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
 
     const { enqueueSnackbar } = useSnackbar();

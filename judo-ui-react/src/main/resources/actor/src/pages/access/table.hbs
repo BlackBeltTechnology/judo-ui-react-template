@@ -55,7 +55,7 @@ export default function {{ pageName page }}() {
     const { t } = useTranslation();
     const { navigate } = useJudoNavigation();
     const { openFilterDialog } = useFilterDialog();
-    const { downloadFile, uploadFile } = fileHandling();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
     const { columns, filterOptions } = use{{ pageName page }}();
     {{# each (getUniquePageActions page) as |action| }}
