@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useSnackbar } from 'notistack';
 import { Paper, Card, CardContent, Box, Grid, Button, Container } from '@mui/material';
-import type { GridRowModel, GridRowParams, GridSortModel } from '@mui/x-data-grid';
+import type { GridRowModel, GridRowParams, GridSortModel, GridValueFormatterParams } from '@mui/x-data-grid';
 import { DataGrid, GridToolbarContainer } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import type { JudoIdentifiable } from '@judo/data-api-common';
@@ -22,9 +22,10 @@ import {
 } from '{{ relativePathFromPage page 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useFilterDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer } from '{{ relativePathFromPage page 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, serviceDateToUiDate } from '{{ relativePathFromPage page 'utilities' }}';
 import type { PersistedTableData, TableRowAction } from '{{ relativePathFromPage page 'utilities' }}';
 import { pageServerTableConfig, toastConfig } from '{{ relativePathFromPage page 'config' }}';
+import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 import {
   {{# each (getApiImportsForTablePage page) as |imp| }}
@@ -55,6 +56,7 @@ export default function {{ pageName page }}() {
     const { navigate } = useJudoNavigation();
     const { openFilterDialog } = useFilterDialog();
     const { downloadFile, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
     const { columns, filterOptions } = use{{ pageName page }}();
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
