@@ -132,11 +132,10 @@ public class UiActionsHelper {
         List<KeyValue<Action, PageDefinition>> actions = new ArrayList<>();
         getUnmappedOutputViewsForPages(application)
                 .forEach(p -> {
-                    CallOperationAction action = (CallOperationAction) p.getKey();
-                    getUniquePageActions(action.getOutputParameterPage()).forEach(a -> {
+                    getUniquePageActions(p).forEach(a -> {
                         KeyValue<Action, PageDefinition> kv = new KeyValue<>();
                         kv.setKey(a);
-                        kv.setValue(action.getOutputParameterPage());
+                        kv.setValue(p);
                         actions.add(kv);
                     });
                 });
@@ -149,9 +148,13 @@ public class UiActionsHelper {
         return actions.stream().filter(kv -> actionHasInputForm(kv.getKey())).collect(Collectors.toList());
     }
 
-    public static List<KeyValue<Action, PageDefinition>> getUnmappedOutputViewsForPages(Application application) {
-        List<KeyValue<Action, PageDefinition>> actions = getActionsForPages(application);
-        return actions.stream().filter(kv -> actionHasUnmappedOutputForm(kv.getKey())).collect(Collectors.toList());
+    public static List<PageDefinition> getUnmappedOutputViewsForPages(Application application) {
+        Set<PageDefinition> unmappedOutputForms = getActionsForPages(application)
+                .stream()
+                .filter(kv -> kv.getKey() instanceof CallOperationAction &&
+                        actionHasUnmappedOutputForm(kv.getKey()))
+                .map(kv -> ((CallOperationAction) kv.getKey()).getOutputParameterPage()).collect(Collectors.toSet());
+        return unmappedOutputForms.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
     public static String actionsPath(PageDefinition page) {
