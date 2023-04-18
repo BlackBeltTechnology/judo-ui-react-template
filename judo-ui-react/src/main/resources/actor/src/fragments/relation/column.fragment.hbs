@@ -9,6 +9,31 @@ type: '{{ columnType column }}',
         return params.row.{{ column.attributeType.name }} ? <MdiIcon path="check-circle" color="green" /> : <MdiIcon path="close-circle" color="red" />;
     },
 {{/ if }}
+{{# if (isColumnNumeric column) }}
+    valueFormatter: ({ value }: GridValueFormatterParams<number>) => {
+        return value && new Intl.NumberFormat(l10nLocale).format(value);
+    },
+{{/ if }}
+{{# if (isColumnTimestamp column) }}
+        valueGetter: ({ value }) => value && new Date(serviceDateToUiDate(value)),
+        valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+            return value && new Intl.DateTimeFormat(l10nLocale, {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).format(value);
+        },
+{{/ if }}
+{{# if (isColumnDate column) }}
+        valueGetter: ({ value }) => value && new Date(value),
+        valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+            return value && new Intl.DateTimeFormat(l10nLocale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(value);
+        },
+{{/ if }}
 {{# if (isColumnBinary column) }}
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {

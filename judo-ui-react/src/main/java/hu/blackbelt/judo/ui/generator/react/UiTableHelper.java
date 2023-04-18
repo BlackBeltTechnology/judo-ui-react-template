@@ -103,6 +103,24 @@ public class UiTableHelper extends Helper {
         return dataType instanceof BooleanType;
     }
 
+    public static boolean isColumnNumeric(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        return dataType instanceof NumericType;
+    }
+
+    public static boolean isColumnTimestamp(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        return dataType instanceof TimestampType;
+    }
+
+    public static boolean isColumnDate(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        return dataType instanceof DateType;
+    }
+
     public static boolean isColumnBinary(Column column) {
         DataType dataType = column.getAttributeType().getDataType();
 

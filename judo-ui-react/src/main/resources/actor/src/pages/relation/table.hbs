@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Paper, Card, CardContent, Box, Grid, Button, Container } from '@mui/material';
-import type { GridRowModel, GridRowParams, GridSortModel } from '@mui/x-data-grid';
+import type { GridRowModel, GridRowParams, GridSortModel, GridValueFormatterParams } from '@mui/x-data-grid';
 import { DataGrid, GridToolbarContainer } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { JudoIdentifiable } from '@judo/data-api-common';
@@ -25,7 +25,8 @@ import { useFilterDialog } from '{{ relativePathFromPage page 'components/dialog
 import type { Filter } from '{{ relativePathFromPage page 'components-api' }}';
 import type { PersistedTableData, TableRowAction } from '{{ relativePathFromPage page 'utilities' }}';
 import { pageServerTableConfig, toastConfig } from '{{ relativePathFromPage page 'config' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer } from '{{ relativePathFromPage page 'utilities' }}';
+import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, serviceDateToUiDate, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer } from '{{ relativePathFromPage page 'utilities' }}';
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 import {
     {{# each (getApiImportsForTablePage page) as |imp| }}
@@ -56,6 +57,7 @@ export default function {{ pageName page }}() {
     const { navigate } = useJudoNavigation();
     const { openFilterDialog } = useFilterDialog();
     const { downloadFile, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
     const { columns, filterOptions } = use{{ pageName page }}();
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
