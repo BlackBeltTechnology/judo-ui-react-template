@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 // Hook: Relation Table
 
-import type { GridColDef, GridRenderCellParams, GridRowParams } from '@mui/x-data-grid';
+import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@mui/material';
 import { FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
@@ -11,12 +11,14 @@ import {
     {{ classDataName page.dataElement.target 'Stored' }},
 } from '../{{ relativePathFromPage page 'generated/data-api' }}';
 import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
-import { fileHandling } from '../{{ relativePathFromPage page 'utilities' }}';
+import { fileHandling, serviceDateToUiDate } from '../{{ relativePathFromPage page 'utilities' }}';
+import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
 
 export const use{{ pageName page }} = () => {
     const { navigate } = useJudoNavigation();
     const { t } = useTranslation();
     const { downloadFile, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
 
     const columns: GridColDef<{{ classDataName page.dataElement.target 'Stored' }}>[] = [
         {{# with (getTableForTablePage page) as |table| }}

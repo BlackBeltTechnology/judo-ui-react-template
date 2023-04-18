@@ -2,7 +2,7 @@
 // Hook: OperationOutput View
 
 import { useTranslation } from 'react-i18next';
-import { GridColDef, GridSortModel, GridRowParams, GridRenderCellParams } from '@mui/x-data-grid';
+import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid';
 import { Button } from '@mui/material';
 import { MdiIcon } from '../{{ relativePathFromPage page 'components' }}';
 import { FilterOption, FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
@@ -12,11 +12,13 @@ import {
     {{/ each }}
 } from '../{{ relativePathFromPage page 'generated/data-api' }}';
 import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
-import { fileHandling } from '../{{ relativePathFromPage page 'utilities' }}';
+import { fileHandling, serviceDateToUiDate } from '../{{ relativePathFromPage page 'utilities' }}';
+import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
 
 export const use{{ pageName page }} = () => {
     const { t } = useTranslation();
     const { downloadFile, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
 
     const queryCustomizer: {{ classDataName page.dataElement.target 'QueryCustomizer' }} = {
         _mask: '{{ page.formattedMask }}',

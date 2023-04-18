@@ -3,14 +3,15 @@
 
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import { useTranslation } from 'react-i18next';
-import { GridColDef, GridRenderCellParams, GridSortModel } from '@mui/x-data-grid';
+import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
 import { MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
 import { useRangeDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
 import { baseColumnConfig, toastConfig } from '{{ relativePathFromAction page action 'config' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer } from '{{ relativePathFromAction page action 'utilities' }}';
+import { useL10N } from '{{ relativePathFromAction page action 'l10n' }}/l10n-context';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, serviceDateToUiDate } from '{{ relativePathFromAction page action 'utilities' }}';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
@@ -27,6 +28,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     const { t } = useTranslation();
     const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=AddAction))`);
     const { enqueueSnackbar } = useSnackbar();
+    const { locale: l10nLocale } = useL10N();
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
 
     return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
