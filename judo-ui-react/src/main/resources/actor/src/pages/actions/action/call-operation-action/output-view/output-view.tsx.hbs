@@ -1,6 +1,4 @@
 {{> fragment.header.hbs }}
-// Action name: {{ action.name }}
-// Owner Page name: {{ ownerPage.name }}
 // Page name: {{ page.name }}
 
 import { useState, useEffect, useCallback, Dispatch, SetStateAction, FC } from 'react';
@@ -20,13 +18,12 @@ import { useDialog, useRangeDialog } from '{{ relativePathFromPage page 'compone
 import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromPage page 'components-api' }}';
 import {
-    {{# each (getApiImportsForUnmappedOperationOutputAction action page) as |imp| }}
+    {{# each (getApiImportsForUnmappedOperationOutputAction page) as |imp| }}
         {{ imp }},
     {{/ each }}
 } from '{{ relativePathFromPage page 'generated/data-api' }}';
 import {
     {{ classServiceName page.dataElement.target }}Impl,
-    {{ classServiceName action.dataElement.owner }}Impl,
 } from '{{ relativePathFromPage page 'generated/data-axios'}}';
 import {
     useErrorHandler,
