@@ -22,7 +22,7 @@ import {
     useJudoNavigation,
 } from '{{ relativePathFromPage page 'components' }}';
 import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, serviceDateToUiDate, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromPage page 'custom' }}';
@@ -56,7 +56,7 @@ export default function {{ pageName page }}() {
     const { openRangeDialog } = useRangeDialog();
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageName page }}))`);
-    const { downloadFile, uploadFile } = fileHandling();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
     const {
         {{# each (getPageTables page) as |table| }}

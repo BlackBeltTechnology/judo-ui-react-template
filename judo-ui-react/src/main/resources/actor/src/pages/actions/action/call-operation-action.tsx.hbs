@@ -42,7 +42,7 @@ export type {{ actionFunctionTypeName action page }} = () => ({{# if action.oper
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const { t } = useTranslation();
-    const { downloadFile, uploadFile } = fileHandling();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
     const handleActionError = useErrorHandler{{# if action.operation.isMapped }}<{{ classDataName action.dataElement.owner 'Stored' }}>{{/ if }}(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ actionFunctionTypeName action page }}))`);
     const { enqueueSnackbar } = useSnackbar();

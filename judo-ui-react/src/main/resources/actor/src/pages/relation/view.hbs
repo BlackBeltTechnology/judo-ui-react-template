@@ -26,7 +26,7 @@ import {
 import { useConfirmationBeforeChange } from '{{ relativePathFromPage page 'hooks' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, serviceDateToUiDate, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromPage page 'utilities' }}';
 import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
 import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
@@ -71,7 +71,7 @@ export default function {{ pageName page }}() {
     {{/ each }}
 
     const { openRangeDialog } = useRangeDialog();
-    const { downloadFile, uploadFile } = fileHandling();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
     const {
         queryCustomizer,

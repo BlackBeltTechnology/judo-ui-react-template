@@ -15,7 +15,7 @@ import { useSnackbar } from 'notistack';
 import { MdiIcon, ModeledTabs } from '{{ relativePathFromAction ownerPage action 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromAction ownerPage action 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromAction ownerPage action 'components/dialog' }}';
-import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromAction ownerPage action 'components/widgets' }}';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromAction ownerPage action 'components/widgets' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction ownerPage action 'components-api' }}';
 import {
     {{# each (getApiImportsForCallOperationAction action ownerPage) as |imp| }}
@@ -54,7 +54,7 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
     } : {{ pageActionFormComponentName action ownerPage }}Props) {
         const { t } = useTranslation();
         const { openRangeDialog } = useRangeDialog();
-        const { downloadFile, uploadFile } = fileHandling();
+        const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
         const { locale: l10nLocale } = useL10N();
 
         const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
