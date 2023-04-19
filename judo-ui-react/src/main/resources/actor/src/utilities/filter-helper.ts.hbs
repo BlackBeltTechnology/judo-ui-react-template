@@ -1,6 +1,8 @@
 {{> fragment.header.hbs }}
 
 import type { Filter, Operation } from '../components-api';
+import { FilterType } from '../components-api';
+import { dateToJudoDateString } from './helper';
 
 type FilterBy = {
   value: any;
@@ -10,11 +12,20 @@ type FilterBy = {
 export const mapFiltersToQueryCustomizerProperty = (filters: Filter[], property: string): FilterBy[] | undefined => {
   if (!filters.some((filter) => filter.filterOption.attributeName === property)) return undefined;
 
+  const convertFilterValue = (filter: Filter): any => {
+    if (filter.filterOption.filterType === FilterType.dateTime && filter.filterBy.value instanceof Date) {
+      return filter.filterBy.value.toISOString();
+    } else if (filter.filterOption.filterType === FilterType.date && filter.filterBy.value instanceof Date) {
+      return dateToJudoDateString(filter.filterBy.value);
+    }
+    return filter.filterBy.value;
+  }
+
   return filters
     .filter((filter) => filter.filterOption.attributeName === property && filter.filterBy.value)
     .map((filter) => {
       return {
-        value: filter.filterBy.value,
+        value: convertFilterValue(filter),
         operator: filter.filterBy.operator,
       };
     });

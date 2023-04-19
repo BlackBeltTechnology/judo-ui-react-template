@@ -27,24 +27,28 @@ export function AssociationButton<T> ({ id, editMode, owner, fetchCall, navigate
 
     useEffect(() => {
         (async () => {
-            if (owner.__signedIdentifier) {
-                try {
-                    setIsLoading(true);
-                    const res: JudoIdentifiable<T> | undefined = await fetchCall(owner);
+            // `owner` can change due to all sorts of changes on the form, therefore we only fetch info if an actual
+            // page refresh has been triggered (which can only happen in view mode).
+            if (!editMode) {
+                if (owner.__signedIdentifier) {
+                    try {
+                        setIsLoading(true);
+                        const res: JudoIdentifiable<T> | undefined = await fetchCall(owner);
 
-                    setData(res);
-                } catch (e) {
+                        setData(res);
+                    } catch (e) {
+                        setData(undefined);
+                        console.error(e);
+                    } finally {
+                        setIsLoading(false);
+                    }
+                } else {
                     setData(undefined);
-                    console.error(e);
-                } finally {
                     setIsLoading(false);
                 }
-            } else {
-                setData(undefined);
-                setIsLoading(false);
             }
         })();
-    }, [owner]);
+    }, [owner, editMode]);
 
     return (
         <Button id={id} variant="text" onClick={() => navigateAction(data!)} disabled={isLoading || editMode || !(data?.__signedIdentifier)}>

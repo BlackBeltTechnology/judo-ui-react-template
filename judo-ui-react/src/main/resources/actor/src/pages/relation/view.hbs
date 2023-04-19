@@ -89,21 +89,20 @@ export default function {{ pageName page }}() {
 
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     {{# if page.dataElement.isUpdatable }}
-        const handleUpdateError = useErrorHandler<{{ classDataName page.dataElement.target 'Stored' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
+        const handleUpdateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
     {{/ if }}
     {{# if page.dataElement.isDeletable }}
-        const handleDeleteError = useErrorHandler<{{ classDataName page.dataElement.target 'Stored' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
+        const handleDeleteError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
     {{/ if }}
     const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => {
-        payloadDiff[attributeName] = value;
-        setData({ ...data, [attributeName]: value });
+        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
     const [editMode, setEditMode] = useState<boolean>(false);
-    const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target 'Stored' }}, string>>(new Map());
+    const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map());
     {{# each (getPageTables page) as |table| }}
         {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
         {{# if table.dataElement.isAddable }}
@@ -220,7 +219,7 @@ export default function {{ pageName page }}() {
     }, []);
 
     useEffect(() => {
-        setValidation(new Map<keyof {{ classDataName page.dataElement.target 'Stored' }}, string>());
+        setValidation(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
     }, [editMode]);
 
     return (

@@ -17,7 +17,7 @@
             loading={isLoading}
             rows={data?.{{ child.dataElement.name }} ?? []}
             columns={[ ...{{ child.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId child.dataElement }}', {{ child.dataElement.name }}RowActions, { shownActions: 2 }) ]}
-            disableSelectionOnClick
+            disableRowSelectionOnClick
             {{# each child.rowActions as |action| }}
                 {{# if action.isViewAction }}
                     onRowClick={ (params: GridRowParams<{{ classDataName child.dataElement.target 'Stored' }}>) => {

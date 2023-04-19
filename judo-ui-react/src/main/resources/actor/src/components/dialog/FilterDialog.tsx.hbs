@@ -151,33 +151,41 @@ const FilterInput = ({ filter, setFilterValue }: FilterInputProps) => {
           case FilterType.date:
             return (
               <DatePicker
-                renderInput={(props) => <TextField {...props} />}
                 label={filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? null}
-                onChange={(newValue) => setFilterValue(filter, dateToJudoDateString(newValue))}
-                InputProps=\{{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <MdiIcon path="calendar_month" />
-                    </InputAdornment>
-                  ),
-                }}
+                views={['year', 'month', 'day']}
+                onChange={(newValue) => setFilterValue(filter, newValue)}
+                slotProps={ {
+                    textField: {
+                        InputProps: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <MdiIcon path="calendar_month" />
+                                </InputAdornment>
+                            ),
+                        },
+                    },
+                } }
               />
             );
           case FilterType.dateTime:
             return (
               <DateTimePicker
-                renderInput={(props) => <TextField {...props} />}
                 label={filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? null}
+                views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
                 onChange={(newValue) => setFilterValue(filter, newValue)}
-                InputProps=\{{
-                  startAdornment: (
-                    <InputAdornment position="start">
-                      <MdiIcon path="event" />
-                    </InputAdornment>
-                  ),
-                }}
+                slotProps={ {
+                    textField: {
+                        InputProps: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <MdiIcon path="event" />
+                                </InputAdornment>
+                            ),
+                        },
+                    },
+                } }
               />
             );
           // case FilterType.time:

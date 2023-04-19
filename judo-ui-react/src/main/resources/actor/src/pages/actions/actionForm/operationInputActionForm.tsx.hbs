@@ -64,10 +64,9 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
         const [data, setData] = useState<{{ classDataName action.inputParameterPage.dataElement.target '' }}>({} as unknown as {{ classDataName action.inputParameterPage.dataElement.target '' }});
         const [validation, setValidation] = useState<Map<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, string>>(new Map());
         const [editMode, setEditMode] = useState<boolean>(true);
-        const [payloadDiff] = useState<Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>);
+        const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>);
         const storeDiff: (attributeName: keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, value: any) => {
-            payloadDiff[attributeName] = value;
-            setData({ ...data, [attributeName]: value });
+    {{> actor/src/fragments/page/store-diff-body.hbs classType=action.inputParameterPage.dataElement.target }}
         }, [data]);
         const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
@@ -112,6 +111,9 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
                 try {
                     const res = await {{ classServiceName action.inputParameterPage.dataElement.target }}Impl.getTemplate();
                     setData(res);
+                    setPayloadDiff({
+                        ...res,
+                    } as Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>);
                 } catch(e) {
                     handleFetchError(e);
                 } finally {
@@ -130,13 +132,13 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
 
             try {
                 {{# if action.outputParameterPage }}
-                    const res = await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner, {{/ if }}data);
+                    const res = await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner, {{/ if }}payloadDiff);
 
                     if (res) {
                         successCallback(res);
                     }
                 {{ else }}
-                    await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner, {{/ if }}data);
+                    await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner, {{/ if }}payloadDiff);
 
                     successCallback();
                 {{/ if }}
