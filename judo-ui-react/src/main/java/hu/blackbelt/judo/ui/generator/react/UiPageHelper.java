@@ -124,6 +124,21 @@ public class UiPageHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
+    public static boolean hasDashboard(Application application) {
+
+        List<PageDefinition> pageDefinitionList= application.getPages().stream()
+                .filter(UiPageHelper::keepPageType)
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+
+        boolean hasDashboard = false;
+        for (PageDefinition page : pageDefinitionList) {
+            if(page.getIsPageTypeDashboard()) hasDashboard = true;
+        }
+
+        return  hasDashboard;
+    }
+
     public static String pageIndexRelativeImportPath(PageDefinition page) {
         return getPageTypePath(page).concat("index");
     }
