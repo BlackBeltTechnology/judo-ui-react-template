@@ -125,18 +125,7 @@ public class UiPageHelper extends Helper {
     }
 
     public static boolean hasDashboard(Application application) {
-
-        List<PageDefinition> pageDefinitionList= application.getPages().stream()
-                .filter(UiPageHelper::keepPageType)
-                .sorted(Comparator.comparing(NamedElement::getFQName))
-                .collect(Collectors.toList());
-
-        boolean hasDashboard = false;
-        for (PageDefinition page : pageDefinitionList) {
-            if(page.getIsPageTypeDashboard()) hasDashboard = true;
-        }
-
-        return  hasDashboard;
+      return  application.getPages().stream().filter(UiPageHelper::keepPageType).filter(page -> page.getIsPageTypeDashboard()).findFirst().isPresent();
     }
 
     public static String pageIndexRelativeImportPath(PageDefinition page) {
