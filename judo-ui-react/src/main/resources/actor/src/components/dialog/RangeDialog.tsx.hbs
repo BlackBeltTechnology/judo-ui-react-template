@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { Box, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
 import {
   GridSortModel,
   GridRowModel,
@@ -259,62 +259,60 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
       <DialogTitle id={`${id}-dialog-title`}>{ t('judo.modal.range.label', { defaultValue: 'Select' }) as string }</DialogTitle>
       <DialogContent id={`${id}-data-grid`} dividers={true}>
         <DialogContentText id="scroll-dialog-description" ref={descriptionElementRef} tabIndex={-1}>
-          <Box sx={ { width: '100%' } }>
-              <DataGrid
-                sx={
-                  single
-                    ? {
-                        '.MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer': {
-                          display: 'none',
-                        },
-                      }
-                    : {}
-                }
-                {...serverTableConfig}
-                getRowId={(row: T) => row.__identifier as GridRowId}
-                loading={isLoading}
-                rows={data}
-                rowCount={rowCount}
-                sortModel={sortModel}
-                onSortModelChange={handleSortModelChange}
-                checkboxSelection
-                onRowSelectionModelChange={!single ? handleOnSelection : handleSingleOnSelection}
-                isRowSelectable={!single ? handleIsRowSelectable : undefined}
-                rowSelectionModel={selectionModel}
-                hideFooterSelectedRowCount={single}
-                columns={columns}
-                keepNonExistentRowsSelected
-                components={ {
-                  Toolbar: () => (
-                    <GridToolbarContainer>
-                      <Button
-                        id={`${id}-set-filters`}
-                        variant="outlined"
-                        onClick={async () => {
-                          const newFilters = await openFilterDialog('TODO', filterOptions, filters);
+          <DataGrid
+            sx={
+              single
+                ? {
+                    '.MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer': {
+                      display: 'none',
+                    },
+                  }
+                : {}
+            }
+            {...serverTableConfig}
+            getRowId={(row: T) => row.__identifier as GridRowId}
+            loading={isLoading}
+            rows={data}
+            rowCount={rowCount}
+            sortModel={sortModel}
+            onSortModelChange={handleSortModelChange}
+            checkboxSelection
+            onRowSelectionModelChange={!single ? handleOnSelection : handleSingleOnSelection}
+            isRowSelectable={!single ? handleIsRowSelectable : undefined}
+            rowSelectionModel={selectionModel}
+            hideFooterSelectedRowCount={single}
+            columns={columns}
+            keepNonExistentRowsSelected
+            components={ {
+              Toolbar: () => (
+                <GridToolbarContainer>
+                  <Button
+                    id={`${id}-set-filters`}
+                    variant="outlined"
+                    onClick={async () => {
+                      const newFilters = await openFilterDialog('TODO', filterOptions, filters);
 
-                          if (newFilters) {
-                            handleFiltersChange(newFilters);
-                          }
-                        }}
-                        disabled={isLoading}
-                      >
-                        { t('judo.modal.range.set-filters', { defaultValue: 'Set filters' }) as string } {filters.length !== 0 ? '(' + filters.length + ')' : ''}
-                      </Button>
-                    </GridToolbarContainer>
-                  ),
-                  Pagination: () => (
-                    <CustomTablePagination
-                      pageChange={handlePageChange}
-                      isNextButtonEnabled={isNextButtonEnabled}
-                      page={page}
-                      setPage={setPage}
-                      rowPerPage={rangeDialogConfig.numberOfElements}
-                    />
-                  ),
-                } }
-              />
-            </Box>
+                      if (newFilters) {
+                        handleFiltersChange(newFilters);
+                      }
+                    }}
+                    disabled={isLoading}
+                  >
+                    { t('judo.modal.range.set-filters', { defaultValue: 'Set filters' }) as string } {filters.length !== 0 ? '(' + filters.length + ')' : ''}
+                  </Button>
+                </GridToolbarContainer>
+              ),
+              Pagination: () => (
+                <CustomTablePagination
+                  pageChange={handlePageChange}
+                  isNextButtonEnabled={isNextButtonEnabled}
+                  page={page}
+                  setPage={setPage}
+                  rowPerPage={rangeDialogConfig.numberOfElements}
+                />
+              ),
+            } }
+          />
         </DialogContentText>
       </DialogContent>
       <DialogActions>

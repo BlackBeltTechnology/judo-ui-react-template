@@ -1,5 +1,5 @@
 {{# if this.hiddenBy }} { !data.{{ this.hiddenBy.name }} && {{/ if }}
-<Grid id="{{ createId this }}" container direction="row" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2} xs={12} sm={12} {{# neq (calculateSize this) 12.0 }}md={ {{ calculateSize this }} }{{/ neq }}>
+<Grid item xs={12} sm={12} {{# neq (calculateSize this) 12.0 }}md={ {{ calculateSize this }} }{{/ neq }}>
     {{# if this.customImplementation }}
         <ComponentProxy
             filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey this ~}} }))`}
@@ -23,11 +23,13 @@
             </CardContent>
         </Card>
     {{ else }}
-        {{# each this.children as |child| }}
-            {{# if child }}
-                {{> (getWidgetTemplate child) }}
-            {{/ if }}
-        {{/ each }}
+        <Grid id="{{ createId this }}" container direction="row" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+            {{# each this.children as |child| }}
+                {{# if child }}
+                    {{> (getWidgetTemplate child) }}
+                {{/ if }}
+            {{/ each }}
+        </Grid>
     {{/ if }}
     {{# if this.customImplementation }}
         </ComponentProxy>
