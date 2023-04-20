@@ -1,5 +1,5 @@
 {{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
-<Grid item xs={12} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
+<Grid xs={12} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
     <Grid container xs={12} spacing={2}>
         {{# if child.customImplementation }}
             <ComponentProxy
@@ -13,7 +13,7 @@
         {{/ if }}
         {{# each (featuredActionsForActionGroup child) as |action| }}
             {{# if action.hiddenBy }}( !data.{{ action.hiddenBy.name }} }} && {{/ if }}
-            <Grid item>
+            <Grid>
                 <Button id="{{ createId action }}" onClick={ () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) } disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }>
                     {{# if action.icon }}
                         <MdiIcon path="{{ action.icon.name }}" />
@@ -24,7 +24,7 @@
             {{# if action.hiddenBy }}){{/ if }}
         {{/ each }}
         {{# if (displayDropdownForActionGroup child) }}
-            <Grid item>
+            <Grid>
                 <DropdownButton
                     id="{{ createId child }}-action-group"
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }

@@ -265,14 +265,14 @@ const FilterInput = ({ filter, setFilterValue }: FilterInputProps) => {
 
 const FilterRow = ({ id, filter, closeHandler, setFilterOperator, setFilterValue }: FilterProps) => {
   return (
-    <Grid item container spacing={2} alignItems={'center'}>
-      <Grid item xs={4}>
+    <Grid container spacing={2} alignItems={'center'}>
+      <Grid xs={4}>
         {filter && <FilterOperator operatorId={`${id}-operator`} valueId={`${id}-value`} filter={filter} setFilterOperator={setFilterOperator} />}
       </Grid>
-      <Grid item xs={7}>
+      <Grid xs={7}>
         {filter && <FilterInput operatorId={`${id}-operator`} valueId={`${id}-value`} filter={filter} setFilterValue={setFilterValue} />}
       </Grid>
-      <Grid item xs={1}>
+      <Grid xs={1}>
         <IconButton id={`${id}-close`} onClick={() => closeHandler(filter)}>
           <MdiIcon path="close" />
         </IconButton>
@@ -394,7 +394,7 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
                     setFilterValue={updateFilterValue}
                   />
                 ))}
-                <Grid item container>
+                <Grid container>
                   <DropdownButton
                     id={`${id}-dropdown`}
                     fullWidth={true}
