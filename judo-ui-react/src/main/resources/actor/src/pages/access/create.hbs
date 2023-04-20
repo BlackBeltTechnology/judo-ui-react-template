@@ -76,10 +76,9 @@ export default function {{ pageName page }}() {
     const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({
       __referenceId: uuidv1(),
     } as unknown  as {{ classDataName page.dataElement.target '' }});
-    const [payloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
+    const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
-        payloadDiff[attributeName] = value;
-        setData({ ...data, [attributeName]: value });
+        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
     const [editMode, setEditMode] = useState<boolean>(true);
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target ''}}, string>>(new Map());
@@ -101,6 +100,9 @@ export default function {{ pageName page }}() {
             try {
                 const res = await {{ classServiceName page.dataElement.target }}Impl.getTemplate();
                 setData((prevData) => ({ ...prevData, ...res }));
+                setPayloadDiff({
+                    ...res,
+                } as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
             } catch (error) {
                 handleFetchError(error);
             } finally {
@@ -117,7 +119,7 @@ export default function {{ pageName page }}() {
         setIsLoading(true);
 
         try {
-            const res = await {{ dataElementRelationName page.dataElement }}Impl.create{{ ucFirst page.dataElement.name }}(data);
+            const res = await {{ dataElementRelationName page.dataElement }}Impl.create{{ ucFirst page.dataElement.name }}(payloadDiff);
 
             if (res) {
                 back();

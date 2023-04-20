@@ -68,8 +68,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
     const { openRangeDialog } = useRangeDialog();
     const [payloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
-        payloadDiff[attributeName] = value;
-        setData({ ...data, [attributeName]: value });
+        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
     {{# each (getUniquePageActions page) as |action| }}
         const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
