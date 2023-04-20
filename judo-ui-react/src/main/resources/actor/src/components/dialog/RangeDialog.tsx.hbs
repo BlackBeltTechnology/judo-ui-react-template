@@ -263,11 +263,16 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
             sx={
               single
                 ? {
+                    // overflow: 'hidden',
+                    display: 'grid',
                     '.MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer': {
                       display: 'none',
                     },
                   }
-                : {}
+                : {
+                    // overflow: 'hidden',
+                    display: 'grid',
+                }
             }
             {...serverTableConfig}
             getRowId={(row: T) => row.__identifier as GridRowId}

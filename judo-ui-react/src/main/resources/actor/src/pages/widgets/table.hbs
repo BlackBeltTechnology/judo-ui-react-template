@@ -13,6 +13,10 @@
     <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
         <DataGrid
             { ...baseTableConfig }
+            sx={ {
+                // overflow: 'hidden',
+                display: 'grid',
+            } }
             getRowId={(row: { __identifier: string }) => row.__identifier}
             loading={isLoading}
             rows={data?.{{ child.dataElement.name }} ?? []}
