@@ -13,35 +13,44 @@
     <DateTimePicker
         ampm={false}
         ampmInClock={false}
-        renderInput={ (props: any) => (
-            <TextField
-                {{# if child.attributeType.isRequired }} required {{/ if }}
-                {...props}
-                id="{{ createId child }}"
-                className={ !editMode ? 'JUDO-viewMode' : undefined }
-                error={!!validation.get('{{ child.attributeType.name }}')}
-                helperText={validation.get('{{ child.attributeType.name }}')}
-            />
-        ) }
+        className={!editMode ? 'JUDO-viewMode' : undefined}
         {{# if (shouldElementHaveAutoFocus child) }}
             autoFocus
         {{/ if }}
+        slotProps={ {
+            textField: {
+                id: '{{ createId child }}',
+                helperText: validation.get('{{ child.attributeType.name }}'),
+                error: !!validation.get('{{ child.attributeType.name }}'),
+                {{# if child.icon }}
+                    InputProps: {
+                        startAdornment: (
+                            <InputAdornment position="start">
+                                <MdiIcon path="{{ child.icon.name }}" />
+                            </InputAdornment>
+                        ),
+                    },
+                {{/ if }}
+            },
+        } }
+        onError={ (newError: DateTimeValidationError, value: any) => {
+            // https://mui.com/x/react-date-pickers/validation/#show-the-error
+            setValidation((prevValidation) => {
+                const copy = new Map<keyof {{ classDataName page.dataElement.target '' }}, string>(prevValidation);
+                copy.set('{{ child.attributeType.name }}', newError === 'invalidDate' ? t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
+                    defaultValue: 'Value does not match the pattern requirements.',
+                }) as string : '');
+                return copy;
+            });
+        } }
+        views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
-        onChange={ (newValue: any) => {
+        onChange={ (newValue: Date) => {
             setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', newValue);
         } }
-        {{# if child.icon }}
-            InputProps={ {
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <MdiIcon path="{{ child.icon.name }}" />
-                    </InputAdornment>
-                ),
-            } }
-        {{/ if }}
     />
     {{# if child.customImplementation }}
         </ComponentProxy>

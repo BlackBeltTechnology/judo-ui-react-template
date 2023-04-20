@@ -15,7 +15,7 @@ type: '{{ columnType column }}',
     },
 {{/ if }}
 {{# if (isColumnTimestamp column) }}
-        valueGetter: ({ value }) => value && new Date(serviceDateToUiDate(value)),
+        valueGetter: ({ value }) => value && serviceDateToUiDate(value),
         valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
             return value && new Intl.DateTimeFormat(l10nLocale, {
                 year: 'numeric',

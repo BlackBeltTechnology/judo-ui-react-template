@@ -23,6 +23,7 @@ package hu.blackbelt.judo.ui.generator.react;
 import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.Application;
+import hu.blackbelt.judo.meta.ui.NamedElement;
 import hu.blackbelt.judo.meta.ui.NavigationItem;
 import hu.blackbelt.judo.meta.ui.Sort;
 import hu.blackbelt.judo.meta.ui.data.*;
@@ -30,6 +31,7 @@ import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
@@ -172,5 +174,23 @@ public class UiGeneralHelper extends Helper {
             return String.format("JudoIdentifiable<%s>", classDataName(owner, ""));
         }
         return classDataName(owner, "");
+    }
+
+    public static List<String> getWritableDateAttributesForClass(ClassType classType) {
+        return classType.getAttributes().stream()
+                .filter(a -> a.getDataType() instanceof DateType)
+                .filter(a -> !a.isIsReadOnly())
+                .map(NamedElement::getName)
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    public static List<String> getWritableDateTimeAttributesForClass(ClassType classType) {
+        return classType.getAttributes().stream()
+                .filter(a -> a.getDataType() instanceof TimestampType)
+                .filter(a -> !a.isIsReadOnly())
+                .map(NamedElement::getName)
+                .sorted()
+                .collect(Collectors.toList());
     }
 }
