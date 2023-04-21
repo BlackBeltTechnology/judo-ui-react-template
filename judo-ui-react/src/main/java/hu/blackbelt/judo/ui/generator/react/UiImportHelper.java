@@ -35,8 +35,8 @@ public class UiImportHelper {
             Map.entry("actiongroup", Set.of("Button")),
             Map.entry("binarytypeinput", Set.of("TextField", "InputAdornment", "Button", "ButtonGroup")),
             Map.entry("button", Set.of("Button")),
-            Map.entry("dateinput", Set.of("TextField", "InputAdornment")),
-            Map.entry("datetimeinput", Set.of("TextField", "InputAdornment")),
+            Map.entry("dateinput", Set.of("InputAdornment")),
+            Map.entry("datetimeinput", Set.of("InputAdornment")),
             Map.entry("divider", Set.of("Divider")),
             Map.entry("enumerationcombo", Set.of("TextField", "MenuItem", "InputAdornment")),
             Map.entry("enumerationradio", Set.of("RadioGroup", "FormControlLabel", "Radio")),
@@ -61,8 +61,8 @@ public class UiImportHelper {
     );
 
     private static final Map<String, Set<String>> muiDatePickerWidgetImportPairs = Map.ofEntries(
-            Map.entry("dateinput", Set.of("DatePicker")),
-            Map.entry("datetimeinput", Set.of("DateTimePicker")),
+            Map.entry("dateinput", Set.of("DatePicker", "DateValidationError")),
+            Map.entry("datetimeinput", Set.of("DateTimePicker", "DateTimeValidationError")),
             Map.entry("timeinput", Set.of("TimePicker"))
     );
 
@@ -110,7 +110,7 @@ public class UiImportHelper {
     public static String getMuiDataGridImportsForPage(PageDefinition pageDefinition) {
         SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
 
-        imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
+        imports.addAll(Set.of("GridRowSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
 
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
@@ -118,7 +118,7 @@ public class UiImportHelper {
     public static String getMuiDataGridImportsForActionForm(PageDefinition pageDefinition) {
         SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
 
-        imports.addAll(Set.of("GridSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
+        imports.addAll(Set.of("GridRowSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
 
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }

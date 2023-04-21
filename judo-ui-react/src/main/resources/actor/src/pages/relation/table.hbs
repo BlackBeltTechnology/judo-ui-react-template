@@ -255,6 +255,10 @@ export default function {{ pageName page }}() {
                                     <CardContent id="{{ createId page }}-data-grid">
                                         <DataGrid
                                             { ...pageServerTableConfig }
+                                            sx={ {
+                                                // overflow: 'hidden',
+                                                display: 'grid',
+                                            } }
                                             getRowId={(row: { __identifier: string }) => row.__identifier}
                                             loading={isLoading}
                                             rows={data}

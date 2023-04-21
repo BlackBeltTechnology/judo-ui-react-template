@@ -387,6 +387,7 @@ public class UiPageHelper extends Helper {
         }
 
         if (action.getOperation().getIsMapped()) {
+            res.add(classDataName((ClassType) action.getDataElement().getOwner(), ""));
             res.add(classDataName((ClassType) action.getDataElement().getOwner(), "Stored"));
         }
 

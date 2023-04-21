@@ -13,11 +13,15 @@
     <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
         <DataGrid
             { ...baseTableConfig }
+            sx={ {
+                // overflow: 'hidden',
+                display: 'grid',
+            } }
             getRowId={(row: { __identifier: string }) => row.__identifier}
             loading={isLoading}
             rows={data?.{{ child.dataElement.name }} ?? []}
             columns={[ ...{{ child.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId child.dataElement }}', {{ child.dataElement.name }}RowActions, { shownActions: 2 }) ]}
-            disableSelectionOnClick
+            disableRowSelectionOnClick
             {{# each child.rowActions as |action| }}
                 {{# if action.isViewAction }}
                     onRowClick={ (params: GridRowParams<{{ classDataName child.dataElement.target 'Stored' }}>) => {

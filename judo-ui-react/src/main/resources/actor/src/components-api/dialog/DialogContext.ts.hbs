@@ -2,7 +2,7 @@
 
 import { ReactNode } from 'react';
 import { JudoStored, QueryCustomizer } from '@judo/data-api-common';
-import { GridColumns, GridRowId, GridSelectionModel, GridSortItem } from '@mui/x-data-grid';
+import { GridColDef, GridRowId, GridRowSelectionModel, GridSortItem } from '@mui/x-data-grid';
 import { Filter, FilterOption } from './FilterDialog';
 
 export interface DialogProviderProps {
@@ -19,11 +19,11 @@ export interface ConfirmDialogProviderContext {
 
 export interface OpenRangeDialogProps<T extends JudoStored<T>, U extends QueryCustomizer<T>> {
   id: string;
-  columns: GridColumns<T>;
+  columns: GridColDef<T>[];
   defaultSortField: GridSortItem;
   rangeCall: (queryCustomizer: U) => Promise<Array<T>>;
   single?: boolean;
-  alreadySelectedItems: GridSelectionModel | GridRowId;
+  alreadySelectedItems: GridRowSelectionModel | GridRowId;
   initialQueryCustomizer: U;
   filterOptions: FilterOption[];
 }
