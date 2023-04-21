@@ -10,9 +10,18 @@
             payloadDiff={payloadDiff}
         >
     {{/ if }}
-    <Typography id="{{ createId child }}">
-        { data.{{ child.attributeType.name }} }
-    </Typography>
+    <Grid container direction="row" alignItems="center" {{# if child.icon }}spacing={2}{{/ if }}>
+        {{# if child.icon }}
+            <Grid item>
+                <MdiIcon path="{{ child.icon.name }}" />
+            </Grid>
+        {{/ if }}
+        <Grid item>
+            <Typography id="{{ createId child }}">
+                {{ child.label }}
+            </Typography>
+        </Grid>
+    </Grid>
     {{# if child.customImplementation }}
         </ComponentProxy>
     {{/ if }}
