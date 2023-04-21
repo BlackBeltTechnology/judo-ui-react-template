@@ -38,13 +38,13 @@ type: '{{ columnType column }}',
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {
         return params.row.{{ column.attributeType.name }}
-            ? <Button id="{{ createId column }}-download" size="small" variant="contained" onClick={ (event: any) => {
+            ? <Button id="{{ createId column }}-download" size="small" variant="text" onClick={ (event: any) => {
                 event.preventDefault();
                 event.stopPropagation();
                 downloadFile(params.row, '{{ column.attributeType.name }}');
               } }>
                 <MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />
-                { t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string }
+                { extractFileNameFromToken(params.row.{{ column.attributeType.name }}) }
               </Button>
             : <MdiIcon path="minus" />;
     },

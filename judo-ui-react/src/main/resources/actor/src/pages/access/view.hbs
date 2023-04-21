@@ -25,7 +25,7 @@ import {
 } from '{{ relativePathFromPage page 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import {
     useErrorHandler,
     ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
@@ -84,7 +84,7 @@ export default function {{ pageName page }}() {
     {{/ each }}
 
     const { openRangeDialog } = useRangeDialog();
-    const { downloadFile, uploadFile } = fileHandling();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
     const {
         queryCustomizer,

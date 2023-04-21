@@ -124,6 +124,10 @@ public class UiPageHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
+    public static boolean hasDashboard(Application application) {
+      return  application.getPages().stream().filter(UiPageHelper::keepPageType).filter(page -> page.getIsPageTypeDashboard()).findFirst().isPresent();
+    }
+
     public static String pageIndexRelativeImportPath(PageDefinition page) {
         return getPageTypePath(page).concat("index");
     }
@@ -393,24 +397,9 @@ public class UiPageHelper extends Helper {
         return res;
     }
 
-    public static Collection<String> getApiImportsForUnmappedOperationOutputAction(CallOperationAction action, PageDefinition ownerPage) {
-        PageDefinition outputParameterPage = action.getOutputParameterPage();
-        Set<String> res = outputParameterPage != null ? new HashSet<>(getApiImportsForViewPage(outputParameterPage)) : new HashSet<>();
-
-        res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
-
-        if (ownerPage != null) {
-            if (ownerPage.getDataElement() instanceof ReferenceType) {
-                res.add(classDataName(((ReferenceType) ownerPage.getDataElement()).getTarget(), "Stored"));
-            }
-        }
-
-        if (action.getOperation().getIsMapped()) {
-            res.add(classDataName((ClassType) action.getDataElement().getOwner(), "Stored"));
-        }
-
-        res.addAll(getApiImportsForReferenceType((ReferenceType) outputParameterPage.getDataElement()));
-
+    public static Collection<String> getApiImportsForUnmappedOperationOutputAction(PageDefinition page) {
+        Set<String> res = new HashSet<>(getApiImportsForViewPage(page));
+        res.addAll(getApiImportsForReferenceType((ReferenceType) page.getDataElement()));
         return res;
     }
 

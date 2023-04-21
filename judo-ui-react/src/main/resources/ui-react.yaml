@@ -348,6 +348,10 @@ templates:
     pathExpression: "'src/components/widgets/AssociationButton.tsx'"
     templateName: actor/src/components/widgets/AssociationButton.tsx.hbs
 
+  - name: actor/src/components/widgets/BinaryInput.tsx
+    pathExpression: "'src/components/widgets/BinaryInput.tsx'"
+    templateName: actor/src/components/widgets/BinaryInput.tsx.hbs
+
   - name: actor/src/components/widgets/TrinaryLogicCombobox.tsx
     pathExpression: "'src/components/widgets/TrinaryLogicCombobox.tsx'"
     templateName: actor/src/components/widgets/TrinaryLogicCombobox.tsx.hbs
@@ -576,25 +580,19 @@ templates:
 
   - name: actor/src/pages/actions/action/call-operation-action/output-view/output-view.tsx
     factoryExpression: "#getUnmappedOutputViewsForPages(#application)"
-    pathExpression: "#pagePath(#self.key.outputParameterPage) + '/index.tsx'"
+    pathExpression: "#pagePath(#self) + 'index.tsx'"
     templateName: actor/src/pages/actions/action/call-operation-action/output-view/output-view.tsx.hbs
     templateContext:
-      - name: kv
-        expression: "#self"
-      - name: action
-        expression: "#self.key"
-      - name: ownerPage
-        expression: "#self.value"
       - name: page
-        expression: "#self.key.outputParameterPage"
+        expression: "#self"
 
   - name: actor/src/pages/actions/index.tsx
     factoryExpression: "#getUnmappedOutputViewsForPages(#application)"
-    pathExpression: "#pagePath(#self.key.outputParameterPage) + '/actions/index.tsx'"
+    pathExpression: "#pagePath(#self) + 'actions/index.tsx'"
     templateName: actor/src/pages/actions/index.tsx.hbs
     templateContext:
       - name: page
-        expression: "#self.key.outputParameterPage"
+        expression: "#self"
 
   - name: actor/src/pages/actions/action.tsx
     factoryExpression: "#getActionsForOutputPages(#application)"

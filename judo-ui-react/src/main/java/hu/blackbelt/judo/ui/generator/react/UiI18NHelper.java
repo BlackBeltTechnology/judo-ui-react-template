@@ -226,9 +226,7 @@ public class UiI18NHelper extends Helper {
         }
 
         // Unmapped Operation Output Views for modals
-        for (KeyValue<Action, PageDefinition> def: getUnmappedOutputViewsForPages(application)) {
-            CallOperationAction action = (CallOperationAction) def.getKey();
-            PageDefinition page = action.getOutputParameterPage();
+        for (PageDefinition page: getUnmappedOutputViewsForPages(application)) {
 
             translations.put(idToTranslationKey(page.getFQName(), application), page.getLabel());
 

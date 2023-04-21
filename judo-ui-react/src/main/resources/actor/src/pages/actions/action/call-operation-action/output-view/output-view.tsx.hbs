@@ -1,6 +1,4 @@
 {{> fragment.header.hbs }}
-// Action name: {{ action.name }}
-// Owner Page name: {{ ownerPage.name }}
 // Page name: {{ page.name }}
 
 import { useState, useEffect, useCallback, Dispatch, SetStateAction, FC } from 'react';
@@ -18,16 +16,15 @@ import { MdiIcon, ModeledTabs } from '{{ relativePathFromPage page 'components' 
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useDialog, useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
 import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
-import { AggregationInput, AssociationButton, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromPage page 'components-api' }}';
 import {
-    {{# each (getApiImportsForUnmappedOperationOutputAction action page) as |imp| }}
+    {{# each (getApiImportsForUnmappedOperationOutputAction page) as |imp| }}
         {{ imp }},
     {{/ each }}
 } from '{{ relativePathFromPage page 'generated/data-api' }}';
 import {
     {{ classServiceName page.dataElement.target }}Impl,
-    {{ classServiceName action.dataElement.owner }}Impl,
 } from '{{ relativePathFromPage page 'generated/data-axios'}}';
 import {
     useErrorHandler,
@@ -60,7 +57,7 @@ export interface {{ pageName page }}Props {
 
 export function {{ pageName page }}({ close, result } : {{ pageName page }}Props) {
     const { t } = useTranslation();
-    const { downloadFile, uploadFile } = fileHandling();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
 
     const { enqueueSnackbar } = useSnackbar();

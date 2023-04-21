@@ -16,7 +16,7 @@ import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context'
 
 export const use{{ pageName page }} = () => {
     const { t } = useTranslation();
-    const { downloadFile, uploadFile } = fileHandling();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
     {{# if (hasVisualReferences page) }}
         {{# each (getPageTables page) as |table| }}
