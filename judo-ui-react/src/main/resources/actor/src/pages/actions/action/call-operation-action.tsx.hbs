@@ -11,6 +11,7 @@ import { useTranslation } from 'react-i18next';
 import { Button } from '@mui/material';
 import type { GridColDef, GridRenderCellParams, GridRowParams, GridSortModel, GridRowSelectionModel, GridValueFormatterParams } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
 import { useSnackbar } from 'notistack';
 import { useJudoNavigation, MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
 import { useDialog, useRangeDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
@@ -38,6 +39,11 @@ import {
     } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 {{/ unless }}
 
+export type {{ actionFunctionHandlerTypeName action page 'PostHandler' }} = (ownerCallback: () => void{{# if action.outputParameterPage }}, result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => Promise<void>;
+
+export const {{ getCustomizationActionFunctionHandlerInterfaceKey action page 'PostHandlerHook' }} = '{{ actionFunctionHandlerTypeName action page 'PostHandlerHook' }}';
+export type {{ actionFunctionHandlerTypeName action page 'PostHandlerHook' }} = () => {{ actionFunctionHandlerTypeName action page 'PostHandler' }};
+
 export type {{ actionFunctionTypeName action page }} = () => ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
@@ -53,6 +59,8 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     {{/ if }}
     const { navigate } = useJudoNavigation();
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
+    const { service: customPostHandler } = useTrackService<{{ actionFunctionHandlerTypeName action page 'PostHandlerHook' }}>(`(${OBJECTCLASS}=${ {{~ getCustomizationActionFunctionHandlerInterfaceKey action page 'PostHandlerHook' ~}} })`);
+    const postHandler: {{ actionFunctionHandlerTypeName action page 'PostHandler' }} | undefined = customPostHandler && customPostHandler();
 
     {{# if (actionHasInputForm action) }}
         {{> actor/src/pages/actions/action/call-operation-action/with-input-form.fragment.hbs action=action page=page }}
