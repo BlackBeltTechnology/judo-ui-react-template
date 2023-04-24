@@ -63,7 +63,7 @@ public class UiImportHelper {
     private static final Map<String, Set<String>> muiDatePickerWidgetImportPairs = Map.ofEntries(
             Map.entry("dateinput", Set.of("DatePicker", "DateValidationError")),
             Map.entry("datetimeinput", Set.of("DateTimePicker", "DateTimeValidationError")),
-            Map.entry("timeinput", Set.of("TimePicker"))
+            Map.entry("timeinput", Set.of("TimePicker", "TimeValidationError"))
     );
 
     public static boolean hasPageDateTimePickers(PageDefinition pageDefinition) {

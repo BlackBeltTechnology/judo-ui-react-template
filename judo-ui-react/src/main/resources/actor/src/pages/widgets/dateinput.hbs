@@ -44,7 +44,8 @@
         views={['year', 'month', 'day']}
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} !isFormUpdateable() }
         onChange={ (newValue?: any | null) => {
             setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', newValue);
