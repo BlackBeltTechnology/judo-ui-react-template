@@ -16,7 +16,8 @@
             getRowId={(row: { __identifier: string }) => row.__identifier}
             loading={isLoading}
             rows={data?.{{ child.dataElement.name }} ?? []}
-            getRowClassName={(params) => "table-row"}
+            getRowClassName={() => "table-row"}
+            getCellClassName={() => "data-grid-cell"}
             columns={[ ...{{ child.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId child.dataElement }}', {{ child.dataElement.name }}RowActions, { shownActions: 2 }) ]}
             disableSelectionOnClick
             {{# each child.rowActions as |action| }}

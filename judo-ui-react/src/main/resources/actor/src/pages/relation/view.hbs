@@ -231,7 +231,7 @@ export default function {{ pageName page }}() {
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
                     <Box sx={mainContainerPadding}>
-                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}" className="relation-page-data">
                             {{# each rootChild.children as |child| }}
                                 {{> (getWidgetTemplate child) }}
                             {{/ each }}
