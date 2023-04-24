@@ -6,6 +6,7 @@ const {{ rel.dataElement.name }}Columns: GridColDef<{{ classDataName rel.dataEle
             ...baseColumnConfig,
             field: '{{ column.attributeType.name }}',
             headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
+            headerClassName: 'data-grid-column-header',
             {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=rel.dataElement name=rel.name }}
         },
     {{/ each }}

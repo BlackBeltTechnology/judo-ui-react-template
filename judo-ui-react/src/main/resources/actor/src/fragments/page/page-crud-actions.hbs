@@ -1,6 +1,6 @@
 {{# if page.dataElement.isUpdatable }}
     {editMode && isFormUpdateable() && (
-        <Grid item>
+        <Grid className="page-action" item>
             <Button
                 id="page-action-edit-cancel"
                 variant="outlined"
@@ -16,7 +16,7 @@
         </Grid>
     )}
     {editMode && isFormUpdateable() && (
-        <Grid item>
+        <Grid className="page-action" item>
             <Button id="page-action-edit-save" onClick={() => saveData()} disabled={isLoading}>
                 <MdiIcon path="content-save" />
                 {t('judo.pages.save', { defaultValue: 'Save' })}
@@ -26,7 +26,7 @@
 {{/ if }}
 {{# if page.dataElement.isRefreshable }}
     {!editMode && (
-        <Grid item>
+        <Grid className="page-action" item>
             <Button id="page-action-refresh" onClick={() => fetchData()} disabled={isLoading}>
                 <MdiIcon path="refresh" />
                 {t('judo.pages.refresh', { defaultValue: 'Refresh' })}
@@ -37,7 +37,7 @@
 {{# each page.pageActions as |action| }}
     {{# if action.isDeleteAction }}
         {!editMode && isFormDeleteable() && (
-            <Grid item>
+            <Grid className="page-action" item>
                 <Button
                     id="page-action-delete"
                     onClick={() => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, {{/ if }}data, () => {

@@ -203,7 +203,7 @@ export default function {{ pageName page }}() {
             <PageHeader title={title}>
                 {{# each (getUniquePageActions page) as |action| }}
                     {{# if action.isCreateAction }}
-                        <Grid item>
+                        <Grid className="page-action" item>
                             <Button id="page-action-create" onClick={ () => {{ actionFunctionName action page }}((result: {{ classDataName page.dataElement.target 'Stored' }}) => navigate(`{{ getNavigationForPage (getViewPageForTablePage page) 'result.__signedIdentifier' }}`)) } disabled={isLoading}>
                                 <MdiIcon path="file_document_plus" />
                                 {t('judo.pages.table.create', { defaultValue: 'Create' })}
@@ -211,7 +211,7 @@ export default function {{ pageName page }}() {
                         </Grid>
                     {{/ if }}
                     {{# if action.isRefreshAction }}
-                        <Grid item>
+                        <Grid className="page-action" item>
                             <Button id="page-action-refresh" onClick={ () => {{ actionFunctionName action page }}(() => fetchData()) } disabled={isLoading}>
                                 <MdiIcon path="refresh" />
                                 {t('judo.pages.table.refresh', { defaultValue: 'Refresh' })}
@@ -236,6 +236,8 @@ export default function {{ pageName page }}() {
                                         loading={isLoading}
                                         rows={data}
                                         rowCount={rowCount}
+                                        getRowClassName={() => "data-grid-row"}
+                                        getCellClassName={() => "data-grid-cell"}
                                         sortModel={sortModel}
                                         onSortModelChange={handleSortModelChange}
                                         columns={[...columns, ...columnsActionCalculator('{{ createId page.dataElement }}', rowActions, { shownActions: 2 })]}
