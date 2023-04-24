@@ -39,7 +39,7 @@ import {
     } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 {{/ unless }}
 
-export type {{ actionFunctionHandlerTypeName action page 'PostHandler' }} = (ownerCallback: () => void{{# if action.outputParameterPage }},result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => void;
+export type {{ actionFunctionHandlerTypeName action page 'PostHandler' }} = (ownerCallback: () => void{{# if action.outputParameterPage }}, result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => Promise<void>;
 
 export const {{ getCustomizationActionFunctionHandlerInterfaceKey action page 'PostHandlerHook' }} = '{{ actionFunctionHandlerTypeName action page 'PostHandlerHook' }}';
 export type {{ actionFunctionHandlerTypeName action page 'PostHandlerHook' }} = () => {{ actionFunctionHandlerTypeName action page 'PostHandler' }};

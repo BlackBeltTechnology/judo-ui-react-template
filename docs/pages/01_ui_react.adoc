@@ -422,7 +422,7 @@ const usePostIssueCreated: AdminDashboardCreateIssueActionPostHandlerHook = () =
   const { enqueueSnackbar } = useSnackbar();
   // We can add any variables and use any hooks here
 
-  return (ownerCallback: () => void, result?: AdminIssueStored) => {
+  return async (ownerCallback: () => void, result?: AdminIssueStored) => {
     // The default implementation in this case is to pop a generic toast, and navigate to the created element's page
     // but we are overriding this, to only pop a custom toast message
     if (result) {
