@@ -369,3 +369,77 @@ const customRowViewGalaxiesAction: RowViewGalaxiesAction = () => {
   }
 };
 ----
+
+=== Implementing custom behaviour for operation success handling
+
+Every custom operation has a "success handler" implementation by default. These handlers behave differently depending on
+the action type, and return parameter (or lack thereof).
+
+*Default behaviours explained:*
+
+- if there is a *mapped* return type:
+  * pop a success toast and
+  * navigate to the created element's view page
+- if there is an *unmapped* return type:
+  * pop a success toast and
+  * refresh the current page and
+  * show the result in a read-only modal
+- if there is no return type:
+  * pop a success toast and
+  * refresh the current page
+
+*Overriding the above logic can ge done by:*
+
+- implementing the `PostHandlerHook` interface for an operation
+- registering this implementation in the `application-customizer.tsx` file
+
+Depending on what operation we would like to override, we need to locate the action in the `src/pages` folder, and once
+we found our action file, we should be able to see an `INTERFACE_KEY` with the corresponding `PostHandlerHook` interface.
+
+> Please be aware that the interfaces for each hook have different signatures based on the operation, e.g.: for operations
+  which do not have a return type, the corresponding hook interfaces won't contain a "result" parameter!
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { useSnackbar } from 'notistack';
+import { ApplicationCustomizer } from './interfaces';
+import {
+  ADMIN_DASHBOARD_CREATE_ISSUE_ACTION_POST_HANDLER_HOOK_INTERFACE_KEY,
+  AdminDashboardCreateIssueActionPostHandlerHook
+} from '../pages/admin/admin/dashboardhome/actions';
+import { AdminIssueStored } from '../generated/data-api';
+import { toastConfig } from '../config';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(ADMIN_DASHBOARD_CREATE_ISSUE_ACTION_POST_HANDLER_HOOK_INTERFACE_KEY, usePostIssueCreated);
+  }
+}
+
+const usePostIssueCreated: AdminDashboardCreateIssueActionPostHandlerHook = () => {
+  const { enqueueSnackbar } = useSnackbar();
+  // We can add any variables and use any hooks here
+
+  return (ownerCallback: () => void, result?: AdminIssueStored) => {
+    // The default implementation in this case is to pop a generic toast, and navigate to the created element's page
+    // but we are overriding this, to only pop a custom toast message
+    if (result) {
+      enqueueSnackbar(`${result.title} created!`, {
+        variant: 'success',
+        ...toastConfig.success,
+      });
+    }
+
+    // and regardless of the output, refresh the current page
+    ownerCallback();
+  };
+};
+----
+
+Since operations are always started from modal windows the `ownerCallback` can behave differently, but most of the time
+it triggers a refresh on the actual page which we resided on.
+
+If we would like to implement a fix navigation to some page, it is recommended to *NOT CALL* the `ownerCallback()` function
+to prevent unnecessary REST calls and potential screen flow issues.
