@@ -4,11 +4,16 @@ const dateTypes: string[] = [{{# each (getWritableDateAttributesForClass classTy
 const dateTimeTypes: string[] = [{{# each (getWritableDateTimeAttributesForClass classType) as |aName| }}
     '{{ aName }}',
 {{/ each }}];
+const timeTypes: string[] = [{{# each (getWritableDateTimeAttributesForClass classType) as |aName| }}
+    '{{ aName }}',
+{{/ each }}];
 if (dateTypes.includes(attributeName as string)) {
-    payloadDiff[attributeName] = uiDateToServiceDate(value);
+payloadDiff[attributeName] = uiDateToServiceDate(value);
 } else if (dateTimeTypes.includes(attributeName as string)) {
-    payloadDiff[attributeName] = value;
+payloadDiff[attributeName] = value;
+}else if (timeTypes.includes(attributeName as string)) {
+payloadDiff[attributeName] = uiTimeToServiceTime(value);
 } else {
-    payloadDiff[attributeName] = value;
+payloadDiff[attributeName] = value;
 }
 setData({ ...data, [attributeName]: value });
