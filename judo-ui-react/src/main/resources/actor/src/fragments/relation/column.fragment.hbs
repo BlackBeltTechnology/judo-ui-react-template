@@ -28,6 +28,16 @@ type: '{{ columnType column }}',
             }).format(value);
         },
 {{/ if }}
+{{# if (isColumnTime column) }}
+        valueGetter: ({ value }) => value && serviceTimeToUiTime(value),
+        valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+            return value && new Intl.DateTimeFormat(l10nLocale, {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: false
+            }).format(value);
+        },
+{{/ if }}
 {{# if (isColumnDate column) }}
         valueGetter: ({ value }) => value && new Date(value),
         valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
