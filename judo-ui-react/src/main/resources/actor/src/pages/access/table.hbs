@@ -204,7 +204,7 @@ export default function {{ pageName page }}() {
                 {{# each (getUniquePageActions page) as |action| }}
                     {{# if action.isCreateAction }}
                         <Grid className="page-action" item>
-                            <Button id="page-action-create" onClick={ () => {{ actionFunctionName action page }}((result: {{ classDataName page.dataElement.target 'Stored' }}) => navigate(`{{ getNavigationForPage (getViewPageForTablePage page) 'result.__signedIdentifier' }}`)) } disabled={isLoading}>
+                            <Button id="page-action-create" onClick={ () => {{ actionFunctionName action page }}(() => fetchData()) } disabled={isLoading}>
                                 <MdiIcon path="file_document_plus" />
                                 {t('judo.pages.table.create', { defaultValue: 'Create' })}
                             </Button>

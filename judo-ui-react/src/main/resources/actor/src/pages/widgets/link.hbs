@@ -32,22 +32,13 @@
                 onView={ async () => {{ actionFunctionName action page }}(data, data?.{{ child.dataElement.name }}!) }
             {{/ if }}
             {{# if action.isCreateAction }}
-                onCreate={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}(res) => {
-                    storeDiff('{{ child.dataElement.name }}', res as {{ classDataName child.dataElement.target 'Stored' }});
-                    {{# if page.dataElement.isUpdatable }}
-                        saveData();
-                    {{/ if }}
+                onCreate={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => {
+                    fetchData();
                 }) }
             {{/ if }}
             {{# if action.isDeleteAction }}
                 onDelete={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}data?.{{ child.dataElement.name }}!, () => {
-                    try {
-                        if (!editMode) {
-                            fetchData();
-                        }
-                    } catch (e) {
-                        console.error(e);
-                    }
+                    fetchData();
                 }) }
             {{/ if }}
             {{# if action.isRemoveAction }}

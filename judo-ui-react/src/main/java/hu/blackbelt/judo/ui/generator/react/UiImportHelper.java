@@ -154,7 +154,21 @@ public class UiImportHelper {
     public static String getMuiMaterialImportsForActionForm(PageDefinition pageDefinition) {
         SortedSet<String> imports = getMaterialImportsForPage(pageDefinition);
 
-        imports.addAll(Set.of("Button", "IconButton", "DialogActions", "DialogContent", "DialogContentText", "DialogTitle"));
+        imports.addAll(Set.of(
+                "Button",
+                "ButtonGroup",
+                "IconButton",
+                "DialogActions",
+                "DialogContent",
+                "DialogContentText",
+                "DialogTitle",
+                "Grow",
+                "Paper",
+                "Popper",
+                "MenuList",
+                "MenuItem",
+                "ClickAwayListener"
+        ));
 
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
