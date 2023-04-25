@@ -21,3 +21,23 @@ export const serviceDateToUiDate = (dateStr?: any) => {
   }
   return dateStr;
 };
+
+export const uiTimeToServiceTime = (time?: any | null): string | null => {
+    if(time === undefined || time === null) {
+        return null;
+    }
+
+    const resolved: Date = typeof time === 'string' ? new Date(time) : time;
+    return resolved.getHours().toString() + ':' + resolved.getMinutes().toString();
+}
+
+
+export const serviceTimeToUiTime = (timeStr?: any) => {
+    if (typeof timeStr === 'string') {
+        let splittedTime = timeStr.split(':');
+        let date: Date = new Date();
+        date.setHours(Number(splittedTime[0]), Number(splittedTime[1]));
+        return date;
+    }
+    return timeStr;
+};
