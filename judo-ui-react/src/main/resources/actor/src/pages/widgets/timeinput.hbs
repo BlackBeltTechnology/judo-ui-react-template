@@ -14,6 +14,8 @@
         {{# if (shouldElementHaveAutoFocus child) }}
             autoFocus
         {{/ if }}
+        ampm={false}
+        ampmInClock={false}
         slotProps={ {
             textField: {
                 id: '{{ createId child }}',
@@ -43,7 +45,7 @@
         className={ !editMode ? 'JUDO-viewMode' : undefined }
         views={['hours', 'minutes', 'seconds']}
         label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
-        value={ data.{{ child.attributeType.name }} ?? null }
+        value={ serviceTimeToUiTime(data.{{ child.attributeType.name }} ?? null) }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} !isFormUpdateable() }
         onChange={ (newValue: string | null | undefined) => {

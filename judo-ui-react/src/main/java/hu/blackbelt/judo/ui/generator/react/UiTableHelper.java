@@ -115,6 +115,12 @@ public class UiTableHelper extends Helper {
         return dataType instanceof TimestampType;
     }
 
+    public static boolean isColumnTime(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        return dataType instanceof TimeType;
+    }
+
     public static boolean isColumnDate(Column column) {
         DataType dataType = column.getAttributeType().getDataType();
 
