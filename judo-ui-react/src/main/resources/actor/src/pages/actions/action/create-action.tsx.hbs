@@ -14,6 +14,7 @@ import {
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
 import { JudoIdentifiable } from '@judo/data-api-common';
+import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
 import type { DialogOption } from '{{ relativePathFromAction page action 'components/dialog' }}';
 import { useDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
@@ -30,16 +31,17 @@ import {
 } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 import { {{ pageActionFormComponentName action page }} } from './{{ pageActionFormComponentName action page }}';
 
-export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) => void;
+export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const [createDialog, closeDialog] = useDialog();
+    const { navigate } = useJudoNavigation();
     {{# unless (actionHasVisualElements action) }}
         const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ actionFunctionTypeName action page }}))`);
     {{/ unless }}
     const { enqueueSnackbar } = useSnackbar();
 
-    return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void) {
+    return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) {
         {{# if (actionHasVisualElements action) }}
             createDialog({
                 fullWidth: true,
@@ -51,7 +53,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
                 },
                 children: (
                     <{{ pageActionFormComponentName action page }}
-                        successCallback={(result) => { closeDialog(); successCallback(result); }}
+                        successCallback={() => { closeDialog(); successCallback(); }}
                         cancel={closeDialog}
                         {{# unless (isActionAccess action) }}
                             owner={owner}
@@ -61,11 +63,12 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
             });
         {{ else }}
             (async () => {
+                // Action did not have any inputs, therefore we auto call the underlying operation.
                 try {
                     const res = await {{ dataElementRelationName action.target.dataElement }}Impl.create{{ ucFirst action.target.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }} {});
 
                     if (res) {
-                        successCallback(res);
+                        successCallback();
                     }
                 } catch (error) {
                     handleActionError(error);
