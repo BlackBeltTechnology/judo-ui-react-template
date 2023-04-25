@@ -290,6 +290,14 @@ public class UiPageHelper extends Helper {
         return action.getTarget();
     }
 
+    public static PageDefinition getViewPageForCreatePage(PageDefinition page, Application application) {
+        String viewPageFQName = page.getFQName().replace("#Create", "#View");
+        return application.getPages().stream()
+                .filter(p -> p.getFQName().equals(viewPageFQName))
+                .findFirst()
+                .get();
+    }
+
     private static void addReferenceTypesToCollection(PageDefinition pageDefinition, Set<String> res) {
         getPageLinks(pageDefinition).forEach(l -> {
             ReferenceType rel = (ReferenceType) l.getDataElement();

@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 // Action: CreateAction
 
-import { useState, useEffect, useCallback, Dispatch, SetStateAction, FC } from 'react';
+import { useState, useEffect, useRef, useCallback, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Grid, {{ getMuiMaterialImportsForActionForm action.target }} } from '@mui/material';
 {{# if (hasPageDateTimePickers action.target) }}
@@ -13,7 +13,7 @@ import { ComponentProxy } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import { useSnackbar } from 'notistack';
 import { v1 as uuidv1 } from 'uuid';
-import { MdiIcon, ModeledTabs } from '{{ relativePathFromAction ownerPage action 'components' }}';
+import { useJudoNavigation, MdiIcon, ModeledTabs } from '{{ relativePathFromAction ownerPage action 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromAction ownerPage action 'components/table' }}';
 import { useRangeDialog } from '{{ relativePathFromAction ownerPage action 'components/dialog' }}';
 import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromAction ownerPage action 'components/widgets' }}';
@@ -39,7 +39,7 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
     {{/ each }}
 
     export interface {{ pageActionFormComponentName action ownerPage }}Props {
-        successCallback: (result: {{ classDataName action.target.dataElement.target 'Stored' }}) => void;
+        successCallback: () => void;
         cancel: () => void;
         {{# if (hasDataElementOwner action.dataElement) }}
             owner: JudoIdentifiable<{{ classDataName ownerPage.dataElement.target '' }}>;
@@ -57,6 +57,9 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
         const { openRangeDialog } = useRangeDialog();
         const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
         const { locale: l10nLocale } = useL10N();
+        const anchorRef = useRef<HTMLDivElement>(null);
+        const { navigate } = useJudoNavigation();
+        const [open, setOpen] = useState(false);
 
         const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
         const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageActionFormComponentName action ownerPage }}))`);
@@ -135,14 +138,24 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
             try {
                 const res = await {{ dataElementRelationName page.dataElement }}Impl.create{{ ucFirst page.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }}payloadDiff);
 
-                if (res) {
-                    successCallback(res);
-                }
+                return res;
             } catch (error) {
                 handleCreateError(error, { setValidation }, data);
             } finally {
                 setIsLoading(false);
             }
+        };
+
+        const handleToggle = () => {
+            setOpen((prevOpen) => !prevOpen);
+        };
+
+        const handleClose = (event: Event) => {
+            if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
+                return;
+            }
+
+            setOpen(false);
         };
 
         return (
@@ -175,9 +188,41 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
                         <Button id="{{ createId action }}-action-form-action-cancel" variant="text" onClick={ () => cancel() } disabled={isLoading}>
                             {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
                         </Button>
-                        <Button id="{{ createId action }}-action-form-action-create" variant="contained" onClick={ () => saveData() } disabled={isLoading}>
-                            {t('judo.pages.create', { defaultValue: 'Create' })}
-                        </Button>
+                        <ButtonGroup size="small" ref={anchorRef} aria-label="split button" disabled={isLoading}>
+                            <Button id="{{ createId action }}-action-form-action-create" variant="contained" onClick={ async () => {
+                                    const result = await saveData();
+                                    if (result) {
+                                        successCallback();
+                                    }
+                                } } disabled={isLoading}>
+                                {t('judo.pages.create', { defaultValue: 'Create' })}
+                            </Button>
+                            <Button variant="contained" size="small" onClick={handleToggle}>
+                                <MdiIcon path="menu-down" />
+                            </Button>
+                        </ButtonGroup>
+                        <Popper sx={ { zIndex: 1 } } open={open} anchorEl={anchorRef.current} transition disablePortal>
+                            {({ TransitionProps, placement }) => (
+                                <Grow {...TransitionProps} style={ { transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' } }>
+                                    <Paper>
+                                        <ClickAwayListener onClickAway={handleClose}>
+                                            <MenuList id="split-button-menu" autoFocusItem>
+                                                <MenuItem key="create-and-navigate" onClick={ async (event: any) => {
+                                                    const result: { __signedIdentifier: string } | undefined = await saveData();
+
+                                                    if (result) {
+                                                        successCallback();
+                                                        navigate(`{{ getNavigationForPage (getViewPageForCreatePage page application) 'result.__signedIdentifier' }}`)
+                                                    }
+                                                } } disabled={isLoading}>
+                                                    {t('judo.pages.create-and-navigate', { defaultValue: 'Create and navigate' })}
+                                                </MenuItem>
+                                            </MenuList>
+                                        </ClickAwayListener>
+                                    </Paper>
+                                </Grow>
+                            )}
+                        </Popper>
                     </DialogActions>
                 </>
             {{/ with }}
