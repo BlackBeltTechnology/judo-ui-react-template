@@ -28,7 +28,7 @@ export const uiTimeToServiceTime = (time?: any | null): string | null => {
     }
 
     const resolved: Date = typeof time === 'string' ? new Date(time) : time;
-    return resolved.getHours().toString() + ':' + resolved.getMinutes().toString();
+    return resolved.getHours().toString().padStart(2, '0') + ':' + resolved.getMinutes().toString().padStart(2, '0');
 }
 
 
