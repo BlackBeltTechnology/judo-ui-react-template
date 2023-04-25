@@ -57,6 +57,10 @@ return async function {{ actionFunctionName action page }} ({{# if action.operat
 
     try {
         const result = await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner{{/ if }}{{# if action.operation.input }}{{# if action.operation.isMapped }},{{/ if }}res as {{ classDataName action.inputParameterPage.dataElement.target 'Stored' }}{{/ if }});
+        if (postHandler) {
+            postHandler(successCallback{{# if action.outputParameterPage }}, result{{/ if }});
+            return;
+        }
         {{# if action.outputParameterPage }}
             if (result) {
                 {{# unless (actionHasUnmappedOutputForm action) }}

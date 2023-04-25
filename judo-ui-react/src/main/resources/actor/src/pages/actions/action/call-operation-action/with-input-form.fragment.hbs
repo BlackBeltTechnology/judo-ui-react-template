@@ -11,6 +11,10 @@ return async function {{ actionFunctionName action page }} ({{# if action.operat
             <{{ pageActionFormComponentName action page }}
                 successCallback={ ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => {
                     closeDialog();
+                    if (postHandler) {
+                        postHandler(successCallback{{# if action.outputParameterPage }}, result{{/ if }});
+                        return;
+                    }
                     enqueueSnackbar(title, {
                         variant: 'success',
                         ...toastConfig.success,

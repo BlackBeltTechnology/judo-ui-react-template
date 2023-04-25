@@ -50,6 +50,10 @@ public class UiActionsHelper {
         return "use".concat(actionFunctionTypeName(action, page));
     }
 
+    public static String actionFunctionHandlerTypeName(Action action, PageDefinition page, String handlerType) {
+        return StringUtils.capitalize(actionFunctionName(action, page)) + handlerType;
+    }
+
     public static String pageActionPathSuffix(Action action, PageDefinition page) {
         String result = "";
         String[] segments = action.getName().split("::");
