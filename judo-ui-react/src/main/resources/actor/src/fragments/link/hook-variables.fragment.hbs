@@ -1,5 +1,6 @@
 const {{ link.dataElement.name }}SortModel: GridSortModel = {{{ getDefaultSortParamsForLink link }}};
 
 {{# unless link.dataElement.isReadOnly }}
+    {{# if debugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/hook-variables.fragment.hbs rel=link }}
 {{/ unless }}

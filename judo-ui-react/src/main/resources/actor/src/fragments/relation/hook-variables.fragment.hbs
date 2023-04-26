@@ -5,6 +5,7 @@ const {{ rel.dataElement.name }}Columns: GridColDef<{{ classDataName rel.dataEle
             field: '{{ column.attributeType.name }}',
             headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
             headerClassName: 'data-grid-column-header',
+            {{# if debugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
             {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=rel.dataElement name=rel.name }}
         },
     {{/ each }}
@@ -12,6 +13,7 @@ const {{ rel.dataElement.name }}Columns: GridColDef<{{ classDataName rel.dataEle
 
 const {{ rel.dataElement.name }}RangeFilterOptions: FilterOption[] = [
     {{# each rel.filters as |filter| }}
+        {{# if debugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
         {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
     {{/ each }}
 ];
