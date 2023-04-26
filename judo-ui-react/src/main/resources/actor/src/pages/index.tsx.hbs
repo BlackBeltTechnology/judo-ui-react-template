@@ -1,32 +1,41 @@
 {{# if page.dataElement }}
     {{# if page.dataElement.isAccess }}
         {{# if page.isPageTypeCreate }}
+            {{# if debugPrint }}// include: actor/src/pages/access/create.hbs{{/ if }}
             {{> actor/src/pages/access/create.hbs }}
         {{/ if }}
         {{# if page.isPageTypeTable }}
+            {{# if debugPrint }}// include: actor/src/pages/access/table.hbs{{/ if }}
             {{> actor/src/pages/access/table.hbs }}
         {{/ if }}
         {{# if page.isPageTypeView }}
+            {{# if debugPrint }}// include: actor/src/pages/access/view.hbs{{/ if }}
             {{> actor/src/pages/access/view.hbs }}
         {{/ if }}
         {{# if page.isPageTypeDashboard }}
             {{# if page.dataElement.isCollection }}
+                {{# if debugPrint }}// include: actor/src/pages/access/table.hbs{{/ if }}
                 {{> actor/src/pages/access/table.hbs }}
             {{ else }}
+                {{# if debugPrint }}// include: actor/src/pages/access/view.hbs{{/ if }}
                 {{> actor/src/pages/access/view.hbs }}
             {{/ if }}
         {{/ if }}
     {{ else }}
         {{# if page.isPageTypeTable }}
+            {{# if debugPrint }}// include: actor/src/pages/relation/table.hbs{{/ if }}
             {{> actor/src/pages/relation/table.hbs }}
         {{/ if }}
         {{# if page.isPageTypeView }}
+            {{# if debugPrint }}// include: actor/src/pages/relation/view.hbs{{/ if }}
             {{> actor/src/pages/relation/view.hbs }}
         {{/ if }}
         {{# if page.isPageTypeOperationOutput }}
+            {{# if debugPrint }}// include: actor/src/pages/operation-output/view.hbs{{/ if }}
             {{> actor/src/pages/operation-output/view.hbs }}
         {{/ if }}
     {{/ if }}
 {{ else }}
+    {{# if debugPrint }}// include: actor/src/pages/page-fallback.hbs{{/ if }}
     {{> actor/src/pages/page-fallback.hbs }}
 {{/ if }}
