@@ -181,7 +181,7 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
                         <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                             {{# each rootChild.children as |child| }}
                                 {{# unless (excludeWidgetFromTree child) }}
-                                    {{# if debugPrint }}// include: getWidgetTemplate(){{/ if }}
+                                    {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                                     {{> (getWidgetTemplate child) }}
                                 {{/ unless }}
                             {{/ each }}

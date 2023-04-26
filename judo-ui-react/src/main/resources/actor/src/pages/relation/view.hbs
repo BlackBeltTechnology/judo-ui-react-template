@@ -231,14 +231,14 @@ export default function {{ pageName page }}() {
         <>
             {{# with (getDataContainerForPage page) as |rootChild| }}
                 <PageHeader title={title}>
-                    {{# if debugPrint }}// include: actor/src/fragments/page/page-crud-actions.hbs{{/ if }}
+                    {{# if debugPrint }}{/* include: actor/src/fragments/page/page-crud-actions.hbs */}{{/ if }}
                     {{> actor/src/fragments/page/page-crud-actions.hbs }}
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
                     <Box sx={mainContainerPadding}>
                         <Grid className="relation-page-data" container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                             {{# each rootChild.children as |child| }}
-                                {{# if debugPrint }}// include: getWidgetTemplate(){{/ if }}
+                                {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                                 {{> (getWidgetTemplate child) }}
                             {{/ each }}
                         </Grid>

@@ -14,10 +14,7 @@ export const uiDateToServiceDate = (date?: any | null): string | null => {
 
 export const serviceDateToUiDate = (dateStr?: any) => {
   if (typeof dateStr === 'string') {
-    if (dateStr.match(/^[0-9]{4}-[0-9]{2}-[0-9]{2}$/)) {
-      return new Date(dateStr);
-    }
-    return new Date(dateStr.endsWith('Z') ? dateStr : (dateStr + 'Z'));
+    return new Date(dateStr);
   }
   return dateStr;
 };

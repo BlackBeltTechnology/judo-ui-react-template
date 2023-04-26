@@ -298,7 +298,7 @@ export default function {{ pageName page }}() {
                     <Box sx={mainContainerPadding}>
                         <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                             {{# each rootChild.children as |child| }}
-                                {{# if debugPrint }}// include: getWidgetTemplate(){{/ if }}
+                                {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                                 {{> (getWidgetTemplate child) }}
                             {{/ each }}
                         </Grid>
