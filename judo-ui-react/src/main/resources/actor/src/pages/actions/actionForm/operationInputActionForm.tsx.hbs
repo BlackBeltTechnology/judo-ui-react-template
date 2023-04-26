@@ -66,19 +66,27 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
         const [editMode, setEditMode] = useState<boolean>(true);
         const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>);
         const storeDiff: (attributeName: keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, value: any) => {
+
+    {{# if debugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
     {{> actor/src/fragments/page/store-diff-body.hbs classType=action.inputParameterPage.dataElement.target }}
         }, [data]);
         const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
         {{# if (hasVisualReferences action.inputParameterPage) }}
             {{# each (getPageTables action.inputParameterPage) as |table| }}
+                {{# if debugPrint }}// include: actor/src/fragments/relation/relation-variables.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=table }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
             {{/ each }}
             {{# each (getPageWritableLinks action.inputParameterPage) as |link| }}
+                {{# if debugPrint }}// include: actor/src/fragments/relation/relation-variables.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=link }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=link.dataElement }}
             {{/ each }}
         {{/ if }}
@@ -102,6 +110,7 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
             ];
         {{/ each }}
 
+        {{# if debugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
         {{> actor/src/fragments/page/input-form-flags.hbs }}
 
         {{# if action.operation.input.target.isTemplateable }}
@@ -172,6 +181,7 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
                         <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                             {{# each rootChild.children as |child| }}
                                 {{# unless (excludeWidgetFromTree child) }}
+                                    {{# if debugPrint }}// include: getWidgetTemplate(){{/ if }}
                                     {{> (getWidgetTemplate child) }}
                                 {{/ unless }}
                             {{/ each }}

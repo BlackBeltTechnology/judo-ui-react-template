@@ -20,9 +20,11 @@ export const use{{ pageName page }} = () => {
     const { locale: l10nLocale } = useL10N();
     {{# if (hasVisualReferences page) }}
         {{# each (getPageTables page) as |table| }}
+            {{# if debugPrint }}// include: actor/src/fragments/table/hook-variables.fragment.hbs{{/ if }}
             {{> actor/src/fragments/table/hook-variables.fragment.hbs table=table }}
         {{/ each }}
         {{# each (getPageLinks page) as |link| }}
+            {{# if debugPrint }}// include: actor/src/fragments/link/hook-variables.fragment.hbs{{/ if }}
             {{> actor/src/fragments/link/hook-variables.fragment.hbs link=link }}
         {{/ each }}
 
