@@ -193,4 +193,13 @@ public class UiGeneralHelper extends Helper {
                 .sorted()
                 .collect(Collectors.toList());
     }
+
+    public static List<String> getWritableTimeAttributesForClass(ClassType classType) {
+        return classType.getAttributes().stream()
+                .filter(a -> a.getDataType() instanceof TimeType)
+                .filter(a -> !a.isIsReadOnly())
+                .map(NamedElement::getName)
+                .sorted()
+                .collect(Collectors.toList());
+    }
 }
