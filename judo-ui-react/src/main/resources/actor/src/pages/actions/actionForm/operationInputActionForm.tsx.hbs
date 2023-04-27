@@ -4,6 +4,7 @@
 import { useState, useEffect, useCallback, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Grid, {{ getMuiMaterialImportsForActionForm action.inputParameterPage }} } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 {{# if (hasPageDateTimePickers action.inputParameterPage) }}
     import { {{ getMuiDateTimePickerImportsForPage action.inputParameterPage }} } from '@mui/x-date-pickers';
 {{/ if }}
@@ -188,24 +189,53 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
                         </Grid>
                     </DialogContent>
                     <DialogActions>
-                        <Button id="{{ createId action }}-action-form-action-cancel" variant="text" onClick={ () => cancel() } disabled={isLoading}>
+                        <Button
+                            id="{{ createId action }}-action-form-action-cancel"
+                            variant="text"
+                            onClick={ () => cancel() } disabled={isLoading}
+                        >
                             {{# if (getBackButtonForOperationInputPage action.inputParameterPage) }}
                                 {{# with (getBackButtonForOperationInputPage action.inputParameterPage) as |backButton| }}
+                                    {{# if backButton.icon }}
+                                        <MdiIcon path="{{ backButton.icon.name }}" />
+                                    {{ else }}
+                                        <MdiIcon path="close-thick" />
+                                    {{/ if }}
                                     { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ backButton.label }}' }) as string }
                                 {{/ with }}
                             {{ else }}
+                                <MdiIcon path="close-thick" />
                                 { t('judo.pages.cancel', { defaultValue: 'Cancel' }) as string }
                             {{/ if }}
                         </Button>
-                        <Button id="{{ createId action }}-action-form-action-submit" variant="contained" onClick={ () => submit() } disabled={isLoading}>
+                        <LoadingButton
+                            loading={isLoading}
+                            loadingPosition="start"
+                            id="{{ createId action }}-action-form-action-submit"
+                            variant="contained"
+                            onClick={ () => submit() }
+                            startIcon={
+                                {{# if (getSaveButtonForOperationInputPage action.inputParameterPage) }}
+                                    {{# with (getSaveButtonForOperationInputPage action.inputParameterPage) as |saveButton| }}
+                                        {{# if saveButton.icon }}
+                                            <MdiIcon path="{{ saveButton.icon.name }}" />
+                                        {{ else }}
+                                            <MdiIcon path="check-bold" />
+                                        {{/ if }}
+                                    {{/ with }}
+                                {{ else }}
+                                    <MdiIcon path="check-bold" />
+                                {{/ if }}
+                            }
+                        >
                             {{# if (getSaveButtonForOperationInputPage action.inputParameterPage) }}
                                 {{# with (getSaveButtonForOperationInputPage action.inputParameterPage) as |saveButton| }}
-                                    { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ saveButton.label }}' }) as string }
+                                    <span>{ t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ saveButton.label }}' }) as string }</span>
                                 {{/ with }}
                             {{ else }}
-                                { t('judo.pages.submit', { defaultValue: 'Submit' }) as string }
+                                <span>{ t('judo.pages.submit', { defaultValue: 'Submit' }) as string }</span>
                             {{/ if }}
-                        </Button>
+                        </LoadingButton>
                     </DialogActions>
                 </>
             {{/ with }}

@@ -14,12 +14,18 @@
         {{# each (featuredActionsForActionGroup child) as |action| }}
             {{# if action.hiddenBy }}( !data.{{ action.hiddenBy.name }} }} && {{/ if }}
             <Grid item>
-                <Button id="{{ createId action }}" onClick={ () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) } disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }>
+                <LoadingButton
+                    id="{{ createId action }}"
+                    loading={isLoading}
                     {{# if action.icon }}
-                        <MdiIcon path="{{ action.icon.name }}" />
+                        startIcon={<MdiIcon path="{{ action.icon.name }}" />}
+                        loadingPosition="start"
                     {{/ if }}
-                    { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) }
-                </Button>
+                    onClick={ () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) }
+                    disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
+                >
+                    <span>{ t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) }</span>
+                </LoadingButton>
             </Grid>
             {{# if action.hiddenBy }}){{/ if }}
         {{/ each }}
