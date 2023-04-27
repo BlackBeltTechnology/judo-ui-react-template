@@ -87,10 +87,12 @@ export default function {{ pageName page }}() {
         {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
         {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
         {{# if table.dataElement.isAddable }}
-            {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-            {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+            {{# unless table.dataElement.isMemberTypeTransient }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
+                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
+                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+            {{/ unless }}
         {{/ if }}
     {{/ each }}
     const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });

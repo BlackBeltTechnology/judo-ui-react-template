@@ -76,10 +76,12 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
             {{# each (getPageTables action.inputParameterPage) as |table| }}
                 {{# if debugPrint }}// include: actor/src/fragments/relation/relation-variables.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=table }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+                {{# unless table.dataElement.isMemberTypeTransient }}
+                    {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
+                    {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+                    {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
+                    {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+                {{/ unless }}
             {{/ each }}
             {{# each (getPageWritableLinks action.inputParameterPage) as |link| }}
                 {{# if debugPrint }}// include: actor/src/fragments/relation/relation-variables.fragment.hbs{{/ if }}
