@@ -4,6 +4,7 @@
 import { useState, useEffect, useRef, useCallback, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Grid, {{ getMuiMaterialImportsForActionForm action.target }} } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
 {{# if (hasPageDateTimePickers action.target) }}
     import { {{ getMuiDateTimePickerImportsForPage action.target }} } from '@mui/x-date-pickers';
 {{/ if }}
@@ -198,14 +199,14 @@ import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l1
                             {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
                         </Button>
                         <ButtonGroup size="small" ref={anchorRef} aria-label="split button" disabled={isLoading}>
-                            <Button id="{{ createId action }}-action-form-action-create" variant="contained" onClick={ async () => {
+                            <LoadingButton loading={isLoading} loadingPosition="start" id="{{ createId action }}-action-form-action-create" variant="contained" onClick={ async () => {
                                     const result = await saveData();
                                     if (result) {
                                         successCallback();
                                     }
-                                } } disabled={isLoading}>
-                                {t('judo.pages.create', { defaultValue: 'Create' })}
-                            </Button>
+                                } }>
+                                <span>{t('judo.pages.create', { defaultValue: 'Create' })}</span>
+                            </LoadingButton>
                             <Button variant="contained" size="small" onClick={handleToggle}>
                                 <MdiIcon path="menu-down" />
                             </Button>
