@@ -12,12 +12,18 @@
             >
         {{/ if }}
         {{# if action.isCallOperationAction }}
-            <Button id="{{ createId action }}" onClick={() => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())} disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading  || editMode }>
+            <LoadingButton
+                id="{{ createId action }}"
+                loading={isLoading}
                 {{# if child.icon }}
-                    <MdiIcon path="{{ child.icon.name }}" />
+                    startIcon={<MdiIcon path="{{ child.icon.name }}" />}
+                    loadingPosition="start"
                 {{/ if }}
-                { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
-            </Button>
+                onClick={() => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())}
+                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
+            >
+                <span>{ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }</span>
+            </LoadingButton>
         {{/ if }}
 
         {{# if action.isNavigationToPageAction }}
