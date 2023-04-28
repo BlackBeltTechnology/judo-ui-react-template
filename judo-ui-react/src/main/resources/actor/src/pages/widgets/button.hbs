@@ -15,6 +15,7 @@
             <LoadingButton
                 id="{{ createId action }}"
                 loading={isLoading}
+                variant={ {{{ variantForButton child }}} }
                 {{# if child.icon }}
                     startIcon={<MdiIcon path="{{ child.icon.name }}" />}
                     loadingPosition="start"
@@ -28,13 +29,19 @@
 
         {{# if action.isNavigationToPageAction }}
             {{# if action.dataElement.isCollection }}
-                <CollectionAssociationButton id="{{ createId action }}" editMode={editMode} navigateAction={() => {{ actionFunctionName action page }}(data)}>
+                <CollectionAssociationButton
+                    id="{{ createId action }}"
+                    variant={ {{{ variantForButton child }}} }
+                    editMode={editMode}
+                    navigateAction={() => {{ actionFunctionName action page }}(data)}
+                >
                     { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
                     <MdiIcon path="arrow-right" />
                 </CollectionAssociationButton>
             {{ else }}
                 <AssociationButton
                     id="{{ createId action }}"
+                    variant={ {{{ variantForButton child }}} }
                     editMode={editMode}
                     navigateAction={(target) => {{ actionFunctionName action page }}(data, target)}
                     owner={data}
