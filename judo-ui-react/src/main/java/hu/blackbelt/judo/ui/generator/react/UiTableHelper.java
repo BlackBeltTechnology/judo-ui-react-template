@@ -63,7 +63,12 @@ public class UiTableHelper extends Helper {
                 if (width.endsWith("px")) {
                     return Integer.valueOf((width.substring(0, width.length() - 2)).trim());
                 }
-                return Integer.valueOf(width);
+                try {
+                    Integer.parseInt(width);
+                    return Integer.valueOf(width);
+                } catch (NumberFormatException e) {
+                    // fall back to default calculation
+                }
             } catch (Exception e) {
                 // let it fall back
                 log.warn("Could not parse column width: {}, falling back to default calculated value", width);
