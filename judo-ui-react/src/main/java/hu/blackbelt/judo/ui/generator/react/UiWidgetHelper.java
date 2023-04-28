@@ -321,4 +321,25 @@ public class UiWidgetHelper extends Helper {
 
         return null;
     }
+
+    public static String variantForButton(VisualElement element) {
+        if (element instanceof Button) {
+            String style = ((Button) element).getButtonStyle();
+            if (style == null) {
+                return "undefined";
+            }
+            // Currently we only support Material Design variants.
+            switch (style) {
+                case "contained":
+                    return "'contained'";
+                case "text":
+                    return "'text'";
+                case "outlined":
+                    return "'outlined'";
+                default:
+                    return "undefined";
+            }
+        }
+        return "undefined";
+    }
 }
