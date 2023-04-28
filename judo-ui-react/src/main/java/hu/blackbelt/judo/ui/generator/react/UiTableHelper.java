@@ -21,18 +21,13 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.Column;
-import hu.blackbelt.judo.meta.ui.Filter;
-import hu.blackbelt.judo.meta.ui.Link;
-import hu.blackbelt.judo.meta.ui.Table;
+import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
-import lombok.extern.java.Log;
-import org.eclipse.emf.common.util.EList;
-import org.w3c.dom.Attr;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 
-@Log
+@Slf4j
 @TemplateHelper
 public class UiTableHelper extends Helper {
 
@@ -62,6 +57,19 @@ public class UiTableHelper extends Helper {
     }
 
     public static Integer columnWidth(Column column) {
+        if (column.getWidth() != null) {
+            String width = column.getWidth().trim();
+            try {
+                if (width.endsWith("px")) {
+                    return Integer.valueOf((width.substring(0, width.length() - 2)).trim());
+                }
+                return Integer.valueOf(width);
+            } catch (Exception e) {
+                // let it fall back
+                log.warn("Could not parse column width: {}, falling back to default calculated value", width);
+            }
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         if (dataType instanceof DateType) {
