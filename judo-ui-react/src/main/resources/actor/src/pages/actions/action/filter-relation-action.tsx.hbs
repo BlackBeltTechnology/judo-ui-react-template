@@ -1,0 +1,46 @@
+{{> fragment.header.hbs }}
+// Action: FilterRelationAction
+
+import {
+    {{ classDataName action.dataElement.target 'QueryCustomizer' }},
+} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+import { useFilterDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
+import type { Filter, FilterOption } from '{{ relativePathFromAction page action 'components-api' }}';
+import { mapAllFiltersToQueryCustomizerProperties } from '{{ relativePathFromAction page action 'utilities' }}';
+
+export type {{ actionFunctionTypeName action page }} = (id: string, filterOptions: FilterOption[], filters: Filter[]) => Promise<void>;
+
+export const {{ actionFunctionHookName action page }} = (
+    setFilters: (filters: Filter[]) => void,
+    setPage: (page: number) => void,
+    setQueryCustomizer: Function,
+    openFilterDialog: (id: string, filterOptions: FilterOption[], filters: Filter[]) => Promise<Filter[]>,
+): {{ actionFunctionTypeName action page }} => {
+
+    return async function {{ actionFunctionName action page }}(id: string, filterOptions: FilterOption[], filters: Filter[]) {
+        const newFilters = await openFilterDialog(id, filterOptions, filters);
+        const numberOfElements = 10;
+
+        if (newFilters) {
+            setPage(0);
+            setFilters(newFilters);
+
+            setQueryCustomizer((prevQueryCustomizer: {{ classDataName action.dataElement.target 'QueryCustomizer' }}) => {
+                return {
+                    ...prevQueryCustomizer,
+                    _seek: {
+                        limit: numberOfElements + 1,
+                    },
+                    ...mapAllFiltersToQueryCustomizerProperties(
+                        newFilters,
+                        {{# with (getActionContainer action) as |table| }}
+                            {{# each table.filters as |filter| }}
+                                '{{ filter.attributeType.name }}',
+                            {{/ each }}
+                        {{/ with }}
+                    ),
+                };
+            });
+        }
+    }
+}

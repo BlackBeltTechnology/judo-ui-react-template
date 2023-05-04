@@ -41,6 +41,16 @@
                 Toolbar: () => (
                     <GridToolbarContainer>
                         {{# each (getActionsForTable child) as |action| }}
+                            {{# if action.isFilterRelationAction }}
+                                <Button
+                                    id="{{ createId action }}"
+                                    variant="text"
+                                    onClick={ () => {{ actionFunctionName action page }}('{{ createId action }}-filter', {{ child.dataElement.name }}FilterOptions, {{ child.dataElement.name }}Filters) }
+                                    disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || editMode }
+                                >
+                                    {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' })}
+                                </Button>
+                            {{/ if }}
                             {{# if action.isCreateAction }}
                                 {{# unless page.isPageTypeOperationInput }}
                                     <Button
