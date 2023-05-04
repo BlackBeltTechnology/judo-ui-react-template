@@ -47,9 +47,9 @@
                 sx={ { marginTop: '6px' } }
                 disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
                 control={
-                    <Checkbox value={ data.{{ child.attributeType.name }} } onChange={ (event) => {
+                    <Checkbox checked={ data.{{ child.attributeType.name }} || false } onChange={ (event) => {
                         setEditMode(true);
-                        storeDiff('{{ child.attributeType.name }}', String(event.target.value).toLowerCase() === 'true');
+                        storeDiff('{{ child.attributeType.name }}', event.target.checked);
                     } } />
                 }
                 label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
