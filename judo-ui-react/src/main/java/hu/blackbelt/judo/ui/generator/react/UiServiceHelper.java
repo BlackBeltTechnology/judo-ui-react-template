@@ -21,6 +21,7 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
+import hu.blackbelt.judo.meta.ui.Table;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
 import hu.blackbelt.judo.meta.ui.data.DataElement;
 import hu.blackbelt.judo.meta.ui.data.OperationParameterType;
@@ -55,5 +56,9 @@ public class UiServiceHelper extends Helper {
 
     public static String classServiceName(ClassType classType) {
         return variable(nameWithoutModel(classType.getName()) + "Service");
+    }
+
+    public static String getFetchMethodForAssociationTable (Table table) {
+        return table.getDataElement().getName();
     }
 }

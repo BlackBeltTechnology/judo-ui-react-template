@@ -24,6 +24,7 @@ import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
+import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
@@ -227,5 +228,9 @@ public class UiActionsHelper {
         }
 
         return false;
+    }
+
+    public static EObject getActionContainer(Action action) {
+        return action.eContainer();
     }
 }

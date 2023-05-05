@@ -32,7 +32,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
 
     return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
-        {{# with (getTableForTablePage page) as |table| }}
+        {{# with action.definedOn as |table| }}
             const columns: GridColDef<{{ classDataName action.dataElement.target 'Stored' }}>[] = [
                 {{# each table.columns as |column| }}
                     {

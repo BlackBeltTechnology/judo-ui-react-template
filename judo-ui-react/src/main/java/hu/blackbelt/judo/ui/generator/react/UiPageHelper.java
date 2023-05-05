@@ -254,6 +254,13 @@ public class UiPageHelper extends Helper {
         return (List<Table>) pageDefinition.getContainers().get(0).getTables().stream().map(t -> (Table) t).collect(Collectors.toList());
     }
 
+    public static List<Table> getPageAssociationTables(PageDefinition pageDefinition) {
+        // non inline tables are "not" tables, end up being transformed as "button"
+        return getPageTables(pageDefinition).stream()
+                .filter(t -> ((RelationType) t.getDataElement()).getIsRelationKindAssociation())
+                .collect(Collectors.toList());
+    }
+
     public static boolean hasPageTables(PageDefinition pageDefinition) {
         return getPageTables(pageDefinition).size() > 0;
     }

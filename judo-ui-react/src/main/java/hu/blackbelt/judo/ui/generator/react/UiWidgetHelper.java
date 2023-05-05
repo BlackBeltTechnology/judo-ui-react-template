@@ -257,30 +257,32 @@ public class UiWidgetHelper extends Helper {
 
     public static List<Action> getActionsForLink(Link link) {
         List<Action> actions = link.getActions();
-        PageDefinition pageDefinition = link.getPageDefinition();
-
-        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
-            VisualElement pair = getFormVersionOfElement(link);
-
-            if (pair != null) {
-                actions.addAll(((Link) pair).getActions());
-            }
-        }
+        // The commented out section was necessary until we didn't remove the esm2ui transformation parameter "allRowActions"
+//        PageDefinition pageDefinition = link.getPageDefinition();
+//
+//        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
+//            VisualElement pair = getFormVersionOfElement(link);
+//
+//            if (pair != null) {
+//                actions.addAll(((Link) pair).getActions());
+//            }
+//        }
 
         return actions;
     }
 
     public static List<Action> getActionsForTable(Table table) {
         List<Action> actions = table.getActions();
-        PageDefinition pageDefinition = table.getPageDefinition();
-
-        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
-            VisualElement pair = getFormVersionOfElement(table);
-
-            if (pair != null) {
-                actions.addAll(((Table) pair).getActions());
-            }
-        }
+        // The commented out section was necessary until we didn't remove the esm2ui transformation parameter "allRowActions"
+//        PageDefinition pageDefinition = table.getPageDefinition();
+//
+//        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
+//            VisualElement pair = getFormVersionOfElement(table);
+//
+//            if (pair != null) {
+//                actions.addAll(((Table) pair).getActions());
+//            }
+//        }
 
         return actions;
     }
