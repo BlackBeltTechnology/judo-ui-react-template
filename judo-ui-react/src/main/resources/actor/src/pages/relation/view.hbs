@@ -13,9 +13,9 @@ import { {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
     import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
 {{/ if }}
 import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useSnackbar } from 'notistack';
 import { ComponentProxy } from '@pandino/react-hooks';
 import { useParams } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
 import {
     MdiIcon,
     ModeledTabs,
@@ -25,9 +25,8 @@ import {
     useJudoNavigation,
 } from '{{ relativePathFromPage page 'components' }}';
 import type { Filter } from '{{ relativePathFromPage page 'components-api' }}';
-import { useConfirmationBeforeChange } from '{{ relativePathFromPage page 'hooks' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
-import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
+import { useFilterDialog, useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
 import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
 import {
     useErrorHandler,
@@ -43,6 +42,7 @@ import {
     stringToBooleanSelect,
     booleanToStringSelect,
 } from '{{ relativePathFromPage page 'utilities' }}';
+import { useConfirmationBeforeChange } from '{{ relativePathFromPage page 'hooks' }}';
 import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
 import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromPage page 'custom' }}';
@@ -81,10 +81,8 @@ export default function {{ pageName page }}() {
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
     const { signedIdentifier } = useParams();
-    {{# each (getUniquePageActions page) as |action| }}
-        const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
-    {{/ each }}
 
+    const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
@@ -94,6 +92,9 @@ export default function {{ pageName page }}() {
             {{ table.dataElement.name }}Columns,
             {{ table.dataElement.name }}RangeFilterOptions,
             {{ table.dataElement.name }}InitialQueryCustomizer,
+        {{/ each }}
+        {{# each (getPageAssociationTables page) as |table| }}
+            {{ table.dataElement.name }}FilterOptions,
         {{/ each }}
         {{# each (getPageWritableLinks page) as |link| }}
             {{ link.dataElement.name }}Columns,
@@ -132,6 +133,7 @@ export default function {{ pageName page }}() {
         {{/ if }}
     {{/ each }}
     {{# each (getPageAssociationTables page) as |table| }}
+        const [{{ table.dataElement.name }}Page, set{{ firstToUpper table.dataElement.name }}Page] = useState<number>(0);
         const [{{ table.dataElement.name }}Filters, set{{ firstToUpper table.dataElement.name }}Filters] = useState<Filter[]>([]);
         const [dataFor{{ firstToUpper table.dataElement.name }}, setDataFor{{ firstToUpper table.dataElement.name }}] = useState<Array<{{ classDataName table.dataElement.target 'Stored' }}>>([]);
         const [is{{ firstToUpper table.dataElement.name }}Loading, setIs{{ firstToUpper table.dataElement.name }}Loading] = useState<boolean>(false);
@@ -201,6 +203,22 @@ export default function {{ pageName page }}() {
             {{/ each }}
         ];
     {{/ each }}
+
+    {{# each (getUniquePageActions page) as |action| }}
+        {{# if action.isFilterRelationAction }}
+            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}(
+                {{# with action.definedOn as |table| }}
+                    set{{ firstToUpper table.dataElement.name }}Filters,
+                    set{{ firstToUpper table.dataElement.name }}Page,
+                    setQueryCustomizerFor{{ firstToUpper table.dataElement.name }},
+                    openFilterDialog,
+                {{/ with }}
+            );
+        {{ else }}
+            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+        {{/if}}
+    {{/ each }}
+
     {{# if (titleComesFromAttribute page) }}
         const title: string = data.{{ page.titleAttribute.name }} as string;
     {{ else }}
@@ -228,9 +246,6 @@ export default function {{ pageName page }}() {
                 __version: res.__version,
                 __entityType: res.__entityType,
             } as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
-            {{# each (getPageAssociationTables page) as |table| }}
-                await fetch{{ firstToUpper table.dataElement.name }}();
-            {{/ each }}
         } catch (error) {
             handleFetchError(error);
         } finally {
@@ -256,6 +271,12 @@ export default function {{ pageName page }}() {
         };
     {{/ each }}
 
+    {{# each (getPageAssociationTables page) as |table| }}
+        useEffect(() => {
+            fetch{{ firstToUpper table.dataElement.name }}();
+        }, [queryCustomizerFor{{ firstToUpper table.dataElement.name }}]);
+    {{/ each }}
+
     {{# if page.dataElement.isUpdatable }}
         const saveData = async () => {
             setIsLoading(true);
@@ -264,6 +285,10 @@ export default function {{ pageName page }}() {
                 const res = await {{ classServiceName page.dataElement.target }}Impl.update(payloadDiff);
 
                 if (res) {
+                    enqueueSnackbar(t('judo.action.save.success', { defaultValue: 'Changes saved' }), {
+                        variant: 'success',
+                        ...toastConfig.success,
+                    });
                     await fetchData();
                     setEditMode(false);
                 }
