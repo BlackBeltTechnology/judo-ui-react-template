@@ -20,6 +20,7 @@ import type { DialogOption } from '{{ relativePathFromAction page action 'compon
 import { useDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
 import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
+import { toastConfig } from '{{ relativePathFromAction page action 'config' }}';
 
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
@@ -36,6 +37,7 @@ export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActi
 
 export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
     const [createDialog, closeDialog] = useDialog();
+    const { t } = useTranslation();
     const { navigate } = useJudoNavigation();
     {{# unless (actionHasVisualElements action) }}
         const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ actionFunctionTypeName action page }}))`);
@@ -54,7 +56,14 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
                 },
                 children: (
                     <{{ pageActionFormComponentName action page }}
-                        successCallback={() => { closeDialog(); successCallback(); }}
+                        successCallback={() => {
+                            closeDialog();
+                            enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
+                                variant: 'success',
+                                ...toastConfig.success,
+                            });
+                            successCallback();
+                        }}
                         cancel={closeDialog}
                         {{# unless (isActionAccess action) }}
                             owner={owner}

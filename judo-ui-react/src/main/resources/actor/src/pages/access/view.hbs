@@ -281,9 +281,6 @@ export default function {{ pageName page }}() {
                 __version: res.__version,
                 __entityType: res.__entityType,
             } as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
-            {{# each (getPageAssociationTables page) as |table| }}
-                await fetch{{ firstToUpper table.dataElement.name }}();
-            {{/ each }}
         } catch (error) {
             handleFetchError(error);
         } finally {
@@ -309,6 +306,12 @@ export default function {{ pageName page }}() {
         };
     {{/ each }}
 
+    {{# each (getPageAssociationTables page) as |table| }}
+        useEffect(() => {
+            fetch{{ firstToUpper table.dataElement.name }}();
+        }, [queryCustomizerFor{{ firstToUpper table.dataElement.name }}]);
+    {{/ each }}
+
     {{# if page.dataElement.isUpdatable }}
         const saveData = async () => {
             setIsLoading(true);
@@ -317,6 +320,10 @@ export default function {{ pageName page }}() {
                 const res = await {{ classServiceName page.dataElement.target }}Impl.update(payloadDiff);
 
                 if (res) {
+                    enqueueSnackbar(t('judo.action.save.success', { defaultValue: 'Changes saved' }), {
+                        variant: 'success',
+                        ...toastConfig.success,
+                    });
                     await fetchData();
                     setEditMode(false);
                 }

@@ -33,7 +33,7 @@ export const {{ actionFunctionHookName action page }} = (
                     },
                     ...mapAllFiltersToQueryCustomizerProperties(
                         newFilters,
-                        {{# with (getActionContainer action) as |table| }}
+                        {{# with action.definedOn as |table| }}
                             {{# each table.filters as |filter| }}
                                 '{{ filter.attributeType.name }}',
                             {{/ each }}
