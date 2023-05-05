@@ -255,38 +255,6 @@ public class UiWidgetHelper extends Helper {
         return null;
     }
 
-    public static List<Action> getActionsForLink(Link link) {
-        List<Action> actions = link.getActions();
-        // The commented out section was necessary until we didn't remove the esm2ui transformation parameter "allRowActions"
-//        PageDefinition pageDefinition = link.getPageDefinition();
-//
-//        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
-//            VisualElement pair = getFormVersionOfElement(link);
-//
-//            if (pair != null) {
-//                actions.addAll(((Link) pair).getActions());
-//            }
-//        }
-
-        return actions;
-    }
-
-    public static List<Action> getActionsForTable(Table table) {
-        List<Action> actions = table.getActions();
-        // The commented out section was necessary until we didn't remove the esm2ui transformation parameter "allRowActions"
-//        PageDefinition pageDefinition = table.getPageDefinition();
-//
-//        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
-//            VisualElement pair = getFormVersionOfElement(table);
-//
-//            if (pair != null) {
-//                actions.addAll(((Table) pair).getActions());
-//            }
-//        }
-
-        return actions;
-    }
-
     public static PageDefinition getFormVersionOfViewPage(PageDefinition pageDefinition) {
         if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
             Optional<EditAction> editAction = pageDefinition.getPageActions().stream()
@@ -296,28 +264,6 @@ public class UiWidgetHelper extends Helper {
 
             if (editAction.isPresent()) {
                 return editAction.get().getTarget();
-            }
-        }
-
-        return null;
-    }
-
-    public static VisualElement getFormVersionOfElement(VisualElement input) {
-        final String VIEW_PART = "#View::";
-        final String EDIT_PART = "#Edit::";
-        PageDefinition pageDefinition = input.getPageDefinition();
-
-        if (pageDefinition.getIsPageTypeView()) {
-            PageDefinition formPage = getFormVersionOfViewPage(pageDefinition);
-
-            if (formPage != null) {
-                SortedSet<VisualElement> elements = createFlattenedSetOfVisualElements(formPage);
-
-                Optional<VisualElement> pair = elements.stream()
-                        .filter(e -> e.getFQName().equals(input.getFQName().replace(VIEW_PART, EDIT_PART)))
-                        .findFirst();
-
-                return pair.orElse(null);
             }
         }
 
