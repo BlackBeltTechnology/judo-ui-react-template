@@ -7,6 +7,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
 import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
 import { useConfirmDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
+import { toastConfig } from '{{ relativePathFromAction page action 'config' }}';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
@@ -37,7 +38,10 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
 
             if (confirmed) {
                 await {{ classServiceName action.dataElement.target }}Impl.delete(selected);
-
+                enqueueSnackbar(t('judo.action.delete.success', { defaultValue: 'Delete successful' }), {
+                    variant: 'success',
+                    ...toastConfig.success,
+                });
                 successCallback();
             }
         } catch (error) {
