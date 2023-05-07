@@ -15,9 +15,35 @@ import {
 } from '../actions';
 
 export interface {{ pageName page }}PageActionsProps {
-
+    data: {{ classDataName page.dataElement.target 'Stored' }};
+    editMode: boolean;
+    setEditMode: (mode: boolean) => void;
+    isLoading: boolean;
+    fetchData: () => Promise<void>;
+    {{# if page.dataElement.isUpdatable }}
+        saveData: () => Promise<void>;
+    {{/ if }}
+    {{# if page.dataElement.isDeletable }}
+        deleteData: () => Promise<void>;
+    {{/ if }}
 }
 
 export function {{ pageName page }}PageActions (props: {{ pageName page }}PageActionsProps) {
+    const { data, editMode, setEditMode, isLoading, fetchData{{# if page.dataElement.isUpdatable }}, saveData{{/ if }}{{# if page.dataElement.isDeletable }}, deleteData{{/ if }} } = props;
+    const { t } = useTranslation();
+    const { navigate, back } = useJudoNavigation();
 
+    {{# each (getOnlyPageActions page) as |action| }}
+        const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+    {{/ each }}
+
+    {{# if debugPrint }}// include: actor/src/fragments/page/mapped-form-flags.hbs{{/ if }}
+    {{> actor/src/fragments/page/mapped-form-flags.hbs }}
+
+    return (
+        <>
+            {{# if debugPrint }}{/* include: actor/src/fragments/page/page-crud-actions.hbs */}{{/ if }}
+            {{> actor/src/fragments/page/page-crud-actions.hbs }}
+        </>
+    );
 }
