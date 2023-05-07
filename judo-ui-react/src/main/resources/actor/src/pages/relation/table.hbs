@@ -7,9 +7,7 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useSnackbar } from 'notistack';
 import { Paper, Card, CardContent, Box, Grid, Button, Container } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
 import type { GridRowModel, GridRowParams, GridSortModel, GridValueFormatterParams } from '@mui/x-data-grid';
 import { DataGrid, GridToolbarContainer } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
@@ -20,14 +18,14 @@ import {
   PageHeader,
   CustomBreadcrumb,
   CustomTablePagination,
-  useJudoNavigation,
 } from '{{ relativePathFromPage page 'components' }}';
 import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
 import { useFilterDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '{{ relativePathFromPage page 'utilities' }}';
-import type { PersistedTableData, TableRowAction } from '{{ relativePathFromPage page 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer } from '{{ relativePathFromPage page 'utilities' }}';
+import type { PersistedTableData } from '{{ relativePathFromPage page 'utilities' }}';
 import { pageServerTableConfig, toastConfig } from '{{ relativePathFromPage page 'config' }}';
 import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
+import { {{ pageName page }}PageActions } from './components/{{ pageName page }}PageActions';
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 import {
   {{# each (getApiImportsForTablePage page) as |imp| }}
@@ -55,11 +53,9 @@ export default function {{ pageName page }}() {
     );
     const { t } = useTranslation();
     const { signedIdentifier } = useParams();
-    const { navigate } = useJudoNavigation();
     const { openFilterDialog } = useFilterDialog();
-    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
-    const { columns, filterOptions } = use{{ pageName page }}();
+    const { columns, filterOptions, rowActions } = use{{ pageName page }}(fetchData, signedIdentifier);
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
             const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
@@ -67,7 +63,6 @@ export default function {{ pageName page }}() {
     {{/ each }}
 
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-    const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [rowCount, setRowCount] = useState<number>(0);
     const [sortModel, setSortModel] = useState<GridSortModel>(
@@ -103,7 +98,7 @@ export default function {{ pageName page }}() {
     });
     const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
-    const handleSortModelChange = (newModel: GridSortModel) => {
+    function handleSortModelChange (newModel: GridSortModel) {
         setPage(0);
         setSortModel(newModel);
 
@@ -115,9 +110,9 @@ export default function {{ pageName page }}() {
                 _orderBy: [{ attribute: field, descending: sort === 'desc' }],
             };
         });
-    };
+    }
 
-    const handlePageChange = async (isNext: boolean) => {
+    async function handlePageChange (isNext: boolean) {
         setQueryCustomizer((prevQueryCustomizer) => {
             return {
                 ...prevQueryCustomizer,
@@ -130,9 +125,9 @@ export default function {{ pageName page }}() {
         });
 
         setIsNextButtonEnabled(!isNext);
-    };
+    }
 
-    const fetchData = async () => {
+    async function fetchData() {
         setIsLoading(true);
 
         try {
@@ -157,7 +152,7 @@ export default function {{ pageName page }}() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }
 
     useEffect(() => {
         fetchData();
@@ -180,73 +175,10 @@ export default function {{ pageName page }}() {
     {{/ each }}
 
     {{# with (getTableForTablePage page) as |table| }}
-        const rowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
-            {{# each table.rowActions as |action| }}
-                {{# if action.isRemoveAction }}
-                    {
-                        id: '{{ createId action }}',
-                        label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
-                        icon: <MdiIcon path="{{ action.icon.name }}" />,
-                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, row, () => fetchData()),
-                    },
-                {{/ if }}
-                {{# if action.isDeleteAction }}
-                    {
-                        id: '{{ createId action }}',
-                        label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
-                        icon: <MdiIcon path="{{ action.icon.name }}" />,
-                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, row, () => fetchData()),
-                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
-                    },
-                {{/ if }}
-                {{# if action.isCallOperationAction }}
-                    {
-                        id: '{{ createId action }}',
-                        label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
-                        icon: <MdiIcon path="{{ action.icon.name }}" />,
-                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }} ({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
-                    },
-                {{/ if }}
-            {{/ each }}
-        ];
-
         return (
             <>
                 <PageHeader title={title}>
-                    {{# each (getUniquePageActions page) as |action| }}
-                        {{# if action.isRefreshAction }}
-                            <Grid className="page-action" item>
-                                <Button id="page-action-refresh" onClick={ () => {{ actionFunctionName action page }}(() => fetchData()) } disabled={isLoading}>
-                                    <MdiIcon path="refresh" />
-                                    {t('judo.pages.table.refresh', { defaultValue: 'Refresh' })}
-                                </Button>
-                            </Grid>
-                        {{/ if }}
-                        {{# if action.isAddAction }}
-                            <Grid className="page-action" item>
-                                <Button id="page-action-add" onClick={ () => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, () => fetchData()) } disabled={isLoading}>
-                                    <MdiIcon path="attachment-plus" />
-                                    {t('judo.pages.table.add', { defaultValue: 'Add' })}
-                                </Button>
-                            </Grid>
-                        {{/ if }}
-                        {{# if action.isClearAction }}
-                            <Grid className="page-action" item>
-                                <Button id="page-action-clear" onClick={ () => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, () => fetchData()) } disabled={isLoading}>
-                                    <MdiIcon path="link_off" />
-                                    {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
-                                </Button>
-                            </Grid>
-                        {{/ if }}
-                        {{# if action.isCreateAction }}
-                            <Grid className="page-action" item>
-                                <Button id="page-action-create" onClick={ () => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, () => fetchData()) } disabled={isLoading}>
-                                    <MdiIcon path="file_document_plus" />
-                                    {t('judo.pages.table.create', { defaultValue: 'Create' })}
-                                </Button>
-                            </Grid>
-                        {{/ if }}
-                    {{/ each }}
+                    <{{ pageName page }}PageActions fetchData={fetchData} isLoading={isLoading} signedIdentifier={signedIdentifier} />
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
                     <Box sx={mainContainerPadding}>

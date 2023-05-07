@@ -533,6 +533,14 @@ templates:
       - name: page
         expression: "#self"
 
+  - name: actor/src/pages/page-actions.tsx
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "#pagePath(#self) + 'components/' + #pageName(#self) + 'PageActions.tsx'"
+    templateName: actor/src/pages/page-actions.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
   - name: actor/src/pages/hooks.tsx
     factoryExpression: "#getPagesForRouting(#application)"
     pathExpression: "#pagePath(#self) + 'hooks/use' + #pageName(#self) + '.tsx'"

@@ -13,13 +13,37 @@ import {
     {{/ each }}
 } from '../{{ relativePathFromPage page 'generated/data-api' }}';
 import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
-import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, } from '../{{ relativePathFromPage page 'utilities' }}';
+import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, PersistedTableData, TableRowAction } from '../{{ relativePathFromPage page 'utilities' }}';
 import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
+import {
+    {{# each (getUniquePageActions page) as |action| }}
+        {{# unless action.isFilterAction }}
+            {{ actionFunctionHookName action page }},
+        {{/ unless }}
+    {{/ each }}
+} from '../actions';
 
-export const use{{ pageName page }} = () => {
+export const use{{ pageName page }} = (
+        data: {{ classDataName page.dataElement.target 'Stored' }},
+        editMode: boolean,
+        setEditMode: (mode: boolean) => void,
+        storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => void,
+        fetchData: () => Promise<void>,
+        {{# each (getPageAssociationTables page) as |table| }}
+            fetch{{ firstToUpper table.dataElement.name }}: () => Promise<void>,
+        {{/ each }}
+    ) => {
     const { t } = useTranslation();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
+
+    {{# each (getUniquePageActions page) as |action| }}
+        {{# unless action.isFilterAction }}
+            {{# unless action.isFilterRelationAction }}
+                const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+            {{/ unless }}
+        {{/ unless }}
+    {{/ each }}
 
     const queryCustomizer: {{ classDataName page.dataElement.target 'QueryCustomizer' }} = {
         _mask: '{{ page.formattedMask }}',
@@ -29,6 +53,8 @@ export const use{{ pageName page }} = () => {
         {{# each (getPageTables page) as |table| }}
             {{# if debugPrint }}// include: actor/src/fragments/table/hook-variables.fragment.hbs{{/ if }}
             {{> actor/src/fragments/table/hook-variables.fragment.hbs table=table }}
+            {{# if debugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
         {{/ each }}
         {{# each (getPageAssociationTables page) as |table| }}
             const {{ table.dataElement.name }}FilterOptions: FilterOption[] = [
@@ -49,6 +75,7 @@ export const use{{ pageName page }} = () => {
                 {{ table.dataElement.name }}Columns,
                 {{ table.dataElement.name }}RangeFilterOptions,
                 {{ table.dataElement.name }}InitialQueryCustomizer,
+                {{ table.dataElement.name }}RowActions,
             {{/ each }}
             {{# each (getPageAssociationTables page) as |table| }}
                 {{ table.dataElement.name }}FilterOptions,

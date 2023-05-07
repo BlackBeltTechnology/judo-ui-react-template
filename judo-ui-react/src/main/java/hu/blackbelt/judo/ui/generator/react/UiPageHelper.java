@@ -195,8 +195,18 @@ public class UiPageHelper extends Helper {
     public static Collection<Action> getUniquePageActions(PageDefinition page) {
         Collection<Action> actions = new ArrayList<>(page.getActions());
         return actions.stream()
-                .filter(a -> !a.getIsBackAction())
+                .filter(a -> !a.getIsBackAction() && !a.getIsEditAction())
                 .collect(Collectors.toMap(UiCommonsHelper::getXMIID, p -> p, (p, q) -> p)).values();
+    }
+
+    public static Collection<Action> getOnlyPageActions(PageDefinition page) {
+        Collection<Action> actions = getUniquePageActions(page);
+        return actions.stream().filter(a -> a.getType().equals(ActionType.PAGE)).collect(Collectors.toList());
+    }
+
+    public static Collection<Action> getOnlyTableActions(PageDefinition page) {
+        Collection<Action> actions = getUniquePageActions(page);
+        return actions.stream().filter(a -> a.getType().equals(ActionType.TABLE)).collect(Collectors.toList());
     }
 
     public static String getNavigationForPage(PageDefinition page, String signedId) {

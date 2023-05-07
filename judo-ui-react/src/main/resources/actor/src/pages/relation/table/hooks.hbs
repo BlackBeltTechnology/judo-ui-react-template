@@ -4,24 +4,38 @@
 import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@mui/material';
+import type { JudoIdentifiable } from '@judo/data-api-common';
 import { FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
 import type { FilterOption } from '../{{ relativePathFromPage page 'components-api' }}';
 import { useJudoNavigation, MdiIcon } from '../{{ relativePathFromPage page 'components' }}';
 import {
-    {{ classDataName page.dataElement.target 'Stored' }},
+    {{# each (getApiImportsForTablePage page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
 } from '../{{ relativePathFromPage page 'generated/data-api' }}';
 import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
-import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, } from '../{{ relativePathFromPage page 'utilities' }}';
+import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, TableRowAction } from '../{{ relativePathFromPage page 'utilities' }}';
 import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
+import {
+{{# each (getUniquePageActions page) as |action| }}
+    {{ actionFunctionHookName action page }},
+{{/ each }}
+} from '../actions';
 
-export const use{{ pageName page }} = () => {
+export const use{{ pageName page }} = (fetchData: () => Promise<void>, signedIdentifier?: string) => {
     const { navigate } = useJudoNavigation();
     const { t } = useTranslation();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
 
-    const columns: GridColDef<{{ classDataName page.dataElement.target 'Stored' }}>[] = [
-        {{# with (getTableForTablePage page) as |table| }}
+    {{# each (getUniquePageActions page) as |action| }}
+        {{# unless action.isFilterAction }}
+            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+        {{/ unless }}
+    {{/ each }}
+
+    {{# with (getTableForTablePage page) as |table| }}
+        const columns: GridColDef<{{ classDataName page.dataElement.target 'Stored' }}>[] = [
             {{# each table.columns as |column| }}
                 {
                     ...baseColumnConfig,
@@ -32,20 +46,49 @@ export const use{{ pageName page }} = () => {
                     {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
                 },
             {{/ each }}
-        {{/ with }}
-    ];
+        ];
 
-    const filterOptions: FilterOption[] = [
-        {{# with (getTableForTablePage page) as |table| }}
+        const filterOptions: FilterOption[] = [
             {{# each table.filters as |filter| }}
                 {{# if debugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
             {{/ each }}
-        {{/ with }}
-    ];
+        ];
+
+        const rowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
+            {{# each table.rowActions as |action| }}
+                {{# if action.isRemoveAction }}
+                    {
+                        id: '{{ createId action }}',
+                        label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
+                        icon: <MdiIcon path="{{ action.icon.name }}" />,
+                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, row, () => fetchData()),
+                    },
+                {{/ if }}
+                {{# if action.isDeleteAction }}
+                    {
+                        id: '{{ createId action }}',
+                        label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
+                        icon: <MdiIcon path="{{ action.icon.name }}" />,
+                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>, row, () => fetchData()),
+                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
+                    },
+                {{/ if }}
+                {{# if action.isCallOperationAction }}
+                    {
+                        id: '{{ createId action }}',
+                        label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
+                        icon: <MdiIcon path="{{ action.icon.name }}" />,
+                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }} ({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
+                    },
+                {{/ if }}
+            {{/ each }}
+        ];
+    {{/ with }}
 
     return {
         columns,
         filterOptions,
+        rowActions,
     };
 };

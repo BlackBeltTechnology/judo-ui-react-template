@@ -93,50 +93,6 @@
                             </templateParameters>
                         </configuration>
                     </execution>
-
-                    <!-- Regenerate checksum -->
-                    <execution>
-                        <id>execute-ui-checksum</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>checksum</goal>
-                        </goals>
-                        <configuration>
-                            <applications>
-                                ${actor-fq-name}
-                            </applications>
-                            <ui>${ui-model}</ui>
-                            <destination>${generation-target}</destination>
-                        </configuration>
-                    </execution>
-
-                    <!-- Regenerate source code to check the formatted version will not cause problem -->
-                    <execution>
-                        <id>execute-ui-generation-validate-checksum</id>
-                        <phase>process-sources</phase>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <uris>
-                                <uri>mvn:hu.blackbelt.judo.generator:judo-ui-react:${revision}</uri>
-                            </uris>
-                            <type>ui-react</type>
-                            <applications>
-                                ${actor-fq-name}
-                            </applications>
-                            <ui>${ui-model}</ui>
-                            <destination>${generation-target}</destination>
-                            <templateParameters>
-                                <debugPrint>true</debugPrint>
-                                <appModelName>${model-name}</appModelName>
-                                <appScope>${appScope}</appScope>
-                                <appVersion>${appVersion}</appVersion>
-
-                                <tablePageLimit>10</tablePageLimit>
-                            </templateParameters>
-                        </configuration>
-                    </execution>
                 </executions>
                 <dependencies>
                     <dependency>

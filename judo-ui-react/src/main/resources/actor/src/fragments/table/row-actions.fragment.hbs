@@ -1,0 +1,44 @@
+const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
+    {{# each table.rowActions as |action| }}
+        {{# if action.isRemoveAction }}
+            {
+                id: '{{ createId action }}',
+                label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
+                icon: <MdiIcon path="link_off" />,
+                {{# if table.dataElement.isRelationKindAssociation }}
+                    disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode,
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
+                        {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetch{{ firstToUpper table.dataElement.name }}())
+                    },
+                {{ else }}
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
+                        setEditMode(true);
+                        storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)]);
+                    },
+                {{/ if }}
+            },
+        {{/ if }}
+        {{# if action.isDeleteAction }}
+            {
+                id: '{{ createId action }}',
+                label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
+                icon: <MdiIcon path="{{ action.icon.name }}" />,
+                {{# if table.dataElement.isRelationKindAssociation }}
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetch{{ firstToUpper table.dataElement.name }}()),
+                {{ else }}
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetchData()),
+                {{/ if }}
+                disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode || !row.__deleteable,
+            },
+        {{/ if }}
+        {{# if action.isCallOperationAction }}
+            {
+                id: '{{ createId action }}',
+                label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
+                icon: <MdiIcon path="{{ action.icon.name }}" />,
+                action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
+                disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode,
+            },
+        {{/ if }}
+    {{/ each }}
+];
