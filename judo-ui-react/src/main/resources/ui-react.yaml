@@ -579,29 +579,25 @@ templates:
 
   - name: actor/src/pages/actions/action.tsx
     factoryExpression: "#getActionsForPages(#application)"
-    pathExpression: "#pagePath(#self.value) + 'actions/' + #pageActionPathSuffix(#self.key, #self.value) + '.tsx'"
+    pathExpression: "#pagePath(#getActionContainer(#self)) + 'actions/' + #pageActionPathSuffix(#self) + '.tsx'"
     templateName: actor/src/pages/actions/action.tsx.hbs
     templateContext:
-      - name: kv
-        expression: "#self"
       - name: action
-        expression: "#self.key"
+        expression: "#self"
       - name: page
-        expression: "#self.value"
+        expression: "#getActionContainer(#self)"
 
   # Actor - src - pages - action forms
 
   - name: actor/src/pages/actions/actionForm.tsx
     factoryExpression: "#getActionFormsForPages(#application)"
-    pathExpression: "#pagePath(#self.value) + 'actions/' + #pageActionFormPathSuffix(#self.key, #self.value) + '/index.tsx'"
+    pathExpression: "#pagePath(#getActionContainer(#self)) + 'actions/' + #pageActionFormPathSuffix(#self) + '/index.tsx'"
     templateName: actor/src/pages/actions/actionForm.tsx.hbs
     templateContext:
-      - name: kv
-        expression: "#self"
       - name: action
-        expression: "#self.key"
+        expression: "#self"
       - name: ownerPage
-        expression: "#self.value"
+        expression: "#getActionContainer(#self)"
 
   # Actor - src - pages - unmapped output modals
 
@@ -623,15 +619,13 @@ templates:
 
   - name: actor/src/pages/actions/action.tsx
     factoryExpression: "#getActionsForOutputPages(#application)"
-    pathExpression: "#pagePath(#self.value) + '/actions/' + #pageActionPathSuffix(#self.key, #self.value) + '.tsx'"
+    pathExpression: "#pagePath(#getActionContainer(#self)) + '/actions/' + #pageActionPathSuffix(#self) + '.tsx'"
     templateName: actor/src/pages/actions/action.tsx.hbs
     templateContext:
-      - name: kv
-        expression: "#self"
       - name: action
-        expression: "#self.key"
+        expression: "#self"
       - name: page
-        expression: "#self.value"
+        expression: "#getActionContainer(#self)"
 
   # Actor - src - layout
 

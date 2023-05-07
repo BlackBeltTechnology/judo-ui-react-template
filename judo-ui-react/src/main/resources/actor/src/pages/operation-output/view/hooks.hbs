@@ -13,12 +13,12 @@ import {
     {{/ each }}
 } from '../{{ relativePathFromPage page 'generated/data-api' }}';
 import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
-import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, } from '../{{ relativePathFromPage page 'utilities' }}';
+import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, PersistedTableData, TableRowAction } from '../{{ relativePathFromPage page 'utilities' }}';
 import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
 import {
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
-            {{ actionFunctionHookName action page }},
+            {{ actionFunctionHookName action }},
         {{/ unless }}
     {{/ each }}
 } from '../actions';
@@ -40,7 +40,7 @@ export const use{{ pageName page }} = (
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
             {{# unless action.isFilterRelationAction }}
-                const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+                const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
             {{/ unless }}
         {{/ unless }}
     {{/ each }}

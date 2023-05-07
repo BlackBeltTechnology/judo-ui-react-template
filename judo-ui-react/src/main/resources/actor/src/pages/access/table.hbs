@@ -37,7 +37,7 @@ import {
 import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
 import {
     {{# each (getUniquePageActions page) as |action| }}
-        {{ actionFunctionHookName action page }},
+        {{ actionFunctionHookName action }},
     {{/ each }}
 } from './actions';
 
@@ -58,7 +58,7 @@ export default function {{ pageName page }}() {
     const { columns, filterOptions, rowActions } = use{{ pageName page }}(fetchData);
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
-            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
         {{/ unless }}
     {{/ each }}
 
@@ -167,7 +167,7 @@ export default function {{ pageName page }}() {
 
     {{# each (getUniquePageActions page) as |action| }}
         {{# if action.isFilterAction }}
-            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}(setFilters, setPage, setQueryCustomizer, openFilterDialog);
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}(setFilters, setPage, setQueryCustomizer, openFilterDialog);
         {{/ if }}
     {{/ each }}
 
@@ -199,7 +199,7 @@ export default function {{ pageName page }}() {
                                         columns={[...columns, ...columnsActionCalculator('{{ createId page.dataElement }}', rowActions, { shownActions: 2 })]}
                                         {{# each (getUniquePageActions page) as |action| }}
                                             {{# if action.isViewAction }}
-                                                onRowClick={ (params: GridRowParams<{{ classDataName page.dataElement.target 'Stored' }}>) => {{ actionFunctionName action page }}(params.row) }
+                                                onRowClick={ (params: GridRowParams<{{ classDataName page.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}(params.row) }
                                             {{/ if }}
                                         {{/ each }}
                                         components={ {
@@ -210,7 +210,7 @@ export default function {{ pageName page }}() {
                                                             <Button
                                                                 id="{{ createId action }}"
                                                                 variant="outlined"
-                                                                onClick={ async () => {{ actionFunctionName action page }}('{{ createId action }}-filter', filterOptions, filters) }
+                                                                onClick={ async () => {{ actionFunctionName action }}('{{ createId action }}-filter', filterOptions, filters) }
                                                                 disabled={isLoading}
                                                             >
                                                                 <MdiIcon path="filter" />

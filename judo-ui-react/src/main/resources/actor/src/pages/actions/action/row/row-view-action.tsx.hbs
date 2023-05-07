@@ -11,12 +11,12 @@ import type {
 } from '{{ relativePathFromAction page action 'generated/data-api' }}';
 import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
 
-export const {{ getCustomizationActionFunctionInterfaceKey action page }} = '{{ actionFunctionTypeName action page }}';
-export type {{ actionFunctionTypeName action page }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) => Promise<void>;
+export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
+export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) => Promise<void>;
 
-export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const { navigate } = useJudoNavigation();
-    const { service: useCustomNavigation } = useTrackService<{{ actionFunctionTypeName action page }}>(`(${OBJECTCLASS}=${ {{ getCustomizationActionFunctionInterfaceKey action page }} })`);
+    const { service: useCustomNavigation } = useTrackService<{{ actionFunctionTypeName action }}>(`(${OBJECTCLASS}=${ {{ getCustomizationActionFunctionInterfaceKey action }} })`);
 
     if (useCustomNavigation) {
         const customNavigation = useCustomNavigation();

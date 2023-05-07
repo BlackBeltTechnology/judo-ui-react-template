@@ -12,13 +12,13 @@ import {
     {{ classServiceName action.dataElement.owner }}Impl,
 } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 
-export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
+export type {{ actionFunctionTypeName action }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
 
-export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=ClearAction))`);
     const { enqueueSnackbar } = useSnackbar();
 
-    return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
+    return async function {{ actionFunctionName action }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
         try {
             await {{ classServiceName action.dataElement.owner }}Impl.set{{ firstToUpper action.dataElement.name }}(
                 { __signedIdentifier: owner.__signedIdentifier } as JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>,

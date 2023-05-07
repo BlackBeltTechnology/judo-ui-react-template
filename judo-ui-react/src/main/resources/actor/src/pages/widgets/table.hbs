@@ -29,7 +29,7 @@
                 {{# if action.isViewAction }}
                     onRowClick={ (params: GridRowParams<{{ classDataName child.dataElement.target 'Stored' }}>) => {
                         if (!editMode) {
-                            {{ actionFunctionName action action.target }}(data, params.row);
+                            {{ actionFunctionName action }}(data, params.row);
                         }
                     } }
                 {{/ if }}
@@ -46,7 +46,7 @@
                                 <Button
                                     id="{{ createId action }}"
                                     variant="text"
-                                    onClick={ () => {{ actionFunctionName action page }}('{{ createId action }}-filter', {{ child.dataElement.name }}FilterOptions, {{ child.dataElement.name }}Filters) }
+                                    onClick={ () => {{ actionFunctionName action }}('{{ createId action }}-filter', {{ child.dataElement.name }}FilterOptions, {{ child.dataElement.name }}Filters) }
                                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || editMode }
                                 >
                                     <MdiIcon path="filter" />
@@ -58,7 +58,7 @@
                                     <Button
                                         id="{{ createId action }}"
                                         variant="text"
-                                        onClick={ () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => {
+                                        onClick={ () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => {
                                             {{# if child.dataElement.isRelationKindAssociation }}
                                                 fetch{{ firstToUpper child.dataElement.name }}();
                                             {{ else }}
@@ -79,7 +79,7 @@
                                         variant="text"
                                         onClick={ async () => {
                                             {{# if child.dataElement.isRelationKindAssociation }}
-                                                {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetch{{ firstToUpper child.dataElement.name }}())
+                                                {{ actionFunctionName action }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetch{{ firstToUpper child.dataElement.name }}())
                                             {{ else }}
                                                 const res = await {{ child.dataElement.name }}RangeCall();
 
@@ -114,7 +114,7 @@
                                         variant="text"
                                         onClick={ async () => {
                                             {{# if child.dataElement.isRelationKindAssociation }}
-                                                {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetch{{ firstToUpper child.dataElement.name }}())
+                                                {{ actionFunctionName action }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetch{{ firstToUpper child.dataElement.name }}())
                                             {{ else }}
                                                 {{# if page.dataElement.isUpdatable }}
                                                     storeDiff('{{ child.dataElement.name }}', []);

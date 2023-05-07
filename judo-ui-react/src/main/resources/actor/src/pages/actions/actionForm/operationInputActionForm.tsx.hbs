@@ -19,7 +19,7 @@ import { useRangeDialog } from '../{{ relativePathFromAction ownerPage action 'c
 import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '../{{ relativePathFromAction ownerPage action 'components/widgets' }}';
 import { FilterOption, FilterType } from '../{{ relativePathFromAction ownerPage action 'components-api' }}';
 import {
-    {{# each (getApiImportsForCallOperationAction action ownerPage) as |imp| }}
+    {{# each (getApiImportsForCallOperationAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
 } from '../{{ relativePathFromAction ownerPage action 'generated/data-api' }}';
@@ -50,7 +50,7 @@ import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}
         export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName page.dataElement.target '' }}>> {}
     {{/ each }}
 
-    export interface {{ pageActionFormComponentName action ownerPage }}Props {
+    export interface {{ pageActionFormComponentName action }}Props {
         successCallback: ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => void;
         cancel: () => void;
         {{# if action.operation.isMapped }}
@@ -58,20 +58,20 @@ import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}
         {{/ if }}
     }
 
-    export function {{ pageActionFormComponentName action ownerPage }}({
+    export function {{ pageActionFormComponentName action }}({
         successCallback,
         cancel,
         {{# if action.operation.isMapped }}
             owner,
         {{/ if }}
-    } : {{ pageActionFormComponentName action ownerPage }}Props) {
+    } : {{ pageActionFormComponentName action }}Props) {
         const { t } = useTranslation();
         const { openRangeDialog } = useRangeDialog();
         const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
         const { locale: l10nLocale } = useL10N();
 
         const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-        const handleActionError = useErrorHandler<{{ classDataName action.inputParameterPage.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ pageActionFormComponentName action ownerPage }}))`);
+        const handleActionError = useErrorHandler<{{ classDataName action.inputParameterPage.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ pageActionFormComponentName action }}))`);
         const { enqueueSnackbar } = useSnackbar();
         const [isLoading, setIsLoading] = useState<boolean>(false);
         const [data, setData] = useState<{{ classDataName action.inputParameterPage.dataElement.target '' }}>({} as unknown as {{ classDataName action.inputParameterPage.dataElement.target '' }});

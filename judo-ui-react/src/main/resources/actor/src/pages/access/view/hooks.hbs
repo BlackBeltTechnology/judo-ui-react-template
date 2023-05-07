@@ -18,7 +18,7 @@ import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context'
 import {
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
-            {{ actionFunctionHookName action page }},
+            {{ actionFunctionHookName action }},
         {{/ unless }}
     {{/ each }}
 } from '../actions';
@@ -40,7 +40,7 @@ export const use{{ pageName page }} = (
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
             {{# unless action.isFilterRelationAction }}
-                const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+                const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
             {{/ unless }}
         {{/ unless }}
     {{/ each }}

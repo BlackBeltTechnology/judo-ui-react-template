@@ -63,7 +63,7 @@ import { {{ pageName page }}PageActions } from './components/{{ pageName page }}
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 import {
 {{# each (getUniquePageActions page) as |action| }}
-    {{ actionFunctionHookName action page }},
+    {{ actionFunctionHookName action }},
 {{/ each }}
 } from './actions';
 
@@ -165,7 +165,7 @@ export default function {{ pageName page }}() {
 
     {{# each (getUniquePageActions page) as |action| }}
         {{# if action.isFilterRelationAction }}
-            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}(
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}(
                 {{# with action.definedOn as |table| }}
                     set{{ firstToUpper table.dataElement.name }}Filters,
                     set{{ firstToUpper table.dataElement.name }}Page,
@@ -174,7 +174,7 @@ export default function {{ pageName page }}() {
                 {{/ with }}
             );
         {{ else }}
-            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
         {{/if}}
     {{/ each }}
 

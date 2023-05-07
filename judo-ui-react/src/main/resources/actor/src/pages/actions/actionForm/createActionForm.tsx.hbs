@@ -51,7 +51,7 @@ import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}
         export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName page.dataElement.target '' }}>> {}
     {{/ each }}
 
-    export interface {{ pageActionFormComponentName action ownerPage }}Props {
+    export interface {{ pageActionFormComponentName action }}Props {
         successCallback: () => void;
         cancel: () => void;
         {{# if (hasDataElementOwner action.dataElement) }}
@@ -59,13 +59,13 @@ import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}
         {{/ if }}
     }
 
-    export function {{ pageActionFormComponentName action ownerPage }}({
+    export function {{ pageActionFormComponentName action }}({
         successCallback,
         cancel,
         {{# if (hasDataElementOwner action.dataElement) }}
             owner,
         {{/ if }}
-    } : {{ pageActionFormComponentName action ownerPage }}Props) {
+    } : {{ pageActionFormComponentName action }}Props) {
         const { t } = useTranslation();
         const { openRangeDialog } = useRangeDialog();
         const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
@@ -75,7 +75,7 @@ import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}
         const [open, setOpen] = useState(false);
 
         const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-        const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageActionFormComponentName action ownerPage }}))`);
+        const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageActionFormComponentName action }}))`);
         const { enqueueSnackbar } = useSnackbar();
         const [isLoading, setIsLoading] = useState<boolean>(false);
         const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({

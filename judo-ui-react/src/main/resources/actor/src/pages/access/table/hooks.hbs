@@ -16,7 +16,7 @@ import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context'
 import {
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
-            {{ actionFunctionHookName action page }},
+            {{ actionFunctionHookName action }},
         {{/ unless }}
     {{/ each }}
 } from '../actions';
@@ -29,7 +29,7 @@ export const use{{ pageName page }} = (fetchData: () => Promise<void>) => {
 
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}
-            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
         {{/ unless }}
     {{/ each }}
 
@@ -61,7 +61,7 @@ export const use{{ pageName page }} = (fetchData: () => Promise<void>) => {
                     id: '{{ createId action }}',
                         label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
-                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}(row, () => fetchData()),
+                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}(row, () => fetchData()),
                         disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
                     },
                 {{/ if }}
@@ -70,7 +70,7 @@ export const use{{ pageName page }} = (fetchData: () => Promise<void>) => {
                         id: '{{ createId action }}',
                         label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
                         icon: <MdiIcon path="{{ action.icon.name }}" />,
-                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }} ({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
+                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }} ({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
                     },
                 {{/ if }}
             {{/ each }}

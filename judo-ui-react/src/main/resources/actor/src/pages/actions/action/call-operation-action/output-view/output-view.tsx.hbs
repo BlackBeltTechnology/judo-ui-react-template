@@ -75,7 +75,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
     {{# each (getUniquePageActions page) as |action| }}
-        const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
+        const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
     {{/ each }}
     {{# if (titleComesFromAttribute page) }}
         const title: string = data.{{ page.titleAttribute.name }} as string;

@@ -31,20 +31,20 @@ import {
     {{ dataElementRelationName action.target.dataElement }}Impl,
     {{ classServiceName action.target.dataElement.target }}Impl,
 } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
-import { {{ pageActionFormComponentName action page }} } from './{{ pageActionFormComponentName action page }}';
+import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 
-export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;
+export type {{ actionFunctionTypeName action }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;
 
-export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const [createDialog, closeDialog] = useDialog();
     const { t } = useTranslation();
     const { navigate } = useJudoNavigation();
     {{# unless (actionHasVisualElements action) }}
-        const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ actionFunctionTypeName action page }}))`);
+        const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ actionFunctionTypeName action }}))`);
     {{/ unless }}
     const { enqueueSnackbar } = useSnackbar();
 
-    return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) {
+    return function {{ actionFunctionName action }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) {
         {{# if (actionHasVisualElements action) }}
             createDialog({
                 fullWidth: true,
@@ -55,7 +55,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
                     }
                 },
                 children: (
-                    <{{ pageActionFormComponentName action page }}
+                    <{{ pageActionFormComponentName action }}
                         successCallback={() => {
                             closeDialog();
                             enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {

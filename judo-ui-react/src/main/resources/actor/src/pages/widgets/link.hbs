@@ -29,15 +29,15 @@
         editMode={ editMode }
         {{# each child.actions as |action| }}
             {{# if action.isViewAction }}
-                onView={ async () => {{ actionFunctionName action page }}(data, data?.{{ child.dataElement.name }}!) }
+                onView={ async () => {{ actionFunctionName action }}(data, data?.{{ child.dataElement.name }}!) }
             {{/ if }}
             {{# if action.isCreateAction }}
-                onCreate={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => {
+                onCreate={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => {
                     fetchData();
                 }) }
             {{/ if }}
             {{# if action.isDeleteAction }}
-                onDelete={ async () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}data?.{{ child.dataElement.name }}!, () => {
+                onDelete={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}data, {{/ unless }}data?.{{ child.dataElement.name }}!, () => {
                     fetchData();
                 }) }
             {{/ if }}

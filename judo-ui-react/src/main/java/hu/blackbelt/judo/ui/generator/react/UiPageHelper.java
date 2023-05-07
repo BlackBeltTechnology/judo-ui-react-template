@@ -415,7 +415,8 @@ public class UiPageHelper extends Helper {
         return res;
     }
 
-    public static Collection<String> getApiImportsForCallOperationAction(CallOperationAction action, PageDefinition ownerPage) {
+    public static Collection<String> getApiImportsForCallOperationAction(CallOperationAction action) {
+        PageDefinition ownerPage = ((PageDefinition) action.eContainer());
         PageDefinition outputParameterPage = action.getOutputParameterPage();
         Set<String> res = action.getInputParameterPage() != null ? new HashSet<>(getApiImportsForViewPage(action.getInputParameterPage())) : new HashSet<>();
 

@@ -29,9 +29,9 @@ import {
     {{ classServiceName action.dataElement.owner }}Impl,
 } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
 
-export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
+export type {{ actionFunctionTypeName action }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
 
-export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const { openRangeDialog } = useRangeDialog();
     const { t } = useTranslation();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
@@ -40,7 +40,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     const { locale: l10nLocale } = useL10N();
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
 
-    return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
+    return async function {{ actionFunctionName action }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
         {{# with action.definedOn as |table| }}
             const columns: GridColDef<{{ classDataName action.dataElement.target 'Stored' }}>[] = [
                 {{# each table.columns as |column| }}
