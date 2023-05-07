@@ -124,6 +124,22 @@ public class UiPageHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
+    public static List<Link> getLinksForPages(Application application) {
+        List<PageDefinition> pages = getPagesForRouting(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Link>) p.getLinks()).stream())
+                .collect(Collectors.toList());
+    }
+
+    public static List<Table> getTablesForPages(Application application) {
+        List<PageDefinition> pages = getPagesForRouting(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Table>) p.getTables()).stream())
+                .collect(Collectors.toList());
+    }
+
     public static boolean hasDashboard(Application application) {
       return  application.getPages().stream().filter(UiPageHelper::keepPageType).filter(page -> page.getIsPageTypeDashboard()).findFirst().isPresent();
     }

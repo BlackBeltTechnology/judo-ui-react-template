@@ -541,6 +541,26 @@ templates:
       - name: page
         expression: "#self"
 
+  - name: actor/src/pages/components/link.tsx
+    factoryExpression: "#getLinksForPages(#application)"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #firstToUpper(#self.name) + '.tsx'"
+    templateName: actor/src/pages/components/link.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self.pageDefinition"
+      - name: link
+        expression: "#self"
+
+  - name: actor/src/pages/components/table.tsx
+    factoryExpression: "#getTablesForPages(#application)"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #firstToUpper(#self.name) + '.tsx'"
+    templateName: actor/src/pages/components/table.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self.pageDefinition"
+      - name: table
+        expression: "#self"
+
   - name: actor/src/pages/hooks.tsx
     factoryExpression: "#getPagesForRouting(#application)"
     pathExpression: "#pagePath(#self) + 'hooks/use' + #pageName(#self) + '.tsx'"
@@ -573,7 +593,7 @@ templates:
 
   - name: actor/src/pages/actions/actionForm.tsx
     factoryExpression: "#getActionFormsForPages(#application)"
-    pathExpression: "#pagePath(#self.value) + 'actions/' + #pageActionFormPathSuffix(#self.key, #self.value) + '.tsx'"
+    pathExpression: "#pagePath(#self.value) + 'actions/' + #pageActionFormPathSuffix(#self.key, #self.value) + '/index.tsx'"
     templateName: actor/src/pages/actions/actionForm.tsx.hbs
     templateContext:
       - name: kv
