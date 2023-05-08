@@ -133,6 +133,11 @@ public class UiImportHelper {
         return String.join(", ", imports);
     }
 
+    public static String getMuiDataGridImportsForTables() {
+        SortedSet<String> imports = new TreeSet<>(Set.of(getMuiDataGridImportsForHooks(), "GridRowId", "GridSortItem", "GridRowModel"));
+        return String.join(", ", imports);
+    }
+
     public static SortedSet<String> getMaterialImportsForPage(PageDefinition pageDefinition) {
         Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
                 .map(String::toLowerCase)

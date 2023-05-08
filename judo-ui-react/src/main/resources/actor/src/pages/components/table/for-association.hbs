@@ -1,0 +1,32 @@
+import {
+    {{# each (getApiImportsForViewPage page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '~/generated/data-api';
+import {
+    {{# unless page.dataElement.isAccess }}
+        {{ classServiceName table.dataElement.owner }}Impl,
+        {{# neq (classServiceName table.dataElement.owner) (classServiceName table.dataElement.target) }}
+            {{ classServiceName table.dataElement.target }}Impl,
+        {{/ neq }}
+    {{ else }}
+        {{ classServiceName table.dataElement.target }}Impl,
+    {{/ unless }}
+} from '~/generated/data-axios';
+{{# if (tableHasActionsToImport table) }}
+    import {
+        {{# each (getFilteredTableActions table) as |action| }}
+            {{ actionFunctionHookName action }},
+        {{/ each }}
+    } from '../actions';
+{{/ if }}
+
+export interface {{ tableComponentName table }}Props {
+
+}
+
+export const {{ tableComponentName table }} = forwardRef((props: {{ tableComponentName table }}Props, ref: any) => {
+    return (
+        <div>{{ table.name }}</div>
+    );
+});

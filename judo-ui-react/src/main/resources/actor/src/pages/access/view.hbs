@@ -70,6 +70,9 @@ import {
 {{# each page.originalPageContainer.links as |link| }}
     import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
 {{/ each }}
+{{# each page.originalPageContainer.tables as |table| }}
+    import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
+{{/ each }}
 
 {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
     export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';

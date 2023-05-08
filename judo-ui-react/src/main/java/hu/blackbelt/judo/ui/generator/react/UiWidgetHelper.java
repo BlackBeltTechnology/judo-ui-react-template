@@ -302,7 +302,24 @@ public class UiWidgetHelper extends Helper {
         return  getFilteredLinkActions(link).size() > 0;
     }
 
+    public static List<Action> getFilteredTableActions (Table table) {
+        SortedSet<Action> actions = new TreeSet<>(Comparator.comparing((Action a) -> a.getFQName().trim()));
+        actions.addAll(table.getRowActions());
+        actions.addAll(table.getPageDefinition().getActions());
+        return actions.stream()
+                .filter(a -> !a.getIsBackAction() && !a.getIsEditAction())
+                .collect(Collectors.toList());
+    }
+
+    public static boolean tableHasActionsToImport(Table table) {
+        return  getFilteredTableActions(table).size() > 0;
+    }
+
     public static String linkComponentName(Link link) {
         return StringUtils.capitalize(link.getName()) + "Link";
+    }
+
+    public static String tableComponentName(Table table) {
+        return StringUtils.capitalize(table.getName()) + "Table";
     }
 }
