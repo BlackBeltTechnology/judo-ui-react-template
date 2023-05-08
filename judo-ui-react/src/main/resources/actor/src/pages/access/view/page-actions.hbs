@@ -12,7 +12,7 @@ import {
     {{/ each }}
 } from '../actions';
 
-export interface {{ pageName page }}PageActionsProps {
+export interface PageActionsProps {
     data: {{ classDataName page.dataElement.target 'Stored' }};
     editMode: boolean;
     setEditMode: (mode: boolean) => void;
@@ -26,7 +26,7 @@ export interface {{ pageName page }}PageActionsProps {
     {{/ if }}
 }
 
-export function {{ pageName page }}PageActions (props: {{ pageName page }}PageActionsProps) {
+export function PageActions (props: PageActionsProps) {
     const { data, editMode, setEditMode, isLoading, fetchData{{# if page.dataElement.isUpdatable }}, saveData{{/ if }}{{# if page.dataElement.isDeletable }}, deleteData{{/ if }} } = props;
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();

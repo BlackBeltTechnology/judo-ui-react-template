@@ -59,7 +59,7 @@ import {
 } from '~/generated/data-axios';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import { mainContainerPadding } from '~/theme';
-import { {{ pageName page }}PageActions } from './components/{{ pageName page }}PageActions';
+import { PageActions } from './components/PageActions';
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 import {
 {{# each (getUniquePageActions page) as |action| }}
@@ -294,7 +294,7 @@ export default function {{ pageName page }}() {
         <>
             {{# with (getDataContainerForPage page) as |rootChild| }}
                 <PageHeader title={title}>
-                    <{{ pageName page }}PageActions
+                    <PageActions
                         data={data}
                         fetchData={fetchData}
                         editMode={editMode}

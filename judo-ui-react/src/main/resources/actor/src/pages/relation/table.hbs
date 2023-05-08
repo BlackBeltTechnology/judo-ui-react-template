@@ -14,7 +14,7 @@ import {
 } from '~/components';
 import type { PersistedTableData } from '~/utilities';
 import { useL10N } from '~/l10n/l10n-context';
-import { {{ pageName page }}PageActions } from './components/{{ pageName page }}PageActions';
+import { PageActions } from './components/PageActions';
 import { mainContainerPadding } from '~/theme';
 {{# each page.originalPageContainer.tables as |table| }}
     import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
@@ -40,7 +40,7 @@ export default function {{ pageName page }}() {
         return (
             <>
                 <PageHeader title={title}>
-                    <{{ pageName page }}PageActions tableRef={tableRef} isLoading={isLoading} signedIdentifier={signedIdentifier} />
+                    <PageActions tableRef={tableRef} isLoading={isLoading} signedIdentifier={signedIdentifier} />
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
                     <Box sx={mainContainerPadding}>
