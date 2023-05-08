@@ -599,6 +599,30 @@ templates:
       - name: ownerPage
         expression: "#getActionContainer(#self)"
 
+  - name: actor/src/pages/actions/components/link.tsx
+    factoryExpression: "#getLinksForActionFormPages(#application)"
+    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #firstToUpper(#self.key.name) + '.tsx'"
+    templateName: actor/src/pages/actions/components/link.tsx.hbs
+    templateContext:
+      - name: action
+        expression: "#self.value"
+      - name: link
+        expression: "#self.key"
+      - name: ownerPage
+        expression: "#getActionContainer(#self.value)"
+
+  - name: actor/src/pages/actions/components/table.tsx
+    factoryExpression: "#getTablesForActionFormPages(#application)"
+    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #firstToUpper(#self.key.name) + '.tsx'"
+    templateName: actor/src/pages/actions/components/table.tsx.hbs
+    templateContext:
+      - name: action
+        expression: "#self.value"
+      - name: table
+        expression: "#self.key"
+      - name: ownerPage
+        expression: "#getActionContainer(#self.value)"
+
   # Actor - src - pages - unmapped output modals
 
   - name: actor/src/pages/actions/action/call-operation-action/output-view/output-view.tsx

@@ -63,15 +63,23 @@ public class UiActionsHelper {
         String first = end.split("#")[0];
         String last = end.split("#")[1];
 
-        if (page.getIsPageTypeTable() && action.getType().equals(ActionType.ROW)) {
-            result += "row/";
+        if (action.getType().equals(ActionType.PAGE)) {
+            last = last.replaceFirst("^Page", "");
+        } else if (action.getType().equals(ActionType.ROW)) {
+            last = last.replaceFirst("^Row", "");
+        } else if (action.getType().equals(ActionType.LINK)) {
+            last = last.replaceFirst("^Link", "");
+        } else if (action.getType().equals(ActionType.TABLE)) {
+            last = last.replaceFirst("^Table", "");
+        } else if (action.getType().equals(ActionType.BUTTON)) {
+            last = last.replaceFirst("^Button", "");
         }
 
         if (action instanceof CallOperationAction) {
             if (!action.getDataElement().getOwner().getName().equals(page.getDataElement().getOwner().getName())) {
                 String targetClassName = getClassName((ClassType) action.getDataElement().getOwner());
                 first = targetClassName + StringUtils.capitalize(first);
-                return StringUtils.uncapitalize(targetClassName) + "/" + StringUtils.capitalize(first);
+                return StringUtils.uncapitalize(targetClassName) + "/" + StringUtils.uncapitalize(first);
             }
             return first;
         } else if (first.equals(page.getDataElement().getName())) {
@@ -80,7 +88,9 @@ public class UiActionsHelper {
             result += first + "/" + StringUtils.uncapitalize(last);
         }
 
-        return result + StringUtils.capitalize(action.getDataElement().getName());
+        String suffix = action.getDataElement().getName();
+
+        return result.length() > 0 ? StringUtils.uncapitalize(result) + StringUtils.capitalize(suffix) : suffix;
     }
 
     public static String pageActionFilePathSuffix(Action action) {
@@ -130,6 +140,42 @@ public class UiActionsHelper {
     public static List<Action> getActionFormsForPages(Application application) {
         List<Action> actions = getActionsForPages(application);
         return actions.stream().filter(UiActionsHelper::actionHasInputForm).collect(Collectors.toList());
+    }
+
+    public static List<KeyValue<Link, Action>> getLinksForActionFormPages(Application application) {
+        List<Action> actions = getActionFormsForPages(application);
+        List<KeyValue<Link, Action>> kvs = new ArrayList<>();
+        actions.forEach(a -> {
+            PageDefinition page = getTargetFormForAction(a);
+            ((List<Link>) page.getLinks()).forEach(l -> {
+                kvs.add(new KeyValue<>(l, a));
+            });
+        });
+        return kvs;
+    }
+
+    public static List<KeyValue<Table, Action>> getTablesForActionFormPages(Application application) {
+        List<Action> actions = getActionFormsForPages(application);
+        List<KeyValue<Table, Action>> kvs = new ArrayList<>();
+        actions.forEach(a -> {
+            PageDefinition page = getTargetFormForAction(a);
+            ((List<Table>) page.getTables()).forEach(l -> {
+                kvs.add(new KeyValue<>(l, a));
+            });
+        });
+        return kvs;
+    }
+
+    public static PageDefinition getTargetFormForAction(Action action) {
+        PageDefinition page;
+        if (action.getIsCallOperationAction()) {
+            page = ((CallOperationAction) action).getInputParameterPage();
+        } else if (action.getIsCreateAction()) {
+            page = ((CreateAction) action).getTarget();
+        } else {
+            throw new RuntimeException("Unsupported page type for action: " + action.toString());
+        }
+        return page;
     }
 
     public static List<PageDefinition> getUnmappedOutputViewsForPages(Application application) {
