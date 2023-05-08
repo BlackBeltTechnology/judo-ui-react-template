@@ -633,6 +633,26 @@ templates:
       - name: page
         expression: "#self"
 
+  - name: actor/src/pages/actions/action/call-operation-action/output-view/components/link.tsx
+    factoryExpression: "#getLinksForUnmappedOutputViewPages(#application)"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #firstToUpper(#self.name) + '.tsx'"
+    templateName: actor/src/pages/actions/action/call-operation-action/output-view/components/link.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self.pageDefinition"
+      - name: link
+        expression: "#self"
+
+  - name: actor/src/pages/actions/action/call-operation-action/output-view/components/table.tsx
+    factoryExpression: "#getTablesForUnmappedOutputViewPages(#application)"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #firstToUpper(#self.name) + '.tsx'"
+    templateName: actor/src/pages/actions/action/call-operation-action/output-view/components/table.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self.pageDefinition"
+      - name: table
+        expression: "#self"
+
   - name: actor/src/pages/actions/index.tsx
     factoryExpression: "#getUnmappedOutputViewsForPages(#application)"
     pathExpression: "#pagePath(#self) + 'actions/index.tsx'"

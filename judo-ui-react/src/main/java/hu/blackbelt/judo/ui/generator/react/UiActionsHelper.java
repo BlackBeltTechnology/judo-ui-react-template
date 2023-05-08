@@ -63,18 +63,6 @@ public class UiActionsHelper {
         String first = end.split("#")[0];
         String last = end.split("#")[1];
 
-        if (action.getType().equals(ActionType.PAGE)) {
-            last = last.replaceFirst("^Page", "");
-        } else if (action.getType().equals(ActionType.ROW)) {
-            last = last.replaceFirst("^Row", "");
-        } else if (action.getType().equals(ActionType.LINK)) {
-            last = last.replaceFirst("^Link", "");
-        } else if (action.getType().equals(ActionType.TABLE)) {
-            last = last.replaceFirst("^Table", "");
-        } else if (action.getType().equals(ActionType.BUTTON)) {
-            last = last.replaceFirst("^Button", "");
-        }
-
         if (action instanceof CallOperationAction) {
             if (!action.getDataElement().getOwner().getName().equals(page.getDataElement().getOwner().getName())) {
                 String targetClassName = getClassName((ClassType) action.getDataElement().getOwner());
@@ -184,6 +172,22 @@ public class UiActionsHelper {
                 .filter(a -> a instanceof CallOperationAction && actionHasUnmappedOutputForm(a))
                 .map(a -> ((CallOperationAction) a).getOutputParameterPage()).collect(Collectors.toSet());
         return unmappedOutputForms.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<Link> getLinksForUnmappedOutputViewPages(Application application) {
+        List<PageDefinition> pages = getUnmappedOutputViewsForPages(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Link>) p.getLinks()).stream())
+                .collect(Collectors.toList());
+    }
+
+    public static List<Table> getTablesForUnmappedOutputViewPages(Application application) {
+        List<PageDefinition> pages = getUnmappedOutputViewsForPages(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Table>) p.getTables()).stream())
+                .collect(Collectors.toList());
     }
 
     public static String actionsPath(PageDefinition page) {
