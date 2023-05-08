@@ -5,20 +5,22 @@ import { useTranslation } from 'react-i18next';
 import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid';
 import { Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { MdiIcon } from '../{{ relativePathFromPage page 'components' }}';
-import { FilterOption, FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
+import { MdiIcon } from '~/components';
+import { FilterOption, FilterType } from '~/components-api';
 import {
     {{# each (getApiImportsForViewPage page) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '../{{ relativePathFromPage page 'generated/data-api' }}';
-import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
-import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, PersistedTableData, TableRowAction } from '../{{ relativePathFromPage page 'utilities' }}';
-import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
+} from '~/generated/data-api';
+import { baseColumnConfig, toastConfig } from '~/config';
+import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, PersistedTableData, TableRowAction } from '~/utilities';
+import { useL10N } from '~/l10n/l10n-context';
 import {
     {{# each (getUniquePageActions page) as |action| }}
-        {{# unless action.isFilterAction }}
-            {{ actionFunctionHookName action }},
+        {{# unless (isLinkAction action) }}
+            {{# unless action.isFilterAction }}
+                {{ actionFunctionHookName action }},
+            {{/ unless }}
         {{/ unless }}
     {{/ each }}
 } from '../actions';
@@ -38,9 +40,11 @@ export const use{{ pageName page }} = (
     const { locale: l10nLocale } = useL10N();
 
     {{# each (getUniquePageActions page) as |action| }}
-        {{# unless action.isFilterAction }}
-            {{# unless action.isFilterRelationAction }}
-                const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+        {{# unless (isLinkAction action) }}
+            {{# unless action.isFilterAction }}
+                {{# unless action.isFilterRelationAction }}
+                    const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+                {{/ unless }}
             {{/ unless }}
         {{/ unless }}
     {{/ each }}

@@ -14,20 +14,20 @@ import { ComponentProxy } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import { useSnackbar } from 'notistack';
 import { v1 as uuidv1 } from 'uuid';
-import { useJudoNavigation, MdiIcon, ModeledTabs } from '../{{ relativePathFromAction ownerPage action 'components' }}';
-import { columnsActionCalculator } from '../{{ relativePathFromAction ownerPage action 'components/table' }}';
-import { useRangeDialog } from '../{{ relativePathFromAction ownerPage action 'components/dialog' }}';
-import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '../{{ relativePathFromAction ownerPage action 'components/widgets' }}';
-import { FilterOption, FilterType } from '../{{ relativePathFromAction ownerPage action 'components-api' }}';
+import { useJudoNavigation, MdiIcon, ModeledTabs } from '~/components';
+import { columnsActionCalculator } from '~/components/table';
+import { useRangeDialog } from '~/components/dialog';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '~/components/widgets';
+import { FilterOption, FilterType } from '~/components-api';
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '../{{ relativePathFromAction ownerPage action 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ dataElementRelationName action.target.dataElement }}Impl,
     {{ classServiceName action.target.dataElement.target }}Impl,
-} from '../{{ relativePathFromAction ownerPage action 'generated/data-axios'}}';
+} from '~/generated/data-axios';
 import {
     useErrorHandler,
     ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
@@ -40,12 +40,12 @@ import {
     serviceTimeToUiTime,
     stringToBooleanSelect,
     booleanToStringSelect,
-} from '../{{ relativePathFromAction ownerPage action 'utilities' }}';
-import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '../{{ relativePathFromAction ownerPage action 'config' }}';
-import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '../{{ relativePathFromAction ownerPage action 'custom' }}';
-import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}/l10n-context';
+} from '~/utilities';
+import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '~/config';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
+import { useL10N } from '~/l10n/l10n-context';
 {{# each action.target.originalPageContainer.links as |link| }}
-    import { {{ firstToUpper link.name }} } from './components/{{ firstToUpper link.name }}';
+    import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
 {{/ each }}
 
 {{# with action.target as |page| }}

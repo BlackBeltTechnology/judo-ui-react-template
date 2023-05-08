@@ -1,28 +1,29 @@
 {{> fragment.header.hbs }}
 import { useTranslation } from 'react-i18next';
+import { Button } from '@mui/material';
 import type { {{ getMuiDataGridImportsForLinks }} } from '@mui/x-data-grid';
-import { MdiIcon } from '../../{{ relativePathFromAction ownerPage action 'components' }}';
+import { MdiIcon } from '~/components';
 import {
     AggregationInput,
     AssociationButton,
     BinaryInput,
     CollectionAssociationButton,
     TrinaryLogicCombobox,
-} from '../../../{{ relativePathFromPage ownerPage 'components/widgets' }}';
-import { useFilterDialog, useRangeDialog } from '../../{{ relativePathFromAction ownerPage action 'components/dialog' }}';
-import { FilterOption, FilterType } from '../../{{ relativePathFromAction ownerPage action 'components-api' }}';
+} from '~/components/widgets';
+import { useFilterDialog, useRangeDialog } from '~/components/dialog';
+import { FilterOption, FilterType } from '~/components-api';
 import {
     {{# each (getApiImportsForFormAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '../../{{ relativePathFromAction ownerPage action 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
-    {{ classServiceName link.dataElement.target }}Impl,
-    {{# neq (classServiceName link.dataElement.target) (classServiceName ownerPage.dataElement.target) }}
+    {{ classServiceName link.dataElement.owner }}Impl,
+    {{# neq (classServiceName link.dataElement.owner) (classServiceName ownerPage.dataElement.target) }}
         {{ classServiceName ownerPage.dataElement.target }}Impl,
     {{/ neq }}
-} from '../../{{ relativePathFromAction ownerPage action 'generated/data-axios'}}';
-import { baseColumnConfig, toastConfig } from '../../{{ relativePathFromAction ownerPage action 'config' }}';
+} from '~/generated/data-axios';
+import { baseColumnConfig, toastConfig } from '~/config';
 import {
     fileHandling,
     serviceDateToUiDate,
@@ -30,8 +31,8 @@ import {
     processQueryCustomizer,
     PersistedTableData,
     TableRowAction,
-} from '../../{{ relativePathFromAction ownerPage action 'utilities' }}';
-import { useL10N } from '../../{{ relativePathFromAction ownerPage action 'l10n' }}/l10n-context';
+} from '~/utilities';
+import { useL10N } from '~/l10n/l10n-context';
 {{# if (linkHasActionsToImport link) }}
     import {
         {{# each (getFilteredLinkActions link) as |action| }}
@@ -40,7 +41,7 @@ import { useL10N } from '../../{{ relativePathFromAction ownerPage action 'l10n'
     } from '../actions';
 {{/ if }}
 
-export interface {{ firstToUpper link.name }}Props {
+export interface {{ linkComponentName link }}Props {
     data: {{ classDataName link.dataElement.owner '' }};
     disabled: boolean;
     editMode: boolean;
@@ -48,7 +49,7 @@ export interface {{ firstToUpper link.name }}Props {
     validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
 }
 
-export function {{ firstToUpper link.name }}(props: {{ firstToUpper link.name }}Props) {
+export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
     const { data, disabled, editMode, storeDiff, validation } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();

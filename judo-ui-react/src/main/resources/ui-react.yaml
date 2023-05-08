@@ -543,7 +543,7 @@ templates:
 
   - name: actor/src/pages/components/link.tsx
     factoryExpression: "#getLinksForPages(#application)"
-    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #firstToUpper(#self.name) + '.tsx'"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #linkComponentName(#self) + '.tsx'"
     templateName: actor/src/pages/components/link.tsx.hbs
     templateContext:
       - name: page
@@ -601,7 +601,7 @@ templates:
 
   - name: actor/src/pages/actions/components/link.tsx
     factoryExpression: "#getLinksForActionFormPages(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #firstToUpper(#self.key.name) + '.tsx'"
+    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #linkComponentName(#self.key) + '.tsx'"
     templateName: actor/src/pages/actions/components/link.tsx.hbs
     templateContext:
       - name: action
@@ -635,7 +635,7 @@ templates:
 
   - name: actor/src/pages/actions/action/call-operation-action/output-view/components/link.tsx
     factoryExpression: "#getLinksForUnmappedOutputViewPages(#application)"
-    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #firstToUpper(#self.name) + '.tsx'"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #linkComponentName(#self) + '.tsx'"
     templateName: actor/src/pages/actions/action/call-operation-action/output-view/components/link.tsx.hbs
     templateContext:
       - name: page

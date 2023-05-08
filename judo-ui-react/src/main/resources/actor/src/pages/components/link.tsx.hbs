@@ -1,28 +1,29 @@
 {{> fragment.header.hbs }}
 import { useTranslation } from 'react-i18next';
+import { Button } from '@mui/material';
 import type { {{ getMuiDataGridImportsForLinks }} } from '@mui/x-data-grid';
-import { MdiIcon } from '../{{ relativePathFromPage page 'components' }}';
+import { MdiIcon } from '~/components';
 import {
     AggregationInput,
     AssociationButton,
     BinaryInput,
     CollectionAssociationButton,
     TrinaryLogicCombobox,
-} from '../{{ relativePathFromPage page 'components/widgets' }}';
-import { useFilterDialog, useRangeDialog } from '../{{ relativePathFromPage page 'components/dialog' }}';
-import { FilterOption, FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
+} from '~/components/widgets';
+import { useFilterDialog, useRangeDialog } from '~/components/dialog';
+import { FilterOption, FilterType } from '~/components-api';
 import {
     {{# each (getApiImportsForViewPage page) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '../{{ relativePathFromPage page 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ classServiceName link.dataElement.owner }}Impl,
     {{# neq (classServiceName link.dataElement.owner) (classServiceName link.dataElement.target) }}
         {{ classServiceName link.dataElement.target }}Impl,
     {{/ neq }}
-} from '../{{ relativePathFromPage page 'generated/data-axios'}}';
-import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
+} from '~/generated/data-axios';
+import { baseColumnConfig, toastConfig } from '~/config';
 import {
     fileHandling,
     serviceDateToUiDate,
@@ -30,8 +31,8 @@ import {
     processQueryCustomizer,
     PersistedTableData,
     TableRowAction,
-} from '../{{ relativePathFromPage page 'utilities' }}';
-import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
+} from '~/utilities';
+import { useL10N } from '~/l10n/l10n-context';
 {{# if (linkHasActionsToImport link) }}
     import {
         {{# each (getFilteredLinkActions link) as |action| }}
@@ -40,17 +41,23 @@ import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context'
     } from '../actions';
 {{/ if }}
 
-export interface {{ firstToUpper link.name }}Props {
-    data: {{ classDataName link.dataElement.owner 'Stored' }};
+export interface {{ linkComponentName link }}Props {
+    {{# if (isPageRefreshable page) }}
+        data: {{ classDataName link.dataElement.owner 'Stored' }};
+        storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner 'Stored' }}, value: any) => void;
+        validation: Map<keyof {{ classDataName link.dataElement.owner 'Stored' }}, string>;
+        refreshCallback: () => Promise<void>;
+    {{ else }}
+        data: {{ classDataName link.dataElement.owner '' }};
+        storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner '' }}, value: any) => void;
+        validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
+    {{/ if }}
     disabled: boolean;
     editMode: boolean;
-    refreshCallback: () => Promise<void>;
-    storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner 'Stored' }}, value: any) => void;
-    validation: Map<keyof {{ classDataName link.dataElement.owner 'Stored' }}, string>;
 }
 
-export function {{ firstToUpper link.name }}(props: {{ firstToUpper link.name }}Props) {
-    const { data, disabled, editMode, refreshCallback, storeDiff, validation } = props;
+export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
+    const { data, disabled, editMode, {{# if (isPageRefreshable page) }}refreshCallback, {{/ if }}storeDiff, validation } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();

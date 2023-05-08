@@ -10,11 +10,11 @@
             payloadDiff={payloadDiff}
         >
     {{/ if }}
-    <{{ firstToUpper child.name }}
+    <{{ linkComponentName child }}
         data={data}
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
         editMode={editMode}
-        {{# if page.isPageTypeView }}
+        {{# if (isPageRefreshable page) }}
         refreshCallback={fetchData}
         {{/ if }}
         storeDiff={storeDiff}

@@ -5,15 +5,15 @@ import { useTranslation } from 'react-i18next';
 import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid';
 import { Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { FilterOption, FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
+import { FilterOption, FilterType } from '~/components-api';
 import {
     {{# each (getApiImportsForCreatePage page) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '../{{ relativePathFromPage page 'generated/data-api' }}';
-import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
-import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, PersistedTableData, TableRowAction } from '../{{ relativePathFromPage page 'utilities' }}';
-import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
+} from '~/generated/data-api';
+import { baseColumnConfig, toastConfig } from '~/config';
+import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, PersistedTableData, TableRowAction } from '~/utilities';
+import { useL10N } from '~/l10n/l10n-context';
 
 export const use{{ pageName page }} = () => {
     const { t } = useTranslation();

@@ -107,16 +107,6 @@ public class UiActionsHelper {
         return cutAtLastSlash(full);
     }
 
-    public static String relativePathToPageActionOutputViewComponent(Action action) {
-        String pageTypePath = getPageTypePath(((CallOperationAction) action).getOutputParameterPage());
-        String full = removeTrailingSlash(pageTypePath);
-        String root = relativePathFromAction(((PageDefinition) action.eContainer()), action, full);
-
-        // Both input forms and output modals are placed under `pages` therefore we can skip the first jump up
-        // in the directory tree.
-        return root.replaceFirst("\\.\\./", "");
-    }
-
     public static List<Action> getActionsForPages(Application application) {
         return getPagesForRouting(application).stream().flatMap(p -> p.getActions().stream()).collect(Collectors.toList());
     }
@@ -222,16 +212,6 @@ public class UiActionsHelper {
         return false;
     }
 
-    public static String relativePathFromAction(PageDefinition page, Action action, String suffix) {
-        String actionPath = pagePath(page) + "actions/" + pageActionPathSuffix(action);
-//        String actionPath = actionsPath(page);
-        int srcSegment = actionPath.lastIndexOf("src");
-        String srcPart = actionPath.substring(srcSegment);
-        int tokens = srcPart.split("/").length;
-
-        return "../".repeat(tokens - 2) + suffix;
-    }
-
     public static boolean isActionAccess(Action action) {
         if (action instanceof PageAction) {
             PageDefinition target = ((PageAction) action).getTarget();
@@ -260,5 +240,9 @@ public class UiActionsHelper {
 
     public static EObject getActionContainer(Action action) {
         return action.eContainer();
+    }
+
+    public static boolean isLinkAction (Action action) {
+        return action.getType().equals(ActionType.LINK);
     }
 }

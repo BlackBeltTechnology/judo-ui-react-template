@@ -10,31 +10,31 @@ import { Paper, Card, CardContent, Box, Grid, Button, Container } from '@mui/mat
 import type { GridRowModel, GridRowParams, GridSortModel } from '@mui/x-data-grid';
 import { DataGrid, GridToolbarContainer } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import type { Filter } from '{{ relativePathFromPage page 'components-api' }}';
+import type { Filter } from '~/components-api';
 import {
   MdiIcon,
   PageHeader,
   CustomBreadcrumb,
   CustomTablePagination,
   useJudoNavigation,
-} from '{{ relativePathFromPage page 'components' }}';
-import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
-import { useFilterDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '{{ relativePathFromPage page 'utilities' }}';
-import type { PersistedTableData, TableRowAction } from '{{ relativePathFromPage page 'utilities' }}';
-import { pageServerTableConfig, toastConfig } from '{{ relativePathFromPage page 'config' }}';
-import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
+} from '~/components';
+import { columnsActionCalculator } from '~/components/table';
+import { useFilterDialog } from '~/components/dialog';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
+import type { PersistedTableData, TableRowAction } from '~/utilities';
+import { pageServerTableConfig, toastConfig } from '~/config';
+import { useL10N } from '~/l10n/l10n-context';
 import { {{ pageName page }}PageActions } from './components/{{ pageName page }}PageActions';
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 import {
   {{# each (getApiImportsForTablePage page) as |imp| }}
     {{ imp }},
   {{/ each }}
-} from '{{ relativePathFromPage page 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
   {{ dataElementRelationName page.dataElement }}Impl,
-} from '{{ relativePathFromPage page 'generated/data-axios'}}';
-import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
+} from '~/generated/data-axios';
+import { mainContainerPadding } from '~/theme';
 import {
     {{# each (getUniquePageActions page) as |action| }}
         {{ actionFunctionHookName action }},

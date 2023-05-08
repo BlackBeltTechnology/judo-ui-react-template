@@ -4,12 +4,12 @@
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
-import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
+import { useJudoNavigation } from '~/components';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+} from '~/generated/data-api';
 
 export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
 export type {{ actionFunctionTypeName action }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>{{# unless action.dataElement.isCollection}}, target: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>{{/ unless }}) => Promise<void>;

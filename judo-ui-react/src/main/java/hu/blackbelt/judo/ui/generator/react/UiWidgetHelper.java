@@ -24,6 +24,7 @@ import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.List;
@@ -299,5 +300,9 @@ public class UiWidgetHelper extends Helper {
 
     public static boolean linkHasActionsToImport(Link link) {
         return  getFilteredLinkActions(link).size() > 0;
+    }
+
+    public static String linkComponentName(Link link) {
+        return StringUtils.capitalize(link.getName()) + "Link";
     }
 }

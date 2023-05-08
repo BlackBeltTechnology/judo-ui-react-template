@@ -21,26 +21,26 @@ import {
     PageHeader,
     CustomBreadcrumb,
     useJudoNavigation,
-} from '{{ relativePathFromPage page 'components' }}';
-import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, serviceDateToUiDate, uiTimeToServiceTime, serviceTimeToUiTime, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
-import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
-import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromPage page 'custom' }}';
-import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
+} from '~/components';
+import { useRangeDialog } from '~/components/dialog';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '~/components/widgets';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, serviceDateToUiDate, uiTimeToServiceTime, serviceTimeToUiTime, booleanToStringSelect, stringToBooleanSelect } from '~/utilities';
+import { baseTableConfig, toastConfig, dividerHeight } from '~/config';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
+import { useL10N } from '~/l10n/l10n-context';
 import {
     {{# each (getApiImportsForCreatePage page) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromPage page 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ dataElementRelationName page.dataElement }}Impl,
     {{ classServiceName page.dataElement.target }}Impl,
-} from '{{ relativePathFromPage page 'generated/data-axios'}}';
-import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
+} from '~/generated/data-axios';
+import { mainContainerPadding } from '~/theme';
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 {{# each page.originalPageContainer.links as |link| }}
-    import { {{ firstToUpper link.name }} } from './components/{{ firstToUpper link.name }}';
+    import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
 {{/ each }}
 
 {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
@@ -67,11 +67,6 @@ export default function {{ pageName page }}() {
             {{ table.dataElement.name }}Columns,
             {{ table.dataElement.name }}RangeFilterOptions,
             {{ table.dataElement.name }}InitialQueryCustomizer,
-        {{/ each }}
-        {{# each (getPageWritableLinks page) as |link| }}
-            {{ link.dataElement.name }}Columns,
-            {{ link.dataElement.name }}RangeFilterOptions,
-            {{ link.dataElement.name }}InitialQueryCustomizer,
         {{/ each }}
     } = use{{ pageName page }}();
 

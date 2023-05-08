@@ -165,6 +165,12 @@ public class UiPageHelper extends Helper {
         return pagesFolderPath(((Application)page.eContainer()).getActor()).concat(getPageTypePath(page));
     }
 
+    public static String pagePathForTilde(PageDefinition page) {
+        String path = "pages/".concat(getPageTypePath(page));
+
+        return path.endsWith("/") ? StringUtils.substring(path, 0, -1) : path;
+    }
+
     public static String pageName(PageDefinition page) {
         String pageType = page.getPageType().toString().toLowerCase();
         if (page.getDataElement() != null && keepPageType(page)) {
@@ -230,13 +236,6 @@ public class UiPageHelper extends Helper {
         String route = getPageRoute(page);
 
         return signedId != null && route.contains(":signedIdentifier") ? route.replace(":signedIdentifier", "${" + signedId + "}") : route;
-    }
-
-    public static String relativePathFromPage(PageDefinition page, String suffix) {
-        String pageIndex = pageIndexRelativeImportPath(page);
-        int tokens = (int) Arrays.stream(pageIndex.split("")).filter(t -> t.equals("/")).count();
-
-        return "../".repeat(tokens + 1) + suffix;
     }
 
     public static Boolean hasVisualReferences(PageDefinition pageDefinition) {

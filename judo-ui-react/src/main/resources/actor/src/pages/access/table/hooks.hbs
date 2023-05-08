@@ -4,15 +4,15 @@
 import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid';
 import { Button } from '@mui/material';
 import { useTranslation } from 'react-i18next';
-import { FilterType } from '../{{ relativePathFromPage page 'components-api' }}';
-import type { FilterOption } from '../{{ relativePathFromPage page 'components-api' }}';
-import { MdiIcon, useJudoNavigation } from '../{{ relativePathFromPage page 'components' }}';
-import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, PersistedTableData, TableRowAction } from '../{{ relativePathFromPage page 'utilities' }}';
+import { FilterType } from '~/components-api';
+import type { FilterOption } from '~/components-api';
+import { MdiIcon, useJudoNavigation } from '~/components';
+import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, PersistedTableData, TableRowAction } from '~/utilities';
 import {
     {{ classDataName page.dataElement.target 'Stored' }},
-} from '../{{ relativePathFromPage page 'generated/data-api' }}';
-import { baseColumnConfig, toastConfig } from '../{{ relativePathFromPage page 'config' }}';
-import { useL10N } from '../{{ relativePathFromPage page 'l10n' }}/l10n-context';
+} from '~/generated/data-api';
+import { baseColumnConfig, toastConfig } from '~/config';
+import { useL10N } from '~/l10n/l10n-context';
 import {
     {{# each (getUniquePageActions page) as |action| }}
         {{# unless action.isFilterAction }}

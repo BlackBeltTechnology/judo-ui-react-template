@@ -4,15 +4,15 @@
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '~/utilities';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ classServiceName action.dataElement.owner }}Impl,
-} from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+} from '~/generated/data-axios';
 
 export type {{ actionFunctionTypeName action }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, selected: {{ classDataName action.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
 

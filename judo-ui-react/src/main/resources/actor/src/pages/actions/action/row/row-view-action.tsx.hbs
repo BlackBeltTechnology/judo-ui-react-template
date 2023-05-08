@@ -8,8 +8,8 @@ import type {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
-import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
+} from '~/generated/data-api';
+import { useJudoNavigation } from '~/components';
 
 export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
 export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) => Promise<void>;

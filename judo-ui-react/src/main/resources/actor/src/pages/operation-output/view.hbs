@@ -23,11 +23,11 @@ import {
     DropdownButton,
     CustomBreadcrumb,
     useJudoNavigation,
-} from '{{ relativePathFromPage page 'components' }}';
-import type { Filter } from '{{ relativePathFromPage page 'components-api' }}';
-import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
-import { useFilterDialog, useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
+} from '~/components';
+import type { Filter } from '~/components-api';
+import { columnsActionCalculator } from '~/components/table';
+import { useFilterDialog, useRangeDialog } from '~/components/dialog';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '~/components/widgets';
 import {
     useErrorHandler,
     ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
@@ -41,30 +41,32 @@ import {
     serviceTimeToUiTime,
     stringToBooleanSelect,
     booleanToStringSelect,
-} from '{{ relativePathFromPage page 'utilities' }}';
-import { useConfirmationBeforeChange } from '{{ relativePathFromPage page 'hooks' }}';
-import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
-import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
-import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromPage page 'custom' }}';
+} from '~/utilities';
+import { useConfirmationBeforeChange } from '~/hooks';
+import { baseTableConfig, toastConfig, dividerHeight } from '~/config';
+import { useL10N } from '~/l10n/l10n-context';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
 import {
     {{# each (getApiImportsForViewPage page) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromPage page 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ classServiceName page.dataElement.target }}Impl,
-} from '{{ relativePathFromPage page 'generated/data-axios'}}';
+} from '~/generated/data-axios';
 import { JudoIdentifiable } from '@judo/data-api-common';
-import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
+import { mainContainerPadding } from '~/theme';
 import { {{ pageName page }}PageActions } from './components/{{ pageName page }}PageActions';
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 import {
 {{# each (getUniquePageActions page) as |action| }}
-    {{ actionFunctionHookName action }},
+    {{# unless (isLinkAction action) }}
+        {{ actionFunctionHookName action }},
+    {{/ unless }}
 {{/ each }}
 } from './actions';
 {{# each page.originalPageContainer.links as |link| }}
-    import { {{ firstToUpper link.name }} } from './components/{{ firstToUpper link.name }}';
+    import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
 {{/ each }}
 
 {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
@@ -164,18 +166,20 @@ export default function {{ pageName page }}() {
     {{/ each }}
 
     {{# each (getUniquePageActions page) as |action| }}
-        {{# if action.isFilterRelationAction }}
-            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}(
-                {{# with action.definedOn as |table| }}
-                    set{{ firstToUpper table.dataElement.name }}Filters,
-                    set{{ firstToUpper table.dataElement.name }}Page,
-                    setQueryCustomizerFor{{ firstToUpper table.dataElement.name }},
-                    openFilterDialog,
-                {{/ with }}
-            );
-        {{ else }}
-            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
-        {{/if}}
+        {{# unless (isLinkAction action) }}
+            {{# if action.isFilterRelationAction }}
+                const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}(
+                    {{# with action.definedOn as |table| }}
+                        set{{ firstToUpper table.dataElement.name }}Filters,
+                        set{{ firstToUpper table.dataElement.name }}Page,
+                        setQueryCustomizerFor{{ firstToUpper table.dataElement.name }},
+                        openFilterDialog,
+                    {{/ with }}
+                );
+            {{ else }}
+                const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+            {{/if}}
+        {{/ unless }}
     {{/ each }}
 
     {{# if (titleComesFromAttribute page) }}

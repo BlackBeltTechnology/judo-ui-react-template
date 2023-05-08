@@ -13,20 +13,20 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
 import { JudoIdentifiable } from '@judo/data-api-common';
 import { useSnackbar } from 'notistack';
-import { MdiIcon, ModeledTabs } from '../{{ relativePathFromAction ownerPage action 'components' }}';
-import { columnsActionCalculator } from '../{{ relativePathFromAction ownerPage action 'components/table' }}';
-import { useRangeDialog } from '../{{ relativePathFromAction ownerPage action 'components/dialog' }}';
-import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '../{{ relativePathFromAction ownerPage action 'components/widgets' }}';
-import { FilterOption, FilterType } from '../{{ relativePathFromAction ownerPage action 'components-api' }}';
+import { MdiIcon, ModeledTabs } from '~/components';
+import { columnsActionCalculator } from '~/components/table';
+import { useRangeDialog } from '~/components/dialog';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '~/components/widgets';
+import { FilterOption, FilterType } from '~/components-api';
 import {
     {{# each (getApiImportsForCallOperationAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '../{{ relativePathFromAction ownerPage action 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ classServiceName action.inputParameterPage.dataElement.target }}Impl,
     {{ classServiceName action.dataElement.owner }}Impl,
-} from '../{{ relativePathFromAction ownerPage action 'generated/data-axios'}}';
+} from '~/generated/data-axios';
 import {
     useErrorHandler,
     ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
@@ -39,12 +39,12 @@ import {
     serviceTimeToUiTime,
     stringToBooleanSelect,
     booleanToStringSelect,
-} from '../{{ relativePathFromAction ownerPage action 'utilities' }}';
-import { baseTableConfig, baseColumnConfig, toastConfig } from '../{{ relativePathFromAction ownerPage action 'config' }}';
-import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '../{{ relativePathFromAction ownerPage action 'custom' }}';
-import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}/l10n-context';
+} from '~/utilities';
+import { baseTableConfig, baseColumnConfig, toastConfig } from '~/config';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
+import { useL10N } from '~/l10n/l10n-context';
 {{# each action.inputParameterPage.originalPageContainer.links as |link| }}
-    import { {{ firstToUpper link.name }} } from './components/{{ firstToUpper link.name }}';
+    import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
 {{/ each }}
 
 {{# with action.inputParameterPage as |page| }}

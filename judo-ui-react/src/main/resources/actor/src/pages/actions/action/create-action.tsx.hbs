@@ -15,22 +15,22 @@ import { LoadingButton } from '@mui/lab';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
 import { JudoIdentifiable } from '@judo/data-api-common';
-import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
-import type { DialogOption } from '{{ relativePathFromAction page action 'components/dialog' }}';
-import { useDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
-import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
-import { toastConfig } from '{{ relativePathFromAction page action 'config' }}';
+import { useJudoNavigation } from '~/components';
+import type { DialogOption } from '~/components/dialog';
+import { useDialog } from '~/components/dialog';
+import { FilterOption, FilterType } from '~/components-api';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '~/utilities';
+import { toastConfig } from '~/config';
 
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ dataElementRelationName action.target.dataElement }}Impl,
     {{ classServiceName action.target.dataElement.target }}Impl,
-} from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+} from '~/generated/data-axios';
 import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 
 export type {{ actionFunctionTypeName action }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;

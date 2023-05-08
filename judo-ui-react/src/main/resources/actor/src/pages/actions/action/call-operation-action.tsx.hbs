@@ -14,30 +14,30 @@ import type { GridColDef, GridRenderCellParams, GridRowParams, GridSortModel, Gr
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { useSnackbar } from 'notistack';
-import { useJudoNavigation, MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
-import { useDialog, useRangeDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
-import { baseColumnConfig, toastConfig } from '{{ relativePathFromAction page action 'config' }}';
-import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
-import { useL10N } from '{{ relativePathFromAction page action 'l10n' }}/l10n-context';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '{{ relativePathFromAction page action 'utilities' }}';
+import { useJudoNavigation, MdiIcon } from '~/components';
+import { useDialog, useRangeDialog } from '~/components/dialog';
+import { baseColumnConfig, toastConfig } from '~/config';
+import { FilterOption, FilterType } from '~/components-api';
+import { useL10N } from '~/l10n/l10n-context';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
 {{# if (actionHasInputForm action) }}
     import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 {{/ if }}
 {{# if (actionHasUnmappedOutputForm action) }}
-    import { {{ pageName action.outputParameterPage }} } from '{{ relativePathToPageActionOutputViewComponent action }}';
+    import { {{ pageName action.outputParameterPage }} } from '~/{{ pagePathForTilde action.outputParameterPage }}';
 {{/ if }}
 import {
     {{# each (getApiImportsForCallOperationAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+} from '~/generated/data-api';
 {{# unless (actionHasInputForm action) }}
     import {
         {{ classServiceName page.dataElement.target }}Impl,
         {{# neq (classServiceName page.dataElement.target) (classServiceName action.dataElement.owner) }}
             {{ classServiceName action.dataElement.owner }}Impl,
         {{/ neq }}
-    } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+    } from '~/generated/data-axios';
 {{/ unless }}
 
 export type {{ actionFunctionHandlerTypeName action 'PostHandler' }} = (ownerCallback: () => void{{# if action.outputParameterPage }}, result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => Promise<void>;
