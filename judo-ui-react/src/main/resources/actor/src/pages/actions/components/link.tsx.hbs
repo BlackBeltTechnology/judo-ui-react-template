@@ -1,8 +1,115 @@
 {{> fragment.header.hbs }}
-// action form link
+import { useTranslation } from 'react-i18next';
+import type { {{ getMuiDataGridImportsForLinks }} } from '@mui/x-data-grid';
+import { MdiIcon } from '../../{{ relativePathFromAction ownerPage action 'components' }}';
+import {
+    AggregationInput,
+    AssociationButton,
+    BinaryInput,
+    CollectionAssociationButton,
+    TrinaryLogicCombobox,
+} from '../../../{{ relativePathFromPage ownerPage 'components/widgets' }}';
+import { useFilterDialog, useRangeDialog } from '../../{{ relativePathFromAction ownerPage action 'components/dialog' }}';
+import { FilterOption, FilterType } from '../../{{ relativePathFromAction ownerPage action 'components-api' }}';
+import {
+    {{# each (getApiImportsForFormAction action) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '../../{{ relativePathFromAction ownerPage action 'generated/data-api' }}';
+import {
+    {{ classServiceName link.dataElement.target }}Impl,
+    {{# neq (classServiceName link.dataElement.target) (classServiceName ownerPage.dataElement.target) }}
+        {{ classServiceName ownerPage.dataElement.target }}Impl,
+    {{/ neq }}
+} from '../../{{ relativePathFromAction ownerPage action 'generated/data-axios'}}';
+import { baseColumnConfig, toastConfig } from '../../{{ relativePathFromAction ownerPage action 'config' }}';
+import {
+    fileHandling,
+    serviceDateToUiDate,
+    serviceTimeToUiTime,
+    processQueryCustomizer,
+    PersistedTableData,
+    TableRowAction,
+} from '../../{{ relativePathFromAction ownerPage action 'utilities' }}';
+import { useL10N } from '../../{{ relativePathFromAction ownerPage action 'l10n' }}/l10n-context';
+{{# if (linkHasActionsToImport link) }}
+    import {
+        {{# each (getFilteredLinkActions link) as |action| }}
+            {{ actionFunctionHookName action }},
+        {{/ each }}
+    } from '../actions';
+{{/ if }}
 
-export function {{ firstToUpper link.name }}() {
+export interface {{ firstToUpper link.name }}Props {
+    data: {{ classDataName link.dataElement.owner '' }};
+    disabled: boolean;
+    editMode: boolean;
+    storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner '' }}, value: any) => void;
+    validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
+}
+
+export function {{ firstToUpper link.name }}(props: {{ firstToUpper link.name }}Props) {
+    const { data, disabled, editMode, storeDiff, validation } = props;
+    const { t } = useTranslation();
+    const { openFilterDialog } = useFilterDialog();
+    const { openRangeDialog } = useRangeDialog();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
+
+    {{> actor/src/fragments/link/hook-variables.fragment.hbs link=link }}
+
+    {{# each (getFilteredLinkActions link) as |action| }}
+        const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+    {{/ each }}
+
     return (
-        <div>{{ link.name }}</div>
+        <AggregationInput
+            name="{{ link.dataElement.name }}"
+            id="{{ createId link }}"
+            label={ t('{{ idToTranslationKey link.fQName application }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
+            labelList={[
+                {{# each link.parts as |part| }}
+                    data.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
+                {{/ each }}
+            ]}
+            value={ data.{{ link.dataElement.name }} }
+            error={ !!validation.get('{{ link.dataElement.name }}') }
+            helperText={ validation.get('{{ link.dataElement.name }}') }
+            {{# if link.icon }}
+                icon={<MdiIcon path="{{ link.icon.name }}" />}
+            {{/ if }}
+            disabled={ disabled }
+            editMode={ editMode }
+            {{# each link.actions as |action| }}
+                {{# if action.isRemoveAction }}
+                    onRemove={ async () => {
+                        storeDiff('{{ link.dataElement.name }}', null);
+                    } }
+                {{/ if }}
+                {{# if action.isSetAction }}
+                    onSet={ async () => {
+                    const res = await openRangeDialog<{{ classDataName link.dataElement.target 'Stored' }}, {{ classDataName link.dataElement.target 'QueryCustomizer' }}>({
+                        id: '{{ createId link.dataElement }}',
+                        columns: {{ link.dataElement.name }}Columns,
+                        defaultSortField: ({{{ getDefaultSortParamsForLink link }}} as GridSortItem[])[0],
+                        rangeCall: async (queryCustomizer) =>
+                        await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
+                        single: true,
+                        alreadySelectedItems: data.{{ link.dataElement.name }}?.__identifier as GridRowId,
+                        filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
+                        initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
+                    });
+
+                    if (res === undefined) return;
+                        storeDiff('{{ link.dataElement.name }}', res as {{ classDataName link.dataElement.target 'Stored' }});
+                    } }
+                {{/ if }}
+                {{# if action.isUnsetAction }}
+                    onUnset={ async () => {
+                        storeDiff('{{ link.dataElement.name }}', null);
+                    } }
+                {{/ if }}
+            {{/ each }}
+        />
     );
 }

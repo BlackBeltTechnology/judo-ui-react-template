@@ -39,6 +39,9 @@ import {
 } from '{{ relativePathFromPage page 'generated/data-axios'}}';
 import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
 import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
+{{# each page.originalPageContainer.links as |link| }}
+    import { {{ firstToUpper link.name }} } from './components/{{ firstToUpper link.name }}';
+{{/ each }}
 
 {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
     export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
@@ -78,11 +81,11 @@ export default function {{ pageName page }}() {
       __referenceId: uuidv1(),
     } as unknown  as {{ classDataName page.dataElement.target '' }});
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
+    const [editMode, setEditMode] = useState<boolean>(true);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
         {{# if debugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
-    const [editMode, setEditMode] = useState<boolean>(true);
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target ''}}, string>>(new Map<keyof {{ classDataName page.dataElement.target ''}}, string>());
     {{# each (getPageTables page) as |table| }}
         {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}

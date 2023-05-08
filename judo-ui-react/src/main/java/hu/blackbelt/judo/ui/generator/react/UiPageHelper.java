@@ -26,6 +26,7 @@ import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
 import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
+import org.checkerframework.checker.units.qual.C;
 
 import java.util.*;
 import java.util.List;
@@ -345,7 +346,7 @@ public class UiPageHelper extends Helper {
         });
     }
 
-    public static Collection<String> getApiImportsForReferenceType(ReferenceType reference) {
+    public static List<String> getApiImportsForReferenceType(ReferenceType reference) {
         Set<String> res = new HashSet<>();
 
         res.add(classDataName(reference.getTarget(), ""));
@@ -357,10 +358,10 @@ public class UiPageHelper extends Helper {
             res.add(classDataName((ClassType) reference.getOwner(), "Stored"));
         }
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getOwnerApiImportsForDataElement(DataElement dataElement) {
+    public static List<String> getOwnerApiImportsForDataElement(DataElement dataElement) {
         Set<String> res = new HashSet<>();
 
         if (hasDataElementOwner(dataElement)) {
@@ -368,14 +369,14 @@ public class UiPageHelper extends Helper {
             res.add(classDataName(((ClassType) dataElement.getOwner()), ""));
         }
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForTablePage(PageDefinition pageDefinition) {
+    public static List<String> getApiImportsForTablePage(PageDefinition pageDefinition) {
         return getApiImportsForReferenceType((ReferenceType) pageDefinition.getDataElement());
     }
 
-    public static Collection<String> getApiImportsForViewPage(PageDefinition pageDefinition) {
+    public static List<String> getApiImportsForViewPage(PageDefinition pageDefinition) {
         Set<String> res = new HashSet<>();
 
         if (pageDefinition.getDataElement() instanceof ReferenceType) {
@@ -388,10 +389,10 @@ public class UiPageHelper extends Helper {
 
         addReferenceTypesToCollection(pageDefinition, res);
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForCreatePage(PageDefinition pageDefinition) {
+    public static List<String> getApiImportsForCreatePage(PageDefinition pageDefinition) {
         Set<String> res = new HashSet<>();
 
         if (pageDefinition.getDataElement() instanceof ReferenceType) {
@@ -404,18 +405,18 @@ public class UiPageHelper extends Helper {
             res.add(restParamName(a.getDataType()));
         });
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForCreateAction(CreateAction action) {
+    public static List<String> getApiImportsForCreateAction(CreateAction action) {
         Set<String> res = new HashSet<>(getApiImportsForViewPage(action.getTarget()));
 
         res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForCallOperationAction(CallOperationAction action) {
+    public static List<String> getApiImportsForCallOperationAction(CallOperationAction action) {
         PageDefinition ownerPage = ((PageDefinition) action.eContainer());
         PageDefinition outputParameterPage = action.getOutputParameterPage();
         Set<String> res = action.getInputParameterPage() != null ? new HashSet<>(getApiImportsForViewPage(action.getInputParameterPage())) : new HashSet<>();
@@ -437,16 +438,24 @@ public class UiPageHelper extends Helper {
             res.addAll(getApiImportsForReferenceType((ReferenceType) outputParameterPage.getDataElement()));
         }
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForUnmappedOperationOutputAction(PageDefinition page) {
+    public static List<String> getApiImportsForFormAction(Action action) {
+        if (action.getIsCreateAction()) {
+            return getApiImportsForCreateAction((CreateAction) action);
+        } else {
+            return getApiImportsForCallOperationAction((CallOperationAction) action);
+        }
+    }
+
+    public static List<String> getApiImportsForUnmappedOperationOutputAction(PageDefinition page) {
         Set<String> res = new HashSet<>(getApiImportsForViewPage(page));
         res.addAll(getApiImportsForReferenceType((ReferenceType) page.getDataElement()));
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForRowAction(Action action) {
+    public static List<String> getApiImportsForRowAction(Action action) {
         Set<String> res = new HashSet<>();
 
         if (action.getDataElement() instanceof ReferenceType) {
@@ -455,7 +464,7 @@ public class UiPageHelper extends Helper {
 
         res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
     public static VisualElement firstViewChildForContainer(PageContainer container) {

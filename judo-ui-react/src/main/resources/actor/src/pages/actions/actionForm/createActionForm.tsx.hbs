@@ -44,6 +44,9 @@ import {
 import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '../{{ relativePathFromAction ownerPage action 'config' }}';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '../{{ relativePathFromAction ownerPage action 'custom' }}';
 import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}/l10n-context';
+{{# each action.target.originalPageContainer.links as |link| }}
+    import { {{ firstToUpper link.name }} } from './components/{{ firstToUpper link.name }}';
+{{/ each }}
 
 {{# with action.target as |page| }}
     {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}

@@ -43,6 +43,9 @@ import {
 import { baseTableConfig, baseColumnConfig, toastConfig } from '../{{ relativePathFromAction ownerPage action 'config' }}';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '../{{ relativePathFromAction ownerPage action 'custom' }}';
 import { useL10N } from '../{{ relativePathFromAction ownerPage action 'l10n' }}/l10n-context';
+{{# each action.inputParameterPage.originalPageContainer.links as |link| }}
+    import { {{ firstToUpper link.name }} } from './components/{{ firstToUpper link.name }}';
+{{/ each }}
 
 {{# with action.inputParameterPage as |page| }}
     {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}

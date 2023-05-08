@@ -12,7 +12,6 @@ const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName ta
                     },
                 {{ else }}
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                        setEditMode(true);
                         storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)]);
                     },
                 {{/ if }}

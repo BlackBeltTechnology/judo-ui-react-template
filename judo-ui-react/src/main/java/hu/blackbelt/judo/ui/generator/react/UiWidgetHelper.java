@@ -290,4 +290,14 @@ public class UiWidgetHelper extends Helper {
         }
         return "undefined";
     }
+
+    public static List<Action> getFilteredLinkActions (Link link) {
+        return link.getActions().stream()
+                .filter(a -> !a.getIsEditAction() && !a.getIsSetAction() && !a.getIsRemoveAction() && !a.getIsUnsetAction())
+                .collect(Collectors.toList());
+    }
+
+    public static boolean linkHasActionsToImport(Link link) {
+        return  getFilteredLinkActions(link).size() > 0;
+    }
 }

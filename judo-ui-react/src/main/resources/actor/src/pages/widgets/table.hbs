@@ -88,12 +88,6 @@
                                                         ...(data.{{ child.dataElement.name }} || []),
                                                         ...(res as {{ classDataName child.dataElement.target 'Stored' }}[])
                                                     ]);
-
-                                                    {{# if page.dataElement.isUpdatable }}
-                                                        if (!editMode) {
-                                                            setEditMode(true);
-                                                        }
-                                                    {{/ if }}
                                                 }
                                             {{/ if }}
                                         } }
@@ -118,10 +112,6 @@
                                             {{ else }}
                                                 {{# if page.dataElement.isUpdatable }}
                                                     storeDiff('{{ child.dataElement.name }}', []);
-
-                                                    if (!editMode) {
-                                                        setEditMode(true);
-                                                    }
                                                 {{/ if }}
                                             {{/ if }}
                                         } }
