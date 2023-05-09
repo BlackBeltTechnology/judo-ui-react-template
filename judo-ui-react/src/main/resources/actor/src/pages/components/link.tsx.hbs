@@ -1,17 +1,8 @@
 {{> fragment.header.hbs }}
-import { useTranslation } from 'react-i18next';
-import { Button } from '@mui/material';
-import type { {{ getMuiDataGridImportsForLinks }} } from '@mui/x-data-grid';
-import { MdiIcon } from '~/components';
-import {
-    AggregationInput,
-    AssociationButton,
-    BinaryInput,
-    CollectionAssociationButton,
-    TrinaryLogicCombobox,
-} from '~/components/widgets';
-import { useFilterDialog, useRangeDialog } from '~/components/dialog';
-import { FilterOption, FilterType } from '~/components-api';
+
+{{# if debugPrint }}// include: actor/src/fragments/link/common-imports.fragment.hbs{{/ if }}
+{{> actor/src/fragments/link/common-imports.fragment.hbs }}
+
 import {
     {{# each (getApiImportsForViewPage page) as |imp| }}
         {{ imp }},
@@ -23,16 +14,7 @@ import {
         {{ classServiceName link.dataElement.target }}Impl,
     {{/ neq }}
 } from '~/generated/data-axios';
-import { baseColumnConfig, toastConfig } from '~/config';
-import {
-    fileHandling,
-    serviceDateToUiDate,
-    serviceTimeToUiTime,
-    processQueryCustomizer,
-    PersistedTableData,
-    TableRowAction,
-} from '~/utilities';
-import { useL10N } from '~/l10n/l10n-context';
+
 {{# if (linkHasActionsToImport link) }}
     import {
         {{# each (getFilteredLinkActions link) as |action| }}
