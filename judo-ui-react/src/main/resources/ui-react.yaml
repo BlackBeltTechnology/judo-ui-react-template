@@ -599,10 +599,10 @@ templates:
       - name: ownerPage
         expression: "#getActionContainer(#self)"
 
-  - name: actor/src/pages/actions/components/link.tsx
+  - name: actor/src/pages/actions/actionForm/components/link.tsx
     factoryExpression: "#getLinksForActionFormPages(#application)"
     pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #linkComponentName(#self.key) + '.tsx'"
-    templateName: actor/src/pages/actions/components/link.tsx.hbs
+    templateName: actor/src/pages/actions/actionForm/components/link.tsx.hbs
     templateContext:
       - name: action
         expression: "#self.value"
@@ -611,10 +611,10 @@ templates:
       - name: ownerPage
         expression: "#getActionContainer(#self.value)"
 
-  - name: actor/src/pages/actions/components/table.tsx
+  - name: actor/src/pages/actions/actionForm/components/table.tsx
     factoryExpression: "#getTablesForActionFormPages(#application)"
     pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #tableComponentName(#self.key) + '.tsx'"
-    templateName: actor/src/pages/actions/components/table.tsx.hbs
+    templateName: actor/src/pages/actions/actionForm/components/table.tsx.hbs
     templateContext:
       - name: action
         expression: "#self.value"
