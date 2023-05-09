@@ -54,12 +54,6 @@ export const use{{ pageName page }} = (
     };
 
     {{# if (hasVisualReferences page) }}
-        {{# each (getPageTables page) as |table| }}
-            {{# if debugPrint }}// include: actor/src/fragments/table/hook-variables.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/table/hook-variables.fragment.hbs table=table }}
-            {{# if debugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
-        {{/ each }}
         {{# each (getPageAssociationTables page) as |table| }}
             const {{ table.dataElement.name }}FilterOptions: FilterOption[] = [
                 {{# each table.filters as |filter| }}
@@ -68,26 +62,11 @@ export const use{{ pageName page }} = (
                 {{/ each }}
             ];
         {{/ each }}
-        {{# each (getPageLinks page) as |link| }}
-            {{# if debugPrint }}// include: actor/src/fragments/link/hook-variables.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/link/hook-variables.fragment.hbs link=link }}
-        {{/ each }}
 
         return {
             queryCustomizer,
-            {{# each (getPageTables page) as |table| }}
-                {{ table.dataElement.name }}Columns,
-                {{ table.dataElement.name }}RangeFilterOptions,
-                {{ table.dataElement.name }}InitialQueryCustomizer,
-                {{ table.dataElement.name }}RowActions,
-            {{/ each }}
             {{# each (getPageAssociationTables page) as |table| }}
                 {{ table.dataElement.name }}FilterOptions,
-            {{/ each }}
-            {{# each (getPageWritableLinks page) as |link| }}
-                {{ link.dataElement.name }}Columns,
-                {{ link.dataElement.name }}RangeFilterOptions,
-                {{ link.dataElement.name }}InitialQueryCustomizer,
             {{/ each }}
         };
     {{ else }}

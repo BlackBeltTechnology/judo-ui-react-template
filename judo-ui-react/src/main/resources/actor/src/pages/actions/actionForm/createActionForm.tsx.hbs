@@ -47,6 +47,9 @@ import { useL10N } from '~/l10n/l10n-context';
 {{# each action.target.originalPageContainer.links as |link| }}
     import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
 {{/ each }}
+{{# each action.target.originalPageContainer.tables as |table| }}
+    import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
+{{/ each }}
 
 {{# with action.target as |page| }}
     {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
@@ -92,46 +95,6 @@ import { useL10N } from '~/l10n/l10n-context';
             {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
         }, [data]);
         const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
-
-        {{# if (hasVisualReferences action.target) }}
-            {{# each (getPageTables action.target) as |table| }}
-                {{# if debugPrint }}// include: actor/src/fragments/relation/relation-variables.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=table }}
-                {{# unless table.dataElement.isMemberTypeTransient }}
-                    {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                    {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                    {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                    {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
-                {{/ unless }}
-            {{/ each }}
-            {{# each (getPageWritableLinks action.target) as |link| }}
-                {{# if debugPrint }}// include: actor/src/fragments/relation/relation-variables.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=link }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=link.dataElement }}
-            {{/ each }}
-        {{/ if }}
-        {{# each (getPageTables action.target) as |table| }}
-            const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
-                {{# each table.rowActions as |action| }}
-                    {{# if action.isRemoveAction }}
-                        {
-                            id: '{{ createId action }}',
-                            label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
-                            icon: <MdiIcon path="{{ action.icon.name }}" />,
-                            action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                                setData({
-                                    ...data,
-                                    ['{{ action.dataElement.name }}']: [...(data.{{ action.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)],
-                                });
-                            },
-                        },
-                    {{/ if }}
-                {{/ each }}
-            ];
-        {{/ each }}
 
         {{# if debugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
         {{> actor/src/fragments/page/input-form-flags.hbs }}

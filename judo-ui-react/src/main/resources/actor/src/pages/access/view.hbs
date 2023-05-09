@@ -119,31 +119,12 @@ export default function {{ pageName page }}() {
 
     const {
         queryCustomizer,
-        {{# each (getPageTables page) as |table| }}
-            {{ table.dataElement.name }}Columns,
-            {{ table.dataElement.name }}RangeFilterOptions,
-            {{ table.dataElement.name }}InitialQueryCustomizer,
-            {{ table.dataElement.name }}RowActions,
-        {{/ each }}
         {{# each (getPageAssociationTables page) as |table| }}
             {{ table.dataElement.name }}FilterOptions,
         {{/ each }}
     } = use{{ pageName page }}(data, editMode, setEditMode, storeDiff, fetchData, {{# each (getPageAssociationTables page) as |table| }}
         fetch{{ firstToUpper table.dataElement.name }},
     {{/ each }});
-
-    {{# each (getPageTables page) as |table| }}
-        {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
-        {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
-        {{# if table.dataElement.isAddable }}
-            {{# unless table.dataElement.isMemberTypeTransient }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
-            {{/ unless }}
-        {{/ if }}
-    {{/ each }}
 
     {{# each (getPageAssociationTables page) as |table| }}
         const [{{ table.dataElement.name }}Page, set{{ firstToUpper table.dataElement.name }}Page] = useState<number>(0);

@@ -304,8 +304,9 @@ public class UiWidgetHelper extends Helper {
 
     public static List<Action> getFilteredTableActions (Table table) {
         SortedSet<Action> actions = new TreeSet<>(Comparator.comparing((Action a) -> a.getFQName().trim()));
+        actions.addAll(table.getActions());
         actions.addAll(table.getRowActions());
-        actions.addAll(table.getPageDefinition().getActions());
+        actions.addAll((List<? extends Action>) table.getPageDefinition().getPageActions());
         return actions.stream()
                 .filter(a -> !a.getIsBackAction() && !a.getIsEditAction())
                 .collect(Collectors.toList());

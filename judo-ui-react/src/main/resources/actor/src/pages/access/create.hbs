@@ -42,6 +42,9 @@ import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 {{# each page.originalPageContainer.links as |link| }}
     import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
 {{/ each }}
+{{# each page.originalPageContainer.tables as |table| }}
+    import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
+{{/ each }}
 
 {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
     export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
@@ -82,18 +85,6 @@ export default function {{ pageName page }}() {
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target ''}}, string>>(new Map<keyof {{ classDataName page.dataElement.target ''}}, string>());
-    {{# each (getPageTables page) as |table| }}
-        {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
-        {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
-        {{# if table.dataElement.isAddable }}
-            {{# unless table.dataElement.isMemberTypeTransient }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
-            {{/ unless }}
-        {{/ if }}
-    {{/ each }}
     const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
     {{# if debugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}

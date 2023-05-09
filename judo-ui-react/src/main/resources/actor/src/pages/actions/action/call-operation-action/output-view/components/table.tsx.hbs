@@ -1,7 +1,32 @@
 {{> fragment.header.hbs }}
-// unmapped output table
+import {
+    {{# each (getApiImportsForFormAction action) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '~/generated/data-api';
+import {
+    {{ classServiceName table.dataElement.owner }}Impl,
+    {{# neq (classServiceName table.dataElement.owner) (classServiceName ownerPage.dataElement.target) }}
+        {{ classServiceName ownerPage.dataElement.target }}Impl,
+    {{/ neq }}
+} from '~/generated/data-axios';
+{{# if (tableHasActionsToImport table) }}
+    import {
+        {{# each (getFilteredTableActions table) as |action| }}
+            {{ actionFunctionHookName action }},
+        {{/ each }}
+    } from '../actions';
+{{/ if }}
 
-export function {{ firstToUpper table.name }}() {
+export interface {{ tableComponentName table }}Props {
+    data: {{ classDataName table.dataElement.owner '' }};
+    editMode: boolean;
+    isFormUpdateable: () => boolean;
+    isLoading: boolean;
+    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => void;
+}
+
+export function {{ tableComponentName table }}(props: {{ tableComponentName table }}Props) {
     return (
         <div>{{ table.name }}</div>
     );

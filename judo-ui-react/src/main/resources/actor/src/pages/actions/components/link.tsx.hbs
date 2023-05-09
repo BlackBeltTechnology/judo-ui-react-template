@@ -89,19 +89,19 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 {{/ if }}
                 {{# if action.isSetAction }}
                     onSet={ async () => {
-                    const res = await openRangeDialog<{{ classDataName link.dataElement.target 'Stored' }}, {{ classDataName link.dataElement.target 'QueryCustomizer' }}>({
-                        id: '{{ createId link.dataElement }}',
-                        columns: {{ link.dataElement.name }}Columns,
-                        defaultSortField: ({{{ getDefaultSortParamsForLink link }}} as GridSortItem[])[0],
-                        rangeCall: async (queryCustomizer) =>
-                        await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
-                        single: true,
-                        alreadySelectedItems: data.{{ link.dataElement.name }}?.__identifier as GridRowId,
-                        filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
-                        initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
-                    });
+                        const res = await openRangeDialog<{{ classDataName link.dataElement.target 'Stored' }}, {{ classDataName link.dataElement.target 'QueryCustomizer' }}>({
+                            id: '{{ createId link.dataElement }}',
+                            columns: {{ link.dataElement.name }}Columns,
+                            defaultSortField: ({{{ getDefaultSortParamsForLink link }}} as GridSortItem[])[0],
+                            rangeCall: async (queryCustomizer) =>
+                            await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
+                            single: true,
+                            alreadySelectedItems: data.{{ link.dataElement.name }}?.__identifier as GridRowId,
+                            filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
+                            initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
+                        });
 
-                    if (res === undefined) return;
+                        if (res === undefined) return;
                         storeDiff('{{ link.dataElement.name }}', res as {{ classDataName link.dataElement.target 'Stored' }});
                     } }
                 {{/ if }}

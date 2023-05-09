@@ -22,7 +22,11 @@ import {
 {{/ if }}
 
 export interface {{ tableComponentName table }}Props {
-
+    data: JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>;
+    editMode: boolean;
+    fetchData: () => Promise<void>;
+    isFormUpdateable: () => boolean;
+    isLoading: boolean;
 }
 
 export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
