@@ -25,7 +25,16 @@ export interface {{ tableComponentName table }}Props {
 
 }
 
-export const {{ tableComponentName table }} = forwardRef((props: {{ tableComponentName table }}Props, ref: any) => {
+export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
+
+    async function fetchData() {
+
+    }
+
+    useImperativeHandle(ref, () => ({
+        fetchData,
+    }));
+
     return (
         <div>{{ table.name }}</div>
     );

@@ -12,7 +12,7 @@ import {
   MdiIcon,
   PageHeader,
 } from '~/components';
-import type { PersistedTableData } from '~/utilities';
+import type { PersistedTableData, RefreshableTable } from '~/utilities';
 import { useL10N } from '~/l10n/l10n-context';
 import { PageActions } from './components/PageActions';
 import { mainContainerPadding } from '~/theme';
@@ -29,18 +29,22 @@ export default function {{ pageName page }}() {
     const persistedTableData: PersistedTableData = JSON.parse(
         window.sessionStorage.getItem('pages.{{ pageName page }}') || '{}',
     );
-    const tableRef = useRef();
+    const tableRef = useRef<RefreshableTable>(null);
     const { t } = useTranslation();
     const { signedIdentifier } = useParams();
     const { locale: l10nLocale } = useL10N();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
+    const handleFetchData = async () => {
+        tableRef.current?.fetchData();
+    };
+
     {{# with (getTableForTablePage page) as |table| }}
         return (
             <>
                 <PageHeader title={title}>
-                    <PageActions tableRef={tableRef} isLoading={isLoading} signedIdentifier={signedIdentifier} />
+                    <PageActions fetchData={handleFetchData} isLoading={isLoading} signedIdentifier={signedIdentifier} />
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
                     <Box sx={mainContainerPadding}>

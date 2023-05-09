@@ -29,8 +29,7 @@ export interface {{ tableComponentName table }}Props {
     setIsLoading: (value: boolean) => void;
 }
 
-export const {{ tableComponentName table }} = forwardRef((props: {{ tableComponentName table }}Props, ref: any) => {
-    ref.current = { fetchData };
+export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
     const { isLoading, setIsLoading{{# unless page.dataElement.isAccess }}, ownerData{{/ unless }} } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
@@ -164,6 +163,10 @@ export const {{ tableComponentName table }} = forwardRef((props: {{ tableCompone
             setIsLoading(false);
         }
     }
+
+    useImperativeHandle(ref, () => ({
+        fetchData,
+    }));
 
     useEffect(() => {
         fetchData();
