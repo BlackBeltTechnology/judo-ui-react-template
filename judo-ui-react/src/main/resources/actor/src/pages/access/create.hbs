@@ -38,7 +38,6 @@ import {
     {{ classServiceName page.dataElement.target }}Impl,
 } from '~/generated/data-axios';
 import { mainContainerPadding } from '~/theme';
-import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
 {{# each page.originalPageContainer.links as |link| }}
     import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
 {{/ each }}
@@ -65,13 +64,6 @@ export default function {{ pageName page }}() {
     const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageName page }}))`);
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
-    const {
-        {{# each (getPageTables page) as |table| }}
-            {{ table.dataElement.name }}Columns,
-            {{ table.dataElement.name }}RangeFilterOptions,
-            {{ table.dataElement.name }}InitialQueryCustomizer,
-        {{/ each }}
-    } = use{{ pageName page }}();
 
     const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);

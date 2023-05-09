@@ -12,14 +12,16 @@
     {{/ if }}
     <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
         <{{ tableComponentName child }}
-            data={data}
+            ownerData={data}
+            {{# unless table.dataElement.isRelationKindAssociation }}
+                fetchOwnerData={fetchData}
+            {{/ unless }}
             editMode={editMode}
-            {{# if (isPageRefreshable page) }}
-                fetchData={fetchData}
-            {{/ if }}
             isFormUpdateable={isFormUpdateable}
-            isLoading={isLoading}
-            storeDiff={storeDiff}
+            {{# unless table.dataElement.isRelationKindAssociation }}
+                isOwnerLoading={isLoading}
+                storeDiff={storeDiff}
+            {{/ unless }}
         />
     </Grid>
     {{# if child.customImplementation }}

@@ -11,11 +11,11 @@
         >
     {{/ if }}
     <{{ linkComponentName child }}
-        data={data}
+        ownerData={data}
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
         editMode={editMode}
         {{# if (isPageRefreshable page) }}
-        refreshCallback={fetchData}
+            fetchOwnerData={fetchData}
         {{/ if }}
         storeDiff={storeDiff}
         validation={validation}

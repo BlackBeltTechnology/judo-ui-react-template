@@ -25,12 +25,12 @@ import {
 
 export interface {{ linkComponentName link }}Props {
     {{# if (isPageRefreshable page) }}
-        data: {{ classDataName link.dataElement.owner 'Stored' }};
+        ownerData: {{ classDataName link.dataElement.owner 'Stored' }};
         storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner 'Stored' }}, value: any) => void;
         validation: Map<keyof {{ classDataName link.dataElement.owner 'Stored' }}, string>;
-        refreshCallback: () => Promise<void>;
+        fetchOwnerData: () => Promise<void>;
     {{ else }}
-        data: {{ classDataName link.dataElement.owner '' }};
+        ownerData: {{ classDataName link.dataElement.owner '' }};
         storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner '' }}, value: any) => void;
         validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
     {{/ if }}
@@ -39,7 +39,7 @@ export interface {{ linkComponentName link }}Props {
 }
 
 export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
-    const { data, disabled, editMode, {{# if (isPageRefreshable page) }}refreshCallback, {{/ if }}storeDiff, validation } = props;
+    const { ownerData, disabled, editMode, {{# if (isPageRefreshable page) }}fetchOwnerData, {{/ if }}storeDiff, validation } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -59,10 +59,10 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             label={ t('{{ idToTranslationKey link.fQName application }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
             labelList={[
                 {{# each link.parts as |part| }}
-                    data.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
+                    ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
                 {{/ each }}
             ]}
-            value={ data.{{ link.dataElement.name }} }
+            value={ ownerData.{{ link.dataElement.name }} }
             error={ !!validation.get('{{ link.dataElement.name }}') }
             helperText={ validation.get('{{ link.dataElement.name }}') }
             {{# if link.icon }}
@@ -72,16 +72,16 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             editMode={ editMode }
             {{# each link.actions as |action| }}
                 {{# if action.isViewAction }}
-                    onView={ async () => {{ actionFunctionName action }}(data, data?.{{ link.dataElement.name }}!) }
+                    onView={ async () => {{ actionFunctionName action }}(ownerData, ownerData?.{{ link.dataElement.name }}!) }
                 {{/ if }}
                 {{# if action.isCreateAction }}
-                    onCreate={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => {
-                        refreshCallback();
+                    onCreate={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {
+                        fetchOwnerData();
                     }) }
                 {{/ if }}
                 {{# if action.isDeleteAction }}
-                    onDelete={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}data, {{/ unless }}data?.{{ link.dataElement.name }}!, () => {
-                        refreshCallback();
+                    onDelete={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}ownerData?.{{ link.dataElement.name }}!, () => {
+                        fetchOwnerData();
                     }) }
                 {{/ if }}
                 {{# if action.isRemoveAction }}
@@ -96,9 +96,9 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                             columns: {{ link.dataElement.name }}Columns,
                             defaultSortField: ({{{ getDefaultSortParamsForLink link }}} as GridSortItem[])[0],
                             rangeCall: async (queryCustomizer) =>
-                                await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
+                                await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(ownerData, processQueryCustomizer(queryCustomizer)),
                             single: true,
-                            alreadySelectedItems: data.{{ link.dataElement.name }}?.__identifier as GridRowId,
+                            alreadySelectedItems: ownerData.{{ link.dataElement.name }}?.__identifier as GridRowId,
                             filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
                             initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
                         });

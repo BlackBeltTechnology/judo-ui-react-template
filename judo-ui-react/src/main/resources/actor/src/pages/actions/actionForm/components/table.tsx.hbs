@@ -16,10 +16,11 @@ import {
 } from '~/generated/data-axios';
 
 export interface {{ tableComponentName table }}Props {
-    data: {{ classDataName table.dataElement.owner '' }};
+    ownerData: {{ classDataName table.dataElement.owner '' }};
+    fetchOwnerData: () => Promise<void>;
     editMode: boolean;
     isFormUpdateable: () => boolean;
-    isLoading: boolean;
+    isOwnerLoading: boolean;
     storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => void;
 }
 

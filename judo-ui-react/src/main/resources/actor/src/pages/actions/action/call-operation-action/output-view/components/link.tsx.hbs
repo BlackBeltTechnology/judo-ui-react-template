@@ -24,7 +24,7 @@ import {
 {{/ if }}
 
 export interface {{ linkComponentName link }}Props {
-    data: {{ classDataName link.dataElement.owner '' }};
+    ownerData: {{ classDataName link.dataElement.owner '' }};
     disabled: boolean;
     editMode: boolean;
     storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner '' }}, value: any) => void;
@@ -32,7 +32,7 @@ export interface {{ linkComponentName link }}Props {
 }
 
 export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
-    const { data, disabled, editMode, storeDiff, validation } = props;
+    const { ownerData, disabled, editMode, storeDiff, validation } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -52,10 +52,10 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             label={ t('{{ idToTranslationKey link.fQName application }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
             labelList={[
                 {{# each link.parts as |part| }}
-                    data.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
+                    ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
                 {{/ each }}
             ]}
-            value={ data.{{ link.dataElement.name }} }
+            value={ ownerData.{{ link.dataElement.name }} }
             error={ !!validation.get('{{ link.dataElement.name }}') }
             helperText={ validation.get('{{ link.dataElement.name }}') }
             {{# if link.icon }}
@@ -76,9 +76,9 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                             columns: {{ link.dataElement.name }}Columns,
                             defaultSortField: ({{{ getDefaultSortParamsForLink link }}} as GridSortItem[])[0],
                             rangeCall: async (queryCustomizer) =>
-                            await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(data, processQueryCustomizer(queryCustomizer)),
+                                await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(ownerData, processQueryCustomizer(queryCustomizer)),
                             single: true,
-                            alreadySelectedItems: data.{{ link.dataElement.name }}?.__identifier as GridRowId,
+                            alreadySelectedItems: ownerData.{{ link.dataElement.name }}?.__identifier as GridRowId,
                             filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
                             initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
                         });

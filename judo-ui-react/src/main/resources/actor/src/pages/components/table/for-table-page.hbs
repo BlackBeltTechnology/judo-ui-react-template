@@ -5,8 +5,8 @@ import {
 } from '~/generated/data-api';
 import {
     {{# unless page.dataElement.isAccess }}
-        {{ dataElementRelationName page.dataElement }}Impl,
-        {{# neq (dataElementRelationName page.dataElement) (classServiceName table.dataElement.target) }}
+        {{ classServiceName table.dataElement.owner }}Impl,
+        {{# neq (classServiceName table.dataElement.owner) (classServiceName table.dataElement.target) }}
             {{ classServiceName table.dataElement.target }}Impl,
         {{/ neq }}
     {{ else }}
@@ -25,12 +25,12 @@ export interface {{ tableComponentName table }}Props {
     {{# unless page.dataElement.isAccess }}
         ownerData: JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>
     {{/ unless }}
-    isLoading: boolean;
-    setIsLoading: (value: boolean) => void;
+    isOwnerLoading: boolean;
+    setIsOwnerLoading: (value: boolean) => void;
 }
 
 export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
-    const { isLoading, setIsLoading{{# unless page.dataElement.isAccess }}, ownerData{{/ unless }} } = props;
+    const { isOwnerLoading, setIsOwnerLoading{{# unless page.dataElement.isAccess }}, ownerData{{/ unless }} } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -84,6 +84,14 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
 
     const rowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
         {{# each table.rowActions as |action| }}
+            {{# if action.isRemoveAction }}
+                {
+                    id: '{{ createId action }}',
+                    label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
+                    icon: <MdiIcon path="{{ action.icon.name }}" />,
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}row, () => fetchData()),
+                },
+            {{/ if }}
             {{# if action.isDeleteAction }}
                 {
                     id: '{{ createId action }}',
@@ -134,11 +142,11 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     }
 
     async function fetchData() {
-        setIsLoading(true);
+        setIsOwnerLoading(true);
 
         try {
             {{# unless page.dataElement.isAccess }}
-                const res = await {{ dataElementRelationName page.dataElement }}Impl.list{{ ucFirst page.dataElement.name }}(
+                const res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
                     ownerData,
                     processQueryCustomizer(queryCustomizer),
                 );
@@ -160,7 +168,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         } catch (error) {
             handleFetchError(error);
         } finally {
-            setIsLoading(false);
+            setIsOwnerLoading(false);
         }
     }
 
@@ -180,7 +188,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 display: 'grid',
             } }
             getRowId={(row: { __identifier: string }) => row.__identifier}
-            loading={ isLoading }
+            loading={ isOwnerLoading }
             rows={ data }
             getRowClassName={() => "data-grid-row"}
             getCellClassName={() => "data-grid-cell"}
@@ -201,7 +209,10 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                 <Button
                                     id="{{ createId action }}"
                                     variant="text"
-                                    onClick={ () => {{ actionFunctionName action }}('{{ createId action }}-filter', filterOptions, filters) }
+                                    onClick={ () => {
+                                        {{ actionFunctionName action }}('{{ createId action }}-filter', filterOptions, filters);
+                                    } }
+                                    disabled={isOwnerLoading}
                                 >
                                     <MdiIcon path="filter" />
                                     {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
