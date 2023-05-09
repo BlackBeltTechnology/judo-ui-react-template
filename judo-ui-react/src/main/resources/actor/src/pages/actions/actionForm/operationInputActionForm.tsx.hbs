@@ -1,246 +1,192 @@
 {{> fragment.header.hbs }}
 // Action: CallOperationAction
 
-import { useState, useEffect, useCallback, Dispatch, SetStateAction, FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Grid, {{ getMuiMaterialImportsForActionForm action.inputParameterPage }} } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-{{# if (hasPageDateTimePickers action.inputParameterPage) }}
-    import { {{ getMuiDateTimePickerImportsForPage action.inputParameterPage }} } from '@mui/x-date-pickers';
-{{/ if }}
-import { {{ getMuiDataGridImportsForActionForm action.inputParameterPage }} } from '@mui/x-data-grid';
-import { OBJECTCLASS } from '@pandino/pandino-api';
-import { ComponentProxy } from '@pandino/react-hooks';
-import { JudoIdentifiable } from '@judo/data-api-common';
-import { useSnackbar } from 'notistack';
-import { MdiIcon, ModeledTabs } from '{{ relativePathFromAction ownerPage action 'components' }}';
-import { columnsActionCalculator } from '{{ relativePathFromAction ownerPage action 'components/table' }}';
-import { useRangeDialog } from '{{ relativePathFromAction ownerPage action 'components/dialog' }}';
-import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromAction ownerPage action 'components/widgets' }}';
-import { FilterOption, FilterType } from '{{ relativePathFromAction ownerPage action 'components-api' }}';
+{{# if debugPrint }}// include: actor/src/fragments/page/common-form-imports.fragment.hbs{{/ if }}
+{{> actor/src/fragments/page/common-form-imports.fragment.hbs }}
+
 import {
-    {{# each (getApiImportsForCallOperationAction action ownerPage) as |imp| }}
+    {{# each (getApiImportsForCallOperationAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction ownerPage action 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
-    {{ classServiceName action.inputParameterPage.dataElement.target }}Impl,
+    {{ classServiceName page.dataElement.target }}Impl,
     {{ classServiceName action.dataElement.owner }}Impl,
-} from '{{ relativePathFromAction ownerPage action 'generated/data-axios'}}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, TableRowAction, uiDateToServiceDate, serviceDateToUiDate, uiTimeToServiceTime, serviceTimeToUiTime, stringToBooleanSelect, booleanToStringSelect } from '{{ relativePathFromAction ownerPage action 'utilities' }}';
-import { baseTableConfig, baseColumnConfig, toastConfig } from '{{ relativePathFromAction ownerPage action 'config' }}';
-import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromAction ownerPage action 'custom' }}';
-import { useL10N } from '{{ relativePathFromAction ownerPage action 'l10n' }}/l10n-context';
+} from '~/generated/data-axios';
 
-{{# with action.inputParameterPage as |page| }}
-    {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
-        export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
-        export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName page.dataElement.target '' }}>> {}
-    {{/ each }}
+{{# each page.originalPageContainer.links as |link| }}
+    import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
+{{/ each }}
+{{# each page.originalPageContainer.tables as |table| }}
+    import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
+{{/ each }}
 
-    export interface {{ pageActionFormComponentName action ownerPage }}Props {
-        successCallback: ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => void;
-        cancel: () => void;
-        {{# if action.operation.isMapped }}
-            owner: {{ classDataName action.dataElement.owner 'Stored' }};
-        {{/ if }}
-    }
+{{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
+    export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
+    export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName page.dataElement.target '' }}>> {}
+{{/ each }}
 
-    export function {{ pageActionFormComponentName action ownerPage }}({
-        successCallback,
-        cancel,
-        {{# if action.operation.isMapped }}
-            owner,
-        {{/ if }}
-    } : {{ pageActionFormComponentName action ownerPage }}Props) {
-        const { t } = useTranslation();
-        const { openRangeDialog } = useRangeDialog();
-        const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
-        const { locale: l10nLocale } = useL10N();
+export interface {{ pageActionFormComponentName action }}Props {
+    successCallback: ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => void;
+    cancel: () => void;
+    {{# if action.operation.isMapped }}
+        owner: {{ classDataName action.dataElement.owner 'Stored' }};
+    {{/ if }}
+}
 
-        const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-        const handleActionError = useErrorHandler<{{ classDataName action.inputParameterPage.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ pageActionFormComponentName action ownerPage }}))`);
-        const { enqueueSnackbar } = useSnackbar();
-        const [isLoading, setIsLoading] = useState<boolean>(false);
-        const [data, setData] = useState<{{ classDataName action.inputParameterPage.dataElement.target '' }}>({} as unknown as {{ classDataName action.inputParameterPage.dataElement.target '' }});
-        const [validation, setValidation] = useState<Map<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, string>>(new Map<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, string>());
-        const [editMode, setEditMode] = useState<boolean>(true);
-        const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>);
-        const storeDiff: (attributeName: keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, value: any) => {
+export function {{ pageActionFormComponentName action }}({
+    successCallback,
+    cancel,
+    {{# if action.operation.isMapped }}
+        owner,
+    {{/ if }}
+} : {{ pageActionFormComponentName action }}Props) {
+    const { t } = useTranslation();
+    const { openRangeDialog } = useRangeDialog();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
 
-    {{# if debugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
-    {{> actor/src/fragments/page/store-diff-body.hbs classType=action.inputParameterPage.dataElement.target }}
-        }, [data]);
-        const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
+    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+    const handleActionError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ pageActionFormComponentName action }}))`);
+    const { enqueueSnackbar } = useSnackbar();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({} as unknown as {{ classDataName page.dataElement.target '' }});
+    const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
+    const [editMode, setEditMode] = useState<boolean>(true);
+    const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
+    const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
+        {{# if debugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
+    }, [data]);
+    const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
-        {{# if (hasVisualReferences action.inputParameterPage) }}
-            {{# each (getPageTables action.inputParameterPage) as |table| }}
-                {{# if debugPrint }}// include: actor/src/fragments/relation/relation-variables.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=table }}
-                {{# unless table.dataElement.isMemberTypeTransient }}
-                    {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                    {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                    {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                    {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
-                {{/ unless }}
-            {{/ each }}
-            {{# each (getPageWritableLinks action.inputParameterPage) as |link| }}
-                {{# if debugPrint }}// include: actor/src/fragments/relation/relation-variables.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/relation/relation-variables.fragment.hbs rel=link }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=link.dataElement }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=link.dataElement }}
-            {{/ each }}
-        {{/ if }}
-        {{# each (getPageTables action.inputParameterPage) as |table| }}
-            const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
-                {{# each table.rowActions as |action| }}
-                    {{# if action.isRemoveAction }}
-                        {
-                            id: '{{ createId action }}',
-                            label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
-                            icon: <MdiIcon path="{{ action.icon.name }}" />,
-                            action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                                setData({
-                                    ...data,
-                                    ['{{ action.dataElement.name }}']: [...(data.{{ action.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)],
-                                });
-                            },
-                        },
-                    {{/ if }}
-                {{/ each }}
-            ];
-        {{/ each }}
+    {{# if debugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
+    {{> actor/src/fragments/page/input-form-flags.hbs }}
 
-        {{# if debugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
-        {{> actor/src/fragments/page/input-form-flags.hbs }}
-
-        {{# if action.operation.input.target.isTemplateable }}
-            const fetchData = async () => {
-                setIsLoading(true);
-
-                try {
-                    const res = await {{ classServiceName action.inputParameterPage.dataElement.target }}Impl.getTemplate();
-                    setData(res);
-                    setPayloadDiff({
-                        ...res,
-                    } as Record<keyof {{ classDataName action.inputParameterPage.dataElement.target '' }}, any>);
-                } catch(e) {
-                    handleFetchError(e);
-                } finally {
-                    setIsLoading(false);
-                }
-            };
-
-            useEffect(() => {
-                fetchData();
-            }, []);
-        {{/ if }}
-
-        // TODO: implement confirmation handling
-        const submit = async () => {
+    {{# if action.operation.input.target.isTemplateable }}
+        const fetchData = async () => {
             setIsLoading(true);
 
             try {
-                {{# if action.outputParameterPage }}
-                    const res = await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner, {{/ if }}payloadDiff);
-
-                    if (res) {
-                        successCallback(res);
-                    }
-                {{ else }}
-                    await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner, {{/ if }}payloadDiff);
-
-                    successCallback();
-                {{/ if }}
-            } catch (error) {
-                handleActionError(error, { setValidation }, data);
+                const res = await {{ classServiceName page.dataElement.target }}Impl.getTemplate();
+                setData(res);
+                setPayloadDiff({
+                    ...res,
+                } as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
+            } catch(e) {
+                handleFetchError(e);
             } finally {
                 setIsLoading(false);
             }
         };
 
-        return (
-            {{# with (getDataContainerForPage page) as |rootChild| }}
-                <>
-                    <DialogTitle>
-                        {title}
-                        <IconButton
-                            id="{{ createId action }}-dialog-close"
-                            aria-label="close"
-                            onClick={ () => cancel() }
-                            sx={ {
-                                position: 'absolute',
-                                right: 8,
-                                top: 8,
-                                color: (theme) => theme.palette.grey[500],
-                            } }
-                        >
-                            <MdiIcon path="close" />
-                        </IconButton>
-                    </DialogTitle>
-                    <DialogContent dividers>
-                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
-                            {{# each rootChild.children as |child| }}
-                                {{# unless (excludeWidgetFromTree child) }}
-                                    {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
-                                    {{> (getWidgetTemplate child) }}
-                                {{/ unless }}
-                            {{/ each }}
-                        </Grid>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button
-                            id="{{ createId action }}-action-form-action-cancel"
-                            variant="text"
-                            onClick={ () => cancel() } disabled={isLoading}
-                        >
-                            {{# if (getBackButtonForOperationInputPage action.inputParameterPage) }}
-                                {{# with (getBackButtonForOperationInputPage action.inputParameterPage) as |backButton| }}
-                                    {{# if backButton.icon }}
-                                        <MdiIcon path="{{ backButton.icon.name }}" />
-                                    {{ else }}
-                                        <MdiIcon path="close-thick" />
-                                    {{/ if }}
-                                    { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ backButton.label }}' }) as string }
-                                {{/ with }}
-                            {{ else }}
-                                <MdiIcon path="close-thick" />
-                                { t('judo.pages.cancel', { defaultValue: 'Cancel' }) as string }
-                            {{/ if }}
-                        </Button>
-                        <LoadingButton
-                            loading={isLoading}
-                            loadingPosition="start"
-                            id="{{ createId action }}-action-form-action-submit"
-                            variant="contained"
-                            onClick={ () => submit() }
-                            startIcon={
-                                {{# if (getSaveButtonForOperationInputPage action.inputParameterPage) }}
-                                    {{# with (getSaveButtonForOperationInputPage action.inputParameterPage) as |saveButton| }}
-                                        {{# if saveButton.icon }}
-                                            <MdiIcon path="{{ saveButton.icon.name }}" />
-                                        {{ else }}
-                                            <MdiIcon path="check-bold" />
-                                        {{/ if }}
-                                    {{/ with }}
+        useEffect(() => {
+            fetchData();
+        }, []);
+    {{/ if }}
+
+    // TODO: implement confirmation handling
+    const submit = async () => {
+        setIsLoading(true);
+
+        try {
+            {{# if action.outputParameterPage }}
+                const res = await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner, {{/ if }}payloadDiff);
+
+                if (res) {
+                    successCallback(res);
+                }
+            {{ else }}
+                await {{ classServiceName action.dataElement.owner }}Impl.{{ action.dataElement.name }}({{# if action.operation.isMapped }}owner, {{/ if }}payloadDiff);
+
+                successCallback();
+            {{/ if }}
+        } catch (error) {
+            handleActionError(error, { setValidation }, data);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    return (
+        {{# with (getDataContainerForPage page) as |rootChild| }}
+            <>
+                <DialogTitle>
+                    {title}
+                    <IconButton
+                        id="{{ createId action }}-dialog-close"
+                        aria-label="close"
+                        onClick={ () => cancel() }
+                        sx={ {
+                            position: 'absolute',
+                            right: 8,
+                            top: 8,
+                            color: (theme) => theme.palette.grey[500],
+                        } }
+                    >
+                        <MdiIcon path="close" />
+                    </IconButton>
+                </DialogTitle>
+                <DialogContent dividers>
+                    <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+                        {{# each rootChild.children as |child| }}
+                            {{# unless (excludeWidgetFromTree child) }}
+                                {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                                {{> (getWidgetTemplate child) }}
+                            {{/ unless }}
+                        {{/ each }}
+                    </Grid>
+                </DialogContent>
+                <DialogActions>
+                    <Button
+                        id="{{ createId action }}-action-form-action-cancel"
+                        variant="text"
+                        onClick={ () => cancel() } disabled={isLoading}
+                    >
+                        {{# if (getBackButtonForOperationInputPage page) }}
+                            {{# with (getBackButtonForOperationInputPage page) as |backButton| }}
+                                {{# if backButton.icon }}
+                                    <MdiIcon path="{{ backButton.icon.name }}" />
                                 {{ else }}
-                                    <MdiIcon path="check-bold" />
+                                    <MdiIcon path="close-thick" />
                                 {{/ if }}
-                            }
-                        >
-                            {{# if (getSaveButtonForOperationInputPage action.inputParameterPage) }}
-                                {{# with (getSaveButtonForOperationInputPage action.inputParameterPage) as |saveButton| }}
-                                    <span>{ t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ saveButton.label }}' }) as string }</span>
+                                { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ backButton.label }}' }) as string }
+                            {{/ with }}
+                        {{ else }}
+                            <MdiIcon path="close-thick" />
+                            { t('judo.pages.cancel', { defaultValue: 'Cancel' }) as string }
+                        {{/ if }}
+                    </Button>
+                    <LoadingButton
+                        loading={isLoading}
+                        loadingPosition="start"
+                        id="{{ createId action }}-action-form-action-submit"
+                        variant="contained"
+                        onClick={ () => submit() }
+                        startIcon={
+                            {{# if (getSaveButtonForOperationInputPage page) }}
+                                {{# with (getSaveButtonForOperationInputPage page) as |saveButton| }}
+                                    {{# if saveButton.icon }}
+                                        <MdiIcon path="{{ saveButton.icon.name }}" />
+                                    {{ else }}
+                                        <MdiIcon path="check-bold" />
+                                    {{/ if }}
                                 {{/ with }}
                             {{ else }}
-                                <span>{ t('judo.pages.submit', { defaultValue: 'Submit' }) as string }</span>
+                                <MdiIcon path="check-bold" />
                             {{/ if }}
-                        </LoadingButton>
-                    </DialogActions>
-                </>
-            {{/ with }}
-        );
-    }
-{{/ with }}
+                        }
+                    >
+                        {{# if (getSaveButtonForOperationInputPage page) }}
+                            {{# with (getSaveButtonForOperationInputPage page) as |saveButton| }}
+                                <span>{ t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ saveButton.label }}' }) as string }</span>
+                            {{/ with }}
+                        {{ else }}
+                            <span>{ t('judo.pages.submit', { defaultValue: 'Submit' }) as string }</span>
+                        {{/ if }}
+                    </LoadingButton>
+                </DialogActions>
+            </>
+        {{/ with }}
+    );
+}

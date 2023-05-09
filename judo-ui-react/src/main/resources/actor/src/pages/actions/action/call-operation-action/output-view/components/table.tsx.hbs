@@ -1,0 +1,38 @@
+{{> fragment.header.hbs }}
+
+{{# if debugPrint }}// include: actor/src/fragments/table/common-imports.fragment.hbs{{/ if }}
+{{> actor/src/fragments/table/common-imports.fragment.hbs }}
+
+import {
+    {{# each (getApiImportsForFormAction action) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '~/generated/data-api';
+import {
+    {{ classServiceName table.dataElement.owner }}Impl,
+    {{# neq (classServiceName table.dataElement.owner) (classServiceName ownerPage.dataElement.target) }}
+        {{ classServiceName ownerPage.dataElement.target }}Impl,
+    {{/ neq }}
+} from '~/generated/data-axios';
+{{# if (tableHasActionsToImport table) }}
+    import {
+        {{# each (getFilteredTableActions table) as |action| }}
+            {{ actionFunctionHookName action }},
+        {{/ each }}
+    } from '../actions';
+{{/ if }}
+
+export interface {{ tableComponentName table }}Props {
+    ownerData: {{ classDataName table.dataElement.owner '' }};
+    fetchOwnerData: () => Promise<void>;
+    editMode: boolean;
+    isFormUpdateable: () => boolean;
+    isOwnerLoading: boolean;
+    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => void;
+}
+
+export function {{ tableComponentName table }}(props: {{ tableComponentName table }}Props) {
+    return (
+        <div>{{ table.name }}</div>
+    );
+}

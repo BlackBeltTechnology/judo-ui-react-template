@@ -1,0 +1,23 @@
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Button, Grid } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { MdiIcon, useJudoNavigation } from '~/components';
+import {
+    {{# each (getApiImportsForViewPage page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '~/generated/data-api';
+import {
+    {{# each (getOnlyPageActions page) as |action| }}
+        {{ actionFunctionHookName action }},
+    {{/ each }}
+} from '../actions';
+
+export interface PageActionsProps {
+
+}
+
+export function PageActions (props: PageActionsProps) {
+
+}

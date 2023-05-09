@@ -47,7 +47,6 @@
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} !isFormUpdateable() }
         onChange={ (newValue?: any | null) => {
-            setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', newValue);
         } }
     />

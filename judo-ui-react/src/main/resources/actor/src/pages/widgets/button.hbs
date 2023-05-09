@@ -20,7 +20,7 @@
                     startIcon={<MdiIcon path="{{ child.icon.name }}" />}
                     loadingPosition="start"
                 {{/ if }}
-                onClick={() => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())}
+                onClick={() => {{ actionFunctionName action }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())}
                 disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
             >
                 <span>{ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }</span>
@@ -33,7 +33,7 @@
                     id="{{ createId action }}"
                     variant={ {{{ variantForButton child }}} }
                     editMode={editMode}
-                    navigateAction={() => {{ actionFunctionName action page }}(data)}
+                    navigateAction={() => {{ actionFunctionName action }}(data)}
                 >
                     { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
                     <MdiIcon path="arrow-right" />
@@ -43,7 +43,7 @@
                     id="{{ createId action }}"
                     variant={ {{{ variantForButton child }}} }
                     editMode={editMode}
-                    navigateAction={(target) => {{ actionFunctionName action page }}(data, target)}
+                    navigateAction={(target) => {{ actionFunctionName action }}(data, target)}
                     owner={data}
                     fetchCall={async (owner: JudoIdentifiable<any>) => {{ classServiceName action.dataElement.owner }}Impl.get{{ firstToUpper action.dataElement.name }}(owner, {
                         _mask: '{}',

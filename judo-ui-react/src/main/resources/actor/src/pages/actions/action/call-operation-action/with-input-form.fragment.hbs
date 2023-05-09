@@ -1,4 +1,4 @@
-return async function {{ actionFunctionName action page }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
+return async function {{ actionFunctionName action }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
     createDialog({
         fullWidth: true,
         maxWidth: 'lg',
@@ -8,7 +8,7 @@ return async function {{ actionFunctionName action page }} ({{# if action.operat
             }
         },
         children: (
-            <{{ pageActionFormComponentName action page }}
+            <{{ pageActionFormComponentName action }}
                 successCallback={ ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => {
                     closeDialog();
                     if (postHandler) {

@@ -41,13 +41,7 @@
                     loading={isLoading}
                     loadingPosition="start"
                     startIcon={<MdiIcon path="delete" />}
-                    onClick={() => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName page.dataElement.owner '' }}>, {{/ if }}data, () => {
-                        {{# if (isSingleAccessPage page) }}
-                            navigate('/{{ page.dataElement.name }}/create');
-                        {{ else }}
-                            back();
-                        {{/ if }}
-                    })}
+                    onClick={() => deleteData()}
                     disabled={!data.__deleteable}
                 >
                     <span>{t('judo.pages.delete', { defaultValue: 'Delete' })}</span>

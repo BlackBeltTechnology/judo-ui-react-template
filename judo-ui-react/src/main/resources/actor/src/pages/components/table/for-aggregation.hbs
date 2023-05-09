@@ -1,0 +1,195 @@
+import {
+    {{# each (getApiImportsForViewPage page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '~/generated/data-api';
+import {
+    {{ classServiceName table.dataElement.owner }}Impl,
+    {{# neq (classServiceName table.dataElement.owner) (classServiceName table.dataElement.target) }}
+        {{ classServiceName table.dataElement.target }}Impl,
+    {{/ neq }}
+} from '~/generated/data-axios';
+{{# if (tableHasActionsToImport table) }}
+    import {
+        {{# each (getFilteredTableActions table) as |action| }}
+            {{ actionFunctionHookName action }},
+        {{/ each }}
+    } from '../actions';
+{{/ if }}
+
+export interface {{ tableComponentName table }}Props {
+    ownerData: {{ classDataName table.dataElement.owner 'Stored' }};
+    fetchOwnerData: () => Promise<void>;
+    editMode: boolean;
+    isFormUpdateable: () => boolean;
+    isOwnerLoading: boolean;
+    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner 'Stored' }}, value: any) => void;
+}
+
+export const {{ tableComponentName table }} = (props: {{ tableComponentName table }}Props) => {
+    const { ownerData, editMode, fetchOwnerData, isFormUpdateable, isOwnerLoading, storeDiff } = props;
+    const { t } = useTranslation();
+    const { openFilterDialog } = useFilterDialog();
+    const { openRangeDialog } = useRangeDialog();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
+
+    const [rowCount, setRowCount] = useState<number>(0);
+    const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
+    const [lastItem, setLastItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
+    const [firstItem, setFirstItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
+    const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
+    const [page, setPage] = useState<number>(0);
+    const [filters, setFilters] = useState<Filter[]>([]);
+    const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName table.dataElement.target 'QueryCustomizer' }}>({
+        _mask: '{{ table.formattedMask }}',
+        _seek: {
+            limit: {{ calculateTablePageLimit tablePageLimit }} + 1,
+        },
+        _orderBy: [
+            {
+                attribute: sortModel[0].field,
+                descending: sortModel[0].sort === 'desc',
+            },
+        ],
+        ...mapAllFiltersToQueryCustomizerProperties(
+            filters,
+            {{# each table.filters as |filter| }}
+                '{{ filter.attributeType.name }}',
+            {{/ each }}
+        ),
+    });
+
+    {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
+
+    {{# if debugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/relation/hook-variables.fragment.hbs rel=table }}
+
+    {{# each (getFilteredTableActions table) as |action| }}
+        {{# unless action.isFilterAction }}
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+        {{/ unless }}
+    {{/ each }}
+
+    const filterOptions: FilterOption[] = [
+        {{# each table.filters as |filter| }}
+            {{# if debugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
+        {{/ each }}
+    ];
+
+    {{# if debugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
+
+    {{# if table.dataElement.isAddable }}
+        {{# unless table.dataElement.isMemberTypeTransient }}
+            {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+            {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+        {{/ unless }}
+    {{/ if }}
+
+    return (
+        <DataGrid
+            { ...baseTableConfig }
+            sx={ {
+                // overflow: 'hidden',
+                display: 'grid',
+            } }
+            getRowId={(row: { __identifier: string }) => row.__identifier}
+            loading={ isOwnerLoading }
+            rows={ ownerData?.{{ table.dataElement.name }} ?? [] }
+            getRowClassName={() => "data-grid-row"}
+            getCellClassName={() => "data-grid-cell"}
+            columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, { shownActions: 2 }) ]}
+            disableRowSelectionOnClick
+            {{# each table.rowActions as |action| }}
+                {{# if action.isViewAction }}
+                    onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {
+                        if (!editMode) {
+                            {{ actionFunctionName action }}(ownerData, params.row);
+                        }
+                    } }
+                {{/ if }}
+            {{/ each }}
+            sortModel={ {{ table.dataElement.name }}SortModel }
+            onSortModelChange={(newModel: GridSortModel) => {
+                set{{ ucFirst table.dataElement.name }}SortModel(newModel);
+            }}
+            components={ {
+                Toolbar: () => (
+                    <GridToolbarContainer>
+                        {{# each table.actions as |action| }}
+                            {{# if action.isCreateAction }}
+                                {{# unless page.isPageTypeOperationInput }}
+                                    <Button
+                                        id="{{ createId action }}"
+                                        variant="text"
+                                        onClick={() => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {
+                                            fetchOwnerData();
+                                        })}
+                                        disabled={
+                                               editMode
+                                            || isOwnerLoading
+                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                            || !isFormUpdateable()
+                                        }
+                                    >
+                                        <MdiIcon path="file_document_plus" />
+                                        {t('judo.pages.table.create', { defaultValue: 'Create' })}
+                                    </Button>
+                                {{/ unless }}
+                            {{/ if }}
+                            {{# unless table.dataElement.isMemberTypeTransient }}
+                                {{# if action.isAddAction }}
+                                    <Button
+                                        id="{{ createId table.dataElement }}-add"
+                                        variant="text"
+                                        onClick={ async () => {
+                                            const res = await {{ table.dataElement.name }}RangeCall();
+
+                                            if (res) {
+                                                storeDiff('{{ table.dataElement.name }}', [
+                                                    ...(ownerData.{{ table.dataElement.name }} || []),
+                                                    ...(res as {{ classDataName table.dataElement.target 'Stored' }}[])
+                                                ]);
+                                            }
+                                        } }
+                                        disabled={
+                                               isOwnerLoading
+                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                            || !isFormUpdateable()
+                                        }
+                                    >
+                                        <MdiIcon path="attachment-plus" />
+                                        {t('judo.pages.table.add', { defaultValue: 'Add' })}
+                                    </Button>
+                                {{/ if }}
+                                {{# if action.isClearAction }}
+                                    <Button
+                                        id="{{ createId table.dataElement }}-clear"
+                                        variant="text"
+                                        onClick={ async () => {
+                                            storeDiff('{{ table.dataElement.name }}', []);
+                                        } }
+                                        disabled={
+                                               isOwnerLoading
+                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                            || !isFormUpdateable()
+                                        }
+                                    >
+                                        <MdiIcon path="link_off" />
+                                        {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
+                                    </Button>
+                                {{/ if }}
+                            {{/ unless }}
+                        {{/ each }}
+                        <div>{/* Placeholder */}</div>
+                    </GridToolbarContainer>
+                ),
+            } }
+        />
+    );
+};
