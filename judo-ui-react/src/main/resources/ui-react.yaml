@@ -596,6 +596,8 @@ templates:
     templateContext:
       - name: action
         expression: "#self"
+      - name: page
+        expression: "#getPageForFormAction(#self)"
       - name: ownerPage
         expression: "#getActionContainer(#self)"
 
@@ -606,6 +608,8 @@ templates:
     templateContext:
       - name: action
         expression: "#self.value"
+      - name: page
+        expression: "#getPageForFormAction(#self.value)"
       - name: link
         expression: "#self.key"
       - name: ownerPage
@@ -618,6 +622,8 @@ templates:
     templateContext:
       - name: action
         expression: "#self.value"
+      - name: page
+        expression: "#getPageForFormAction(#self.value)"
       - name: table
         expression: "#self.key"
       - name: ownerPage

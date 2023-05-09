@@ -488,4 +488,13 @@ public class UiPageHelper extends Helper {
 
         return null;
     }
+
+    public static PageDefinition getPageForFormAction(Action action) {
+        if (action.getIsCreateAction()) {
+            return ((CreateAction) action).getTarget();
+        } else if (action.getIsCallOperationAction()) {
+            return ((CallOperationAction) action).getInputParameterPage();
+        }
+        throw new RuntimeException("Unsupported action type: " + action.getType());
+    }
 }
