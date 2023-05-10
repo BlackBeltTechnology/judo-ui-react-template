@@ -19,46 +19,19 @@ import {
 
 export interface {{ tableComponentName table }}Props {
     ownerData: {{ classDataName table.dataElement.owner 'Stored' }};
-    fetchOwnerData: () => Promise<void>;
+    isOwnerLoading: boolean;
     editMode: boolean;
     isFormUpdateable: () => boolean;
-    isOwnerLoading: boolean;
     storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner 'Stored' }}, value: any) => void;
+    fetchOwnerData: () => Promise<void>;
 }
 
 export const {{ tableComponentName table }} = (props: {{ tableComponentName table }}Props) => {
-    const { ownerData, editMode, fetchOwnerData, isFormUpdateable, isOwnerLoading, storeDiff } = props;
+    const { ownerData, isOwnerLoading, editMode, isFormUpdateable, storeDiff, fetchOwnerData } = props;
     const { t } = useTranslation();
-    const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
-
-    const [rowCount, setRowCount] = useState<number>(0);
-    const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
-    const [lastItem, setLastItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
-    const [firstItem, setFirstItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
-    const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
-    const [page, setPage] = useState<number>(0);
-    const [filters, setFilters] = useState<Filter[]>([]);
-    const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName table.dataElement.target 'QueryCustomizer' }}>({
-        _mask: '{{ table.formattedMask }}',
-        _seek: {
-            limit: {{ calculateTablePageLimit tablePageLimit }} + 1,
-        },
-        _orderBy: [
-            {
-                attribute: sortModel[0].field,
-                descending: sortModel[0].sort === 'desc',
-            },
-        ],
-        ...mapAllFiltersToQueryCustomizerProperties(
-            filters,
-            {{# each table.filters as |filter| }}
-                '{{ filter.attributeType.name }}',
-            {{/ each }}
-        ),
-    });
 
     {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
@@ -72,24 +45,19 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
         {{/ unless }}
     {{/ each }}
 
-    const filterOptions: FilterOption[] = [
-        {{# each table.filters as |filter| }}
-            {{# if debugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
-        {{/ each }}
-    ];
-
     {{# if debugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
 
-    {{# if table.dataElement.isAddable }}
+    {{# each table.actions as |action| }}
         {{# unless table.dataElement.isMemberTypeTransient }}
-            {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-            {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+            {{# if action.isAddAction }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
+                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
+                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+            {{/ if }}
         {{/ unless }}
-    {{/ if }}
+    {{/ each }}
 
     return (
         <DataGrid

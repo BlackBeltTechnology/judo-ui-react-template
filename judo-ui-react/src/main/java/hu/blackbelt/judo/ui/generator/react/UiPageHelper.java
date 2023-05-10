@@ -218,7 +218,7 @@ public class UiPageHelper extends Helper {
     public static Collection<Action> getUniquePageActions(PageDefinition page) {
         Collection<Action> actions = new ArrayList<>(page.getActions());
         return actions.stream()
-                .filter(a -> !a.getIsBackAction() && !a.getIsEditAction())
+                .filter(a -> !a.getIsBackAction() && !a.getIsEditAction() && !a.getIsSaveEditAction() && !a.getIsSaveCreateAction())
                 .collect(Collectors.toMap(UiCommonsHelper::getXMIID, p -> p, (p, q) -> p)).values();
     }
 

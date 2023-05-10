@@ -108,7 +108,9 @@ public class UiActionsHelper {
     }
 
     public static List<Action> getActionsForPages(Application application) {
-        return getPagesForRouting(application).stream().flatMap(p -> p.getActions().stream()).collect(Collectors.toList());
+        return getPagesForRouting(application).stream()
+                .flatMap(p -> getUniquePageActions(p).stream())
+                .collect(Collectors.toList());
     }
 
     public static List<Action> getActionsForOutputPages(Application application) {

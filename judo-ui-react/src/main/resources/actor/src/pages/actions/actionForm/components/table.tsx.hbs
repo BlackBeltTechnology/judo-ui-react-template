@@ -17,14 +17,109 @@ import {
 
 export interface {{ tableComponentName table }}Props {
     ownerData: {{ classDataName table.dataElement.owner '' }};
+    isOwnerLoading: boolean;
     editMode: boolean;
     isFormUpdateable: () => boolean;
-    isOwnerLoading: boolean;
     storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => void;
 }
 
-export function {{ tableComponentName table }}(props: {{ tableComponentName table }}Props) {
+export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
+    const { ownerData, isOwnerLoading, editMode, isFormUpdateable, storeDiff } = props;
+    const { t } = useTranslation();
+    const { openRangeDialog } = useRangeDialog();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
+
+    {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
+
+    {{# if debugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/relation/hook-variables.fragment.hbs rel=table }}
+
+    {{# if debugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
+
+    {{# each table.actions as |action| }}
+        {{# unless table.dataElement.isMemberTypeTransient }}
+            {{# if action.isAddAction }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
+                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
+                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+            {{/ if }}
+        {{/ unless }}
+    {{/ each }}
+
     return (
-        <div>{{ table.name }}</div>
+        <DataGrid
+            { ...baseTableConfig }
+            sx={ {
+                // overflow: 'hidden',
+                display: 'grid',
+            } }
+            getRowId={(row: { __identifier: string }) => row.__identifier}
+            loading={ isOwnerLoading }
+            rows={ ownerData?.{{ table.dataElement.name }} ?? [] }
+            getRowClassName={() => "data-grid-row"}
+            getCellClassName={() => "data-grid-cell"}
+            columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, { shownActions: 2 }) ]}
+            disableRowSelectionOnClick
+            sortModel={ {{ table.dataElement.name }}SortModel }
+            onSortModelChange={(newModel: GridSortModel) => {
+                set{{ ucFirst table.dataElement.name }}SortModel(newModel);
+            }}
+            components={ {
+                Toolbar: () => (
+                    <GridToolbarContainer>
+                        {{# each table.actions as |action| }}
+                            {{# unless table.dataElement.isMemberTypeTransient }}
+                                {{# if action.isAddAction }}
+                                    <Button
+                                        id="{{ createId table.dataElement }}-add"
+                                        variant="text"
+                                        onClick={ async () => {
+                                            const res = await {{ table.dataElement.name }}RangeCall();
+
+                                            if (res) {
+                                                storeDiff('{{ table.dataElement.name }}', [
+                                                    ...(ownerData.{{ table.dataElement.name }} || []),
+                                                    ...(res as {{ classDataName table.dataElement.target 'Stored' }}[])
+                                                ]);
+                                            }
+                                        } }
+                                        disabled={
+                                               isOwnerLoading
+                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                            || !isFormUpdateable()
+                                        }
+                                    >
+                                        <MdiIcon path="attachment-plus" />
+                                        {t('judo.pages.table.add', { defaultValue: 'Add' })}
+                                    </Button>
+                                {{/ if }}
+                                {{# if action.isClearAction }}
+                                    <Button
+                                        id="{{ createId table.dataElement }}-clear"
+                                        variant="text"
+                                        onClick={ async () => {
+                                            storeDiff('{{ table.dataElement.name }}', []);
+                                        } }
+                                        disabled={
+                                               isOwnerLoading
+                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                            || !isFormUpdateable()
+                                        }
+                                    >
+                                        <MdiIcon path="link_off" />
+                                        {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
+                                    </Button>
+                                {{/ if }}
+                            {{/ unless }}
+                        {{/ each }}
+                        <div>{/* Placeholder WTFFFFF */}</div>
+                    </GridToolbarContainer>
+                ),
+            } }
+        />
     );
-}
+});

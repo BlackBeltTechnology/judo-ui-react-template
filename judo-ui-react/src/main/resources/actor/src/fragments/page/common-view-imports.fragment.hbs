@@ -2,7 +2,6 @@ import { useEffect, useState, useCallback, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Box, Container, Grid, {{ getMuiMaterialImportsForPage page }} } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import { {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
 {{# if (hasPageDateTimePickers page) }}
     import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
 {{/ if }}
@@ -18,17 +17,13 @@ import {
     CustomBreadcrumb,
     useJudoNavigation,
 } from '~/components';
-import type { Filter } from '~/components-api';
-import { columnsActionCalculator } from '~/components/table';
-import { useFilterDialog, useRangeDialog } from '~/components/dialog';
-import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '~/components/widgets';
+import { useRangeDialog } from '~/components/dialog';
+import { AssociationButton, BinaryInput, CollectionAssociationButton } from '~/components/widgets';
 import {
     useErrorHandler,
     ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
     fileHandling,
-    mapAllFiltersToQueryCustomizerProperties,
     processQueryCustomizer,
-    TableRowAction,
     uiDateToServiceDate,
     serviceDateToUiDate,
     uiTimeToServiceTime,
@@ -37,7 +32,7 @@ import {
     booleanToStringSelect,
 } from '~/utilities';
 import { useConfirmationBeforeChange } from '~/hooks';
-import { baseTableConfig, toastConfig, dividerHeight } from '~/config';
+import { toastConfig, dividerHeight } from '~/config';
 import { useL10N } from '~/l10n/l10n-context';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
 import { JudoIdentifiable } from '@judo/data-api-common';
