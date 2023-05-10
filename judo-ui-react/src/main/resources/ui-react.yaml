@@ -533,12 +533,32 @@ templates:
       - name: page
         expression: "#self"
 
-  - name: actor/src/pages/hooks.tsx
+  - name: actor/src/pages/page-actions.tsx
     factoryExpression: "#getPagesForRouting(#application)"
-    pathExpression: "#pagePath(#self) + 'hooks/use' + #pageName(#self) + '.tsx'"
-    templateName: actor/src/pages/hooks.tsx.hbs
+    pathExpression: "#pagePath(#self) + 'components/PageActions.tsx'"
+    templateName: actor/src/pages/page-actions.tsx.hbs
     templateContext:
       - name: page
+        expression: "#self"
+
+  - name: actor/src/pages/components/link.tsx
+    factoryExpression: "#getLinksForPages(#application)"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #linkComponentName(#self) + '.tsx'"
+    templateName: actor/src/pages/components/link.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self.pageDefinition"
+      - name: link
+        expression: "#self"
+
+  - name: actor/src/pages/components/table.tsx
+    factoryExpression: "#getTablesForPages(#application)"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #tableComponentName(#self) + '.tsx'"
+    templateName: actor/src/pages/components/table.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self.pageDefinition"
+      - name: table
         expression: "#self"
 
   - name: actor/src/pages/actions/index.tsx
@@ -551,29 +571,55 @@ templates:
 
   - name: actor/src/pages/actions/action.tsx
     factoryExpression: "#getActionsForPages(#application)"
-    pathExpression: "#pagePath(#self.value) + 'actions/' + #pageActionPathSuffix(#self.key, #self.value) + '.tsx'"
+    pathExpression: "#pagePath(#getActionContainer(#self)) + 'actions/' + #pageActionPathSuffix(#self) + '.tsx'"
     templateName: actor/src/pages/actions/action.tsx.hbs
     templateContext:
-      - name: kv
-        expression: "#self"
       - name: action
-        expression: "#self.key"
+        expression: "#self"
       - name: page
-        expression: "#self.value"
+        expression: "#getActionContainer(#self)"
 
   # Actor - src - pages - action forms
 
   - name: actor/src/pages/actions/actionForm.tsx
     factoryExpression: "#getActionFormsForPages(#application)"
-    pathExpression: "#pagePath(#self.value) + 'actions/' + #pageActionFormPathSuffix(#self.key, #self.value) + '.tsx'"
+    pathExpression: "#pagePath(#getActionContainer(#self)) + 'actions/' + #pageActionFormPathSuffix(#self) + '/index.tsx'"
     templateName: actor/src/pages/actions/actionForm.tsx.hbs
     templateContext:
-      - name: kv
-        expression: "#self"
       - name: action
+        expression: "#self"
+      - name: page
+        expression: "#getPageForFormAction(#self)"
+      - name: ownerPage
+        expression: "#getActionContainer(#self)"
+
+  - name: actor/src/pages/actions/actionForm/components/link.tsx
+    factoryExpression: "#getLinksForActionFormPages(#application)"
+    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #linkComponentName(#self.key) + '.tsx'"
+    templateName: actor/src/pages/actions/actionForm/components/link.tsx.hbs
+    templateContext:
+      - name: action
+        expression: "#self.value"
+      - name: page
+        expression: "#getPageForFormAction(#self.value)"
+      - name: link
         expression: "#self.key"
       - name: ownerPage
+        expression: "#getActionContainer(#self.value)"
+
+  - name: actor/src/pages/actions/actionForm/components/table.tsx
+    factoryExpression: "#getTablesForActionFormPages(#application)"
+    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #tableComponentName(#self.key) + '.tsx'"
+    templateName: actor/src/pages/actions/actionForm/components/table.tsx.hbs
+    templateContext:
+      - name: action
         expression: "#self.value"
+      - name: page
+        expression: "#getPageForFormAction(#self.value)"
+      - name: table
+        expression: "#self.key"
+      - name: ownerPage
+        expression: "#getActionContainer(#self.value)"
 
   # Actor - src - pages - unmapped output modals
 
@@ -583,6 +629,26 @@ templates:
     templateName: actor/src/pages/actions/action/call-operation-action/output-view/output-view.tsx.hbs
     templateContext:
       - name: page
+        expression: "#self"
+
+  - name: actor/src/pages/actions/action/call-operation-action/output-view/components/link.tsx
+    factoryExpression: "#getLinksForUnmappedOutputViewPages(#application)"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #linkComponentName(#self) + '.tsx'"
+    templateName: actor/src/pages/actions/action/call-operation-action/output-view/components/link.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self.pageDefinition"
+      - name: link
+        expression: "#self"
+
+  - name: actor/src/pages/actions/action/call-operation-action/output-view/components/table.tsx
+    factoryExpression: "#getTablesForUnmappedOutputViewPages(#application)"
+    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #tableComponentName(#self) + '.tsx'"
+    templateName: actor/src/pages/actions/action/call-operation-action/output-view/components/table.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self.pageDefinition"
+      - name: table
         expression: "#self"
 
   - name: actor/src/pages/actions/index.tsx
@@ -595,15 +661,13 @@ templates:
 
   - name: actor/src/pages/actions/action.tsx
     factoryExpression: "#getActionsForOutputPages(#application)"
-    pathExpression: "#pagePath(#self.value) + '/actions/' + #pageActionPathSuffix(#self.key, #self.value) + '.tsx'"
+    pathExpression: "#pagePath(#getActionContainer(#self)) + '/actions/' + #pageActionPathSuffix(#self) + '.tsx'"
     templateName: actor/src/pages/actions/action.tsx.hbs
     templateContext:
-      - name: kv
-        expression: "#self"
       - name: action
-        expression: "#self.key"
+        expression: "#self"
       - name: page
-        expression: "#self.value"
+        expression: "#getActionContainer(#self)"
 
   # Actor - src - layout
 

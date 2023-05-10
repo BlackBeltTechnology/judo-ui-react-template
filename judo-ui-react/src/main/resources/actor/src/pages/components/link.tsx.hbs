@@ -1,0 +1,119 @@
+{{> fragment.header.hbs }}
+
+{{# if debugPrint }}// include: actor/src/fragments/link/common-imports.fragment.hbs{{/ if }}
+{{> actor/src/fragments/link/common-imports.fragment.hbs }}
+
+import {
+    {{# each (getApiImportsForViewPage page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '~/generated/data-api';
+import {
+    {{ classServiceName link.dataElement.owner }}Impl,
+    {{# neq (classServiceName link.dataElement.owner) (classServiceName link.dataElement.target) }}
+        {{ classServiceName link.dataElement.target }}Impl,
+    {{/ neq }}
+} from '~/generated/data-axios';
+
+{{# if (linkHasActionsToImport link) }}
+    import {
+        {{# each (getFilteredLinkActions link) as |action| }}
+            {{ actionFunctionHookName action }},
+        {{/ each }}
+    } from '../actions';
+{{/ if }}
+
+export interface {{ linkComponentName link }}Props {
+    {{# if (isPageRefreshable page) }}
+        ownerData: {{ classDataName link.dataElement.owner 'Stored' }};
+        storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner 'Stored' }}, value: any) => void;
+        validation: Map<keyof {{ classDataName link.dataElement.owner 'Stored' }}, string>;
+        fetchOwnerData: () => Promise<void>;
+    {{ else }}
+        ownerData: {{ classDataName link.dataElement.owner '' }};
+        storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner '' }}, value: any) => void;
+        validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
+    {{/ if }}
+    disabled: boolean;
+    editMode: boolean;
+}
+
+export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
+    const { ownerData, disabled, editMode, {{# if (isPageRefreshable page) }}fetchOwnerData, {{/ if }}storeDiff, validation } = props;
+    const { t } = useTranslation();
+    const { openFilterDialog } = useFilterDialog();
+    const { openRangeDialog } = useRangeDialog();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
+
+    {{# if debugPrint }}// include: actor/src/fragments/link/hook-variables.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/link/hook-variables.fragment.hbs link=link }}
+
+    {{# each (getFilteredLinkActions link) as |action| }}
+        const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+    {{/ each }}
+
+    return (
+        <AggregationInput
+            name="{{ link.dataElement.name }}"
+            id="{{ createId link }}"
+            label={ t('{{ idToTranslationKey link.fQName application }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
+            labelList={[
+                {{# each link.parts as |part| }}
+                    ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
+                {{/ each }}
+            ]}
+            value={ ownerData.{{ link.dataElement.name }} }
+            error={ !!validation.get('{{ link.dataElement.name }}') }
+            helperText={ validation.get('{{ link.dataElement.name }}') }
+            {{# if link.icon }}
+                icon={<MdiIcon path="{{ link.icon.name }}" />}
+            {{/ if }}
+            disabled={ disabled }
+            editMode={ editMode }
+            {{# each link.actions as |action| }}
+                {{# if action.isViewAction }}
+                    onView={ async () => {{ actionFunctionName action }}(ownerData, ownerData?.{{ link.dataElement.name }}!) }
+                {{/ if }}
+                {{# if action.isCreateAction }}
+                    onCreate={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {
+                        fetchOwnerData();
+                    }) }
+                {{/ if }}
+                {{# if action.isDeleteAction }}
+                    onDelete={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}ownerData?.{{ link.dataElement.name }}!, () => {
+                        fetchOwnerData();
+                    }) }
+                {{/ if }}
+                {{# if action.isRemoveAction }}
+                    onRemove={ async () => {
+                        storeDiff('{{ link.dataElement.name }}', null);
+                    } }
+                {{/ if }}
+                {{# if action.isSetAction }}
+                    onSet={ async () => {
+                        const res = await openRangeDialog<{{ classDataName link.dataElement.target 'Stored' }}, {{ classDataName link.dataElement.target 'QueryCustomizer' }}>({
+                            id: '{{ createId link.dataElement }}',
+                            columns: {{ link.dataElement.name }}Columns,
+                            defaultSortField: ({{{ getDefaultSortParamsForLink link }}} as GridSortItem[])[0],
+                            rangeCall: async (queryCustomizer) =>
+                                await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(ownerData, processQueryCustomizer(queryCustomizer)),
+                            single: true,
+                            alreadySelectedItems: ownerData.{{ link.dataElement.name }}?.__identifier as GridRowId,
+                            filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
+                            initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
+                        });
+
+                        if (res === undefined) return;
+                        storeDiff('{{ link.dataElement.name }}', res as {{ classDataName link.dataElement.target 'Stored' }});
+                    } }
+                {{/ if }}
+                {{# if action.isUnsetAction }}
+                    onUnset={ async () => {
+                        storeDiff('{{ link.dataElement.name }}', null);
+                    } }
+                {{/ if }}
+            {{/ each }}
+        />
+    );
+}
