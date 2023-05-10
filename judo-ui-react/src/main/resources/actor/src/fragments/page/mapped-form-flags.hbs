@@ -2,6 +2,10 @@ const isFormUpdateable = useCallback(() => {
     return {{ boolValue page.dataElement.isUpdatable }} && typeof data?.__updateable === 'boolean' && data?.__updateable;
 }, [data]);
 
-const isFormDeleteable = useCallback(() => {
-    return {{ boolValue page.dataElement.isDeletable }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
-}, [data]);
+{{# unless page.isPageTypeCreate }}
+    {{# unless page.isPageTypeOperationInput }}
+        const isFormDeleteable = useCallback(() => {
+            return {{ boolValue page.dataElement.isDeletable }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
+        }, [data]);
+    {{/ unless }}
+{{/ unless }}

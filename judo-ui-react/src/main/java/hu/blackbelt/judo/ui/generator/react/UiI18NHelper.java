@@ -88,9 +88,7 @@ public class UiI18NHelper extends Helper {
                 .map(d -> (ClassType) d)
                 .collect(Collectors.toList());
 
-        classes.stream().forEach(c -> {
-            c.getAttributes().stream().filter(a -> a.getDataType() instanceof EnumerationType).forEach(a -> list.add((EnumerationType) a.getDataType()));
-        });
+        classes.forEach(c -> c.getAttributes().stream().filter(a -> a.getDataType() instanceof EnumerationType).forEach(a -> list.add((EnumerationType) a.getDataType())));
 
         return list;
     }
@@ -200,8 +198,7 @@ public class UiI18NHelper extends Helper {
         }
 
         // Create Forms for modals and Operation Input Forms for modals
-        for (KeyValue<Action, PageDefinition> def: getActionFormsForPages(application)) {
-            Action action = def.getKey();
+        for (Action action: getActionFormsForPages(application)) {
             PageDefinition page = action instanceof CallOperationAction ? ((CallOperationAction) action).getInputParameterPage() : ((CreateAction) action).getTarget();
 
             if (action.getIsCreateAction() || action.getIsCallOperationAction()) {

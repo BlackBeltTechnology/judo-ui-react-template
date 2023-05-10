@@ -1,0 +1,258 @@
+import {
+    {{# each (getApiImportsForViewPage page) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '~/generated/data-api';
+import {
+    {{ classServiceName table.dataElement.owner }}Impl,
+    {{# neq (classServiceName table.dataElement.owner) (classServiceName table.dataElement.target) }}
+        {{ classServiceName table.dataElement.target }}Impl,
+    {{/ neq }}
+} from '~/generated/data-axios';
+{{# if (tableHasActionsToImport table) }}
+    import {
+        {{# each (getFilteredTableActions table) as |action| }}
+            {{ actionFunctionHookName action }},
+        {{/ each }}
+    } from '../actions';
+{{/ if }}
+
+export interface {{ tableComponentName table }}Props {
+    ownerData: JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>;
+    isOwnerLoading: boolean;
+    fetchOwnerData: () => Promise<void>;
+    editMode: boolean;
+    isFormUpdateable: () => boolean;
+    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner 'Stored' }}, value: any) => void;
+}
+
+export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
+    const { ownerData, fetchOwnerData, editMode, isFormUpdateable } = props;
+    const { t } = useTranslation();
+    const { openFilterDialog } = useFilterDialog();
+    const { openRangeDialog } = useRangeDialog();
+    const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
+    const { locale: l10nLocale } = useL10N();
+    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [data, setData] = useState<GridRowModel<{{ classDataName table.dataElement.target 'Stored' }}>[]>([]);
+    const [rowCount, setRowCount] = useState<number>(0);
+    const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
+    const [lastItem, setLastItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
+    const [firstItem, setFirstItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
+    const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
+    const [page, setPage] = useState<number>(0);
+    const [filters, setFilters] = useState<Filter[]>([]);
+    const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName table.dataElement.target 'QueryCustomizer' }}>({
+        _mask: '{{ table.formattedMask }}',
+        _seek: {
+            limit: {{ calculateTablePageLimit tablePageLimit }} + 1,
+        },
+        _orderBy: [
+            {
+                attribute: sortModel[0].field,
+                descending: sortModel[0].sort === 'desc',
+            },
+        ],
+        ...mapAllFiltersToQueryCustomizerProperties(
+            filters,
+            {{# each table.filters as |filter| }}
+                '{{ filter.attributeType.name }}',
+            {{/ each }}
+        ),
+    });
+
+    {{# if debugPrint }}// include: actor/src/fragments/table/hook-variables.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/table/hook-variables.fragment.hbs table=table }}
+
+    {{# each (getFilteredTableActions table) as |action| }}
+        {{# if action.isFilterRelationAction }}
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}(setFilters, setPage, setQueryCustomizer, openFilterDialog);
+        {{ else }}
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+        {{/ if }}
+    {{/ each }}
+
+    const filterOptions: FilterOption[] = [
+        {{# each table.filters as |filter| }}
+            {{# if debugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
+        {{/ each }}
+    ];
+
+    const rowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
+        {{# each table.rowActions as |action| }}
+            {{# if action.isRemoveAction }}
+                {
+                    id: '{{ createId action }}',
+                    label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
+                    icon: <MdiIcon path="{{ action.icon.name }}" />,
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}(ownerData, row, () => fetchData()),
+                },
+            {{/ if }}
+            {{# if action.isDeleteAction }}
+                {
+                    id: '{{ createId action }}',
+                    label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
+                    icon: <MdiIcon path="{{ action.icon.name }}" />,
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}(ownerData, row, () => fetchData()),
+                    disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
+                },
+            {{/ if }}
+            {{# if action.isCallOperationAction }}
+                {
+                    id: '{{ createId action }}',
+                    label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
+                    icon: <MdiIcon path="{{ action.icon.name }}" />,
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }} (row, () => fetchData()),
+                },
+            {{/ if }}
+        {{/ each }}
+    ];
+
+    function handleSortModelChange (newModel: GridSortModel) {
+        setPage(0);
+        setSortModel(newModel);
+
+        const { field, sort } = newModel[0];
+
+        setQueryCustomizer((prevQueryCustomizer) => {
+            return {
+                ...prevQueryCustomizer,
+                _orderBy: [{ attribute: field, descending: sort === 'desc' }],
+            };
+        });
+    }
+
+    async function handlePageChange (isNext: boolean) {
+        setQueryCustomizer((prevQueryCustomizer) => {
+            return {
+                ...prevQueryCustomizer,
+                _seek: {
+                    limit: isNext ? {{ calculateTablePageLimit tablePageLimit }} + 1 : {{ calculateTablePageLimit tablePageLimit }},
+                    reverse: !isNext,
+                    lastItem: isNext ? lastItem : firstItem,
+                },
+            };
+        });
+
+        setIsNextButtonEnabled(!isNext);
+    }
+
+    async function fetchData() {
+        setIsLoading(true);
+
+        try {
+            const res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
+                ownerData,
+                processQueryCustomizer(queryCustomizer),
+            );
+
+            if (res.length > {{ calculateTablePageLimit tablePageLimit }}) {
+                setIsNextButtonEnabled(true);
+                res.pop();
+            } else if (queryCustomizer._seek?.limit === {{ calculateTablePageLimit tablePageLimit }} + 1) {
+                setIsNextButtonEnabled(false);
+            }
+
+            setData(res);
+            setFirstItem(res[0]);
+            setLastItem(res[res.length - 1]);
+            setRowCount(res.length || 0);
+        } catch (error) {
+            handleFetchError(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    useImperativeHandle(ref, () => ({
+        fetchData,
+    }));
+
+    useEffect(() => {
+        fetchData();
+    }, [queryCustomizer]);
+
+    return (
+        <DataGrid
+            { ...baseTableConfig }
+            sx={ {
+                // overflow: 'hidden',
+                display: 'grid',
+            } }
+            getRowId={(row: { __identifier: string }) => row.__identifier}
+            loading={ isLoading }
+            rows={ data }
+            getRowClassName={() => "data-grid-row"}
+            getCellClassName={() => "data-grid-cell"}
+            columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, { shownActions: 2 }) ]}
+            disableRowSelectionOnClick
+            {{# each table.rowActions as |action| }}
+                {{# if action.isViewAction }}
+                    onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}(ownerData, params.row) }
+                {{/ if }}
+            {{/ each }}
+            sortModel={ sortModel }
+            onSortModelChange={ handleSortModelChange }
+            components={ {
+                Toolbar: () => (
+                    <GridToolbarContainer>
+                        {{# each (getFilteredTableActions table) as |action| }}
+                            {{# if action.isFilterRelationAction }}
+                                <Button
+                                    id="{{ createId action }}"
+                                    variant="text"
+                                    onClick={ () => {
+                                        {{ actionFunctionName action }}('{{ createId action }}-filter', filterOptions, filters);
+                                    } }
+                                    disabled={isLoading}
+                                >
+                                    <MdiIcon path="filter" />
+                                    {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
+                                </Button>
+                            {{/ if }}
+                            {{# if action.isAddAction }}
+                                <Button
+                                    id="{{ createId action }}-add"
+                                    variant="text"
+                                    onClick={ async () => {
+                                        {{ actionFunctionName action }}(ownerData, () => fetchData())
+                                    } }
+                                    disabled={isLoading}
+                                >
+                                    <MdiIcon path="attachment-plus" />
+                                    {t('judo.pages.table.add', { defaultValue: 'Add' })}
+                                </Button>
+                            {{/ if }}
+                            {{# if action.isClearAction }}
+                                <Button
+                                    id="{{ createId action }}-clear"
+                                    variant="text"
+                                    onClick={ async () => {
+                                        {{ actionFunctionName action }}(ownerData, () => fetchData())
+                                    } }
+                                    disabled={isLoading}
+                                >
+                                    <MdiIcon path="link_off" />
+                                    {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
+                                </Button>
+                            {{/ if }}
+                        {{/ each }}
+                        <div>{/* Placeholder */}</div>
+                    </GridToolbarContainer>
+                ),
+                Pagination: () => (
+                    <CustomTablePagination
+                        pageChange={handlePageChange}
+                        isNextButtonEnabled={isNextButtonEnabled}
+                        page={page}
+                        setPage={setPage}
+                        rowPerPage={ {{ calculateTablePageLimit tablePageLimit }} }
+                    />
+                ),
+            } }
+        />
+    );
+});

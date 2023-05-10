@@ -1,4 +1,4 @@
-return async function {{ actionFunctionName action page }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
+return async function {{ actionFunctionName action }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
     {{# if action.operation.input }}
         {{# with action.inputParameterPage.containers.[0].tables.[0] as |table| }}
             const columns: GridColDef<{{ classDataName action.inputParameterPage.dataElement.target 'Stored' }}>[] = [

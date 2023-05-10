@@ -11,137 +11,19 @@
         >
     {{/ if }}
     <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
-        <DataGrid
-            { ...baseTableConfig }
-            sx={ {
-                // overflow: 'hidden',
-                display: 'grid',
-            } }
-            {{# if child.dataElement.isRelationKindAssociation }}disableColumnFilter={true}{{/ if }}
-            getRowId={(row: { __identifier: string }) => row.__identifier}
-            loading={ {{# if child.dataElement.isRelationKindAssociation }}is{{ firstToUpper child.dataElement.name }}Loading{{ else }}isLoading{{/ if }} }
-            rows={ {{# if child.dataElement.isRelationKindAssociation }}dataFor{{ firstToUpper child.dataElement.name }}{{ else }}data?.{{ child.dataElement.name }} ?? [] {{/ if }} }
-            getRowClassName={() => "data-grid-row"}
-            getCellClassName={() => "data-grid-cell"}
-            columns={[ ...{{ child.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId child.dataElement }}', {{ child.dataElement.name }}RowActions, { shownActions: 2 }) ]}
-            disableRowSelectionOnClick
-            {{# each child.rowActions as |action| }}
-                {{# if action.isViewAction }}
-                    onRowClick={ (params: GridRowParams<{{ classDataName child.dataElement.target 'Stored' }}>) => {
-                        if (!editMode) {
-                            {{ actionFunctionName action action.target }}(data, params.row);
-                        }
-                    } }
+        <{{ tableComponentName child }}
+            ownerData={data}
+            {{# unless table.dataElement.isRelationKindAssociation }}
+                {{# if (isPageRefreshable page) }}
+                    fetchOwnerData={fetchData}
                 {{/ if }}
-            {{/ each }}
-            sortModel={ {{ child.dataElement.name }}SortModel }
-            onSortModelChange={(newModel: GridSortModel) => {
-                set{{ ucFirst child.dataElement.name }}SortModel(newModel);
-            }}
-            components={ {
-                Toolbar: () => (
-                    <GridToolbarContainer>
-                        {{# each child.actions as |action| }}
-                            {{# if action.isFilterRelationAction }}
-                                <Button
-                                    id="{{ createId action }}"
-                                    variant="text"
-                                    onClick={ () => {{ actionFunctionName action page }}('{{ createId action }}-filter', {{ child.dataElement.name }}FilterOptions, {{ child.dataElement.name }}Filters) }
-                                    disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || editMode }
-                                >
-                                    <MdiIcon path="filter" />
-                                    {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + ({{ child.dataElement.name }}Filters.length !== 0 ? ' (' + {{ child.dataElement.name }}Filters.length + ')' : '')}
-                                </Button>
-                            {{/ if }}
-                            {{# if action.isCreateAction }}
-                                {{# unless page.isPageTypeOperationInput }}
-                                    <Button
-                                        id="{{ createId action }}"
-                                        variant="text"
-                                        onClick={ () => {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => {
-                                            {{# if child.dataElement.isRelationKindAssociation }}
-                                                fetch{{ firstToUpper child.dataElement.name }}();
-                                            {{ else }}
-                                                fetchData();
-                                            {{/ if }}
-                                        }) }
-                                        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || editMode || !isFormUpdateable() }
-                                    >
-                                        <MdiIcon path="file_document_plus" />
-                                        {t('judo.pages.table.create', { defaultValue: 'Create' })}
-                                    </Button>
-                                {{/ unless }}
-                            {{/ if }}
-                            {{# unless child.dataElement.isMemberTypeTransient }}
-                                {{# if action.isAddAction }}
-                                    <Button
-                                        id="{{ createId child.dataElement }}-add"
-                                        variant="text"
-                                        onClick={ async () => {
-                                            {{# if child.dataElement.isRelationKindAssociation }}
-                                                {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetch{{ firstToUpper child.dataElement.name }}())
-                                            {{ else }}
-                                                const res = await {{ child.dataElement.name }}RangeCall();
-
-                                                if (res) {
-                                                    storeDiff('{{ child.dataElement.name }}', [
-                                                        ...(data.{{ child.dataElement.name }} || []),
-                                                        ...(res as {{ classDataName child.dataElement.target 'Stored' }}[])
-                                                    ]);
-
-                                                    {{# if page.dataElement.isUpdatable }}
-                                                        if (!editMode) {
-                                                            setEditMode(true);
-                                                        }
-                                                    {{/ if }}
-                                                }
-                                            {{/ if }}
-                                        } }
-                                        disabled={
-                                               isLoading
-                                            || {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
-                                            || !isFormUpdateable()
-                                            {{# if child.dataElement.isRelationKindAssociation }}|| editMode {{/ if }}
-                                        }
-                                    >
-                                        <MdiIcon path="attachment-plus" />
-                                        {t('judo.pages.table.add', { defaultValue: 'Add' })}
-                                    </Button>
-                                {{/ if }}
-                                {{# if action.isClearAction }}
-                                    <Button
-                                        id="{{ createId child.dataElement }}-clear"
-                                        variant="text"
-                                        onClick={ async () => {
-                                            {{# if child.dataElement.isRelationKindAssociation }}
-                                                {{ actionFunctionName action page }}({{# unless (isActionAccess action) }}data, {{/ unless }}() => fetch{{ firstToUpper child.dataElement.name }}())
-                                            {{ else }}
-                                                {{# if page.dataElement.isUpdatable }}
-                                                    storeDiff('{{ child.dataElement.name }}', []);
-
-                                                    if (!editMode) {
-                                                        setEditMode(true);
-                                                    }
-                                                {{/ if }}
-                                            {{/ if }}
-                                        } }
-                                        disabled={
-                                               isLoading
-                                            || {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
-                                            || !isFormUpdateable()
-                                            {{# if child.dataElement.isRelationKindAssociation }}|| editMode {{/ if }}
-                                        }
-                                    >
-                                        <MdiIcon path="link_off" />
-                                        {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
-                                    </Button>
-                                {{/ if }}
-                            {{/ unless }}
-                        {{/ each }}
-                        <div>{/* Placeholder */}</div>
-                    </GridToolbarContainer>
-                ),
-            } }
+            {{/ unless }}
+            editMode={editMode}
+            isFormUpdateable={isFormUpdateable}
+            {{# unless table.dataElement.isRelationKindAssociation }}
+                isOwnerLoading={isLoading}
+                storeDiff={storeDiff}
+            {{/ unless }}
         />
     </Grid>
     {{# if child.customImplementation }}

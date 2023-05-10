@@ -124,6 +124,22 @@ public class UiPageHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
+    public static List<Link> getLinksForPages(Application application) {
+        List<PageDefinition> pages = getPagesForRouting(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Link>) p.getLinks()).stream())
+                .collect(Collectors.toList());
+    }
+
+    public static List<Table> getTablesForPages(Application application) {
+        List<PageDefinition> pages = getPagesForRouting(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Table>) p.getTables()).stream())
+                .collect(Collectors.toList());
+    }
+
     public static boolean hasDashboard(Application application) {
       return  application.getPages().stream().filter(UiPageHelper::keepPageType).filter(page -> page.getIsPageTypeDashboard()).findFirst().isPresent();
     }
@@ -146,6 +162,12 @@ public class UiPageHelper extends Helper {
 
     public static String pagePath(PageDefinition page) {
         return pagesFolderPath(((Application)page.eContainer()).getActor()).concat(getPageTypePath(page));
+    }
+
+    public static String pagePathForTilde(PageDefinition page) {
+        String path = "pages/".concat(getPageTypePath(page));
+
+        return path.endsWith("/") ? StringUtils.substring(path, 0, -1) : path;
     }
 
     public static String pageName(PageDefinition page) {
@@ -195,21 +217,24 @@ public class UiPageHelper extends Helper {
     public static Collection<Action> getUniquePageActions(PageDefinition page) {
         Collection<Action> actions = new ArrayList<>(page.getActions());
         return actions.stream()
-                .filter(a -> !a.getIsBackAction())
+                .filter(a -> !a.getIsBackAction() && !a.getIsEditAction() && !a.getIsSaveEditAction() && !a.getIsSaveCreateAction())
                 .collect(Collectors.toMap(UiCommonsHelper::getXMIID, p -> p, (p, q) -> p)).values();
+    }
+
+    public static Collection<Action> getOnlyPageActions(PageDefinition page) {
+        Collection<Action> actions = getUniquePageActions(page);
+        return actions.stream().filter(a -> a.getType().equals(ActionType.PAGE)).collect(Collectors.toList());
+    }
+
+    public static Collection<Action> getOnlyTableActions(PageDefinition page) {
+        Collection<Action> actions = getUniquePageActions(page);
+        return actions.stream().filter(a -> a.getType().equals(ActionType.TABLE)).collect(Collectors.toList());
     }
 
     public static String getNavigationForPage(PageDefinition page, String signedId) {
         String route = getPageRoute(page);
 
         return signedId != null && route.contains(":signedIdentifier") ? route.replace(":signedIdentifier", "${" + signedId + "}") : route;
-    }
-
-    public static String relativePathFromPage(PageDefinition page, String suffix) {
-        String pageIndex = pageIndexRelativeImportPath(page);
-        int tokens = (int) Arrays.stream(pageIndex.split("")).filter(t -> t.equals("/")).count();
-
-        return "../".repeat(tokens + 1) + suffix;
     }
 
     public static Boolean hasVisualReferences(PageDefinition pageDefinition) {
@@ -319,7 +344,7 @@ public class UiPageHelper extends Helper {
         });
     }
 
-    public static Collection<String> getApiImportsForReferenceType(ReferenceType reference) {
+    public static List<String> getApiImportsForReferenceType(ReferenceType reference) {
         Set<String> res = new HashSet<>();
 
         res.add(classDataName(reference.getTarget(), ""));
@@ -331,10 +356,10 @@ public class UiPageHelper extends Helper {
             res.add(classDataName((ClassType) reference.getOwner(), "Stored"));
         }
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getOwnerApiImportsForDataElement(DataElement dataElement) {
+    public static List<String> getOwnerApiImportsForDataElement(DataElement dataElement) {
         Set<String> res = new HashSet<>();
 
         if (hasDataElementOwner(dataElement)) {
@@ -342,14 +367,14 @@ public class UiPageHelper extends Helper {
             res.add(classDataName(((ClassType) dataElement.getOwner()), ""));
         }
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForTablePage(PageDefinition pageDefinition) {
+    public static List<String> getApiImportsForTablePage(PageDefinition pageDefinition) {
         return getApiImportsForReferenceType((ReferenceType) pageDefinition.getDataElement());
     }
 
-    public static Collection<String> getApiImportsForViewPage(PageDefinition pageDefinition) {
+    public static List<String> getApiImportsForViewPage(PageDefinition pageDefinition) {
         Set<String> res = new HashSet<>();
 
         if (pageDefinition.getDataElement() instanceof ReferenceType) {
@@ -362,10 +387,10 @@ public class UiPageHelper extends Helper {
 
         addReferenceTypesToCollection(pageDefinition, res);
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForCreatePage(PageDefinition pageDefinition) {
+    public static List<String> getApiImportsForCreatePage(PageDefinition pageDefinition) {
         Set<String> res = new HashSet<>();
 
         if (pageDefinition.getDataElement() instanceof ReferenceType) {
@@ -378,18 +403,19 @@ public class UiPageHelper extends Helper {
             res.add(restParamName(a.getDataType()));
         });
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForCreateAction(CreateAction action) {
+    public static List<String> getApiImportsForCreateAction(CreateAction action) {
         Set<String> res = new HashSet<>(getApiImportsForViewPage(action.getTarget()));
 
         res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForCallOperationAction(CallOperationAction action, PageDefinition ownerPage) {
+    public static List<String> getApiImportsForCallOperationAction(CallOperationAction action) {
+        PageDefinition ownerPage = ((PageDefinition) action.eContainer());
         PageDefinition outputParameterPage = action.getOutputParameterPage();
         Set<String> res = action.getInputParameterPage() != null ? new HashSet<>(getApiImportsForViewPage(action.getInputParameterPage())) : new HashSet<>();
 
@@ -410,16 +436,24 @@ public class UiPageHelper extends Helper {
             res.addAll(getApiImportsForReferenceType((ReferenceType) outputParameterPage.getDataElement()));
         }
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForUnmappedOperationOutputAction(PageDefinition page) {
+    public static List<String> getApiImportsForFormAction(Action action) {
+        if (action.getIsCreateAction()) {
+            return getApiImportsForCreateAction((CreateAction) action);
+        } else {
+            return getApiImportsForCallOperationAction((CallOperationAction) action);
+        }
+    }
+
+    public static List<String> getApiImportsForUnmappedOperationOutputAction(PageDefinition page) {
         Set<String> res = new HashSet<>(getApiImportsForViewPage(page));
         res.addAll(getApiImportsForReferenceType((ReferenceType) page.getDataElement()));
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static Collection<String> getApiImportsForRowAction(Action action) {
+    public static List<String> getApiImportsForRowAction(Action action) {
         Set<String> res = new HashSet<>();
 
         if (action.getDataElement() instanceof ReferenceType) {
@@ -428,7 +462,7 @@ public class UiPageHelper extends Helper {
 
         res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
 
-        return res;
+        return res.stream().sorted().collect(Collectors.toList());
     }
 
     public static VisualElement firstViewChildForContainer(PageContainer container) {
@@ -452,5 +486,14 @@ public class UiPageHelper extends Helper {
         }
 
         return null;
+    }
+
+    public static PageDefinition getPageForFormAction(Action action) {
+        if (action.getIsCreateAction()) {
+            return ((CreateAction) action).getTarget();
+        } else if (action.getIsCallOperationAction()) {
+            return ((CallOperationAction) action).getInputParameterPage();
+        }
+        throw new RuntimeException("Unsupported action type: " + action.getType());
     }
 }
