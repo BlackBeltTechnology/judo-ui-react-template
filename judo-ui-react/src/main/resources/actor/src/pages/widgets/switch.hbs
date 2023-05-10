@@ -23,7 +23,6 @@
             error={ !!validation.get('{{ child.attributeType.name }}') }
             helperText={ validation.get('{{ child.attributeType.name }}') }
             onChange={ (event) => {
-                setEditMode(true);
                 storeDiff('{{ child.attributeType.name }}', stringToBooleanSelect(event.target.value));
             } }
             InputLabelProps={ { shrink: true } }
@@ -48,7 +47,6 @@
                 disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
                 control={
                     <Checkbox checked={ data.{{ child.attributeType.name }} || false } onChange={ (event) => {
-                        setEditMode(true);
                         storeDiff('{{ child.attributeType.name }}', event.target.checked);
                     } } />
                 }

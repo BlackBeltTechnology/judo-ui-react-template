@@ -3,21 +3,21 @@
 
 import {
     {{ classDataName action.dataElement.target 'QueryCustomizer' }},
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
-import { useFilterDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
-import type { Filter, FilterOption } from '{{ relativePathFromAction page action 'components-api' }}';
-import { mapAllFiltersToQueryCustomizerProperties } from '{{ relativePathFromAction page action 'utilities' }}';
+} from '~/generated/data-api';
+import { useFilterDialog } from '~/components/dialog';
+import type { Filter, FilterOption } from '~/components-api';
+import { mapAllFiltersToQueryCustomizerProperties } from '~/utilities';
 
-export type {{ actionFunctionTypeName action page }} = (id: string, filterOptions: FilterOption[], filters: Filter[]) => Promise<void>;
+export type {{ actionFunctionTypeName action }} = (id: string, filterOptions: FilterOption[], filters: Filter[]) => Promise<void>;
 
-export const {{ actionFunctionHookName action page }} = (
+export const {{ actionFunctionHookName action }} = (
     setFilters: (filters: Filter[]) => void,
     setPage: (page: number) => void,
     setQueryCustomizer: Function,
     openFilterDialog: (id: string, filterOptions: FilterOption[], filters: Filter[]) => Promise<Filter[]>,
-): {{ actionFunctionTypeName action page }} => {
+): {{ actionFunctionTypeName action }} => {
 
-    return async function {{ actionFunctionName action page }}(id: string, filterOptions: FilterOption[], filters: Filter[]) {
+    return async function {{ actionFunctionName action }}(id: string, filterOptions: FilterOption[], filters: Filter[]) {
         const newFilters = await openFilterDialog(id, filterOptions, filters);
         const numberOfElements = 10;
 

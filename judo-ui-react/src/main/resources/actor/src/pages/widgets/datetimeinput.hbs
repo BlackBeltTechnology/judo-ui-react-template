@@ -48,7 +48,6 @@
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         onChange={ (newValue: Date) => {
-            setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', newValue);
         } }
     />

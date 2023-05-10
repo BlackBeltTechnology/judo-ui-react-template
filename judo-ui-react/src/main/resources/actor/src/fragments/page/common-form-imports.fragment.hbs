@@ -1,0 +1,34 @@
+import { useState, useEffect, useRef, useCallback, Dispatch, SetStateAction, FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LoadingButton } from '@mui/lab';
+import { Grid, {{ getMuiMaterialImportsForActionForm page }} } from '@mui/material';
+{{# if (hasPageDateTimePickers page) }}
+    import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
+{{/ if }}
+import { {{ getMuiDataGridImportsForActionForm page }} } from '@mui/x-data-grid';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy } from '@pandino/react-hooks';
+import { JudoIdentifiable } from '@judo/data-api-common';
+import { useSnackbar } from 'notistack';
+import { v1 as uuidv1 } from 'uuid';
+import { useJudoNavigation, MdiIcon, ModeledTabs } from '~/components';
+import { columnsActionCalculator } from '~/components/table';
+import { useRangeDialog } from '~/components/dialog';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '~/components/widgets';
+import { FilterOption, FilterType } from '~/components-api';
+import {
+    useErrorHandler,
+    ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
+    fileHandling,
+    processQueryCustomizer,
+    TableRowAction,
+    uiDateToServiceDate,
+    serviceDateToUiDate,
+    uiTimeToServiceTime,
+    serviceTimeToUiTime,
+    stringToBooleanSelect,
+    booleanToStringSelect,
+} from '~/utilities';
+import { baseTableConfig, baseColumnConfig, toastConfig, dividerHeight } from '~/config';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
+import { useL10N } from '~/l10n/l10n-context';
