@@ -21,24 +21,29 @@ import {
     PageHeader,
     CustomBreadcrumb,
     useJudoNavigation,
-} from '{{ relativePathFromPage page 'components' }}';
-import { useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, serviceDateToUiDate, uiTimeToServiceTime, serviceTimeToUiTime, booleanToStringSelect, stringToBooleanSelect } from '{{ relativePathFromPage page 'utilities' }}';
-import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
-import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromPage page 'custom' }}';
-import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
+} from '~/components';
+import { useRangeDialog } from '~/components/dialog';
+import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '~/components/widgets';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, serviceDateToUiDate, uiTimeToServiceTime, serviceTimeToUiTime, booleanToStringSelect, stringToBooleanSelect } from '~/utilities';
+import { baseTableConfig, toastConfig, dividerHeight } from '~/config';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
+import { useL10N } from '~/l10n/l10n-context';
 import {
     {{# each (getApiImportsForCreatePage page) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromPage page 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ dataElementRelationName page.dataElement }}Impl,
     {{ classServiceName page.dataElement.target }}Impl,
-} from '{{ relativePathFromPage page 'generated/data-axios'}}';
-import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
-import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
+} from '~/generated/data-axios';
+import { mainContainerPadding } from '~/theme';
+{{# each page.originalPageContainer.links as |link| }}
+    import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
+{{/ each }}
+{{# each page.originalPageContainer.tables as |table| }}
+    import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
+{{/ each }}
 
 {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
     export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
@@ -59,18 +64,6 @@ export default function {{ pageName page }}() {
     const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageName page }}))`);
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
-    const {
-        {{# each (getPageTables page) as |table| }}
-            {{ table.dataElement.name }}Columns,
-            {{ table.dataElement.name }}RangeFilterOptions,
-            {{ table.dataElement.name }}InitialQueryCustomizer,
-        {{/ each }}
-        {{# each (getPageWritableLinks page) as |link| }}
-            {{ link.dataElement.name }}Columns,
-            {{ link.dataElement.name }}RangeFilterOptions,
-            {{ link.dataElement.name }}InitialQueryCustomizer,
-        {{/ each }}
-    } = use{{ pageName page }}();
 
     const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -78,24 +71,12 @@ export default function {{ pageName page }}() {
       __referenceId: uuidv1(),
     } as unknown  as {{ classDataName page.dataElement.target '' }});
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
+    const [editMode, setEditMode] = useState<boolean>(true);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
         {{# if debugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
-    const [editMode, setEditMode] = useState<boolean>(true);
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target ''}}, string>>(new Map<keyof {{ classDataName page.dataElement.target ''}}, string>());
-    {{# each (getPageTables page) as |table| }}
-        {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
-        {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
-        {{# if table.dataElement.isAddable }}
-            {{# unless table.dataElement.isMemberTypeTransient }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
-            {{/ unless }}
-        {{/ if }}
-    {{/ each }}
     const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
     {{# if debugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}

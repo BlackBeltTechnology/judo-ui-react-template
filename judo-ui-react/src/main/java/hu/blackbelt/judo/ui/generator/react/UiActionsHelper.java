@@ -37,40 +37,37 @@ import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
 @TemplateHelper
 public class UiActionsHelper {
 
-    public static String actionFunctionName(Action action, PageDefinition page) {
-        String tmp = pageActionPathSuffix(action, page);
+    public static String actionFunctionName(Action action) {
+        String tmp = pageActionPathSuffix(action);
 
         return (tmp.contains("/") ? tmp.substring(tmp.lastIndexOf("/") + 1) : tmp) + "Action";
     }
 
-    public static String actionFunctionTypeName(Action action, PageDefinition page) {
-        return StringUtils.capitalize(actionFunctionName(action, page));
+    public static String actionFunctionTypeName(Action action) {
+        return StringUtils.capitalize(actionFunctionName(action));
     }
 
-    public static String actionFunctionHookName(Action action, PageDefinition page) {
-        return "use".concat(actionFunctionTypeName(action, page));
+    public static String actionFunctionHookName(Action action) {
+        return "use".concat(actionFunctionTypeName(action));
     }
 
-    public static String actionFunctionHandlerTypeName(Action action, PageDefinition page, String handlerType) {
-        return StringUtils.capitalize(actionFunctionName(action, page)) + handlerType;
+    public static String actionFunctionHandlerTypeName(Action action, String handlerType) {
+        return StringUtils.capitalize(actionFunctionName(action)) + handlerType;
     }
 
-    public static String pageActionPathSuffix(Action action, PageDefinition page) {
+    public static String pageActionPathSuffix(Action action) {
+        PageDefinition page = (PageDefinition) action.eContainer();
         String result = "";
         String[] segments = action.getName().split("::");
         String end = segments[segments.length - 1];
         String first = end.split("#")[0];
         String last = end.split("#")[1];
 
-        if (page.getIsPageTypeTable() && action.getType().equals(ActionType.ROW)) {
-            result += "row/";
-        }
-
         if (action instanceof CallOperationAction) {
             if (!action.getDataElement().getOwner().getName().equals(page.getDataElement().getOwner().getName())) {
                 String targetClassName = getClassName((ClassType) action.getDataElement().getOwner());
                 first = targetClassName + StringUtils.capitalize(first);
-                return StringUtils.uncapitalize(targetClassName) + "/" + StringUtils.capitalize(first);
+                return StringUtils.uncapitalize(targetClassName) + "/" + StringUtils.uncapitalize(first);
             }
             return first;
         } else if (first.equals(page.getDataElement().getName())) {
@@ -79,11 +76,13 @@ public class UiActionsHelper {
             result += first + "/" + StringUtils.uncapitalize(last);
         }
 
-        return result + StringUtils.capitalize(action.getDataElement().getName());
+        String suffix = action.getDataElement().getName();
+
+        return result.length() > 0 ? StringUtils.uncapitalize(result) + StringUtils.capitalize(suffix) : suffix;
     }
 
-    public static String pageActionFilePathSuffix(Action action, PageDefinition page) {
-        String actionPath = pageActionPathSuffix(action, page);
+    public static String pageActionFilePathSuffix(Action action) {
+        String actionPath = pageActionPathSuffix(action);
         String converted = actionPath;
 
         if (actionPath.contains("/")) {
@@ -98,68 +97,89 @@ public class UiActionsHelper {
         return converted;
     }
 
-    public static String pageActionFormPathSuffix(Action action, PageDefinition page) {
-        return pageActionFilePathSuffix(action, page) + "Form";
+    public static String pageActionFormPathSuffix(Action action) {
+        return pageActionFilePathSuffix(action) + "Form";
     }
 
-    public static String pageActionFormComponentName(Action action, PageDefinition page) {
-        String full = pageActionFormPathSuffix(action, page);
+    public static String pageActionFormComponentName(Action action) {
+        String full = pageActionFormPathSuffix(action);
 
         return cutAtLastSlash(full);
     }
 
-    public static String relativePathToPageActionOutputViewComponent(Action action, PageDefinition page) {
-        String pageTypePath = getPageTypePath(((CallOperationAction) action).getOutputParameterPage());
-        String full = removeTrailingSlash(pageTypePath);
-        String root = relativePathFromAction(page, action, full);
-
-        // Both input forms and output modals are placed under `pages` therefore we can skip the first jump up
-        // in the directory tree.
-        return root.replaceFirst("\\.\\./", "");
+    public static List<Action> getActionsForPages(Application application) {
+        return getPagesForRouting(application).stream()
+                .flatMap(p -> getUniquePageActions(p).stream())
+                .collect(Collectors.toList());
     }
 
-    public static List<KeyValue<Action, PageDefinition>> getActionsForPages(Application application) {
-        List<KeyValue<Action, PageDefinition>> actions = new ArrayList<>();
-        getPagesForRouting(application)
-                .forEach(p -> {
-                    getUniquePageActions(p).forEach(a -> {
-                        KeyValue<Action, PageDefinition> kv = new KeyValue<>();
-                        kv.setKey(a);
-                        kv.setValue(p);
-                        actions.add(kv);
-                    });
-                });
-
-        return actions;
+    public static List<Action> getActionsForOutputPages(Application application) {
+        return getUnmappedOutputViewsForPages(application).stream().flatMap(p -> p.getActions().stream()).collect(Collectors.toList());
     }
 
-    public static List<KeyValue<Action, PageDefinition>> getActionsForOutputPages(Application application) {
-        List<KeyValue<Action, PageDefinition>> actions = new ArrayList<>();
-        getUnmappedOutputViewsForPages(application)
-                .forEach(p -> {
-                    getUniquePageActions(p).forEach(a -> {
-                        KeyValue<Action, PageDefinition> kv = new KeyValue<>();
-                        kv.setKey(a);
-                        kv.setValue(p);
-                        actions.add(kv);
-                    });
-                });
-
-        return actions;
+    public static List<Action> getActionFormsForPages(Application application) {
+        List<Action> actions = getActionsForPages(application);
+        return actions.stream().filter(UiActionsHelper::actionHasInputForm).collect(Collectors.toList());
     }
 
-    public static List<KeyValue<Action, PageDefinition>> getActionFormsForPages(Application application) {
-        List<KeyValue<Action, PageDefinition>> actions = getActionsForPages(application);
-        return actions.stream().filter(kv -> actionHasInputForm(kv.getKey())).collect(Collectors.toList());
+    public static List<KeyValue<Link, Action>> getLinksForActionFormPages(Application application) {
+        List<Action> actions = getActionFormsForPages(application);
+        List<KeyValue<Link, Action>> kvs = new ArrayList<>();
+        actions.forEach(a -> {
+            PageDefinition page = getTargetFormForAction(a);
+            ((List<Link>) page.getLinks()).forEach(l -> {
+                kvs.add(new KeyValue<>(l, a));
+            });
+        });
+        return kvs;
+    }
+
+    public static List<KeyValue<Table, Action>> getTablesForActionFormPages(Application application) {
+        List<Action> actions = getActionFormsForPages(application);
+        List<KeyValue<Table, Action>> kvs = new ArrayList<>();
+        actions.forEach(a -> {
+            PageDefinition page = getTargetFormForAction(a);
+            ((List<Table>) page.getTables()).forEach(l -> {
+                kvs.add(new KeyValue<>(l, a));
+            });
+        });
+        return kvs;
+    }
+
+    public static PageDefinition getTargetFormForAction(Action action) {
+        PageDefinition page;
+        if (action.getIsCallOperationAction()) {
+            page = ((CallOperationAction) action).getInputParameterPage();
+        } else if (action.getIsCreateAction()) {
+            page = ((CreateAction) action).getTarget();
+        } else {
+            throw new RuntimeException("Unsupported page type for action: " + action.toString());
+        }
+        return page;
     }
 
     public static List<PageDefinition> getUnmappedOutputViewsForPages(Application application) {
         Set<PageDefinition> unmappedOutputForms = getActionsForPages(application)
                 .stream()
-                .filter(kv -> kv.getKey() instanceof CallOperationAction &&
-                        actionHasUnmappedOutputForm(kv.getKey()))
-                .map(kv -> ((CallOperationAction) kv.getKey()).getOutputParameterPage()).collect(Collectors.toSet());
+                .filter(a -> a instanceof CallOperationAction && actionHasUnmappedOutputForm(a))
+                .map(a -> ((CallOperationAction) a).getOutputParameterPage()).collect(Collectors.toSet());
         return unmappedOutputForms.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<Link> getLinksForUnmappedOutputViewPages(Application application) {
+        List<PageDefinition> pages = getUnmappedOutputViewsForPages(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Link>) p.getLinks()).stream())
+                .collect(Collectors.toList());
+    }
+
+    public static List<Table> getTablesForUnmappedOutputViewPages(Application application) {
+        List<PageDefinition> pages = getUnmappedOutputViewsForPages(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Table>) p.getTables()).stream())
+                .collect(Collectors.toList());
     }
 
     public static String actionsPath(PageDefinition page) {
@@ -194,16 +214,6 @@ public class UiActionsHelper {
         return false;
     }
 
-    public static String relativePathFromAction(PageDefinition page, Action action, String suffix) {
-        String actionPath = pagePath(page) + "actions/" + pageActionPathSuffix(action, page);
-//        String actionPath = actionsPath(page);
-        int srcSegment = actionPath.lastIndexOf("src");
-        String srcPart = actionPath.substring(srcSegment);
-        int tokens = srcPart.split("/").length;
-
-        return "../".repeat(tokens - 2) + suffix;
-    }
-
     public static boolean isActionAccess(Action action) {
         if (action instanceof PageAction) {
             PageDefinition target = ((PageAction) action).getTarget();
@@ -232,5 +242,9 @@ public class UiActionsHelper {
 
     public static EObject getActionContainer(Action action) {
         return action.eContainer();
+    }
+
+    public static boolean isLinkAction (Action action) {
+        return action.getType().equals(ActionType.LINK);
     }
 }

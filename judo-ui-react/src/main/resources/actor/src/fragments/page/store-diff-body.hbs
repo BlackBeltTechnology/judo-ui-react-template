@@ -17,3 +17,6 @@ if (dateTypes.includes(attributeName as string)) {
     payloadDiff[attributeName] = value;
 }
 setData({ ...data, [attributeName]: value });
+if (!editMode) {
+    setEditMode(true);
+}

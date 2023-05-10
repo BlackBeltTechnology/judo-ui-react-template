@@ -24,6 +24,7 @@ import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.List;
@@ -289,5 +290,37 @@ public class UiWidgetHelper extends Helper {
             }
         }
         return "undefined";
+    }
+
+    public static List<Action> getFilteredLinkActions (Link link) {
+        return link.getActions().stream()
+                .filter(a -> !a.getIsEditAction() && !a.getIsSetAction() && !a.getIsRemoveAction() && !a.getIsUnsetAction())
+                .collect(Collectors.toList());
+    }
+
+    public static boolean linkHasActionsToImport(Link link) {
+        return  getFilteredLinkActions(link).size() > 0;
+    }
+
+    public static List<Action> getFilteredTableActions (Table table) {
+        SortedSet<Action> actions = new TreeSet<>(Comparator.comparing((Action a) -> a.getFQName().trim()));
+        actions.addAll(table.getActions());
+        actions.addAll(table.getRowActions());
+        actions.addAll((List<? extends Action>) table.getPageDefinition().getPageActions());
+        return actions.stream()
+                .filter(a -> !a.getIsBackAction() && !a.getIsEditAction())
+                .collect(Collectors.toList());
+    }
+
+    public static boolean tableHasActionsToImport(Table table) {
+        return  getFilteredTableActions(table).size() > 0;
+    }
+
+    public static String linkComponentName(Link link) {
+        return StringUtils.capitalize(link.getName()) + "Link";
+    }
+
+    public static String tableComponentName(Table table) {
+        return StringUtils.capitalize(table.getName()) + "Table";
     }
 }

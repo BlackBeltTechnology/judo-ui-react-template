@@ -21,7 +21,7 @@
                         startIcon={<MdiIcon path="{{ action.icon.name }}" />}
                         loadingPosition="start"
                     {{/ if }}
-                    onClick={ () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) }
+                    onClick={ () => {{ actionFunctionName action.action }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) }
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
                 >
                     <span>{ t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) }</span>
@@ -39,7 +39,7 @@
                             {
                                 id: '{{ createId action }}',
                                 label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
-                                onClick: () => {{ actionFunctionName action.action page }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
+                                onClick: () => {{ actionFunctionName action.action }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
                                 startIcon: <MdiIcon path="arrow_right" />,
                                 disabled: {{# if action.enabledBy }}!data.{{ action.enabledBy.name }} ||{{/ if }} isLoading || editMode,
                                 {{# if action.hiddenBy }}visible: !data.{{ action.hiddenBy.name }},{{/ if }}

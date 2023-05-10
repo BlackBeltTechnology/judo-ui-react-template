@@ -7,11 +7,11 @@ import { Button } from '@mui/material';
 import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
-import { MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
-import { useRangeDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
-import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
-import { baseColumnConfig, toastConfig } from '{{ relativePathFromAction page action 'config' }}';
-import { useL10N } from '{{ relativePathFromAction page action 'l10n' }}/l10n-context';
+import { MdiIcon } from '~/components';
+import { useRangeDialog } from '~/components/dialog';
+import { FilterOption, FilterType } from '~/components-api';;
+import { baseColumnConfig, toastConfig } from '~/config';
+import { useL10N } from '~/l10n/l10n-context';
 import {
     useErrorHandler,
     ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
@@ -19,19 +19,19 @@ import {
     fileHandling,
     serviceDateToUiDate,
     serviceTimeToUiTime,
-} from '{{ relativePathFromAction page action 'utilities' }}';
+} from '~/utilities';
 import {
     {{# each (getApiImportsForRowAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ classServiceName action.dataElement.owner }}Impl,
-} from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+} from '~/generated/data-axios';
 
-export type {{ actionFunctionTypeName action page }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
+export type {{ actionFunctionTypeName action }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) => Promise<void>;
 
-export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const { openRangeDialog } = useRangeDialog();
     const { t } = useTranslation();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
@@ -40,7 +40,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     const { locale: l10nLocale } = useL10N();
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
 
-    return async function {{ actionFunctionName action page }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
+    return async function {{ actionFunctionName action }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
         {{# with action.definedOn as |table| }}
             const columns: GridColDef<{{ classDataName action.dataElement.target 'Stored' }}>[] = [
                 {{# each table.columns as |column| }}
