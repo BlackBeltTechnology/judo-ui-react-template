@@ -26,7 +26,6 @@ import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
 import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
-import org.checkerframework.checker.units.qual.C;
 
 import java.util.*;
 import java.util.List;
