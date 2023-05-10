@@ -15,36 +15,36 @@ import { LoadingButton } from '@mui/lab';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
 import { JudoIdentifiable } from '@judo/data-api-common';
-import { useJudoNavigation } from '{{ relativePathFromAction page action 'components' }}';
-import type { DialogOption } from '{{ relativePathFromAction page action 'components/dialog' }}';
-import { useDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
-import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '{{ relativePathFromAction page action 'utilities' }}';
-import { toastConfig } from '{{ relativePathFromAction page action 'config' }}';
+import { useJudoNavigation } from '~/components';
+import type { DialogOption } from '~/components/dialog';
+import { useDialog } from '~/components/dialog';
+import { FilterOption, FilterType } from '~/components-api';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '~/utilities';
+import { toastConfig } from '~/config';
 
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ dataElementRelationName action.target.dataElement }}Impl,
     {{ classServiceName action.target.dataElement.target }}Impl,
-} from '{{ relativePathFromAction page action 'generated/data-axios'}}';
-import { {{ pageActionFormComponentName action page }} } from './{{ pageActionFormComponentName action page }}';
+} from '~/generated/data-axios';
+import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 
-export type {{ actionFunctionTypeName action page }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;
+export type {{ actionFunctionTypeName action }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;
 
-export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const [createDialog, closeDialog] = useDialog();
     const { t } = useTranslation();
     const { navigate } = useJudoNavigation();
     {{# unless (actionHasVisualElements action) }}
-        const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ actionFunctionTypeName action page }}))`);
+        const handleActionError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ actionFunctionTypeName action }}))`);
     {{/ unless }}
     const { enqueueSnackbar } = useSnackbar();
 
-    return function {{ actionFunctionName action page }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) {
+    return function {{ actionFunctionName action }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) {
         {{# if (actionHasVisualElements action) }}
             createDialog({
                 fullWidth: true,
@@ -55,7 +55,7 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
                     }
                 },
                 children: (
-                    <{{ pageActionFormComponentName action page }}
+                    <{{ pageActionFormComponentName action }}
                         successCallback={() => {
                             closeDialog();
                             enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {

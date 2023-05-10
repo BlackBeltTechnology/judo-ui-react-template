@@ -32,7 +32,6 @@
         readonly={ {{ boolValue child.attributeType.isReadOnly }} }
         uploadId="{{ createId child }}-upload"
         uploadCallback={ async (uploadedData: { token: string }) => {
-            setEditMode(true);
             storeDiff('{{ child.attributeType.name }}', uploadedData.token);
         } }
     />

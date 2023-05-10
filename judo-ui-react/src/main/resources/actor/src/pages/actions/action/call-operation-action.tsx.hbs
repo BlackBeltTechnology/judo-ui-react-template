@@ -14,44 +14,44 @@ import type { GridColDef, GridRenderCellParams, GridRowParams, GridSortModel, Gr
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { useSnackbar } from 'notistack';
-import { useJudoNavigation, MdiIcon } from '{{ relativePathFromAction page action 'components' }}';
-import { useDialog, useRangeDialog } from '{{ relativePathFromAction page action 'components/dialog' }}';
-import { baseColumnConfig, toastConfig } from '{{ relativePathFromAction page action 'config' }}';
-import { FilterOption, FilterType } from '{{ relativePathFromAction page action 'components-api' }}';
-import { useL10N } from '{{ relativePathFromAction page action 'l10n' }}/l10n-context';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '{{ relativePathFromAction page action 'utilities' }}';
+import { useJudoNavigation, MdiIcon } from '~/components';
+import { useDialog, useRangeDialog } from '~/components/dialog';
+import { baseColumnConfig, toastConfig } from '~/config';
+import { FilterOption, FilterType } from '~/components-api';
+import { useL10N } from '~/l10n/l10n-context';
+import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
 {{# if (actionHasInputForm action) }}
-    import { {{ pageActionFormComponentName action page }} } from './{{ pageActionFormComponentName action page }}';
+    import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 {{/ if }}
 {{# if (actionHasUnmappedOutputForm action) }}
-    import { {{ pageName action.outputParameterPage }} } from '{{ relativePathToPageActionOutputViewComponent action page }}';
+    import { {{ pageName action.outputParameterPage }} } from '~/{{ pagePathForTilde action.outputParameterPage }}';
 {{/ if }}
 import {
-    {{# each (getApiImportsForCallOperationAction action page) as |imp| }}
+    {{# each (getApiImportsForCallOperationAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromAction page action 'generated/data-api' }}';
+} from '~/generated/data-api';
 {{# unless (actionHasInputForm action) }}
     import {
         {{ classServiceName page.dataElement.target }}Impl,
         {{# neq (classServiceName page.dataElement.target) (classServiceName action.dataElement.owner) }}
             {{ classServiceName action.dataElement.owner }}Impl,
         {{/ neq }}
-    } from '{{ relativePathFromAction page action 'generated/data-axios'}}';
+    } from '~/generated/data-axios';
 {{/ unless }}
 
-export type {{ actionFunctionHandlerTypeName action page 'PostHandler' }} = (ownerCallback: () => void{{# if action.outputParameterPage }}, result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => Promise<void>;
+export type {{ actionFunctionHandlerTypeName action 'PostHandler' }} = (ownerCallback: () => void{{# if action.outputParameterPage }}, result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => Promise<void>;
 
-export const {{ getCustomizationActionFunctionHandlerInterfaceKey action page 'PostHandlerHook' }} = '{{ actionFunctionHandlerTypeName action page 'PostHandlerHook' }}';
-export type {{ actionFunctionHandlerTypeName action page 'PostHandlerHook' }} = () => {{ actionFunctionHandlerTypeName action page 'PostHandler' }};
+export const {{ getCustomizationActionFunctionHandlerInterfaceKey action 'PostHandlerHook' }} = '{{ actionFunctionHandlerTypeName action 'PostHandlerHook' }}';
+export type {{ actionFunctionHandlerTypeName action 'PostHandlerHook' }} = () => {{ actionFunctionHandlerTypeName action 'PostHandler' }};
 
-export type {{ actionFunctionTypeName action page }} = () => ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) => Promise<void>;
+export type {{ actionFunctionTypeName action }} = () => ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) => Promise<void>;
 
-export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName action page }} = () => {
+export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const { t } = useTranslation();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
-    const handleActionError = useErrorHandler{{# if action.operation.isMapped }}<{{ classDataName action.dataElement.owner '' }}>{{/ if }}(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ actionFunctionTypeName action page }}))`);
+    const handleActionError = useErrorHandler{{# if action.operation.isMapped }}<{{ classDataName action.dataElement.owner '' }}>{{/ if }}(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ actionFunctionTypeName action }}))`);
     const { enqueueSnackbar } = useSnackbar();
     const { openRangeDialog } = useRangeDialog();
     const [createDialog, closeDialog] = useDialog();
@@ -60,8 +60,8 @@ export const {{ actionFunctionHookName action page }}: {{ actionFunctionTypeName
     {{/ if }}
     const { navigate } = useJudoNavigation();
     const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
-    const { service: customPostHandler } = useTrackService<{{ actionFunctionHandlerTypeName action page 'PostHandlerHook' }}>(`(${OBJECTCLASS}=${ {{~ getCustomizationActionFunctionHandlerInterfaceKey action page 'PostHandlerHook' ~}} })`);
-    const postHandler: {{ actionFunctionHandlerTypeName action page 'PostHandler' }} | undefined = customPostHandler && customPostHandler();
+    const { service: customPostHandler } = useTrackService<{{ actionFunctionHandlerTypeName action 'PostHandlerHook' }}>(`(${OBJECTCLASS}=${ {{~ getCustomizationActionFunctionHandlerInterfaceKey action 'PostHandlerHook' ~}} })`);
+    const postHandler: {{ actionFunctionHandlerTypeName action 'PostHandler' }} | undefined = customPostHandler && customPostHandler();
 
     {{# if (actionHasInputForm action) }}
         {{# if debugPrint }}// include: actor/src/pages/actions/action/call-operation-action/with-input-form.fragment.hbs{{/ if }}

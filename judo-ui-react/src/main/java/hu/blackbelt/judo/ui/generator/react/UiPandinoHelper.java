@@ -61,11 +61,11 @@ public class UiPandinoHelper {
         return camelCaseNameToInterfaceKey(getCustomizationComponentInterface(element));
     }
 
-    public static String getCustomizationActionFunctionInterfaceKey(Action action, PageDefinition page) {
-        return camelCaseNameToInterfaceKey(actionFunctionName(action, page)) + "_INTERFACE_KEY";
+    public static String getCustomizationActionFunctionInterfaceKey(Action action) {
+        return camelCaseNameToInterfaceKey(actionFunctionName(action)) + "_INTERFACE_KEY";
     }
 
-    public static String getCustomizationActionFunctionHandlerInterfaceKey(Action action, PageDefinition page, String handlerType) {
-        return camelCaseNameToInterfaceKey(actionFunctionHandlerTypeName(action, page, handlerType)) + "_INTERFACE_KEY";
+    public static String getCustomizationActionFunctionHandlerInterfaceKey(Action action, String handlerType) {
+        return camelCaseNameToInterfaceKey(actionFunctionHandlerTypeName(action, handlerType)) + "_INTERFACE_KEY";
     }
 }

@@ -4,65 +4,34 @@
 // Page DataElement name: {{ page.dataElement.name }}
 // Page DataElement owner name: {{ page.dataElement.owner.name }}
 
-import { useEffect, useState, useCallback, FC } from 'react';
-import { useTranslation } from 'react-i18next';
-import { Box, Container, Grid, {{ getMuiMaterialImportsForPage page }} } from '@mui/material';
-import { LoadingButton } from '@mui/lab';
-import { {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid';
-{{# if (hasPageDateTimePickers page) }}
-    import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers';
-{{/ if }}
-import { OBJECTCLASS } from '@pandino/pandino-api';
-import { useSnackbar } from 'notistack';
-import { ComponentProxy } from '@pandino/react-hooks';
-import { useParams } from 'react-router-dom';
-import {
-    MdiIcon,
-    ModeledTabs,
-    PageHeader,
-    DropdownButton,
-    CustomBreadcrumb,
-    useJudoNavigation,
-} from '{{ relativePathFromPage page 'components' }}';
-import type { Filter } from '{{ relativePathFromPage page 'components-api' }}';
-import { columnsActionCalculator } from '{{ relativePathFromPage page 'components/table' }}';
-import { useFilterDialog, useRangeDialog } from '{{ relativePathFromPage page 'components/dialog' }}';
-import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, TrinaryLogicCombobox } from '{{ relativePathFromPage page 'components/widgets' }}';
-import {
-    useErrorHandler,
-    ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
-    fileHandling,
-    mapAllFiltersToQueryCustomizerProperties,
-    processQueryCustomizer,
-    TableRowAction,
-    uiDateToServiceDate,
-    serviceDateToUiDate,
-    uiTimeToServiceTime,
-    serviceTimeToUiTime,
-    stringToBooleanSelect,
-    booleanToStringSelect,
-} from '{{ relativePathFromPage page 'utilities' }}';
-import { useConfirmationBeforeChange } from '{{ relativePathFromPage page 'hooks' }}';
-import { baseTableConfig, toastConfig, dividerHeight } from '{{ relativePathFromPage page 'config' }}';
-import { useL10N } from '{{ relativePathFromPage page 'l10n' }}/l10n-context';
-import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '{{ relativePathFromPage page 'custom' }}';
+{{# if debugPrint }}// include: actor/src/fragments/page/common-view-imports.fragment.hbs{{/ if }}
+{{> actor/src/fragments/page/common-view-imports.fragment.hbs }}
+
 import {
     {{# each (getApiImportsForViewPage page) as |imp| }}
         {{ imp }},
     {{/ each }}
-} from '{{ relativePathFromPage page 'generated/data-api' }}';
+} from '~/generated/data-api';
 import {
     {{ dataElementRelationName page.dataElement }}Impl,
     {{ classServiceName page.dataElement.target }}Impl,
-} from '{{ relativePathFromPage page 'generated/data-axios'}}';
-import { JudoIdentifiable } from '@judo/data-api-common';
-import { mainContainerPadding } from '{{ relativePathFromPage page 'theme' }}';
-import { use{{ pageName page }} } from './hooks/use{{ pageName page }}';
+} from '~/generated/data-axios';
+
 import {
 {{# each (getUniquePageActions page) as |action| }}
-    {{ actionFunctionHookName action page }},
+    {{# unless (isLinkAction action) }}
+        {{ actionFunctionHookName action }},
+    {{/ unless }}
 {{/ each }}
 } from './actions';
+
+import { PageActions } from './components/PageActions';
+{{# each page.originalPageContainer.links as |link| }}
+    import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
+{{/ each }}
+{{# each page.originalPageContainer.tables as |table| }}
+    import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
+{{/ each }}
 
 {{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
     export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
@@ -85,26 +54,9 @@ export default function {{ pageName page }}() {
         const { signedIdentifier } = useParams();
     {{/ if }}
 
-    const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
-    const {
-        queryCustomizer,
-        {{# each (getPageTables page) as |table| }}
-            {{ table.dataElement.name }}Columns,
-            {{ table.dataElement.name }}RangeFilterOptions,
-            {{ table.dataElement.name }}InitialQueryCustomizer,
-        {{/ each }}
-        {{# each (getPageAssociationTables page) as |table| }}
-            {{ table.dataElement.name }}FilterOptions,
-        {{/ each }}
-        {{# each (getPageWritableLinks page) as |link| }}
-            {{ link.dataElement.name }}Columns,
-            {{ link.dataElement.name }}RangeFilterOptions,
-            {{ link.dataElement.name }}InitialQueryCustomizer,
-        {{/ each }}
-    } = use{{ pageName page }}();
 
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     {{# if page.dataElement.isUpdatable }}
@@ -117,109 +69,23 @@ export default function {{ pageName page }}() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
+    const [editMode, setEditMode] = useState<boolean>(false);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => {
         {{# if debugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
-    const [editMode, setEditMode] = useState<boolean>(false);
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
-    {{# each (getPageTables page) as |table| }}
-        {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
-        {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
-        {{# if table.dataElement.isAddable }}
-            {{# unless table.dataElement.isMemberTypeTransient }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
-            {{/ unless }}
-        {{/ if }}
-    {{/ each }}
-    {{# each (getPageAssociationTables page) as |table| }}
-        const [{{ table.dataElement.name }}Page, set{{ firstToUpper table.dataElement.name }}Page] = useState<number>(0);
-        const [{{ table.dataElement.name }}Filters, set{{ firstToUpper table.dataElement.name }}Filters] = useState<Filter[]>([]);
-        const [dataFor{{ firstToUpper table.dataElement.name }}, setDataFor{{ firstToUpper table.dataElement.name }}] = useState<Array<{{ classDataName table.dataElement.target 'Stored' }}>>([]);
-        const [is{{ firstToUpper table.dataElement.name }}Loading, setIs{{ firstToUpper table.dataElement.name }}Loading] = useState<boolean>(false);
-        const [queryCustomizerFor{{ firstToUpper table.dataElement.name }}, setQueryCustomizerFor{{ firstToUpper table.dataElement.name }}] = useState<{{ classDataName table.dataElement.target 'QueryCustomizer' }}>({
-            _mask: '{{ table.formattedMask }}',
-            _seek: {
-                limit: {{ calculateTablePageLimit tablePageLimit }} + 1,
-            },
-            _orderBy: [
-                {
-                    attribute: {{ table.dataElement.name }}SortModel[0].field,
-                    descending: {{ table.dataElement.name }}SortModel[0].sort === 'desc',
-                },
-            ],
-            ...mapAllFiltersToQueryCustomizerProperties(
-                {{ table.dataElement.name }}Filters,
-                {{# each table.filters as |filter| }}
-                    '{{ filter.attributeType.name }}',
-                {{/ each }}
-            ),
-        });
-    {{/ each }}
 
-    {{# each (getPageTables page) as |table| }}
-        const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
-            {{# each table.rowActions as |action| }}
-                {{# if action.isRemoveAction }}
-                    {
-                        id: '{{ createId action }}',
-                        label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
-                        icon: <MdiIcon path="link_off" />,
-                        {{# if table.dataElement.isRelationKindAssociation }}
-                            disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode,
-                            action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                                {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetch{{ firstToUpper table.dataElement.name }}())
-                            },
-                        {{ else }}
-                            action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                                setEditMode(true);
-                                storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)]);
-                            },
-                        {{/ if }}
-                    },
-                {{/ if }}
-                {{# if action.isDeleteAction }}
-                    {
-                        id: '{{ createId action }}',
-                        label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
-                        icon: <MdiIcon path="{{ action.icon.name }}" />,
-                        {{# if table.dataElement.isRelationKindAssociation }}
-                            action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetch{{ firstToUpper table.dataElement.name }}()),
-                        {{ else }}
-                            action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if (hasDataElementOwner action.dataElement) }}data, {{/ if }}row, () => fetchData()),
-                        {{/ if }}
-                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode || !row.__deleteable,
-                    },
-                {{/ if }}
-                {{# if action.isCallOperationAction }}
-                    {
-                        id: '{{ createId action }}',
-                        label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
-                        icon: <MdiIcon path="{{ action.icon.name }}" />,
-                        action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action page }}({{# if action.operation.isMapped }}row, {{/ if }}() => fetchData()),
-                        disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode,
-                    },
-                {{/ if }}
-            {{/ each }}
-        ];
-    {{/ each }}
+    const queryCustomizer: {{ classDataName page.dataElement.target 'QueryCustomizer' }} = {
+        _mask: '{{ page.formattedMask }}',
+    };
 
     {{# each (getUniquePageActions page) as |action| }}
-        {{# if action.isFilterRelationAction }}
-            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}(
-                {{# with action.definedOn as |table| }}
-                    set{{ firstToUpper table.dataElement.name }}Filters,
-                    set{{ firstToUpper table.dataElement.name }}Page,
-                    setQueryCustomizerFor{{ firstToUpper table.dataElement.name }},
-                    openFilterDialog,
-                {{/ with }}
-            );
-        {{ else }}
-            const {{ actionFunctionName action page }} = {{ actionFunctionHookName action page }}();
-        {{/if}}
+        {{# unless (isLinkAction action) }}
+            {{# unless action.isFilterRelationAction }}
+                const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+            {{/ unless }}
+        {{/ unless }}
     {{/ each }}
 
     {{# if (titleComesFromAttribute page) }}
@@ -234,7 +100,7 @@ export default function {{ pageName page }}() {
     useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
 
     {{# if (isSingleAccessPage page) }}
-        const init = async () => {
+        async function init() {
             setIsLoading(true);
 
             try {
@@ -258,14 +124,14 @@ export default function {{ pageName page }}() {
             } finally {
                 setIsLoading(false);
             }
-        };
+        }
 
         useEffect(() => {
             init();
         }, []);
     {{/ if }}
 
-    const fetchData = async () => {
+    async function fetchData() {
         setIsLoading(true);
 
         try {
@@ -286,34 +152,10 @@ export default function {{ pageName page }}() {
         } finally {
             setIsLoading(false);
         }
-    };
-
-    {{# each (getPageAssociationTables page) as |table| }}
-        const fetch{{ firstToUpper table.dataElement.name }} = async () => {
-            setIs{{ firstToUpper table.dataElement.name }}Loading(true);
-            try {
-                const res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ firstToUpper table.dataElement.name }}(
-                    { __signedIdentifier: signedIdentifier } as {{ classDataName page.dataElement.target 'Stored' }},
-                    processQueryCustomizer(queryCustomizerFor{{ firstToUpper table.dataElement.name }}),
-                );
-
-                setDataFor{{ firstToUpper table.dataElement.name }}(res);
-            } catch (error) {
-                handleFetchError(error);
-            } finally {
-                setIs{{ firstToUpper table.dataElement.name }}Loading(false);
-            }
-        };
-    {{/ each }}
-
-    {{# each (getPageAssociationTables page) as |table| }}
-        useEffect(() => {
-            fetch{{ firstToUpper table.dataElement.name }}();
-        }, [queryCustomizerFor{{ firstToUpper table.dataElement.name }}]);
-    {{/ each }}
+    }
 
     {{# if page.dataElement.isUpdatable }}
-        const saveData = async () => {
+        async function saveData() {
             setIsLoading(true);
 
             try {
@@ -332,11 +174,11 @@ export default function {{ pageName page }}() {
             } finally {
                 setIsLoading(false);
             }
-        };
+        }
     {{/ if }}
 
     {{# if page.dataElement.isDeletable }}
-        const deleteData = async () => {
+        async function deleteData() {
             setIsLoading(true);
 
             try {
@@ -352,7 +194,7 @@ export default function {{ pageName page }}() {
             } finally {
                 setIsLoading(false);
             }
-        };
+        }
     {{/ if }}
 
     {{# if (isSingleAccessPage page) }}
@@ -375,12 +217,19 @@ export default function {{ pageName page }}() {
         <>
             {{# with (getDataContainerForPage page) as |rootChild| }}
                 <PageHeader title={title}>
-                    {{# if debugPrint }}{/* include: actor/src/fragments/page/page-crud-actions.hbs */}{{/ if }}
-                    {{> actor/src/fragments/page/page-crud-actions.hbs }}
+                    <PageActions
+                        data={data}
+                        fetchData={fetchData}
+                        editMode={editMode}
+                        setEditMode={setEditMode}
+                        isLoading={isLoading}
+                        {{# if page.dataElement.isUpdatable }}saveData={saveData}{{/ if }}
+                        {{# if page.dataElement.isDeletable }}deleteData={deleteData}{{/ if }}
+                    />
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
                     <Box sx={mainContainerPadding}>
-                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+                        <Grid className="access-page-data" container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                             {{# each rootChild.children as |child| }}
                                 {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                                 {{> (getWidgetTemplate child) }}
