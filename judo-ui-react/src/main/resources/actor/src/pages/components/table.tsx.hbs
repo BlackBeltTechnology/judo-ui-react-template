@@ -3,15 +3,20 @@
 {{# if debugPrint }}// include: actor/src/fragments/table/common-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/table/common-imports.fragment.hbs }}
 
-{{# if page.isPageTypeTable }}
+{{# if page.isPageTypeDashboard }}
     {{# if debugPrint }}// include: actor/src/pages/components/table/for-table-page.hbs{{/ if }}
     {{> actor/src/pages/components/table/for-table-page.hbs }}
 {{ else }}
-    {{# if table.dataElement.isRelationKindAssociation }}
-        {{# if debugPrint }}// include: actor/src/pages/components/table/for-association.hbs{{/ if }}
-        {{> actor/src/pages/components/table/for-association.hbs }}
+    {{# if page.isPageTypeTable }}
+        {{# if debugPrint }}// include: actor/src/pages/components/table/for-table-page.hbs{{/ if }}
+        {{> actor/src/pages/components/table/for-table-page.hbs }}
     {{ else }}
-        {{# if debugPrint }}// include: actor/src/pages/components/table/for-aggregation.hbs{{/ if }}
-        {{> actor/src/pages/components/table/for-aggregation.hbs }}
+        {{# if table.dataElement.isRelationKindAssociation }}
+            {{# if debugPrint }}// include: actor/src/pages/components/table/for-association.hbs{{/ if }}
+            {{> actor/src/pages/components/table/for-association.hbs }}
+        {{ else }}
+            {{# if debugPrint }}// include: actor/src/pages/components/table/for-aggregation.hbs{{/ if }}
+            {{> actor/src/pages/components/table/for-aggregation.hbs }}
+        {{/ if }}
     {{/ if }}
 {{/ if }}
