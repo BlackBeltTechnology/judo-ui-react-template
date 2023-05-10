@@ -63,6 +63,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         ),
     });
 
+    {{# if debugPrint }}// include: actor/src/fragments/table/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/hook-variables.fragment.hbs table=table }}
 
     {{# each (getFilteredTableActions table) as |action| }}
