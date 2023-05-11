@@ -127,7 +127,7 @@ public class UiActionsHelper {
         List<KeyValue<Link, Action>> kvs = new ArrayList<>();
         actions.forEach(a -> {
             PageDefinition page = getTargetFormForAction(a);
-            ((List<Link>) page.getLinks()).forEach(l -> {
+            ((List<Link>) page.getOriginalPageContainer().getLinks()).forEach(l -> {
                 kvs.add(new KeyValue<>(l, a));
             });
         });
@@ -139,7 +139,7 @@ public class UiActionsHelper {
         List<KeyValue<Table, Action>> kvs = new ArrayList<>();
         actions.forEach(a -> {
             PageDefinition page = getTargetFormForAction(a);
-            ((List<Table>) page.getTables()).forEach(l -> {
+            ((List<Table>) page.getOriginalPageContainer().getTables()).forEach(l -> {
                 kvs.add(new KeyValue<>(l, a));
             });
         });
@@ -170,7 +170,7 @@ public class UiActionsHelper {
         List<PageDefinition> pages = getUnmappedOutputViewsForPages(application);
 
         return pages.stream()
-                .flatMap(p -> ((List<Link>) p.getLinks()).stream())
+                .flatMap(p -> ((List<Link>) p.getOriginalPageContainer().getLinks()).stream())
                 .collect(Collectors.toList());
     }
 
@@ -178,7 +178,7 @@ public class UiActionsHelper {
         List<PageDefinition> pages = getUnmappedOutputViewsForPages(application);
 
         return pages.stream()
-                .flatMap(p -> ((List<Table>) p.getTables()).stream())
+                .flatMap(p -> ((List<Table>) p.getOriginalPageContainer().getTables()).stream())
                 .collect(Collectors.toList());
     }
 
