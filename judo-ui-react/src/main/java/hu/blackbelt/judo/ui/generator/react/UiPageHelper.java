@@ -128,7 +128,7 @@ public class UiPageHelper extends Helper {
         List<PageDefinition> pages = getPagesForRouting(application);
 
         return pages.stream()
-                .flatMap(p -> ((List<Link>) p.getLinks()).stream())
+                .flatMap(p -> ((List<Link>) p.getOriginalPageContainer().getLinks()).stream())
                 .collect(Collectors.toList());
     }
 
@@ -136,7 +136,7 @@ public class UiPageHelper extends Helper {
         List<PageDefinition> pages = getPagesForRouting(application);
 
         return pages.stream()
-                .flatMap(p -> ((List<Table>) p.getTables()).stream())
+                .flatMap(p -> ((List<Table>) p.getOriginalPageContainer().getTables()).stream())
                 .collect(Collectors.toList());
     }
 
