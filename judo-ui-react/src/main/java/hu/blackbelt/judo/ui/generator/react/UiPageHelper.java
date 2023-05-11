@@ -40,7 +40,7 @@ import static java.util.Arrays.stream;
 @Log
 @TemplateHelper
 public class UiPageHelper extends Helper {
-    private static String getRelationClassName(RelationType relation) {
+    public static String getRelationClassName(RelationType relation) {
         return relation.getOwnerPackageNameTokens().stream().map(Helper::getCamelCaseVersion).collect(Collectors.joining())
                 .concat(getCamelCaseVersion(relation.getOwnerSimpleName())).concat(getCamelCaseVersion(relation.getName()));
     }
@@ -58,7 +58,7 @@ public class UiPageHelper extends Helper {
         return getTypeNamePath(actor).concat(suffix);
     }
 
-    private static List<String> getPagePathTokens(PageDefinition page) {
+    public static List<String> getPagePathTokens(PageDefinition page) {
         return stream(page.getName().replaceAll("#", "::")
                 .replaceAll("\\.", "::")
                 .replaceAll("/", "::")
