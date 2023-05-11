@@ -80,7 +80,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
     const [payloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
 
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
-        {{# if debugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
     {{# each (getUniquePageActions page) as |action| }}
@@ -94,7 +94,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
         const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
 
-    {{# if debugPrint }}// include: actor/src/fragments/page/unmapped-form-flags.hbs{{/ if }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/unmapped-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/unmapped-form-flags.hbs }}
 
     return (
@@ -120,7 +120,7 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
                     <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                         {{# each rootChild.children as |child| }}
                             {{# unless (excludeWidgetFromTree child) }}
-                                {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                                {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                                 {{> (getWidgetTemplate child) }}
                             {{/ unless }}
                         {{/ each }}

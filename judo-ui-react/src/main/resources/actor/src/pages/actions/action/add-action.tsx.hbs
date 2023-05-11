@@ -48,7 +48,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                         ...baseColumnConfig,
                         field: '{{ column.attributeType.name }}',
                         headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
-                        {{# if debugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
+                        {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
                         {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
                     },
                 {{/ each }}
@@ -56,7 +56,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
 
             const filterOptions: FilterOption[] = [
                 {{# each table.filters as |filter| }}
-                    {{# if debugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
+                    {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
                     {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
                 {{/ each }}
             ];
