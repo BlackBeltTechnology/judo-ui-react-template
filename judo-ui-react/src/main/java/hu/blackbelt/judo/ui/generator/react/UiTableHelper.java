@@ -31,7 +31,7 @@ import java.util.Collection;
 @TemplateHelper
 public class UiTableHelper extends Helper {
 
-    private static String getFilterTypeForAttribute(AttributeType attributeType) {
+    public static String getFilterTypeForAttribute(AttributeType attributeType) {
         DataType dataType = attributeType.getDataType();
 
         if (dataType instanceof DateType) {
