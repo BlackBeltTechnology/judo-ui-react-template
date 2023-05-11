@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-{{# if debugPrint }}// include: actor/src/fragments/table/common-imports.fragment.hbs{{/ if }}
+{{# if isDebugPrint }}// include: actor/src/fragments/table/common-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/table/common-imports.fragment.hbs }}
 
 import {
@@ -30,21 +30,21 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
 
-    {{# if debugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
 
-    {{# if debugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/hook-variables.fragment.hbs rel=table }}
 
-    {{# if debugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
 
     {{# each table.actions as |action| }}
         {{# unless table.dataElement.isMemberTypeTransient }}
             {{# if action.isAddAction }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
+                {{# if isDebugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                {{# if debugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
+                {{# if isDebugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
                 {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
             {{/ if }}
         {{/ unless }}

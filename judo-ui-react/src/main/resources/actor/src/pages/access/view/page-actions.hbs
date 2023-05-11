@@ -35,12 +35,12 @@ export function PageActions (props: PageActionsProps) {
         const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
     {{/ each }}
 
-    {{# if debugPrint }}// include: actor/src/fragments/page/mapped-form-flags.hbs{{/ if }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/mapped-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/mapped-form-flags.hbs }}
 
     return (
         <>
-            {{# if debugPrint }}{/* include: actor/src/fragments/page/page-crud-actions.hbs */}{{/ if }}
+            {{# if isDebugPrint }}{/* include: actor/src/fragments/page/page-crud-actions.hbs */}{{/ if }}
             {{> actor/src/fragments/page/page-crud-actions.hbs }}
         </>
     );
