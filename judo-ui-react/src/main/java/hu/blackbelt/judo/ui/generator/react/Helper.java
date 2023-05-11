@@ -68,7 +68,7 @@ public class Helper {
         return getTypeNamePath(relation).concat(getFileNameVersion(relation.getName())).concat("/");
     }
 
-    protected static String getCamelCaseVersion(String token) {
+    public static String getCamelCaseVersion(String token) {
         return StringUtils.capitalize(stream(token.split("_")).map(StringUtils::capitalize).collect(Collectors.joining()));
     }
 
