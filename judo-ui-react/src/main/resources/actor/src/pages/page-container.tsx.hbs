@@ -1,0 +1,89 @@
+{{> fragment.header.hbs }}
+// Page Type: {{ container.pageDefinition.pageType }}
+
+import type { Dispatch, SetStateAction } from 'react';
+import type { JudoIdentifiable } from '@judo/data-api-common';
+import { Box, Container, Grid, {{ getMuiMaterialImportsForPage container.pageDefinition }} } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+{{# if (hasPageDateTimePickers container.pageDefinition) }}
+    import { {{ getMuiDateTimePickerImportsForPage container.pageDefinition }} } from '@mui/x-date-pickers';
+{{/ if }}
+import { useTranslation } from 'react-i18next';
+import {
+    MdiIcon,
+    ModeledTabs,
+    DropdownButton,
+} from '~/components';
+import { AssociationButton, BinaryInput, CollectionAssociationButton } from '~/components/widgets';
+import {
+    fileHandling,
+    uiDateToServiceDate,
+    serviceDateToUiDate,
+    uiTimeToServiceTime,
+    serviceTimeToUiTime,
+    stringToBooleanSelect,
+    booleanToStringSelect,
+} from '~/utilities';
+
+import {
+    {{ classDataName container.pageDefinition.dataElement.target '' }},
+    {{ classDataName container.pageDefinition.dataElement.target 'Stored' }},
+} from '~/generated/data-api';
+import {
+    {{ dataElementRelationName container.pageDefinition.dataElement }}Impl,
+    {{# neq (dataElementRelationName container.pageDefinition.dataElement) (classServiceName container.pageDefinition.dataElement.target) }}
+        {{ classServiceName container.pageDefinition.dataElement.target }}Impl,
+    {{/ neq }}
+} from '~/generated/data-axios';
+
+{{# each (getUniquePageContainerActions container) as |action| }}
+    {{# unless (isLinkAction action) }}
+        {{# if (isActionFormAction action) }}
+            import { {{ actionFunctionHookName action }} } from '~/{{ pagePath (getActionContainer action) }}actions/{{ pageActionFormPathSuffix action }}';
+        {{ else }}
+            import { {{ actionFunctionHookName action }} } from '~/{{ pagePath (getActionContainer action) }}actions/{{ pageActionPathSuffix action }}';
+        {{/ if }}
+    {{/ unless }}
+{{/ each }}
+
+{{# each container.pageDefinition.originalPageContainer.links as |link| }}
+    import { {{ linkComponentName link }} } from '~/{{ pagePathForTilde container.pageDefinition }}/components/{{ linkComponentName link }}';
+{{/ each }}
+{{# each container.pageDefinition.originalPageContainer.tables as |table| }}
+    import { {{ tableComponentName table }} } from '~/{{ pagePathForTilde container.pageDefinition }}/components/{{ tableComponentName table }}';
+{{/ each }}
+
+export interface {{ container.semanticName }}Props {
+    data: {{ classDataName container.pageDefinition.dataElement.target 'Stored' }};
+    editMode: boolean;
+    isLoading: boolean;
+    isFormUpdateable: () => boolean;
+    {{# if container.pageDefinition.dataElement.isRefreshable }}fetchData: () => Promise<void>{{/ if }}
+    storeDiff: (attributeName: keyof {{ classDataName container.pageDefinition.dataElement.target 'Stored' }}, value: any) => void;
+    setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.pageDefinition.dataElement.target '' }}, string>>>;
+    validation: Map<keyof {{ classDataName container.pageDefinition.dataElement.target '' }}, string>;
+}
+
+export function {{ container.semanticName }}(props: {{ container.semanticName }}Props) {
+    const { t } = useTranslation();
+    const { data, editMode, isLoading, isFormUpdateable, {{# if container.pageDefinition.dataElement.isRefreshable }}fetchData, {{/ if }}storeDiff, setValidation, validation } = props;
+
+    {{# if (hasContainerActions container) }}
+        {{# each (getUniquePageContainerActions container) as |action| }}
+            {{# unless (isLinkAction action) }}
+                {{# unless action.isFilterRelationAction }}
+                    const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
+                {{/ unless }}
+            {{/ unless }}
+        {{/ each }}
+    {{/ if }}
+
+    return (
+        <>
+            {{# each container.children as |child| }}
+                {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                {{> (getWidgetTemplate child) }}
+            {{/ each }}
+        </>
+    );
+}

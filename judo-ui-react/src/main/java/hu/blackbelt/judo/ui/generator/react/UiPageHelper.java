@@ -31,6 +31,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getActionContainer;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.hasDataElementOwner;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
@@ -219,6 +220,21 @@ public class UiPageHelper extends Helper {
         return actions.stream()
                 .filter(a -> !a.getIsBackAction() && !a.getIsEditAction() && !a.getIsSaveEditAction() && !a.getIsSaveCreateAction())
                 .collect(Collectors.toMap(UiCommonsHelper::getXMIID, p -> p, (p, q) -> p)).values();
+    }
+
+    public static List<Action> getUniquePageContainerActions(PageContainer container) {
+        return container.getPageDefinition().getActions().stream()
+                .filter(a -> !a.getType().equals(ActionType.PAGE) && !a.getIsSaveInputAction() && !a.getIsBackAction())
+                .collect(Collectors.toList());
+    }
+
+    public static boolean hasContainerActions(PageContainer container) {
+        return getUniquePageContainerActions(container).size() > 0;
+    }
+
+    public static boolean isActionFormAction(Action action) {
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        return pageDefinition.getIsPageTypeCreate() || pageDefinition.getIsPageTypeOperationInput();
     }
 
     public static Collection<Action> getOnlyPageActions(PageDefinition page) {
@@ -495,5 +511,22 @@ public class UiPageHelper extends Helper {
             return ((CallOperationAction) action).getInputParameterPage();
         }
         throw new RuntimeException("Unsupported action type: " + action.getType());
+    }
+
+    public static String getPathForPageContainer(PageContainer container) {
+        String prefix = container.getPackageNameTokens().stream()
+                .map(String::toLowerCase)
+                .collect(Collectors.joining("/"));
+
+        return prefix.length() > 0 ? prefix.concat("/").concat(container.getSemanticName()) : container.getSemanticName();
+    }
+
+    public static Collection<PageContainer> getUniquePageContainers(Application application) {
+        List<PageContainer> containers = application.getPageContainers();
+        Map<String, PageContainer> uniquePaths = containers.stream()
+                .filter(c -> c.getSemanticName() != null)
+                .filter(c -> !c.getPageDefinition().getIsPageTypeOperationOutputUpdate() && !c.getPageDefinition().getIsPageTypeUpdate())
+                .collect(Collectors.toMap(UiPageHelper::getPathForPageContainer, c -> c, (existing, replacement) -> existing));
+        return uniquePaths.values();
     }
 }

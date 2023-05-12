@@ -525,6 +525,14 @@ templates:
 
   # Actor - src - pages
 
+  - name: actor/src/pages/page-container.tsx
+    factoryExpression: "#getUniquePageContainers(#application)"
+    pathExpression: "'src/page-containers/' + #getPathForPageContainer(#self) + '.tsx'"
+    templateName: actor/src/pages/page-container.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
   - name: actor/src/pages/index.tsx
     factoryExpression: "#getPagesForRouting(#application)"
     pathExpression: "#pageIndexPath(#self)"
