@@ -64,10 +64,10 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     const postHandler: {{ actionFunctionHandlerTypeName action 'PostHandler' }} | undefined = customPostHandler && customPostHandler();
 
     {{# if (actionHasInputForm action) }}
-        {{# if debugPrint }}// include: actor/src/pages/actions/action/call-operation-action/with-input-form.fragment.hbs{{/ if }}
+        {{# if isDebugPrint }}// include: actor/src/pages/actions/action/call-operation-action/with-input-form.fragment.hbs{{/ if }}
         {{> actor/src/pages/actions/action/call-operation-action/with-input-form.fragment.hbs action=action page=page }}
     {{ else }}
-        {{# if debugPrint }}// include: actor/src/pages/actions/action/call-operation-action/without-input-form.fragment.hbs{{/ if }}
+        {{# if isDebugPrint }}// include: actor/src/pages/actions/action/call-operation-action/without-input-form.fragment.hbs{{/ if }}
         {{> actor/src/pages/actions/action/call-operation-action/without-input-form.fragment.hbs action=action page=page }}
     {{/ if }}
 }

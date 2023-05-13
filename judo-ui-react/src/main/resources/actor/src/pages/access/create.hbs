@@ -73,13 +73,13 @@ export default function {{ pageName page }}() {
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
     const [editMode, setEditMode] = useState<boolean>(true);
     const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
-        {{# if debugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target ''}}, string>>(new Map<keyof {{ classDataName page.dataElement.target ''}}, string>());
     const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
 
-    {{# if debugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/input-form-flags.hbs }}
 
     {{# if page.dataElement.target.isTemplateable }}
@@ -135,7 +135,7 @@ export default function {{ pageName page }}() {
                     <Box sx={mainContainerPadding}>
                         <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                             {{# each rootChild.children as |child| }}
-                                {{# if debugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                                {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                                 {{> (getWidgetTemplate child) }}
                             {{/ each }}
                         </Grid>

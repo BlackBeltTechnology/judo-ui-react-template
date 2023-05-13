@@ -1,45 +1,45 @@
 {{# if page.dataElement }}
     {{# if page.dataElement.isAccess }}
         {{# if page.isPageTypeCreate }}
-            {{# if debugPrint }}// include: actor/src/pages/access/create/page-actions.hbs{{/ if }}
+            {{# if isDebugPrint }}// include: actor/src/pages/access/create/page-actions.hbs{{/ if }}
             {{> actor/src/pages/access/create/page-actions.hbs }}
         {{/ if }}
         {{# if page.isPageTypeTable }}
-            {{# if debugPrint }}// include: actor/src/pages/access/table/page-actions.hbs{{/ if }}
+            {{# if isDebugPrint }}// include: actor/src/pages/access/table/page-actions.hbs{{/ if }}
             {{> actor/src/pages/access/table/page-actions.hbs }}
         {{/ if }}
         {{# if page.isPageTypeView }}
-            {{# if debugPrint }}// include: actor/src/pages/access/view/page-actions.hbs{{/ if }}
+            {{# if isDebugPrint }}// include: actor/src/pages/access/view/page-actions.hbs{{/ if }}
             {{> actor/src/pages/access/view/page-actions.hbs }}
         {{/ if }}
         {{# if page.isPageTypeDashboard }}
             {{# if page.dataElement.isCollection }}
-                {{# if debugPrint }}// include: actor/src/pages/access/table/page-actions.hbs{{/ if }}
+                {{# if isDebugPrint }}// include: actor/src/pages/access/table/page-actions.hbs{{/ if }}
                 {{> actor/src/pages/access/table/page-actions.hbs }}
             {{ else }}
-                {{# if debugPrint }}// include: actor/src/pages/access/view/page-actions.hbs{{/ if }}
+                {{# if isDebugPrint }}// include: actor/src/pages/access/view/page-actions.hbs{{/ if }}
                 {{> actor/src/pages/access/view/page-actions.hbs }}
             {{/ if }}
         {{/ if }}
     {{ else }}
         {{# if page.isPageTypeCreate }}
-            {{# if debugPrint }}// include: actor/src/pages/relation/create/page-actions.hbs{{/ if }}
+            {{# if isDebugPrint }}// include: actor/src/pages/relation/create/page-actions.hbs{{/ if }}
             {{> actor/src/pages/relation/create/page-actions.hbs }}
         {{/ if }}
         {{# if page.isPageTypeTable }}
-            {{# if debugPrint }}// include: actor/src/pages/relation/table/page-actions.hbs{{/ if }}
+            {{# if isDebugPrint }}// include: actor/src/pages/relation/table/page-actions.hbs{{/ if }}
             {{> actor/src/pages/relation/table/page-actions.hbs }}
         {{/ if }}
         {{# if page.isPageTypeView }}
-            {{# if debugPrint }}// include: actor/src/pages/relation/view/page-actions.hbs{{/ if }}
+            {{# if isDebugPrint }}// include: actor/src/pages/relation/view/page-actions.hbs{{/ if }}
             {{> actor/src/pages/relation/view/page-actions.hbs }}
         {{/ if }}
         {{# if page.isPageTypeOperationOutput }}
-            {{# if debugPrint }}// include: actor/src/pages/operation-output/view/page-actions.hbs{{/ if }}
+            {{# if isDebugPrint }}// include: actor/src/pages/operation-output/view/page-actions.hbs{{/ if }}
             {{> actor/src/pages/operation-output/view/page-actions.hbs }}
         {{/ if }}
     {{/ if }}
 {{ else }}
-    {{# if debugPrint }}// include: actor/src/pages/page-fallback.page-actions.tsx.hbs{{/ if }}
+    {{# if isDebugPrint }}// include: actor/src/pages/page-fallback.page-actions.tsx.hbs{{/ if }}
     {{> actor/src/pages/page-fallback.page-actions.tsx.hbs }}
 {{/ if }}

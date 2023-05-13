@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-{{# if debugPrint }}// include: actor/src/fragments/link/common-imports.fragment.hbs{{/ if }}
+{{# if isDebugPrint }}// include: actor/src/fragments/link/common-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/link/common-imports.fragment.hbs }}
 
 import {
@@ -39,7 +39,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
 
-    {{# if debugPrint }}// include: actor/src/fragments/link/hook-variables.fragment.hbs{{/ if }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/link/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/link/hook-variables.fragment.hbs link=link }}
 
     {{# each (getFilteredLinkActions link) as |action| }}
