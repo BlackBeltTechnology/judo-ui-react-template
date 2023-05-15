@@ -202,7 +202,7 @@ public class UiImportHelper {
 
     public static SortedSet<VisualElement> createFlattenedSetOfVisualElements(PageDefinition pageDefinition) {
         SortedSet<VisualElement> flattenedVisualElements = new TreeSet<>(Comparator.comparing((VisualElement v) -> v.getFQName().trim()));
-        Container container = pageDefinition.getContainers().get(0);
+        Container container = pageDefinition.getOriginalPageContainer();
 
         fillFlattenedVisualElements(container, flattenedVisualElements);
 

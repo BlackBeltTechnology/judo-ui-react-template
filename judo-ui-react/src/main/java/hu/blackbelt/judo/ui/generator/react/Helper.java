@@ -106,12 +106,4 @@ public class Helper {
     protected static String cutAtLastSlash(String full) {
         return full.contains("/") ? full.substring(full.lastIndexOf("/") + 1) : full;
     }
-
-    protected static String removeLeadingSlash(String full) {
-        return full.startsWith("/") ? full.substring(1) : full;
-    }
-
-    protected static String removeTrailingSlash(String full) {
-        return full.endsWith("/") ? full.substring(0, full.length() - 1) : full;
-    }
 }

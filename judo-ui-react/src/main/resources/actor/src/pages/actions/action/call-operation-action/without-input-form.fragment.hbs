@@ -1,6 +1,6 @@
 return async function {{ actionFunctionName action }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
     {{# if action.operation.input }}
-        {{# with action.inputParameterPage.containers.[0].tables.[0] as |table| }}
+        {{# with action.inputParameterPage.originalPageContainer.tables.[0] as |table| }}
             const columns: GridColDef<{{ classDataName action.inputParameterPage.dataElement.target 'Stored' }}>[] = [
                 {{# each table.columns as |column| }}
                     {
