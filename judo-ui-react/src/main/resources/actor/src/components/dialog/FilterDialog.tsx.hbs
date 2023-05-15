@@ -415,7 +415,7 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
                           setTempFilters((prevTempFilters) => [
                             ...prevTempFilters,
                             {
-                              id: filterOption.id,
+                              id: filterOption.id + prevTempFilters.filter(e => e.filterOption.label == filterOption.label).length,
                               operationId: `${filterOption.id}-operation`,
                               valueId: `${filterOption.id}-value`,
                               filterOption: {
