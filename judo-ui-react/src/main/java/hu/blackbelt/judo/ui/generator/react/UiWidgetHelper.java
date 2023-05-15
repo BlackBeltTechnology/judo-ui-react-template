@@ -30,8 +30,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.UiImportHelper.createFlattenedSetOfVisualElements;
-
 @Log
 @TemplateHelper
 public class UiWidgetHelper extends Helper {
@@ -59,14 +57,14 @@ public class UiWidgetHelper extends Helper {
     }
 
     public static Button getSaveButtonForOperationInputPage(PageDefinition pageDefinition) {
-        PageContainer root = pageDefinition.getContainers().get(0);
+        PageContainer root = pageDefinition.getOriginalPageContainer();
         VisualElement button = findSaveButton(root);
 
         return button != null ? (Button) button : null;
     }
 
     public static Button getBackButtonForOperationInputPage(PageDefinition pageDefinition) {
-        PageContainer root = pageDefinition.getContainers().get(0);
+        PageContainer root = pageDefinition.getOriginalPageContainer();
         VisualElement button = findBackButton(root);
 
         return button != null ? (Button) button : null;
@@ -100,10 +98,6 @@ public class UiWidgetHelper extends Helper {
         return null;
     }
 
-    private static String getFlexDirection(Flex flex) {
-        return flex.getIsDirectionHorizontal() ? "row" : "column";
-    }
-
     public static Double calculateSize(VisualElement element) {
         if (isParentFrame(element)) {
             return 12.0;
@@ -127,13 +121,6 @@ public class UiWidgetHelper extends Helper {
         return element.getCol();
     }
 
-    public static Boolean isParentDirectionColumn(VisualElement element) {
-        if (element.eContainer() instanceof Flex) {
-            return ((Flex) element.eContainer()).getIsDirectionVertical();
-        }
-        return false;
-    }
-
     private static Boolean isParentFrame(EObject element) {
         if (element.eContainer() instanceof Flex) {
             return ((Flex) element.eContainer()).getFrame() != null;
@@ -147,13 +134,6 @@ public class UiWidgetHelper extends Helper {
             return parent.getStretch().equals(Stretch.HORIZONTAL) || parent.getStretch().equals(Stretch.BOTH);
         }
         return false;
-    }
-
-    public static Boolean spacingForFlex(Flex flex) {
-        if (flex.getChildren().stream().anyMatch(c -> c instanceof Flex && ((Flex) c).getFrame() != null)) {
-            return true;
-        }
-        return isParentFrame(flex);
     }
 
     public static String alignItems(Flex flex) {
@@ -213,7 +193,7 @@ public class UiWidgetHelper extends Helper {
         PageDefinition pageDefinition = element.getPageDefinition();
 
         if (pageDefinition.getIsPageTypeOperationInput() || pageDefinition.getIsPageTypeCreate()) {
-            Input input = findFirstInput(pageDefinition.getContainers().get(0));
+            Input input = findFirstInput(pageDefinition.getOriginalPageContainer());
 
             return input != null && element.getFQName().equals(input.getFQName());
         }
@@ -256,21 +236,6 @@ public class UiWidgetHelper extends Helper {
         return null;
     }
 
-    public static PageDefinition getFormVersionOfViewPage(PageDefinition pageDefinition) {
-        if (pageDefinition.getIsPageTypeView() || pageDefinition.getIsPageTypeOperationOutput()) {
-            Optional<EditAction> editAction = pageDefinition.getPageActions().stream()
-                    .filter(a -> a instanceof EditAction)
-                    .map(a -> (EditAction) a)
-                    .findFirst();
-
-            if (editAction.isPresent()) {
-                return editAction.get().getTarget();
-            }
-        }
-
-        return null;
-    }
-
     public static String variantForButton(VisualElement element) {
         if (element instanceof Button) {
             String style = ((Button) element).getButtonStyle();
@@ -294,7 +259,7 @@ public class UiWidgetHelper extends Helper {
 
     public static List<Action> getFilteredLinkActions (Link link) {
         return link.getActions().stream()
-                .filter(a -> !a.getIsEditAction() && !a.getIsSetAction() && !a.getIsRemoveAction() && !a.getIsUnsetAction())
+                .filter(a -> !a.getIsSetAction() && !a.getIsRemoveAction() && !a.getIsUnsetAction())
                 .collect(Collectors.toList());
     }
 
@@ -308,7 +273,7 @@ public class UiWidgetHelper extends Helper {
         actions.addAll(table.getRowActions());
         actions.addAll((List<? extends Action>) table.getPageDefinition().getPageActions());
         return actions.stream()
-                .filter(a -> !a.getIsBackAction() && !a.getIsEditAction())
+                .filter(a -> !a.getIsBackAction())
                 .collect(Collectors.toList());
     }
 

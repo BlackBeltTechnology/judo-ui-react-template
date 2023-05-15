@@ -57,8 +57,4 @@ public class UiServiceHelper extends Helper {
     public static String classServiceName(ClassType classType) {
         return variable(nameWithoutModel(classType.getName()) + "Service");
     }
-
-    public static String getFetchMethodForAssociationTable (Table table) {
-        return table.getDataElement().getName();
-    }
 }
