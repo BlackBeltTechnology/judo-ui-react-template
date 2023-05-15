@@ -217,7 +217,7 @@ public class UiPageHelper extends Helper {
     public static Collection<Action> getUniquePageActions(PageDefinition page) {
         Collection<Action> actions = new ArrayList<>(page.getActions());
         return actions.stream()
-                .filter(a -> !a.getIsBackAction() && !a.getIsEditAction() && !a.getIsSaveEditAction() && !a.getIsSaveCreateAction())
+                .filter(a -> !a.getIsBackAction() && !a.getIsSaveCreateAction())
                 .collect(Collectors.toMap(UiCommonsHelper::getXMIID, p -> p, (p, q) -> p)).values();
     }
 
@@ -226,24 +226,15 @@ public class UiPageHelper extends Helper {
         return actions.stream().filter(a -> a.getType().equals(ActionType.PAGE)).collect(Collectors.toList());
     }
 
-    public static Collection<Action> getOnlyTableActions(PageDefinition page) {
-        Collection<Action> actions = getUniquePageActions(page);
-        return actions.stream().filter(a -> a.getType().equals(ActionType.TABLE)).collect(Collectors.toList());
-    }
-
     public static String getNavigationForPage(PageDefinition page, String signedId) {
         String route = getPageRoute(page);
 
         return signedId != null && route.contains(":signedIdentifier") ? route.replace(":signedIdentifier", "${" + signedId + "}") : route;
     }
 
-    public static Boolean hasVisualReferences(PageDefinition pageDefinition) {
-        return hasPageLinks(pageDefinition) || hasPageTables(pageDefinition);
-    }
-
     public static Table getTableForTablePage(PageDefinition page) {
-        Optional<PageContainer> defaultContainer = page.getContainers().stream().filter(c -> c.getName().equals("default")).findFirst();
-        VisualElement visualElement = defaultContainer.get().getChildren().get(0);
+        PageContainer container = page.getOriginalPageContainer();
+        VisualElement visualElement = container.getChildren().get(0);
 
         if (visualElement instanceof Flex) {
             return (Table) ((Flex) visualElement).getChildren().stream().filter(c -> c instanceof Table).findFirst().get();
@@ -261,33 +252,11 @@ public class UiPageHelper extends Helper {
     }
 
     public static List<Link> getPageLinks(PageDefinition pageDefinition) {
-        return pageDefinition.getContainers().get(0).getLinks().stream().map(l -> (Link) l).collect(Collectors.toList());
-    }
-
-    public static List<Link> getPageWritableLinks(PageDefinition pageDefinition) {
-        return getPageLinks(pageDefinition)
-                .stream()
-                .filter(l -> !((RelationType) l.getDataElement()).isIsReadOnly())
-                .collect(Collectors.toList());
-    }
-
-    public static boolean hasPageLinks(PageDefinition pageDefinition) {
-        return getPageLinks(pageDefinition).size() > 0;
+        return pageDefinition.getOriginalPageContainer().getLinks().stream().map(l -> (Link) l).collect(Collectors.toList());
     }
 
     public static List<Table> getPageTables(PageDefinition pageDefinition) {
-        return (List<Table>) pageDefinition.getContainers().get(0).getTables().stream().map(t -> (Table) t).collect(Collectors.toList());
-    }
-
-    public static List<Table> getPageAssociationTables(PageDefinition pageDefinition) {
-        // non inline tables are "not" tables, end up being transformed as "button"
-        return getPageTables(pageDefinition).stream()
-                .filter(t -> ((RelationType) t.getDataElement()).getIsRelationKindAssociation())
-                .collect(Collectors.toList());
-    }
-
-    public static boolean hasPageTables(PageDefinition pageDefinition) {
-        return getPageTables(pageDefinition).size() > 0;
+        return (List<Table>) pageDefinition.getOriginalPageContainer().getTables().stream().map(t -> (Table) t).collect(Collectors.toList());
     }
 
     public static List<AttributeType> getEnumAttributesForPage(PageDefinition pageDefinition) {
@@ -313,13 +282,6 @@ public class UiPageHelper extends Helper {
         }
 
         return false;
-    }
-
-    public static PageDefinition getViewPageForTablePage(PageDefinition page) {
-        Table table = (Table) page.getOriginalPageContainer().getTables().get(0);
-        ViewAction action = (ViewAction) table.getRowActions().stream().filter(a -> a instanceof ViewAction).findFirst().get();
-
-        return action.getTarget();
     }
 
     public static PageDefinition getViewPageForCreatePage(PageDefinition page, Application application) {
@@ -479,7 +441,7 @@ public class UiPageHelper extends Helper {
     }
 
     public static VisualElement getDataContainerForPage(PageDefinition pageDefinition) {
-        PageContainer defaultContainer = pageDefinition.getContainers().get(0);
+        PageContainer defaultContainer = pageDefinition.getOriginalPageContainer();
 
         if (defaultContainer != null) {
             return firstViewChildForContainer(defaultContainer);
