@@ -187,7 +187,7 @@ public class UiI18NHelper extends Helper {
                         addTranslationForVisualElement(root, translations, application);
                     }
                 } else {
-                    List<VisualElement> elements = page.getContainers().get(0).getChildren();
+                    List<VisualElement> elements = page.getOriginalPageContainer().getChildren();
 
                     if (elements.size() > 0) {
                         addTranslationForVisualElement(elements.get(0), translations, application);
@@ -214,7 +214,7 @@ public class UiI18NHelper extends Helper {
                     addTranslationsForLink(link, translations, application);
                 }
 
-                List<VisualElement> elements = page.getContainers().get(0).getChildren();
+                List<VisualElement> elements = page.getOriginalPageContainer().getChildren();
 
                 if (elements.size() > 0) {
                     addTranslationForVisualElement(elements.get(0), translations, application);

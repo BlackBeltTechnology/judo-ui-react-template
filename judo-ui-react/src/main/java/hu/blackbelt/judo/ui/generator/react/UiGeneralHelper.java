@@ -105,19 +105,8 @@ public class UiGeneralHelper extends Helper {
         return navigationItem.getTarget() == null;
     }
 
-    public static String variable(String fqName) {
-        return StringUtils.uncapitalize(className(fqName));
-    }
-
     public static String ucFirst(String name) {
         return StringUtils.capitalize(name);
-    }
-
-    public static String safeSort(Sort input) {
-        if (input == null) {
-            return Sort.ASC.toString().toLowerCase();
-        }
-        return input.equals(Sort.NONE) ? Sort.ASC.toString().toLowerCase() : input.toString().toLowerCase();
     }
 
     public static boolean boolValue(Boolean original) {
@@ -144,10 +133,6 @@ public class UiGeneralHelper extends Helper {
             return !((RelationType) dataElement).isIsAccess();
         }
         return false;
-    }
-
-    public static String appBaseHref(Application application) {
-        return String.join("/", modelName(application.getName()) + "_react", projectPathName(application.getName()));
     }
 
     public static Collection<Application> getAlternativeApplications(Application application, Collection<Application> applications) {
