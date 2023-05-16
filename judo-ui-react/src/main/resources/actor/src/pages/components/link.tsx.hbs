@@ -57,7 +57,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
         <AggregationInput
             name="{{ link.dataElement.name }}"
             id="{{ createId link }}"
-            label={ t('{{ idToTranslationKey link.fQName application }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
+            label={ t('{{ magicTranslate link }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
             labelList={[
                 {{# each link.parts as |part| }}
                     ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',

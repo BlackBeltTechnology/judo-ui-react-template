@@ -22,9 +22,7 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
-import hu.blackbelt.judo.meta.ui.data.ClassType;
-import hu.blackbelt.judo.meta.ui.data.EnumerationMember;
-import hu.blackbelt.judo.meta.ui.data.EnumerationType;
+import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.common.util.EList;
 
@@ -152,13 +150,13 @@ public class UiI18NHelper extends Helper {
 
         // iterate over routed pages
         for (PageDefinition page: getPagesForRouting(application)) {
-            translations.put(idToTranslationKey(page.getFQName(), application), page.getLabel());
+            translations.put(magicTranslatePage(page), page.getLabel());
 
             for (Action action: getUniquePageActions(page)) {
-                translations.put(idToTranslationKey(action.getFQName(), application), action.getLabel());
+                translations.put(magicTranslateAction(action), action.getLabel());
 
                 if (hasConfirmation(action)) {
-                    translations.put(idToTranslationKey(action.getFQName(), application) + ".confirmation", action.getConfirmationMessage());
+                    translations.put(magicTranslateAction(action) + ".confirmation", action.getConfirmationMessage());
                 }
             }
 
@@ -166,17 +164,17 @@ public class UiI18NHelper extends Helper {
                 // Table pages are special because getting the actual Table reference is different compared to relations
                 Table table = getTableForTablePage(page);
 
-                addTranslationsForTable(table, translations, application);
+                addTranslationsForTable(table, translations);
             } else {
                 // Create / View / OperationOutput screens are quite similar, we can process them the same way
                 for (Table table: getPageTables(page)) {
-                    translations.put(idToTranslationKey(table.getFQName(), application), table.getLabel());
+                    translations.put(magicTranslate(table), table.getLabel());
 
-                    addTranslationsForTable(table, translations, application);
+                    addTranslationsForTable(table, translations);
                 }
 
                 for (Link link: getPageLinks(page)) {
-                    addTranslationsForLink(link, translations, application);
+                    addTranslationsForLink(link, translations);
                 }
 
                 if (page.getIsPageTypeOperationOutput()) {
@@ -184,13 +182,13 @@ public class UiI18NHelper extends Helper {
                     VisualElement root = getDataContainerForPage(page);
 
                     if (root != null) {
-                        addTranslationForVisualElement(root, translations, application);
+                        addTranslationForVisualElement(root, translations);
                     }
                 } else {
                     List<VisualElement> elements = page.getOriginalPageContainer().getChildren();
 
                     if (elements.size() > 0) {
-                        addTranslationForVisualElement(elements.get(0), translations, application);
+                        addTranslationForVisualElement(elements.get(0), translations);
                     }
                 }
 
@@ -202,22 +200,22 @@ public class UiI18NHelper extends Helper {
             PageDefinition page = action instanceof CallOperationAction ? ((CallOperationAction) action).getInputParameterPage() : ((CreateAction) action).getTarget();
 
             if (action.getIsCreateAction() || action.getIsCallOperationAction()) {
-                translations.put(idToTranslationKey(page.getFQName(), application), page.getLabel());
+                translations.put(magicTranslatePage(page), page.getLabel());
 
                 for (Table table: getPageTables(page)) {
-                    translations.put(idToTranslationKey(table.getFQName(), application), table.getLabel());
+                    translations.put(magicTranslate(table), table.getLabel());
 
-                    addTranslationsForTable(table, translations, application);
+                    addTranslationsForTable(table, translations);
                 }
 
                 for (Link link: getPageLinks(page)) {
-                    addTranslationsForLink(link, translations, application);
+                    addTranslationsForLink(link, translations);
                 }
 
                 List<VisualElement> elements = page.getOriginalPageContainer().getChildren();
 
                 if (elements.size() > 0) {
-                    addTranslationForVisualElement(elements.get(0), translations, application);
+                    addTranslationForVisualElement(elements.get(0), translations);
                 }
             }
         }
@@ -225,23 +223,23 @@ public class UiI18NHelper extends Helper {
         // Unmapped Operation Output Views for modals
         for (PageDefinition page: getUnmappedOutputViewsForPages(application)) {
 
-            translations.put(idToTranslationKey(page.getFQName(), application), page.getLabel());
+            translations.put(magicTranslatePage(page), page.getLabel());
 
             for (Table table: getPageTables(page)) {
-                translations.put(idToTranslationKey(table.getFQName(), application), table.getLabel());
+                translations.put(magicTranslate(table), table.getLabel());
 
-                addTranslationsForTable(table, translations, application);
+                addTranslationsForTable(table, translations);
             }
 
             for (Link link: getPageLinks(page)) {
-                addTranslationsForLink(link, translations, application);
+                addTranslationsForLink(link, translations);
             }
 
             // OperationOutput pages ar special, because page containers behave differently
             VisualElement root = getDataContainerForPage(page);
 
             if (root != null) {
-                addTranslationForVisualElement(root, translations, application);
+                addTranslationForVisualElement(root, translations);
             }
         }
 
@@ -266,48 +264,51 @@ public class UiI18NHelper extends Helper {
         return getDefaultLanguage(defaultLanguage).split("-")[0];
     }
 
-    private static void addTranslationsForTable(Table table, Map<String, String> translations, Application application) {
+    private static void addTranslationsForTable(Table table, Map<String, String> translations) {
         for (Action action: table.getRowActions()) {
-            translations.put(idToTranslationKey(action.getFQName(), application), action.getLabel());
+            translations.put(magicTranslateAction(action), action.getLabel());
 
             if (hasConfirmation(action)) {
-                translations.put(idToTranslationKey(action.getFQName(), application) + ".confirmation", action.getConfirmationMessage());
+                translations.put(magicTranslateAction(action) + ".confirmation", action.getConfirmationMessage());
             }
         }
 
         for (Column column: table.getColumns()) {
-            translations.put(idToTranslationKey(column.getFQName(), application), column.getLabel());
+            translations.put(magicTranslate(column), column.getLabel());
         }
 
         for (Filter filter: table.getFilters()) {
-            translations.put(idToTranslationKey(filter.getFQName(), application), filter.getLabel());
+            translations.put(magicTranslate(filter), filter.getLabel());
         }
     }
 
-    private static void addTranslationsForLink(Link link, Map<String, String> translations, Application application) {
-        translations.put(idToTranslationKey(link.getFQName(), application), link.getLabel());
+    private static void addTranslationsForLink(Link link, Map<String, String> translations) {
+        translations.put(magicTranslate(link), link.getLabel());
 
         for (Column column: ((Collection<Column>) link.getColumns())) {
-            translations.put(idToTranslationKey(column.getFQName(), application), column.getLabel());
+            translations.put(magicTranslate(column), column.getLabel());
         }
 
         for (Filter filter: link.getFilters()) {
-            translations.put(idToTranslationKey(filter.getFQName(), application), filter.getLabel());
+            translations.put(magicTranslate(filter), filter.getLabel());
         }
     }
 
-    private static void addTranslationForVisualElement(VisualElement visualElement, Map<String, String> translations, Application application) {
-        translations.put(idToTranslationKey(visualElement.getFQName(), application), visualElement.getLabel());
+    private static void addTranslationForVisualElement(VisualElement visualElement, Map<String, String> translations) {
+        // Skip Flex, we only need the label if present for Card version
+        if (!(visualElement instanceof Flex)) {
+            translations.put(magicTranslate(visualElement), visualElement.getLabel());
+        }
 
         if (visualElement instanceof Container) {
             for (VisualElement element: ((Container) visualElement).getChildren()) {
-                addTranslationForVisualElement(element, translations, application);
+                addTranslationForVisualElement(element, translations);
             }
         }
 
         if (visualElement instanceof TabController) {
             for (Tab tab: ((TabController) visualElement).getTabs()) {
-                addTranslationForVisualElement(tab.getElement(), translations, application);
+                addTranslationForVisualElement(tab.getElement(), translations);
             }
         }
     }
@@ -315,5 +316,90 @@ public class UiI18NHelper extends Helper {
     private static Boolean keepTranslationKey(String key) {
         Matcher m = TRANSLATION_KEYS_TO_SKIP.matcher(key);
         return !m.matches();
+    }
+
+    public static String magicTranslate(VisualElement element) {
+        PageDefinition page = element.getPageDefinition();
+        String result = magicTranslatePage(page);
+
+        if (element instanceof Column) {
+//            if (element.eContainer() instanceof ReferenceTypedVisualElement) {
+//                ReferenceTypedVisualElement ref = (ReferenceTypedVisualElement) element.eContainer();
+//                result += ".".concat(ref.getDataElement().getName());
+//            }
+            result += ".".concat(((Column) element).getAttributeType().getName());
+        } else if (element instanceof Filter) {
+            Filter filter = (Filter) element;
+            result += ".".concat(filter.getAttributeType().getName());
+        } else if (element instanceof Table) {
+            Table table = (Table) element;
+            result += ".".concat(table.getDataElement().getName());
+        } else if (element instanceof Link) {
+            Link link = (Link) element;
+            result += ".".concat(link.getDataElement().getName());
+        } else if (element instanceof Button) {
+            Button button = (Button) element;
+            result += ".".concat(button.getName());
+        } else if (element instanceof ActionGroup) {
+            ActionGroup actionGroup = (ActionGroup) element;
+            result += ".".concat(actionGroup.getName());
+        } else if (element instanceof Input) {
+            Input input = (Input) element;
+            result += ".".concat(input.getAttributeType().getName());
+        } else if (element instanceof Formatted) {
+            Formatted formatted = (Formatted) element;
+            result += ".".concat(formatted.getAttributeType().getName());
+        } else if (element instanceof Label) {
+            Label label = (Label) element;
+            result += ".".concat(label.getName());
+        } else {
+            throw new RuntimeException("Unsupported Visual Element for translation: " + element.getFQName());
+        }
+        return transformTranslationKey(result);
+    }
+
+    public static String magicTranslateButton(Button button) {
+        PageDefinition page = button.getPageDefinition();
+        String result = magicTranslatePage(page);
+
+        if (button.eContainer() instanceof ActionGroup) {
+            result += ".".concat(((ActionGroup) button.eContainer()).getName());
+        }
+
+        return transformTranslationKey(result.concat(".").concat(button.getName()));
+    }
+
+    public static String magicTranslateAction(Action action) {
+        PageDefinition page = (PageDefinition) action.eContainer();
+        String result = magicTranslatePage(page);
+
+        return transformTranslationKey(result.concat(".").concat(action.getDataElement().getName()));
+    }
+
+    public static String magicTranslatePage(PageDefinition page) {
+        if (page.getIsPageTypeDashboard()) {
+            return transformTranslationKey(page.getName());
+        }
+        String prefix = String.join(".", page.getOriginalPageContainer().getTransferPackageNameTokens());
+        String transferPageName = page.getOriginalPageContainer().getTransferPageName();
+
+        return prefix.length() > 0 ? prefix.concat(".").concat(transferPageName) : transferPageName;
+//        ReferenceType ref = (ReferenceType) page.getDataElement();
+//        if (ref == null) {
+//            // Empty Dashboard and others...
+//            return transformTranslationKey(page.getName());
+//        }
+//        return transformTranslationKey(ref.getTarget().getName());
+
+    }
+
+    public static String transformTranslationKey(String source) {
+        return stream(source.replaceAll("#", "::")
+                .replaceAll("\\.", "::")
+                .replaceAll("/", "::")
+                .replaceAll("_", "::")
+                .split("::"))
+                .filter(f -> f.trim().length() > 0)
+                .collect(Collectors.joining("."));
     }
 }

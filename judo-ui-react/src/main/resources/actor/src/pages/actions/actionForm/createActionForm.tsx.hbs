@@ -63,7 +63,7 @@ export function {{ pageActionFormComponentName action }}({
         {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
-    const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
+    const title: string = t('{{ magicTranslatePage page }}', { defaultValue: '{{ page.label }}' });
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/input-form-flags.hbs }}

@@ -11,20 +11,20 @@
                 payloadDiff={payloadDiff}
             >
         {{/ if }}
-        {{# each (featuredActionsForActionGroup child) as |action| }}
-            {{# if action.hiddenBy }}( !data.{{ action.hiddenBy.name }} }} && {{/ if }}
+        {{# each (featuredActionsForActionGroup child) as |button| }}
+            {{# if button.hiddenBy }}( !data.{{ button.hiddenBy.name }} }} && {{/ if }}
             <Grid item>
                 <LoadingButton
-                    id="{{ createId action }}"
+                    id="{{ createId button }}"
                     loading={isLoading}
-                    {{# if action.icon }}
-                        startIcon={<MdiIcon path="{{ action.icon.name }}" />}
+                    {{# if button.icon }}
+                        startIcon={<MdiIcon path="{{ button.icon.name }}" />}
                         loadingPosition="start"
                     {{/ if }}
-                    onClick={ () => {{ actionFunctionName action.action }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()) }
+                    onClick={ () => {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData()) }
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
                 >
-                    <span>{ t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) }</span>
+                    <span>{ t('{{ magicTranslateButton button }}', { defaultValue: '{{ button.label }}' }) }</span>
                 </LoadingButton>
             </Grid>
             {{# if action.hiddenBy }}){{/ if }}
@@ -35,14 +35,14 @@
                     id="{{ createId child }}-action-group"
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
                     menuItems={[
-                        {{# each (nonFeaturedActionsForActionGroup child) as |action| }}
+                        {{# each (nonFeaturedActionsForActionGroup child) as |button| }}
                             {
-                                id: '{{ createId action }}',
-                                label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
-                                onClick: () => {{ actionFunctionName action.action }}({{# if action.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
+                                id: '{{ createId button }}',
+                                label: t('{{ magicTranslateButton button }}', { defaultValue: '{{ button.label }}' }) as string,
+                                onClick: () => {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
                                 startIcon: <MdiIcon path="arrow_right" />,
-                                disabled: {{# if action.enabledBy }}!data.{{ action.enabledBy.name }} ||{{/ if }} isLoading || editMode,
-                                {{# if action.hiddenBy }}visible: !data.{{ action.hiddenBy.name }},{{/ if }}
+                                disabled: {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} isLoading || editMode,
+                                {{# if button.hiddenBy }}visible: !data.{{ button.hiddenBy.name }},{{/ if }}
                             },
                         {{/ each }}
                     ]}
@@ -50,7 +50,7 @@
                     {{# if child.icon }}
                         <MdiIcon path="{{ child.icon.name }}" />
                     {{/ if }}
-                    { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+                    { t('{{ magicTranslate child }}', { defaultValue: '{{ child.label }}' }) }
                 </DropdownButton>
             </Grid>
         {{/ if }}

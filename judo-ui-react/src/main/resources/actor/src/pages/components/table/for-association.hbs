@@ -103,7 +103,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             {{# if action.isCallOperationAction }}
                 {
                     id: '{{ createId action }}',
-                    label: t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' }) as string,
+                    label: t('{{ magicTranslateAction action }}', { defaultValue: '{{ action.label }}' }) as string,
                     icon: <MdiIcon path="{{ action.icon.name }}" />,
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }} (row, () => fetchData()),
                 },

@@ -17,7 +17,7 @@
         {{# if (shouldElementHaveAutoFocus child) }}
             autoFocus
         {{/ if }}
-        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+        label={ t('{{ magicTranslate child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} || '' }
         className={ !editMode ? 'JUDO-viewMode' : undefined }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
