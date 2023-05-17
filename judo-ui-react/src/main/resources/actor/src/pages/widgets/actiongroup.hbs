@@ -24,7 +24,7 @@
                     onClick={ () => {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData()) }
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
                 >
-                    <span>{ t('{{ magicTranslateButton button }}', { defaultValue: '{{ button.label }}' }) }</span>
+                    <span>{ t('{{ magicTranslateButton button '' }}', { defaultValue: '{{ button.label }}' }) }</span>
                 </LoadingButton>
             </Grid>
             {{# if action.hiddenBy }}){{/ if }}
@@ -38,7 +38,7 @@
                         {{# each (nonFeaturedActionsForActionGroup child) as |button| }}
                             {
                                 id: '{{ createId button }}',
-                                label: t('{{ magicTranslateButton button }}', { defaultValue: '{{ button.label }}' }) as string,
+                                label: t('{{ magicTranslateButton button 'grouped' }}', { defaultValue: '{{ button.label }}' }) as string,
                                 onClick: () => {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
                                 startIcon: <MdiIcon path="arrow_right" />,
                                 disabled: {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} isLoading || editMode,

@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.modelName;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
 
@@ -295,8 +296,21 @@ public class UiI18NHelper extends Helper {
     }
 
     private static void addTranslationForVisualElement(VisualElement visualElement, Map<String, String> translations) {
-        // Skip Flex, we only need the label if present for Card version
-        if (!(visualElement instanceof Flex)) {
+        if (visualElement instanceof ActionGroup) {
+            ActionGroup actionGroup = (ActionGroup) visualElement;
+            for (Button button: featuredActionsForActionGroup(actionGroup)) {
+                translations.put(magicTranslateButton(button, ""), button.getLabel());
+            }
+            if (displayDropdownForActionGroup(actionGroup)) {
+                // button for the group itself
+                translations.put(magicTranslate(visualElement), visualElement.getLabel());
+                // dropdown elements
+                for (Button button: nonFeaturedActionsForActionGroup(actionGroup)) {
+                    translations.put(magicTranslateButton(button, "grouped"), button.getLabel());
+                }
+            }
+        } else if (!(visualElement instanceof Flex)) {
+            // Skip Flex, we only need the label if it's present for the Card version
             translations.put(magicTranslate(visualElement), visualElement.getLabel());
         }
 
@@ -323,12 +337,16 @@ public class UiI18NHelper extends Helper {
         String result = magicTranslatePage(page);
 
         if (element instanceof Column) {
-//            if (element.eContainer() instanceof ReferenceTypedVisualElement) {
-//                ReferenceTypedVisualElement ref = (ReferenceTypedVisualElement) element.eContainer();
-//                result += ".".concat(ref.getDataElement().getName());
-//            }
+            if (element.eContainer() instanceof ReferenceTypedVisualElement) {
+                ReferenceTypedVisualElement ref = (ReferenceTypedVisualElement) element.eContainer();
+                result += ".".concat(ref.getDataElement().getName());
+            }
             result += ".".concat(((Column) element).getAttributeType().getName());
         } else if (element instanceof Filter) {
+            if (element.eContainer() instanceof ReferenceTypedVisualElement) {
+                ReferenceTypedVisualElement ref = (ReferenceTypedVisualElement) element.eContainer();
+                result += ".".concat(ref.getDataElement().getName());
+            }
             Filter filter = (Filter) element;
             result += ".".concat(filter.getAttributeType().getName());
         } else if (element instanceof Table) {
@@ -345,10 +363,10 @@ public class UiI18NHelper extends Helper {
             result += ".".concat(actionGroup.getName());
         } else if (element instanceof Input) {
             Input input = (Input) element;
-            result += ".".concat(input.getAttributeType().getName());
+            result += ".".concat(input.getName());
         } else if (element instanceof Formatted) {
             Formatted formatted = (Formatted) element;
-            result += ".".concat(formatted.getAttributeType().getName());
+            result += ".".concat(formatted.getName());
         } else if (element instanceof Label) {
             Label label = (Label) element;
             result += ".".concat(label.getName());
@@ -358,12 +376,16 @@ public class UiI18NHelper extends Helper {
         return transformTranslationKey(result);
     }
 
-    public static String magicTranslateButton(Button button) {
+    public static String magicTranslateButton(Button button, String suffix) {
         PageDefinition page = button.getPageDefinition();
         String result = magicTranslatePage(page);
 
         if (button.eContainer() instanceof ActionGroup) {
             result += ".".concat(((ActionGroup) button.eContainer()).getName());
+        }
+
+        if (suffix != null) {
+            result += ".".concat(suffix);
         }
 
         return transformTranslationKey(result.concat(".").concat(button.getName()));
@@ -373,7 +395,9 @@ public class UiI18NHelper extends Helper {
         PageDefinition page = (PageDefinition) action.eContainer();
         String result = magicTranslatePage(page);
 
-        return transformTranslationKey(result.concat(".").concat(action.getDataElement().getName()));
+//        result += ".".concat(action.getType().getName().toLowerCase()); TODO: replace with proper chain after transformation is ready
+
+        return transformTranslationKey(result.concat(".").concat("action").concat(".").concat(action.getDataElement().getName()));
     }
 
     public static String magicTranslatePage(PageDefinition page) {
