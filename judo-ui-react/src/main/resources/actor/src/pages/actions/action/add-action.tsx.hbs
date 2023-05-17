@@ -38,7 +38,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     const handleActionError = useErrorHandler<JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=AddAction))`);
     const { enqueueSnackbar } = useSnackbar();
     const { locale: l10nLocale } = useL10N();
-    const title: string = t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ action.label }}' });
+    const title: string = t('{{ magicTranslateAction action }}', { defaultValue: '{{ action.label }}' });
 
     return async function {{ actionFunctionName action }} (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>, successCallback: () => void) {
         {{# with action.definedOn as |table| }}
@@ -47,7 +47,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                     {
                         ...baseColumnConfig,
                         field: '{{ column.attributeType.name }}',
-                        headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
+                        headerName: t('{{ magicTranslate column }}', { defaultValue: '{{ column.label }}' }) as string,
                         {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
                         {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
                     },

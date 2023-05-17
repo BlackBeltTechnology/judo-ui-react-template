@@ -6,7 +6,7 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                     {
                         ...baseColumnConfig,
                         field: '{{ column.attributeType.name }}',
-                        headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
+                        headerName: t('{{ magicTranslate column }}', { defaultValue: '{{ column.label }}' }) as string,
                         {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
                         {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
                     },
@@ -49,7 +49,7 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
     {{ else }}
         {{# if (hasConfirmation action) }}
             // TODO: implement shiny MUI Dialog here
-            const result = confirm(t('{{ idToTranslationKey action.fQName application }}.confirmation', { defaultValue: '{{ action.confirmationMessage }}' }) as string);
+            const result = confirm(t('{{ magicTranslateAction action }}.confirmation', { defaultValue: '{{ action.confirmationMessage }}' }) as string);
 
             if (!result) {
                 return;
