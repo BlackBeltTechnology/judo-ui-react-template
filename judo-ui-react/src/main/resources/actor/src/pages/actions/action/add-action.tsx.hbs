@@ -47,7 +47,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                     {
                         ...baseColumnConfig,
                         field: '{{ column.attributeType.name }}',
-                        headerName: t('{{ idToTranslationKey column.fQName application }}', { defaultValue: '{{ column.label }}' }) as string,
+                        headerName: t('{{ magicTranslate column }}', { defaultValue: '{{ column.label }}' }) as string,
                         {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
                         {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
                     },

@@ -104,36 +104,6 @@ public class UiI18NHelper extends Helper {
         return defaultLang != null ? defaultLang : LANGUAGE_DEFAULT;
     }
 
-    public static String idToTranslationKey(String id, Application application) {
-        String result = id;
-
-        if (result.contains("@")) {
-            result = result.split("@")[1];
-        }
-
-        result = result.replaceAll("LabelWrapper::", "")
-                .replaceAll("Create::default::", "")
-                .replaceAll("Input::default::", "")
-                .replaceAll("Output::default::", "")
-                .replaceAll("View::default::", "")
-                .replaceAll("Edit::default::", "")
-                .replaceAll("Table::default::", "")
-                .replaceAll(application.getName() + "::", "")
-                .replaceAll(modelName(application.getName()) + "::", "")
-                .replaceAll("(#ButtonCallOperation)$", "")
-                .replaceAll("(#ButtonNavigate)$", "")
-                .replaceAll("(#TabularReferenceButton)$", "");
-
-
-        return stream(result.replaceAll("#", "::")
-                .replaceAll("\\.", "::")
-                .replaceAll("/", "::")
-                .replaceAll("_", "::")
-                .split("::"))
-                .filter(f -> f.trim().length() > 0)
-                .collect(Collectors.joining("."));
-    }
-
     public static Map<String, String> getApplicationTranslations(Application application) {
         Map<String, String> translations = new HashMap<>();
 
@@ -151,7 +121,9 @@ public class UiI18NHelper extends Helper {
 
         // iterate over routed pages
         for (PageDefinition page: getPagesForRouting(application)) {
-            translations.put(magicTranslatePage(page), page.getLabel());
+            if (!titleComesFromAttribute(page)) {
+                translations.put(magicTranslatePage(page), page.getLabel());
+            }
 
             for (Action action: getUniquePageActions(page)) {
                 translations.put(magicTranslateAction(action), action.getLabel());
@@ -201,7 +173,9 @@ public class UiI18NHelper extends Helper {
             PageDefinition page = action instanceof CallOperationAction ? ((CallOperationAction) action).getInputParameterPage() : ((CreateAction) action).getTarget();
 
             if (action.getIsCreateAction() || action.getIsCallOperationAction()) {
-                translations.put(magicTranslatePage(page), page.getLabel());
+                if (!titleComesFromAttribute(page)) {
+                    translations.put(magicTranslatePage(page), page.getLabel());
+                }
 
                 for (Table table: getPageTables(page)) {
                     translations.put(magicTranslate(table), table.getLabel());
@@ -224,7 +198,9 @@ public class UiI18NHelper extends Helper {
         // Unmapped Operation Output Views for modals
         for (PageDefinition page: getUnmappedOutputViewsForPages(application)) {
 
-            translations.put(magicTranslatePage(page), page.getLabel());
+            if (!titleComesFromAttribute(page)) {
+                translations.put(magicTranslatePage(page), page.getLabel());
+            }
 
             for (Table table: getPageTables(page)) {
                 translations.put(magicTranslate(table), table.getLabel());
@@ -250,7 +226,11 @@ public class UiI18NHelper extends Helper {
                 .filter(map -> keepTranslationKey(map.getKey()))
                 .collect(Collectors.toMap(Map.Entry::getKey, map -> map.getValue() == null ? "" : map.getValue() ));
 
-        return new TreeMap<>(filtered);
+        Map<String, String> sorted = filtered.entrySet().stream()
+                .sorted(Map.Entry.comparingByKey())
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, HashMap::new));
+
+        return new TreeMap<>(sorted);
     }
 
     public static boolean languageIsNotDefault(String defaultLanguage) {
@@ -309,6 +289,17 @@ public class UiI18NHelper extends Helper {
                     translations.put(magicTranslateButton(button, "grouped"), button.getLabel());
                 }
             }
+        } else if (visualElement instanceof TabController) {
+            TabController controller = (TabController) visualElement;
+
+            for (Tab tab: controller.getTabs()) {
+                Flex nested = (Flex) tab.getElement();
+                translations.put(magicTranslateFlex(nested), nested.getLabel());
+
+                for (VisualElement tabElementChild: nested.getChildren()) {
+                    addTranslationForVisualElement(tabElementChild, translations);
+                }
+            }
         } else if (!(visualElement instanceof Flex)) {
             // Skip Flex, we only need the label if it's present for the Card version
             translations.put(magicTranslate(visualElement), visualElement.getLabel());
@@ -330,6 +321,14 @@ public class UiI18NHelper extends Helper {
     private static Boolean keepTranslationKey(String key) {
         Matcher m = TRANSLATION_KEYS_TO_SKIP.matcher(key);
         return !m.matches();
+    }
+
+    public static String magicTranslateFlex(Flex flex) {
+        // currently only used to translate TabController Tabs, because the actual label is inside the first Flex of a Tab
+        PageDefinition page = flex.getPageDefinition();
+        String result = magicTranslatePage(page);
+        result += ".".concat(flex.getName());
+        return transformTranslationKey(result);
     }
 
     public static String magicTranslate(VisualElement element) {
@@ -394,10 +393,16 @@ public class UiI18NHelper extends Helper {
     public static String magicTranslateAction(Action action) {
         PageDefinition page = (PageDefinition) action.eContainer();
         String result = magicTranslatePage(page);
+        String[] nameSplit = action.getName().split("#");
 
-//        result += ".".concat(action.getType().getName().toLowerCase()); TODO: replace with proper chain after transformation is ready
+        if (action.getDefinedOn() instanceof Table || action.getDefinedOn() instanceof Link) {
+            result += ".".concat(((ReferenceTypedVisualElement) action.getDefinedOn()).getDataElement().getName());
+        }
 
-        return transformTranslationKey(result.concat(".").concat("action").concat(".").concat(action.getDataElement().getName()));
+        return transformTranslationKey(result
+                .concat(".").concat(action.getDataElement().getName())
+                .concat(".").concat(nameSplit[nameSplit.length - 1])
+        );
     }
 
     public static String magicTranslatePage(PageDefinition page) {
@@ -408,13 +413,6 @@ public class UiI18NHelper extends Helper {
         String transferPageName = page.getOriginalPageContainer().getTransferPageName();
 
         return prefix.length() > 0 ? prefix.concat(".").concat(transferPageName) : transferPageName;
-//        ReferenceType ref = (ReferenceType) page.getDataElement();
-//        if (ref == null) {
-//            // Empty Dashboard and others...
-//            return transformTranslationKey(page.getName());
-//        }
-//        return transformTranslationKey(ref.getTarget().getName());
-
     }
 
     public static String transformTranslationKey(String source) {
