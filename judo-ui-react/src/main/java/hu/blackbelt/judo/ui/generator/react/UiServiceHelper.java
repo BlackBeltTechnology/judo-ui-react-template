@@ -21,18 +21,113 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.Table;
-import hu.blackbelt.judo.meta.ui.data.ClassType;
-import hu.blackbelt.judo.meta.ui.data.DataElement;
-import hu.blackbelt.judo.meta.ui.data.OperationParameterType;
-import hu.blackbelt.judo.meta.ui.data.RelationType;
+import hu.blackbelt.judo.meta.ui.Application;
+import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
+import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
+
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 
 @Log
 @TemplateHelper
 public class UiServiceHelper extends Helper {
+
+    public static List<DataElement> getDataServices(Application application) {
+        List<DataElement> elements = new ArrayList<>();
+        elements.addAll(application.getDataElements());
+        elements.addAll(application.getRelationTypes());
+        return elements;
+    }
+
+    public static String serviceName(DataElement dataElement) {
+        if (dataElement instanceof ClassType) {
+            return classDataName((ClassType) dataElement, "");
+        } else if (dataElement instanceof OperationParameterType) {
+            return ((OperationParameterType) dataElement).getName();
+        } else if (dataElement instanceof RelationType) {
+            return servicePackagedRelationName((RelationType) dataElement);
+        } else {
+            throw new RuntimeException("Unsupported DataElement: " + dataElement.getName());
+        }
+    }
+
+    public static String servicePackagedRelationName(RelationType relation) {
+        return classDataName((ClassType) relation.getOwner(), "")
+                .concat("Relation")
+                .concat(StringUtils.capitalize(relation.getName()));
+    }
+
+    public static boolean isDataElementRelationType(DataElement dataElement) {
+        return dataElement instanceof RelationType;
+    }
+
+    public static boolean isDataElementClassType(DataElement dataElement) {
+        return dataElement instanceof ClassType;
+    }
+
+    public static boolean isDataElementOperationParameterType(DataElement dataElement) {
+        return dataElement instanceof OperationParameterType;
+    }
+
+    public static List<String> getImportsForRelationService(RelationType relationType) {
+        Set<String> collector = new HashSet<>();
+        ClassType target = relationType.getTarget();
+
+        if (!relationType.isIsAccess()) {
+            ClassType owner = (ClassType) relationType.getOwner();
+            collector.add(classDataName(owner, ""));
+            collector.add(classDataName(owner, "Stored"));
+        }
+
+        collector.add(classDataName(target, ""));
+        collector.add(classDataName(target, "Stored"));
+        collector.add(classDataName(target, "QueryCustomizer"));
+
+        for (OperationType operation: target.getOperations()) {
+            if (operation.getInput() != null) {
+                collector.add(classDataName(operation.getInput().getTarget(), ""));
+                collector.add(classDataName(operation.getInput().getTarget(), "QueryCustomizer"));
+                collector.add(classDataName(operation.getInput().getTarget(), "Stored"));
+            }
+
+            if (operation.getOutput() != null) {
+                collector.add(classDataName(operation.getOutput().getTarget(), "Stored"));
+            }
+        }
+
+        return collector.stream().sorted().collect(Collectors.toList());
+    }
+
+    public static List<String> getImportsForClassService(ClassType classType) {
+        Set<String> collector = new HashSet<>();
+
+        if (!classType.isIsActor()) {
+            collector.add(classDataName(classType, ""));
+            collector.add(classDataName(classType, "Stored"));
+            collector.add(classDataName(classType, "QueryCustomizer"));
+        }
+
+        for (OperationType operation: classType.getOperations()) {
+            if (operation.getInput() != null) {
+                collector.add(classDataName(operation.getInput().getTarget(), ""));
+                collector.add(classDataName(operation.getInput().getTarget(), "QueryCustomizer"));
+                collector.add(classDataName(operation.getInput().getTarget(), "Stored"));
+            }
+
+            if (operation.getOutput() != null) {
+                collector.add(classDataName(operation.getOutput().getTarget(), "Stored"));
+            }
+        }
+
+        return collector.stream().sorted().collect(Collectors.toList());
+    }
+
     public static String dataElementRelationName(DataElement dataElement) {
         if (dataElement instanceof RelationType) {
             RelationType relation = (RelationType) dataElement;

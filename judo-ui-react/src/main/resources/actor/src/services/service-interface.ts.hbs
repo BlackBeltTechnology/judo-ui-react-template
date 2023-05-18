@@ -1,0 +1,18 @@
+{{# if (isDataElementRelationType dataElement) }}
+    {{# with dataElement as |relation| }}
+        {{# if isDebugPrint }}// include: actor/src/services/service-interface/relation-type.fragment.hbs{{/ if }}
+        {{> actor/src/services/service-interface/relation-type.fragment.hbs relation=relation }}
+    {{/with}}
+{{/ if }}
+{{# if (isDataElementClassType dataElement) }}
+    {{# with dataElement as |clazz| }}
+        {{# if isDebugPrint }}// include: actor/src/services/service-interface/class-type.fragment.hbs{{/ if }}
+        {{> actor/src/services/service-interface/class-type.fragment.hbs clazz=clazz }}
+    {{/with}}
+{{/ if }}
+{{# if (isDataElementOperationParameterType dataElement) }}
+    {{# with dataElement as |parameter| }}
+        {{# if isDebugPrint }}// include: actor/src/services/service-interface/operation-parameter-type.fragment.hbs{{/ if }}
+        {{> actor/src/services/service-interface/operation-parameter-type.fragment.hbs parameter=parameter }}
+    {{/with}}
+{{/ if }}

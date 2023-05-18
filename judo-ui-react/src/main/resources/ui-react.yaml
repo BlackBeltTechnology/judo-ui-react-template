@@ -527,6 +527,20 @@ templates:
     pathExpression: "'src/l10n/l10n-context.tsx'"
     templateName: actor/src/l10n/l10n-context.tsx.hbs
 
+  # Actor - src - services
+
+  - name: actor/src/services/common-service-interfaces.ts
+    pathExpression: "'src/services/common-service-interfaces.ts'"
+    templateName: actor/src/services/common-service-interfaces.ts.hbs
+
+  - name: actor/src/services/service-interface.ts
+    factoryExpression: "#getDataServices(#application)"
+    pathExpression: "'src/services/' + #serviceName(#self) + 'Service.ts'"
+    templateName: actor/src/services/service-interface.ts.hbs
+    templateContext:
+      - name: dataElement
+        expression: "#self"
+
   # Actor - src - pages
 
   - name: actor/src/pages/index.tsx

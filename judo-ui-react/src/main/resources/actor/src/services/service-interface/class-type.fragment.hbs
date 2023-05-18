@@ -1,0 +1,43 @@
+import type { Identifiable } from './common-service-interfaces';
+{{# unless clazz.isActor }}
+    import type { OwnerBasedService } from './common-service-interfaces';
+{{/ unless }}
+{{# if (hasElements (getImportsForClassService clazz)) }}
+    import type {
+        {{# each (getImportsForClassService clazz) as |imp| }}
+            {{ imp }},
+        {{/ each }}
+    } from '../generated/data-api';
+{{/ if }}
+{{# each clazz.relations as |nested| }}
+    import type { {{ servicePackagedRelationName nested }}Service } from './{{ servicePackagedRelationName nested }}Service';
+{{/ each }}
+
+/**
+ * Class Name: {{ serviceName clazz }}
+ */
+export interface {{ serviceName clazz }}Service{{# unless clazz.isActor }} extends OwnerBasedService{{/ unless }} {
+    {{# if clazz.isRefreshable }}
+        refresh(queryCustomizer?: {{ classDataName clazz "QueryCustomizer" }}): Promise<{{ classDataName clazz "Stored" }}>;
+    {{/ if }}
+
+    {{# if clazz.isUpdatable }}
+        update(): Promise<{{ classDataName clazz "Stored" }}>;
+    {{/ if }}
+
+    {{# if clazz.isDeletable }}
+        delete(): Promise<void>;
+    {{/ if }}
+
+    {{# each clazz.relations as |relation| }}
+        {{ relation.name }}: () => {{ serviceName relation }}Service;
+    {{/ each }}
+
+    {{# each clazz.operations as |operation| }}
+        {{ operation.name }}({{# if operation.input }}target: {{ getClassName operation.input.target }}{{/ if }}): Promise<{{# if operation.output }}{{ classDataName operation.output.target "Stored" }}{{ else }}void{{/ if }}>;
+
+        {{# if operation.isInputRangeable }}
+            getRangeFor{{ firstToUpper operation.name }}(queryCustomizer?: {{ classDataName operation.input.target "QueryCustomizer" }}): Promise<Array<{{ classDataName operation.input.target "Stored" }}>>;
+        {{/ if }}
+    {{/ each }}
+}

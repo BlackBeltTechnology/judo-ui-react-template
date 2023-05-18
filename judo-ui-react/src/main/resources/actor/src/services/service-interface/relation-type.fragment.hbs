@@ -1,0 +1,82 @@
+import type { Identifiable } from './common-service-interfaces';
+{{# unless relation.isAccess }}
+    import type { OwnerBasedService } from './common-service-interfaces';
+{{/ unless }}
+import type {
+    {{# each (getImportsForRelationService relation) as |imp| }}
+        {{ imp }},
+    {{/ each }}
+} from '../generated/data-api';
+{{# each relation.target.relations as |nested| }}
+    import type { {{ servicePackagedRelationName nested }}Service } from './{{ servicePackagedRelationName nested }}Service';
+{{/ each }}
+
+/**
+ * Relation Name: {{ serviceName relation }}
+ * Is Access: {{ boolValue relation.isAccess }}
+ * Owner: {{# if relation.isAccess }}{{ relation.owner.name }}{{ else }}-{{/ if }}
+ * Target: {{ relation.target.name }}
+ * Is Collection: {{ boolValue relation.isCollection }}
+ */
+export interface {{ servicePackagedRelationName relation }}Service{{# unless relation.isAccess }} extends OwnerBasedService{{/ unless }} {
+    {{# if relation.isRefreshable }}
+        {{# if relation.isCollection }}
+            refresh(queryCustomizer?: {{ classDataName relation.target "QueryCustomizer" }}): Promise<Array<{{ classDataName relation.target "Stored" }}>>;
+        {{ else }}
+            refresh(queryCustomizer?: {{ classDataName relation.target "QueryCustomizer" }}): Promise<{{ classDataName relation.target "Stored" }}>;
+        {{/ if }}
+    {{/ if }}
+
+    {{# if relation.isFilterable }}
+        filter(queryCustomizer?: {{ classDataName relation.target "QueryCustomizer" }}): Promise<{{ classDataName relation.target "Stored" }}>;
+    {{/ if }}
+
+    {{# if relation.isCreatable }}
+        {{# if relation.target.isTemplateable }}
+            getTemplate(): Promise<{{ classDataName relation.target "" }}>;
+        {{/ if }}
+
+        create(target: {{ getClassName relation.target }}): Promise<{{ classDataName relation.target "Stored" }}>;
+    {{/ if }}
+
+    {{# if relation.isUpdatable }}
+        update(): Promise<{{ classDataName relation.target "Stored" }}>;
+    {{/ if }}
+
+    {{# if relation.isDeletable }}
+        delete(): Promise<void>;
+    {{/ if }}
+
+    {{# if relation.isRangeable }}
+            getRangeFor{{ relation.target.simpleName }}(queryCustomizer: {{ classDataName relation.target "QueryCustomizer" }}): Promise<Array<{{ classDataName relation.target "Stored" }}>>;
+    {{/ if }}
+
+    {{# if relation.isSetable }}
+        {{# if relation.isCollection }}
+            set{{ firstToUpper relation.name }}(selected: Array<{{ classDataName relation.target "Stored" }}>): Promise<void>;
+        {{ else }}
+            set{{ relation.target.simpleName }}(selected: {{ classDataName relation.target "Stored" }}): Promise<void>;
+        {{/ if }}
+    {{/ if }}
+
+    {{# if relation.isUnsetable }}
+        unset{{ relation.target.simpleName }}(target: {{ classDataName relation.target "Stored" }}): Promise<void>;
+    {{/ if }}
+
+    {{# if relation.isAddable }}
+        add{{ firstToUpper relation.name }}(selected: Array<{{ classDataName relation.target "Stored" }}>): Promise<void>;
+    {{/ if }}
+
+    {{# if relation.isRemovable }}
+        remove{{ firstToUpper relation.name }}(selected: Array<{{ classDataName relation.target "Stored" }}>): Promise<void>;
+    {{/ if }}
+
+    {{# each relation.target.operations as | operation | }}
+        {{ operation.name }}({{# if operation.input }}target: {{ getClassName operation.input.target }}{{/ if }}): Promise<{{# if operation.output }}{{ classDataName operation.output.target "Stored" }}{{ else }}void{{/ if }}>;
+
+        {{# if operation.isInputRangeable }}
+            getRangeFor{{ firstToUpper operation.name }}(queryCustomizer?: {{ classDataName operation.input.target "QueryCustomizer" }}): Promise<Array<{{ classDataName operation.input.target "Stored" }}>>;
+        {{/ if }}
+
+    {{/ each }}
+}
