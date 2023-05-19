@@ -15,7 +15,7 @@
             {{# if child.attributeType.isRequired }} required {{/ if }}
             name="{{ child.attributeType.name }}"
             id="{{ createId child }}"
-            label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+            label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
             select
             value={ booleanToStringSelect( data.{{ child.attributeType.name }} )}
             className={ !editMode ? 'JUDO-viewMode' : undefined }
@@ -50,7 +50,7 @@
                         storeDiff('{{ child.attributeType.name }}', event.target.checked);
                     } } />
                 }
-                label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+                label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
             />
         </FormGroup>
     {{/ unless }}
