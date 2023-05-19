@@ -32,8 +32,8 @@ import java.util.Map;
  * because there is no state for them. The ThreadLocal is used
  * to init variable values from template execution.
  */
-@TemplateHelper
-@ContextAccessor
+//@TemplateHelper
+//@ContextAccessor
 public class StoredVariableHelper extends StaticMethodValueResolver {
 
     public static void bindContext(Map<String, ?> context) {

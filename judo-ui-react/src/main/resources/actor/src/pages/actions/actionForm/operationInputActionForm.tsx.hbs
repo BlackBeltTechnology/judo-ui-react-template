@@ -58,7 +58,7 @@ export function {{ pageActionFormComponentName action }}({
         {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
-    const title: string = t('{{ idToTranslationKey page.fQName application }}', { defaultValue: '{{ page.label }}' });
+    const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/input-form-flags.hbs }}
@@ -150,7 +150,7 @@ export function {{ pageActionFormComponentName action }}({
                                 {{ else }}
                                     <MdiIcon path="close-thick" />
                                 {{/ if }}
-                                { t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ backButton.label }}' }) as string }
+                                { t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ backButton.label }}' }) as string }
                             {{/ with }}
                         {{ else }}
                             <MdiIcon path="close-thick" />
@@ -179,7 +179,7 @@ export function {{ pageActionFormComponentName action }}({
                     >
                         {{# if (getSaveButtonForOperationInputPage page) }}
                             {{# with (getSaveButtonForOperationInputPage page) as |saveButton| }}
-                                <span>{ t('{{ idToTranslationKey action.fQName application }}', { defaultValue: '{{ saveButton.label }}' }) as string }</span>
+                                <span>{ t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ saveButton.label }}' }) as string }</span>
                             {{/ with }}
                         {{ else }}
                             <span>{ t('judo.pages.submit', { defaultValue: 'Submit' }) as string }</span>
