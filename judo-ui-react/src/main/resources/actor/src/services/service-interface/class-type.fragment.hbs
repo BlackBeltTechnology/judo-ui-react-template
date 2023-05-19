@@ -18,15 +18,15 @@ import type { Identifiable } from './common-service-interfaces';
  */
 export interface {{ serviceName clazz }}Service{{# unless clazz.isActor }} extends OwnerBasedService{{/ unless }} {
     {{# if clazz.isRefreshable }}
-        refresh(queryCustomizer?: {{ classDataName clazz "QueryCustomizer" }}): Promise<{{ classDataName clazz "Stored" }}>;
+        $refresh(queryCustomizer?: {{ classDataName clazz "QueryCustomizer" }}): Promise<{{ classDataName clazz "Stored" }}>;
     {{/ if }}
 
     {{# if clazz.isUpdatable }}
-        update(): Promise<{{ classDataName clazz "Stored" }}>;
+        $update(target: {{ classDataName clazz "Stored" }}): Promise<{{ classDataName clazz "Stored" }}>;
     {{/ if }}
 
     {{# if clazz.isDeletable }}
-        delete(): Promise<void>;
+        $delete(): Promise<void>;
     {{/ if }}
 
     {{# each clazz.relations as |relation| }}
