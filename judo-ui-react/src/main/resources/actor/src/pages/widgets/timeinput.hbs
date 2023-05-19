@@ -44,7 +44,7 @@
         } }
         className={ !editMode ? 'JUDO-viewMode' : undefined }
         views={['hours', 'minutes', 'seconds']}
-        label={ t('{{ magicTranslate child }}', { defaultValue: '{{ child.label }}' }) as string }
+        label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceTimeToUiTime(data.{{ child.attributeType.name }} ?? null) }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} !isFormUpdateable() }

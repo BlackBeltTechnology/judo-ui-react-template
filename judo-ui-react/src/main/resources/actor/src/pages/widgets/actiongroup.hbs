@@ -24,7 +24,7 @@
                     onClick={ () => {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData()) }
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
                 >
-                    <span>{ t('{{ magicTranslateButton button '' }}', { defaultValue: '{{ button.label }}' }) }</span>
+                    <span>{ t('{{ getTranslationKeyForButton button '' }}', { defaultValue: '{{ button.label }}' }) }</span>
                 </LoadingButton>
             </Grid>
             {{# if action.hiddenBy }}){{/ if }}
@@ -38,7 +38,7 @@
                         {{# each (nonFeaturedActionsForActionGroup child) as |button| }}
                             {
                                 id: '{{ createId button }}',
-                                label: t('{{ magicTranslateButton button 'grouped' }}', { defaultValue: '{{ button.label }}' }) as string,
+                                label: t('{{ getTranslationKeyForButton button 'grouped' }}', { defaultValue: '{{ button.label }}' }) as string,
                                 onClick: () => {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
                                 startIcon: <MdiIcon path="arrow_right" />,
                                 disabled: {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} isLoading || editMode,
@@ -50,7 +50,7 @@
                     {{# if child.icon }}
                         <MdiIcon path="{{ child.icon.name }}" />
                     {{/ if }}
-                    { t('{{ magicTranslate child }}', { defaultValue: '{{ child.label }}' }) }
+                    { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
                 </DropdownButton>
             </Grid>
         {{/ if }}

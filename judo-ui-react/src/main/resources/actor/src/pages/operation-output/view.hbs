@@ -84,7 +84,7 @@ export default function {{ pageName page }}() {
     {{# if (titleComesFromAttribute page) }}
         const title: string = data.{{ page.titleAttribute.name }} as string;
     {{ else }}
-        const title: string = t('{{ magicTranslatePage page }}', { defaultValue: '{{ page.label }}' });
+        const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/mapped-form-flags.hbs{{/ if }}

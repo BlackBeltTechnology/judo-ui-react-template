@@ -44,7 +44,7 @@
             });
         } }
         views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
-        label={ t('{{ magicTranslate child }}', { defaultValue: '{{ child.label }}' }) as string }
+        label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         onChange={ (newValue: Date) => {

@@ -29,7 +29,7 @@ const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName ta
         {{# if action.isCallOperationAction }}
             {
                 id: '{{ createId action }}',
-                label: t('{{ magicTranslateAction action }}', { defaultValue: '{{ action.label }}' }) as string,
+                label: t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ action.label }}' }) as string,
                 icon: <MdiIcon path="{{ action.icon.name }}" />,
                 action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}({{# if action.operation.isMapped }}row, {{/ if }}() => fetchOwnerData()),
                 disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode,

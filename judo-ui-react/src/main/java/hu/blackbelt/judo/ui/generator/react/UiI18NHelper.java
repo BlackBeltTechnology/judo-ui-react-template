@@ -122,14 +122,14 @@ public class UiI18NHelper extends Helper {
         // iterate over routed pages
         for (PageDefinition page: getPagesForRouting(application)) {
             if (!titleComesFromAttribute(page)) {
-                translations.put(magicTranslatePage(page), page.getLabel());
+                translations.put(getTranslationKeyForPage(page), page.getLabel());
             }
 
             for (Action action: getUniquePageActions(page)) {
-                translations.put(magicTranslateAction(action), action.getLabel());
+                translations.put(getTranslationKeyForAction(action), action.getLabel());
 
                 if (hasConfirmation(action)) {
-                    translations.put(magicTranslateAction(action) + ".confirmation", action.getConfirmationMessage());
+                    translations.put(getTranslationKeyForAction(action) + ".confirmation", action.getConfirmationMessage());
                 }
             }
 
@@ -141,7 +141,7 @@ public class UiI18NHelper extends Helper {
             } else {
                 // Create / View / OperationOutput screens are quite similar, we can process them the same way
                 for (Table table: getPageTables(page)) {
-                    translations.put(magicTranslate(table), table.getLabel());
+                    translations.put(getTranslationKeyForVisualElement(table), table.getLabel());
 
                     addTranslationsForTable(table, translations);
                 }
@@ -155,13 +155,13 @@ public class UiI18NHelper extends Helper {
                     VisualElement root = getDataContainerForPage(page);
 
                     if (root != null) {
-                        addTranslationForVisualElement(root, translations);
+                        addTranslationsForVisualElement(root, translations);
                     }
                 } else {
                     List<VisualElement> elements = page.getOriginalPageContainer().getChildren();
 
                     if (elements.size() > 0) {
-                        addTranslationForVisualElement(elements.get(0), translations);
+                        addTranslationsForVisualElement(elements.get(0), translations);
                     }
                 }
 
@@ -174,11 +174,11 @@ public class UiI18NHelper extends Helper {
 
             if (action.getIsCreateAction() || action.getIsCallOperationAction()) {
                 if (!titleComesFromAttribute(page)) {
-                    translations.put(magicTranslatePage(page), page.getLabel());
+                    translations.put(getTranslationKeyForPage(page), page.getLabel());
                 }
 
                 for (Table table: getPageTables(page)) {
-                    translations.put(magicTranslate(table), table.getLabel());
+                    translations.put(getTranslationKeyForVisualElement(table), table.getLabel());
 
                     addTranslationsForTable(table, translations);
                 }
@@ -190,7 +190,7 @@ public class UiI18NHelper extends Helper {
                 List<VisualElement> elements = page.getOriginalPageContainer().getChildren();
 
                 if (elements.size() > 0) {
-                    addTranslationForVisualElement(elements.get(0), translations);
+                    addTranslationsForVisualElement(elements.get(0), translations);
                 }
             }
         }
@@ -199,11 +199,11 @@ public class UiI18NHelper extends Helper {
         for (PageDefinition page: getUnmappedOutputViewsForPages(application)) {
 
             if (!titleComesFromAttribute(page)) {
-                translations.put(magicTranslatePage(page), page.getLabel());
+                translations.put(getTranslationKeyForPage(page), page.getLabel());
             }
 
             for (Table table: getPageTables(page)) {
-                translations.put(magicTranslate(table), table.getLabel());
+                translations.put(getTranslationKeyForVisualElement(table), table.getLabel());
 
                 addTranslationsForTable(table, translations);
             }
@@ -216,7 +216,7 @@ public class UiI18NHelper extends Helper {
             VisualElement root = getDataContainerForPage(page);
 
             if (root != null) {
-                addTranslationForVisualElement(root, translations);
+                addTranslationsForVisualElement(root, translations);
             }
         }
 
@@ -247,46 +247,46 @@ public class UiI18NHelper extends Helper {
 
     private static void addTranslationsForTable(Table table, Map<String, String> translations) {
         for (Action action: table.getRowActions()) {
-            translations.put(magicTranslateAction(action), action.getLabel());
+            translations.put(getTranslationKeyForAction(action), action.getLabel());
 
             if (hasConfirmation(action)) {
-                translations.put(magicTranslateAction(action) + ".confirmation", action.getConfirmationMessage());
+                translations.put(getTranslationKeyForAction(action) + ".confirmation", action.getConfirmationMessage());
             }
         }
 
         for (Column column: table.getColumns()) {
-            translations.put(magicTranslate(column), column.getLabel());
+            translations.put(getTranslationKeyForVisualElement(column), column.getLabel());
         }
 
         for (Filter filter: table.getFilters()) {
-            translations.put(magicTranslate(filter), filter.getLabel());
+            translations.put(getTranslationKeyForVisualElement(filter), filter.getLabel());
         }
     }
 
     private static void addTranslationsForLink(Link link, Map<String, String> translations) {
-        translations.put(magicTranslate(link), link.getLabel());
+        translations.put(getTranslationKeyForVisualElement(link), link.getLabel());
 
         for (Column column: ((Collection<Column>) link.getColumns())) {
-            translations.put(magicTranslate(column), column.getLabel());
+            translations.put(getTranslationKeyForVisualElement(column), column.getLabel());
         }
 
         for (Filter filter: link.getFilters()) {
-            translations.put(magicTranslate(filter), filter.getLabel());
+            translations.put(getTranslationKeyForVisualElement(filter), filter.getLabel());
         }
     }
 
-    private static void addTranslationForVisualElement(VisualElement visualElement, Map<String, String> translations) {
+    private static void addTranslationsForVisualElement(VisualElement visualElement, Map<String, String> translations) {
         if (visualElement instanceof ActionGroup) {
             ActionGroup actionGroup = (ActionGroup) visualElement;
             for (Button button: featuredActionsForActionGroup(actionGroup)) {
-                translations.put(magicTranslateButton(button, ""), button.getLabel());
+                translations.put(getTranslationKeyForButton(button, ""), button.getLabel());
             }
             if (displayDropdownForActionGroup(actionGroup)) {
                 // button for the group itself
-                translations.put(magicTranslate(visualElement), visualElement.getLabel());
+                translations.put(getTranslationKeyForVisualElement(visualElement), visualElement.getLabel());
                 // dropdown elements
                 for (Button button: nonFeaturedActionsForActionGroup(actionGroup)) {
-                    translations.put(magicTranslateButton(button, "grouped"), button.getLabel());
+                    translations.put(getTranslationKeyForButton(button, "grouped"), button.getLabel());
                 }
             }
         } else if (visualElement instanceof TabController) {
@@ -294,26 +294,26 @@ public class UiI18NHelper extends Helper {
 
             for (Tab tab: controller.getTabs()) {
                 Flex nested = (Flex) tab.getElement();
-                translations.put(magicTranslateFlex(nested), nested.getLabel());
+                translations.put(getTranslationKeyForFlex(nested), nested.getLabel());
 
                 for (VisualElement tabElementChild: nested.getChildren()) {
-                    addTranslationForVisualElement(tabElementChild, translations);
+                    addTranslationsForVisualElement(tabElementChild, translations);
                 }
             }
         } else if (!(visualElement instanceof Flex)) {
             // Skip Flex, we only need the label if it's present for the Card version
-            translations.put(magicTranslate(visualElement), visualElement.getLabel());
+            translations.put(getTranslationKeyForVisualElement(visualElement), visualElement.getLabel());
         }
 
         if (visualElement instanceof Container) {
             for (VisualElement element: ((Container) visualElement).getChildren()) {
-                addTranslationForVisualElement(element, translations);
+                addTranslationsForVisualElement(element, translations);
             }
         }
 
         if (visualElement instanceof TabController) {
             for (Tab tab: ((TabController) visualElement).getTabs()) {
-                addTranslationForVisualElement(tab.getElement(), translations);
+                addTranslationsForVisualElement(tab.getElement(), translations);
             }
         }
     }
@@ -323,103 +323,98 @@ public class UiI18NHelper extends Helper {
         return !m.matches();
     }
 
-    public static String magicTranslateFlex(Flex flex) {
+    public static String getTranslationKeyForFlex(Flex flex) {
         // currently only used to translate TabController Tabs, because the actual label is inside the first Flex of a Tab
         PageDefinition page = flex.getPageDefinition();
-        String result = magicTranslatePage(page);
-        result += ".".concat(flex.getName());
-        return transformTranslationKey(result);
+        return transformTranslationKey(getTranslationKeyForPage(page) + "." + flex.getName());
     }
 
-    public static String magicTranslate(VisualElement element) {
+    public static String getTranslationKeyForVisualElement(VisualElement element) {
         PageDefinition page = element.getPageDefinition();
-        String result = magicTranslatePage(page);
+        String result = getTranslationKeyForPage(page);
 
         if (element instanceof Column) {
             if (element.eContainer() instanceof ReferenceTypedVisualElement) {
                 ReferenceTypedVisualElement ref = (ReferenceTypedVisualElement) element.eContainer();
-                result += ".".concat(ref.getDataElement().getName());
+                result += "." + ref.getDataElement().getName();
             }
-            result += ".".concat(((Column) element).getAttributeType().getName());
+            result += "." + ((Column) element).getAttributeType().getName();
         } else if (element instanceof Filter) {
             if (element.eContainer() instanceof ReferenceTypedVisualElement) {
                 ReferenceTypedVisualElement ref = (ReferenceTypedVisualElement) element.eContainer();
-                result += ".".concat(ref.getDataElement().getName());
+                result += "."+ ref.getDataElement().getName();
             }
             Filter filter = (Filter) element;
-            result += ".".concat(filter.getAttributeType().getName());
+            result += "." + filter.getAttributeType().getName();
         } else if (element instanceof Table) {
             Table table = (Table) element;
-            result += ".".concat(table.getDataElement().getName());
+            result += "." + table.getDataElement().getName();
         } else if (element instanceof Link) {
             Link link = (Link) element;
-            result += ".".concat(link.getDataElement().getName());
+            result += "." + link.getDataElement().getName();
         } else if (element instanceof Button) {
             Button button = (Button) element;
-            result += ".".concat(button.getName());
+            result += "." + button.getName();
         } else if (element instanceof ActionGroup) {
             ActionGroup actionGroup = (ActionGroup) element;
-            result += ".".concat(actionGroup.getName());
+            result += "." + actionGroup.getName();
         } else if (element instanceof Input) {
             Input input = (Input) element;
-            result += ".".concat(input.getName());
+            result += "." + input.getName();
         } else if (element instanceof Formatted) {
             Formatted formatted = (Formatted) element;
-            result += ".".concat(formatted.getName());
+            result += "." + formatted.getName();
         } else if (element instanceof Label) {
             Label label = (Label) element;
-            result += ".".concat(label.getName());
+            result += "." + label.getName();
         } else {
             throw new RuntimeException("Unsupported Visual Element for translation: " + element.getFQName());
         }
         return transformTranslationKey(result);
     }
 
-    public static String magicTranslateButton(Button button, String suffix) {
+    public static String getTranslationKeyForButton(Button button, String suffix) {
         PageDefinition page = button.getPageDefinition();
-        String result = magicTranslatePage(page);
+        String result = getTranslationKeyForPage(page);
 
         if (button.eContainer() instanceof ActionGroup) {
-            result += ".".concat(((ActionGroup) button.eContainer()).getName());
+            result += "." + ((ActionGroup) button.eContainer()).getName();
         }
 
         if (suffix != null) {
-            result += ".".concat(suffix);
+            result += "." + suffix;
         }
 
-        return transformTranslationKey(result.concat(".").concat(button.getName()));
+        return transformTranslationKey(result + "." + button.getName());
     }
 
-    public static String magicTranslateAction(Action action) {
+    public static String getTranslationKeyForAction(Action action) {
         PageDefinition page = (PageDefinition) action.eContainer();
-        String result = magicTranslatePage(page);
+        String result = getTranslationKeyForPage(page);
         String[] nameSplit = action.getName().split("#");
 
         if (action.getDefinedOn() instanceof Table || action.getDefinedOn() instanceof Link) {
-            result += ".".concat(((ReferenceTypedVisualElement) action.getDefinedOn()).getDataElement().getName());
+            result += "." + ((ReferenceTypedVisualElement) action.getDefinedOn()).getDataElement().getName();
         }
 
         return transformTranslationKey(result
-                .concat(".").concat(action.getDataElement().getName())
-                .concat(".").concat(nameSplit[nameSplit.length - 1])
+                + "." + action.getDataElement().getName()
+                + "." + nameSplit[nameSplit.length - 1]
         );
     }
 
-    public static String magicTranslatePage(PageDefinition page) {
+    public static String getTranslationKeyForPage(PageDefinition page) {
         if (page.getIsPageTypeDashboard()) {
             return transformTranslationKey(page.getName());
         }
         String prefix = String.join(".", page.getOriginalPageContainer().getTransferPackageNameTokens());
         String transferPageName = page.getOriginalPageContainer().getTransferPageName();
 
-        return prefix.length() > 0 ? prefix.concat(".").concat(transferPageName) : transferPageName;
+        return prefix.length() > 0 ? prefix + "." + transferPageName : transferPageName;
     }
 
     public static String transformTranslationKey(String source) {
-        return stream(source.replaceAll("#", "::")
-                .replaceAll("\\.", "::")
-                .replaceAll("/", "::")
-                .replaceAll("_", "::")
+        return stream(source.replaceAll("[#./_]", "::")
                 .split("::"))
                 .filter(f -> f.trim().length() > 0)
                 .collect(Collectors.joining("."));

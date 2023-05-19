@@ -5,7 +5,7 @@ const {{ rel.dataElement.name }}Columns: GridColDef<{{ classDataName rel.dataEle
         {
             ...baseColumnConfig,
             field: '{{ column.attributeType.name }}',
-            headerName: t('{{ magicTranslate column }}', { defaultValue: '{{ column.label }}' }) as string,
+            headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
             headerClassName: 'data-grid-column-header',
             {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
             {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=rel.dataElement name=rel.name }}

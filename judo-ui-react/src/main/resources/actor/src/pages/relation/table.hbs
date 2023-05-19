@@ -26,7 +26,7 @@ export default function {{ pageName page }}() {
     const { signedIdentifier } = useParams();
     const { locale: l10nLocale } = useL10N();
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const title: string = t('{{ magicTranslatePage page }}', { defaultValue: '{{ page.label }}' });
+    const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
 
     const handleFetchData = async () => {
         tableRef.current?.fetchData();
