@@ -12,6 +12,9 @@ import { createHashRouter, RouterProvider } from 'react-router-dom';
 import Pandino from '@pandino/pandino';
 import loaderConfiguration from '@pandino/loader-configuration-dom';
 import { PandinoProvider } from '@pandino/react-hooks';
+{{# if isMUILicensed }}
+    import { LicenseInfo } from '@mui/x-license-pro';
+{{/ if }}
 {{# if application.authentication }}
     import { AuthProvider } from 'react-oidc-context';
     import { axiosRequestInterceptor, Auth, storeMeta, getUser, appBaseUri } from './auth';
@@ -20,6 +23,10 @@ import { applicationCustomizer } from './custom';
 import { accessServiceImpl, judoAxiosProvider } from './generated/data-axios';
 import App from './App';
 import { routes } from './routes';
+
+{{# if isMUILicensed }}
+    LicenseInfo.setLicenseKey(import.meta.env.VITE_MUI_LICENSE_KEY);
+{{/ if }}
 
 {{# if application.authentication }}
   axios.interceptors.request.use(axiosRequestInterceptor);
