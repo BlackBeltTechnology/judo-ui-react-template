@@ -20,6 +20,13 @@ templates:
   - name: actor/pnpm-lock.yaml
     pathExpression: "'pnpm-lock.yaml'"
     templateName: actor/pnpm-lock.yaml
+    conditionExpression: '!(#isMUILicensed())'
+    copy: true
+
+  - name: actor/pnpm-lock.pro.yaml
+    pathExpression: "'pnpm-lock.yaml'"
+    templateName: actor/pnpm-lock.pro.yaml
+    conditionExpression: '#isMUILicensed()'
     copy: true
 
   - name: actor/.nvmrc
