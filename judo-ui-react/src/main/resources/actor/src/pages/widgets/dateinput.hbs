@@ -42,7 +42,7 @@
         } }
         className={!editMode ? 'JUDO-viewMode' : undefined}
         views={['year', 'month', 'day']}
-        label={ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) as string }
+        label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} !isFormUpdateable() }
