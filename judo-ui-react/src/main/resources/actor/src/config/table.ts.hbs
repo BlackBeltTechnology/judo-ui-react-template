@@ -1,26 +1,28 @@
 {{> fragment.header.hbs }}
 
-import type { DataGridProps, GridColDef } from '@mui/x-data-grid';
+import type { {{ muiDataGridPropsType }}, GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 
 export const baseColumnConfig: Partial<GridColDef<any>> = {
     groupable: false,
     hideable: false,
 };
 
-export const baseTableConfig: Partial<DataGridProps<any>> = {
+export const baseTableConfig: Partial<{{ muiDataGridPropsType }}<any>> = {
     autoHeight: true,
     sortingOrder: ['desc', 'asc'], // omitting null for now, needs further discussion JNG-4826
     pageSizeOptions: [{{ calculateTablePageLimit tablePageLimit }}],
+    pagination: true, // is false for DataGridPro by default
+    disableColumnFilter: true,
 };
 
-export const serverTableConfig: Partial<DataGridProps<any>> = {
+export const serverTableConfig: Partial<{{ muiDataGridPropsType }}<any>> = {
     ...baseTableConfig,
     sortingOrder: ['desc', 'asc'],
     sortingMode: 'server',
     paginationMode: 'server',
 };
 
-export const pageServerTableConfig: Partial<DataGridProps<any>> = {
+export const pageServerTableConfig: Partial<{{ muiDataGridPropsType }}<any>> = {
     ...serverTableConfig,
     disableRowSelectionOnClick: true,
     filterMode: 'server',
