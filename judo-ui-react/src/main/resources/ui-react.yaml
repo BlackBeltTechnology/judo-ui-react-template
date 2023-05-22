@@ -20,6 +20,13 @@ templates:
   - name: actor/pnpm-lock.yaml
     pathExpression: "'pnpm-lock.yaml'"
     templateName: actor/pnpm-lock.yaml
+    conditionExpression: '!(#isMUILicensed())'
+    copy: true
+
+  - name: actor/pnpm-lock.pro.yaml
+    pathExpression: "'pnpm-lock.yaml'"
+    templateName: actor/pnpm-lock.pro.yaml
+    conditionExpression: '#isMUILicensed()'
     copy: true
 
   - name: actor/.nvmrc
@@ -42,7 +49,7 @@ templates:
 
   - name: actor/vite.config.ts
     pathExpression: "'vite.config.ts'"
-    templateName: actor/vite.config.ts
+    templateName: actor/vite.config.ts.hbs
 
   - name: actor/index.html
     pathExpression: "'index.html'"
@@ -165,7 +172,7 @@ templates:
 
   - name: actor/src/vite-env.d.ts
     pathExpression: "'src/vite-env.d.ts'"
-    templateName: actor/src/vite-env.d.ts
+    templateName: actor/src/vite-env.d.ts.hbs
 
   - name: actor/src/main.tsx
     pathExpression: "'src/main.tsx'"
