@@ -23,7 +23,7 @@
                 onClick={() => {{ actionFunctionName action }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())}
                 disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
             >
-                <span>{ t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }</span>
+                <span>{ t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ child.label }}' }) }</span>
             </LoadingButton>
         {{/ if }}
 
@@ -35,7 +35,7 @@
                     editMode={editMode}
                     navigateAction={() => {{ actionFunctionName action }}(data)}
                 >
-                    { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+                    { t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ child.label }}' }) }
                     <MdiIcon path="arrow-right" />
                 </CollectionAssociationButton>
             {{ else }}
@@ -49,7 +49,7 @@
                         _mask: '{}',
                     })}
                 >
-                    { t('{{ idToTranslationKey child.fQName application }}', { defaultValue: '{{ child.label }}' }) }
+                    { t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ child.label }}' }) }
                     <MdiIcon path="arrow-right" />
                 </AssociationButton>
             {{/ if }}
