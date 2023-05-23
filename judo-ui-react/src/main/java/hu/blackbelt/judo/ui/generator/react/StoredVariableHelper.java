@@ -60,11 +60,9 @@ public class StoredVariableHelper extends StaticMethodValueResolver {
     public static synchronized String getMUILicensePlan() {
         String muiPlan = (String) ThreadLocalContextHolder.getVariable("muiLicensePlan");
 
-        if (muiPlan == null) {
-            return "";
-        } else if (muiPlan.equalsIgnoreCase(MUI_PLAN_PREMIUM)) {
+        if (MUI_PLAN_PREMIUM.equalsIgnoreCase(muiPlan)) {
             return MUI_PLAN_PREMIUM;
-        } else if (muiPlan.equalsIgnoreCase(MUI_PLAN_PRO)) {
+        } else if (MUI_PLAN_PRO.equalsIgnoreCase(muiPlan)) {
             return MUI_PLAN_PRO;
         } else {
             return ""; // community also means no suffix
