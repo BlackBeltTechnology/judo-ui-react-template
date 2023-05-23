@@ -1,16 +1,16 @@
 import {
-    {{# each (getApiImportsForTablePage page) as |imp| }}
+    {{# each (getApiImportsForReferenceType table.dataElement) as |imp| }}
         {{ imp }},
     {{/ each }}
 } from '~/generated/data-api';
 import {
-    {{# unless page.dataElement.isAccess }}
+    {{# unless table.dataElement.isAccess }}
         {{ classServiceName table.dataElement.owner }}Impl,
         {{# neq (classServiceName table.dataElement.owner) (classServiceName table.dataElement.target) }}
             {{ classServiceName table.dataElement.target }}Impl,
         {{/ neq }}
     {{ else }}
-        {{ dataElementRelationName page.dataElement }}Impl,
+        {{ dataElementRelationName table.dataElement }}Impl,
     {{/ unless }}
 } from '~/generated/data-axios';
 {{# if (tableHasActionsToImport table) }}
@@ -22,7 +22,7 @@ import {
 {{/ if }}
 
 export interface {{ tableComponentName table }}Props {
-    {{# unless page.dataElement.isAccess }}
+    {{# unless table.dataElement.isAccess }}
         ownerData: JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>
     {{/ unless }}
     isOwnerLoading: boolean;
@@ -30,7 +30,7 @@ export interface {{ tableComponentName table }}Props {
 }
 
 export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
-    const { isOwnerLoading, setIsOwnerLoading{{# unless page.dataElement.isAccess }}, ownerData{{/ unless }} } = props;
+    const { isOwnerLoading, setIsOwnerLoading{{# unless table.dataElement.isAccess }}, ownerData{{/ unless }} } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -76,12 +76,14 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         {{/ if }}
     {{/ each }}
 
-    const filterOptions: FilterOption[] = [
-        {{# each table.filters as |filter| }}
-            {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
-        {{/ each }}
-    ];
+    {{# if (isTableFilterable table) }}
+        const filterOptions: FilterOption[] = [
+            {{# each table.filters as |filter| }}
+                {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
+                {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
+            {{/ each }}
+        ];
+    {{/ if }}
 
     const rowActions: TableRowAction<{{ classDataName table.dataElement.target 'Stored' }}>[] = [
         {{# each table.rowActions as |action| }}
@@ -90,7 +92,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     id: '{{ createId action }}',
                     label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                     icon: <MdiIcon path="{{ action.icon.name }}" />,
-                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}row, () => fetchData()),
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}row, () => fetchData()),
                 },
             {{/ if }}
             {{# if action.isDeleteAction }}
@@ -98,7 +100,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     id: '{{ createId action }}',
                     label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                     icon: <MdiIcon path="{{ action.icon.name }}" />,
-                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}row, () => fetchData()),
+                    action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}row, () => fetchData()),
                     disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
                 },
             {{/ if }}
@@ -146,13 +148,13 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         setIsOwnerLoading(true);
 
         try {
-            {{# unless page.dataElement.isAccess }}
+            {{# unless table.dataElement.isAccess }}
                 const res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
                     ownerData,
                     processQueryCustomizer(queryCustomizer),
                 );
             {{ else }}
-                const res = await {{ dataElementRelationName page.dataElement }}Impl.list{{ ucFirst page.dataElement.name }}(processQueryCustomizer(queryCustomizer));
+                const res = await {{ dataElementRelationName table.dataElement }}Impl.list{{ ucFirst table.dataElement.name }}(processQueryCustomizer(queryCustomizer));
             {{/ unless }}
 
             if (res.length > {{ calculateTablePageLimit tablePageLimit }}) {
@@ -197,7 +199,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             disableRowSelectionOnClick
             {{# each table.rowActions as |action| }}
                 {{# if action.isViewAction }}
-                    onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}params.row) }
+                    onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}params.row) }
                 {{/ if }}
             {{/ each }}
             sortModel={ sortModel }

@@ -187,4 +187,8 @@ public class UiGeneralHelper extends Helper {
                 .sorted()
                 .collect(Collectors.toList());
     }
+
+    public static boolean hasRelationRange(RelationType relationType) {
+        return relationType.getIsRangeable() || relationType.getIsSetable() || relationType.getIsAddable();
+    }
 }

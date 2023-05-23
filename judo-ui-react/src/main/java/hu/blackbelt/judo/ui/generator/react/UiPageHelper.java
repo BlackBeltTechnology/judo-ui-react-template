@@ -214,6 +214,13 @@ public class UiPageHelper extends Helper {
         return route;
     }
 
+    public static List<Action> getButtonActions(PageDefinition page) {
+        return page.getButtons().stream()
+                .map(b -> ((Button) b).getAction())
+                .filter(a -> !(a instanceof BackAction))
+                .collect(Collectors.toList());
+    }
+
     public static Collection<Action> getUniquePageActions(PageDefinition page) {
         Collection<Action> actions = new ArrayList<>(page.getActions());
         return actions.stream()
@@ -295,13 +302,13 @@ public class UiPageHelper extends Helper {
     private static void addReferenceTypesToCollection(PageDefinition pageDefinition, Set<String> res) {
         getPageLinks(pageDefinition).forEach(l -> {
             ReferenceType rel = (ReferenceType) l.getDataElement();
-            res.add(classDataName(rel.getTarget(), "MaskBuilder"));
+//            res.add(classDataName(rel.getTarget(), "MaskBuilder"));
             res.addAll(getApiImportsForReferenceType(rel));
         });
 
         getPageTables(pageDefinition).forEach(t -> {
             ReferenceType rel = (ReferenceType) t.getDataElement();
-            res.add(classDataName(rel.getTarget(), "MaskBuilder"));
+//            res.add(classDataName(rel.getTarget(), "MaskBuilder"));
             res.addAll(getApiImportsForReferenceType(rel));
         });
     }

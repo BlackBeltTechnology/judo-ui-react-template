@@ -4,8 +4,13 @@
 {{> actor/src/fragments/table/common-imports.fragment.hbs }}
 
 {{# if page.isPageTypeDashboard }}
-    {{# if isDebugPrint }}// include: actor/src/pages/components/table/for-table-page.hbs{{/ if }}
-    {{> actor/src/pages/components/table/for-table-page.hbs }}
+    {{# if table.dataElement.isRelationKindAssociation }}
+        {{# if isDebugPrint }}// include: actor/src/pages/components/table/for-association.hbs{{/ if }}
+        {{> actor/src/pages/components/table/for-association.hbs }}
+    {{ else }}
+        {{# if isDebugPrint }}// include: actor/src/pages/components/table/for-aggregation.hbs{{/ if }}
+        {{> actor/src/pages/components/table/for-aggregation.hbs }}
+    {{/ if }}
 {{ else }}
     {{# if page.isPageTypeTable }}
         {{# if isDebugPrint }}// include: actor/src/pages/components/table/for-table-page.hbs{{/ if }}
