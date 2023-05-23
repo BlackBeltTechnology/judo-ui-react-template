@@ -187,4 +187,8 @@ public class UiGeneralHelper extends Helper {
                 .sorted()
                 .collect(Collectors.toList());
     }
+
+    public static boolean hasRelationRange(ReferenceType ref) {
+        return ref.getIsRangeable() || ref.getIsSetable() || ref.getIsAddable();
+    }
 }

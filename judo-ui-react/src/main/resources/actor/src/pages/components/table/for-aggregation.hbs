@@ -20,10 +20,10 @@ import {
 export interface {{ tableComponentName table }}Props {
     ownerData: {{ classDataName table.dataElement.owner 'Stored' }};
     isOwnerLoading: boolean;
+    fetchOwnerData: () => Promise<void>;
     editMode: boolean;
     isFormUpdateable: () => boolean;
     storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner 'Stored' }}, value: any) => void;
-    fetchOwnerData: () => Promise<void>;
 }
 
 export const {{ tableComponentName table }} = (props: {{ tableComponentName table }}Props) => {
