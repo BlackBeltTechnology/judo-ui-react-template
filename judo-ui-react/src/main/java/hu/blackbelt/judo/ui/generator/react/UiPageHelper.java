@@ -384,15 +384,9 @@ public class UiPageHelper extends Helper {
     public static List<String> getApiImportsForCallOperationAction(CallOperationAction action) {
         PageDefinition ownerPage = ((PageDefinition) action.eContainer());
         PageDefinition outputParameterPage = action.getOutputParameterPage();
-        PageDefinition inputParameterPage = action.getInputParameterPage();
-        Set<String> res = inputParameterPage != null ? new HashSet<>(getApiImportsForViewPage(inputParameterPage)) : new HashSet<>();
+        Set<String> res = action.getInputParameterPage() != null ? new HashSet<>(getApiImportsForViewPage(action.getInputParameterPage())) : new HashSet<>();
 
         res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
-
-        if (inputParameterPage != null && inputParameterPage.getDataElement() instanceof ReferenceType) {
-            res.addAll(getApiImportsForReferenceType((ReferenceType) inputParameterPage.getDataElement()));
-        }
-
         if (ownerPage != null) {
             if (ownerPage.getDataElement() instanceof ReferenceType) {
                 res.addAll(getApiImportsForReferenceType((ReferenceType) ownerPage.getDataElement()));
