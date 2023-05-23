@@ -302,13 +302,11 @@ public class UiPageHelper extends Helper {
     private static void addReferenceTypesToCollection(PageDefinition pageDefinition, Set<String> res) {
         getPageLinks(pageDefinition).forEach(l -> {
             ReferenceType rel = (ReferenceType) l.getDataElement();
-//            res.add(classDataName(rel.getTarget(), "MaskBuilder"));
             res.addAll(getApiImportsForReferenceType(rel));
         });
 
         getPageTables(pageDefinition).forEach(t -> {
             ReferenceType rel = (ReferenceType) t.getDataElement();
-//            res.add(classDataName(rel.getTarget(), "MaskBuilder"));
             res.addAll(getApiImportsForReferenceType(rel));
         });
     }
@@ -386,9 +384,14 @@ public class UiPageHelper extends Helper {
     public static List<String> getApiImportsForCallOperationAction(CallOperationAction action) {
         PageDefinition ownerPage = ((PageDefinition) action.eContainer());
         PageDefinition outputParameterPage = action.getOutputParameterPage();
-        Set<String> res = action.getInputParameterPage() != null ? new HashSet<>(getApiImportsForViewPage(action.getInputParameterPage())) : new HashSet<>();
+        PageDefinition inputParameterPage = action.getInputParameterPage();
+        Set<String> res = inputParameterPage != null ? new HashSet<>(getApiImportsForViewPage(inputParameterPage)) : new HashSet<>();
 
         res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
+
+        if (inputParameterPage != null && inputParameterPage.getDataElement() instanceof ReferenceType) {
+            res.addAll(getApiImportsForReferenceType((ReferenceType) inputParameterPage.getDataElement()));
+        }
 
         if (ownerPage != null) {
             if (ownerPage.getDataElement() instanceof ReferenceType) {
