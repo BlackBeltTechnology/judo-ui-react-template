@@ -18,10 +18,8 @@ import {
 } from '~/generated/data-axios';
 
 import {
-{{# each (getUniquePageActions page) as |action| }}
-    {{# unless (isLinkAction action) }}
-        {{ actionFunctionHookName action }},
-    {{/ unless }}
+{{# each (getButtonActions page) as |action| }}
+    {{ actionFunctionHookName action }},
 {{/ each }}
 } from './actions';
 
@@ -80,12 +78,8 @@ export default function {{ pageName page }}() {
         _mask: '{{ page.formattedMask }}',
     };
 
-    {{# each (getUniquePageActions page) as |action| }}
-        {{# unless (isLinkAction action) }}
-            {{# unless action.isFilterRelationAction }}
-                const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
-            {{/ unless }}
-        {{/ unless }}
+    {{# each (getButtonActions page) as |action| }}
+        const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
     {{/ each }}
 
     {{# if (titleComesFromAttribute page) }}

@@ -12,18 +12,21 @@
     {{/ if }}
     <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
         <{{ tableComponentName child }}
-            ownerData={data}
-            {{# unless table.dataElement.isRelationKindAssociation }}
+            isOwnerLoading={isLoading}
+            {{# if page.isPageTypeTable }}
+                {{# unless table.dataElement.isAccess }}
+                    ownerData={data}
+                {{/ unless }}
+                setIsOwnerLoading={setIsOwnerLoading}
+            {{ else }}
                 {{# if (isPageRefreshable page) }}
                     fetchOwnerData={fetchData}
                 {{/ if }}
-            {{/ unless }}
-            editMode={editMode}
-            isFormUpdateable={isFormUpdateable}
-            {{# unless table.dataElement.isRelationKindAssociation }}
-                isOwnerLoading={isLoading}
+                ownerData={data}
+                editMode={editMode}
+                isFormUpdateable={isFormUpdateable}
                 storeDiff={storeDiff}
-            {{/ unless }}
+            {{/ if }}
         />
     </Grid>
     {{# if child.customImplementation }}

@@ -43,10 +43,8 @@ import {
 import { baseTableConfig, baseColumnConfig, toastConfig } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
 import {
-    {{# each (getUniquePageActions page) as |actionOnAction| }}
-        {{# unless (isLinkAction actionOnAction) }}
-            {{ actionFunctionHookName actionOnAction page }},
-        {{/ unless }}
+    {{# each (getButtonActions page) as |actionOnAction| }}
+        {{ actionFunctionHookName actionOnAction page }},
     {{/ each }}
 } from './actions';
 {{# each page.originalPageContainer.links as |link| }}
@@ -83,10 +81,8 @@ export function {{ pageName page }}({ close, result } : {{ pageName page }}Props
         {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
-    {{# each (getUniquePageActions page) as |action| }}
-        {{# unless (isLinkAction action) }}
-            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
-        {{/ unless }}
+    {{# each (getButtonActions page) as |action| }}
+        const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
     {{/ each }}
     {{# if (titleComesFromAttribute page) }}
         const title: string = data.{{ page.titleAttribute.name }} as string;
