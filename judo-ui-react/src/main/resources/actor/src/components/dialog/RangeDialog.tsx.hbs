@@ -268,9 +268,11 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
                     '.MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer': {
                       display: 'none',
                     },
-                    '.MuiDataGridPro-columnHeaderCheckbox .MuiDataGridPro-columnHeaderTitleContainer': {
-                      display: 'none',
-                    },
+                    {{# if isMUILicensePlanPro }}
+                        '.MuiDataGridPro-columnHeaderCheckbox .MuiDataGridPro-columnHeaderTitleContainer': {
+                          display: 'none',
+                        },
+                    {{/ if }}
                   }
                 : {
                     // overflow: 'hidden',

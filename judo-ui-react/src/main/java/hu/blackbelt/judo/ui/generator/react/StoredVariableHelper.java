@@ -50,7 +50,11 @@ public class StoredVariableHelper extends StaticMethodValueResolver {
     }
 
     public static synchronized Boolean isMUILicensed() {
-        return getMUILicensePlan().length() > 0;
+        return !getMUILicensePlan().isBlank();
+    }
+
+    public static synchronized Boolean isMUILicensePlanPro() {
+        return getMUILicensePlan().equals(MUI_PLAN_PRO);
     }
 
     public static synchronized String getMUILicensePlan() {
