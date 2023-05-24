@@ -13,12 +13,14 @@ const {{ rel.dataElement.name }}Columns: GridColDef<{{ classDataName rel.dataEle
     {{/ each }}
 ];
 
-const {{ rel.dataElement.name }}RangeFilterOptions: FilterOption[] = [
-    {{# each rel.filters as |filter| }}
-        {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
-        {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
-    {{/ each }}
-];
+{{# if rel.isRangeable }}
+    const {{ rel.dataElement.name }}RangeFilterOptions: FilterOption[] = [
+        {{# each rel.filters as |filter| }}
+            {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
+        {{/ each }}
+    ];
+{{/ if }}
 
 const {{ rel.dataElement.name }}InitialQueryCustomizer: {{ classDataName rel.dataElement.target 'QueryCustomizer' }} = {
     _mask: '{{ rel.formattedMaskForRange }}',

@@ -36,6 +36,7 @@ import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.modelName;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.getXMIID;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
 
@@ -300,8 +301,11 @@ public class UiI18NHelper extends Helper {
                     addTranslationsForVisualElement(tabElementChild, translations);
                 }
             }
-        } else if (!(visualElement instanceof Flex)) {
+        } else if (visualElement instanceof Text text) {
+            translations.put(getTranslationKeyForVisualElement(text), text.getText());
+        } else if (!(visualElement instanceof Flex) && !(visualElement instanceof Spacer) && !(visualElement instanceof Divider)) {
             // Skip Flex, we only need the label if it's present for the Card version
+            // Skip Spacer and Divider, because these elements cannot contain any text
             translations.put(getTranslationKeyForVisualElement(visualElement), visualElement.getLabel());
         }
 
@@ -367,8 +371,10 @@ public class UiI18NHelper extends Helper {
         } else if (element instanceof Label) {
             Label label = (Label) element;
             result += "." + label.getName();
+        } else if (element instanceof Text text) {
+            result += "." + text.getName();
         } else {
-            throw new RuntimeException("Unsupported Visual Element for translation: " + element.getFQName());
+            throw new RuntimeException("Unsupported Visual Element for translation: " + getXMIID(element));
         }
         return transformTranslationKey(result);
     }
