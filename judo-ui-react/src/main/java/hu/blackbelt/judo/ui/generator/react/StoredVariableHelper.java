@@ -36,6 +36,7 @@ import java.util.Map;
 @TemplateHelper
 @ContextAccessor
 public class StoredVariableHelper extends StaticMethodValueResolver {
+    public static final String DEFAULT_I18N_LANGUAGE = "en-US";
     public static final String MUI_PLAN_COMMUNITY = "community";
     public static final String MUI_PLAN_PRO = "pro";
     public static final String MUI_PLAN_PREMIUM = "premium";
@@ -81,5 +82,13 @@ public class StoredVariableHelper extends StaticMethodValueResolver {
 
     public static synchronized String muiDataGridPropsType() {
         return muiDataGridComponent() + "Props";
+    }
+
+    public static synchronized String getDefaultLanguage() {
+        String language = (String) ThreadLocalContextHolder.getVariable("defaultLanguage");
+        if (language == null || language.isBlank()) {
+            return DEFAULT_I18N_LANGUAGE;
+        }
+        return language;
     }
 }
