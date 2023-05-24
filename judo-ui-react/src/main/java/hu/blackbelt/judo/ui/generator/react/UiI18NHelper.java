@@ -105,7 +105,7 @@ public class UiI18NHelper extends Helper {
         return defaultLang != null ? defaultLang : LANGUAGE_DEFAULT;
     }
 
-    public static Map<String, String> getApplicationTranslations(Application application) {
+    public static synchronized Map<String, String> getApplicationTranslations(Application application) {
         Map<String, String> translations = new HashMap<>();
 
         translations.put("application.model.name", modelName(application.getName()));
