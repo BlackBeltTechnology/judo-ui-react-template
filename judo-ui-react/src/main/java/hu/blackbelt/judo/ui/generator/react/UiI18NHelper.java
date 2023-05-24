@@ -43,7 +43,6 @@ import static java.util.Arrays.stream;
 @Log
 @TemplateHelper
 public class UiI18NHelper extends Helper {
-    private static final String LANGUAGE_DEFAULT = "default";
 
     // Translations ending with these tokens are excluded because they are handled in system-level, generalized translations
     private static final String[] EXCLUDED_TRANSLATION_SUFFIXES = {
@@ -99,10 +98,6 @@ public class UiI18NHelper extends Helper {
 
             collectMenuItems(item.getItems(), collector);
         }
-    }
-
-    public static String getDefaultLanguage(String defaultLang) {
-        return defaultLang != null ? defaultLang : LANGUAGE_DEFAULT;
     }
 
     public static Map<String, String> getApplicationTranslations(Application application) {
@@ -234,16 +229,12 @@ public class UiI18NHelper extends Helper {
         return new TreeMap<>(sorted);
     }
 
-    public static boolean languageIsNotDefault(String defaultLanguage) {
-        return !getDefaultLanguage(defaultLanguage).equals(LANGUAGE_DEFAULT);
-    }
-
     public static String muiTranslationToken(String language, String suffix) {
         return language.replace("-", "") + (suffix != null ? suffix : "");
     }
 
-    public static String shortLocale(String defaultLanguage) {
-        return getDefaultLanguage(defaultLanguage).split("-")[0];
+    public static String shortLocale(String locale) {
+        return locale.split("-")[0];
     }
 
     private static void addTranslationsForTable(Table table, Map<String, String> translations) {
