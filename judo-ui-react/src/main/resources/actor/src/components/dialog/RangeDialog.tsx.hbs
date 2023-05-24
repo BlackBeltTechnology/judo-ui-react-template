@@ -4,14 +4,14 @@ import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, B
 import {
   GridSortModel,
   GridRowModel,
-  DataGrid,
+  {{ muiDataGridComponent }},
   GridRowParams,
   GridColDef,
   GridSortItem,
   GridRowSelectionModel,
   GridToolbarContainer,
   GridRowId,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { useEffect, useRef, useState } from 'react';
 import type { JudoStored, QueryCustomizer } from '@judo/data-api-common';
 import { useTranslation } from 'react-i18next';
@@ -259,7 +259,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
       <DialogTitle id={`${id}-dialog-title`}>{ t('judo.modal.range.label', { defaultValue: 'Select' }) as string }</DialogTitle>
       <DialogContent id={`${id}-data-grid`} dividers={true}>
         <DialogContentText id="scroll-dialog-description" ref={descriptionElementRef} tabIndex={-1}>
-          <DataGrid
+          <{{ muiDataGridComponent }}
             sx={
               single
                 ? {
@@ -268,6 +268,11 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
                     '.MuiDataGrid-columnHeaderCheckbox .MuiDataGrid-columnHeaderTitleContainer': {
                       display: 'none',
                     },
+                    {{# if isMUILicensePlanPro }}
+                        '.MuiDataGridPro-columnHeaderCheckbox .MuiDataGridPro-columnHeaderTitleContainer': {
+                          display: 'none',
+                        },
+                    {{/ if }}
                   }
                 : {
                     // overflow: 'hidden',

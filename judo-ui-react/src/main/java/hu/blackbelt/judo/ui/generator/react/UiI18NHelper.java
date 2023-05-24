@@ -416,6 +416,10 @@ public class UiI18NHelper extends Helper {
         String prefix = String.join(".", page.getOriginalPageContainer().getTransferPackageNameTokens());
         String transferPageName = page.getOriginalPageContainer().getTransferPageName();
 
+        if (transferPageName == null || transferPageName.trim().equals("")) {
+            throw new RuntimeException("TransferPageName was missing or empty, please check the UI model!");
+        }
+
         return prefix.length() > 0 ? prefix + "." + transferPageName : transferPageName;
     }
 
