@@ -1,14 +1,14 @@
 {{> fragment.header.hbs }}
 
 import { alpha, createTheme } from '@mui/material';
-import type {} from '@mui/x-data-grid/themeAugmentation';
+import type {} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}/themeAugmentation';
 {{# if (languageIsNotDefault defaultLanguage) }}
     import { {{ muiTranslationToken defaultLanguage '' }} as {{ muiTranslationToken defaultLanguage 'ForMaterial' }} } from '@mui/material/locale';
-    import { {{ muiTranslationToken defaultLanguage '' }} as {{ muiTranslationToken defaultLanguage 'ForGrids' }} } from '@mui/x-data-grid';
+    import { {{ muiTranslationToken defaultLanguage '' }} as {{ muiTranslationToken defaultLanguage 'ForGrids' }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
     {{# eq (muiTranslationToken defaultLanguage '') 'huHU' }}
         import { {{ muiTranslationToken defaultLanguage '' }} as {{ muiTranslationToken defaultLanguage 'ForDatePickers' }} } from '../l10n/@mui/x-date-pickers';
     {{ else }}
-        import { {{ muiTranslationToken defaultLanguage '' }} as {{ muiTranslationToken defaultLanguage 'ForDatePickers' }} } from '@mui/x-date-pickers';
+        import { {{ muiTranslationToken defaultLanguage '' }} as {{ muiTranslationToken defaultLanguage 'ForDatePickers' }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
     {{/ eq }}
 {{/ if }}
 import { mainContainerPadding } from './extras';
@@ -157,6 +157,18 @@ const baseTheme = createTheme(paletteTheme, {
         },
       },
     },
+    {{# if isMUILicensePlanPro }}
+      MuiDataGridPro: {
+        styleOverrides: {
+          root: {
+            border: 'none',
+          },
+          toolbarContainer: {
+            padding: '8px 8px 4px 8px',
+          },
+        },
+      },
+    {{/ if }}
     MuiPaper: {
       styleOverrides: {
         rounded: {

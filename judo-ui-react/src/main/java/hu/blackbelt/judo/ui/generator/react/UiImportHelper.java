@@ -28,6 +28,8 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.StoredVariableHelper.muiDataGridComponent;
+
 @Log
 @TemplateHelper
 public class UiImportHelper {
@@ -57,7 +59,7 @@ public class UiImportHelper {
     );
 
     private static final Map<String, Set<String>> muiDataGridWidgetImportPairs = Map.ofEntries(
-            Map.entry("table", Set.of("DataGrid", "GridToolbarContainer"))
+            Map.entry("table", Set.of(muiDataGridComponent(), "GridToolbarContainer"))
     );
 
     private static final Map<String, Set<String>> muiDatePickerWidgetImportPairs = Map.ofEntries(

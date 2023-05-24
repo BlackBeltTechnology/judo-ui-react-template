@@ -24,6 +24,7 @@ import hu.blackbelt.judo.generator.commons.StaticMethodValueResolver;
 import hu.blackbelt.judo.generator.commons.ThreadLocalContextHolder;
 import hu.blackbelt.judo.generator.commons.annotations.ContextAccessor;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
+import org.springframework.util.StringUtils;
 
 import java.util.Map;
 
@@ -35,6 +36,10 @@ import java.util.Map;
 @TemplateHelper
 @ContextAccessor
 public class StoredVariableHelper extends StaticMethodValueResolver {
+    public static final String MUI_PLAN_COMMUNITY = "community";
+    public static final String MUI_PLAN_PRO = "pro";
+    public static final String MUI_PLAN_PREMIUM = "premium";
+
 
     public static void bindContext(Map<String, ?> context) {
         ThreadLocalContextHolder.bindContext(context);
@@ -44,4 +49,37 @@ public class StoredVariableHelper extends StaticMethodValueResolver {
         return Boolean.parseBoolean((String) ThreadLocalContextHolder.getVariable("debugPrint"));
     }
 
+    public static synchronized Boolean isMUILicensed() {
+        return !getMUILicensePlan().isBlank();
+    }
+
+    public static synchronized Boolean isMUILicensePlanPro() {
+        return getMUILicensePlan().equals(MUI_PLAN_PRO);
+    }
+
+    public static synchronized String getMUILicensePlan() {
+        String muiPlan = (String) ThreadLocalContextHolder.getVariable("muiLicensePlan");
+
+        if (MUI_PLAN_PREMIUM.equalsIgnoreCase(muiPlan)) {
+            return MUI_PLAN_PREMIUM;
+        } else if (MUI_PLAN_PRO.equalsIgnoreCase(muiPlan)) {
+            return MUI_PLAN_PRO;
+        } else {
+            return ""; // community also means no suffix
+        }
+    }
+
+    public static synchronized String getMUIDataGridPlanSuffix() {
+        String muiPlan = getMUILicensePlan();
+
+        return  muiPlan.length() > 0 ? "-" + muiPlan : muiPlan;
+    }
+
+    public static synchronized String muiDataGridComponent() {
+        return "DataGrid" + StringUtils.capitalize(getMUILicensePlan());
+    }
+
+    public static synchronized String muiDataGridPropsType() {
+        return muiDataGridComponent() + "Props";
+    }
 }
