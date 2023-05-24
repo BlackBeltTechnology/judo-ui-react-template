@@ -105,7 +105,7 @@ public class UiI18NHelper extends Helper {
         return defaultLang != null ? defaultLang : LANGUAGE_DEFAULT;
     }
 
-    public static synchronized Map<String, String> getApplicationTranslations(Application application) {
+    public static Map<String, String> getApplicationTranslations(Application application) {
         Map<String, String> translations = new HashMap<>();
 
         translations.put("application.model.name", modelName(application.getName()));
@@ -323,9 +323,6 @@ public class UiI18NHelper extends Helper {
     }
 
     private static Boolean keepTranslationKey(String key) {
-        if (key == null) {
-            throw new RuntimeException("WTFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF");
-        }
         Matcher m = TRANSLATION_KEYS_TO_SKIP.matcher(key);
         return !m.matches();
     }
