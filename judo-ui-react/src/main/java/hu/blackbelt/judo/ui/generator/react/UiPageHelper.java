@@ -462,4 +462,8 @@ public class UiPageHelper extends Helper {
         }
         throw new RuntimeException("Unsupported action type: " + action.getType());
     }
+
+    public static boolean isPageContainerTransferType(PageContainer pageContainer, String type) {
+        return pageContainer.getTransferPageType().getName().equals(type);
+    }
 }
