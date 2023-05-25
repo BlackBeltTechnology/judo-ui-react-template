@@ -15,11 +15,11 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { useSnackbar } from 'notistack';
 import { useJudoNavigation, MdiIcon } from '~/components';
-import { useDialog, useRangeDialog } from '~/components/dialog';
+import { useDialog, useRangeDialog{{# if (hasCallOperationActionFaults action) }}, OperationFaultDialog{{/ if }} } from '~/components/dialog';
 import { baseColumnConfig, toastConfig } from '~/config';
 import { FilterOption, FilterType } from '~/components-api';
 import { useL10N } from '~/l10n/l10n-context';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
+import { isErrorOperationFault, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
 {{# if (actionHasInputForm action) }}
     import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 {{/ if }}
@@ -55,6 +55,9 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     const { enqueueSnackbar } = useSnackbar();
     const { openRangeDialog } = useRangeDialog();
     const [createDialog, closeDialog] = useDialog();
+    {{# if (hasCallOperationActionFaults action) }}
+        const [createErrorDialog, closeErrorDialog] = useDialog();
+    {{/ if }}
     {{# if (actionHasUnmappedOutputForm action) }}
         const [createOutputDialog, closeOutputDialog] = useDialog();
     {{/ if }}

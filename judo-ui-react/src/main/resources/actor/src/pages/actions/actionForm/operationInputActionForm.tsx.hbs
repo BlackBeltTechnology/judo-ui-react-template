@@ -49,6 +49,9 @@ export function {{ pageActionFormComponentName action }}({
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     const handleActionError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ pageActionFormComponentName action }}))`);
     const { enqueueSnackbar } = useSnackbar();
+    {{# if (hasCallOperationActionFaults action) }}
+        const [createErrorDialog, closeErrorDialog] = useDialog();
+    {{/ if }}
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({} as unknown as {{ classDataName page.dataElement.target '' }});
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
@@ -101,8 +104,34 @@ export function {{ pageActionFormComponentName action }}({
 
                 successCallback();
             {{/ if }}
-        } catch (error) {
-            handleActionError(error, { setValidation }, data);
+        } catch (error: any) {
+            {{# if (hasCallOperationActionFaults action) }}
+                if (isErrorOperationFault(error)) {
+                    const faultObjectKeys = Object.keys(error.response.data);
+                    const firstFaultKey = faultObjectKeys[0];
+
+                    createErrorDialog({
+                        fullWidth: true,
+                        maxWidth: 'md',
+                        onClose: (event: object, reason: string) => {
+                            if (reason !== 'backdropClick') {
+                                closeErrorDialog();
+                            }
+                        },
+                        children: (
+                            <OperationFaultDialog
+                                close={() => closeErrorDialog()}
+                                faultObjectKey={firstFaultKey}
+                                content={error.response.data[firstFaultKey]}
+                            />
+                        ),
+                    });
+                } else {
+                    handleActionError(error, { setValidation }, data);
+                }
+            {{ else }}
+                handleActionError(error, { setValidation }, data);
+            {{/ if }}
         } finally {
             setIsLoading(false);
         }
