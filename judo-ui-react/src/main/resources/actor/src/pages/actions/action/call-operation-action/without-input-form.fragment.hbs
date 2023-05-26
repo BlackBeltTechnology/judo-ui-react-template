@@ -91,7 +91,44 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
             variant: 'success',
             ...toastConfig.success,
         });
-    } catch (error) {
-        handleActionError(error{{# if action.operation.isMapped }}, undefined, owner{{/ if }});
+    } catch (error: any) {
+        {{# if (hasCallOperationActionFaults action) }}
+            if (isErrorOperationFault(error)) {
+                const faultObjectKeys = Object.keys(error.response.data);
+                const firstFaultKey = faultObjectKeys[0];
+                const faultMappings: Record<string, {{# each action.operation.faults as |fault| }}{{ nameWithoutModel fault.target.name }}FaultHandler{{# unless @last}} | {{/ unless}}{{/ each }}> = {
+                    {{# each action.operation.faults as |fault| }}
+                        '{{ classServiceTypeName fault.target }}': (payload: {{ nameWithoutModel fault.target.name }}) => {
+                            return {
+                                {{# each fault.target.attributes as |attribute| }}
+                                    [t('faults.{{ classServiceTypeName fault.target }}.{{ attribute.name }}', { defaultValue: '{{ attribute.name }}' })]: payload?.{{ attribute.name }},
+                                {{/ each }}
+                            };
+                        },
+                    {{/ each }}
+                };
+
+                createErrorDialog({
+                    fullWidth: true,
+                    maxWidth: 'md',
+                    onClose: (event: object, reason: string) => {
+                        if (reason !== 'backdropClick') {
+                            closeErrorDialog();
+                        }
+                    },
+                    children: (
+                        <OperationFaultDialog
+                            close={() => closeErrorDialog()}
+                            faultObjectKey={firstFaultKey}
+                            content={faultMappings[firstFaultKey](error.response.data[firstFaultKey])}
+                        />
+                    ),
+                });
+            } else {
+                handleActionError(error{{# if action.operation.isMapped }}, undefined, owner{{/ if }});
+            }
+        {{ else }}
+            handleActionError(error{{# if action.operation.isMapped }}, undefined, owner{{/ if }});
+        {{/ if }}
     }
 }
