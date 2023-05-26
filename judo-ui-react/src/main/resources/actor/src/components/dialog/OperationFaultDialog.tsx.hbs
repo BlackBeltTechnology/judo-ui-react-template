@@ -32,13 +32,13 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
                     { t('judo.error.error', { defaultValue: 'Error' }) as string }
                 </Typography>
             </DialogTitle>
-            <DialogContent>
+            <DialogContent id={'fault-dialog-' + faultObjectKey}>
                 <DialogContentText>
                     { t('judo.error.business-fault', { defaultValue: 'An error occurred while processing your request.' }) as string }
                 </DialogContentText>
                 <List sx={ { listStyleType: 'disc', pl: 2 } }>
                     {Object.entries(content).map(([key, value]) => (
-                        <ListItem key={key} sx={ { display: 'list-item', p: 0 } }>
+                        <ListItem id={'fault.' + faultObjectKey + '.' + key} key={key} sx={ { display: 'list-item', p: 0 } }>
                             <Typography>
                                 <strong>{ t('fault.' + faultObjectKey + '.' + key, { defaultValue: key }) as string }:</strong> {value.toString()}
                             </Typography>
@@ -47,7 +47,7 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
                 </List>
             </DialogContent>
             <DialogActions>
-                <Button onClick={close} variant="outlined" color="error">
+                <Button id="close-fault-dialog" onClick={close} variant="outlined" color="error">
                     { t('judo.modal.close', { defaultValue: 'Close' }) as string }
                 </Button>
             </DialogActions>
