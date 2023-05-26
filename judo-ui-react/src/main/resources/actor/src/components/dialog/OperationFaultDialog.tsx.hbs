@@ -26,13 +26,13 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
 
     return (
         <>
-            <DialogTitle id="alert-dialog-title" sx={ { display: 'flex', alignItems: 'center' } }>
+            <DialogTitle id="fault-dialog-title" sx={ { display: 'flex', alignItems: 'center' } }>
                 <MdiIcon path="alert-circle-outline" color={ palette.error.main } />
                 <Typography sx={ { color: (theme) => theme.palette.error.main } } variant="h6" component="h6">
                     { t('judo.error.error', { defaultValue: 'Error' }) as string }
                 </Typography>
             </DialogTitle>
-            <DialogContent id={'fault-dialog-' + faultObjectKey}>
+            <DialogContent id="fault-dialog-content">
                 <DialogContentText>
                     { t('judo.error.business-fault', { defaultValue: 'An error occurred while processing your request.' }) as string }
                 </DialogContentText>
