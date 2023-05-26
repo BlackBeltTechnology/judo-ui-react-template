@@ -40,6 +40,10 @@ import {
     } from '~/generated/data-axios';
 {{/ unless }}
 
+{{# each action.operation.faults as |fault| }}
+    type {{ nameWithoutModel fault.target.name }}FaultHandler = (payload: {{ nameWithoutModel fault.target.name }}) => Record<string, any> | object;
+{{/ each }}
+
 export type {{ actionFunctionHandlerTypeName action 'PostHandler' }} = (ownerCallback: () => void{{# if action.outputParameterPage }}, result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => Promise<void>;
 
 export const {{ getCustomizationActionFunctionHandlerInterfaceKey action 'PostHandlerHook' }} = '{{ actionFunctionHandlerTypeName action 'PostHandlerHook' }}';

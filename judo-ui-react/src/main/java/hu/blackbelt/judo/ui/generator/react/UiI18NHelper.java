@@ -35,9 +35,9 @@ import java.util.stream.Collectors;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.modelName;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
+import static hu.blackbelt.judo.ui.generator.react.UiServiceHelper.classServiceTypeName;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.getXMIID;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
 
 @Log
@@ -187,6 +187,14 @@ public class UiI18NHelper extends Helper {
 
                 if (elements.size() > 0) {
                     addTranslationsForVisualElement(elements.get(0), translations);
+                }
+
+                if (action.getIsCallOperationAction()) {
+                    for (OperationParameterType fault: ((CallOperationAction) action).getOperation().getFaults()) {
+                        for (AttributeType attributeType: fault.getTarget().getAttributes()) {
+                            translations.put("faults." + classServiceTypeName(fault.getTarget()) + "." + attributeType.getName(), attributeType.getName());
+                        }
+                    }
                 }
             }
         }

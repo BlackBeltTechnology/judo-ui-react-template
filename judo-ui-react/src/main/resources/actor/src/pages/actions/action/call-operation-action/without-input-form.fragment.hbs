@@ -96,6 +96,17 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
             if (isErrorOperationFault(error)) {
                 const faultObjectKeys = Object.keys(error.response.data);
                 const firstFaultKey = faultObjectKeys[0];
+                const faultMappings: Record<string, {{# each action.operation.faults as |fault| }}{{ nameWithoutModel fault.target.name }}FaultHandler{{# unless @last}} | {{/ unless}}{{/ each }}> = {
+                    {{# each action.operation.faults as |fault| }}
+                        '{{ classServiceTypeName fault.target }}': (payload: {{ nameWithoutModel fault.target.name }}) => {
+                            return {
+                                {{# each fault.target.attributes as |attribute| }}
+                                    [t('faults.{{ classServiceTypeName fault.target }}.{{ attribute.name }}', { defaultValue: '{{ attribute.name }}' })]: payload?.{{ attribute.name }},
+                                {{/ each }}
+                            };
+                        },
+                    {{/ each }}
+                };
 
                 createErrorDialog({
                     fullWidth: true,
@@ -109,7 +120,7 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                         <OperationFaultDialog
                             close={() => closeErrorDialog()}
                             faultObjectKey={firstFaultKey}
-                            content={error.response.data[firstFaultKey]}
+                            content={faultMappings[firstFaultKey](error.response.data[firstFaultKey])}
                         />
                     ),
                 });

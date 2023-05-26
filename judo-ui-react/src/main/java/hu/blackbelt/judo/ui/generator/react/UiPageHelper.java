@@ -402,6 +402,10 @@ public class UiPageHelper extends Helper {
             res.addAll(getApiImportsForReferenceType((ReferenceType) outputParameterPage.getDataElement()));
         }
 
+        for (OperationParameterType fault: action.getOperation().getFaults()) {
+            res.add(classDataName(fault.getTarget(), ""));
+        }
+
         return res.stream().sorted().collect(Collectors.toList());
     }
 
