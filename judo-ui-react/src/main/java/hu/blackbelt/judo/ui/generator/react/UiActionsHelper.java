@@ -247,4 +247,8 @@ public class UiActionsHelper {
     public static boolean isLinkAction (Action action) {
         return action.getType().equals(ActionType.LINK);
     }
+
+    public static boolean hasCallOperationActionFaults(CallOperationAction action) {
+        return action.getOperation().getFaults().size() > 0;
+    }
 }
