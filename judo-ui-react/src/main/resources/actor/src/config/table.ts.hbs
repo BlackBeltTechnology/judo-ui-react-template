@@ -10,7 +10,6 @@ export const baseColumnConfig: Partial<GridColDef<any>> = {
 export const baseTableConfig: Partial<{{ muiDataGridPropsType }}<any>> = {
     autoHeight: true,
     sortingOrder: ['desc', 'asc'], // omitting null for now, needs further discussion JNG-4826
-    pageSizeOptions: [{{ calculateTablePageLimit tablePageLimit }}],
     pagination: true, // is false for DataGridPro by default
     disableColumnFilter: true,
 };
@@ -20,12 +19,6 @@ export const serverTableConfig: Partial<{{ muiDataGridPropsType }}<any>> = {
     sortingOrder: ['desc', 'asc'],
     sortingMode: 'server',
     paginationMode: 'server',
-};
-
-export const pageServerTableConfig: Partial<{{ muiDataGridPropsType }}<any>> = {
-    ...serverTableConfig,
-    disableRowSelectionOnClick: true,
-    filterMode: 'server',
 };
 
 export const rangeDialogConfig: { numberOfElements: number } = {

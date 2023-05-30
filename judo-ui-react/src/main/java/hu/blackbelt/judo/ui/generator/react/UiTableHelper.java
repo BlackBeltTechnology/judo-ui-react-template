@@ -181,13 +181,10 @@ public class UiTableHelper extends Helper {
         return getDefaultSortParams(link.getDefaultSortColumn(), link.getColumns());
     }
 
-    public static Integer calculateTablePageLimit(String defaultValue) {
-        // defaultValue should come from pom.xml parameter
-        if (defaultValue != null) {
-            return Integer.parseInt(defaultValue);
-        }
+    public static Integer calculateTablePageLimit(Table table) {
+        Integer defaultValue = table.getRowsPerPage();
 
-        return 10;
+        return defaultValue != null ? defaultValue : 10;
     }
 
     public static Boolean tableHasActions(Table table) {

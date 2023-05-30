@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
-{{# neq (shortLocale getDefaultLanguage) 'en' }}
-    import {{ shortLocale getDefaultLanguage }} from 'date-fns/locale/{{ shortLocale getDefaultLanguage }}';
+{{# neq (shortLocale (getDefaultLanguage application)) 'en' }}
+    import {{ shortLocale (getDefaultLanguage application) }} from 'date-fns/locale/{{ shortLocale (getDefaultLanguage application) }}';
 {{/ neq }}
 import enUS from 'date-fns/locale/en-US';
 import { createContext, useContext, useState, useEffect } from 'react';
@@ -16,8 +16,8 @@ import { useTrackService, useBundleContext } from '@pandino/react-hooks';
 
 const locales = {
     'en-US': enUS,
-    {{# neq (shortLocale getDefaultLanguage) 'en' }}
-        '{{ getDefaultLanguage }}': {{ shortLocale getDefaultLanguage }},
+    {{# neq (shortLocale (getDefaultLanguage application)) 'en' }}
+        '{{ getDefaultLanguage application }}': {{ shortLocale (getDefaultLanguage application) }},
     {{/ neq }}
 };
 
@@ -41,7 +41,7 @@ export interface L10NTranslationProvider {
     provideTranslations(locale: string): Promise<L10NTranslations>;
 }
 export const L10NProvider = ({ children }: { children: ReactNode }) => {
-    const defaultLocale: LocaleKey = '{{ getDefaultLanguage }}';
+    const defaultLocale: LocaleKey = '{{ getDefaultLanguage application }}';
     const [locale, setLocale] = useState<LocaleKey>(defaultLocale);
     const [translation, setTranslation] = useState<any>(null);
     const [filter, setFilter] = useState<string>(`(${OBJECTCLASS}=${L10N_TRANSLATION_PROVIDER_INTERFACE_KEY})`);
