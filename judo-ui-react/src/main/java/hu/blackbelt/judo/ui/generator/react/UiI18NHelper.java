@@ -20,6 +20,7 @@ package hu.blackbelt.judo.ui.generator.react;
  * #L%
  */
 
+import hu.blackbelt.judo.generator.commons.ThreadLocalContextHolder;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
@@ -32,6 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.StoredVariableHelper.DEFAULT_I18N_LANGUAGE;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.modelName;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
@@ -427,5 +429,13 @@ public class UiI18NHelper extends Helper {
                 .split("::"))
                 .filter(f -> f.trim().length() > 0)
                 .collect(Collectors.joining("."));
+    }
+
+    public static String getDefaultLanguage(Application application) {
+        String language = application.getDefaultLanguage();
+        if (language == null || language.isBlank()) {
+            return DEFAULT_I18N_LANGUAGE;
+        }
+        return language;
     }
 }

@@ -2,12 +2,12 @@
 
 import { alpha, createTheme } from '@mui/material';
 import type {} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}/themeAugmentation';
-import { {{ muiTranslationToken getDefaultLanguage '' }} as {{ muiTranslationToken getDefaultLanguage 'ForMaterial' }} } from '@mui/material/locale';
-import { {{ muiTranslationToken getDefaultLanguage '' }} as {{ muiTranslationToken getDefaultLanguage 'ForGrids' }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
-{{# eq (muiTranslationToken getDefaultLanguage '') 'huHU' }}
-    import { {{ muiTranslationToken getDefaultLanguage '' }} as {{ muiTranslationToken getDefaultLanguage 'ForDatePickers' }} } from '../l10n/@mui/x-date-pickers';
+import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForMaterial' }} } from '@mui/material/locale';
+import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForGrids' }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+{{# eq (muiTranslationToken (getDefaultLanguage application) '') 'huHU' }}
+    import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }} } from '../l10n/@mui/x-date-pickers';
 {{ else }}
-    import { {{ muiTranslationToken getDefaultLanguage '' }} as {{ muiTranslationToken getDefaultLanguage 'ForDatePickers' }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
+    import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 {{/ eq }}
 import { mainContainerPadding } from './extras';
 import { applicationTheme } from './application-theme';
@@ -270,9 +270,9 @@ const baseTheme = createTheme(paletteTheme, {
     },
   },
 },
-{{ muiTranslationToken getDefaultLanguage 'ForMaterial' }},
-{{ muiTranslationToken getDefaultLanguage 'ForGrids' }},
-{{ muiTranslationToken getDefaultLanguage 'ForDatePickers' }},
+{{ muiTranslationToken (getDefaultLanguage application) 'ForMaterial' }},
+{{ muiTranslationToken (getDefaultLanguage application) 'ForGrids' }},
+{{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }},
 );
 
 const theme = createTheme(baseTheme, applicationTheme);

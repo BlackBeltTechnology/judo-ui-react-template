@@ -191,4 +191,9 @@ public class UiGeneralHelper extends Helper {
     public static boolean hasRelationRange(ReferenceType ref) {
         return ref.getIsRangeable() || ref.getIsSetable() || ref.getIsAddable();
     }
+
+    public static String getApplicationLogo(Application application) {
+        String logo = application.getLogo();
+        return logo == null ? "judo-color-logo.png" : logo;
+    }
 }
