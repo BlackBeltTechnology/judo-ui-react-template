@@ -125,7 +125,7 @@ templates:
         expression: "#application"
 
   - name: actor/public/i18n/application_configured.json
-    pathExpression: "'public/i18n/application_' + #getDefaultLanguage() + '.json'"
+    pathExpression: "'public/i18n/application_' + #getDefaultLanguage(#application) + '.json'"
     templateName: actor/public/i18n/application_default.json.hbs
     templateContext:
       - name: application

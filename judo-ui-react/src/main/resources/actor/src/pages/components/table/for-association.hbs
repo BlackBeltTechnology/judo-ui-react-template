@@ -47,7 +47,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName table.dataElement.target 'QueryCustomizer' }}>({
         _mask: '{{ table.formattedMask }}',
         _seek: {
-            limit: {{ calculateTablePageLimit tablePageLimit }} + 1,
+            limit: {{ calculateTablePageLimit table }} + 1,
         },
         _orderBy: [
             {
@@ -130,7 +130,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             return {
                 ...prevQueryCustomizer,
                 _seek: {
-                    limit: isNext ? {{ calculateTablePageLimit tablePageLimit }} + 1 : {{ calculateTablePageLimit tablePageLimit }},
+                    limit: isNext ? {{ calculateTablePageLimit table }} + 1 : {{ calculateTablePageLimit table }},
                     reverse: !isNext,
                     lastItem: isNext ? lastItem : firstItem,
                 },
@@ -149,10 +149,10 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 processQueryCustomizer(queryCustomizer),
             );
 
-            if (res.length > {{ calculateTablePageLimit tablePageLimit }}) {
+            if (res.length > {{ calculateTablePageLimit table }}) {
                 setIsNextButtonEnabled(true);
                 res.pop();
-            } else if (queryCustomizer._seek?.limit === {{ calculateTablePageLimit tablePageLimit }} + 1) {
+            } else if (queryCustomizer._seek?.limit === {{ calculateTablePageLimit table }} + 1) {
                 setIsNextButtonEnabled(false);
             }
 
@@ -178,6 +178,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     return (
         <{{ muiDataGridComponent }}
             { ...baseTableConfig }
+            pageSizeOptions={[{{ calculateTablePageLimit table }}]}
             sx={ {
                 // overflow: 'hidden',
                 display: 'grid',
@@ -249,7 +250,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                         isNextButtonEnabled={isNextButtonEnabled}
                         page={page}
                         setPage={setPage}
-                        rowPerPage={ {{ calculateTablePageLimit tablePageLimit }} }
+                        rowPerPage={ {{ calculateTablePageLimit table }} }
                     />
                 ),
             } }

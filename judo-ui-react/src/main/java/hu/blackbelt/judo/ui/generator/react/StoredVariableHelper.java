@@ -24,6 +24,7 @@ import hu.blackbelt.judo.generator.commons.StaticMethodValueResolver;
 import hu.blackbelt.judo.generator.commons.ThreadLocalContextHolder;
 import hu.blackbelt.judo.generator.commons.annotations.ContextAccessor;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
+import hu.blackbelt.judo.meta.ui.Application;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
@@ -82,13 +83,5 @@ public class StoredVariableHelper extends StaticMethodValueResolver {
 
     public static synchronized String muiDataGridPropsType() {
         return muiDataGridComponent() + "Props";
-    }
-
-    public static synchronized String getDefaultLanguage() {
-        String language = (String) ThreadLocalContextHolder.getVariable("defaultLanguage");
-        if (language == null || language.isBlank()) {
-            return DEFAULT_I18N_LANGUAGE;
-        }
-        return language;
     }
 }
