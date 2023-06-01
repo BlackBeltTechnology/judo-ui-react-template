@@ -2,6 +2,7 @@
 ifndef::env-site,env-github[]
 endif::[]
 // Settings
+:toc:
 :idprefix:
 :idseparator: -
 :icons: font
@@ -48,6 +49,36 @@ If we would only like to add dependencies:
 If we would like to add extra scripts:
 - `package.json.scripts.extra.fragment.hbs`
 
+== Navigation
+
+JUDO applications utilize the `react-router-dom` package for routing. However given that we provide additional features
+such as Breadcrumbs we created a higher level abstraction (hook) above this router: `useJudoNavigation`.
+
+[IMPORTANT]
+====
+It is highly recommended to use this hook whenever we would like to handle imperative navigation!
+====
+
+In order to create a type-safe environment, every page has a helper method which can be used to create the path for the
+given page. These functions always start with _"routeTo"_, therefore it should be easy to identify them.
+
+*Using the hook:*
+
+[source,typescriptjsx]
+----
+import { useJudoNavigation } from '~/components';
+import { routeToSomeRelationPage } from '~/routes';
+
+export function SomeAction() {
+  const { navigate } = useJudoNavigation();
+
+  navigate(routeToSomeRelationPage());
+}
+----
+
+> Certain routes may require a `signedIdentifier` param, but that's okay because if we miss it out, we get IDE errors,
+  and compiler errors as well.
+
 == Customization
 
 There are two major ways how JUDO apps can be customized with various pros / cons:
@@ -62,9 +93,11 @@ In this documentation we will only discuss customization via interface implement
 
 === Debug information
 
-For template overrides the generated source can contain more detailed information, for example what was
-the URI of the template, what was the included fragment file etc. To achive that
-have to add `<debugPrint>true</debugPring>` into `templateVariables` section of `pom.xml`
+When working with template overrides, the generated source may contain useful meta information related to generation,
+e.g.: what was the URI of the template which was used to generate the source or what was the included fragment file etc.
+
+In order to generate this info as comments in the beginning of sources we must provide the `<debugPrint>true</debugPring>`
+parameter in the `templateVariables` section of the project's `pom.xml`
 
 === Context
 

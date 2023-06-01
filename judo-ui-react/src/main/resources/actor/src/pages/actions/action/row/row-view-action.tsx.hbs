@@ -10,6 +10,7 @@ import type {
     {{/ each }}
 } from '~/generated/data-api';
 import { useJudoNavigation } from '~/components';
+import { routeTo{{ pageName action.target }} } from '~/routes';
 
 export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
 export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) => Promise<void>;
@@ -24,6 +25,6 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     }
 
     return async function ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) {
-        navigate(`{{ getNavigationForPage action.target 'entry.__signedIdentifier' }}`);
+        navigate(routeTo{{ pageName action.target }}(entry.__signedIdentifier));
     }
 };

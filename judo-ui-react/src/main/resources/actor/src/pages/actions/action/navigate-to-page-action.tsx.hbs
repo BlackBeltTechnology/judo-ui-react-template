@@ -10,6 +10,13 @@ import {
         {{ imp }},
     {{/ each }}
 } from '~/generated/data-api';
+import {
+    {{# if action.dataElement.isCollection }}
+        routeTo{{ pageName action.target }},
+    {{ else }}
+        routeTo{{ pageName (getViewPageForPage action.target) }},
+    {{/ if }}
+} from '~/routes';
 
 export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
 export type {{ actionFunctionTypeName action }} = () => (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>{{# unless action.dataElement.isCollection}}, target: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>{{/ unless }}) => Promise<void>;
@@ -25,9 +32,9 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
 
     return async function (owner: JudoIdentifiable<{{ classDataName action.dataElement.owner '' }}>{{# unless action.dataElement.isCollection}}, target: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>{{/ unless }}) {
         {{# if action.dataElement.isCollection }}
-            navigate(`{{ getNavigationForPage action.target 'owner.__signedIdentifier' }}`);
+            navigate(routeTo{{ pageName action.target }}(owner.__signedIdentifier));
         {{ else }}
-            navigate(`{{ getNavigationForPage (getViewPageForPage action.target) 'target.__signedIdentifier' }}`);
+            navigate(routeTo{{ pageName (getViewPageForPage action.target) }}(target.__signedIdentifier));
         {{/ if }}
     }
 };
