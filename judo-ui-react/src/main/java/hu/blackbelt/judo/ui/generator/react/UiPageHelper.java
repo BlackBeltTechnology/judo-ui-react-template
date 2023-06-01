@@ -40,6 +40,8 @@ import static java.util.Arrays.stream;
 @Log
 @TemplateHelper
 public class UiPageHelper extends Helper {
+    public static final String SIGNED_ID = ":signedIdentifier";
+
     public static String getRelationClassName(RelationType relation) {
         return relation.getOwnerPackageNameTokens().stream().map(Helper::getCamelCaseVersion).collect(Collectors.joining())
                 .concat(getCamelCaseVersion(relation.getOwnerSimpleName())).concat(getCamelCaseVersion(relation.getName()));
@@ -184,6 +186,10 @@ public class UiPageHelper extends Helper {
         return getClassName(actor).concat(getCamelCaseVersion(pageType));
     }
 
+    public static boolean pageHasSignedId(PageDefinition page) {
+        return getPageRoute(page).contains(SIGNED_ID);
+    }
+
     public static String getPageRoute(PageDefinition page) {
         String route = "" + getPageTypePath(page);
 
@@ -236,7 +242,7 @@ public class UiPageHelper extends Helper {
     public static String getNavigationForPage(PageDefinition page, String signedId) {
         String route = getPageRoute(page);
 
-        return signedId != null && route.contains(":signedIdentifier") ? route.replace(":signedIdentifier", "${" + signedId + "}") : route;
+        return signedId != null && route.contains(SIGNED_ID) ? route.replace(SIGNED_ID, "${" + signedId + "}") : route;
     }
 
     public static Table getTableForTablePage(PageDefinition page) {
