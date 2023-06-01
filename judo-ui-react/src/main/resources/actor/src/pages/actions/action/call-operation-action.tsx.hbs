@@ -14,11 +14,6 @@ import type { GridColDef, GridRenderCellParams, GridRowParams, GridSortModel, Gr
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { useSnackbar } from 'notistack';
-{{# if action.outputParameterPage }}
-    {{# unless (actionHasUnmappedOutputForm action) }}
-        import { routeTo{{ pageName action.outputParameterPage }} } from '~/routes';
-    {{/ unless }}
-{{/ if }}
 import { useJudoNavigation, MdiIcon } from '~/components';
 import { useDialog, useRangeDialog{{# if (hasCallOperationActionFaults action) }}, OperationFaultDialog{{/ if }} } from '~/components/dialog';
 import { baseColumnConfig, toastConfig } from '~/config';
