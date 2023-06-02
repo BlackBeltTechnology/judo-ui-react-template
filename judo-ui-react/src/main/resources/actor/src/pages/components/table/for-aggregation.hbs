@@ -95,6 +95,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                 {{# unless page.isPageTypeOperationInput }}
                                     <Button
                                         id="{{ createId action }}"
+                                        startIcon={<MdiIcon path="file_document_plus" />}
                                         variant="text"
                                         onClick={() => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {
                                             fetchOwnerData();
@@ -106,7 +107,6 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                             || !isFormUpdateable()
                                         }
                                     >
-                                        <MdiIcon path="file_document_plus" />
                                         {t('judo.pages.table.create', { defaultValue: 'Create' })}
                                     </Button>
                                 {{/ unless }}
@@ -115,6 +115,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                 {{# if action.isAddAction }}
                                     <Button
                                         id="{{ createId table.dataElement }}-add"
+                                        startIcon={<MdiIcon path="attachment-plus" />}
                                         variant="text"
                                         onClick={ async () => {
                                             const res = await {{ table.dataElement.name }}RangeCall();
@@ -132,13 +133,13 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                             || !isFormUpdateable()
                                         }
                                     >
-                                        <MdiIcon path="attachment-plus" />
                                         {t('judo.pages.table.add', { defaultValue: 'Add' })}
                                     </Button>
                                 {{/ if }}
                                 {{# if action.isClearAction }}
                                     <Button
                                         id="{{ createId table.dataElement }}-clear"
+                                        startIcon={<MdiIcon path="link_off" />}
                                         variant="text"
                                         onClick={ async () => {
                                             storeDiff('{{ table.dataElement.name }}', []);
@@ -149,7 +150,6 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                             || !isFormUpdateable()
                                         }
                                     >
-                                        <MdiIcon path="link_off" />
                                         {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
                                     </Button>
                                 {{/ if }}

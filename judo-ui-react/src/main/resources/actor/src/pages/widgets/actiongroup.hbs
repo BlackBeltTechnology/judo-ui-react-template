@@ -34,6 +34,9 @@
                 <DropdownButton
                     id="{{ createId child }}-action-group"
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
+                    {{# if child.icon }}
+                        startIcon={ <MdiIcon path="{{ child.icon.name }}" /> }
+                    {{/ if }}
                     menuItems={[
                         {{# each (nonFeaturedActionsForActionGroup child) as |button| }}
                             {
@@ -47,9 +50,6 @@
                         {{/ each }}
                     ]}
                 >
-                    {{# if child.icon }}
-                        <MdiIcon path="{{ child.icon.name }}" />
-                    {{/ if }}
                     { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
                 </DropdownButton>
             </Grid>

@@ -116,6 +116,23 @@ All of these usually consume at least a `filter` parameter and where applicable 
 > All customizable interfaces have a `string` representation (INTERFACE_KEY) since at the end of the day, JavaScript doesn't support
   interfaces and we need to pair them up.
 
+=== Styling applications
+
+There are 2 major files which could be used / overridden for high-level styling:
+
+- src/theme/density.ts
+- src/theme/palette.ts
+
+*Density:*
+
+Density controls the spacing, and sizing information. Each configuration value is a high-level option without any direct
+sizing values, such as pixels. Values are usually MUI-based string values such as `small`, `medium`, etc... or a numeric
+scaling factor.
+
+*Palette:*
+
+This group controls colors. It is a sub-set of the MUI theming API.
+
 === First step
 
 The entry point for registering implementations is `src/custom/application-customizer.tsx`.

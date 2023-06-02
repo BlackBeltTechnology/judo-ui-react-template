@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 
 import type { {{ muiDataGridPropsType }}, GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { density } from '../theme';
 
 export const baseColumnConfig: Partial<GridColDef<any>> = {
     groupable: false,
@@ -12,6 +13,7 @@ export const baseTableConfig: Partial<{{ muiDataGridPropsType }}<any>> = {
     sortingOrder: ['desc', 'asc'], // omitting null for now, needs further discussion JNG-4826
     pagination: true, // is false for DataGridPro by default
     disableColumnFilter: true,
+    density: density.dataGridDensity || 'standard',
 };
 
 export const serverTableConfig: Partial<{{ muiDataGridPropsType }}<any>> = {
