@@ -204,39 +204,39 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                             {{# if action.isFilterRelationAction }}
                                 <Button
                                     id="{{ createId action }}"
+                                    startIcon={<MdiIcon path="filter" />}
                                     variant="text"
                                     onClick={ () => {
                                         {{ actionFunctionName action }}('{{ createId action }}-filter', filterOptions, filters);
                                     } }
                                     disabled={isLoading}
                                 >
-                                    <MdiIcon path="filter" />
                                     {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
                                 </Button>
                             {{/ if }}
                             {{# if action.isAddAction }}
                                 <Button
                                     id="{{ createId action }}-add"
+                                    startIcon={<MdiIcon path="attachment-plus" />}
                                     variant="text"
                                     onClick={ async () => {
                                         {{ actionFunctionName action }}(ownerData, () => fetchData())
                                     } }
                                     disabled={isLoading}
                                 >
-                                    <MdiIcon path="attachment-plus" />
                                     {t('judo.pages.table.add', { defaultValue: 'Add' })}
                                 </Button>
                             {{/ if }}
                             {{# if action.isClearAction }}
                                 <Button
                                     id="{{ createId action }}-clear"
+                                    startIcon={<MdiIcon path="link_off" />}
                                     variant="text"
                                     onClick={ async () => {
                                         {{ actionFunctionName action }}(ownerData, () => fetchData())
                                     } }
                                     disabled={isLoading}
                                 >
-                                    <MdiIcon path="link_off" />
                                     {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
                                 </Button>
                             {{/ if }}

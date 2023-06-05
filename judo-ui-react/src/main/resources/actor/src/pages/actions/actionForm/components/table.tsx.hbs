@@ -77,6 +77,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                 {{# if action.isAddAction }}
                                     <Button
                                         id="{{ createId table.dataElement }}-add"
+                                        startIcon={<MdiIcon path="attachment-plus" />}
                                         variant="text"
                                         onClick={ async () => {
                                             const res = await {{ table.dataElement.name }}RangeCall();
@@ -94,13 +95,13 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                             || !isFormUpdateable()
                                         }
                                     >
-                                        <MdiIcon path="attachment-plus" />
                                         {t('judo.pages.table.add', { defaultValue: 'Add' })}
                                     </Button>
                                 {{/ if }}
                                 {{# if action.isClearAction }}
                                     <Button
                                         id="{{ createId table.dataElement }}-clear"
+                                        startIcon={<MdiIcon path="link_off" />}
                                         variant="text"
                                         onClick={ async () => {
                                             storeDiff('{{ table.dataElement.name }}', []);
@@ -111,7 +112,6 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                             || !isFormUpdateable()
                                         }
                                     >
-                                        <MdiIcon path="link_off" />
                                         {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
                                     </Button>
                                 {{/ if }}

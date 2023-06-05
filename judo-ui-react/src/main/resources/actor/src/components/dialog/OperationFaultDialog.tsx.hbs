@@ -36,7 +36,7 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
                 <DialogContentText>
                     { t('judo.error.business-fault', { defaultValue: 'An error occurred while processing your request.' }) as string }
                 </DialogContentText>
-                <List sx={ { listStyleType: 'disc', pl: 2 } }>
+                <List sx={ { listStyleType: 'disc', pl: (theme) => theme.spacing(2) } }>
                     {Object.entries(content).map(([key, value]) => (
                         <ListItem id={'fault.' + faultObjectKey + '.' + key} key={key} sx={ { display: 'list-item', p: 0 } }>
                             <Typography>
