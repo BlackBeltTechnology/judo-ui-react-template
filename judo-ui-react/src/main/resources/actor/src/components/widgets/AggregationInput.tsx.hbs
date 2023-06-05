@@ -81,37 +81,37 @@ export const AggregationInput = ({
         />
       </ButtonBase>
       {exists(value) && onView && (
-        <IconButton className="astronomer-edit" disabled={disabled || editMode} onClick={onView}>
+        <IconButton className="aggregation-view" disabled={disabled || editMode} onClick={onView}>
           <MdiIcon path="eye" />
         </IconButton>
       )}
       {exists(value) && onEdit && (
-        <IconButton disabled={disabled || editMode} onClick={onEdit}>
+        <IconButton className="aggregation-edit" disabled={disabled || editMode} onClick={onEdit}>
           <MdiIcon path="pencil" />
         </IconButton>
       )}
       {exists(value) && onDelete && (
-        <IconButton disabled={disabled || editMode} onClick={onDelete}>
+        <IconButton className="aggregation-delete" disabled={disabled || editMode} onClick={onDelete}>
           <MdiIcon path="delete" />
         </IconButton>
       )}
       {exists(value) && onRemove && (
-        <IconButton disabled={disabled} onClick={onRemove}>
+        <IconButton className="aggregation-remove" disabled={disabled} onClick={onRemove}>
             <MdiIcon path="link_off" />
         </IconButton>
       )}
       {exists(value) && onUnset && (
-        <IconButton disabled={disabled} onClick={onUnset}>
+        <IconButton className="aggregation-unset" disabled={disabled} onClick={onUnset}>
             <MdiIcon path="link_off" />
         </IconButton>
       )}
       {!exists(value) && onCreate && (
-        <IconButton disabled={disabled || editMode} onClick={onCreate}>
+        <IconButton className="aggregation-create" disabled={disabled || editMode} onClick={onCreate}>
           <MdiIcon path="file_document_plus" />
         </IconButton>
       )}
       {/*onSet && (
-        <IconButton disabled={disabled} onClick={onSet}>
+        <IconButton className="aggregation-set" disabled={disabled} onClick={onSet}>
             <MdiIcon path="link" />
         </IconButton>
       )*/}
