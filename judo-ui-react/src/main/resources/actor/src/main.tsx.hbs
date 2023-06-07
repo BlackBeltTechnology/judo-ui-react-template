@@ -19,7 +19,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 {{/ if }}
 {{# if application.authentication }}
     import { AuthProvider } from 'react-oidc-context';
-    import { axiosRequestInterceptor, Auth, storeMeta, getUser, appBaseUri } from './auth';
+    import { axiosRequestInterceptor, Auth, storeMeta, getUser } from './auth';
 {{/ if }}
 import { applicationCustomizer } from './custom';
 import { theme } from './theme';
@@ -79,7 +79,7 @@ const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL
         const oidcConfig = {
             authority: issuer,
             client_id: clientId,
-            redirect_uri: appBaseUri,
+            redirect_uri: window.location.href,
             automaticSilentRenew: true,
         };
     {{/ if }}
