@@ -10,7 +10,7 @@ import type {
     {{/ each }}
 } from '~/generated/data-api';
 import { useJudoNavigation } from '~/components';
-{{# if action.target.isRefreshable }}
+{{# if action.target.dataElement.isRefreshable }}
     import { routeTo{{ pageName action.target }} } from '~/routes';
 {{/ if }}
 
@@ -27,7 +27,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     }
 
     return async function ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) {
-        {{# if action.target.isRefreshable }}
+        {{# if action.target.dataElement.isRefreshable }}
             navigate(routeTo{{ pageName action.target }}(entry.__signedIdentifier));
         {{ else }}
             // target page is not refreshable
