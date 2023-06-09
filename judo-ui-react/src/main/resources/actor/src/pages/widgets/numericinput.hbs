@@ -20,6 +20,9 @@
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         customInput={TextField}
         value={ data.{{ child.attributeType.name }} }
+        {{# if child.attributeType.dataType.scale }}
+            decimalScale={ {{ child.attributeType.dataType.scale }} }
+        {{/if}}
         className={ !editMode ? 'JUDO-viewMode' : undefined }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         error={ !!validation.get('{{ child.attributeType.name }}') }
