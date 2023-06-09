@@ -125,8 +125,7 @@ export default function {{ pageName page }}() {
             {{# with (getDataContainerForPage page) as |rootChild| }}
                 <PageHeader title={title}>
                     <Grid item>
-                        <Button id="page-action-save" onClick={async () => await saveData()} disabled={isLoading}>
-                            <MdiIcon path="save" />
+                        <Button id="page-action-save" startIcon={<MdiIcon path="save" />} onClick={async () => await saveData()} disabled={isLoading}>
                             {t('judo.pages.save', { defaultValue: 'Save' })}
                         </Button>
                     </Grid>

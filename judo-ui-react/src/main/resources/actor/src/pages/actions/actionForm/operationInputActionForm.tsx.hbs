@@ -186,18 +186,25 @@ export function {{ pageActionFormComponentName action }}({
                         id="{{ createId action }}-action-form-action-cancel"
                         variant="text"
                         onClick={ () => cancel() } disabled={isLoading}
+                        startIcon={
+                            {{# if (getBackButtonForOperationInputPage page) }}
+                                {{# with (getBackButtonForOperationInputPage page) as |backButton| }}
+                                    {{# if backButton.icon }}
+                                        <MdiIcon path="{{ backButton.icon.name }}" />
+                                    {{ else }}
+                                        <MdiIcon path="close-thick" />
+                                    {{/ if }}
+                                {{/ with }}
+                            {{ else }}
+                                <MdiIcon path="close-thick" />
+                            {{/ if }}
+                        }
                     >
                         {{# if (getBackButtonForOperationInputPage page) }}
                             {{# with (getBackButtonForOperationInputPage page) as |backButton| }}
-                                {{# if backButton.icon }}
-                                    <MdiIcon path="{{ backButton.icon.name }}" />
-                                {{ else }}
-                                    <MdiIcon path="close-thick" />
-                                {{/ if }}
                                 { t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ backButton.label }}' }) as string }
                             {{/ with }}
                         {{ else }}
-                            <MdiIcon path="close-thick" />
                             { t('judo.pages.cancel', { defaultValue: 'Cancel' }) as string }
                         {{/ if }}
                     </Button>

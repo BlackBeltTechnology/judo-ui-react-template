@@ -51,8 +51,7 @@ const standaloneActions: ColumnActionsProvider<unknown> = (
       type: 'actions',
       renderCell: (params: GridRenderCellParams) => {
         return (
-          <Button id={id} variant="text" disabled={action.disabled ? action.disabled(params.row) : false} onClick={() => action.action(params.row)}>
-            {action.icon}
+          <Button id={id} variant="text" startIcon={action.icon} disabled={action.disabled ? action.disabled(params.row) : false} onClick={() => action.action(params.row)}>
             {(options?.showLabel ?? true) && action.label}
           </Button>
         );
