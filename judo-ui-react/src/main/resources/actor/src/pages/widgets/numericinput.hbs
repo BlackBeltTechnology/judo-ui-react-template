@@ -10,7 +10,7 @@
             payloadDiff={payloadDiff}
         >
     {{/ if }}
-    <TextField
+    <NumericFormat
         {{# if child.attributeType.isRequired }} required {{/ if }}
         name="{{ child.attributeType.name }}"
         id="{{ createId child }}"
@@ -18,14 +18,14 @@
             autoFocus
         {{/ if }}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
-        type="number"
+        customInput={TextField}
         value={ data.{{ child.attributeType.name }} }
         className={ !editMode ? 'JUDO-viewMode' : undefined }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
-        onChange={ (event) => {
-            storeDiff('{{ child.attributeType.name }}', Number(event.target.value));
+        onValueChange={(values, sourceInfo) => {
+            storeDiff('{{ child.attributeType.name }}', values.floatValue === undefined ? null : values.floatValue);
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {
