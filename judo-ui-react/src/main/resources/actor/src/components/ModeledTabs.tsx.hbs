@@ -58,7 +58,7 @@ export function ModeledTabs({ id, activeIndex, childTabs, children }: ModeledTab
             <Box sx={ { borderBottom: 1, borderColor: 'divider' } }>
                 <Tabs value={value} onChange={handleChange} textColor="secondary" indicatorColor="secondary">
                     {childTabs.map((c: any, index: number) => (
-                    <Tab id={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} /> : '' } iconPosition="start" disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }}{{ else }}false{{/ if }} } />
+                    <Tab id={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }}{{ else }}false{{/ if }} } />
                     ))}
                 </Tabs>
             </Box>
