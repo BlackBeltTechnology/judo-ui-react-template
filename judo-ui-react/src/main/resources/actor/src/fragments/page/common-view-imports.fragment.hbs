@@ -1,8 +1,10 @@
-import { useEffect, useState, useCallback, FC } from 'react';
+import type { FC } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NumericFormat } from 'react-number-format';
 import { Box, Container, Grid, {{ getMuiMaterialImportsForPage page }} } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import type { DateValidationError, DateTimeValidationError, TimeValidationError } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 {{# if (hasPageDateTimePickers page) }}
     import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 {{/ if }}
@@ -36,5 +38,5 @@ import { useConfirmationBeforeChange } from '~/hooks';
 import { toastConfig, dividerHeight } from '~/config';
 import { useL10N } from '~/l10n/l10n-context';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
-import { JudoIdentifiable } from '@judo/data-api-common';
+import type { JudoIdentifiable } from '@judo/data-api-common';
 import { mainContainerPadding } from '~/theme';
