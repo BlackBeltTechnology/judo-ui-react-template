@@ -1,14 +1,16 @@
-import { useState, useEffect, useRef, useCallback, Dispatch, SetStateAction, FC } from 'react';
+import type { Dispatch, SetStateAction, FC } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { NumericFormat } from 'react-number-format';
 import { LoadingButton } from '@mui/lab';
 import { Grid, {{ getMuiMaterialImportsForActionForm page }} } from '@mui/material';
+import type { DateValidationError, DateTimeValidationError, TimeValidationError } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 {{# if (hasPageDateTimePickers page) }}
     import { {{ getMuiDateTimePickerImportsForPage page }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 {{/ if }}
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
-import { JudoIdentifiable } from '@judo/data-api-common';
+import type { JudoIdentifiable } from '@judo/data-api-common';
 import { useSnackbar } from 'notistack';
 import { v1 as uuidv1 } from 'uuid';
 import { useJudoNavigation, MdiIcon, ModeledTabs } from '~/components';

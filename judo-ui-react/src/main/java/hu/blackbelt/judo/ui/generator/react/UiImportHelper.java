@@ -63,9 +63,9 @@ public class UiImportHelper {
     );
 
     private static final Map<String, Set<String>> muiDatePickerWidgetImportPairs = Map.ofEntries(
-            Map.entry("dateinput", Set.of("DatePicker", "DateValidationError")),
-            Map.entry("datetimeinput", Set.of("DateTimePicker", "DateTimeValidationError")),
-            Map.entry("timeinput", Set.of("TimePicker", "TimeValidationError"))
+            Map.entry("dateinput", Set.of("DatePicker")),
+            Map.entry("datetimeinput", Set.of("DateTimePicker")),
+            Map.entry("timeinput", Set.of("TimePicker"))
     );
 
     public static boolean hasPageDateTimePickers(PageDefinition pageDefinition) {
@@ -104,6 +104,12 @@ public class UiImportHelper {
             }
         });
 
+        return imports;
+    }
+
+    public static SortedSet<String> getMuiDataGridTypeImports(PageDefinition pageDefinition) {
+        SortedSet<String> imports = new TreeSet<>();
+
         imports.addAll(Set.of("GridRowId", "GridSortModel", "GridSortItem", "GridRowParams"));
 
         return imports;
@@ -112,13 +118,11 @@ public class UiImportHelper {
     public static String getMuiDataGridImportsForPage(PageDefinition pageDefinition) {
         SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
 
-        imports.addAll(Set.of("GridRowSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
-
         return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
     }
 
-    public static String getMuiDataGridImportsForActionForm(PageDefinition pageDefinition) {
-        SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
+    public static String getMuiDataGridTypeImportsForPage(PageDefinition pageDefinition) {
+        SortedSet<String> imports = getMuiDataGridTypeImports(pageDefinition);
 
         imports.addAll(Set.of("GridRowSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
 
