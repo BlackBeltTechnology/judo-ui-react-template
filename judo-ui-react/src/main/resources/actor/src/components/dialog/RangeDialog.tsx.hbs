@@ -1,16 +1,18 @@
 {{> fragment.header.hbs }}
 
 import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
-import {
+import type {
   GridSortModel,
   GridRowModel,
-  {{ muiDataGridComponent }},
   GridRowParams,
   GridColDef,
   GridSortItem,
   GridRowSelectionModel,
-  GridToolbarContainer,
   GridRowId,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import {
+  {{ muiDataGridComponent }},
+  GridToolbarContainer,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { useEffect, useRef, useState } from 'react';
 import type { JudoStored, QueryCustomizer } from '@judo/data-api-common';
