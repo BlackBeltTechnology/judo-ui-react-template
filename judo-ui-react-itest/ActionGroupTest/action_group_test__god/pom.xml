@@ -163,17 +163,6 @@
                     </execution>
 
                     <execution>
-                        <id>test</id>
-                        <goals>
-                            <goal>pnpm</goal>
-                        </goals>
-                        <phase>test</phase>
-                        <configuration>
-                            <arguments>run test</arguments>
-                        </configuration>
-                    </execution>
-
-                    <execution>
                         <id>build</id>
                         <goals>
                             <goal>pnpm</goal>
@@ -181,6 +170,17 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <arguments>run build</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>test</id>
+                        <goals>
+                            <goal>pnpm</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <arguments>run --if-present test</arguments>
                         </configuration>
                     </execution>
                 </executions>
