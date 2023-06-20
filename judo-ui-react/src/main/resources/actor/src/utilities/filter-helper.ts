@@ -1,15 +1,6 @@
-//////////////////////////////////////////////////////////////////////////////
-// G E N E R A T E D    S O U R C E
-// --------------------------------
-// Factory expression: <actor>
-// Path expression: 'src/utilities/filter-helper.ts'
-// Template name: actor/src/utilities/filter-helper.ts
-// Base URL: mvn:hu.blackbelt.judo.generator:judo-ui-react:1.0.0-SNAPSHOT
-// Template file: actor/src/utilities/filter-helper.ts.hbs
-
 import { _NumericOperation, _StringOperation, _BooleanOperation, _EnumerationOperation } from '@judo/data-api-common';
 import { isEqual, compareAsc } from 'date-fns';
-import type { Filter, Operation, FilterOption } from '../components-api';
+import type { Filter, Operation } from '../components-api';
 import { FilterType } from '../components-api';
 import { dateToJudoDateString } from './helper';
 import { serviceDateToUiDate } from './form-utils';
