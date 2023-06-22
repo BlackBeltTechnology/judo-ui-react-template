@@ -57,12 +57,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 descending: sortModel[0].sort === 'desc',
             },
         ],
-        ...mapAllFiltersToQueryCustomizerProperties(
-            filters,
-            {{# each table.filters as |filter| }}
-                '{{ filter.attributeType.name }}',
-            {{/ each }}
-        ),
+        ...mapAllFiltersToQueryCustomizerProperties(filters),
     });
 
     {{# if isDebugPrint }}// include: actor/src/fragments/table/hook-variables.fragment.hbs{{/ if }}
@@ -70,7 +65,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
 
     {{# each (getFilteredTableActions table) as |action| }}
         {{# if action.isFilterAction }}
-            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}(setFilters, setPage, setQueryCustomizer, openFilterDialog);
+            const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}(setFilters, setPage, setQueryCustomizer, openFilterDialog, {{ calculateTablePageLimit table }});
         {{ else }}
             const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
         {{/ if }}
@@ -114,6 +109,12 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             {{/ if }}
         {{/ each }}
     ];
+
+    const contextMenuRef = useRef<ContextMenuApi>(null);
+
+    const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+        contextMenuRef.current?.handleContextMenu(event);
+    };
 
     function handleSortModelChange (newModel: GridSortModel) {
         setPage(0);
@@ -184,58 +185,82 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     }, [queryCustomizer]);
 
     return (
-        <{{ muiDataGridComponent }}
-            { ...baseTableConfig }
-            pageSizeOptions={[{{ calculateTablePageLimit table }}]}
-            sx={ {
-                // overflow: 'hidden',
-                display: 'grid',
-            } }
-            getRowId={(row: { __identifier: string }) => row.__identifier}
-            loading={ isOwnerLoading }
-            rows={ data }
-            getRowClassName={() => "data-grid-row"}
-            getCellClassName={() => "data-grid-cell"}
-            columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, { shownActions: 2 }) ]}
-            disableRowSelectionOnClick
-            {{# each table.rowActions as |action| }}
-                {{# if action.isViewAction }}
-                    onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}params.row) }
-                {{/ if }}
-            {{/ each }}
-            sortModel={ sortModel }
-            onSortModelChange={ handleSortModelChange }
-            components={ {
-                Toolbar: () => (
-                    <GridToolbarContainer>
-                        {{# each (getFilteredTableActions table) as |action| }}
-                            {{# if action.isFilterAction }}
-                                <Button
-                                    id="{{ createId action }}"
-                                    startIcon={<MdiIcon path="filter" />}
-                                    variant="text"
-                                    onClick={ () => {
-                                        {{ actionFunctionName action }}('{{ createId action }}-filter', filterOptions, filters);
-                                    } }
-                                    disabled={isOwnerLoading}
-                                >
-                                    {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
-                                </Button>
-                            {{/ if }}
-                        {{/ each }}
-                        <div>{/* Placeholder */}</div>
-                    </GridToolbarContainer>
-                ),
-                Pagination: () => (
-                    <CustomTablePagination
-                        pageChange={handlePageChange}
-                        isNextButtonEnabled={isNextButtonEnabled}
-                        page={page}
-                        setPage={setPage}
-                        rowPerPage={ {{ calculateTablePageLimit table }} }
-                    />
-                ),
-            } }
-        />
+        <>
+            <{{ muiDataGridComponent }}
+                { ...baseTableConfig }
+                pageSizeOptions={[{{ calculateTablePageLimit table }}]}
+                sx={ {
+                    // overflow: 'hidden',
+                    display: 'grid',
+                } }
+                slotProps={ {
+                    cell: {
+                        onContextMenu: handleContextMenu,
+                    },
+                } }
+                getRowId={(row: { __identifier: string }) => row.__identifier}
+                loading={ isOwnerLoading }
+                rows={ data }
+                getRowClassName={() => "data-grid-row"}
+                getCellClassName={() => "data-grid-cell"}
+                columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, { shownActions: 2 }) ]}
+                disableRowSelectionOnClick
+                {{# each table.rowActions as |action| }}
+                    {{# if action.isViewAction }}
+                        onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}params.row) }
+                    {{/ if }}
+                {{/ each }}
+                sortModel={ sortModel }
+                onSortModelChange={ handleSortModelChange }
+                components={ {
+                    Toolbar: () => (
+                        <GridToolbarContainer>
+                            {{# each (getFilteredTableActions table) as |action| }}
+                                {{# if action.isFilterAction }}
+                                    <Button
+                                        id="{{ createId action }}"
+                                        startIcon={<MdiIcon path="filter" />}
+                                        variant="text"
+                                        onClick={ () => {
+                                            {{ actionFunctionName action }}('{{ createId action }}-filter', filterOptions, filters);
+                                        } }
+                                        disabled={isOwnerLoading}
+                                    >
+                                        {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
+                                    </Button>
+                                {{/ if }}
+                            {{/ each }}
+                            <div>{/* Placeholder */}</div>
+                        </GridToolbarContainer>
+                    ),
+                    Pagination: () => (
+                        <CustomTablePagination
+                            pageChange={handlePageChange}
+                            isNextButtonEnabled={isNextButtonEnabled}
+                            page={page}
+                            setPage={setPage}
+                            rowPerPage={ {{ calculateTablePageLimit table }} }
+                        />
+                    ),
+                } }
+            />
+            <ContextMenu
+                ref={contextMenuRef}
+                data={data}
+                filters={filters}
+                filterOptions={filterOptions}
+                onFiltersUpdated={ (newFilters: Filter[]) => {
+                    setFilters(newFilters);
+                    setPage(0);
+
+                    setQueryCustomizer((prevQueryCustomizer) => {
+                        return {
+                            ...prevQueryCustomizer,
+                            ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+                        };
+                    });
+                } }
+            />
+        </>
     );
 });

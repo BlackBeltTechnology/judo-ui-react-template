@@ -78,7 +78,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
     const filter = async (id: string, filterOptions: FilterOption[], filters: Filter[]) => {
         const newFilters = await openFilterDialog(id, filterOptions, filters);
 
-        if (newFilters) {
+        if (Array.isArray(newFilters)) {
             setPaginationModel((prevState) => ({
                 ...prevState,
                 page: 0,
@@ -87,121 +87,147 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
         }
     };
 
+    const contextMenuRef = useRef<ContextMenuApi>(null);
+
+    const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+        contextMenuRef.current?.handleContextMenu(event);
+    };
+
     useEffect(() => {
         const newData = applyInMemoryFilters<{{ classDataName table.dataElement.target 'Stored' }}>(filters, ownerData?.{{ table.dataElement.name }} ?? []);
         setData(newData);
     }, [ownerData?.{{ table.dataElement.name }}, filters]);
 
     return (
-        <{{ muiDataGridComponent }}
-            { ...baseTableConfig }
-            pageSizeOptions={[{{ calculateTablePageLimit table }}]}
-            sx={ {
-                // overflow: 'hidden',
-                display: 'grid',
-            } }
-            getRowId={(row: { __identifier: string }) => row.__identifier}
-            loading={isOwnerLoading}
-            rows={data}
-            getRowClassName={() => "data-grid-row"}
-            getCellClassName={() => "data-grid-cell"}
-            columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, { shownActions: 2 }) ]}
-            disableRowSelectionOnClick
-            {{# each table.rowActions as |action| }}
-                {{# if action.isViewAction }}
-                    onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {
-                        if (!editMode) {
-                            {{ actionFunctionName action }}(ownerData, params.row);
-                        }
-                    } }
-                {{/ if }}
-            {{/ each }}
-            sortModel={ {{ table.dataElement.name }}SortModel }
-            onSortModelChange={(newModel: GridSortModel) => {
-                set{{ ucFirst table.dataElement.name }}SortModel(newModel);
-            }}
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            components={ {
-                Toolbar: () => (
-                    <GridToolbarContainer>
-                        {{# each table.actions as |action| }}
-                            {{# if action.isCreateAction }}
-                                {{# unless page.isPageTypeOperationInput }}
-                                    <Button
-                                        id="{{ createId action }}"
-                                        startIcon={<MdiIcon path="file_document_plus" />}
-                                        variant="text"
-                                        onClick={() => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {
-                                            fetchOwnerData();
-                                        })}
-                                        disabled={
-                                               editMode
-                                            || isOwnerLoading
-                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
-                                            || !isFormUpdateable()
-                                        }
-                                    >
-                                        {t('judo.pages.table.create', { defaultValue: 'Create' })}
-                                    </Button>
-                                {{/ unless }}
-                            {{/ if }}
-                            {{# unless table.dataElement.isMemberTypeTransient }}
-                                {{# if action.isAddAction }}
-                                    <Button
-                                        id="{{ createId table.dataElement }}-add"
-                                        startIcon={<MdiIcon path="attachment-plus" />}
-                                        variant="text"
-                                        onClick={ async () => {
-                                            const res = await {{ table.dataElement.name }}RangeCall();
-
-                                            if (res) {
-                                                storeDiff('{{ table.dataElement.name }}', [
-                                                    ...(ownerData.{{ table.dataElement.name }} || []),
-                                                    ...(res as {{ classDataName table.dataElement.target 'Stored' }}[])
-                                                ]);
+        <>
+            <{{ muiDataGridComponent }}
+                { ...baseTableConfig }
+                pageSizeOptions={[{{ calculateTablePageLimit table }}]}
+                sx={ {
+                    // overflow: 'hidden',
+                    display: 'grid',
+                } }
+                slotProps={ {
+                    cell: {
+                        onContextMenu: handleContextMenu,
+                    },
+                } }
+                getRowId={(row: { __identifier: string }) => row.__identifier}
+                loading={isOwnerLoading}
+                rows={data}
+                getRowClassName={() => "data-grid-row"}
+                getCellClassName={() => "data-grid-cell"}
+                columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, { shownActions: 2 }) ]}
+                disableRowSelectionOnClick
+                {{# each table.rowActions as |action| }}
+                    {{# if action.isViewAction }}
+                        onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {
+                            if (!editMode) {
+                                {{ actionFunctionName action }}(ownerData, params.row);
+                            }
+                        } }
+                    {{/ if }}
+                {{/ each }}
+                sortModel={ {{ table.dataElement.name }}SortModel }
+                onSortModelChange={(newModel: GridSortModel) => {
+                    set{{ ucFirst table.dataElement.name }}SortModel(newModel);
+                }}
+                paginationModel={paginationModel}
+                onPaginationModelChange={setPaginationModel}
+                components={ {
+                    Toolbar: () => (
+                        <GridToolbarContainer>
+                            {{# each table.actions as |action| }}
+                                {{# if action.isCreateAction }}
+                                    {{# unless page.isPageTypeOperationInput }}
+                                        <Button
+                                            id="{{ createId action }}"
+                                            startIcon={<MdiIcon path="file_document_plus" />}
+                                            variant="text"
+                                            onClick={() => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {
+                                                fetchOwnerData();
+                                            })}
+                                            disabled={
+                                                   editMode
+                                                || isOwnerLoading
+                                                || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                                || !isFormUpdateable()
                                             }
-                                        } }
-                                        disabled={
-                                               isOwnerLoading
-                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
-                                            || !isFormUpdateable()
-                                        }
-                                    >
-                                        {t('judo.pages.table.add', { defaultValue: 'Add' })}
-                                    </Button>
+                                        >
+                                            {t('judo.pages.table.create', { defaultValue: 'Create' })}
+                                        </Button>
+                                    {{/ unless }}
                                 {{/ if }}
-                                {{# if action.isClearAction }}
-                                    <Button
-                                        id="{{ createId table.dataElement }}-clear"
-                                        startIcon={<MdiIcon path="link_off" />}
-                                        variant="text"
-                                        onClick={ async () => {
-                                            storeDiff('{{ table.dataElement.name }}', []);
-                                        } }
-                                        disabled={
-                                               isOwnerLoading
-                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
-                                            || !isFormUpdateable()
-                                        }
-                                    >
-                                        {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
-                                    </Button>
-                                {{/ if }}
-                            {{/ unless }}
-                        {{/ each }}
-                        <Button
-                            id="{{ createId table }}-filter"
-                            startIcon={<MdiIcon path="filter" />}
-                            variant="text"
-                            onClick={() => filter('{{ createId table }}-filter', filterOptions, filters)}
-                            disabled={isOwnerLoading}
-                        >
-                            {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
-                        </Button>
-                    </GridToolbarContainer>
-                ),
-            } }
-        />
+                                {{# unless table.dataElement.isMemberTypeTransient }}
+                                    {{# if action.isAddAction }}
+                                        <Button
+                                            id="{{ createId table.dataElement }}-add"
+                                            startIcon={<MdiIcon path="attachment-plus" />}
+                                            variant="text"
+                                            onClick={ async () => {
+                                                const res = await {{ table.dataElement.name }}RangeCall();
+
+                                                if (res) {
+                                                    storeDiff('{{ table.dataElement.name }}', [
+                                                        ...(ownerData.{{ table.dataElement.name }} || []),
+                                                        ...(res as {{ classDataName table.dataElement.target 'Stored' }}[])
+                                                    ]);
+                                                }
+                                            } }
+                                            disabled={
+                                                   isOwnerLoading
+                                                || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                                || !isFormUpdateable()
+                                            }
+                                        >
+                                            {t('judo.pages.table.add', { defaultValue: 'Add' })}
+                                        </Button>
+                                    {{/ if }}
+                                    {{# if action.isClearAction }}
+                                        <Button
+                                            id="{{ createId table.dataElement }}-clear"
+                                            startIcon={<MdiIcon path="link_off" />}
+                                            variant="text"
+                                            onClick={ async () => {
+                                                storeDiff('{{ table.dataElement.name }}', []);
+                                            } }
+                                            disabled={
+                                                   isOwnerLoading
+                                                || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                                || !isFormUpdateable()
+                                            }
+                                        >
+                                            {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
+                                        </Button>
+                                    {{/ if }}
+                                {{/ unless }}
+                            {{/ each }}
+                            <Button
+                                id="{{ createId table }}-filter"
+                                startIcon={<MdiIcon path="filter" />}
+                                variant="text"
+                                onClick={() => filter('{{ createId table }}-filter', filterOptions, filters)}
+                                disabled={isOwnerLoading}
+                            >
+                                {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
+                            </Button>
+                        </GridToolbarContainer>
+                    ),
+                } }
+            />
+            <ContextMenu
+                ref={contextMenuRef}
+                data={data}
+                filters={filters}
+                filterOptions={filterOptions}
+                onFiltersUpdated={ (newFilters: Filter[]) => {
+                    setPaginationModel((prevState) => ({
+                        ...prevState,
+                        page: 0,
+                    }));
+                    setFilters(newFilters);
+                } }
+            />
+        </>
     );
 };

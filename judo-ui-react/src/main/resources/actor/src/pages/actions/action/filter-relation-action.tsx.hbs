@@ -15,30 +15,36 @@ export const {{ actionFunctionHookName action }} = (
     setPage: (page: number) => void,
     setQueryCustomizer: Function,
     openFilterDialog: (id: string, filterOptions: FilterOption[], filters: Filter[]) => Promise<Filter[]>,
+    numberOfElements: number,
 ): {{ actionFunctionTypeName action }} => {
+    const columnNames = [
+        {{# with action.definedOn as |table| }}
+            {{# each table.filters as |filter| }}
+                '{{ filter.attributeType.name }}',
+            {{/ each }}
+        {{/ with }}
+    ];
 
     return async function {{ actionFunctionName action }}(id: string, filterOptions: FilterOption[], filters: Filter[]) {
         const newFilters = await openFilterDialog(id, filterOptions, filters);
         const numberOfElements = 10;
 
-        if (newFilters) {
+        if (Array.isArray(newFilters)) {
             setPage(0);
             setFilters(newFilters);
 
             setQueryCustomizer((prevQueryCustomizer: {{ classDataName action.dataElement.target 'QueryCustomizer' }}) => {
+                // remove previous filter values, so that we can always start with a clean slate
+                for (const name of columnNames) {
+                    delete (prevQueryCustomizer as any)[name];
+                }
+
                 return {
                     ...prevQueryCustomizer,
                     _seek: {
                         limit: numberOfElements + 1,
                     },
-                    ...mapAllFiltersToQueryCustomizerProperties(
-                        newFilters,
-                        {{# with action.definedOn as |table| }}
-                            {{# each table.filters as |filter| }}
-                                '{{ filter.attributeType.name }}',
-                            {{/ each }}
-                        {{/ with }}
-                    ),
+                    ...mapAllFiltersToQueryCustomizerProperties(newFilters),
                 };
             });
         }
