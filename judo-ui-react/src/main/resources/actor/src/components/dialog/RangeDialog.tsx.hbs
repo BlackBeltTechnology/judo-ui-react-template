@@ -261,11 +261,13 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
     return !params.row.__selected;
   };
 
-  const contextMenuRef = useRef<ContextMenuApi>(null);
+  {{# if (stringValueIsTrue useTableContextMenus) }}
+    const contextMenuRef = useRef<ContextMenuApi>(null);
 
-  const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
-    contextMenuRef.current?.handleContextMenu(event);
-  };
+    const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+      contextMenuRef.current?.handleContextMenu(event);
+    };
+  {{/ if }}
 
   return (
     <Dialog id={id} open={open} onClose={cancel} scroll="paper" fullWidth={true} maxWidth={'md'}>
@@ -292,11 +294,13 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
                     display: 'grid',
                 }
             }
-            slotProps={ {
-              cell: {
-                onContextMenu: handleContextMenu,
-              },
-            } }
+            {{# if (stringValueIsTrue useTableContextMenus) }}
+              slotProps={ {
+                cell: {
+                  onContextMenu: handleContextMenu,
+                },
+              } }
+            {{/ if }}
             {...serverTableConfig}
             pageSizeOptions={[10]}
             getRowId={(row: T) => row.__identifier as GridRowId}
@@ -345,23 +349,26 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
               ),
             } }
           />
-          <ContextMenu
-            ref={contextMenuRef}
-            data={data}
-            filters={filters}
-            filterOptions={filterOptions}
-            onFiltersUpdated={ (newFilters: Filter[]) => {
-              setFilters(newFilters);
-              setPage(0);
+          {{# if (stringValueIsTrue useTableContextMenus) }}
+            <ContextMenu
+              ref={contextMenuRef}
+              data={data}
+              filters={filters}
+              filterOptions={filterOptions}
+              columns={columns}
+              onFiltersUpdated={ (newFilters: Filter[]) => {
+                setFilters(newFilters);
+                setPage(0);
 
-              setQueryCustomizer((prevQueryCustomizer) => {
-                return {
-                  ...prevQueryCustomizer,
-                  ...mapAllFiltersToQueryCustomizerProperties(newFilters),
-                };
-              });
-            } }
-          />
+                setQueryCustomizer((prevQueryCustomizer) => {
+                  return {
+                    ...prevQueryCustomizer,
+                    ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+                  };
+                });
+              } }
+            />
+          {{/ if }}
         </DialogContentText>
       </DialogContent>
       <DialogActions>

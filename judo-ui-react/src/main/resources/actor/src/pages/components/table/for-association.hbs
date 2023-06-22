@@ -106,11 +106,13 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         {{/ each }}
     ];
 
-    const contextMenuRef = useRef<ContextMenuApi>(null);
+    {{# if (stringValueIsTrue useTableContextMenus) }}
+        const contextMenuRef = useRef<ContextMenuApi>(null);
 
-    const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
-        contextMenuRef.current?.handleContextMenu(event);
-    };
+        const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+            contextMenuRef.current?.handleContextMenu(event);
+        };
+    {{/ if }}
 
     function handleSortModelChange (newModel: GridSortModel) {
         setPage(0);
@@ -185,11 +187,13 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     // overflow: 'hidden',
                     display: 'grid',
                 } }
-                slotProps={ {
-                    cell: {
-                        onContextMenu: handleContextMenu,
-                    },
-                } }
+                {{# if (stringValueIsTrue useTableContextMenus) }}
+                    slotProps={ {
+                        cell: {
+                            onContextMenu: handleContextMenu,
+                        },
+                    } }
+                {{/ if }}
                 getRowId={(row: { __identifier: string }) => row.__identifier}
                 loading={ isLoading }
                 rows={ data }
@@ -262,23 +266,26 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     ),
                 } }
             />
-            <ContextMenu
-                  ref={contextMenuRef}
-                  data={data}
-                  filters={filters}
-                  filterOptions={filterOptions}
-                  onFiltersUpdated={ (newFilters: Filter[]) => {
-                      setFilters(newFilters);
-                      setPage(0);
+            {{# if (stringValueIsTrue useTableContextMenus) }}
+                <ContextMenu
+                      ref={contextMenuRef}
+                      data={data}
+                      filters={filters}
+                      filterOptions={filterOptions}
+                      columns={ {{ table.dataElement.name }}Columns }
+                      onFiltersUpdated={ (newFilters: Filter[]) => {
+                          setFilters(newFilters);
+                          setPage(0);
 
-                      setQueryCustomizer((prevQueryCustomizer) => {
-                          return {
-                              ...prevQueryCustomizer,
-                              ...mapAllFiltersToQueryCustomizerProperties(newFilters),
-                          };
-                      });
-                  } }
-            />
+                          setQueryCustomizer((prevQueryCustomizer) => {
+                              return {
+                                  ...prevQueryCustomizer,
+                                  ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+                              };
+                          });
+                      } }
+                />
+            {{/ if }}
         </>
     );
 });

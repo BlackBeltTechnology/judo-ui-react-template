@@ -1,24 +1,29 @@
 import type { JudoStored } from '@judo/data-api-common';
-import type { ForwardedRef, MouseEvent, RefAttributes } from 'react';
-import type { Filter, Operation } from '~/components-api';
-import { Menu, MenuItem } from '@mui/material';
+import type { ForwardedRef, MouseEvent } from 'react';
+import type { Filter, Operation, FilterOption } from '~/components-api';
+import type { GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { Menu, MenuItem, Typography } from '@mui/material';
 import { useState, forwardRef, useImperativeHandle } from 'react';
-import { FilterType, FilterOption } from '~/components-api';
+import { MdiIcon } from '~/components';
+import { FilterType } from '~/components-api';
+import { useTranslation } from 'react-i18next';
 
 export interface ContextMenuProps<T, P extends JudoStored<T>> {
+  columns: GridColDef<P>[];
   filters: Filter[];
+  filterOptions: FilterOption[];
   data: P[];
   onFiltersUpdated: (newFilters: Filter[]) => void;
-  filterOptions: FilterOption[];
 }
 
 export interface ContextMenuApi {
   handleContextMenu: (event: MouseEvent<HTMLElement>) => void;
 }
 
-export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>>(
-  <T, P extends JudoStored<T>>(props: ContextMenuProps<T, P>, ref: ForwardedRef<ContextMenuApi>) => {
-    const { filters, data, onFiltersUpdated, filterOptions } = props;
+export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>>(<T, P extends JudoStored<T>>(props: ContextMenuProps<T, P>, ref: ForwardedRef<ContextMenuApi>) => {
+    const { t } = useTranslation();
+    const { filters, data, onFiltersUpdated, filterOptions, columns } = props;
+    const [selectedColumn, setSelectedColumn] = useState<GridColDef<P> | undefined>();
     const [selectedRow, setSelectedRow] = useState<string | undefined>();
     const [selectedRowData, setSelectedRowData] = useState<P | undefined>();
     const [selectedValue, setSelectedValue] = useState<any>();
@@ -44,10 +49,12 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
       const rowData = data.find((d) => d.__identifier === row);
       const field: keyof P = event.currentTarget.dataset.field! as keyof P;
       const value: any = rowData ? rowData[field] : undefined;
+      const column = columns.find(c => c.field === field)!;
       setSelectedRow(row);
       setSelectedRowData(rowData);
       setField(field);
       setSelectedValue(value);
+      setSelectedColumn(column);
       setContextMenu(contextMenu === null ? { mouseX: event.clientX - 2, mouseY: event.clientY - 4 } : null);
     };
     const closeContextMenu = () => {
@@ -56,7 +63,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
 
     const filterByCell = () => {
       if (field && selectedValue !== null && selectedValue !== undefined) {
-        const filterOption = filterOptions.find(f => f.attributeName === field)!;
+        const filterOption = filterOptions.find((f) => f.attributeName === field)!;
         const filterType: FilterType = filterOption.filterType;
         const sourceFilters = filters.filter((f) => f.filterOption.attributeName !== field);
         const newFilters: Filter[] = [
@@ -69,9 +76,11 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
               id: `${field as string}-option-${sourceFilters.length + 1}`,
               attributeName: field as string,
               filterType: filterType,
-              ...(filterType === FilterType.enumeration ? {
-                enumValues: filterOption.enumValues,
-              } : {}),
+              ...(filterType === FilterType.enumeration
+                ? {
+                  enumValues: filterOption.enumValues,
+                }
+                : {}),
             },
             filterBy: {
               value: selectedValue,
@@ -89,7 +98,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
 
     const excludeByCell = () => {
       if (field && selectedValue !== null && selectedValue !== undefined) {
-        const filterOption = filterOptions.find(f => f.attributeName === field)!;
+        const filterOption = filterOptions.find((f) => f.attributeName === field)!;
         const filterType: FilterType = filterOption.filterType;
         const sourceFilters = filters.filter((f) => f.filterOption.attributeName !== field);
         const newFilters: Filter[] = [
@@ -102,9 +111,11 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
               id: `${field as string}-option-${sourceFilters.length + 1}`,
               attributeName: field as string,
               filterType: filterType,
-              ...(filterType === FilterType.enumeration ? {
-                enumValues: filterOption.enumValues,
-              } : {}),
+              ...(filterType === FilterType.enumeration
+                ? {
+                  enumValues: filterOption.enumValues,
+                }
+                : {}),
             },
             filterBy: {
               value: filterType === FilterType.boolean ? !selectedValue : selectedValue, // invert bool value because we only have "equals" operator
@@ -128,17 +139,27 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
         onClose={closeContextMenu}
         anchorReference="anchorPosition"
         anchorPosition={contextMenu !== null ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined}
-        slotProps={{
+        slotProps={ {
           root: {
             onContextMenu: (e) => {
               e.preventDefault();
               closeContextMenu();
             },
           },
-        }}
+        } }
       >
-        <MenuItem onClick={filterByCell}>Filter By</MenuItem>
-        <MenuItem onClick={excludeByCell}>Exclude By</MenuItem>
+        <MenuItem onClick={filterByCell}>
+          <MdiIcon path="equal" sx={ { mr: 1 } } />
+          <Typography variant="inherit">
+            {t('judo.component.Table.ContextMenu.filterBy', { defaultValue: 'Filter based on the selected value', columnName: selectedColumn?.headerName, field: field, value: selectedValue }) as string}
+          </Typography>
+        </MenuItem>
+        <MenuItem onClick={excludeByCell}>
+          <MdiIcon path="not-equal-variant" sx={ { mr: 1 } } />
+          <Typography variant="inherit">
+            {t('judo.component.Table.ContextMenu.excludeBy', { defaultValue: 'Exclude based on the selected value', columnName: selectedColumn?.headerName, field: field, value: selectedValue }) as string}
+          </Typography>
+        </MenuItem>
       </Menu>
     );
   },

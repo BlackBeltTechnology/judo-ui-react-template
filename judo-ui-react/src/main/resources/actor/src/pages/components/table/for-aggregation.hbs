@@ -87,11 +87,13 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
         }
     };
 
-    const contextMenuRef = useRef<ContextMenuApi>(null);
+    {{# if (stringValueIsTrue useTableContextMenus) }}
+        const contextMenuRef = useRef<ContextMenuApi>(null);
 
-    const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
-        contextMenuRef.current?.handleContextMenu(event);
-    };
+        const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+            contextMenuRef.current?.handleContextMenu(event);
+        };
+    {{/ if }}
 
     useEffect(() => {
         const newData = applyInMemoryFilters<{{ classDataName table.dataElement.target 'Stored' }}>(filters, ownerData?.{{ table.dataElement.name }} ?? []);
@@ -107,11 +109,13 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                     // overflow: 'hidden',
                     display: 'grid',
                 } }
-                slotProps={ {
-                    cell: {
-                        onContextMenu: handleContextMenu,
-                    },
-                } }
+                {{# if (stringValueIsTrue useTableContextMenus) }}
+                    slotProps={ {
+                        cell: {
+                            onContextMenu: handleContextMenu,
+                        },
+                    } }
+                {{/ if }}
                 getRowId={(row: { __identifier: string }) => row.__identifier}
                 loading={isOwnerLoading}
                 rows={data}
@@ -215,19 +219,22 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                     ),
                 } }
             />
-            <ContextMenu
-                ref={contextMenuRef}
-                data={data}
-                filters={filters}
-                filterOptions={filterOptions}
-                onFiltersUpdated={ (newFilters: Filter[]) => {
-                    setPaginationModel((prevState) => ({
-                        ...prevState,
-                        page: 0,
-                    }));
-                    setFilters(newFilters);
-                } }
-            />
+            {{# if (stringValueIsTrue useTableContextMenus) }}
+                <ContextMenu
+                    ref={contextMenuRef}
+                    data={data}
+                    filters={filters}
+                    filterOptions={filterOptions}
+                    columns={ {{ table.dataElement.name }}Columns }
+                    onFiltersUpdated={ (newFilters: Filter[]) => {
+                        setPaginationModel((prevState) => ({
+                            ...prevState,
+                            page: 0,
+                        }));
+                        setFilters(newFilters);
+                    } }
+                />
+            {{/ if }}
         </>
     );
 };

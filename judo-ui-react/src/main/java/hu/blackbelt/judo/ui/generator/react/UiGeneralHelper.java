@@ -121,6 +121,10 @@ public class UiGeneralHelper extends Helper {
         return input == null ? "" : input;
     }
 
+    public static Boolean stringValueIsTrue(String input) {
+        return input != null && input.equalsIgnoreCase("true");
+    }
+
     public static String attributePath(AttributeType attributeType) {
         return String.join("/", attributeType.getOwnerPackageNameTokens())
                 .concat("/")
