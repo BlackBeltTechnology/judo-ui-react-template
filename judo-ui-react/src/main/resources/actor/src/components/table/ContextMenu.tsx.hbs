@@ -44,19 +44,22 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
     }));
 
     const handleContextMenu = (event: MouseEvent<HTMLElement>): void => {
-      event.preventDefault();
       const row = event.currentTarget.parentElement!.getAttribute('data-id')!;
       const rowData = data.find((d) => d.__identifier === row);
       const field: keyof P = event.currentTarget.dataset.field! as keyof P;
       const value: any = rowData ? rowData[field] : undefined;
       const column = columns.find(c => c.field === field)!;
-      setSelectedRow(row);
-      setSelectedRowData(rowData);
-      setField(field);
-      setSelectedValue(value);
-      setSelectedColumn(column);
-      setContextMenu(contextMenu === null ? { mouseX: event.clientX - 2, mouseY: event.clientY - 4 } : null);
+      if (column && column.type !== 'action') {
+        event.preventDefault();
+        setSelectedRow(row);
+        setSelectedRowData(rowData);
+        setField(field);
+        setSelectedValue(value);
+        setSelectedColumn(column);
+        setContextMenu(contextMenu === null ? { mouseX: event.clientX - 2, mouseY: event.clientY - 4 } : null);
+      }
     };
+
     const closeContextMenu = () => {
       setContextMenu(null);
     };
