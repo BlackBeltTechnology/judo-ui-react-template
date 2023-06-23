@@ -51,12 +51,12 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         _seek: {
             limit: {{ calculateTablePageLimit table }} + 1,
         },
-        _orderBy: [
+        _orderBy: sortModel.length ? [
             {
                 attribute: sortModel[0].field,
                 descending: sortModel[0].sort === 'desc',
             },
-        ],
+        ] : [],
         ...mapAllFiltersToQueryCustomizerProperties(filters),
     });
 
@@ -122,14 +122,25 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         setPage(0);
         setSortModel(newModel);
 
-        const { field, sort } = newModel[0];
+        console.log(newModel);
 
-        setQueryCustomizer((prevQueryCustomizer) => {
-            return {
-                ...prevQueryCustomizer,
-                _orderBy: [{ attribute: field, descending: sort === 'desc' }],
-            };
-        });
+        if (Array.isArray(newModel) && newModel.length === 0) {
+            setQueryCustomizer((prevQueryCustomizer) => {
+                delete prevQueryCustomizer['_orderBy'];
+                return {
+                    ...prevQueryCustomizer,
+                };
+            });
+        } else {
+            const { field, sort } = newModel[0];
+
+            setQueryCustomizer((prevQueryCustomizer) => {
+                return {
+                    ...prevQueryCustomizer,
+                    _orderBy: [{ attribute: field, descending: sort === 'desc' }],
+                };
+            });
+        }
     }
 
     async function handlePageChange (isNext: boolean) {
