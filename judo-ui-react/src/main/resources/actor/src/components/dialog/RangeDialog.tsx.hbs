@@ -152,23 +152,17 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
     setPage(0);
     setSortModel(newModel);
 
-    if (Array.isArray(newModel) && newModel.length === 0) {
-      setQueryCustomizer((prevQueryCustomizer) => {
-        delete prevQueryCustomizer['_orderBy'];
-        return {
-          ...prevQueryCustomizer,
-        };
-      });
-    } else {
-      const { field, sort } = newModel[0];
+    const _orderBy = newModel.filter(m => m.sort).map(m => ({
+      attribute: m.field,
+      descending: m.sort === 'desc',
+    }));
 
-      setQueryCustomizer((prevQueryCustomizer) => {
-        return {
-          ...prevQueryCustomizer,
-          _orderBy: [{ attribute: field, descending: sort === 'desc' }],
-        };
-      });
-    }
+    setQueryCustomizer((prevQueryCustomizer) => {
+      return {
+        ...prevQueryCustomizer,
+        _orderBy,
+      };
+    });
   };
 
   // useEffect(() => {
