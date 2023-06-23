@@ -36,8 +36,9 @@ export interface MultiFilter {
   [key: string]: FilterBy[] | undefined;
 }
 
-export const mapAllFiltersToQueryCustomizerProperties = (filters: Filter[], ...properties: string[]): MultiFilter => {
+export const mapAllFiltersToQueryCustomizerProperties = (filters: Filter[]): MultiFilter => {
   let output: MultiFilter = {};
+  const properties = new Set<string>(filters.map(f => f.filterOption.attributeName));
 
   for (const property of properties) {
     output[property] = mapFiltersToQueryCustomizerProperty(filters, property);

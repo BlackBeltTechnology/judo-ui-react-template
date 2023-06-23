@@ -14,7 +14,7 @@ function rollupPluginEsmer(opts = {}) {
     root: join(cwd(), 'src'),
     cachePath: join(cwd(), 'node_modules', '.esmer', 'cache'),
     targetPath: join(cwd(), 'dist', 'assets'),
-    filesPattern: /.*\.(js|ts|jsx|tsx|mjs|mts|cjs|cts)$/,
+    filesPattern: /.*(?<!\.test|\.spec)\.(js|ts|jsx|tsx|mjs|mts|cjs|cts)$/,
     localImportPattern: /^(\.|\/|~)/,
     excludeAssetPattern: /.*(css|scss|svg|json|ttf|woff|woff2|eot)$/,
     ...opts,
