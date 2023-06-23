@@ -51,12 +51,12 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         _seek: {
             limit: {{ calculateTablePageLimit table }} + 1,
         },
-        _orderBy: [
+        _orderBy: sortModel.length ? [
             {
                 attribute: sortModel[0].field,
                 descending: sortModel[0].sort === 'desc',
             },
-        ],
+        ] : [],
         ...mapAllFiltersToQueryCustomizerProperties(filters),
     });
 
@@ -122,12 +122,15 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         setPage(0);
         setSortModel(newModel);
 
-        const { field, sort } = newModel[0];
+        const _orderBy = newModel.filter(m => m.sort).map(m => ({
+            attribute: m.field,
+            descending: m.sort === 'desc',
+        }));
 
         setQueryCustomizer((prevQueryCustomizer) => {
             return {
                 ...prevQueryCustomizer,
-                _orderBy: [{ attribute: field, descending: sort === 'desc' }],
+                _orderBy,
             };
         });
     }
