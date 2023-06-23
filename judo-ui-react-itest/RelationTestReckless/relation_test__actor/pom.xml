@@ -163,13 +163,24 @@
                     </execution>
 
                     <execution>
-                        <id>build</id>
+                        <id>build-reckless-first</id>
                         <goals>
                             <goal>pnpm</goal>
                         </goals>
                         <phase>generate-sources</phase>
                         <configuration>
-                            <arguments>run build</arguments>
+                            <arguments>run build:reckless</arguments>
+                        </configuration>
+                    </execution>
+
+                    <execution>
+                        <id>build-reckless-second</id>
+                        <goals>
+                            <goal>pnpm</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <arguments>run build:reckless</arguments>
                         </configuration>
                     </execution>
                 </executions>
@@ -177,6 +188,43 @@
                     <installDirectory>${node-install-dir}</installDirectory>
                     <workingDirectory>${generation-target}</workingDirectory>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${maven-enforcer-plugin-version}</version>
+                <executions>
+                    <execution>
+                        <id>enforce</id>
+                        <goals>
+                            <goal>enforce</goal>
+                        </goals>
+                        <phase>test</phase>
+                        <configuration>
+                            <rules>
+                                <requireGlobMatches>
+                                    <globs>
+                                        <glob>target/frontend-react/dist/assets/vendor-*.js</glob>
+                                    </globs>
+                                    <location>${project.basedir}</location>
+                                </requireGlobMatches>
+                            </rules>
+                        </configuration>
+                    </execution>
+                </executions>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.enforcer</groupId>
+                        <artifactId>enforcer-rules</artifactId>
+                        <version>${maven-enforcer-plugin-version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>hu.blackbelt.maven.plugin</groupId>
+                        <artifactId>enforcer-checkfile-rules</artifactId>
+                        <version>${enforcer-checkfile-rules-version}</version>
+                    </dependency>
+                </dependencies>
             </plugin>
         </plugins>
     </build>
