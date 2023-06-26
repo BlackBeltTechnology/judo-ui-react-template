@@ -18,6 +18,8 @@ import {
 {{/ if }}
 import { applyInMemoryFilters } from '~/utilities';
 
+export const {{ getCustomizationComponentInterfaceKey table }} = '{{ getCustomizationComponentInterface table }}';
+
 export interface {{ tableComponentName table }}Props {
     ownerData: {{ classDataName table.dataElement.owner 'Stored' }};
     isOwnerLoading: boolean;
@@ -34,6 +36,13 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
     const { openRangeDialog } = useRangeDialog();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+    const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<{{ classDataName table.dataElement.target 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey table ~}} }))`);
+    const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
+    const rowStylings: RowStylerConfigured<{{ classDataName table.dataElement.target 'Stored' }}>[] = useMemo(() => {
+        return rowHighlighting ? rowHighlighting() : [];
+    }, [rowHighlighting]);
+    {{/ if }}
 
     const [filters, setFilters] = useState<Filter[]>([]);
     const [data, setData] = useState<{{ classDataName table.dataElement.target 'Stored' }}[]>([]);
@@ -102,12 +111,15 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
 
     return (
         <>
-            <{{ muiDataGridComponent }}
+            <StripedDataGrid
                 { ...baseTableConfig }
                 pageSizeOptions={[{{ calculateTablePageLimit table }}]}
                 sx={ {
                     // overflow: 'hidden',
                     display: 'grid',
+                    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+                    ...transformRowStylings(rowStylings),
+                    {{/ if }}
                 } }
                 {{# if (stringValueIsTrue useTableContextMenus) }}
                     slotProps={ {
@@ -119,8 +131,15 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 getRowId={(row: { __identifier: string }) => row.__identifier}
                 loading={isOwnerLoading}
                 rows={data}
-                getRowClassName={() => "data-grid-row"}
-                getCellClassName={() => "data-grid-cell"}
+                getRowClassName={ (params: GridRowClassNameParams) => {
+                    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+                    const customStyle = rowStylings.find(r => r.condition(params));
+                    if (customStyle) {
+                        return customStyle.name;
+                    }
+                    {{/ if }}
+                    return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+                } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
                 {{# each table.rowActions as |action| }}
@@ -219,6 +238,9 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                     ),
                 } }
             />
+            {{# if (stringValueIsTrue useTableRowHighlighting) }}
+                <RowHighlightLegend rowStylings={rowStylings} />
+            {{/ if }}
             {{# if (stringValueIsTrue useTableContextMenus) }}
                 <ContextMenu
                     ref={contextMenuRef}
