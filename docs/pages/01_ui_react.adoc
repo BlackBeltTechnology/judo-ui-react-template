@@ -37,19 +37,6 @@ application roots.
 
 ENV var to use: `VITE_MUI_LICENSE_KEY`.
 
-== Enable Table Context Menus
-
-Table Context Menus allow the users to perform certain actions by right-clicking rows/cells, e.g.: filtering by cell value.
-
-*Generator parameter to use (optional):* `<useTableContextMenus>`.
-
-*Default:* `false`
-
-*Possible values:*
-
-- `true`
-- `false`
-
 == Modifying / extending package.json content
 
 We can override `package.json` related content at the `generator-overrides/ui-react/actor` folder.
@@ -93,6 +80,94 @@ export function SomeAction() {
 
 > Certain routes may require a `signedIdentifier` param, but that's okay because if we miss it out, we get IDE errors,
   and compiler errors as well.
+
+== Opt-in features
+
+=== Enabling Table Context Menus
+
+Table Context Menus allow the users to perform certain actions by right-clicking rows/cells, e.g.: filtering by cell value.
+
+*Generator parameter to use (optional):* `<useTableContextMenus>`.
+
+*Default:* `false`
+
+*Possible values:*
+
+- `true`
+- `false`
+
+=== Table row highlighting
+
+Tables can be configured to highlight certain rows with certain colors based on pre-defined configurations. For each highlighting
+configuration, the table will have a legend section explainig which color represents what.
+
+*Generator parameter to use (optional):* `<useTableRowHighlighting>`.
+
+*Default:* `false`
+
+*Possible values:*
+
+- `true`
+- `false`
+
+Once turned on we can configure each table one-by-one, by registering a service which implements the `TableRowHighlightingHook<?>`
+interface for the interface key `TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY` and the table's name in question as `component`.
+
+*Example:*
+
+__src/custom/application-customizer.tsx__
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { ApplicationCustomizer } from './interfaces';
+import { ViewGalaxyStored } from '~/generated/data-api';
+import { TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY } from '~/theme/table-row-highlighting';
+import type { TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+import { GOD_GALAXIES_TABLE_TABLE } from '~/pages/god/galaxies/table/components/TableTable';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<TableRowHighlightingHook<ViewGalaxyStored>>(TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY, galaxiesHighlightsHook, {
+      component: GOD_GALAXIES_TABLE_TABLE,
+    });
+  }
+}
+
+
+const galaxiesHighlightsHook: TableRowHighlightingHook<ViewGalaxyStored> = () => {
+  return () => ([
+    {
+      name: 'fq-row-theme-acallaris',
+      label: 'Row is Acallaris',
+      backgroundColor: '#0e0',
+      condition: (params) => {
+        return params.row.name === 'Acallaris';
+      },
+    },
+    {
+      name: 'fq-row-theme-missing-magnitude',
+      label: 'Missing Magnitude',
+      backgroundColor: '#e00',
+      condition: (params) => {
+        return params.row.magnitude === null || params.row.magnitude === undefined;
+      },
+    },
+  ]);
+};
+----
+
+> The reason why the API looks like this is so that developers may implement customizations as hooks.
+
+The implementation above returns 2 highlighting configurations:
+
+1. Highlight "every" row with a green-ish background which has 'Acallaris' in the `name` attribute
+2. Highlight every row with a light-red background color which doesn't have `magnitude` set
+
+[INFO]
+====
+The `label` attribute is used as a fallback value in the legend below the table, therefore if we do not want
+to provide translations for the `name` as keys, we can do the translation for the `label` directly in our hook.
+====
 
 == Customization
 

@@ -21,6 +21,8 @@ import {
     } from '../actions';
 {{/ if }}
 
+export const {{ getCustomizationComponentInterfaceKey table }} = '{{ getCustomizationComponentInterface table }}';
+
 export interface {{ tableComponentName table }}Props {
     {{# unless table.dataElement.isAccess }}
         ownerData: JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>
@@ -37,6 +39,13 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+    const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<{{ classDataName table.dataElement.target 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey table ~}} }))`);
+    const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
+    const rowStylings: RowStylerConfigured<{{ classDataName table.dataElement.target 'Stored' }}>[] = useMemo(() => {
+        return rowHighlighting ? rowHighlighting() : [];
+    }, [rowHighlighting]);
+    {{/ if }}
 
     const [data, setData] = useState<GridRowModel<{{ classDataName table.dataElement.target 'Stored' }}>[]>([]);
     const [rowCount, setRowCount] = useState<number>(0);
@@ -191,12 +200,15 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
 
     return (
         <>
-            <{{ muiDataGridComponent }}
+            <StripedDataGrid
                 { ...baseTableConfig }
                 pageSizeOptions={[{{ calculateTablePageLimit table }}]}
                 sx={ {
                     // overflow: 'hidden',
                     display: 'grid',
+                    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+                    ...transformRowStylings(rowStylings),
+                    {{/ if }}
                 } }
                 {{# if (stringValueIsTrue useTableContextMenus) }}
                     slotProps={ {
@@ -208,8 +220,15 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 getRowId={(row: { __identifier: string }) => row.__identifier}
                 loading={ isOwnerLoading }
                 rows={ data }
-                getRowClassName={() => "data-grid-row"}
-                getCellClassName={() => "data-grid-cell"}
+                getRowClassName={ (params: GridRowClassNameParams) => {
+                    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+                        const customStyle = rowStylings.find(r => r.condition(params));
+                        if (customStyle) {
+                            return customStyle.name;
+                        }
+                    {{/ if }}
+                    return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+                } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
                 {{# each table.rowActions as |action| }}
@@ -251,6 +270,9 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     ),
                 } }
             />
+            {{# if (stringValueIsTrue useTableRowHighlighting) }}
+                <RowHighlightLegend rowStylings={rowStylings} />
+            {{/ if }}
             {{# if (stringValueIsTrue useTableContextMenus) }}
                 <ContextMenu
                     ref={contextMenuRef}
