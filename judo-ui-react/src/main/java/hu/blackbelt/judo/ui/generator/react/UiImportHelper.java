@@ -140,7 +140,7 @@ public class UiImportHelper {
     }
 
     public static String getMuiDataGridImportsForTables() {
-        SortedSet<String> imports = new TreeSet<>(Set.of(getMuiDataGridImportsForHooks(), "GridRowId", "GridSortItem", "GridRowModel", "GridRowSelectionModel"));
+        SortedSet<String> imports = new TreeSet<>(Set.of(getMuiDataGridImportsForHooks(), "GridRowId", "GridSortItem", "GridRowModel", "GridRowSelectionModel", "GridRowClassNameParams"));
         return String.join(", ", imports);
     }
 

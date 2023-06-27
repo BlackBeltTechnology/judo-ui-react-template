@@ -6,12 +6,12 @@ import type {
   GridRowModel,
   GridRowParams,
   GridColDef,
+  GridRowClassNameParams,
   GridSortItem,
   GridRowSelectionModel,
   GridRowId,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import {
-  {{ muiDataGridComponent }},
   GridToolbarContainer,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { MouseEvent } from 'react';
@@ -31,8 +31,8 @@ import {
 import { serverTableConfig, rangeDialogConfig } from '~/config';
 import { CustomTablePagination } from '../CustomTablePagination';
 import { useFilterDialog } from './hooks';
-import type { ContextMenuApi } from '../table/ContextMenu';
-import { ContextMenu } from '../table/ContextMenu';
+import type { ContextMenuApi } from '../table';
+import { ContextMenu, StripedDataGrid } from '../table';
 import { MdiIcon } from '../MdiIcon';
 
 interface RangeDialogProps<T extends JudoStored<T>, U extends QueryCustomizer<T>> {
@@ -277,7 +277,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
       <DialogTitle id={`${id}-dialog-title`}>{ t('judo.modal.range.label', { defaultValue: 'Select' }) as string }</DialogTitle>
       <DialogContent id={`${id}-data-grid`} dividers={true}>
         <DialogContentText id="scroll-dialog-description" ref={descriptionElementRef} tabIndex={-1}>
-          <{{ muiDataGridComponent }}
+          <StripedDataGrid
             sx={
               single
                 ? {
@@ -310,8 +310,9 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
             loading={isLoading}
             rows={data}
             rowCount={rowCount}
-            getRowClassName={() => "data-grid-row"}
-            getCellClassName={() => "data-grid-cell"}
+            getRowClassName={ (params: GridRowClassNameParams) => {
+              return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+            } }
             sortModel={sortModel}
             onSortModelChange={handleSortModelChange}
             checkboxSelection

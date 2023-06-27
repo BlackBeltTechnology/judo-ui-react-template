@@ -51,7 +51,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{/ each }}
 
     return (
-        <{{ muiDataGridComponent }}
+        <StripedDataGrid
             { ...baseTableConfig }
             pageSizeOptions={[{{ calculateTablePageLimit table }}]}
             sx={ {
@@ -61,8 +61,9 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             getRowId={(row: { __identifier: string }) => row.__identifier}
             loading={ isOwnerLoading }
             rows={ ownerData?.{{ table.dataElement.name }} ?? [] }
-            getRowClassName={() => "data-grid-row"}
-            getCellClassName={() => "data-grid-cell"}
+            getRowClassName={ (params: GridRowClassNameParams) => {
+                return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+            } }
             columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, { shownActions: 2 }) ]}
             disableRowSelectionOnClick
             sortModel={ {{ table.dataElement.name }}SortModel }
