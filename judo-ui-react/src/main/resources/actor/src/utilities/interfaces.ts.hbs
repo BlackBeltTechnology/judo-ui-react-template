@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 
 import type { GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type { TFunction } from 'i18next';
 import { ColumnsActionsOptions, TableRowAction } from './table-row-actions';
 
-export type ColumnActionsProvider<R> = (id: string, actions: TableRowAction<R>[], options?: ColumnsActionsOptions) => GridColDef[];
+export type ColumnActionsProvider<R> = (id: string, actions: TableRowAction<R>[], t: TFunction<string, any>, options?: ColumnsActionsOptions) => GridColDef[];
