@@ -6,7 +6,12 @@ type: '{{ columnType column }}',
 {{# if (isColumnBoolean column) }}
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {
-        return params.row.{{ column.attributeType.name }} ? <MdiIcon path="check-circle" color="green" /> : <MdiIcon path="close-circle" color="red" />;
+        if (params.row.{{ column.attributeType.name }} === null || params.row.{{ column.attributeType.name }} === undefined) {
+            return <MdiIcon path="minus" color="#ddd" />;
+        } else if (params.row.{{ column.attributeType.name }}) {
+            return <MdiIcon path="check-circle" color="green" />;
+        }
+        return <MdiIcon path="close-circle" color="red" />;
     },
 {{/ if }}
 {{# if (isColumnNumeric column) }}
