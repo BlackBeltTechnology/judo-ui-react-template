@@ -64,7 +64,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             getRowClassName={ (params: GridRowClassNameParams) => {
                 return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
             } }
-            columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, { shownActions: 2 }) ]}
+            columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, t, { shownActions: 2 }) ]}
             disableRowSelectionOnClick
             sortModel={ {{ table.dataElement.name }}SortModel }
             onSortModelChange={(newModel: GridSortModel) => {
