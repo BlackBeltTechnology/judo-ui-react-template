@@ -22,7 +22,7 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
-import hu.blackbelt.judo.meta.ui.data.RelationType;
+import hu.blackbelt.judo.meta.ui.data.StringType;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
@@ -292,5 +292,14 @@ public class UiWidgetHelper extends Helper {
 
     public static boolean isTableFilterable(Table table) {
         return getFilteredTableActions(table).stream().anyMatch(a -> a instanceof FilterAction || a instanceof FilterRelationAction);
+    }
+
+    public static boolean firstLinkPartIsString(Link link) {
+        if (link.getParts().size() == 0) {
+            return false;
+        }
+        Column first = link.getParts().get(0);
+
+        return first.getAttributeType().getDataType() instanceof StringType;
     }
 }
