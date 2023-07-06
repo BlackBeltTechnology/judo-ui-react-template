@@ -7,6 +7,7 @@ import {
     {{# each (getApiImportsForFormAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
+    _StringOperation,
 } from '~/generated/data-api';
 import {
     {{ classServiceName link.dataElement.owner }}Impl,
@@ -56,7 +57,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                     ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
                 {{/ each }}
             ]}
-            value={ ownerData.{{ link.dataElement.name }} }
+            ownerData={ ownerData }
             error={ !!validation.get('{{ link.dataElement.name }}') }
             helperText={ validation.get('{{ link.dataElement.name }}') }
             {{# if link.icon }}
@@ -64,6 +65,10 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             {{/ if }}
             disabled={ disabled }
             editMode={ editMode }
+            autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
+            onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
+                storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
+            } }
             {{# each link.actions as |action| }}
                 {{# if action.isRemoveAction }}
                     onRemove={ async () => {
@@ -86,6 +91,19 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
 
                         if (res === undefined) return;
                         storeDiff('{{ link.dataElement.name }}', res as {{ classDataName link.dataElement.target 'Stored' }});
+                    } }
+                    onAutoCompleteSearch={async (searchText: string) => {
+                        const queryCustomizer: {{ classDataName link.dataElement.target 'QueryCustomizer' }} = {
+                            {{ link.parts.[0].attributeType.name }}: [
+                                { operator: _StringOperation.like, value: searchText }
+                            ],
+                            _mask: '{{ link.formattedMaskForRange }}',
+                            _orderBy: [
+                                { attribute: '{{ link.dataElement.name }}', descending: false },
+                            ],
+                            _seek: { limit: 10 },
+                        };
+                        return await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(ownerData, processQueryCustomizer(queryCustomizer));
                     } }
                 {{/ if }}
                 {{# if action.isUnsetAction }}
