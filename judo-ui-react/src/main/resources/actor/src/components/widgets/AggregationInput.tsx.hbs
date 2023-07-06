@@ -2,6 +2,7 @@
 
 import { Autocomplete, Box, CircularProgress, Grid, IconButton, InputAdornment, TextField } from '@mui/material';
 import { debounce } from '@mui/material/utils';
+import { useTranslation } from 'react-i18next';
 import type { JudoStored } from '@judo/data-api-common';
 import { useState, useEffect, useMemo } from 'react';
 import type { ReactNode } from 'react';
@@ -59,6 +60,8 @@ export const AggregationInput = ({
   const [allowFetch, setAllowFetch] = useState(false);
   const [value, setValue] = useState<any>(ownerData[name] || null);
 
+  const { t } = useTranslation();
+
   useEffect(() => {
     setValue(ownerData[name] || null);
   }, [ownerData[name]]);
@@ -89,9 +92,10 @@ export const AggregationInput = ({
       <Box sx={ { padding: 0, flexGrow: 1 } }>
         <Autocomplete
           freeSolo={true}
-          forcePopupIcon={true}
+          forcePopupIcon={!!onAutoCompleteSearch}
           id={id}
           disabled={disabled || !onSet}
+          readOnly={!onAutoCompleteSearch}
           onOpen={ () => {
             setAllowFetch(true);
             handleSearch('');
@@ -99,11 +103,10 @@ export const AggregationInput = ({
           isOptionEqualToValue={ (option: any, value: any) => option[autoCompleteAttribute] === value[autoCompleteAttribute] }
           getOptionLabel={ (option) => option[autoCompleteAttribute as keyof JudoStored<any>] as string || '' }
           options={options}
-          // filterOptions={ (x) => x }
-          value={ ownerData[name] || null }
+          value={ownerData[name] || null}
           clearOnBlur={true}
           loading={loading}
-          disableClearable={onUnset === undefined}
+          disableClearable={onUnset === undefined && onRemove === undefined}
           renderInput={ (params) => (
             <TextField
               {...params}
@@ -134,45 +137,40 @@ export const AggregationInput = ({
         />
       </Box>
       {onSet && (
-        <IconButton className={`${name}-set`} disabled={disabled} onClick={onSet}>
+        <IconButton className={`${name}-set`} disabled={disabled} onClick={onSet} title={t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open filter dialog' }) as string}>
           <MdiIcon path="magnify" />
         </IconButton>
       )}
       {exists(value) && onView && (
-        <IconButton className={`${name}-view`} disabled={disabled || editMode} onClick={onView}>
+        <IconButton className={`${name}-view`} disabled={disabled || editMode} onClick={onView} title={t('judo.component.AggregationInput.navigate', { defaultValue: 'Navigate to element' }) as string}>
           <MdiIcon path="eye" />
         </IconButton>
       )}
       {exists(value) && onEdit && (
-        <IconButton className={`${name}-edit`} disabled={disabled || editMode} onClick={onEdit}>
+        <IconButton className={`${name}-edit`} disabled={disabled || editMode} onClick={onEdit} title={t('judo.component.AggregationInput.open-editor', { defaultValue: 'Edit' }) as string}>
           <MdiIcon path="pencil" />
         </IconButton>
       )}
       {exists(value) && onDelete && (
-        <IconButton className={`${name}-delete`} disabled={disabled || editMode} onClick={onDelete}>
+        <IconButton className={`${name}-delete`} disabled={disabled || editMode} onClick={onDelete} title={t('judo.component.AggregationInput.delete', { defaultValue: 'Delete' }) as string}>
           <MdiIcon path="delete" />
         </IconButton>
       )}
       {/*exists(value) && onRemove && (
-        <IconButton className={`${name}-remove`} disabled={disabled} onClick={onRemove}>
+        <IconButton className={`${name}-remove`} disabled={disabled} onClick={onRemove} title={t('judo.component.AggregationInput.remove', { defaultValue: 'Remove' }) as string}>
             <MdiIcon path="link_off" />
         </IconButton>
       )*/}
       {/*exists(value) && onUnset && (
-        <IconButton className={`${name}-unset`} disabled={disabled} onClick={onUnset}>
+        <IconButton className={`${name}-unset`} disabled={disabled} onClick={onUnset} title={t('judo.component.AggregationInput.unset', { defaultValue: 'Unset' }) as string}>
             <MdiIcon path="link_off" />
         </IconButton>
       )*/}
       {!exists(value) && onCreate && (
-        <IconButton className={`${name}-create`} disabled={disabled || editMode} onClick={onCreate}>
+        <IconButton className={`${name}-create`} disabled={disabled || editMode} onClick={onCreate} title={t('judo.component.AggregationInput.create', { defaultValue: 'Create' }) as string}>
           <MdiIcon path="file_document_plus" />
         </IconButton>
       )}
-      {/*onSet && (
-        <IconButton className={`${name}-set`} disabled={disabled} onClick={onSet}>
-            <MdiIcon path="link" />
-        </IconButton>
-      )*/}
     </Grid>
   );
 };
