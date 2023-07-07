@@ -221,9 +221,15 @@ public class UiPageHelper extends Helper {
     }
 
     public static List<Action> getButtonActions(PageDefinition page) {
-        return page.getButtons().stream()
+        List<Button> buttons = (List<Button>) page.getButtons();
+        return buttons.stream()
                 .map(b -> ((Button) b).getAction())
                 .filter(a -> !(a instanceof BackAction))
+                .map(Action::getFQName)
+                .distinct()
+                .map(fqName -> buttons.stream()
+                        .filter(b -> ((Button) b).getAction().getFQName().equals(fqName))
+                        .findFirst().orElse(null).getAction())
                 .collect(Collectors.toList());
     }
 
