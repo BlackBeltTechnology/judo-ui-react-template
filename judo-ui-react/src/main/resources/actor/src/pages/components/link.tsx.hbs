@@ -115,14 +115,14 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                     {{# if (firstLinkPartIsString link) }}
                         onAutoCompleteSearch={async (searchText: string) => {
                             const queryCustomizer: {{ classDataName link.dataElement.target 'QueryCustomizer' }} = {
-                              {{ link.parts.[0].attributeType.name }}: [
-                                { operator: _StringOperation.like, value: searchText }
-                              ],
-                              _mask: '{ {{~ link.parts.[0].attributeType.name ~}} }',
-                              _orderBy: [
-                                { attribute: '{{ link.parts.[0].attributeType.name }}', descending: false },
-                              ],
-                              _seek: { limit: 10 },
+                                {{ link.parts.[0].attributeType.name }}: [
+                                    { operator: _StringOperation.like, value: searchText }
+                                ],
+                                _mask: '{ {{~ link.parts.[0].attributeType.name ~}} }',
+                                _orderBy: [
+                                    { attribute: '{{ link.parts.[0].attributeType.name }}', descending: false },
+                                ],
+                                _seek: { limit: 10 },
                             };
                             return await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(ownerData, processQueryCustomizer(queryCustomizer));
                         } }

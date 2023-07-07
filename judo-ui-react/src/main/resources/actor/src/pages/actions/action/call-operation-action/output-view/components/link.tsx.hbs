@@ -98,9 +98,9 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                                 {{ link.parts.[0].attributeType.name }}: [
                                     { operator: _StringOperation.like, value: searchText }
                                 ],
-                                _mask: '{{ link.formattedMaskForRange }}',
+                                _mask: '{ {{~ link.parts.[0].attributeType.name ~}} }',
                                 _orderBy: [
-                                    { attribute: '{{ link.dataElement.name }}', descending: false },
+                                    { attribute: '{{ link.parts.[0].attributeType.name }}', descending: false },
                                 ],
                                 _seek: { limit: 10 },
                             };
