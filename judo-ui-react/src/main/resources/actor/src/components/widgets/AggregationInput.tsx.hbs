@@ -185,9 +185,11 @@ export const AggregationInput = ({
             <MdiIcon path="file_document_plus" />
           </IconButton>
         )}
-        <IconButton className={`${name}-dropdown`} onClick={handleDropdownToggle}>
-          <MdiIcon path="chevron-down" />
-        </IconButton>
+        {(exists(value) && (onEdit || onDelete || onRemove || onUnset)) && (
+          <IconButton className={`${name}-dropdown`} onClick={handleDropdownToggle}>
+            <MdiIcon path="chevron-down" />
+          </IconButton>
+        )}
       </ButtonGroup>
       <Popper
         sx={ {
