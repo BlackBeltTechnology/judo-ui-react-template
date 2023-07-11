@@ -51,7 +51,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
         <AggregationInput
             name="{{ link.dataElement.name }}"
             id="{{ createId link }}"
-            required={ {{# unless link.dataElement.isOptional }}true{{ else }}false{{/ unless }} }
+            {{# unless link.dataElement.isOptional }}required={ true }{{/ unless }}
             label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string }
             labelList={[
                 {{# each link.parts as |part| }}
