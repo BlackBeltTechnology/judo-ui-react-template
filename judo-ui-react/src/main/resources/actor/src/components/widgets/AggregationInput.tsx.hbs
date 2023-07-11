@@ -29,6 +29,7 @@ import { MdiIcon } from '../MdiIcon';
 interface AggregationInputProps {
   name: string;
   id: string;
+  required?: boolean;
   label?: string;
   ownerData: any;
   error?: boolean | undefined;
@@ -52,6 +53,7 @@ interface AggregationInputProps {
 export const AggregationInput = ({
   name,
   id,
+  required,
   label,
   ownerData,
   error = false,
@@ -142,6 +144,7 @@ export const AggregationInput = ({
               {...params}
               name={name}
               id={id}
+              required={required}
               label={label}
               error={error}
               helperText={helperText}
