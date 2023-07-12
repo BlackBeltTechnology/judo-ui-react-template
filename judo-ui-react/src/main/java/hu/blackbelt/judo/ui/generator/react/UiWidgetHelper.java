@@ -294,12 +294,19 @@ public class UiWidgetHelper extends Helper {
         return getFilteredTableActions(table).stream().anyMatch(a -> a instanceof FilterAction || a instanceof FilterRelationAction);
     }
 
-    public static boolean firstLinkPartIsString(Link link) {
+    public static Column getFirstAutocompleteColumnForLink(Link link) {
+        Optional<Column> column = link.getParts().stream()
+                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .findFirst();
+        return column.orElse(null);
+    }
+
+    public static boolean isAutocompleteAvailable(Link link) {
         if (link.getParts().size() == 0) {
             return false;
         }
-        Column first = link.getParts().get(0);
+        Column column = getFirstAutocompleteColumnForLink(link);
 
-        return first.getAttributeType().getDataType() instanceof StringType;
+        return column != null;
     }
 }
