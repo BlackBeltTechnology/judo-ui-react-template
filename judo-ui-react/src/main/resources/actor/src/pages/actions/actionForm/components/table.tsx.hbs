@@ -40,14 +40,12 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
 
     {{# each table.actions as |action| }}
-        {{# unless table.dataElement.isMemberTypeTransient }}
-            {{# if action.isAddAction }}
-                {{# if isDebugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-                {{# if isDebugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-                {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
-            {{/ if }}
-        {{/ unless }}
+        {{# if action.isAddAction }}
+            {{# if isDebugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
+            {{# if isDebugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+        {{/ if }}
     {{/ each }}
 
     return (
@@ -74,49 +72,47 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 Toolbar: () => (
                     <GridToolbarContainer>
                         {{# each table.actions as |action| }}
-                            {{# unless table.dataElement.isMemberTypeTransient }}
-                                {{# if action.isAddAction }}
-                                    <Button
-                                        id="{{ createId table.dataElement }}-add"
-                                        startIcon={<MdiIcon path="attachment-plus" />}
-                                        variant="text"
-                                        onClick={ async () => {
-                                            const res = await {{ table.dataElement.name }}RangeCall();
+                            {{# if action.isAddAction }}
+                                <Button
+                                    id="{{ createId table.dataElement }}-add"
+                                    startIcon={<MdiIcon path="attachment-plus" />}
+                                    variant="text"
+                                    onClick={ async () => {
+                                        const res = await {{ table.dataElement.name }}RangeCall();
 
-                                            if (res) {
-                                                storeDiff('{{ table.dataElement.name }}', [
-                                                    ...(ownerData.{{ table.dataElement.name }} || []),
-                                                    ...(res as {{ classDataName table.dataElement.target 'Stored' }}[])
-                                                ]);
-                                            }
-                                        } }
-                                        disabled={
-                                               isOwnerLoading
-                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
-                                            || !isFormUpdateable()
+                                        if (res) {
+                                            storeDiff('{{ table.dataElement.name }}', [
+                                                ...(ownerData.{{ table.dataElement.name }} || []),
+                                                ...(res as {{ classDataName table.dataElement.target 'Stored' }}[])
+                                            ]);
                                         }
-                                    >
-                                        {t('judo.pages.table.add', { defaultValue: 'Add' })}
-                                    </Button>
-                                {{/ if }}
-                                {{# if action.isClearAction }}
-                                    <Button
-                                        id="{{ createId table.dataElement }}-clear"
-                                        startIcon={<MdiIcon path="link_off" />}
-                                        variant="text"
-                                        onClick={ async () => {
-                                            storeDiff('{{ table.dataElement.name }}', []);
-                                        } }
-                                        disabled={
-                                               isOwnerLoading
-                                            || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
-                                            || !isFormUpdateable()
-                                        }
-                                    >
-                                        {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
-                                    </Button>
-                                {{/ if }}
-                            {{/ unless }}
+                                    } }
+                                    disabled={
+                                           isOwnerLoading
+                                        || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                        || !isFormUpdateable()
+                                    }
+                                >
+                                    {t('judo.pages.table.add', { defaultValue: 'Add' })}
+                                </Button>
+                            {{/ if }}
+                            {{# if action.isClearAction }}
+                                <Button
+                                    id="{{ createId table.dataElement }}-clear"
+                                    startIcon={<MdiIcon path="link_off" />}
+                                    variant="text"
+                                    onClick={ async () => {
+                                        storeDiff('{{ table.dataElement.name }}', []);
+                                    } }
+                                    disabled={
+                                           isOwnerLoading
+                                        || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                        || !isFormUpdateable()
+                                    }
+                                >
+                                    {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
+                                </Button>
+                            {{/ if }}
                         {{/ each }}
                         <div>{/* Placeholder */}</div>
                     </GridToolbarContainer>
