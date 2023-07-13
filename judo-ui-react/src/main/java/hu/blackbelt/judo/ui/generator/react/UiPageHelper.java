@@ -482,4 +482,8 @@ public class UiPageHelper extends Helper {
     public static boolean isPageContainerTransferType(PageContainer pageContainer, String type) {
         return pageContainer.getTransferPageType().getName().equals(type);
     }
+
+    public static boolean payloadDiffHasItems(ClassType classType) {
+        return classType.getAttributes().size() + classType.getRelations().size() > 0;
+    }
 }
