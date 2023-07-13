@@ -156,29 +156,31 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     }
 
     async function fetchData() {
-        setIsLoading(true);
+        if (ownerData && ownerData.__signedIdentifier) {
+            setIsLoading(true);
 
-        try {
-            const res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
-                ownerData,
-                processQueryCustomizer(queryCustomizer),
-            );
+            try {
+                const res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
+                    ownerData,
+                    processQueryCustomizer(queryCustomizer),
+                );
 
-            if (res.length > {{ calculateTablePageLimit table }}) {
-                setIsNextButtonEnabled(true);
-                res.pop();
-            } else if (queryCustomizer._seek?.limit === {{ calculateTablePageLimit table }} + 1) {
-                setIsNextButtonEnabled(false);
+                if (res.length > {{ calculateTablePageLimit table }}) {
+                    setIsNextButtonEnabled(true);
+                    res.pop();
+                } else if (queryCustomizer._seek?.limit === {{ calculateTablePageLimit table }} + 1) {
+                    setIsNextButtonEnabled(false);
+                }
+
+                setData(res);
+                setFirstItem(res[0]);
+                setLastItem(res[res.length - 1]);
+                setRowCount(res.length || 0);
+            } catch (error) {
+                handleFetchError(error);
+            } finally {
+                setIsLoading(false);
             }
-
-            setData(res);
-            setFirstItem(res[0]);
-            setLastItem(res[res.length - 1]);
-            setRowCount(res.length || 0);
-        } catch (error) {
-            handleFetchError(error);
-        } finally {
-            setIsLoading(false);
         }
     }
 
@@ -188,7 +190,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
 
     useEffect(() => {
         fetchData();
-    }, [queryCustomizer]);
+    }, [queryCustomizer, ownerData]);
 
     return (
         <>
