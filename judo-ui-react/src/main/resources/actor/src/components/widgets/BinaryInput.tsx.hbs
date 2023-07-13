@@ -69,7 +69,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
                 />
             </Grid>
             <Grid item xs="auto">
-                <IconButton disabled={props.disabled || !props.data[props.attributeName]} id={props.downloadId} onClick={() => downloadFile(props.data, props.attributeName as string)}>
+                <IconButton disabled={!props.data[props.attributeName]} id={props.downloadId} onClick={() => downloadFile(props.data, props.attributeName as string)}>
                     <MdiIcon path="download" mimeType={props.mimeType} />
                 </IconButton>
             </Grid>
