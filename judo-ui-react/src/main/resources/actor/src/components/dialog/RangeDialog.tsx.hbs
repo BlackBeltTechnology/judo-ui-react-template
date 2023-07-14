@@ -29,6 +29,7 @@ import {
   mapFiltersToQueryCustomizerProperty,
 } from '~/utilities';
 import { serverTableConfig, rangeDialogConfig } from '~/config';
+import { SlideUpTransition } from '~/theme/animations';
 import { CustomTablePagination } from '../CustomTablePagination';
 import { useFilterDialog } from './hooks';
 import type { ContextMenuApi } from '../table';
@@ -273,7 +274,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
   {{/ if }}
 
   return (
-    <Dialog id={id} open={open} onClose={cancel} scroll="paper" fullWidth={true} maxWidth={'md'}>
+    <Dialog id={id} open={open} onClose={cancel} scroll="paper" fullWidth={true} maxWidth={'md'} TransitionComponent={SlideUpTransition}>
       <DialogTitle id={`${id}-dialog-title`}>{ t('judo.modal.range.label', { defaultValue: 'Select' }) as string }</DialogTitle>
       <DialogContent id={`${id}-data-grid`} dividers={true}>
         <DialogContentText id="scroll-dialog-description" ref={descriptionElementRef} tabIndex={-1}>
