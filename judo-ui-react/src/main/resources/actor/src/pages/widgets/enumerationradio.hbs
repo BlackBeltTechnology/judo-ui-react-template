@@ -42,7 +42,7 @@
             />
         {{/ each }}
         </RadioGroup>
-        <FormHelperText>{validation.get('{{ child.attributeType.name }}')}</FormHelperText>
+        { (validation.has('{{ child.attributeType.name }}'){{# if child.attributeType.isRequired }} && !data.{{ child.attributeType.name }}{{/ if }}) && <FormHelperText>{validation.get('{{ child.attributeType.name }}')}</FormHelperText> }
     </FormControl>
     {{# if child.customImplementation }}
         </ComponentProxy>
