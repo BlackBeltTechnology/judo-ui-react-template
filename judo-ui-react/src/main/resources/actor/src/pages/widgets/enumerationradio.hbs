@@ -10,26 +10,40 @@
             payloadDiff={payloadDiff}
         >
     {{/ if }}
-    <RadioGroup
-        sx={ { justifyContent: 'space-between' } }
-        row
-        name="{{ child.attributeType.name }}"
-        id="{{ createId child }}"
-        value={ data.{{ child.attributeType.name }} || '' }
-        onChange={ (event) => {
-            storeDiff('{{ child.attributeType.name }}', event.target.value);
-        } }
+    <FormControl
+        fullWidth={ true }
+        sx={ { mt: '10px' } }
+        className='MuiTextField-root'
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        error={validation.has('{{ child.attributeType.name }}')}
     >
-    {{# each child.attributeType.dataType.members as |member| }}
-        <FormControlLabel
-            id="{{ createId member }}"
-            value={ '{{ member.name }}' }
-            control={<Radio />}
-            label= { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }
-            disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
-        />
-    {{/ each }}
-    </RadioGroup>
+        <InputLabel id="{{ createId child }}" shrink={true} size={'small'}>
+            { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }{{# if child.attributeType.isRequired }} *{{/ if }}
+        </InputLabel>
+        <RadioGroup
+            sx={ { justifyContent: 'space-between', pl: '12px', pt: '6px' } }
+            {{# unless child.verticalGrow }}
+                row
+            {{/ unless }}
+            name="{{ child.attributeType.name }}"
+            id="{{ createId child }}"
+            value={ data.{{ child.attributeType.name }} || '' }
+            onChange={ (event) => {
+                storeDiff('{{ child.attributeType.name }}', event.target.value);
+            } }
+        >
+        {{# each child.attributeType.dataType.members as |member| }}
+            <FormControlLabel
+                id="{{ createId member }}"
+                value={ '{{ member.name }}' }
+                control={<Radio size='small' />}
+                label= { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }
+                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+            />
+        {{/ each }}
+        </RadioGroup>
+        <FormHelperText>{validation.get('{{ child.attributeType.name }}')}</FormHelperText>
+    </FormControl>
     {{# if child.customImplementation }}
         </ComponentProxy>
     {{/ if }}
