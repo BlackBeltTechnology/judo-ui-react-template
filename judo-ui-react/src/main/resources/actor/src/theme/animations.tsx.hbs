@@ -5,6 +5,7 @@ import { Slide } from '@mui/material';
 import type { DialogProps } from '@mui/material';
 import type { TransitionProps } from '@mui/material/transitions';
 import { LazyMotion, domAnimation, m } from 'framer-motion';
+import { animationDuration } from '~/config/general';
 
 export const SlideUpTransition = forwardRef(function Transition(
   props: TransitionProps & {
@@ -17,8 +18,8 @@ export const SlideUpTransition = forwardRef(function Transition(
 
 const pageContainerMotion = {
   initial: { opacity: 0, x: -50 },
-  animate: { opacity: 1, x: 0, transition: { duration: 0.8 } },
-  exit: { opacity: 0, x: -50, transition: { duration: 0.8 } },
+  animate: { opacity: 1, x: 0, transition: { duration: animationDuration } },
+  exit: { opacity: 0, x: -50, transition: { duration: animationDuration } },
 };
 
 export const PageContainerTransition = ({ children }: { children: ReactElement }) => {
