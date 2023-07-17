@@ -4,6 +4,7 @@ import type { ReactNode } from 'react';
 import { useRef, createContext, useContext, useState } from 'react';
 import { Dialog } from '@mui/material';
 import type { DialogProps } from '@mui/material';
+import { SlideUpTransition } from '~/theme/animations';
 
 export type DialogOption = Omit<DialogProps, 'open'>;
 
@@ -53,6 +54,7 @@ export function StackableDialogProvider({ children }: { children: ReactNode }) {
 
                 return (
                     <Dialog
+                        TransitionComponent={SlideUpTransition}
                         key={i}
                         // onKill={handleKill}
                         {...dialogParams}

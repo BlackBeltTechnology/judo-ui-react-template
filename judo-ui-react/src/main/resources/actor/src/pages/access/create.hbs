@@ -31,6 +31,7 @@ import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustom
 import { baseTableConfig, toastConfig, dividerHeight } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
 import { useL10N } from '~/l10n/l10n-context';
+import { PageContainerTransition } from '~/theme/animations';
 import {
     {{# each (getApiImportsForCreatePage page) as |imp| }}
         {{ imp }},
@@ -134,14 +135,16 @@ export default function {{ pageName page }}() {
                     </Grid>
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
-                    <Box sx={mainContainerPadding}>
-                        <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
-                            {{# each rootChild.children as |child| }}
-                                {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
-                                {{> (getWidgetTemplate child) }}
-                            {{/ each }}
-                        </Grid>
-                    </Box>
+                    <PageContainerTransition>
+                        <Box sx={mainContainerPadding}>
+                            <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+                                {{# each rootChild.children as |child| }}
+                                    {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                                    {{> (getWidgetTemplate child) }}
+                                {{/ each }}
+                            </Grid>
+                        </Box>
+                    </PageContainerTransition>
                 </Container>
             {{/ with }}
         </>

@@ -175,14 +175,16 @@ export default function {{ pageName page }}() {
                     />
                 </PageHeader>
                 <Container component="main" maxWidth="xl">
-                    <Box sx={mainContainerPadding}>
-                        <Grid className="relation-page-data" container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
-                            {{# each rootChild.children as |child| }}
-                                {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
-                                {{> (getWidgetTemplate child) }}
-                            {{/ each }}
-                        </Grid>
-                    </Box>
+                    <PageContainerTransition>
+                        <Box sx={mainContainerPadding}>
+                            <Grid className="relation-page-data" container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+                                {{# each rootChild.children as |child| }}
+                                    {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                                    {{> (getWidgetTemplate child) }}
+                                {{/ each }}
+                            </Grid>
+                        </Box>
+                    </PageContainerTransition>
                 </Container>
             {{/ with }}
         </>
