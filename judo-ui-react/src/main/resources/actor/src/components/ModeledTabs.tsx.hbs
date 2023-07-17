@@ -37,6 +37,8 @@ export interface ChildTabProps {
     name: string;
     label?: string;
     icon?: string;
+    disabled?: boolean;
+    hidden?: boolean;
 }
 
 export interface ModeledTabsProps {
@@ -57,12 +59,12 @@ export function ModeledTabs({ id, activeIndex, childTabs, children }: ModeledTab
         <Box id={id} sx={ { width: '100%' } }>
             <Box sx={ { borderBottom: 1, borderColor: 'divider' } }>
                 <Tabs value={value} onChange={handleChange} textColor="secondary" indicatorColor="secondary">
-                    {childTabs.map((c: any, index: number) => (
-                    <Tab id={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }}{{ else }}false{{/ if }} } />
+                    {childTabs.filter(c => !c.hidden).map((c: any, index: number) => (
+                    <Tab id={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={c.disabled} />
                     ))}
                 </Tabs>
             </Box>
-            {childTabs.map((c: any, index: number) => (
+            {childTabs.filter(c => !c.hidden).map((c: any, index: number) => (
                 <TabPanel id={`${c.id}-tab-panel`} key={c.id} value={value} index={index}>
                     {Array.isArray(children) ? children[index] : ''}
                 </TabPanel>
