@@ -1,8 +1,9 @@
 {{> fragment.header.hbs }}
 
-import { useCallback } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import type { DrawerProps } from '@mui/material';
 import {
+  Collapse,
   Divider,
   Drawer,
   List,
@@ -31,64 +32,74 @@ export interface NavigatorProps {
 function ActionItem(props: MenuItem) {
   const { t } = useTranslation();
   const { clearNavigate } = useJudoNavigation();
-  const { id, label, to, icon } = props;
+  const { id, level, label, to, icon, items } = props;
+  const [open, setOpen] = useState<boolean>(!!window.localStorage.getItem(id + '-open'));
+
+  const hasSubGroup = () => Array.isArray(items) && items.length > 0;
+
+  useEffect(() => {
+    if (open) {
+      window.localStorage.setItem(id + '-open', open.toString());
+    } else {
+      window.localStorage.removeItem(id + '-open');
+    }
+  }, [id, open]);
 
   return (
-    <ListItemButton className="navigation-item" id={id} onClick={ () => to && clearNavigate(to) }>
-      {icon
-        ? <ListItemIcon className="navigation-item-icon">
+    <>
+      <ListItemButton className="navigation-item" sx={ { paddingLeft: (level || 1) * 2 } } id={id} onClick={ () => {
+        if (hasSubGroup()) {
+          setOpen(!open);
+          window.localStorage.setItem(id + '-open', (!open).toString());
+        } else if (to) {
+          clearNavigate(to);
+        }
+      } }>
+        {icon ? (
+          <ListItemIcon className="navigation-item-icon">
             <MdiIcon path={icon} />
           </ListItemIcon>
-        : null
-      }
-        <ListItemText classes={ { primary: "navigation-item-label"} } primary={t(`menuTree.${label}`, { defaultValue: label })} />
-    </ListItemButton>
+        ) : null}
+        <ListItemText classes={ { primary: 'navigation-item-label' } } primary={ t(`menuTree.${label}`, { defaultValue: label }) } />
+        {hasSubGroup() && (open ? <MdiIcon path='chevron-down' /> : <MdiIcon path='chevron-right' />)}
+      </ListItemButton>
+      {hasSubGroup() && <Collapse in={open} timeout="auto" unmountOnExit>
+        {(items || []).map((item) => <ActionItem key={item.label} level={ (level || 1) + 1 } {...item} />)}
+      </Collapse>}
+    </>
   );
 }
 
 export function Navigator(props: DrawerProps & NavigatorProps) {
   const { items, heroProps, logoProps, ...other } = props;
   const { t } = useTranslation();
-  {{# if application.authentication }}
-    const { signoutRedirect, isAuthenticated } = useAuth();
-    const doLogout = useCallback(() => {
-      const redirectUrl = window.location.href.split('#')[0];
-      signoutRedirect({
-        post_logout_redirect_uri: redirectUrl,
-      });
-    }, [isAuthenticated]);
-    const { principal } = usePrincipal();
-  {{/ if }}
 
   return (
     <Drawer variant="permanent" {...other}>
       <Logo {...logoProps} />
-      {{# if application.authentication }}
-        <Hero {...heroProps} />
-      {{/ if }}
       <Divider variant="middle" />
       <List id="application-navigator" component="nav">
-        {items.map(item => item.items && item.items.length ? <List component="nav" key={item.label} subheader={
-          <ListSubheader component="div" id="nested-list-subheader">
-            {t(`menuTree.${item.label}`, { defaultValue: item.label })}
-          </ListSubheader>
-        }>
-          {item.items.map(subItem => <ActionItem key={subItem.label} {...subItem} />)}
-        </List> : <ActionItem key={item.label} {...item} />)}
+        {items.map((item) =>
+          item.items && item.items.length ? (
+            <List
+              component="nav"
+              key={item.label}
+              subheader={
+                <ListSubheader component="div" id="nested-list-subheader">
+                  {t(`menuTree.${item.label}`, { defaultValue: item.label })}
+                </ListSubheader>
+              }
+            >
+            {item.items.map((subItem) => (
+              <ActionItem key={subItem.label} {...subItem} />
+            ))}
+          </List>
+        ) : (
+          <ActionItem key={item.label} {...item} />
+        ),
+      )}
       </List>
       {items.length ? <Divider variant="middle" /> : null}
-      {{# if application.authentication }}
-        <List>
-          <ListItem disablePadding>
-            <ListItemButton id="navigator-logout" onClick={ () => doLogout() }>
-              <ListItemIcon>
-                <MdiIcon path="logout" />
-              </ListItemIcon>
-              <ListItemText primary={t('judo.security.logout', { defaultValue: 'Logout' })} />
-            </ListItemButton>
-          </ListItem>
-        </List>
-      {{/ if }}
     </Drawer>
   );
 }
