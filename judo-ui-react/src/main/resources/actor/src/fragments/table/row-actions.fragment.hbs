@@ -6,7 +6,7 @@ const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName ta
                 label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                 icon: <MdiIcon path="link_off" />,
                 {{# if table.dataElement.isRelationKindAssociation }}
-                    disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode,
+                    disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} editMode,
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
                         {{ actionFunctionName action }}({{# if (hasDataElementOwner action.dataElement) }}ownerData, {{/ if }}row, () => fetchOwnerData())
                     },
@@ -23,7 +23,7 @@ const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName ta
                 label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                 icon: <MdiIcon path="{{ action.icon.name }}" />,
                 action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}({{# if (hasDataElementOwner action.dataElement) }}ownerData, {{/ if }}row, () => fetchOwnerData()),
-                disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => editMode || !row.__deleteable,
+                disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} editMode || !row.__deleteable,
             },
         {{/ if }}
         {{# if action.isCallOperationAction }}
