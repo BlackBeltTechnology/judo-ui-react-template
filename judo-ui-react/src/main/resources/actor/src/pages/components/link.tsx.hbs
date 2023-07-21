@@ -71,7 +71,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             {{# if link.icon }}
                 icon={<MdiIcon path="{{ link.icon.name }}" />}
             {{/ if }}
-            disabled={ disabled }
+            disabled={ {{# if link.enabledBy }}!ownerData.{{ link.enabledBy.name }} ||{{/ if }} disabled }
             editMode={ editMode }
             autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
             onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
