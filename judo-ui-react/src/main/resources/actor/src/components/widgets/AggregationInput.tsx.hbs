@@ -89,11 +89,14 @@ export const AggregationInput = ({
   const handleSearch = async (searchText: string) => {
     try {
       if (onAutoCompleteSearch) {
+        setLoading(true);
         const data = await onAutoCompleteSearch(searchText);
         setOptions(data);
       }
     } catch (error) {
       // Handle error
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -158,7 +161,7 @@ export const AggregationInput = ({
                 startAdornment: icon && <InputAdornment position="start" style={ { marginTop: 0 } }>{icon}</InputAdornment>,
                 endAdornment: (
                   <>
-                    {loading ? <CircularProgress color="inherit" size={20} /> : null}
+                    {loading ? <CircularProgress color="inherit" size='1rem' sx={ { mt: -2 } } /> : null}
                     {params.InputProps.endAdornment}
                   </>
                 ),
