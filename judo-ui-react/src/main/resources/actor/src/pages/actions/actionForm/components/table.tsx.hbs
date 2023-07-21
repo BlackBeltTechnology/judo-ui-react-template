@@ -89,7 +89,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                     } }
                                     disabled={
                                            isOwnerLoading
-                                        || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                        || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
                                         || !isFormUpdateable()
                                     }
                                 >
@@ -106,7 +106,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                     } }
                                     disabled={
                                            isOwnerLoading
-                                        || {{# if child.enabledBy }}!ownerData.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }}
+                                        || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
                                         || !isFormUpdateable()
                                     }
                                 >

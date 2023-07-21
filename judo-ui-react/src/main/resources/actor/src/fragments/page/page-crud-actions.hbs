@@ -41,7 +41,17 @@
                     loading={isLoading}
                     loadingPosition="start"
                     startIcon={<MdiIcon path="delete" />}
-                    onClick={() => deleteData()}
+                    onClick={ async () => {
+                        const confirmed = await openConfirmDialog(
+                            'page-delete-action',
+                            t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
+                            t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+                        );
+
+                        if (confirmed) {
+                            deleteData();
+                        }
+                    } }
                     disabled={!data.__deleteable}
                 >
                     <span>{t('judo.pages.delete', { defaultValue: 'Delete' })}</span>

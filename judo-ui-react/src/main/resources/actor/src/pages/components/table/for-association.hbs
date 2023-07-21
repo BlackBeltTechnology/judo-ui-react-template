@@ -93,6 +93,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                     icon: <MdiIcon path="{{ action.icon.name }}" />,
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}(ownerData, row, () => fetchData()),
+                    disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} isLoading,
                 },
             {{/ if }}
             {{# if action.isDeleteAction }}
@@ -101,7 +102,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                     icon: <MdiIcon path="{{ action.icon.name }}" />,
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}(ownerData, row, () => fetchData()),
-                    disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => !row.__deleteable,
+                    disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} !row.__deleteable || isLoading,
                 },
             {{/ if }}
             {{# if action.isCallOperationAction }}
@@ -257,7 +258,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         onClick={ async () => {
                                             {{ actionFunctionName action }}(ownerData, () => fetchData())
                                         } }
-                                        disabled={isLoading}
+                                        disabled={ {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} isLoading }
                                     >
                                         {t('judo.pages.table.add', { defaultValue: 'Add' })}
                                     </Button>
@@ -270,7 +271,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         onClick={ async () => {
                                             {{ actionFunctionName action }}(ownerData, () => fetchData())
                                         } }
-                                        disabled={isLoading}
+                                        disabled={ {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} isLoading }
                                     >
                                         {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
                                     </Button>
