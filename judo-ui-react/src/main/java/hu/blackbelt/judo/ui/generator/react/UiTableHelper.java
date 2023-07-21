@@ -160,13 +160,13 @@ public class UiTableHelper extends Helper {
 
     public static String getDefaultSortParams(Column defaultSortColumn, Collection<Column> columns) {
         if (defaultSortColumn != null) {
-            return "[{ field: '" + defaultSortColumn.getAttributeType().getName() + "', sort: 'asc' }]";
+            return "[{ field: '" + defaultSortColumn.getAttributeType().getName() + "', sort: " + getSortDirection(defaultSortColumn) + " }]";
         }
 
         for (Column column : columns) {
             AttributeType type = column.getAttributeType();
             if (isSortableAttributeType(type)) {
-                return "[{ field: '" + type.getName() + "', sort: 'asc' }]";
+                return "[{ field: '" + type.getName() + "', sort: " + getSortDirection(column) + " }]";
             }
         }
 
@@ -193,5 +193,18 @@ public class UiTableHelper extends Helper {
 
     public static boolean isAttributeTypeEnumeration(AttributeType attributeType) {
         return attributeType.getDataType() instanceof EnumerationType;
+    }
+
+    public static String getSortDirection(Column column) {
+        if (column.getSort() == null) {
+            return "null";
+        }
+        if (column.getSort().equals(Sort.ASC)) {
+            return "'asc'";
+        } else if (column.getSort().equals(Sort.DESC)) {
+            return "'desc'";
+        } else {
+            return "null";
+        }
     }
 }
