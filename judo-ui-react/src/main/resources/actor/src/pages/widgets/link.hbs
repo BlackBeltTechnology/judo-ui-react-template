@@ -12,7 +12,7 @@
     {{/ if }}
     <{{ linkComponentName child }}
         ownerData={data}
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() || isLoading }
         editMode={editMode}
         {{# if (isPageRefreshable page) }}
             fetchOwnerData={fetchData}

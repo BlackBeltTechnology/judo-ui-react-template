@@ -21,7 +21,16 @@
                         startIcon={<MdiIcon path="{{ button.icon.name }}" />}
                         loadingPosition="start"
                     {{/ if }}
-                    onClick={ () => {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData()) }
+                    onClick={ async () => {
+                        try {
+                            setIsLoading(true);
+                            await {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData());
+                        } catch(e: any) {
+                            // Only turn off manually triggered loading state for errors, otherwise the `fetchData()`
+                            // callback should handle it.
+                            setIsLoading(false);
+                        }
+                    } }
                     disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
                 >
                     <span>{ t('{{ getTranslationKeyForButton button '' }}', { defaultValue: '{{ button.label }}' }) }</span>
@@ -42,7 +51,16 @@
                             {
                                 id: '{{ createId button }}',
                                 label: t('{{ getTranslationKeyForButton button 'grouped' }}', { defaultValue: '{{ button.label }}' }) as string,
-                                onClick: () => {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData()),
+                                onClick: async () => {
+                                    try {
+                                        setIsLoading(true);
+                                        await {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData());
+                                    } catch(e: any) {
+                                        // Only turn off manually triggered loading state for errors, otherwise the `fetchData()`
+                                        // callback should handle it.
+                                        setIsLoading(false);
+                                    }
+                                },
                                 startIcon: <MdiIcon path="arrow_right" />,
                                 disabled: {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} isLoading || editMode,
                                 {{# if button.hiddenBy }}visible: !data.{{ button.hiddenBy.name }},{{/ if }}
