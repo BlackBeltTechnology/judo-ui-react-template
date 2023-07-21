@@ -20,7 +20,16 @@
                     startIcon={<MdiIcon path="{{ child.icon.name }}" />}
                     loadingPosition="start"
                 {{/ if }}
-                onClick={() => {{ actionFunctionName action }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())}
+                onClick={ async () => {
+                    try {
+                        setIsLoading(true);
+                        await {{ actionFunctionName action }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData());
+                    } catch(e: any) {
+                        // Only turn off manually triggered loading state for errors, otherwise the `fetchData()`
+                        // callback should handle it.
+                        setIsLoading(false);
+                    }
+                } }
                 disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
             >
                 <span>{ t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ child.label }}' }) }</span>
