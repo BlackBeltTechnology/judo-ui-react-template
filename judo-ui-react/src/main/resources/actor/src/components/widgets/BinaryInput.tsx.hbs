@@ -7,8 +7,8 @@ import { MdiIcon } from '../MdiIcon';
 import { fileHandling } from '../../utilities';
 
 interface BinaryInputProps<P> {
+    id: string;
     label: string;
-    downloadId: string;
     data: P;
     attributeName: keyof P;
     attributePath: string;
@@ -17,7 +17,6 @@ interface BinaryInputProps<P> {
     disabled?: boolean;
     readonly?: boolean;
     required?: boolean;
-    uploadId?: string;
     uploadCallback?: (uploadedData: { token: string }) => Promise<any>;
     deleteCallback?: () => Promise<void>;
     icon?: string;
@@ -44,8 +43,8 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
             <Grid item xs>
                 <TextField
                     required={props.required}
-                    name={props.downloadId}
-                    id={props.downloadId}
+                    name={props.id}
+                    id={props.id}
                     label={props.label}
                     value={extractFileName(props.data[props.attributeName] as string | undefined)}
                     className="JUDO-viewMode"
@@ -79,7 +78,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
             <Grid item xs="auto">
                 <IconButton
                     disabled={!props.data[props.attributeName] || isUploading}
-                    id={props.downloadId}
+                    id={`${props.id}-download`}
                     onClick={() => downloadFile(props.data, props.attributeName as string)}
                     title={t('judo.component.BinaryInput.download', { defaultValue: 'Download file' }) as string}
                 >
@@ -88,7 +87,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
             </Grid>
             { !props.readonly && <Grid item xs="auto"><IconButton
                 disabled={props.disabled || isUploading}
-                id={props.uploadId!}
+                id={`${props.id}-upload`}
                 onClick={() => fileInput.current!.click()}
                 title={t('judo.component.BinaryInput.upload', { defaultValue: 'Upload file' }) as string}
             >
@@ -126,6 +125,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
             </IconButton></Grid> }
             { (!props.readonly && props.data[props.attributeName] && props.deleteCallback) && <Grid item xs="auto">
                 <IconButton
+                    id={`${props.id}-remove`}
                     className={`${props.attributeName as string}-remove`}
                     disabled={props.readonly || props.disabled || isUploading}
                     onClick={ async () => {

@@ -12,7 +12,7 @@
     {{/ if }}
     <BinaryInput
         {{# if child.attributeType.isRequired }} required {{/ if }}
-        downloadId="{{ createId child }}-download"
+        id="{{ createId child }}"
         label={t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string}
         {{# if child.icon }}
             icon="{{ child.icon.name }}"
@@ -30,7 +30,6 @@
         attributePath="{{ attributePath child.attributeType }}"
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
         readonly={ {{ boolValue child.attributeType.isReadOnly }} }
-        uploadId="{{ createId child }}-upload"
         {{# unless child.attributeType.isReadOnly }}
             deleteCallback={ async () => {
                 storeDiff('{{ child.attributeType.name }}', null);
