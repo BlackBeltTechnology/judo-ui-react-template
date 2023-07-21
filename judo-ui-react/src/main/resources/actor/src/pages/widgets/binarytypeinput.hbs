@@ -28,9 +28,14 @@
         data={data}
         attributeName="{{ child.attributeType.name }}"
         attributePath="{{ attributePath child.attributeType }}"
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
         readonly={ {{ boolValue child.attributeType.isReadOnly }} }
         uploadId="{{ createId child }}-upload"
+        {{# unless child.attributeType.isReadOnly }}
+            deleteCallback={ async () => {
+                storeDiff('{{ child.attributeType.name }}', null);
+            } }
+        {{/unless}}
         uploadCallback={ async (uploadedData: { token: string }) => {
             storeDiff('{{ child.attributeType.name }}', uploadedData.token);
         } }
