@@ -15,6 +15,7 @@ import {
   Icon,
 } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
+import SimpleBar from 'simplebar-react';
 import { useTranslation } from 'react-i18next';
 {{# if application.authentication }}
   import { useAuth } from 'react-oidc-context';
@@ -22,6 +23,8 @@ import { useTranslation } from 'react-i18next';
 {{/ if }}
 import { Hero, Logo, useJudoNavigation, MdiIcon } from '../components';
 import type { MenuItem, HeroProps, LogoProps } from '../components-api';
+
+import 'simplebar-react/dist/simplebar.min.css';
 
 export interface NavigatorProps {
   items: Array<MenuItem>;
@@ -76,30 +79,32 @@ export function Navigator(props: DrawerProps & NavigatorProps) {
 
   return (
     <Drawer variant="permanent" {...other}>
-      <Logo {...logoProps} />
-      <Divider variant="middle" />
-      <List id="application-navigator" component="nav">
-        {items.map((item) =>
-          item.items && item.items.length ? (
-            <List
-              component="nav"
-              key={item.label}
-              subheader={
-                <ListSubheader component="div" id="nested-list-subheader">
-                  {t(`menuTree.${item.label}`, { defaultValue: item.label })}
-                </ListSubheader>
-              }
-            >
-            {item.items.map((subItem) => (
-              <ActionItem key={subItem.label} {...subItem} />
-            ))}
-          </List>
-        ) : (
-          <ActionItem key={item.label} {...item} />
-        ),
-      )}
-      </List>
-      {items.length ? <Divider variant="middle" /> : null}
+      <SimpleBar style={ { height: '100vh' } }>
+        <Logo {...logoProps} />
+        <Divider variant="middle" />
+        <List id="application-navigator" component="nav">
+          {items.map((item) =>
+            item.items && item.items.length ? (
+              <List
+                component="nav"
+                key={item.label}
+                subheader={
+                  <ListSubheader component="div" id="nested-list-subheader">
+                    {t(`menuTree.${item.label}`, { defaultValue: item.label })}
+                  </ListSubheader>
+                }
+              >
+              {item.items.map((subItem) => (
+                <ActionItem key={subItem.label} {...subItem} />
+              ))}
+            </List>
+          ) : (
+            <ActionItem key={item.label} {...item} />
+          ),
+        )}
+        </List>
+        {items.length ? <Divider variant="middle" /> : null}
+      </SimpleBar>
     </Drawer>
   );
 }
