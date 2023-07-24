@@ -18,7 +18,7 @@
             autoFocus
         {{/ if }}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
-        value={ data.{{ child.attributeType.name }} }
+        value={ data.{{ child.attributeType.name }} ?? '' }
         className={ !editMode ? 'JUDO-viewMode' : undefined }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         multiline
@@ -26,7 +26,8 @@
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
         onChange={ (event) => {
-            storeDiff('{{ child.attributeType.name }}', event.target.value);
+            const realValue = event.target.value?.length === 0 ? null : event.target.value;
+            storeDiff('{{ child.attributeType.name }}', realValue);
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {
