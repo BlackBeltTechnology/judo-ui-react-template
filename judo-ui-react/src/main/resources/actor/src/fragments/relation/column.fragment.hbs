@@ -9,9 +9,9 @@ type: '{{ columnType column }}',
         if (params.row.{{ column.attributeType.name }} === null || params.row.{{ column.attributeType.name }} === undefined) {
             return <MdiIcon path="minus" color="#ddd" />;
         } else if (params.row.{{ column.attributeType.name }}) {
-            return <MdiIcon path="check-circle" color="green" />;
+            return <MdiIcon className="true" path="check-circle" color="green" />;
         }
-        return <MdiIcon path="close-circle" color="red" />;
+        return <MdiIcon className="false" path="close-circle" color="red" />;
     },
 {{/ if }}
 {{# if (isColumnNumeric column) }}

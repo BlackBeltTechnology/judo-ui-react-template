@@ -56,15 +56,15 @@ public class Helper {
         }
     }
 
-    protected static String getTypeNamePath(ClassType type) {
+    public static String getTypeNamePath(ClassType type) {
         return getPackagePath(type).concat(getFileNameVersion(type.getSimpleName())).concat("/");
     }
 
-    protected static String getTypeNamePath(RelationType relation) {
+    public static String getTypeNamePath(RelationType relation) {
         return getPackagePath(relation).concat(getFileNameVersion(relation.getOwnerSimpleName())).concat("/");
     }
 
-    protected static String getFeaturePath(RelationType relation) {
+    public static String getFeaturePath(RelationType relation) {
         return getTypeNamePath(relation).concat(getFileNameVersion(relation.getName())).concat("/");
     }
 
