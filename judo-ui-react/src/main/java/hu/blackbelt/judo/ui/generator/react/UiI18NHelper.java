@@ -296,11 +296,12 @@ public class UiI18NHelper extends Helper {
 
             for (Tab tab: controller.getTabs()) {
                 Flex nested = (Flex) tab.getElement();
-                translations.put(getTranslationKeyForFlex(nested), nested.getLabel());
 
                 for (VisualElement tabElementChild: nested.getChildren()) {
                     addTranslationsForVisualElement(tabElementChild, translations);
                 }
+
+                translations.put(getTranslationKeyForFlex(nested), nested.getLabel());
             }
         } else if (visualElement instanceof Text text) {
             translations.put(getTranslationKeyForVisualElement(text), text.getText());
@@ -313,12 +314,6 @@ public class UiI18NHelper extends Helper {
         if (visualElement instanceof Container) {
             for (VisualElement element: ((Container) visualElement).getChildren()) {
                 addTranslationsForVisualElement(element, translations);
-            }
-        }
-
-        if (visualElement instanceof TabController) {
-            for (Tab tab: ((TabController) visualElement).getTabs()) {
-                addTranslationsForVisualElement(tab.getElement(), translations);
             }
         }
     }
