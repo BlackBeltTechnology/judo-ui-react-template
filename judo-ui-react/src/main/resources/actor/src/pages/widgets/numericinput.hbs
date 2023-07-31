@@ -24,7 +24,7 @@
             decimalScale={ {{ child.attributeType.dataType.scale }} }
         {{/if}}
         className={ !editMode ? 'JUDO-viewMode' : undefined }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
         onValueChange={(values, sourceInfo) => {
