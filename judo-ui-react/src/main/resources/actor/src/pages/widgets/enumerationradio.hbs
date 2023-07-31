@@ -14,7 +14,7 @@
         fullWidth={ true }
         sx={ { mt: '10px' } }
         className='MuiTextField-root'
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
         error={validation.has('{{ child.attributeType.name }}')}
     >
         <InputLabel id="{{ createId child }}" shrink={true} size={'small'}>

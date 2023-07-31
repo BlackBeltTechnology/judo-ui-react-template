@@ -24,7 +24,7 @@
         onChange={ (value) => {
             storeDiff('{{ child.attributeType.name }}', value);
         } }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
     />
     {{# if child.customImplementation }}
