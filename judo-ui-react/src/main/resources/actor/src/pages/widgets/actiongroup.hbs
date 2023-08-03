@@ -25,9 +25,7 @@
                         try {
                             setIsLoading(true);
                             await {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData());
-                        } catch(e: any) {
-                            // Only turn off manually triggered loading state for errors, otherwise the `fetchData()`
-                            // callback should handle it.
+                        } finally {
                             setIsLoading(false);
                         }
                     } }
@@ -55,9 +53,7 @@
                                     try {
                                         setIsLoading(true);
                                         await {{ actionFunctionName button.action }}({{# if button.action.operation.isMapped }}data, {{/ if }}() => fetchData());
-                                    } catch(e: any) {
-                                        // Only turn off manually triggered loading state for errors, otherwise the `fetchData()`
-                                        // callback should handle it.
+                                    } finally {
                                         setIsLoading(false);
                                     }
                                 },
