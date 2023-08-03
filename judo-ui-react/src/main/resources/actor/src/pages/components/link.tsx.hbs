@@ -79,7 +79,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             } }
             {{# each link.actions as |action| }}
                 {{# if action.isViewAction }}
-                    onView={ async () => {{ actionFunctionName action }}(ownerData, ownerData?.{{ link.dataElement.name }}!) }
+                    onView={ async () => {{ actionFunctionName action }}(ownerData, ownerData?.{{ link.dataElement.name }}!, () => fetchOwnerData()) }
                 {{/ if }}
                 {{# if action.isCreateAction }}
                     onCreate={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {

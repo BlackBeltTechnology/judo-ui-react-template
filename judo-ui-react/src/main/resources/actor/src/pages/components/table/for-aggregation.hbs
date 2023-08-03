@@ -144,7 +144,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                     {{# if action.isViewAction }}
                         onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {
                             if (!editMode) {
-                                {{ actionFunctionName action }}(ownerData, params.row);
+                                {{ actionFunctionName action }}(ownerData, params.row, () => fetchOwnerData());
                             }
                         } }
                     {{/ if }}
