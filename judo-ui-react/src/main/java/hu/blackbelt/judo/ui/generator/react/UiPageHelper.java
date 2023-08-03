@@ -73,6 +73,10 @@ public class UiPageHelper extends Helper {
     private static Boolean keepPageType(PageDefinition page) {
         PageType pageType = page.getPageType();
 
+        if (page.isOpenInDialog()) {
+            return false;
+        }
+
         if (pageType.equals(PageType.DASHBOARD)) {
             return true;
         }
@@ -136,6 +140,22 @@ public class UiPageHelper extends Helper {
 
     public static List<Table> getTablesForPages(Application application) {
         List<PageDefinition> pages = getPagesForRouting(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Table>) p.getOriginalPageContainer().getTables()).stream())
+                .collect(Collectors.toList());
+    }
+
+    public static List<Link> getLinksForViewDialogs(Application application) {
+        List<PageDefinition> pages = getViewDialogs(application);
+
+        return pages.stream()
+                .flatMap(p -> ((List<Link>) p.getOriginalPageContainer().getLinks()).stream())
+                .collect(Collectors.toList());
+    }
+
+    public static List<Table> getTablesForViewDialogs(Application application) {
+        List<PageDefinition> pages = getViewDialogs(application);
 
         return pages.stream()
                 .flatMap(p -> ((List<Table>) p.getOriginalPageContainer().getTables()).stream())
@@ -485,5 +505,15 @@ public class UiPageHelper extends Helper {
 
     public static boolean payloadDiffHasItems(ClassType classType) {
         return classType.getAttributes().size() + classType.getRelations().size() > 0;
+    }
+
+    public static List<PageDefinition> getViewDialogs(Application application) {
+        return application.getPages().stream()
+                .filter(p -> p.getIsPageTypeView() && p.isOpenInDialog())
+                .collect(Collectors.toList());
+    }
+
+    public static boolean pageShouldOpenInDialog(PageDefinition pageDefinition) {
+        return pageDefinition.isOpenInDialog();
     }
 }

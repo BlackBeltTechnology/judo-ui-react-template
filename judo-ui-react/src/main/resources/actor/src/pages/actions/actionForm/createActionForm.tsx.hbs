@@ -3,7 +3,9 @@
 
 {{# if isDebugPrint }}// include: actor/src/fragments/page/common-form-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/page/common-form-imports.fragment.hbs }}
-import { routeTo{{ pageName (getViewPageForCreatePage page application) }} } from '~/routes';
+{{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
+    import { routeTo{{ pageName (getViewPageForCreatePage page application) }} } from '~/routes';
+{{/ unless }}
 
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
@@ -172,7 +174,11 @@ export function {{ pageActionFormComponentName action }}({
 
                                                 if (result) {
                                                     successCallback();
-                                                    navigate(routeTo{{ pageName (getViewPageForCreatePage page application) }}(result.__signedIdentifier))
+                                                    {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
+                                                        navigate(routeTo{{ pageName (getViewPageForCreatePage page application) }}(result.__signedIdentifier))
+                                                    {{ else }}
+                                                        // OPEN DA DIALOG MATE!
+                                                    {{/ unless }}
                                                 }
                                             } } disabled={isLoading}>
                                                 {t('judo.pages.create-and-navigate', { defaultValue: 'Create and navigate' })}

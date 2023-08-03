@@ -10,14 +10,20 @@ import type {
     {{/ each }}
 } from '~/generated/data-api';
 import { useJudoNavigation } from '~/components';
+import { useDialog } from '~/components/dialog';
 {{# if action.target.dataElement.isRefreshable }}
-    import { routeTo{{ pageName action.target }} } from '~/routes';
+    {{# unless (pageShouldOpenInDialog action.target) }}
+        import { routeTo{{ pageName action.target }} } from '~/routes';
+    {{ else }}
+        import {{ pageName action.target }} from '~/pages/{{ pageIndexRelativeImportPath action.target }}';
+    {{/ unless }}
 {{/ if }}
 
 export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
 export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) => Promise<void>;
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
+    const [createDialog, closeDialog] = useDialog();
     const { navigate } = useJudoNavigation();
     const { service: useCustomNavigation } = useTrackService<{{ actionFunctionTypeName action }}>(`(${OBJECTCLASS}=${ {{ getCustomizationActionFunctionInterfaceKey action }} })`);
 
@@ -28,7 +34,30 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
 
     return async function ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) {
         {{# if action.target.dataElement.isRefreshable }}
-            navigate(routeTo{{ pageName action.target }}(entry.__signedIdentifier));
+            {{# unless (pageShouldOpenInDialog action.target) }}
+                navigate(routeTo{{ pageName action.target }}(entry.__signedIdentifier));
+            {{ else }}
+                // OPEN DA DIALOG MATE!
+                createDialog({
+                    fullWidth: true,
+                    maxWidth: 'lg',
+                    onClose: (event: object, reason: string) => {
+                        if (reason !== 'backdropClick') {
+                            closeDialog();
+                        }
+                    },
+                    children: (
+                        <{{ pageName action.target }}
+                            successCallback={ () => {
+                                closeDialog();
+                                alert('Please trigger a refresh or something QQ');
+                            } }
+                            cancel={closeDialog}
+                            entry={entry}
+                        />
+                    ),
+                });
+            {{/ unless }}
         {{ else }}
             // target page is not refreshable
         {{/ if }}

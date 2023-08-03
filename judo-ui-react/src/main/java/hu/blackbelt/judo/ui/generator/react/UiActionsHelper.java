@@ -113,12 +113,23 @@ public class UiActionsHelper {
                 .collect(Collectors.toList());
     }
 
+    public static List<Action> getActionsForViewDialogs(Application application) {
+        return getViewDialogs(application).stream()
+                .flatMap(p -> getUniquePageActions(p).stream())
+                .collect(Collectors.toList());
+    }
+
     public static List<Action> getActionsForOutputPages(Application application) {
         return getUnmappedOutputViewsForPages(application).stream().flatMap(p -> p.getActions().stream()).collect(Collectors.toList());
     }
 
     public static List<Action> getActionFormsForPages(Application application) {
         List<Action> actions = getActionsForPages(application);
+        return actions.stream().filter(UiActionsHelper::actionHasInputForm).collect(Collectors.toList());
+    }
+
+    public static List<Action> getActionFormsForViewDialogs(Application application) {
+        List<Action> actions = getActionsForViewDialogs(application);
         return actions.stream().filter(UiActionsHelper::actionHasInputForm).collect(Collectors.toList());
     }
 
@@ -136,6 +147,30 @@ public class UiActionsHelper {
 
     public static List<KeyValue<Table, Action>> getTablesForActionFormPages(Application application) {
         List<Action> actions = getActionFormsForPages(application);
+        List<KeyValue<Table, Action>> kvs = new ArrayList<>();
+        actions.forEach(a -> {
+            PageDefinition page = getTargetFormForAction(a);
+            ((List<Table>) page.getOriginalPageContainer().getTables()).forEach(l -> {
+                kvs.add(new KeyValue<>(l, a));
+            });
+        });
+        return kvs;
+    }
+
+    public static List<KeyValue<Link, Action>> getLinksForActionFormViewDialogs(Application application) {
+        List<Action> actions = getActionFormsForViewDialogs(application);
+        List<KeyValue<Link, Action>> kvs = new ArrayList<>();
+        actions.forEach(a -> {
+            PageDefinition page = getTargetFormForAction(a);
+            ((List<Link>) page.getOriginalPageContainer().getLinks()).forEach(l -> {
+                kvs.add(new KeyValue<>(l, a));
+            });
+        });
+        return kvs;
+    }
+
+    public static List<KeyValue<Table, Action>> getTablesForActionFormViewDialogs(Application application) {
+        List<Action> actions = getActionFormsForViewDialogs(application);
         List<KeyValue<Table, Action>> kvs = new ArrayList<>();
         actions.forEach(a -> {
             PageDefinition page = getTargetFormForAction(a);
