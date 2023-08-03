@@ -55,7 +55,7 @@ public class UiServiceHelper extends Helper {
     }
 
     public static String classServiceName(ClassType classType) {
-        return variable(nameWithoutModel(classType.getName()) + "Service");
+        return variable(nameWithoutModel(classType.getName()) + "ServiceForClass");
     }
 
     public static String classServiceTypeName(ClassType classType) {

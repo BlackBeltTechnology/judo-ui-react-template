@@ -97,9 +97,11 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                         {{# with (getFirstAutocompleteColumnForLink link) as |column| }}
                             onAutoCompleteSearch={async (searchText: string) => {
                                 const queryCustomizer: {{ classDataName link.dataElement.target 'QueryCustomizer' }} = {
-                                    {{ column.attributeType.name }}: [
-                                        { operator: _StringOperation.like, value: searchText }
-                                    ],
+                                    ...(searchText?.length ? {
+                                        {{ column.attributeType.name }}: [
+                                            { operator: _StringOperation.like, value: searchText }
+                                        ],
+                                    } : {}),
                                     _mask: '{{ link.formattedMask }}',
                                     _orderBy: [
                                         { attribute: '{{ column.attributeType.name }}', descending: false },
