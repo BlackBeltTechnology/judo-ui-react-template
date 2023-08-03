@@ -23,7 +23,7 @@ export const mapFiltersToQueryCustomizerProperty = (filters: Filter[], property:
   };
 
   return filters
-    .filter((filter) => filter.filterOption.attributeName === property && filter.filterBy.value)
+    .filter((filter) => filter.filterOption.attributeName === property && filter.filterBy.value !== undefined && filter.filterBy.value !== null)
     .map((filter) => {
       return {
         value: convertFilterValue(filter),
