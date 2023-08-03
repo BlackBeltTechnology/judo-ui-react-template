@@ -20,7 +20,7 @@ import { useDialog } from '~/components/dialog';
 {{/ if }}
 
 export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
-export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) => Promise<void>;
+export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const [createDialog, closeDialog] = useDialog();
@@ -32,12 +32,11 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
         return customNavigation;
     }
 
-    return async function ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}) {
+    return async function ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}, successCallback: () => void) {
         {{# if action.target.dataElement.isRefreshable }}
             {{# unless (pageShouldOpenInDialog action.target) }}
                 navigate(routeTo{{ pageName action.target }}(entry.__signedIdentifier));
             {{ else }}
-                // OPEN DA DIALOG MATE!
                 createDialog({
                     fullWidth: true,
                     maxWidth: 'lg',
@@ -50,7 +49,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                         <{{ pageName action.target }}
                             successCallback={ () => {
                                 closeDialog();
-                                alert('Please trigger a refresh or something QQ');
+                                successCallback();
                             } }
                             cancel={closeDialog}
                             entry={entry}

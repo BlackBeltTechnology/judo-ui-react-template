@@ -5,6 +5,8 @@
 {{> actor/src/fragments/page/common-form-imports.fragment.hbs }}
 {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
     import { routeTo{{ pageName (getViewPageForCreatePage page application) }} } from '~/routes';
+{{ else }}
+    import {{ pageName (getViewPageForCreatePage page application) }} from '~/pages/{{ pageIndexRelativeImportPath (getViewPageForCreatePage page application) }}';
 {{/ unless }}
 
 import {
@@ -51,6 +53,7 @@ export function {{ pageActionFormComponentName action }}({
     const anchorRef = useRef<HTMLDivElement>(null);
     const { navigate } = useJudoNavigation();
     const [open, setOpen] = useState(false);
+    const [createDialog, closeDialog] = useDialog();
 
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageActionFormComponentName action }}))`);
@@ -177,7 +180,25 @@ export function {{ pageActionFormComponentName action }}({
                                                     {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
                                                         navigate(routeTo{{ pageName (getViewPageForCreatePage page application) }}(result.__signedIdentifier))
                                                     {{ else }}
-                                                        // OPEN DA DIALOG MATE!
+                                                        createDialog({
+                                                            fullWidth: true,
+                                                            maxWidth: 'lg',
+                                                            onClose: (event: object, reason: string) => {
+                                                                if (reason !== 'backdropClick') {
+                                                                    closeDialog();
+                                                                }
+                                                            },
+                                                            children: (
+                                                                <{{ pageName (getViewPageForCreatePage page application) }}
+                                                                    successCallback={ () => {
+                                                                        closeDialog();
+                                                                        successCallback();
+                                                                    } }
+                                                                    cancel={closeDialog}
+                                                                    entry={result}
+                                                                />
+                                                            ),
+                                                        });
                                                     {{/ unless }}
                                                 }
                                             } } disabled={isLoading}>

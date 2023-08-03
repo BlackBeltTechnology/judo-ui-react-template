@@ -233,7 +233,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 disableRowSelectionOnClick
                 {{# each table.rowActions as |action| }}
                     {{# if action.isViewAction }}
-                        onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}params.row) }
+                        onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}params.row, () => fetchData()) }
                     {{/ if }}
                 {{/ each }}
                 sortModel={ sortModel }

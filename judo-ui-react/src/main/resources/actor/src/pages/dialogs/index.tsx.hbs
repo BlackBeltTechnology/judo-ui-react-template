@@ -133,8 +133,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                         variant: 'success',
                         ...toastConfig.success,
                     });
-                    await fetchData();
-                    setEditMode(false);
+                    successCallback();
                 }
             } catch (error) {
                 handleUpdateError(error, { setValidation }, data);
