@@ -33,7 +33,7 @@ import type {
   Operation,
 } from '../../components-api';
 import { FilterType } from '../../components-api';
-import { dateToJudoDateString, exists } from '../../utilities';
+import { dateToJudoDateString, exists, uiDateToServiceDate, serviceDateToUiDate } from '../../utilities';
 import { mainContainerPadding } from '../../theme';
 import { _BooleanOperation, _EnumerationOperation, _NumericOperation, _StringOperation } from '@judo/data-api-common';
 import { DropdownButton } from '../DropdownButton';
@@ -154,9 +154,9 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
               <DatePicker
                 className={valueId}
                 label={filter.filterOption.attributeName}
-                value={filter.filterBy.value ?? null}
+                value={serviceDateToUiDate(filter.filterBy.value ?? null)}
                 views={['year', 'month', 'day']}
-                onChange={(newValue) => setFilterValue(filter, newValue)}
+                onChange={(newValue) => setFilterValue(filter, uiDateToServiceDate(newValue))}
                 slotProps={ {
                     textField: {
                         InputProps: {
