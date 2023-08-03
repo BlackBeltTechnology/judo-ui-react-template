@@ -137,7 +137,7 @@ export default function {{ pageName page }}() {
                 <Container component="main" maxWidth="xl">
                     <PageContainerTransition>
                         <Box sx={mainContainerPadding}>
-                            <Grid container xs={12} sm={12} spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+                            <Grid container spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
                                 {{# each rootChild.children as |child| }}
                                     {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                                     {{> (getWidgetTemplate child) }}
