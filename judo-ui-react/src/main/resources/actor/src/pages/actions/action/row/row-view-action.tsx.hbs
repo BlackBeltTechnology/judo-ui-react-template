@@ -23,7 +23,7 @@ export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actio
 export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
-    const [createDialog, closeDialog] = useDialog();
+    const [createDialog, closeDialog, closeAllDialogs] = useDialog();
     const { navigate } = useJudoNavigation();
     const { service: useCustomNavigation } = useTrackService<{{ actionFunctionTypeName action }}>(`(${OBJECTCLASS}=${ {{ getCustomizationActionFunctionInterfaceKey action }} })`);
 
@@ -35,6 +35,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     return async function ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}, successCallback: () => void) {
         {{# if action.target.dataElement.isRefreshable }}
             {{# unless (pageShouldOpenInDialog action.target) }}
+                closeAllDialogs();
                 navigate(routeTo{{ pageName action.target }}(entry.__signedIdentifier));
             {{ else }}
                 createDialog({
