@@ -173,7 +173,7 @@ export function {{ pageActionFormComponentName action }}({
                                     <ClickAwayListener onClickAway={handleClose}>
                                         <MenuList id="split-button-menu" autoFocusItem>
                                             <MenuItem key="create-and-navigate" onClick={ async (event: any) => {
-                                                const result: { __signedIdentifier: string } | undefined = await saveData();
+                                                const result: {{ classDataName page.dataElement.target 'Stored' }} | undefined = await saveData();
 
                                                 if (result) {
                                                     successCallback();
