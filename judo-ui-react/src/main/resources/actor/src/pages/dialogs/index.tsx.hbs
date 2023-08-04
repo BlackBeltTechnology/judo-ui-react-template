@@ -15,10 +15,7 @@ import {
     {{/ each }}
 } from '~/generated/data-api';
 import {
-    {{ classServiceName page.dataElement.owner }}Impl,
-    {{# neq (classServiceName page.dataElement.owner) (classServiceName page.dataElement.target) }}
-        {{ classServiceName page.dataElement.target }}Impl,
-    {{/ neq }}
+    {{ classServiceName page.dataElement.target }}Impl,
 } from '~/generated/data-axios';
 
 import {
@@ -195,9 +192,11 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button id="{{ pageName page }}-dialog-close" variant="text" onClick={ () => cancel() } disabled={isLoading}>
-                        {t('judo.pages.close', { defaultValue: 'Close' })}
-                    </Button>
+                    <Grid className="page-action" item>
+                        <Button id="{{ pageName page }}-dialog-close" variant="text" onClick={ () => cancel() } disabled={isLoading}>
+                            {t('judo.pages.close', { defaultValue: 'Close' })}
+                        </Button>
+                    </Grid>
                     {{# if isDebugPrint }}{/* include: actor/src/fragments/page/page-crud-actions.hbs */}{{/ if }}
                     {{> actor/src/fragments/page/page-crud-actions.hbs }}
                 </DialogActions>
