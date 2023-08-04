@@ -15,10 +15,7 @@ import {
     {{/ each }}
 } from '~/generated/data-api';
 import {
-    {{ classServiceName page.dataElement.owner }}Impl,
-    {{# neq (classServiceName page.dataElement.owner) (classServiceName page.dataElement.target) }}
-        {{ classServiceName page.dataElement.target }}Impl,
-    {{/ neq }}
+    {{ classServiceName page.dataElement.target }}Impl,
 } from '~/generated/data-axios';
 
 import {
