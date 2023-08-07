@@ -202,6 +202,9 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         <>
             <StripedDataGrid
                 { ...baseTableConfig }
+                {{# if isMUILicensePlanPro }}
+                    initialState={ { pinnedColumns: { right: ['actions'] } } }
+                {{/ if }}
                 pageSizeOptions={[{{ calculateTablePageLimit table }}]}
                 sx={ {
                     // overflow: 'hidden',
