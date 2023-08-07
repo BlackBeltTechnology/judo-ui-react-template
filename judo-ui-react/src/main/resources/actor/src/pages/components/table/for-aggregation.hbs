@@ -111,6 +111,9 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
         <>
             <StripedDataGrid
                 { ...baseTableConfig }
+                {{# if isMUILicensePlanPro }}
+                    initialState={ { pinnedColumns: { right: ['actions'] } } }
+                {{/ if }}
                 pageSizeOptions={[{{ calculateTablePageLimit table }}]}
                 sx={ {
                     // overflow: 'hidden',
