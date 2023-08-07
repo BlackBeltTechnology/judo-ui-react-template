@@ -75,7 +75,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
             (async () => {
                 // Action did not have any inputs, therefore we auto call the underlying operation.
                 try {
-                    const res = await {{ dataElementRelationName action.target.dataElement }}Impl.create{{ ucFirst action.target.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }} {});
+                    const res = await {{ dataElementRelationName action.target.dataElement }}Impl.create{{ ucFirst action.target.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }} {} as unknown as any);
 
                     if (res) {
                         successCallback();
