@@ -31,6 +31,7 @@ import {
     {{ dataElementRelationName action.target.dataElement }}Impl,
     {{ classServiceName action.target.dataElement.target }}Impl,
 } from '~/generated/data-axios';
+import { routeTo{{ pageName (getViewPageForCreatePage action.target application) }} } from '~/routes';
 import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 
 export type {{ actionFunctionTypeName action }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;
@@ -78,7 +79,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                     const res = await {{ dataElementRelationName action.target.dataElement }}Impl.create{{ ucFirst action.target.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }} {} as unknown as any);
 
                     if (res) {
-                        successCallback();
+                        navigate(routeTo{{ pageName (getViewPageForCreatePage action.target application) }}(res.__signedIdentifier));
                     }
                 } catch (error) {
                     handleActionError(error);
