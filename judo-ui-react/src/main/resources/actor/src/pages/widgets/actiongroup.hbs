@@ -12,7 +12,7 @@
             >
         {{/ if }}
         {{# each (featuredActionsForActionGroup child) as |button| }}
-            {{# if button.hiddenBy }}( !data.{{ button.hiddenBy.name }} }} && {{/ if }}
+            {{# if button.hiddenBy }}{ !data.{{ button.hiddenBy.name }} }} && {{/ if }}
             <Grid item>
                 <LoadingButton
                     id="{{ createId button }}"
@@ -34,7 +34,7 @@
                     <span>{ t('{{ getTranslationKeyForButton button '' }}', { defaultValue: '{{ button.label }}' }) }</span>
                 </LoadingButton>
             </Grid>
-            {{# if action.hiddenBy }}){{/ if }}
+            {{# if action.hiddenBy }} } {{/ if }}
         {{/ each }}
         {{# if (displayDropdownForActionGroup child) }}
             <Grid item>
