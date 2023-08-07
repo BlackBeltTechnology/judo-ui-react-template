@@ -166,6 +166,55 @@ public class UiI18NHelper extends Helper {
             }
         }
 
+        // view dialogs
+        for (PageDefinition page: getViewDialogs(application)) {
+            if (!titleComesFromAttribute(page)) {
+                translations.put(getTranslationKeyForPage(page), page.getLabel());
+            }
+
+            for (Action action: getUniquePageActions(page)) {
+                translations.put(getTranslationKeyForAction(action), action.getLabel());
+
+                if (hasConfirmation(action)) {
+                    translations.put(getTranslationKeyForAction(action) + ".confirmation", action.getConfirmationMessage());
+                }
+            }
+
+            if (page.getIsPageTypeTable()) {
+                // Table pages are special because getting the actual Table reference is different compared to relations
+                Table table = getTableForTablePage(page);
+
+                addTranslationsForTable(table, translations);
+            } else {
+                // Create / View / OperationOutput screens are quite similar, we can process them the same way
+                for (Table table: getPageTables(page)) {
+                    translations.put(getTranslationKeyForVisualElement(table), table.getLabel());
+
+                    addTranslationsForTable(table, translations);
+                }
+
+                for (Link link: getPageLinks(page)) {
+                    addTranslationsForLink(link, translations);
+                }
+
+                if (page.getIsPageTypeOperationOutput()) {
+                    // OperationOutput pages ar special, because page containers behave differently
+                    VisualElement root = getDataContainerForPage(page);
+
+                    if (root != null) {
+                        addTranslationsForVisualElement(root, translations);
+                    }
+                } else {
+                    List<VisualElement> elements = page.getOriginalPageContainer().getChildren();
+
+                    if (elements.size() > 0) {
+                        addTranslationsForVisualElement(elements.get(0), translations);
+                    }
+                }
+
+            }
+        }
+
         // Create Forms for modals and Operation Input Forms for modals
         for (Action action: getActionFormsForPages(application)) {
             PageDefinition page = action instanceof CallOperationAction ? ((CallOperationAction) action).getInputParameterPage() : ((CreateAction) action).getTarget();
