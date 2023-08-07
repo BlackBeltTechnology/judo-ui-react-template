@@ -20,7 +20,7 @@ type: '{{ columnType column }}',
     },
 {{/ if }}
 {{# if (isColumnEnumeration column) }}
-    valueFormatter: ({ value }: GridValueFormatterParams<number>) => {
+    valueFormatter: ({ value }: GridValueFormatterParams<string>) => {
         return t(`enumerations.{{ restParamName column.attributeType.dataType }}.${value}`, { defaultValue: value });
     },
 {{/ if }}
