@@ -27,6 +27,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
     const [selectedRow, setSelectedRow] = useState<string | undefined>();
     const [selectedRowData, setSelectedRowData] = useState<P | undefined>();
     const [selectedValue, setSelectedValue] = useState<any>();
+    const [textContent, setTextContent] = useState<any>();
     const [contextMenu, setContextMenu] = useState<{
       mouseX: number;
       mouseY: number;
@@ -51,6 +52,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
       const column = columns.find(c => c.field === field)!;
       if (column && column.type !== 'action') {
         event.preventDefault();
+        setTextContent(event.currentTarget.textContent);
         setSelectedRow(row);
         setSelectedRowData(rowData);
         setField(field);
@@ -62,6 +64,11 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
 
     const closeContextMenu = () => {
       setContextMenu(null);
+    };
+
+    const copyText = () => {
+      navigator.clipboard.writeText(textContent);
+      closeContextMenu();
     };
 
     const filterByCell = () => {
@@ -151,6 +158,12 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
           },
         } }
       >
+        <MenuItem onClick={copyText}>
+          <MdiIcon path="content-copy" sx={ { mr: 1 } } />
+          <Typography variant="inherit">
+            {t('judo.component.Table.ContextMenu.copyText', { defaultValue: 'Copy text', columnName: selectedColumn?.headerName, field: field, value: selectedValue }) as string}
+          </Typography>
+        </MenuItem>
         <MenuItem onClick={filterByCell}>
           <MdiIcon path="equal" sx={ { mr: 1 } } />
           <Typography variant="inherit">
