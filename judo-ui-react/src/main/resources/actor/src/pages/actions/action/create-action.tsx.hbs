@@ -31,7 +31,9 @@ import {
     {{ dataElementRelationName action.target.dataElement }}Impl,
     {{ classServiceName action.target.dataElement.target }}Impl,
 } from '~/generated/data-axios';
-import { routeTo{{ pageName (getViewPageForCreatePage action.target application) }} } from '~/routes';
+{{# unless (actionHasVisualElements action) }}
+    import { routeTo{{ pageName (getViewPageForCreatePage action.target application) }} } from '~/routes';
+{{/ unless }}
 import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 
 export type {{ actionFunctionTypeName action }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;
