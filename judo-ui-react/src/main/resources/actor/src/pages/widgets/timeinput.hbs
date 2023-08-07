@@ -47,8 +47,8 @@
         views={['hours', 'minutes', 'seconds']}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceTimeToUiTime(data.{{ child.attributeType.name }} ?? null) }
-        readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} !isFormUpdateable() || isLoading }
+        readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
         onChange={ (newValue: string | null | undefined) => {
             storeDiff('{{ child.attributeType.name }}', newValue);
         } }

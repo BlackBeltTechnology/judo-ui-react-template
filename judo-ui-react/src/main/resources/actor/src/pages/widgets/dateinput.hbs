@@ -45,8 +45,8 @@
         views={['year', 'month', 'day']}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }
-        readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} !isFormUpdateable() || isLoading }
+        readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
         onChange={ (newValue?: any | null) => {
             storeDiff('{{ child.attributeType.name }}', newValue);
         } }

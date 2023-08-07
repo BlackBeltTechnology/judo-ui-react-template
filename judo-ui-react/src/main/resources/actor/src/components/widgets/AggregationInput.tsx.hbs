@@ -32,10 +32,11 @@ interface AggregationInputProps {
   required?: boolean;
   label?: string;
   ownerData: any;
-  error?: boolean | undefined;
-  helperText?: string | undefined;
-  disabled?: boolean | undefined;
-  editMode: boolean | undefined;
+  error?: boolean;
+  helperText?: string;
+  readOnly?: boolean;
+  disabled?: boolean;
+  editMode?: boolean;
   labelList: string[];
   icon?: ReactNode;
   onCreate?: () => Promise<void> | undefined;
@@ -58,6 +59,7 @@ export const AggregationInput = ({
   ownerData,
   error = false,
   helperText,
+  readOnly = false,
   disabled = false,
   editMode = true,
   labelList,
@@ -129,8 +131,8 @@ export const AggregationInput = ({
           freeSolo={true}
           forcePopupIcon={!!onAutoCompleteSearch}
           id={id}
-          disabled={disabled || !onSet}
-          readOnly={!onAutoCompleteSearch || !onSet}
+          disabled={disabled}
+          readOnly={readOnly || !onAutoCompleteSearch || !onSet}
           onOpen={ () => {
             setAllowFetch(true);
             handleSearch('');
@@ -157,7 +159,7 @@ export const AggregationInput = ({
               }}
               InputProps={ {
                 ...params.InputProps,
-                readOnly: !onSet || disabled,
+                readOnly: readOnly || !onSet,
                 startAdornment: icon && <InputAdornment position="start" style={ { marginTop: 0 } }>{icon}</InputAdornment>,
                 endAdornment: (
                   <>
@@ -177,17 +179,17 @@ export const AggregationInput = ({
       </Box>
       <ButtonGroup ref={anchorRef} aria-label="link button group">
         {onSet && (
-          <IconButton className={`${name}-set`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onSet(); } } title={t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open search dialog' }) as string}>
+          <IconButton className={`${name}-set`} disabled={disabled || readOnly} onClick={ (event: any) => { handleDropdownClose(event); onSet(); } } title={t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open search dialog' }) as string}>
             <MdiIcon path="magnify" />
           </IconButton>
         )}
         {exists(value) && onView && (
-          <IconButton className={`${name}-view`} disabled={disabled || editMode} onClick={ (event: any) => { handleDropdownClose(event); onView(); } } title={t('judo.component.AggregationInput.navigate', { defaultValue: 'Navigate to element' }) as string}>
+          <IconButton className={`${name}-view`} disabled={editMode} onClick={ (event: any) => { handleDropdownClose(event); onView(); } } title={t('judo.component.AggregationInput.navigate', { defaultValue: 'Navigate to element' }) as string}>
             <MdiIcon path="eye" />
           </IconButton>
         )}
         {!exists(value) && onCreate && (
-          <IconButton className={`${name}-create`} disabled={disabled || editMode} onClick={ (event: any) => { handleDropdownClose(event); onCreate(); } } title={t('judo.component.AggregationInput.create', { defaultValue: 'Create' }) as string}>
+          <IconButton className={`${name}-create`} disabled={disabled || readOnly || editMode} onClick={ (event: any) => { handleDropdownClose(event); onCreate(); } } title={t('judo.component.AggregationInput.create', { defaultValue: 'Create' }) as string}>
             <MdiIcon path="file_document_plus" />
           </IconButton>
         )}

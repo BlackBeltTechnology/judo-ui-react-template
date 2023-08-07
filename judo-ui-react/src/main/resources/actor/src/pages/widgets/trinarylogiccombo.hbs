@@ -16,7 +16,8 @@
         {{# if (shouldElementHaveAutoFocus child) }}
             autoFocus={true}
         {{/ if }}
-        label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string {{# if child.attributeType.isRequired }} + " *" {{/ if }} }
+        {{# if child.attributeType.isRequired }}required={ true }{{/ if }}
+        label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data?.{{ child.attributeType.name }} }
         editMode={ editMode }
         error={ !!validation.get('{{ child.attributeType.name }}') }
@@ -24,8 +25,8 @@
         onChange={ (value) => {
             storeDiff('{{ child.attributeType.name }}', value);
         } }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
-        readOnly={ {{ boolValue child.attributeType.isReadOnly }} }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || isLoading }
+        readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
     />
     {{# if child.customImplementation }}
         </ComponentProxy>
