@@ -122,6 +122,12 @@ public class UiTableHelper extends Helper {
         return dataType instanceof NumericType;
     }
 
+    public static boolean isColumnEnumeration(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        return dataType instanceof EnumerationType;
+    }
+
     public static boolean isColumnTimestamp(Column column) {
         DataType dataType = column.getAttributeType().getDataType();
 
