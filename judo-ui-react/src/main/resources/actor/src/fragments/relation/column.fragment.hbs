@@ -19,6 +19,11 @@ type: '{{ columnType column }}',
         return value && new Intl.NumberFormat(l10nLocale).format(value);
     },
 {{/ if }}
+{{# if (isColumnEnumeration column) }}
+    valueFormatter: ({ value }: GridValueFormatterParams<number>) => {
+        return t(`enumerations.{{ restParamName column.attributeType.dataType }}.${value}`, { defaultValue: value });
+    },
+{{/ if }}
 {{# if (isColumnTimestamp column) }}
         valueGetter: ({ value }) => value && serviceDateToUiDate(value),
         valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
