@@ -28,8 +28,8 @@
         data={data}
         attributeName="{{ child.attributeType.name }}"
         attributePath="{{ attributePath child.attributeType }}"
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
-        readonly={ {{ boolValue child.attributeType.isReadOnly }} }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
+        readonly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         {{# unless child.attributeType.isReadOnly }}
             deleteCallback={ async () => {
                 storeDiff('{{ child.attributeType.name }}', null);

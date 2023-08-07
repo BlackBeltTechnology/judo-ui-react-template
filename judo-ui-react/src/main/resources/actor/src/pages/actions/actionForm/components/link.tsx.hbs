@@ -27,13 +27,14 @@ import {
 export interface {{ linkComponentName link }}Props {
     ownerData: {{ classDataName link.dataElement.owner '' }};
     disabled: boolean;
+    readOnly: boolean;
     editMode: boolean;
     storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner '' }}, value: any) => void;
     validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
 }
 
 export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
-    const { ownerData, disabled, editMode, storeDiff, validation } = props;
+    const { ownerData, disabled, readOnly, editMode, storeDiff, validation } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -65,6 +66,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 icon={<MdiIcon path="{{ link.icon.name }}" />}
             {{/ if }}
             disabled={ {{# if link.enabledBy }}!ownerData.{{ link.enabledBy.name }} ||{{/ if }} disabled }
+            readOnly={ readOnly }
             editMode={ editMode }
             autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
             onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {

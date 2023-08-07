@@ -20,7 +20,7 @@
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} || '' }
         className={ !editMode ? 'JUDO-viewMode' : undefined }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
         onChange={ (event) => {
@@ -28,6 +28,7 @@
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {
+            readOnly: {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable(),
             {{# if child.icon }}
                 startAdornment: (
                     <InputAdornment position="start">
