@@ -1,0 +1,20 @@
+import type { InputAttributes, NumericFormatProps } from 'react-number-format';
+import { NumberFormatBase, useNumericFormat } from 'react-number-format';
+import { useL10N } from '~/l10n/l10n-context';
+
+export function NumericInput<BaseType = InputAttributes>(props: NumericFormatProps<BaseType>) {
+  const { locale: l10nLocale } = useL10N();
+  const numericFormatProps = useNumericFormat(props);
+
+  const format = (val: any): string => {
+    if (val === '') {
+      return '';
+    }
+    if (val === null || val === undefined) {
+      return '';
+    }
+    return new Intl.NumberFormat(l10nLocale).format(val);
+  };
+
+  return <NumberFormatBase {...numericFormatProps} format={format} />;
+}
