@@ -10,38 +10,6 @@
             payloadDiff={payloadDiff}
         >
     {{/ if }}
-    {{# unless child.attributeType.isRequired }}
-        <TextField
-            {{# if child.attributeType.isRequired }} required {{/ if }}
-            name="{{ child.attributeType.name }}"
-            id="{{ createId child }}"
-            label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
-            select
-            value={ booleanToStringSelect( data.{{ child.attributeType.name }} )}
-            className={ !editMode ? 'JUDO-viewMode' : undefined }
-            disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
-            error={ !!validation.get('{{ child.attributeType.name }}') }
-            helperText={ validation.get('{{ child.attributeType.name }}') }
-            onChange={ (event) => {
-                storeDiff('{{ child.attributeType.name }}', stringToBooleanSelect(event.target.value));
-            } }
-            InputLabelProps={ { shrink: true } }
-            InputProps={ {
-                readOnly: {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable(),
-                {{# if child.icon }}
-                    startAdornment: (
-                        <InputAdornment position="start">
-                            <MdiIcon path="{{ child.icon.name }}" />
-                        </InputAdornment>
-                    ),
-                {{/ if }}
-            } }
-        >
-            <MenuItem id="{{ createId child }}-true" className="switch-menu-item" value={'true'}>{ t('judo.form.switch.true', { defaultValue: 'Yes' }) as string }</MenuItem>
-            <MenuItem id="{{ createId child }}-false" className="switch-menu-item" value={'false'}>{ t('judo.form.switch.false', { defaultValue: 'No' }) as string }</MenuItem>
-            <MenuItem id="{{ createId child }}-undefined" className="switch-menu-item" value={' '}>{ t('judo.form.switch.unknown', { defaultValue: 'Unknown' }) as string }</MenuItem>
-        </TextField>
-    {{ else }}
         <FormGroup>
             <FormControlLabel
                 className="switch"
@@ -55,7 +23,6 @@
                 label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
             />
         </FormGroup>
-    {{/ unless }}
     {{# if child.customImplementation }}
         </ComponentProxy>
     {{/ if }}
