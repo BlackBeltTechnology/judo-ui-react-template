@@ -109,6 +109,13 @@ public class UiGeneralHelper extends Helper {
         return StringUtils.capitalize(name);
     }
 
+    public static String toLower(String str) {
+        if (str == null) {
+            return "";
+        }
+        return str.toLowerCase();
+    }
+
     public static boolean boolValue(Boolean original) {
         return original != null && original;
     }
