@@ -6,20 +6,20 @@ export const paletteTheme = createTheme({
     palette: {
         mode: 'light',
         primary: {
-            main: '#3C4166FF',
+            main: {{# if application.theme.primaryColor }}'{{ application.theme.primaryColor }}'{{ else }}'#3C4166FF'{{/ if }},
         },
         secondary: {
-        main: '#E7501DFF',
+            main: {{# if application.theme.secondaryColor }}'{{ application.theme.secondaryColor }}'{{ else }}'#E7501DFF'{{/ if }},
         },
         text: {
-            primary: '#17191DFF',
-            secondary: '#434448FF',
+            primary: {{# if application.theme.textPrimaryColor }}'{{ application.theme.textPrimaryColor }}'{{ else }}'#17191DFF'{{/ if }},
+            secondary: {{# if application.theme.textSecondaryColor }}'{{ application.theme.textSecondaryColor }}'{{ else }}'#434448FF'{{/ if }},
         },
         background: {
-            default: '#FAFAFAFF',
+            default: {{# if application.theme.backgroundColor }}'{{ application.theme.backgroundColor }}'{{ else }}'#FAFAFAFF'{{/ if }},
         },
         subtitleColor: {
-            main: '#8c8c8c',
+            main: {{# if application.theme.subtitleColor }}'{{ application.theme.subtitleColor }}'{{ else }}'#8c8c8c'{{/ if }},
         },
     },
 });
