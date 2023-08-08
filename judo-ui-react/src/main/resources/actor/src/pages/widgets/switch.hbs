@@ -44,6 +44,7 @@
     {{ else }}
         <FormGroup>
             <FormControlLabel
+                className="switch"
                 sx={ { marginTop: '6px' } }
                 disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
                 control={

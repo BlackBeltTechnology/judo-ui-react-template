@@ -13,6 +13,7 @@
     <ModeledTabs
         id="{{ createId child }}"
         ownerData={data}
+        {{# if child.orientation }}orientation='{{ toLower child.orientation.name }}'{{/ if }}
         childTabs={[
             {{# each child.tabs as |tab| }}
                 {
