@@ -1,7 +1,6 @@
 return async function {{ actionFunctionName action }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
     createDialog({
         fullWidth: true,
-        maxWidth: 'lg',
         onClose: (event: object, reason: string) => {
             if (reason !== 'backdropClick') {
                 closeDialog();
