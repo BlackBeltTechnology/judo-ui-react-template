@@ -41,7 +41,10 @@
                 return copy;
             });
         } }
-        className={!editMode ? 'JUDO-viewMode' : undefined}
+        className={ clsx({
+            'JUDO-viewMode': !editMode,
+            'JUDO-required': {{ boolValue child.attributeType.isRequired }},
+        }) }
         views={['year', 'month', 'day']}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }

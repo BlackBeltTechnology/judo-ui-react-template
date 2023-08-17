@@ -43,7 +43,10 @@
                 return copy;
             });
         } }
-        className={ !editMode ? 'JUDO-viewMode' : undefined }
+        className={ clsx({
+            'JUDO-viewMode': !editMode,
+            'JUDO-required': {{ boolValue child.attributeType.isRequired }},
+        }) }
         views={['hours', 'minutes', 'seconds']}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceTimeToUiTime(data.{{ child.attributeType.name }} ?? null) }
