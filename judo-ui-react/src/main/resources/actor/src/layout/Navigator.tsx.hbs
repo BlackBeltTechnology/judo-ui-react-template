@@ -76,11 +76,24 @@ function ActionItem(props: MenuItem) {
 export function Navigator(props: DrawerProps & NavigatorProps) {
   const { items, heroProps, logoProps, ...other } = props;
   const { t } = useTranslation();
+  {{# if application.authentication }}
+    const { signoutRedirect, isAuthenticated } = useAuth();
+    const doLogout = useCallback(() => {
+      const redirectUrl = window.location.href.split('#')[0];
+      signoutRedirect({
+        post_logout_redirect_uri: redirectUrl,
+      });
+    }, [isAuthenticated]);
+    const { principal } = usePrincipal();
+  {{/ if }}
 
   return (
     <Drawer variant="permanent" {...other}>
       <SimpleBar style={ { height: '100vh' } }>
         <Logo {...logoProps} />
+        {{# if application.authentication }}
+          <Hero {...heroProps} />
+        {{/ if }}
         <Divider variant="middle" />
         <List id="application-navigator" component="nav">
           {items.map((item) =>
@@ -104,6 +117,18 @@ export function Navigator(props: DrawerProps & NavigatorProps) {
         )}
         </List>
         {items.length ? <Divider variant="middle" /> : null}
+        {{# if application.authentication }}
+          <List>
+            <ListItem disablePadding>
+              <ListItemButton id="navigator-logout" onClick={ () => doLogout() }>
+                <ListItemIcon>
+                  <MdiIcon path="logout" />
+                </ListItemIcon>
+                <ListItemText primary={t('judo.security.logout', { defaultValue: 'Logout' })} />
+              </ListItemButton>
+            </ListItem>
+          </List>
+        {{/ if }}
       </SimpleBar>
     </Drawer>
   );
