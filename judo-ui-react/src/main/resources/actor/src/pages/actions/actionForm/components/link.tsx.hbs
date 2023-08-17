@@ -93,7 +93,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                         });
 
                         if (res === undefined) return;
-                        storeDiff('{{ link.dataElement.name }}', res as {{ classDataName link.dataElement.target 'Stored' }});
+                        storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
                     } }
                     {{# if (isAutocompleteAvailable link) }}
                         {{# with (getFirstAutocompleteColumnForLink link) as |column| }}

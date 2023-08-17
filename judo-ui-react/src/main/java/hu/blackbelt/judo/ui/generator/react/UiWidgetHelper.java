@@ -309,4 +309,12 @@ public class UiWidgetHelper extends Helper {
 
         return column != null;
     }
+
+    public static Action getCreateActionForLink(Link link) {
+        return link.getActions().stream().filter(Action::getIsCreateAction).findAny().orElse(null);
+    }
+
+    public static boolean linkHasCreateAction(Link link) {
+        return getCreateActionForLink(link) != null;
+    }
 }
