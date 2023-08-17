@@ -106,26 +106,7 @@ const baseTheme = createTheme(paletteTheme, {
                 },
             },
         },
-        MuiTextField: {
-            defaultProps: {
-                fullWidth: true,
-                variant: 'filled',
-                color: 'secondary',
-            },
-            styleOverrides: {
-                root: {
-                    '&.JUDO-viewMode:not(.Mui-readOnly):not(.Mui-disabled) .MuiInputBase-root': {
-                        background: 'transparent',
-                    },
-                    '.MuiInputBase-root.Mui-readOnly': {
-                        background: 'transparent',
-                    },
-                    '.MuiInputBase-root.Mui-disabled': {
-                        background: 'transparent',
-                    },
-                },
-            },
-        },
+        {{> actor/src/theme/index.ts.mui-text-field.fragment.hbs }}
         MuiAutocomplete: {
             defaultProps: {
                 fullWidth: true,
@@ -147,21 +128,9 @@ const baseTheme = createTheme(paletteTheme, {
                 },
             },
         },
-        MuiDataGrid: {
-            styleOverrides: {
-                root: {
-                    border: 'none',
-                },
-            },
-        },
+        {{> actor/src/theme/index.ts.mui-data-grid.fragment.hbs }}
         {{# if isMUILicensePlanPro }}
-            MuiDataGridPro: {
-                styleOverrides: {
-                    root: {
-                        border: 'none',
-                    },
-                },
-            },
+            {{> actor/src/theme/index.ts.mui-data-grid-pro.fragment.hbs }}
         {{/ if }}
         MuiPaper: {
             styleOverrides: {
