@@ -14,13 +14,16 @@
         <{{ tableComponentName child }}
             isOwnerLoading={isLoading}
             {{# if page.isPageTypeTable }}
-                {{# unless table.dataElement.isAccess }}
+                {{# unless child.dataElement.isAccess }}
                     ownerData={data}
                 {{/ unless }}
                 setIsOwnerLoading={setIsOwnerLoading}
             {{ else }}
                 {{# if (isPageRefreshable page) }}
                     fetchOwnerData={fetchData}
+                {{/ if }}
+                {{# if child.dataElement.isRelationKindAssociation }}
+                    refreshCounter={refreshCounter}
                 {{/ if }}
                 ownerData={data}
                 editMode={editMode}

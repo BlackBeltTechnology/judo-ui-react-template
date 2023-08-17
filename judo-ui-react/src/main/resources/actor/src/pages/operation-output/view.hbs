@@ -58,6 +58,7 @@ export default function {{ pageName page }}() {
     {{/ if }}
     const { enqueueSnackbar } = useSnackbar();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
     const [editMode, setEditMode] = useState<boolean>(false);
@@ -106,6 +107,7 @@ export default function {{ pageName page }}() {
             handleFetchError(error);
         } finally {
             setIsLoading(false);
+            setRefreshCounter((prevCounter) => prevCounter + 1);
         }
     }
 

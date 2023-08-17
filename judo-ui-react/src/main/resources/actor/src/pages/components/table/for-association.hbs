@@ -26,10 +26,11 @@ export interface {{ tableComponentName table }}Props {
     editMode: boolean;
     isFormUpdateable: () => boolean;
     storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner 'Stored' }}, value: any) => void;
+    refreshCounter: number;
 }
 
 export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
-    const { ownerData, fetchOwnerData, editMode, isFormUpdateable } = props;
+    const { ownerData, fetchOwnerData, editMode, isFormUpdateable, refreshCounter } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -191,7 +192,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
 
     useEffect(() => {
         fetchData();
-    }, [queryCustomizer, ownerData]);
+    }, [queryCustomizer, refreshCounter]);
 
     return (
         <>
