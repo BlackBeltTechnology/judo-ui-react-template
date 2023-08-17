@@ -1,4 +1,5 @@
 import { useRef, useCallback, useState } from 'react';
+import { clsx } from 'clsx';
 import { CircularProgress, Grid, IconButton, InputAdornment, TextField } from '@mui/material';
 import { useSnackbar } from 'notistack';
 import { useTranslation } from 'react-i18next';
@@ -47,7 +48,10 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
                     id={props.id}
                     label={props.label}
                     value={extractFileName(props.data[props.attributeName] as string | undefined)}
-                    className="JUDO-viewMode"
+                    className={ clsx({
+                        'JUDO-viewMode': true,
+                        'JUDO-required': props.required,
+                    }) }
                     disabled={props.disabled || isUploading}
                     error={ !!props.validation.get(props.attributeName) }
                     helperText={ props.validation.get(props.attributeName) }

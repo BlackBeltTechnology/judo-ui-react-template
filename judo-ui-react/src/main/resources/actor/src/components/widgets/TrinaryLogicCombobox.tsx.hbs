@@ -3,6 +3,7 @@
 import { TextField, InputAdornment, MenuItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import type { ChangeEvent } from 'react';
+import { clsx } from 'clsx';
 import { TRINARY_LOGIC, TrinaryLogicProps } from '../../components-api';
 import { MdiIcon } from '../MdiIcon';
 
@@ -39,7 +40,10 @@ export const TrinaryLogicCombobox = ({
       label={label}
       select
       value={TRINARY_LOGIC.get(value)}
-      className={ `${!editMode ? 'JUDO-viewMode' : undefined} ${className}` }
+      className={ `${clsx({
+          'JUDO-viewMode': !editMode,
+          'JUDO-required': required,
+      })} ${className}` }
       onChange={onChangeHandler}
       disabled={disabled}
       error={error}
