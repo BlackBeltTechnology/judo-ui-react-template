@@ -26,12 +26,14 @@ export interface OpenRangeDialogProps<T extends JudoStored<T>, U extends QueryCu
   alreadySelectedItems: GridRowSelectionModel | GridRowId;
   initialQueryCustomizer: U;
   filterOptions: FilterOption[];
+  createTrigger?: () => Promise<T | undefined>;
+  editMode?: boolean;
 }
 
 export interface RangeDialogProviderContext {
   openRangeDialog: <T extends JudoStored<T>, U extends QueryCustomizer<T>>(
     props: OpenRangeDialogProps<T, U>,
-  ) => Promise<T[] | T>;
+  ) => Promise<{ value: T[] | T, resolveSource: 'selection' | 'create' }>;
 }
 
 export interface FilterDialogProviderContext {

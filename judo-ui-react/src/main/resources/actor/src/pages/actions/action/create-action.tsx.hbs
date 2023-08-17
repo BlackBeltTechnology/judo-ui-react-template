@@ -36,7 +36,11 @@ import {
 {{/ unless }}
 import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
 
-export type {{ actionFunctionTypeName action }} = () => ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) => void;
+export type {{ actionFunctionTypeName action }} = () => (
+  {{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}
+  successCallback: (result: {{ classDataName action.dataElement.target 'Stored' }}) => void,
+  closedCallback?: () => void,
+) => void;
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const [createDialog, closeDialog] = useDialog();
@@ -47,26 +51,30 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     {{/ unless }}
     const { enqueueSnackbar } = useSnackbar();
 
-    return function {{ actionFunctionName action }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: () => void) {
+    return function {{ actionFunctionName action }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.dataElement.target 'Stored' }}) => void, closedCallback?: () => void) {
         {{# if (actionHasVisualElements action) }}
             createDialog({
                 fullWidth: true,
                 onClose: (event: object, reason: string) => {
                     if (reason !== 'backdropClick') {
                         closeDialog();
+                        closedCallback && closedCallback();
                     }
                 },
                 children: (
                     <{{ pageActionFormComponentName action }}
-                        successCallback={() => {
+                        successCallback={(result: {{ classDataName action.dataElement.target 'Stored' }}) => {
                             closeDialog();
                             enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
                                 variant: 'success',
                                 ...toastConfig.success,
                             });
-                            successCallback();
+                            successCallback(result);
                         }}
-                        cancel={closeDialog}
+                        cancel={ () => {
+                            closeDialog();
+                            closedCallback && closedCallback();
+                        } }
                         {{# unless (isActionAccess action) }}
                             owner={owner}
                         {{/ unless }}

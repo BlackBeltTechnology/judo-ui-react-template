@@ -110,10 +110,29 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                             alreadySelectedItems: ownerData.{{ link.dataElement.name }}?.__identifier as GridRowId,
                             filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
                             initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
+                            editMode: editMode,
+                            {{# if (getCreateActionForLink link)}}
+                                // If there is a value set we cannot predict if is a persisted value or not. If it's persisted
+                                // then the backend would error out if we wanted to create a new element on the relation, therefore
+                                // we do not allow creation in such cases.
+                                createTrigger: !ownerData.{{ link.dataElement.name }} ? async () => {
+                                    return new Promise((resolve) => {
+                                        {{ actionFunctionName (getCreateActionForLink link) }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}(result: {{ classDataName link.dataElement.target 'Stored' }}) => {
+                                            resolve(result);
+                                        }, () => {
+                                            resolve(undefined);
+                                        });
+                                    });
+                                } : undefined,
+                            {{/ if }}
                         });
 
                         if (res === undefined) return;
-                        storeDiff('{{ link.dataElement.name }}', res as {{ classDataName link.dataElement.target 'Stored' }});
+                        if (res && res.resolveSource === 'create') {
+                            fetchOwnerData();
+                        } else if (res) {
+                            storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
+                        }
                     } }
                     {{# if (isAutocompleteAvailable link) }}
                         {{# with (getFirstAutocompleteColumnForLink link) as |column| }}

@@ -193,7 +193,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                             if (res) {
                                                 storeDiff('{{ table.dataElement.name }}', [
                                                     ...(ownerData.{{ table.dataElement.name }} || []),
-                                                    ...(res as {{ classDataName table.dataElement.target 'Stored' }}[])
+                                                    ...(res.value as {{ classDataName table.dataElement.target 'Stored' }}[])
                                                 ]);
                                             }
                                         } }

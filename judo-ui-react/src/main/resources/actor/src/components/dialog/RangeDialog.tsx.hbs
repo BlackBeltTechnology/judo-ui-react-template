@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button } from '@mui/material';
+import { Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, Button, Typography } from '@mui/material';
 import type {
   GridSortModel,
   GridRowModel,
@@ -48,6 +48,8 @@ interface RangeDialogProps<T extends JudoStored<T>, U extends QueryCustomizer<T>
   alreadySelectedItems: GridRowSelectionModel | GridRowId;
   initalQueryCustomizer: U;
   filterOptions: FilterOption[];
+  createTrigger?: () => Promise<T | undefined>;
+  editMode?: boolean;
 }
 
 export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T>>({
@@ -62,6 +64,8 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
   alreadySelectedItems,
   initalQueryCustomizer,
   filterOptions,
+  createTrigger,
+  editMode,
 }: RangeDialogProps<T, U>) => {
   const { openFilterDialog } = useFilterDialog();
   const { t } = useTranslation();
@@ -215,7 +219,10 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
 
   const ok = () => {
     handleClose();
-    resolve(selectedItems);
+    resolve({
+      value: selectedItems,
+      resolveSource: 'selection',
+    });
   };
 
   const handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
@@ -341,6 +348,30 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
                   >
                     { t('judo.modal.range.set-filters', { defaultValue: 'Set filters' }) as string } {filters.length !== 0 ? '(' + filters.length + ')' : ''}
                   </Button>
+                  {createTrigger && (
+                    <Button
+                      id={`${id}-create`}
+                      variant="text"
+                      startIcon={<MdiIcon path="file_document_plus" />}
+                      onClick={async () => {
+                        try {
+                          const result = await createTrigger();
+                          if (result) {
+                            handleClose();
+                            resolve({
+                              value: result,
+                              resolveSource: 'create',
+                            });
+                          }
+                        } catch (error) {
+                          console.error(error);
+                        }
+                      }}
+                      disabled={isLoading || editMode}
+                    >
+                      {t('judo.pages.table.create', { defaultValue: 'Create' })}
+                    </Button>
+                  ) }
                 </GridToolbarContainer>
               ),
               Pagination: () => (
@@ -374,6 +405,9 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
               } }
             />
           {{/ if }}
+          {editMode && createTrigger && <Typography sx={ { fontStyle: 'italic' } }>
+            {t('judo.modal.range.create-blocked-edit-mode', { defaultValue: 'Creating new elements is disabled because you have unsaved changes' })}
+          </Typography>}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
