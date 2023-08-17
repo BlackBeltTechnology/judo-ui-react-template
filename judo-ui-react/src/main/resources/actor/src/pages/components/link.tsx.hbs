@@ -111,7 +111,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                             filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
                             initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
                             editMode: editMode,
-                            {{# if (getCreateActionForLink link)}}
+                            {{# if (linkHasCreateAction link)}}
                                 // If there is a value set we cannot predict if is a persisted value or not. If it's persisted
                                 // then the backend would error out if we wanted to create a new element on the relation, therefore
                                 // we do not allow creation in such cases.
@@ -128,11 +128,15 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                         });
 
                         if (res === undefined) return;
+                        {{# if (linkHasCreateAction link)}}
                         if (res && res.resolveSource === 'create') {
                             fetchOwnerData();
                         } else if (res) {
+                        {{/ if }}
                             storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
+                        {{# if (linkHasCreateAction link)}}
                         }
+                        {{/ if }}
                     } }
                     {{# if (isAutocompleteAvailable link) }}
                         {{# with (getFirstAutocompleteColumnForLink link) as |column| }}

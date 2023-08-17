@@ -311,6 +311,10 @@ public class UiWidgetHelper extends Helper {
     }
 
     public static Action getCreateActionForLink(Link link) {
-        return link.getActions().stream().filter(Action::getIsCreateAction).findAny().get();
+        return link.getActions().stream().filter(Action::getIsCreateAction).findAny().orElse(null);
+    }
+
+    public static boolean linkHasCreateAction(Link link) {
+        return getCreateActionForLink(link) != null;
     }
 }
