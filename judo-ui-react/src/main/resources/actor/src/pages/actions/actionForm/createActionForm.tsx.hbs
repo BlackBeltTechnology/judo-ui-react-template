@@ -32,7 +32,7 @@ import {
 {{/ each }}
 
 export interface {{ pageActionFormComponentName action }}Props {
-    successCallback: () => void;
+    successCallback: (result: {{ classDataName page.dataElement.target 'Stored' }}) => void;
     cancel: () => void;
     {{# if (hasDataElementOwner action.dataElement) }}
         owner: JudoIdentifiable<{{ classDataName ownerPage.dataElement.target '' }}>;
@@ -157,7 +157,7 @@ export function {{ pageActionFormComponentName action }}({
                         <LoadingButton loading={isLoading} loadingPosition="start" id="{{ createId action }}-action-form-action-create" variant="contained" onClick={ async () => {
                                 const result = await saveData();
                                 if (result) {
-                                    successCallback();
+                                    successCallback(result);
                                 }
                             } }>
                             <span>{t('judo.pages.create', { defaultValue: 'Create' })}</span>
@@ -176,7 +176,7 @@ export function {{ pageActionFormComponentName action }}({
                                                 const result: {{ classDataName page.dataElement.target 'Stored' }} | undefined = await saveData();
 
                                                 if (result) {
-                                                    successCallback();
+                                                    successCallback(result);
                                                     {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
                                                         navigate(routeTo{{ pageName (getViewPageForCreatePage page application) }}(result.__signedIdentifier));
                                                     {{ else }}
@@ -191,7 +191,7 @@ export function {{ pageActionFormComponentName action }}({
                                                                 <{{ pageName (getViewPageForCreatePage page application) }}
                                                                     successCallback={ () => {
                                                                         closeDialog();
-                                                                        successCallback();
+                                                                        successCallback(result);
                                                                     } }
                                                                     cancel={closeDialog}
                                                                     entry={result}

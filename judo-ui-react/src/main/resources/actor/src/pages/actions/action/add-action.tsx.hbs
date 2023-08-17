@@ -90,7 +90,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
             try {
                 await {{ classServiceName action.dataElement.owner }}Impl.add{{ firstToUpper action.dataElement.name }}(
                     { __signedIdentifier: owner.__signedIdentifier } as JudoIdentifiable<{{ classDataName action.dataElement.target 'Stored' }}>,
-                    res as Array<{{ classDataName action.dataElement.target 'Stored' }}>,
+                    res.value as Array<{{ classDataName action.dataElement.target 'Stored' }}>,
                 );
 
                 successCallback();
