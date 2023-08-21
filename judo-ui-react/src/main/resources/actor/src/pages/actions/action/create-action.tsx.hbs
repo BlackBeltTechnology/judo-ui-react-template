@@ -63,12 +63,15 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                 },
                 children: (
                     <{{ pageActionFormComponentName action }}
-                        successCallback={(result: {{ classDataName action.dataElement.target 'Stored' }}) => {
-                            closeDialog();
-                            enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
-                                variant: 'success',
-                                ...toastConfig.success,
-                            });
+                        successCallback={(result: {{ classDataName action.dataElement.target 'Stored' }}, open?: boolean) => {
+                            if(!open) {
+                              closeDialog();
+                              enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
+                                  variant: 'success',
+                                  ...toastConfig.success,
+                              });
+                            }
+
                             successCallback(result);
                         }}
                         cancel={ () => {
