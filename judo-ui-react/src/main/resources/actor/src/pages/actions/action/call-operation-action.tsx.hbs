@@ -10,7 +10,15 @@
 import { useTranslation } from 'react-i18next';
 import { Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-import type { GridColDef, GridRenderCellParams, GridRowParams, GridSortModel, GridRowSelectionModel, GridValueFormatterParams } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type {
+    GridColDef,
+    GridRenderCellParams,
+    GridRowParams,
+    GridFilterModel,
+    GridSortModel,
+    GridRowSelectionModel,
+    GridValueFormatterParams,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { useSnackbar } from 'notistack';
@@ -20,6 +28,12 @@ import { useSnackbar } from 'notistack';
     {{/ unless }}
 {{/ if }}
 import { useJudoNavigation, MdiIcon } from '~/components';
+import {
+    stringColumnOperators,
+    numericColumnOperators,
+    dateColumnOperators,
+    booleanColumnOperators,
+} from '~/components/table';
 import { useDialog, useRangeDialog{{# if (hasCallOperationActionFaults action) }}, OperationFaultDialog{{/ if }} } from '~/components/dialog';
 import { baseColumnConfig, toastConfig } from '~/config';
 import { FilterOption, FilterType } from '~/components-api';
