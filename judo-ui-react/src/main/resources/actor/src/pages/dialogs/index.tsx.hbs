@@ -137,6 +137,8 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             } catch (error) {
                 handleUpdateError(error, { setValidation }, data);
             } finally {
+                setEditMode(false);
+                fetchData();
                 setIsLoading(false);
             }
         }
@@ -154,6 +156,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 handleDeleteError(error, undefined, data);
             } finally {
                 setIsLoading(false);
+                cancel();
             }
         }
     {{/ if }}
