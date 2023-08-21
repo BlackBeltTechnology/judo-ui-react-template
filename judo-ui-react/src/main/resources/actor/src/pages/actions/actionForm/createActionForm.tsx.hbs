@@ -32,7 +32,7 @@ import {
 {{/ each }}
 
 export interface {{ pageActionFormComponentName action }}Props {
-    successCallback: (result: {{ classDataName page.dataElement.target 'Stored' }}) => void;
+    successCallback: (result: {{ classDataName page.dataElement.target 'Stored' }}, open?: boolean) => void;
     cancel: () => void;
     {{# if (hasDataElementOwner action.dataElement) }}
         owner: JudoIdentifiable<{{ classDataName ownerPage.dataElement.target '' }}>;
@@ -190,8 +190,7 @@ export function {{ pageActionFormComponentName action }}({
                                                             children: (
                                                                 <{{ pageName (getViewPageForCreatePage page application) }}
                                                                     successCallback={ () => {
-                                                                        closeDialog();
-                                                                        successCallback(result);
+                                                                        successCallback(result, true);
                                                                     } }
                                                                     cancel={closeDialog}
                                                                     entry={result}
