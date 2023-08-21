@@ -50,6 +50,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const [data, setData] = useState<GridRowModel<{{ classDataName table.dataElement.target 'Stored' }}>[]>([]);
     const [rowCount, setRowCount] = useState<number>(0);
     const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
+    const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] });
     const [lastItem, setLastItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
     const [firstItem, setFirstItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
     const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
@@ -125,6 +126,35 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
             contextMenuRef.current?.handleContextMenu(event);
         };
+    {{/ if }}
+
+    {{# if isUseInlineColumnFilters }}
+    function handleFilterModelChange (newModel: GridFilterModel) {
+        setFilterModel(newModel);
+
+        if (newModel.items.every(i => i.value !== undefined)) {
+            const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
+
+            if (Array.isArray(newFilters)) {
+                setPage(0);
+                setFilters(newFilters);
+
+                setQueryCustomizer((prevQueryCustomizer: {{ classDataName table.dataElement.target 'QueryCustomizer' }}) => {
+                    // remove previous filter values, so that we can always start with a clean slate
+                    for (const name of {{ table.dataElement.name }}Columns.map(c => c.field)) {
+                        delete (prevQueryCustomizer as any)[name];
+                    }
+                    return {
+                        ...prevQueryCustomizer,
+                        _seek: {
+                            limit: {{ calculateTablePageLimit table }} + 1,
+                        },
+                        ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+                    };
+                });
+            }
+        }
+    }
     {{/ if }}
 
     function handleSortModelChange (newModel: GridSortModel) {
@@ -241,11 +271,16 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 {{/ each }}
                 sortModel={ sortModel }
                 onSortModelChange={ handleSortModelChange }
+                {{# if isUseInlineColumnFilters }}
+                filterModel={filterModel}
+                onFilterModelChange={handleFilterModelChange}
+                {{/ if }}
                 components={ {
                     Toolbar: () => (
                         <GridToolbarContainer>
                             {{# each (getFilteredTableActions table) as |action| }}
                                 {{# if action.isFilterAction }}
+                                    {{# unless isUseInlineColumnFilters }}
                                     <Button
                                         id="{{ createId action }}"
                                         startIcon={<MdiIcon path="filter" />}
@@ -257,6 +292,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                     >
                                         {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
                                     </Button>
+                                    {{/ unless }}
                                 {{/ if }}
                             {{/ each }}
                             <div>{/* Placeholder */}</div>
