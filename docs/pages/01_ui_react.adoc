@@ -83,6 +83,39 @@ export function SomeAction() {
 
 == Opt-in features
 
+=== Generate pro+ MUI code
+
+Our generator can generate features which are only available in `pro` and above versions of MUI.
+
+In order to trigger this, we need to add the following generator parameter:
+
+[source,xml]
+----
+<muiLicensePlan>pro</muiLicensePlan>
+----
+
+Also export our license key via:
+
+[source,bash]
+----
+export VITE_MUI_LICENSE_KEY=OUR_KEY
+----
+
+> If we do not export the license key, we will see MUI placing watermarks above every pro+ component, also generating
+  warnings, errors on the console.
+
+=== Use inline column filters
+
+By default JUDO frontends are generated with a "standalone" Filter button, which triggers and tracks filters for tables.
+This can be changed, to use MUI column filters instead **IF** we are generating at least `pro` MUI code (see above).
+
+In order to trigger this, we need to add the following generator parameter:
+
+[source,xml]
+----
+<useInlineColumnFilters>true</useInlineColumnFilters>
+----
+
 === Enabling Table Context Menus
 
 Table Context Menus allow the users to perform certain actions by right-clicking rows/cells, e.g.: filtering by cell value.
