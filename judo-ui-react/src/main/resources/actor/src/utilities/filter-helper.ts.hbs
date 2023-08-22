@@ -275,11 +275,19 @@ export function mapFilterModelToFilters(filterModel: GridFilterModel, filterOpti
         });
         break;
       case FilterType.date:
-      case FilterType.dateTime:
         filters.push({
           ...filter,
           filterBy: {
             value: item.value,
+            operator: mapDateOperator(item.operator),
+          },
+        });
+        break;
+      case FilterType.dateTime:
+        filters.push({
+          ...filter,
+          filterBy: {
+            value: new Date(item.value).toISOString(),
             operator: mapDateOperator(item.operator),
           },
         });

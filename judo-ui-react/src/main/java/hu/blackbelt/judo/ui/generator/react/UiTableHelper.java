@@ -100,7 +100,7 @@ public class UiTableHelper extends Helper {
         } else if (dataType instanceof TimestampType) {
             return "dateTime";
         } else if (dataType instanceof EnumerationType) {
-            return "string";
+            return "singleSelect";
         } else if (dataType instanceof NumericType) {
             return "number";
         } else if (dataType instanceof BooleanType) {
@@ -171,7 +171,7 @@ public class UiTableHelper extends Helper {
     }
 
     private static boolean isFilterableDataType (DataType dataType) {
-        return !(dataType instanceof EnumerationType) && !(dataType instanceof BinaryType);
+        return !(dataType instanceof BinaryType);
     }
 
     private static boolean isFilterableAttributeType (AttributeType attributeType) {

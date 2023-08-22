@@ -28,12 +28,16 @@ import { useSnackbar } from 'notistack';
     {{/ unless }}
 {{/ if }}
 import { useJudoNavigation, MdiIcon } from '~/components';
+{{# if isUseInlineColumnFilters }}
 import {
     stringColumnOperators,
     numericColumnOperators,
     dateColumnOperators,
+    dateTimeColumnOperators,
     booleanColumnOperators,
+    singleSelectColumnOperators,
 } from '~/components/table';
+{{/ if }}
 import { useDialog, useRangeDialog{{# if (hasCallOperationActionFaults action) }}, OperationFaultDialog{{/ if }} } from '~/components/dialog';
 import { baseColumnConfig, toastConfig } from '~/config';
 import { FilterOption, FilterType } from '~/components-api';

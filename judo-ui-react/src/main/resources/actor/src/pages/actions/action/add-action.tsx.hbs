@@ -8,12 +8,16 @@ import type { {{ getMuiDataGridImportsForHooks }} } from '@mui/x-data-grid{{ get
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useSnackbar } from 'notistack';
 import { MdiIcon } from '~/components';
+{{# if isUseInlineColumnFilters }}
 import {
     stringColumnOperators,
     numericColumnOperators,
     dateColumnOperators,
+    dateTimeColumnOperators,
     booleanColumnOperators,
+    singleSelectColumnOperators,
 } from '~/components/table';
+{{/ if }}
 import { useRangeDialog } from '~/components/dialog';
 import { FilterOption, FilterType } from '~/components-api';
 import { baseColumnConfig, toastConfig } from '~/config';
