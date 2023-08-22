@@ -21,7 +21,27 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                     {{# if action.outputParameterPage }}
                         if (result) {
                             {{# unless (actionHasUnmappedOutputForm action) }}
-                                navigate(routeTo{{ pageName action.outputParameterPage }}(result.__signedIdentifier));
+                                {{# unless (pageShouldOpenInDialog action.outputParameterPage) }}
+                                    navigate(routeTo{{ pageName action.outputParameterPage }}(result.__signedIdentifier));
+                                {{ else }}
+                                    createDialog({
+                                        fullWidth: true,
+                                        onClose: (event: object, reason: string) => {
+                                            if (reason !== 'backdropClick') {
+                                                closeDialog();
+                                            }
+                                        },
+                                        children: (
+                                            <{{ pageName action.outputParameterPage }}
+                                                successCallback={ () => {
+                                                    closeDialog();
+                                                } }
+                                                cancel={() => closeDialog()}
+                                                entry={result}
+                                            />
+                                        ),
+                                    });
+                                {{/ unless }}
                             {{ else }}
                                 createOutputDialog({
                                     fullWidth: true,
