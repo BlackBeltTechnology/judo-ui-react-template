@@ -71,6 +71,18 @@ public class StoredVariableHelper extends StaticMethodValueResolver {
         }
     }
 
+    public static synchronized Boolean isUseInlineColumnFilters() {
+        if (!isMUILicensed()) {
+            return false;
+        }
+        String useInlineColumnFilters = (String) ThreadLocalContextHolder.getVariable("useInlineColumnFilters");
+
+        if (useInlineColumnFilters != null) {
+            return useInlineColumnFilters.toLowerCase().trim().equals("true");
+        }
+        return false;
+    }
+
     public static synchronized String getMUIDataGridPlanSuffix() {
         String muiPlan = getMUILicensePlan();
 

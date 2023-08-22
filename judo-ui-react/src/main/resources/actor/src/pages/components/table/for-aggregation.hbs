@@ -54,6 +54,9 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
     {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
 
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/filter-models.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/filter-models.fragment.hbs dataElement=table.dataElement columns=table.columns }}
+
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/hook-variables.fragment.hbs rel=table }}
 
@@ -107,6 +110,14 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
         setData(newData);
     }, [ownerData?.{{ table.dataElement.name }}, filters]);
 
+    {{# if isUseInlineColumnFilters}}
+    useEffect(() => {
+        if ({{ table.dataElement.name }}FilterModel.items.every((i) => i.value !== undefined)) {
+            setFilters(mapFilterModelToFilters({{ table.dataElement.name }}FilterModel, filterOptions));
+        }
+    }, [ownerData?.{{ table.dataElement.name }}, {{ table.dataElement.name }}FilterModel]);
+    {{/ if }}
+
     return (
         <>
             <StripedDataGrid
@@ -156,6 +167,12 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 onSortModelChange={(newModel: GridSortModel) => {
                     set{{ ucFirst table.dataElement.name }}SortModel(newModel);
                 }}
+                {{# if isUseInlineColumnFilters }}
+                filterModel={ {{ table.dataElement.name }}FilterModel }
+                onFilterModelChange={(newModel: GridFilterModel) => {
+                    set{{ ucFirst table.dataElement.name }}FilterModel(newModel);
+                }}
+                {{/ if }}
                 paginationModel={paginationModel}
                 onPaginationModelChange={setPaginationModel}
                 components={ {
@@ -224,6 +241,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                     </Button>
                                 {{/ if }}
                             {{/ each }}
+                            {{# unless isUseInlineColumnFilters }}
                             <Button
                                 id="{{ createId table }}-filter"
                                 startIcon={<MdiIcon path="filter" />}
@@ -233,6 +251,8 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                             >
                                 {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
                             </Button>
+                            {{/ unless }}
+                            <div>{/* Placeholder */}</div>
                         </GridToolbarContainer>
                     ),
                 } }

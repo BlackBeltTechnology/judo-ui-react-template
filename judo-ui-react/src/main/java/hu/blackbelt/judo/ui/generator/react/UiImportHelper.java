@@ -110,7 +110,7 @@ public class UiImportHelper {
     public static SortedSet<String> getMuiDataGridTypeImports(PageDefinition pageDefinition) {
         SortedSet<String> imports = new TreeSet<>();
 
-        imports.addAll(Set.of("GridRowId", "GridSortModel", "GridSortItem", "GridRowParams"));
+        imports.addAll(Set.of("GridRowId", "GridSortModel", "GridFilterModel", "GridSortItem", "GridRowParams"));
 
         return imports;
     }
@@ -130,7 +130,7 @@ public class UiImportHelper {
     }
 
     public static String getMuiDataGridImportsForHooks() {
-        SortedSet<String> imports = new TreeSet<>(Set.of("GridColDef", "GridSortModel", "GridRenderCellParams", "GridRowParams", "GridValueFormatterParams"));
+        SortedSet<String> imports = new TreeSet<>(Set.of("GridColDef", "GridSortModel", "GridFilterModel", "GridRenderCellParams", "GridRowParams", "GridValueFormatterParams"));
         return String.join(", ", imports);
     }
 
