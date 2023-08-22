@@ -16,7 +16,11 @@ import { useTrackService } from '@pandino/react-hooks';
 import { useSnackbar } from 'notistack';
 {{# if action.outputParameterPage }}
     {{# unless (actionHasUnmappedOutputForm action) }}
-        import { routeTo{{ pageName action.outputParameterPage }} } from '~/routes';
+        {{# unless (pageShouldOpenInDialog action.outputParameterPage) }}
+            import { routeTo{{ pageName action.outputParameterPage }} } from '~/routes';
+        {{ else }}
+            import {{ pageName action.outputParameterPage }} from '~/pages/{{ pageIndexRelativeImportPath action.outputParameterPage }}';
+        {{/ unless }}
     {{/ unless }}
 {{/ if }}
 import { useJudoNavigation, MdiIcon } from '~/components';
