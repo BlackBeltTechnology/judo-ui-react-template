@@ -78,7 +78,7 @@ public class StoredVariableHelper extends StaticMethodValueResolver {
         String useInlineColumnFilters = (String) ThreadLocalContextHolder.getVariable("useInlineColumnFilters");
 
         if (useInlineColumnFilters != null) {
-            return useInlineColumnFilters.toLowerCase().equals("true");
+            return useInlineColumnFilters.toLowerCase().trim().equals("true");
         }
         return false;
     }
