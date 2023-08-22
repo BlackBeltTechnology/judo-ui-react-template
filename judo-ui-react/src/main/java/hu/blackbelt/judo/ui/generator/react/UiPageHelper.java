@@ -509,7 +509,8 @@ public class UiPageHelper extends Helper {
 
     public static List<PageDefinition> getViewDialogs(Application application) {
         return application.getPages().stream()
-                .filter(p -> p.getIsPageTypeView() && p.isOpenInDialog())
+                .filter(p -> (p.getIsPageTypeView() || p.getIsPageTypeOperationOutput()) && p.isOpenInDialog())
+                .sorted(Comparator.comparing(NamedElement::getFQName))
                 .collect(Collectors.toList());
     }
 
