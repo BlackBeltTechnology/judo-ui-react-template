@@ -33,6 +33,9 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
 
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/filter-models.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/filter-models.fragment.hbs dataElement=table.dataElement columns=table.columns }}
+
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/hook-variables.fragment.hbs rel=table }}
 
@@ -71,6 +74,12 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             onSortModelChange={(newModel: GridSortModel) => {
                 set{{ ucFirst table.dataElement.name }}SortModel(newModel);
             }}
+            {{# if isUseInlineColumnFilters }}
+            filterModel={ {{ table.dataElement.name }}FilterModel }
+            onFilterModelChange={(newModel: GridFilterModel) => {
+                set{{ ucFirst table.dataElement.name }}FilterModel(newModel);
+            }}
+            {{/ if }}
             components={ {
                 Toolbar: () => (
                     <GridToolbarContainer>

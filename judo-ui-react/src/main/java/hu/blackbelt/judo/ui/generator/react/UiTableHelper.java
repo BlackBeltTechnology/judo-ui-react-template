@@ -100,7 +100,7 @@ public class UiTableHelper extends Helper {
         } else if (dataType instanceof TimestampType) {
             return "dateTime";
         } else if (dataType instanceof EnumerationType) {
-            return "string";
+            return "singleSelect";
         } else if (dataType instanceof NumericType) {
             return "number";
         } else if (dataType instanceof BooleanType) {
@@ -108,6 +108,12 @@ public class UiTableHelper extends Helper {
         }
 
         return "string";
+    }
+
+    public static boolean isColumnString(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        return dataType instanceof StringType;
     }
 
     public static boolean isColumnBoolean(Column column) {
@@ -162,6 +168,18 @@ public class UiTableHelper extends Helper {
 
     public static boolean isColumnSortable (Column column) {
         return isSortableAttributeType(column.getAttributeType());
+    }
+
+    private static boolean isFilterableDataType (DataType dataType) {
+        return !(dataType instanceof BinaryType);
+    }
+
+    private static boolean isFilterableAttributeType (AttributeType attributeType) {
+        return isFilterableDataType(attributeType.getDataType()) && !attributeType.getIsMemberTypeTransient();
+    }
+
+    public static boolean isColumnFilterable (Column column) {
+        return isFilterableAttributeType(column.getAttributeType());
     }
 
     public static String getDefaultSortParams(Column defaultSortColumn, Collection<Column> columns) {
