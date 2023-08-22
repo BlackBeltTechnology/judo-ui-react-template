@@ -35,6 +35,14 @@ filterable: {{ isUseInlineColumnFilters }} && {{# if (isColumnFilterable column)
     valueFormatter: ({ value }: GridValueFormatterParams<string>) => {
         return t(`enumerations.{{ restParamName column.attributeType.dataType }}.${value}`, { defaultValue: value });
     },
+    {{# if isUseInlineColumnFilters }}
+        filterOperators: singleSelectColumnOperators,
+        valueOptions: [
+            {{# each column.attributeType.dataType.members as |member| }}
+                { value: '{{ member.name }}', label: t('enumerations.{{ restParamName column.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) as string },
+            {{/ each }}
+        ],
+    {{/ if }}
 {{/ if }}
 {{# if (isColumnTimestamp column) }}
     valueGetter: ({ value }) => value && serviceDateToUiDate(value),
@@ -50,7 +58,7 @@ filterable: {{ isUseInlineColumnFilters }} && {{# if (isColumnFilterable column)
         }).format(value);
     },
     {{# if isUseInlineColumnFilters }}
-        filterOperators: dateColumnOperators,
+        filterOperators: dateTimeColumnOperators,
     {{/ if }}
 {{/ if }}
 {{# if (isColumnTime column) }}
