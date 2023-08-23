@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 
 import { createTheme } from '@mui/material';
+{{> actor/src/theme/palette.ts.extra-imports.fragment.hbs }}
 
 export const paletteTheme = createTheme({
     palette: {
@@ -21,5 +22,7 @@ export const paletteTheme = createTheme({
         subtitleColor: {
             main: {{# if application.theme.subtitleColor }}'{{ application.theme.subtitleColor }}'{{ else }}'#8c8c8c'{{/ if }},
         },
+        {{> actor/src/theme/palette.ts.extra-palette-attributes.fragment.hbs }}
     },
+    {{> actor/src/theme/palette.ts.extra-attributes.fragment.hbs }}
 });
