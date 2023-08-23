@@ -101,12 +101,10 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                         )
                     });
                 {{/ unless }}
-            } else {
-                successCallback();
             }
-        {{ else }}
-            successCallback();
         {{/ if }}
+
+        successCallback();
         enqueueSnackbar(title, {
             variant: 'success',
             ...toastConfig.success,

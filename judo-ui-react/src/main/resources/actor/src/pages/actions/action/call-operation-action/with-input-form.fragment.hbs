@@ -56,12 +56,10 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                                     )
                                 });
                             {{/ unless }}
-                        } else {
-                            successCallback();
                         }
-                    {{ else }}
-                        successCallback();
                     {{/ if }}
+
+                successCallback();
                 } }
                 cancel={closeDialog}
                 {{# if action.operation.isMapped }}
