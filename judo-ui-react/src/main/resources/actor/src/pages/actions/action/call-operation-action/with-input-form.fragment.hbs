@@ -52,14 +52,19 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                                         }
                                     },
                                     children: (
-                                        <{{ pageName action.outputParameterPage }} result={result} close={() => closeOutputDialog()} />
+                                        <{{ pageName action.outputParameterPage }} result={result} close={() => {
+                                          successCallback();
+                                          closeOutputDialog()
+                                        }} />
                                     )
                                 });
                             {{/ unless }}
+                        } else {
+                            successCallback();
                         }
+                    {{ else }}
+                        successCallback();
                     {{/ if }}
-
-                successCallback();
                 } }
                 cancel={closeDialog}
                 {{# if action.operation.isMapped }}
