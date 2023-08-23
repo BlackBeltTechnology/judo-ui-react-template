@@ -135,8 +135,10 @@ export const AggregationInput = ({
           disabled={disabled}
           readOnly={readOnly || !onAutoCompleteSearch || !onSet}
           onOpen={ () => {
-            setAllowFetch(true);
-            handleSearch('');
+            if (!readOnly) {
+              setAllowFetch(true);
+              handleSearch('');
+            }
           } }
           isOptionEqualToValue={ (option: any, value: any) => option[autoCompleteAttribute] === value[autoCompleteAttribute] }
           getOptionLabel={ (option) => option[autoCompleteAttribute as keyof JudoStored<any>] as string || '' }
