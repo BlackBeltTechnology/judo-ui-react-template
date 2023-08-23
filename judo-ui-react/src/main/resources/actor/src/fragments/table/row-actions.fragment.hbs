@@ -32,7 +32,7 @@ const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName ta
                 label: t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ action.label }}' }) as string,
                 icon: <MdiIcon path="{{ action.icon.name }}" />,
                 action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}({{# if action.operation.isMapped }}row, {{/ if }}() => fetchOwnerData()),
-                disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if action.enabledBy }}!row.{{ action.enabledBy.name }} ||{{/ if }}{{# if action.hiddenBy }} row.{{ action.hiddenBy.name }} ||{{/ if }} editMode,
+                disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if action.enabledBy }}!row.{{ action.enabledBy.name }} ||{{/ if }} editMode,
             },
         {{/ if }}
     {{/ each }}
