@@ -20,7 +20,7 @@
                     id: '{{ createId tab }}',
                     name: '{{ getTranslationKeyForFlex tab.element }}',
                     label: t('{{ getTranslationKeyForFlex tab.element }}', { defaultValue: '{{ tab.element.label }}' }) as string,
-                    disabled: {{# if tab.element.enabledBy }}!data.{{ tab.element.enabledBy.name }}{{ else }}false{{/ if }},
+                    disabled: {{# if tab.element.enabledBy }}!data.{{ tab.element.enabledBy.name }} ||{{/ if }} isLoading,
                     hidden: {{# if tab.element.hiddenBy }}data.{{ tab.element.hiddenBy.name }}{{ else }}false{{/ if }},
                     {{# if tab.element.icon }}
                         icon: '{{ tab.element.icon.name }}',
