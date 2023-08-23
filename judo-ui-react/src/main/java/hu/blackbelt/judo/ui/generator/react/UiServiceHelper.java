@@ -21,14 +21,12 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.Table;
-import hu.blackbelt.judo.meta.ui.data.ClassType;
-import hu.blackbelt.judo.meta.ui.data.DataElement;
-import hu.blackbelt.judo.meta.ui.data.OperationParameterType;
-import hu.blackbelt.judo.meta.ui.data.RelationType;
+import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 
 import java.util.stream.Collectors;
+
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 
 @Log
 @TemplateHelper
@@ -60,5 +58,10 @@ public class UiServiceHelper extends Helper {
 
     public static String classServiceTypeName(ClassType classType) {
         return classType.getName().replaceAll("::", ".");
+    }
+
+    public static String classTypeName(ClassType classType) {
+        // we should replace classDataName calls gradually later in templates for this
+        return classDataName(classType, classType.isIsMapped() ? "Stored" : "");
     }
 }

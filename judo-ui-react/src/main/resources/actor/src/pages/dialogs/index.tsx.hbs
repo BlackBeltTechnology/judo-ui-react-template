@@ -37,7 +37,7 @@ import {
 {{/ each }}
 
 export interface {{ pageName page }}Props {
-    entry: {{ classDataName page.dataElement.target 'Stored' }};
+    entry: {{ classTypeName page.dataElement.target }};
     successCallback: () => void;
     cancel: () => void;
 }
@@ -68,10 +68,10 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
-    const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
-    const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
+    const [data, setData] = useState<{{ classTypeName page.dataElement.target }}>({} as unknown as {{ classTypeName page.dataElement.target }});
+    const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classTypeName page.dataElement.target }}, any>>({} as unknown as Record<keyof {{ classTypeName page.dataElement.target }}, any>);
     const [editMode, setEditMode] = useState<boolean>(false);
-    const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => {
+    const storeDiff: (attributeName: keyof {{ classTypeName page.dataElement.target }}, value: any) => void = useCallback((attributeName: keyof {{ classTypeName page.dataElement.target }}, value: any) => {
         {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
@@ -91,11 +91,17 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
 
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/mapped-form-flags.hbs{{/ if }}
-    {{> actor/src/fragments/page/mapped-form-flags.hbs }}
+    {{# if page.dataElement.isMemberTypeMapped }}
+        {{# if isDebugPrint }}// include: actor/src/fragments/page/mapped-form-flags.hbs{{/ if }}
+        {{> actor/src/fragments/page/mapped-form-flags.hbs }}
+    {{ else }}
+        {{# if isDebugPrint }}// include: actor/src/fragments/page/unmapped-form-flags.hbs{{/ if }}
+        {{> actor/src/fragments/page/unmapped-form-flags.hbs }}
+    {{/ if }}
 
     useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
 
+    {{# if page.dataElement.isRefreshable }}
     async function fetchData() {
         setIsLoading(true);
 
@@ -111,7 +117,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 __signedIdentifier: res.__signedIdentifier,
                 __version: res.__version,
                 __entityType: res.__entityType,
-            } as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
+            } as Record<keyof {{ classTypeName page.dataElement.target }}, any>);
         } catch (error) {
             handleFetchError(error);
         } finally {
@@ -119,6 +125,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             setRefreshCounter((prevCounter) => prevCounter + 1);
         }
     }
+    {{/ if }}
 
     {{# if page.dataElement.isUpdatable }}
         async function saveData() {
@@ -161,9 +168,11 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         }
     {{/ if }}
 
+    {{# if page.dataElement.isRefreshable }}
     useEffect(() => {
         fetchData();
     }, []);
+    {{/ if }}
 
     useEffect(() => {
         setValidation(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
