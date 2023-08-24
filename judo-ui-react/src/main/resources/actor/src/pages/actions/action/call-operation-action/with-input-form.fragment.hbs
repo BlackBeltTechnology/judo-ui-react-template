@@ -1,6 +1,9 @@
 return async function {{ actionFunctionName action }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
     createDialog({
-        fullWidth: true,
+        {{# if (adjustDialogSize action.inputParameterPage) }}
+            fullWidth: true,
+            maxWidth: '{{ toLower action.inputParameterPage.dialogSize.name }}',
+        {{/ if }}
         onClose: (event: object, reason: string) => {
             if (reason !== 'backdropClick') {
                 closeDialog();
@@ -25,7 +28,10 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                                     navigate(routeTo{{ pageName action.outputParameterPage }}(result.__signedIdentifier));
                                 {{ else }}
                                     createDialog({
-                                        fullWidth: true,
+                                        {{# if (adjustDialogSize action.outputParameterPage) }}
+                                            fullWidth: true,
+                                            maxWidth: '{{ toLower action.outputParameterPage.dialogSize.name }}',
+                                        {{/ if }}
                                         onClose: (event: object, reason: string) => {
                                             if (reason !== 'backdropClick') {
                                                 closeDialog();
@@ -44,8 +50,10 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                                 {{/ unless }}
                             {{ else }}
                                 createOutputDialog({
-                                    fullWidth: true,
-                                    maxWidth: 'lg',
+                                    {{# if (adjustDialogSize action.outputParameterPage) }}
+                                        fullWidth: true,
+                                        maxWidth: '{{ toLower action.outputParameterPage.dialogSize.name }}',
+                                    {{/ if }}
                                     onClose: (event: object, reason: string) => {
                                         if (reason !== 'backdropClick') {
                                             closeOutputDialog();

@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.hasDataElementOwner;
+import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.toLower;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
@@ -329,6 +330,14 @@ public class UiPageHelper extends Helper {
                 .filter(p -> p.getFQName().equals(viewPageFQName))
                 .findFirst()
                 .get();
+    }
+
+    public static String getDialogSizeForViewPageOfCreatePage(PageDefinition page, Application application) {
+        return toLower(getViewPageForCreatePage(page, application).getDialogSize().getName());
+    }
+
+    public static boolean adjustDialogSize(PageDefinition pageDefinition) {
+        return pageDefinition.getDialogSize() != null && pageDefinition.getDialogSize() != DialogSize.UNDEFINED;
     }
 
     private static void addReferenceTypesToCollection(PageDefinition pageDefinition, Set<String> res) {

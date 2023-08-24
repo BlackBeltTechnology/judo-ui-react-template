@@ -39,7 +39,10 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                 navigate(routeTo{{ pageName action.target }}(entry.__signedIdentifier));
             {{ else }}
                 createDialog({
-                    fullWidth: true,
+                    {{# if (adjustDialogSize action.target) }}
+                        fullWidth: true,
+                        maxWidth: '{{ toLower action.target.dialogSize.name }}',
+                    {{/ if }}
                     onClose: (event: object, reason: string) => {
                         if (reason !== 'backdropClick') {
                             closeDialog();
