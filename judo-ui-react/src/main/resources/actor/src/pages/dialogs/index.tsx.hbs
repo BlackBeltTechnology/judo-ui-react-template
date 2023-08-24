@@ -177,7 +177,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                     <IconButton
                         id="{{ pageName page }}-dialog-close"
                         aria-label="close"
-                        onClick={ () => cancel() }
+                        onClick={ () => {
+                          cancel();
+                          if(!editMode) {
+                           successCallback();
+                          }
+                        }}
                         sx={ {
                             position: 'absolute',
                             right: 8,
@@ -198,7 +203,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 </DialogContent>
                 <DialogActions>
                     <Grid className="page-action" item>
-                        <Button id="{{ pageName page }}-dialog-close" variant="text" onClick={ () => cancel() } disabled={isLoading}>
+                        <Button id="{{ pageName page }}-dialog-close" variant="text" onClick={ () => {
+                          cancel();
+                          if(!editMode) {
+                           successCallback();
+                          }
+                        }} disabled={isLoading}>
                             {t('judo.pages.close', { defaultValue: 'Close' })}
                         </Button>
                     </Grid>
