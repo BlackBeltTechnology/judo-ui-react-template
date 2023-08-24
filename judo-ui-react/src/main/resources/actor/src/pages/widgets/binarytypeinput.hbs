@@ -11,7 +11,7 @@
         >
     {{/ if }}
     <BinaryInput
-        {{# if child.attributeType.isRequired }} required {{/ if }}
+        required={ {{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }} }
         id="{{ createId child }}"
         label={t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string}
         {{# if child.icon }}

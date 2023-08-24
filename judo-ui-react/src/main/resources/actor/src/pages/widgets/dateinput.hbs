@@ -17,7 +17,7 @@
         slotProps={ {
             textField: {
                 id: '{{ createId child }}',
-                {{# if child.attributeType.isRequired }}required: true,{{/ if }}
+                required: {{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }},
                 helperText: validation.get('{{ child.attributeType.name }}'),
                 error: !!validation.get('{{ child.attributeType.name }}'),
                 {{# if child.icon }}

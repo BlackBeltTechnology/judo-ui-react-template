@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.hasDataElementOwner;
+import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.toLower;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
@@ -331,6 +333,14 @@ public class UiPageHelper extends Helper {
                 .get();
     }
 
+    public static String getDialogSizeForViewPageOfCreatePage(PageDefinition page, Application application) {
+        return toLower(getViewPageForCreatePage(page, application).getDialogSize().getName());
+    }
+
+    public static boolean adjustDialogSize(PageDefinition pageDefinition) {
+        return pageDefinition.getDialogSize() != null;
+    }
+
     private static void addReferenceTypesToCollection(PageDefinition pageDefinition, Set<String> res) {
         getPageLinks(pageDefinition).forEach(l -> {
             ReferenceType rel = (ReferenceType) l.getDataElement();
@@ -516,5 +526,16 @@ public class UiPageHelper extends Helper {
 
     public static boolean pageShouldOpenInDialog(PageDefinition pageDefinition) {
         return pageDefinition.isOpenInDialog();
+    }
+
+    public static boolean hasPageRequiredBy(PageDefinition pageDefinition) {
+        return !(getRequiredByWidgetsForPage(pageDefinition).isEmpty());
+    }
+
+    public static List<VisualElement> getRequiredByWidgetsForPage(PageDefinition pageDefinition) {
+        Set<VisualElement> elements = new LinkedHashSet<>();
+        collectVisualElementsMatchingCondition(pageDefinition.getOriginalPageContainer(), (element) -> element.getRequiredBy() != null, elements);
+
+        return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 }

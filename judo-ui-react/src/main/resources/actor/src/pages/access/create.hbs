@@ -26,7 +26,19 @@ import {
 } from '~/components';
 import { useRangeDialog } from '~/components/dialog';
 import { AggregationInput, AssociationButton, BinaryInput, CollectionAssociationButton, NumericInput, TrinaryLogicCombobox } from '~/components/widgets';
-import { useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, processQueryCustomizer, fileHandling, uiDateToServiceDate, serviceDateToUiDate, uiTimeToServiceTime, serviceTimeToUiTime, booleanToStringSelect, stringToBooleanSelect } from '~/utilities';
+import {
+  useErrorHandler,
+  ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
+  passesLocalValidation,
+  processQueryCustomizer,
+  fileHandling,
+  uiDateToServiceDate,
+  serviceDateToUiDate,
+  uiTimeToServiceTime,
+  serviceTimeToUiTime,
+  booleanToStringSelect,
+  stringToBooleanSelect,
+} from '~/utilities';
 import { baseTableConfig, toastConfig, dividerHeight } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
 import { useL10N } from '~/l10n/l10n-context';
@@ -109,6 +121,10 @@ export default function {{ pageName page }}() {
     {{/ if }}
 
     const saveData = async () => {
+        {{# if (hasPageRequiredBy page) }}
+            {{> actor/src/fragments/page/local-validate.fragment.hbs }}
+        {{/ if }}
+
         setIsLoading(true);
 
         try {
