@@ -97,6 +97,10 @@ export function {{ pageActionFormComponentName action }}({
     {{/ if }}
 
     const saveData = async () => {
+        {{# if (hasPageRequiredBy page) }}
+            {{> actor/src/fragments/page/local-validate.fragment.hbs }}
+        {{/ if }}
+
         setIsLoading(true);
 
         try {
@@ -181,7 +185,10 @@ export function {{ pageActionFormComponentName action }}({
                                                         navigate(routeTo{{ pageName (getViewPageForCreatePage page application) }}(result.__signedIdentifier));
                                                     {{ else }}
                                                         createDialog({
-                                                            fullWidth: true,
+                                                            {{# if (adjustDialogSize (getViewPageForCreatePage page application)) }}
+                                                                fullWidth: true,
+                                                                maxWidth: '{{ getDialogSizeForViewPageOfCreatePage page application }}',
+                                                            {{/ if }}
                                                             onClose: (event: object, reason: string) => {
                                                                 if (reason !== 'backdropClick') {
                                                                     closeDialog();

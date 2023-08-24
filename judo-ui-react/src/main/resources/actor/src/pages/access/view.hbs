@@ -152,6 +152,10 @@ export default function {{ pageName page }}() {
 
     {{# if page.dataElement.isUpdatable }}
         async function saveData() {
+            {{# if (hasPageRequiredBy page) }}
+                {{> actor/src/fragments/page/local-validate.fragment.hbs }}
+            {{/ if }}
+
             setIsLoading(true);
 
             try {

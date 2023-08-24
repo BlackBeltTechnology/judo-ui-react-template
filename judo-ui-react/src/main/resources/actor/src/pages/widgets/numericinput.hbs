@@ -11,7 +11,7 @@
         >
     {{/ if }}
     <NumericInput
-        {{# if child.attributeType.isRequired }} required {{/ if }}
+        required={ {{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }} }
         name="{{ child.attributeType.name }}"
         id="{{ createId child }}"
         {{# if (shouldElementHaveAutoFocus child) }}

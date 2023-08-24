@@ -54,7 +54,10 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     return function {{ actionFunctionName action }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.dataElement.target 'Stored' }}) => void, closedCallback?: () => void) {
         {{# if (actionHasVisualElements action) }}
             createDialog({
-                fullWidth: true,
+                {{# if action.target.dialogSize }}
+                    fullWidth: true,
+                    maxWidth: '{{ toLower action.target.dialogSize.name }}',
+                {{/ if }}
                 onClose: (event: object, reason: string) => {
                     if (reason !== 'backdropClick') {
                         closeDialog();
