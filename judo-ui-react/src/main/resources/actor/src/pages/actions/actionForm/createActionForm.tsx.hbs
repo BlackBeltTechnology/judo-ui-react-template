@@ -97,6 +97,10 @@ export function {{ pageActionFormComponentName action }}({
     {{/ if }}
 
     const saveData = async () => {
+        {{# if (hasPageRequiredBy page) }}
+            {{> actor/src/fragments/page/local-validate.fragment.hbs }}
+        {{/ if }}
+
         setIsLoading(true);
 
         try {

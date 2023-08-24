@@ -1,6 +1,6 @@
 return async function {{ actionFunctionName action }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
     createDialog({
-        {{# if (adjustDialogSize action.inputParameterPage) }}
+        {{# if action.inputParameterPage.dialogSize }}
             fullWidth: true,
             maxWidth: '{{ toLower action.inputParameterPage.dialogSize.name }}',
         {{/ if }}
@@ -28,7 +28,7 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                                     navigate(routeTo{{ pageName action.outputParameterPage }}(result.__signedIdentifier));
                                 {{ else }}
                                     createDialog({
-                                        {{# if (adjustDialogSize action.outputParameterPage) }}
+                                        {{# if action.outputParameterPage.dialogSize }}
                                             fullWidth: true,
                                             maxWidth: '{{ toLower action.outputParameterPage.dialogSize.name }}',
                                         {{/ if }}
@@ -50,7 +50,7 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                                 {{/ unless }}
                             {{ else }}
                                 createOutputDialog({
-                                    {{# if (adjustDialogSize action.outputParameterPage) }}
+                                    {{# if action.outputParameterPage.dialogSize }}
                                         fullWidth: true,
                                         maxWidth: '{{ toLower action.outputParameterPage.dialogSize.name }}',
                                     {{/ if }}

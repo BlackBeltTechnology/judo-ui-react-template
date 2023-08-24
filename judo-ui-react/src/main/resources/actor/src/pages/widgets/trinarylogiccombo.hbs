@@ -16,7 +16,7 @@
         {{# if (shouldElementHaveAutoFocus child) }}
             autoFocus={true}
         {{/ if }}
-        {{# if child.attributeType.isRequired }}required={ true }{{/ if }}
+        required={ {{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }} }
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data?.{{ child.attributeType.name }} }
         editMode={ editMode }

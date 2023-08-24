@@ -1,0 +1,12 @@
+// Record of attribute names to check with the actual value of the referenced requiredBy field's value
+const requiredByRecord: Record<string, boolean> = {
+  {{# each (getRequiredByWidgetsForPage page) as |child| }}
+    {{ child.attributeType.name }}: !!data.{{ child.requiredBy.name }},
+  {{/ each }}
+};
+
+const result = passesLocalValidation<{{ classDataName page.dataElement.target '' }}>(data, requiredByRecord, t, setValidation);
+
+if (!result) {
+  return;
+}

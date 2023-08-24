@@ -29,6 +29,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.List;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 @Log
@@ -317,4 +318,27 @@ public class UiWidgetHelper extends Helper {
     public static boolean linkHasCreateAction(Link link) {
         return getCreateActionForLink(link) != null;
     }
+
+    public static void collectVisualElementsMatchingCondition(VisualElement root, Predicate<VisualElement> condition, Collection<VisualElement> matches) {
+        if (root == null || condition == null) {
+            return;
+        }
+
+        if (condition.test(root)) {
+            matches.add(root);
+        }
+
+        if (root instanceof Container) {
+            for (VisualElement child : ((Container) root).getChildren()) {
+                collectVisualElementsMatchingCondition(child, condition, matches);
+            }
+        }
+
+        if (root instanceof TabController) {
+            for (Tab tab : ((TabController) root).getTabs()) {
+                collectVisualElementsMatchingCondition(tab.getElement(), condition, matches);
+            }
+        }
+    }
+
 }

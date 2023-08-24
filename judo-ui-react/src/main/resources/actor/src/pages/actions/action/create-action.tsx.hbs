@@ -54,7 +54,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     return function {{ actionFunctionName action }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.dataElement.target 'Stored' }}) => void, closedCallback?: () => void) {
         {{# if (actionHasVisualElements action) }}
             createDialog({
-                {{# if (adjustDialogSize action.target) }}
+                {{# if action.target.dialogSize }}
                     fullWidth: true,
                     maxWidth: '{{ toLower action.target.dialogSize.name }}',
                 {{/ if }}
