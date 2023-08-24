@@ -95,7 +95,6 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     label: t('judo.pages.table.remove', { defaultValue: 'Remove' }) as string,
                     icon: <MdiIcon path="{{ action.icon.name }}" />,
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}(ownerData, row, () => {
-                        fetchData();
                         fetchOwnerData();
                     }),
                     disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} isLoading,
@@ -107,7 +106,6 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     label: t('judo.pages.table.delete', { defaultValue: 'Delete' }) as string,
                     icon: <MdiIcon path="{{ action.icon.name }}" />,
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }}(ownerData, row, () => {
-                        fetchData();
                         fetchOwnerData();
                     }),
                     disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} !row.__deleteable || isLoading,
@@ -119,7 +117,6 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     label: t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ action.label }}' }) as string,
                     icon: <MdiIcon path="{{ action.icon.name }}" />,
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{ actionFunctionName action }} (row, () => {
-                      fetchData();
                       fetchOwnerData();
                     }),
                 },
