@@ -1,3 +1,4 @@
+import { Box, Typography } from '@mui/material';
 import {
     {{# each (getApiImportsForViewPage page) as |imp| }}
         {{ imp }},
@@ -27,6 +28,7 @@ export interface {{ tableComponentName table }}Props {
     editMode: boolean;
     isFormUpdateable: () => boolean;
     storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner 'Stored' }}, value: any) => void;
+    validation: Map<keyof {{ classDataName table.dataElement.owner '' }}, string>;
 }
 
 export const {{ tableComponentName table }} = (props: {{ tableComponentName table }}Props) => {
@@ -129,6 +131,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 sx={ {
                     // overflow: 'hidden',
                     display: 'grid',
+                    border: (theme) => props.validation.has('{{ table.dataElement.name }}') ? `2px solid ${theme.palette.error.main}` : undefined,
                     {{# if (stringValueIsTrue useTableRowHighlighting) }}
                     ...transformRowStylings(rowStylings),
                     {{/ if }}
@@ -257,6 +260,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                     ),
                 } }
             />
+            {{> actor/src/fragments/table/error-feedback.fragment.hbs }}
             {{# if (stringValueIsTrue useTableRowHighlighting) }}
                 <RowHighlightLegend rowStylings={rowStylings} />
             {{/ if }}
