@@ -3,6 +3,7 @@
 {{# if isDebugPrint }}// include: actor/src/fragments/table/common-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/table/common-imports.fragment.hbs }}
 
+import { Box, Typography } from '@mui/material';
 import {
     {{# each (getApiImportsForFormAction action) as |imp| }}
         {{ imp }},
@@ -21,6 +22,7 @@ export interface {{ tableComponentName table }}Props {
     editMode: boolean;
     isFormUpdateable: () => boolean;
     storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => void;
+    validation: Map<keyof {{ classDataName table.dataElement.owner '' }}, string>;
 }
 
 export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
@@ -52,84 +54,88 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{/ each }}
 
     return (
-        <StripedDataGrid
-            { ...baseTableConfig }
-            {{# if isMUILicensePlanPro }}
-                initialState={ { pinnedColumns: { right: ['actions'] } } }
-            {{/ if }}
-            pageSizeOptions={[{{ calculateTablePageLimit table }}]}
-            sx={ {
-                // overflow: 'hidden',
-                display: 'grid',
-            } }
-            getRowId={(row: { __identifier: string }) => row.__identifier}
-            loading={ isOwnerLoading }
-            rows={ ownerData?.{{ table.dataElement.name }} ?? [] }
-            getRowClassName={ (params: GridRowClassNameParams) => {
-                return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
-            } }
-            columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, t, { shownActions: 2 }) ]}
-            disableRowSelectionOnClick
-            sortModel={ {{ table.dataElement.name }}SortModel }
-            onSortModelChange={(newModel: GridSortModel) => {
-                set{{ ucFirst table.dataElement.name }}SortModel(newModel);
-            }}
-            {{# if isUseInlineColumnFilters }}
-            filterModel={ {{ table.dataElement.name }}FilterModel }
-            onFilterModelChange={(newModel: GridFilterModel) => {
-                set{{ ucFirst table.dataElement.name }}FilterModel(newModel);
-            }}
-            {{/ if }}
-            components={ {
-                Toolbar: () => (
-                    <GridToolbarContainer>
-                        {{# each table.actions as |action| }}
-                            {{# if action.isAddAction }}
-                                <Button
-                                    id="{{ createId table.dataElement }}-add"
-                                    startIcon={<MdiIcon path="attachment-plus" />}
-                                    variant="text"
-                                    onClick={ async () => {
-                                        const res = await {{ table.dataElement.name }}RangeCall();
+        <>
+            <StripedDataGrid
+                { ...baseTableConfig }
+                {{# if isMUILicensePlanPro }}
+                    initialState={ { pinnedColumns: { right: ['actions'] } } }
+                {{/ if }}
+                pageSizeOptions={[{{ calculateTablePageLimit table }}]}
+                sx={ {
+                    // overflow: 'hidden',
+                    display: 'grid',
+                    border: (theme) => props.validation.has('{{ table.dataElement.name }}') ? `2px solid ${theme.palette.error.main}` : undefined,
+                } }
+                getRowId={(row: { __identifier: string }) => row.__identifier}
+                loading={ isOwnerLoading }
+                rows={ ownerData?.{{ table.dataElement.name }} ?? [] }
+                getRowClassName={ (params: GridRowClassNameParams) => {
+                    return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+                } }
+                columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, t, { shownActions: 2 }) ]}
+                disableRowSelectionOnClick
+                sortModel={ {{ table.dataElement.name }}SortModel }
+                onSortModelChange={(newModel: GridSortModel) => {
+                    set{{ ucFirst table.dataElement.name }}SortModel(newModel);
+                }}
+                {{# if isUseInlineColumnFilters }}
+                filterModel={ {{ table.dataElement.name }}FilterModel }
+                onFilterModelChange={(newModel: GridFilterModel) => {
+                    set{{ ucFirst table.dataElement.name }}FilterModel(newModel);
+                }}
+                {{/ if }}
+                components={ {
+                    Toolbar: () => (
+                        <GridToolbarContainer>
+                            {{# each table.actions as |action| }}
+                                {{# if action.isAddAction }}
+                                    <Button
+                                        id="{{ createId table.dataElement }}-add"
+                                        startIcon={<MdiIcon path="attachment-plus" />}
+                                        variant="text"
+                                        onClick={ async () => {
+                                            const res = await {{ table.dataElement.name }}RangeCall();
 
-                                        if (res) {
-                                            storeDiff('{{ table.dataElement.name }}', [
-                                                ...(ownerData.{{ table.dataElement.name }} || []),
-                                                ...(res.value as {{ classDataName table.dataElement.target 'Stored' }}[])
-                                            ]);
+                                            if (res) {
+                                                storeDiff('{{ table.dataElement.name }}', [
+                                                    ...(ownerData.{{ table.dataElement.name }} || []),
+                                                    ...(res.value as {{ classDataName table.dataElement.target 'Stored' }}[])
+                                                ]);
+                                            }
+                                        } }
+                                        disabled={
+                                               isOwnerLoading
+                                            || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
+                                            || !isFormUpdateable()
                                         }
-                                    } }
-                                    disabled={
-                                           isOwnerLoading
-                                        || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
-                                        || !isFormUpdateable()
-                                    }
-                                >
-                                    {t('judo.pages.table.add', { defaultValue: 'Add' })}
-                                </Button>
-                            {{/ if }}
-                            {{# if action.isClearAction }}
-                                <Button
-                                    id="{{ createId table.dataElement }}-clear"
-                                    startIcon={<MdiIcon path="link_off" />}
-                                    variant="text"
-                                    onClick={ async () => {
-                                        storeDiff('{{ table.dataElement.name }}', []);
-                                    } }
-                                    disabled={
-                                           isOwnerLoading
-                                        || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
-                                        || !isFormUpdateable()
-                                    }
-                                >
-                                    {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
-                                </Button>
-                            {{/ if }}
-                        {{/ each }}
-                        <div>{/* Placeholder */}</div>
-                    </GridToolbarContainer>
-                ),
-            } }
-        />
+                                    >
+                                        {t('judo.pages.table.add', { defaultValue: 'Add' })}
+                                    </Button>
+                                {{/ if }}
+                                {{# if action.isClearAction }}
+                                    <Button
+                                        id="{{ createId table.dataElement }}-clear"
+                                        startIcon={<MdiIcon path="link_off" />}
+                                        variant="text"
+                                        onClick={ async () => {
+                                            storeDiff('{{ table.dataElement.name }}', []);
+                                        } }
+                                        disabled={
+                                               isOwnerLoading
+                                            || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
+                                            || !isFormUpdateable()
+                                        }
+                                    >
+                                        {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
+                                    </Button>
+                                {{/ if }}
+                            {{/ each }}
+                            <div>{/* Placeholder */}</div>
+                        </GridToolbarContainer>
+                    ),
+                } }
+            />
+            {{> actor/src/fragments/table/error-feedback.fragment.hbs }}
+        </>
     );
 });
