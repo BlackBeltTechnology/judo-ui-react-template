@@ -13,6 +13,7 @@
     <ModeledTabs
         id="{{ createId child }}"
         ownerData={data}
+        validation={validation}
         {{# if child.orientation }}orientation='{{ toLower child.orientation.name }}'{{/ if }}
         childTabs={[
             {{# each child.tabs as |tab| }}
@@ -25,6 +26,11 @@
                     {{# if tab.element.icon }}
                         icon: '{{ tab.element.icon.name }}',
                     {{/ if }}
+                    nestedDataKeys: [
+                        {{# each (getNestedDataKeysForElement tab.element) as |key| }}
+                            '{{ key }}',
+                        {{/ each }}
+                    ],
                 },
             {{/ each }}
         ]}

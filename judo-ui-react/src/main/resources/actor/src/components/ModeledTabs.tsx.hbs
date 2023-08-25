@@ -35,6 +35,7 @@ export function TabPanel(props: TabPanelProps) {
 export interface ChildTabProps {
     id: string;
     name: string;
+    nestedDataKeys: string[];
     label?: string;
     icon?: string;
     disabled?: boolean | null;
@@ -47,9 +48,10 @@ export interface ModeledTabsProps {
     childTabs: ChildTabProps[];
     children: ReactNode;
     orientation?: 'horizontal' | 'vertical';
+    validation: Map<any, string>;
 }
 
-export function ModeledTabs({ id, ownerData, childTabs, children, orientation }: ModeledTabsProps) {
+export function ModeledTabs({ id, ownerData, childTabs, children, orientation, validation }: ModeledTabsProps) {
     const [value, setValue] = useState<number>(0);
     const border = orientation === 'vertical' ? 'borderRight' : 'borderBottom';
     const additionalBoxSx = orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {};
@@ -66,6 +68,17 @@ export function ModeledTabs({ id, ownerData, childTabs, children, orientation }:
         }
     }, [ownerData]);
 
+    const hasNestedError = (tab: ChildTabProps): boolean => {
+        if (tab.nestedDataKeys.length) {
+            return tab.nestedDataKeys.some(key => validation.has(key));
+        }
+        return false;
+    };
+
+    const tabsHaveError = (): boolean => {
+        return childTabs.some(tab => hasNestedError(tab));
+    };
+
     return (
         <Box id={id} sx={ { width: '100%', ...additionalBoxSx } }>
             <Tabs
@@ -78,7 +91,7 @@ export function ModeledTabs({ id, ownerData, childTabs, children, orientation }:
                 sx={ { [border]: 1, borderColor: 'divider' } }
             >
                 {childTabs.filter(c => !c.hidden).map((c: any, index: number) => (
-                <Tab id={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={c.disabled} />
+                <Tab className={hasNestedError(c) ? 'JUDO-nestedError' : undefined} id={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={c.disabled} />
                 ))}
             </Tabs>
             {childTabs.filter(c => !c.hidden).map((c: any, index: number) => (
