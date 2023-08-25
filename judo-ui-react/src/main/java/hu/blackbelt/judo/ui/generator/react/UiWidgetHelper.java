@@ -341,4 +341,14 @@ public class UiWidgetHelper extends Helper {
         }
     }
 
+    public static List<String> getNestedDataKeysForElement(VisualElement visualElement) {
+        Set<VisualElement> elements = new HashSet<>();
+        collectVisualElementsMatchingCondition(visualElement, (element) -> element instanceof Input, elements);
+
+        return elements.stream()
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .map(e -> ((Input) e).getAttributeType().getName())
+                .collect(Collectors.toList());
+    }
+
 }
