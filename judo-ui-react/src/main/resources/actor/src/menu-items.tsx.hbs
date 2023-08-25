@@ -15,6 +15,9 @@ export const menuItems: MenuItem[] = [
         {{# if item.label }}
             label: '{{ item.label }}',
         {{/ if }}
+        {{# if item.hidden }}
+            hidden: '{{ item.hidden }}',
+        {{/ if }}
         items: [
         {{# each item.items as |subItem| }}
             {
@@ -27,6 +30,9 @@ export const menuItems: MenuItem[] = [
             {{/ if }}
             {{# if subItem.label }}
                 label: '{{ subItem.label }}',
+            {{/ if }}
+            {{# if subItem.hidden }}
+                hidden: '{{ subItem.hidden }}',
             {{/ if }}
             },
         {{/ each }}
