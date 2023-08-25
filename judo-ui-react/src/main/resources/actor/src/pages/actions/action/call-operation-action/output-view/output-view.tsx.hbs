@@ -64,11 +64,12 @@ import {
 {{/ each }}
 
 export interface {{ pageName page }}Props {
-    close: () => void;
-    result: {{ classDataName page.dataElement.target '' }};
+    cancel: () => void;
+    successCallback: () => void;
+    entry: {{ classDataName page.dataElement.target '' }};
 }
 
-export default function {{ pageName page }}({ close, result } : {{ pageName page }}Props) {
+export default function {{ pageName page }}({ cancel, successCallback, entry } : {{ pageName page }}Props) {
     const { t } = useTranslation();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
@@ -76,7 +77,7 @@ export default function {{ pageName page }}({ close, result } : {{ pageName page
     const { openRangeDialog } = useRangeDialog();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({ ...result });
+    const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({ ...entry });
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
     const [editMode, setEditMode] = useState<boolean>(false);
     const [payloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
@@ -105,7 +106,7 @@ export default function {{ pageName page }}({ close, result } : {{ pageName page
                     <IconButton
                         id="{{ createId page }}-output-view-close"
                         aria-label="close"
-                        onClick={ () => close() }
+                        onClick={ () => cancel() }
                         sx={ {
                             position: 'absolute',
                             right: 8,
@@ -127,7 +128,7 @@ export default function {{ pageName page }}({ close, result } : {{ pageName page
                     </Grid>
                 </DialogContent>
                 <DialogActions>
-                    <Button id="{{ createId page }}-output-view-action-close" variant="contained" onClick={ () => close() } disabled={isLoading}>
+                    <Button id="{{ createId page }}-output-view-action-close" variant="contained" onClick={ () => cancel() } disabled={isLoading}>
                         { t('judo.modal.close', { defaultValue: 'Close' }) as string }
                     </Button>
                 </DialogActions>
