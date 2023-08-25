@@ -91,7 +91,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
 
-    {{# if page.dataElement.isMemberTypeMapped }}
+    {{# if page.dataElement.isUpdatable }}
         {{# if isDebugPrint }}// include: actor/src/fragments/page/mapped-form-flags.hbs{{/ if }}
         {{> actor/src/fragments/page/mapped-form-flags.hbs }}
     {{ else }}
