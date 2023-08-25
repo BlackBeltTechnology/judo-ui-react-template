@@ -84,11 +84,11 @@ export function MenuItems (props: MenuItemsProps) {
     <>
       <List id="application-navigator" component="nav">
         {items.map((item) =>
-          item.items && item.items.length ? (
+          item.items && item.items.length ? !item.hidden && (
             <List
               component="nav"
               key={item.label}
-              subheader={ !item.hidden && 
+              subheader={ !item.hidden &&
                 <ListSubheader component="div" id="nested-list-subheader">
                   {t(`menuTree.${item.label}`, { defaultValue: item.label })}
                 </ListSubheader>
