@@ -23,6 +23,7 @@ import { useTranslation } from 'react-i18next';
 {{/ if }}
 import { Hero, Logo, useJudoNavigation, MdiIcon } from '../components';
 import type { MenuItem, HeroProps, LogoProps } from '../components-api';
+import { MenuItems } from './MenuItems';
 
 import 'simplebar-react/dist/simplebar.min.css';
 
@@ -30,47 +31,6 @@ export interface NavigatorProps {
   items: Array<MenuItem>;
   heroProps: HeroProps;
   logoProps: LogoProps;
-}
-
-function ActionItem(props: MenuItem) {
-  const { t } = useTranslation();
-  const { clearNavigate } = useJudoNavigation();
-  const { id, level, label, to, icon, items } = props;
-  const [open, setOpen] = useState<boolean>(!!window.localStorage.getItem(id + '-open'));
-
-  const hasSubGroup = () => Array.isArray(items) && items.length > 0;
-
-  useEffect(() => {
-    if (open) {
-      window.localStorage.setItem(id + '-open', open.toString());
-    } else {
-      window.localStorage.removeItem(id + '-open');
-    }
-  }, [id, open]);
-
-  return (
-    <>
-      <ListItemButton className="navigation-item" sx={ { paddingLeft: (level || 1) * 2 } } id={id} onClick={ () => {
-        if (hasSubGroup()) {
-          setOpen(!open);
-          window.localStorage.setItem(id + '-open', (!open).toString());
-        } else if (to) {
-          clearNavigate(to);
-        }
-      } }>
-        {icon ? (
-          <ListItemIcon className="navigation-item-icon">
-            <MdiIcon path={icon} />
-          </ListItemIcon>
-        ) : null}
-        <ListItemText classes={ { primary: 'navigation-item-label' } } primary={ t(`menuTree.${label}`, { defaultValue: label }) } />
-        {hasSubGroup() && (open ? <MdiIcon path='chevron-down' /> : <MdiIcon path='chevron-right' />)}
-      </ListItemButton>
-      {hasSubGroup() && <Collapse in={open} timeout="auto" unmountOnExit>
-        {(items || []).map((item) => <ActionItem key={item.label} level={ (level || 1) + 1 } {...item} />)}
-      </Collapse>}
-    </>
-  );
 }
 
 export function Navigator(props: DrawerProps & NavigatorProps) {
@@ -95,28 +55,7 @@ export function Navigator(props: DrawerProps & NavigatorProps) {
           <Hero {...heroProps} />
         {{/ if }}
         <Divider variant="middle" />
-        <List id="application-navigator" component="nav">
-          {items.map((item) =>
-            item.items && item.items.length ? (
-              <List
-                component="nav"
-                key={item.label}
-                subheader={
-                  <ListSubheader component="div" id="nested-list-subheader">
-                    {t(`menuTree.${item.label}`, { defaultValue: item.label })}
-                  </ListSubheader>
-                }
-              >
-              {item.items.map((subItem) => (
-                <ActionItem key={subItem.label} {...subItem} />
-              ))}
-            </List>
-          ) : (
-            <ActionItem key={item.label} {...item} />
-          ),
-        )}
-        </List>
-        {items.length ? <Divider variant="middle" /> : null}
+        <MenuItems items={items} />
         {{# if application.authentication }}
           <List>
             <ListItem disablePadding>
