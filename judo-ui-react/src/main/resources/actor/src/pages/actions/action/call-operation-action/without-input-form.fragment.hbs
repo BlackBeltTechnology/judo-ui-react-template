@@ -102,10 +102,13 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                             }
                         },
                         children: (
-                            <{{ pageName action.outputParameterPage }} result={result} close={() => {
-                               closeOutputDialog();
-                               successCallback();
-                            }} />
+                            <{{ pageName action.outputParameterPage }} entry={result} cancel={ () => {
+                                closeOutputDialog();
+                                successCallback();
+                            } } successCallback={ () => {
+                                closeOutputDialog();
+                                successCallback();
+                            } } />
                         )
                     });
                 {{/ unless }}
