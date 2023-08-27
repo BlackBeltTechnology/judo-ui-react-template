@@ -343,7 +343,7 @@ public class UiWidgetHelper extends Helper {
 
     public static List<String> getNestedDataKeysForElement(VisualElement visualElement) {
         Set<VisualElement> elements = new HashSet<>();
-        collectVisualElementsMatchingCondition(visualElement, (element) -> element instanceof Input || element instanceof Table, elements);
+        collectVisualElementsMatchingCondition(visualElement, (element) -> element instanceof Input || element instanceof Table || element instanceof Link, elements);
 
         return elements.stream()
                 .sorted(Comparator.comparing(NamedElement::getFQName))
@@ -351,7 +351,9 @@ public class UiWidgetHelper extends Helper {
                     if (e instanceof Input) {
                         return ((Input) e).getAttributeType().getName();
                     } else if (e instanceof Table) {
-                        return ((Table) e).getDataElement().getName();
+                        return ((Table) e).getRelationType().getName();
+                    } else if (e instanceof Link) {
+                        return ((Link) e).getRelationType().getName();
                     } else {
                         throw new RuntimeException("Unsupported data key type: " + e.getClass().getName());
                     }
