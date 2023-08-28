@@ -18,6 +18,7 @@ export interface PageActionsProps {
 export function PageActions (props: PageActionsProps) {
     const { isLoading, fetchData } = props;
     const { t } = useTranslation();
+    const editMode = false;
 
     {{# each (getOnlyPageActions page) as |action| }}
         {{# unless action.isFilterAction }}
@@ -30,7 +31,7 @@ export function PageActions (props: PageActionsProps) {
             {{# each (getUniquePageActions page) as |action| }}
                 {{# if action.isCreateAction }}
                     <Grid className="page-action" item>
-                        <Button id="page-action-create" startIcon={<MdiIcon path="file_document_plus" />} onClick={ () => {{ actionFunctionName action }}(() => fetchData()) } disabled={isLoading}>
+                        <Button id="page-action-create" startIcon={<MdiIcon path="file_document_plus" />} onClick={ () => {{ actionFunctionName action }}(editMode, () => fetchData()) } disabled={isLoading}>
                             {t('judo.pages.table.create', { defaultValue: 'Create' })}
                         </Button>
                     </Grid>
