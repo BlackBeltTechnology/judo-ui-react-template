@@ -38,6 +38,7 @@ import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormCom
 
 export type {{ actionFunctionTypeName action }} = () => (
   {{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}
+  callerEditMode: boolean,
   successCallback: (result: {{ classDataName action.dataElement.target 'Stored' }}) => void,
   closedCallback?: () => void,
 ) => void;
@@ -51,7 +52,7 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
     {{/ unless }}
     const { enqueueSnackbar } = useSnackbar();
 
-    return function {{ actionFunctionName action }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}successCallback: (result: {{ classDataName action.dataElement.target 'Stored' }}) => void, closedCallback?: () => void) {
+    return function {{ actionFunctionName action }} ({{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}callerEditMode: boolean, successCallback: (result: {{ classDataName action.dataElement.target 'Stored' }}) => void, closedCallback?: () => void) {
         {{# if (actionHasVisualElements action) }}
             createDialog({
                 {{# if action.target.dialogSize }}
@@ -66,13 +67,16 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                 },
                 children: (
                     <{{ pageActionFormComponentName action }}
+                        callerEditMode={callerEditMode}
                         successCallback={(result: {{ classDataName action.dataElement.target 'Stored' }}, open?: boolean) => {
                             if(!open) {
-                              closeDialog();
-                              enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
-                                  variant: 'success',
-                                  ...toastConfig.success,
-                              });
+                                closeDialog();
+                                if (!callerEditMode) {
+                                    enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
+                                        variant: 'success',
+                                        ...toastConfig.success,
+                                    });
+                                }
                             }
 
                             successCallback(result);
