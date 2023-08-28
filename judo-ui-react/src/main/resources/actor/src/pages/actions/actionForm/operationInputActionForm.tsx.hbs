@@ -30,6 +30,9 @@ import {
     type {{ nameWithoutModel fault.target.name }}FaultHandler = (payload: {{ nameWithoutModel fault.target.name }}) => Record<string, any> | object;
 {{/ each }}
 
+{{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-declaration.fragment.hbs{{/ if }}
+{{> actor/src/fragments/page/on-blur-declaration.fragment.hbs page=page }}
+
 export interface {{ pageActionFormComponentName action }}Props {
     successCallback: ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => void;
     cancel: () => void;
@@ -66,6 +69,9 @@ export function {{ pageActionFormComponentName action }}({
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
     }, [data]);
     const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
+
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-hook-call.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/on-blur-hook-call.fragment.hbs page=page }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/input-form-flags.hbs }}

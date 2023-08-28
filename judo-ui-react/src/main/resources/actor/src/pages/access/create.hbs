@@ -13,7 +13,7 @@ import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers{{ ge
 import { useSnackbar } from 'notistack';
 import { v1 as uuidv1 } from 'uuid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import { ComponentProxy } from '@pandino/react-hooks';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import type { {{ getMuiDataGridTypeImportsForPage page }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { {{ getMuiDataGridImportsForPage page }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { JudoIdentifiable } from '@judo/data-api-common';
@@ -66,6 +66,9 @@ import { mainContainerPadding } from '~/theme';
     export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName page.dataElement.target '' }}>> {}
 {{/ each }}
 
+{{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-declaration.fragment.hbs{{/ if }}
+{{> actor/src/fragments/page/on-blur-declaration.fragment.hbs page=page }}
+
 /**
  * Name: {{ page.name }}
  * Is Access: {{ boolValue page.relationType.isAccess }}
@@ -94,6 +97,9 @@ export default function {{ pageName page }}() {
     }, [data]);
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target ''}}, string>>(new Map<keyof {{ classDataName page.dataElement.target ''}}, string>());
     const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
+
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-hook-call.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/on-blur-hook-call.fragment.hbs page=page }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/input-form-flags.hbs }}
