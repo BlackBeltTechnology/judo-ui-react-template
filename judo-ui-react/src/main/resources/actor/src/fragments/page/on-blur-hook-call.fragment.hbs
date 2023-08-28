@@ -1,0 +1,4 @@
+{{# each (getOnBlurWidgetsForPage page) as |ve| }}
+    const { service: {{ ve.name }}OnBlurHook } = useTrackService<{{ pageName page }}{{ firstToUpper ve.name }}OnBlurHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_{{ camelCaseNameToInterfaceKey ve.name }}_ON_BLUR_INTERFACE_KEY})`);
+    const {{ ve.name }}OnBlurAction: {{ pageName page }}{{ firstToUpper ve.name }}OnBlurAction | undefined = {{ ve.name }}OnBlurHook && {{ ve.name }}OnBlurHook();
+{{/ each }}

@@ -45,6 +45,9 @@ export type {{ pageName page }}PostRefreshAction = (
 export const {{ camelCaseNameToInterfaceKey (pageName page) }}_POST_REFRESH_HOOK_INTERFACE_KEY = '{{ pageName page }}PostRefreshHook';
 export type {{ pageName page }}PostRefreshHook = () => {{ pageName page }}PostRefreshAction;
 
+{{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-declaration.fragment.hbs{{/ if }}
+{{> actor/src/fragments/page/on-blur-declaration.fragment.hbs page=page }}
+
 /**
  * Name: {{ page.name }}
  * Is Operation Output: true
@@ -94,6 +97,9 @@ export default function {{ pageName page }}() {
     {{ else }}
         const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
+
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-hook-call.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/on-blur-hook-call.fragment.hbs page=page }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/mapped-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/mapped-form-flags.hbs }}

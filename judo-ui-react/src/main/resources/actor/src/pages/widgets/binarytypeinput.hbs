@@ -33,10 +33,17 @@
         {{# unless child.attributeType.isReadOnly }}
             deleteCallback={ async () => {
                 storeDiff('{{ child.attributeType.name }}', null);
+                {{# if child.onBlur }}
+                    const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: null };
+                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+                {{/ if }}
             } }
         {{/unless}}
         uploadCallback={ async (uploadedData: { token: string }) => {
             storeDiff('{{ child.attributeType.name }}', uploadedData.token);
+            {{# if child.onBlur }}
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation);
+            {{/ if }}
         } }
     />
     {{# if child.customImplementation }}

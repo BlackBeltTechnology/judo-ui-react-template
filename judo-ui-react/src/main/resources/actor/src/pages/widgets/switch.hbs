@@ -18,6 +18,10 @@
                 control={
                     <Checkbox checked={ data.{{ child.attributeType.name }} || false } onChange={ (event) => {
                         storeDiff('{{ child.attributeType.name }}', event.target.checked);
+                        {{# if child.onBlur }}
+                            const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: event.target.checked };
+                            {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+                        {{/ if }}
                     } } />
                 }
                 label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }

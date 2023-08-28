@@ -50,6 +50,9 @@
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
+        {{# if child.onBlur }}
+        onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation) }
+        {{/ if }}
         onChange={ (newValue?: any | null) => {
             storeDiff('{{ child.attributeType.name }}', newValue);
         } }
