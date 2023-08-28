@@ -18,7 +18,13 @@
         {{# if (isPageRefreshable page) }}
             fetchOwnerData={fetchData}
         {{/ if }}
-        storeDiff={storeDiff}
+        onChange={ (value: {{ classDataName child.dataElement.target '' }} | {{ classDataName child.dataElement.target 'Stored' }} | null) => {
+            storeDiff('{{ child.dataElement.name }}', value);
+            {{# if child.onBlur }}
+                const eagerCopy: {{ classDataName child.dataElement.owner '' }} = { ...data, ['{{ child.dataElement.name }}' as keyof {{ classDataName child.dataElement.owner '' }}]: value };
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+            {{/ if }}
+        } }
         validation={validation}
     />
     {{# if child.customImplementation }}

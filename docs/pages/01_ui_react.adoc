@@ -696,3 +696,43 @@ const customGodGalaxiesViewRefreshPostHandlerHook: GodGalaxiesViewPostRefreshHoo
   };
 };
 ----
+
+=== Implementing an onBlur hook
+
+OnBlur hooks are available for all form elements which have the flag enabled in the model.
+
+Just like every other hook, these have their corresponding `INTERFACE_KEY` and the interfaces for the keys.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { Dispatch, SetStateAction } from 'react';
+import type { BundleContext } from '@pandino/pandino-api';
+import { ApplicationCustomizer } from './interfaces';
+import { GOD_CREATE_NAME_ON_BLUR_INTERFACE_KEY, GodCreateNameOnBlurHook } from '~/pages/god/galaxies/table/actions/PageCreateGalaxiesForm';
+import type { ViewGalaxy } from '~/generated/data-api';
+
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    // register your implementations here
+
+    context.registerService(GOD_CREATE_NAME_ON_BLUR_INTERFACE_KEY, customGodCreateNameOnBlurHook);
+  }
+}
+
+const customGodCreateNameOnBlurHook: GodCreateNameOnBlurHook = () => {
+  return async (
+    data: ViewGalaxy,
+    storeDiff: (attributeName: keyof ViewGalaxy, value: any) => void,
+    editMode: boolean,
+    setEditMode: Dispatch<SetStateAction<boolean>>,
+    setValidation: Dispatch<SetStateAction<Map<keyof ViewGalaxy, string>>>,
+  ) => {
+    if (data.name === 'test') {
+      storeDiff('constellation', data.name);
+      storeDiff('nakedEye', true);
+    }
+  };
+};
+----
