@@ -73,7 +73,7 @@ public class UiPandinoHelper {
 
     public static List<VisualElement> getOnBlurWidgetsForPage(PageDefinition pageDefinition) {
         Set<VisualElement> elements = new LinkedHashSet<>();
-        collectVisualElementsMatchingCondition(pageDefinition.getOriginalPageContainer(), e -> e.getOnBlur() != null && e.getOnBlur().equals(Boolean.TRUE), elements);
+        collectVisualElementsMatchingCondition(pageDefinition.getOriginalPageContainer(), e -> e.getOnBlur() != null && e.getOnBlur(), elements);
 
         return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
