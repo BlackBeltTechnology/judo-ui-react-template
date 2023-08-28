@@ -12,7 +12,7 @@ const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName ta
                     },
                 {{ else }}
                     action: async (row: {{ classDataName table.dataElement.target 'Stored' }}) => {
-                        storeDiff('{{ table.dataElement.name }}', [...(ownerData.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)]);
+                        storeDiff('{{ table.dataElement.name }}', [...(ownerData.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__identifier !== row.__identifier)]);
                     },
                 {{/ if }}
             },
@@ -27,7 +27,7 @@ const {{ table.dataElement.name }}RowActions: TableRowAction<{{ classDataName ta
                         if (!editMode) {
                             {{ actionFunctionName action }}({{# if (hasDataElementOwner action.dataElement) }}ownerData, {{/ if }}row, () => fetchOwnerData());
                         } else {
-                            storeDiff('{{ table.dataElement.name }}', [...(ownerData.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__signedIdentifier !== row.__signedIdentifier)]);
+                            storeDiff('{{ table.dataElement.name }}', [...(ownerData.{{ table.dataElement.name }} || []).filter((e: {{ classDataName table.dataElement.target 'Stored' }}) => e.__identifier !== row.__identifier)]);
                         }
                     },
                     disabled: (row: {{ classDataName table.dataElement.target 'Stored' }}) => {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} (row.__deleteable !== undefined && !row.__deleteable),
