@@ -163,12 +163,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                         ...toastConfig.success,
                     });
                     successCallback();
+                    await fetchData();
+                    setEditMode(false);
                 }
             } catch (error) {
                 handleUpdateError(error, { setValidation }, data);
             } finally {
-                fetchData();
-                setEditMode(false);
                 setIsLoading(false);
             }
         }
