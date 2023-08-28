@@ -42,6 +42,16 @@ export interface {{ pageName page }}Props {
     cancel: () => void;
 }
 
+export type {{ pageName page }}PostRefreshAction = (
+    data: {{ classTypeName page.dataElement.target }},
+    storeDiff: (attributeName: keyof {{ classTypeName page.dataElement.target }}, value: any) => void,
+    setEditMode: Dispatch<SetStateAction<boolean>>,
+    setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>>,
+) => Promise<void>;
+
+export const {{ camelCaseNameToInterfaceKey (pageName page) }}_POST_REFRESH_HOOK_INTERFACE_KEY = '{{ pageName page }}PostRefreshHook';
+export type {{ pageName page }}PostRefreshHook = () => {{ pageName page }}PostRefreshAction;
+
 /**
  * Name: {{ page.name }}
  * Is Access: {{ boolValue page.dataElement.isAccess }}
@@ -81,6 +91,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         _mask: '{{ page.formattedMask }}',
     };
 
+    const { service: postRefreshHook } = useTrackService<{{ pageName page }}PostRefreshHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_POST_REFRESH_HOOK_INTERFACE_KEY})`);
+    const postRefreshAction: {{ pageName page }}PostRefreshAction | undefined = postRefreshHook && postRefreshHook();
+
     {{# each (getButtonActions page) as |action| }}
         const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
     {{/ each }}
@@ -118,6 +131,13 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 __version: res.__version,
                 __entityType: res.__entityType,
             } as Record<keyof {{ classTypeName page.dataElement.target }}, any>);
+            if (postRefreshAction) {
+                try {
+                    await postRefreshAction(res, storeDiff, setEditMode, setValidation);
+                } catch(error) {
+                    console.error(error);
+                }
+            }
         } catch (error) {
             handleFetchError(error);
         } finally {
