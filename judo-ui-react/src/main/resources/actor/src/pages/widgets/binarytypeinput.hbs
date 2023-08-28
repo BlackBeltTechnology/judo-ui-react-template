@@ -42,7 +42,8 @@
         uploadCallback={ async (uploadedData: { token: string }) => {
             storeDiff('{{ child.attributeType.name }}', uploadedData.token);
             {{# if child.onBlur }}
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation);
+                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: uploadedData.token };
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
             {{/ if }}
         } }
     />
