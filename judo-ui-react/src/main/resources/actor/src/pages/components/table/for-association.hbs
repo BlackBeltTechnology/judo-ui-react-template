@@ -304,7 +304,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         id="{{ createId action }}"
                                         startIcon={<MdiIcon path="file_document_plus" />}
                                         variant="text"
-                                        onClick={ () => {{ actionFunctionName action }}(ownerData, () => fetchData()) }
+                                        onClick={ () => {{ actionFunctionName action }}(ownerData, () => fetchOwnerData()) }
                                         disabled={
                                                editMode
                                             || isLoading
@@ -321,7 +321,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         startIcon={<MdiIcon path="attachment-plus" />}
                                         variant="text"
                                         onClick={ async () => {
-                                            {{ actionFunctionName action }}(ownerData, () => fetchData())
+                                            {{ actionFunctionName action }}(ownerData, () => fetchOwnerData())
                                         } }
                                         disabled={ {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} isLoading }
                                     >
@@ -334,7 +334,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         startIcon={<MdiIcon path="link_off" />}
                                         variant="text"
                                         onClick={ async () => {
-                                            {{ actionFunctionName action }}(ownerData, () => fetchData())
+                                            {{ actionFunctionName action }}(ownerData, () => fetchOwnerData())
                                         } }
                                         disabled={ {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} isLoading }
                                     >
