@@ -30,6 +30,10 @@
             value={ data.{{ child.attributeType.name }} || '' }
             onChange={ (event) => {
                 storeDiff('{{ child.attributeType.name }}', event.target.value);
+                {{# if child.onBlur }}
+                    const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: event.target.value };
+                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+                {{/ if }}
             } }
         >
         {{# each child.attributeType.dataType.members as |member| }}

@@ -27,21 +27,20 @@ import {
 export interface {{ linkComponentName link }}Props {
     {{# if (isPageRefreshable page) }}
         ownerData: {{ classDataName link.dataElement.owner 'Stored' }};
-        storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner 'Stored' }}, value: any) => void;
         validation: Map<keyof {{ classDataName link.dataElement.owner 'Stored' }}, string>;
         fetchOwnerData: () => Promise<void>;
     {{ else }}
         ownerData: {{ classDataName link.dataElement.owner '' }};
-        storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner '' }}, value: any) => void;
         validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
     {{/ if }}
+    onChange: (value: {{ classDataName link.dataElement.target '' }} | {{ classDataName link.dataElement.target 'Stored' }} | null) => void;
     disabled: boolean;
     readOnly: boolean;
     editMode: boolean;
 }
 
 export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
-    const { ownerData, disabled, readOnly, editMode, {{# if (isPageRefreshable page) }}fetchOwnerData, {{/ if }}storeDiff, validation } = props;
+    const { ownerData, disabled, readOnly, editMode, {{# if (isPageRefreshable page) }}fetchOwnerData, {{/ if }}onChange, validation } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -77,7 +76,8 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             editMode={ editMode }
             autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
             onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
-                storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
+                // storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
+                onChange({{ link.dataElement.name }} as {{ classDataName link.dataElement.target 'Stored' }});
             } }
             {{# each link.actions as |action| }}
                 {{# if action.isViewAction }}
@@ -95,7 +95,8 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 {{/ if }}
                 {{# if action.isRemoveAction }}
                     onRemove={ async () => {
-                        storeDiff('{{ link.dataElement.name }}', null);
+                        // storeDiff('{{ link.dataElement.name }}', null);
+                        onChange(null);
                     } }
                 {{/ if }}
                 {{# if action.isSetAction }}
@@ -133,7 +134,8 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                             fetchOwnerData();
                         } else if (res) {
                         {{/ if }}
-                            storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
+                            // storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
+                            onChange(res.value as {{ classDataName link.dataElement.target 'Stored' }});
                         {{# if (linkHasCreateAction link)}}
                         }
                         {{/ if }}
@@ -160,7 +162,8 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 {{/ if }}
                 {{# if action.isUnsetAction }}
                     onUnset={ async () => {
-                        storeDiff('{{ link.dataElement.name }}', null);
+                        // storeDiff('{{ link.dataElement.name }}', null);
+                        onChange(null);
                     } }
                 {{/ if }}
             {{/ each }}

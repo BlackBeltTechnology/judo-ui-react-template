@@ -24,6 +24,10 @@
         helperText={ validation.get('{{ child.attributeType.name }}') }
         onChange={ (value) => {
             storeDiff('{{ child.attributeType.name }}', value);
+            {{# if child.onBlur }}
+                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: value };
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+            {{/ if }}
         } }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || isLoading }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }

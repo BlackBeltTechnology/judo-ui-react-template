@@ -22,6 +22,7 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.Action;
+import hu.blackbelt.judo.meta.ui.NamedElement;
 import hu.blackbelt.judo.meta.ui.PageDefinition;
 import hu.blackbelt.judo.meta.ui.VisualElement;
 import lombok.extern.java.Log;
@@ -34,6 +35,7 @@ import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.actionFunctio
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.actionFunctionName;
 import static hu.blackbelt.judo.ui.generator.react.UiImportHelper.createFlattenedSetOfVisualElements;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.pageName;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 
 @Log
 @TemplateHelper
@@ -67,5 +69,12 @@ public class UiPandinoHelper {
 
     public static String getCustomizationActionFunctionHandlerInterfaceKey(Action action, String handlerType) {
         return camelCaseNameToInterfaceKey(actionFunctionHandlerTypeName(action, handlerType)) + "_INTERFACE_KEY";
+    }
+
+    public static List<VisualElement> getOnBlurWidgetsForPage(PageDefinition pageDefinition) {
+        Set<VisualElement> elements = new LinkedHashSet<>();
+        collectVisualElementsMatchingCondition(pageDefinition.getOriginalPageContainer(), e -> e.getOnBlur() != null && e.getOnBlur(), elements);
+
+        return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 }

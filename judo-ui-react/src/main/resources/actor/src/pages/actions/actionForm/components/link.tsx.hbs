@@ -29,12 +29,12 @@ export interface {{ linkComponentName link }}Props {
     disabled: boolean;
     readOnly: boolean;
     editMode: boolean;
-    storeDiff: (attributeName: keyof {{ classDataName link.dataElement.owner '' }}, value: any) => void;
+    onChange: (value: {{ classDataName link.dataElement.target '' }} | {{ classDataName link.dataElement.target 'Stored' }} | null) => void;
     validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
 }
 
 export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
-    const { ownerData, disabled, readOnly, editMode, storeDiff, validation } = props;
+    const { ownerData, disabled, readOnly, editMode, onChange, validation } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -70,12 +70,14 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             editMode={ editMode }
             autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
             onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
-                storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
+                // storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
+                onChange({{ link.dataElement.name }} as {{ classDataName link.dataElement.target 'Stored' }});
             } }
             {{# each link.actions as |action| }}
                 {{# if action.isRemoveAction }}
                     onRemove={ async () => {
-                        storeDiff('{{ link.dataElement.name }}', null);
+                        // storeDiff('{{ link.dataElement.name }}', null);
+                        onChange(null);
                     } }
                 {{/ if }}
                 {{# if action.isSetAction }}
@@ -93,7 +95,8 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                         });
 
                         if (res === undefined) return;
-                        storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
+                        // storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
+                        onChange(res.value as {{ classDataName link.dataElement.target 'Stored' }});
                     } }
                     {{# if (isAutocompleteAvailable link) }}
                         {{# with (getFirstAutocompleteColumnForLink link) as |column| }}
@@ -117,7 +120,8 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 {{/ if }}
                 {{# if action.isUnsetAction }}
                     onUnset={ async () => {
-                        storeDiff('{{ link.dataElement.name }}', null);
+                        // storeDiff('{{ link.dataElement.name }}', null);
+                        onChange(null);
                     } }
                 {{/ if }}
             {{/ each }}
