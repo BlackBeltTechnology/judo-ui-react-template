@@ -73,6 +73,11 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
             } }
             {{# each link.actions as |action| }}
+                {{# if action.isCreateAction }}
+                    onCreate={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}editMode, (result: {{ classDataName action.dataElement.target 'Stored' }}) => {
+                        storeDiff('{{ link.dataElement.name }}', result);
+                    }) }
+                {{/ if }}
                 {{# if action.isRemoveAction }}
                     onRemove={ async () => {
                         storeDiff('{{ link.dataElement.name }}', null);
