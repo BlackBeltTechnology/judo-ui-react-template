@@ -656,3 +656,43 @@ it triggers a refresh on the actual page which we resided on.
 
 If we would like to implement a fix navigation to some page, it is recommended to *NOT CALL* the `ownerCallback()` function
 to prevent unnecessary REST calls and potential screen flow issues.
+
+=== Implementing a post refresh hook
+
+Whenever pages have a `refresh` action, we have the option to register a hook in which we can "intercept" the
+"after/post" lifecycle for them.
+
+These hooks are registered with a specific `INTERFACE_KEY`. We can locate these keys in the `src/pages` folder, and once
+we found our page/dialog file, we should be able to see an `INTERFACE_KEY` with the corresponding `PostRefreshHook` interface.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { Dispatch, SetStateAction } from 'react';
+import { ApplicationCustomizer } from './interfaces';
+import { GOD_GALAXIES_VIEW_POST_REFRESH_HOOK_INTERFACE_KEY, GodGalaxiesViewPostRefreshHook } from '~/pages/god/galaxies/view';
+import { ViewGalaxy, ViewGalaxyStored } from '~/generated/data-api';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    // register your implementations here
+    context.registerService(GOD_GALAXIES_VIEW_POST_REFRESH_HOOK_INTERFACE_KEY, customGodGalaxiesViewRefreshPostHandlerHook);
+  }
+}
+
+const customGodGalaxiesViewRefreshPostHandlerHook: GodGalaxiesViewPostRefreshHook = () => {
+  return async (data: ViewGalaxyStored,
+                storeDiff: (attributeName: keyof ViewGalaxyStored, value: any) => void,
+                setEditMode: Dispatch<SetStateAction<boolean>>,
+                setValidation: Dispatch<SetStateAction<Map<keyof ViewGalaxy, string>>>,
+  ) => {
+    if (data.name === 'Acallaris') {
+      setValidation((validation) => {
+        validation.set('constellation', 'Wrong constellation, lmao');
+        return validation;
+      });
+    }
+  };
+};
+----
