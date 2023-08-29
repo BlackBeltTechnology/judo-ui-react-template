@@ -738,3 +738,95 @@ const customGodCreateNameOnBlurHook: GodCreateNameOnBlurHook = () => {
   };
 };
 ----
+
+=== (Global) Hotkey support
+
+Currently you can wire in hotkeys for access-based actions, such as triggering create dialogs.
+
+The generated file can be located at `src/hotkeys.tsx`.
+
+This file **MUST** export a React hook called `registerGlobalHotkeys`!
+
+Parts of this file can be "implemented" bia fragment overrides, but a complete example can be found here:
+
+*src/hotkeys.tsx:*
+[source,typescriptjsx]
+----
+import { useHotkeys } from 'react-hotkeys-hook';
+import { useTranslation } from 'react-i18next';
+import { Button, Chip, DialogActions, DialogContent, DialogTitle, Grid, List, ListItem, ListItemText } from '@mui/material';
+import { useDialog } from '~/components/dialog';
+import { MdiIcon } from '~/components';
+import { usePageCreateGalaxiesAction } from './pages/god/galaxies/table/actions/pageCreateGalaxies';
+import { usePageCreateMatterAction } from './pages/god/matter/table/actions/pageCreateMatter';
+
+export const registerGlobalHotkeys = () => {
+  const { t } = useTranslation();
+  const [createDialog, closeDialog] = useDialog();
+
+  // get hooks
+  const pageCreateGalaxiesAction = usePageCreateGalaxiesAction();
+  const pageCreateMatterAction = usePageCreateMatterAction();
+
+  // define hotkeys
+  const KOTKEY_DIALOG = 'Ctrl + Space';
+  const CREATE_GALAXY = 'Ctrl + G';
+  const CREATE_MATTER = 'Ctrl + M';
+
+  // wire in hotkeys
+  useHotkeys(CREATE_GALAXY, () => {
+    pageCreateGalaxiesAction(() => { /* noop */ });
+  });
+
+  useHotkeys(CREATE_MATTER, () => {
+    pageCreateMatterAction(() => { /* noop */ });
+  });
+
+  /**
+   * This section is optional! It is only a dialog listing every hotkey.
+   */
+  useHotkeys(KOTKEY_DIALOG, () => {
+    createDialog({
+      fullWidth: true,
+      maxWidth: 'sm',
+      onClose: (event: object, reason: string) => {
+        if (reason !== 'backdropClick') {
+          closeDialog();
+        }
+      },
+      children: (
+        <>
+          <DialogTitle>
+            {t('judo.hotkeys.dialog.title', { defaultValue: 'List of Hotkeys' }) as string}
+          </DialogTitle>
+          <DialogContent dividers>
+            <Grid container spacing={2} direction="row" alignItems="stretch" justifyContent="flex-start">
+              <List>
+                <ListItem>
+                  <Chip label={CREATE_GALAXY} variant="outlined" sx={{ mr: 2 }} />
+                  <ListItemText id="trigger-create-galaxy" primary={t('judo.hotkeys.create-galaxy.label', { defaultValue: 'Create Galaxy' }) as string} />
+                </ListItem>
+                <ListItem>
+                  <Chip label={CREATE_MATTER} variant="outlined" sx={{ mr: 2 }} />
+                  <ListItemText id="trigger-create-matter" primary={t('judo.hotkeys.create-matter.label', { defaultValue: 'Create Matter' }) as string} />
+                </ListItem>
+              </List>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              id="judo-close-hotkeys"
+              variant="text"
+              onClick={() => closeDialog()}
+              startIcon={<MdiIcon path="close-thick" />}
+            >
+              {t('judo.modal.close', { defaultValue: 'Close' }) as string}
+            </Button>
+          </DialogActions>
+        </>
+      ),
+    });
+  });
+};
+
+----
