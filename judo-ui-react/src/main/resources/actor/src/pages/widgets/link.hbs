@@ -22,7 +22,7 @@
             storeDiff('{{ child.dataElement.name }}', value);
             {{# if child.onBlur }}
                 const eagerCopy: {{ classDataName child.dataElement.owner '' }} = { ...data, ['{{ child.dataElement.name }}' as keyof {{ classDataName child.dataElement.owner '' }}]: value };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
             {{/ if }}
         } }
         validation={validation}

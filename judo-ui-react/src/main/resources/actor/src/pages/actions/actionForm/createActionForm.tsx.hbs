@@ -102,7 +102,7 @@ export function {{ pageActionFormComponentName action }}({
         }, []);
     {{/ if }}
 
-    const saveData = async () => {
+    const submit = async () => {
         {{# if (hasPageRequiredBy page) }}
             {{> actor/src/fragments/page/local-validate.fragment.hbs }}
         {{/ if }}
@@ -165,7 +165,7 @@ export function {{ pageActionFormComponentName action }}({
                     </Button>
                     <ButtonGroup size="small" ref={anchorRef} aria-label="split button" disabled={isLoading}>
                         <LoadingButton loading={isLoading} loadingPosition="start" id="{{ createId action }}-action-form-action-create" variant="contained" onClick={ async () => {
-                                const result = await saveData();
+                                const result = await submit();
                                 if (result) {
                                     successCallback(result);
                                 }
@@ -183,7 +183,7 @@ export function {{ pageActionFormComponentName action }}({
                                     <ClickAwayListener onClickAway={handleClose}>
                                         <MenuList id="split-button-menu" autoFocusItem>
                                             <MenuItem key="create-and-navigate" onClick={ async (event: any) => {
-                                                const result: {{ classDataName page.dataElement.target 'Stored' }} | undefined = await saveData();
+                                                const result: {{ classDataName page.dataElement.target 'Stored' }} | undefined = await submit();
 
                                                 if (result) {
                                                     successCallback(result);
