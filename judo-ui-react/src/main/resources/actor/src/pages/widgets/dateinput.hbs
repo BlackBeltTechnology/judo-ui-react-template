@@ -54,7 +54,7 @@
             storeDiff('{{ child.attributeType.name }}', newValue);
             {{# if child.onBlur }}
                 const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: newValue };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
             {{/ if }}
         } }
     />

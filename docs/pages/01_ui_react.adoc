@@ -728,10 +728,12 @@ const customGodCreateNameOnBlurHook: GodCreateNameOnBlurHook = () => {
     editMode: boolean,
     setEditMode: Dispatch<SetStateAction<boolean>>,
     setValidation: Dispatch<SetStateAction<Map<keyof ViewGalaxy, string>>>,
+    submit: () => Promise<void>,
   ) => {
     if (data.name === 'test') {
       storeDiff('constellation', data.name);
       storeDiff('nakedEye', true);
+      await submit();
     }
   };
 };
