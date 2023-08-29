@@ -29,7 +29,7 @@
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
         {{# if child.onBlur }}
-        onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation) }
+        onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();}) }
         {{/ if }}
         onChange={ (event) => {
             const realValue = event.target.value?.length === 0 ? null : event.target.value;

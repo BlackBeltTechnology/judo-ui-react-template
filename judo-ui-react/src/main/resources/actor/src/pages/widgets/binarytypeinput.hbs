@@ -35,7 +35,7 @@
                 storeDiff('{{ child.attributeType.name }}', null);
                 {{# if child.onBlur }}
                     const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: null };
-                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
                 {{/ if }}
             } }
         {{/unless}}
@@ -43,7 +43,7 @@
             storeDiff('{{ child.attributeType.name }}', uploadedData.token);
             {{# if child.onBlur }}
                 const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: uploadedData.token };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
             {{/ if }}
         } }
     />

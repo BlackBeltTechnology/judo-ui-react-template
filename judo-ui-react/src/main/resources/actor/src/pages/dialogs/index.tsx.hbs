@@ -81,7 +81,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
-    const [data, setData] = useState<{{ classTypeName page.dataElement.target }}>({} as unknown as {{ classTypeName page.dataElement.target }});
+    const [data, setData] = useState<{{ classTypeName page.dataElement.target }}>(entry ? { ...entry } : {} as unknown as {{ classTypeName page.dataElement.target }});
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classTypeName page.dataElement.target }}, any>>({} as unknown as Record<keyof {{ classTypeName page.dataElement.target }}, any>);
     const [editMode, setEditMode] = useState<boolean>(false);
     const storeDiff: (attributeName: keyof {{ classTypeName page.dataElement.target }}, value: any) => void = useCallback((attributeName: keyof {{ classTypeName page.dataElement.target }}, value: any) => {
@@ -154,7 +154,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{/ if }}
 
     {{# if page.dataElement.isUpdatable }}
-        async function saveData() {
+        async function submit() {
             {{# if (hasPageRequiredBy page) }}
                 {{> actor/src/fragments/page/local-validate.fragment.hbs }}
             {{/ if }}
@@ -168,6 +168,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                         variant: 'success',
                         ...toastConfig.success,
                     });
+                    setValidation(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
                     successCallback();
                     await fetchData();
                     setEditMode(false);
@@ -202,10 +203,6 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         fetchData();
     }, []);
     {{/ if }}
-
-    useEffect(() => {
-        setValidation(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
-    }, [editMode]);
 
     return (
         {{# with (getDataContainerForPage page) as |rootChild| }}

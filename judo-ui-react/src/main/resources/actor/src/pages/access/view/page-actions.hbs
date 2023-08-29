@@ -20,7 +20,7 @@ export interface PageActionsProps {
     isLoading: boolean;
     fetchData: () => Promise<void>;
     {{# if page.dataElement.isUpdatable }}
-        saveData: () => Promise<void>;
+        submit: () => Promise<void>;
     {{/ if }}
     {{# if page.dataElement.isDeletable }}
         deleteData: () => Promise<void>;
@@ -28,7 +28,7 @@ export interface PageActionsProps {
 }
 
 export function PageActions (props: PageActionsProps) {
-    const { data, editMode, setEditMode, isLoading, fetchData{{# if page.dataElement.isUpdatable }}, saveData{{/ if }}{{# if page.dataElement.isDeletable }}, deleteData{{/ if }} } = props;
+    const { data, editMode, setEditMode, isLoading, fetchData{{# if page.dataElement.isUpdatable }}, submit{{/ if }}{{# if page.dataElement.isDeletable }}, deleteData{{/ if }} } = props;
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
     const { openConfirmDialog } = useConfirmDialog();

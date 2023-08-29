@@ -53,7 +53,7 @@
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
         {{# if child.onBlur }}
-        onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation) }
+        onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();}) }
         {{/ if }}
         onChange={ (newValue: string | null | undefined) => {
             storeDiff('{{ child.attributeType.name }}', newValue);
