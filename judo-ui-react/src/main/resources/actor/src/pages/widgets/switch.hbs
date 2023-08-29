@@ -20,7 +20,7 @@
                         storeDiff('{{ child.attributeType.name }}', event.target.checked);
                         {{# if child.onBlur }}
                             const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: event.target.checked };
-                            {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation);
+                            {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
                         {{/ if }}
                     } } />
                 }

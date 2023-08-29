@@ -98,6 +98,9 @@ export default function {{ pageName page }}({ cancel, successCallback, entry } :
     {{# if isDebugPrint }}// include: actor/src/fragments/page/unmapped-form-flags.hbs{{/ if }}
     {{> actor/src/fragments/page/unmapped-form-flags.hbs }}
 
+    // dummy function to not break underlying component APIs
+    const submit = async () => {};
+
     return (
         {{# with (getDataContainerForPage page) as |rootChild| }}
             <>

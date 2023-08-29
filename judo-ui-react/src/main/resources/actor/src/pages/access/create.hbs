@@ -126,7 +126,7 @@ export default function {{ pageName page }}() {
         }, []);
     {{/ if }}
 
-    const saveData = async () => {
+    const submit = async () => {
         {{# if (hasPageRequiredBy page) }}
             {{> actor/src/fragments/page/local-validate.fragment.hbs }}
         {{/ if }}
@@ -151,7 +151,7 @@ export default function {{ pageName page }}() {
             {{# with (getDataContainerForPage page) as |rootChild| }}
                 <PageHeader title={title}>
                     <Grid item>
-                        <Button id="page-action-save" startIcon={<MdiIcon path="save" />} onClick={async () => await saveData()} disabled={isLoading}>
+                        <Button id="page-action-save" startIcon={<MdiIcon path="save" />} onClick={ async () => {await submit();} } disabled={isLoading}>
                             {t('judo.pages.save', { defaultValue: 'Save' })}
                         </Button>
                     </Grid>

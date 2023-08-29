@@ -138,7 +138,7 @@ export default function {{ pageName page }}() {
     }
 
     {{# if page.dataElement.isUpdatable }}
-        async function saveData() {
+        async function submit() {
             {{# if (hasPageRequiredBy page) }}
                 {{> actor/src/fragments/page/local-validate.fragment.hbs }}
             {{/ if }}
@@ -153,6 +153,7 @@ export default function {{ pageName page }}() {
                         variant: 'success',
                         ...toastConfig.success,
                     });
+                    setValidation(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
                     await fetchData();
                     setEditMode(false);
                 }
@@ -184,10 +185,6 @@ export default function {{ pageName page }}() {
         fetchData();
     }, []);
 
-    useEffect(() => {
-        setValidation(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
-    }, [editMode]);
-
     return (
         <>
             {{# with (getDataContainerForPage page) as |rootChild| }}
@@ -198,7 +195,7 @@ export default function {{ pageName page }}() {
                         editMode={editMode}
                         setEditMode={setEditMode}
                         isLoading={isLoading}
-                        {{# if page.dataElement.isUpdatable }}saveData={saveData}{{/ if }}
+                        {{# if page.dataElement.isUpdatable }}submit={submit}{{/ if }}
                         {{# if page.dataElement.isDeletable }}deleteData={deleteData}{{/ if }}
                     />
                 </PageHeader>
