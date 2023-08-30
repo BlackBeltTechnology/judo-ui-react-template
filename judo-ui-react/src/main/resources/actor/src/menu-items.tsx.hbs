@@ -4,39 +4,6 @@ import type { MenuItem } from './components-api';
 
 export const menuItems: MenuItem[] = [
     {{# each application.navigationController.items as |item| }}
-    {
-        id: '{{ createId item }}',
-        {{# unless (isNavItemAGroup item) }}
-            to: '{{ getPageRoute item.target }}',
-        {{/ unless }}
-        {{# if item.icon }}
-            icon: '{{ item.icon.name }}',
-        {{/ if }}
-        {{# if item.label }}
-            label: '{{ item.label }}',
-        {{/ if }}
-        {{# if item.hiddenBy }}
-            hiddenBy: '{{ item.hiddenBy }}',
-        {{/ if }}
-        items: [
-        {{# each item.items as |subItem| }}
-            {
-            id: '{{ createId item }}',
-            {{# unless (isNavItemAGroup subItem) }}
-                to: '{{ getPageRoute subItem.target }}',
-            {{/ unless }}
-            {{# if subItem.icon }}
-                icon: '{{ subItem.icon.name }}',
-            {{/ if }}
-            {{# if subItem.label }}
-                label: '{{ subItem.label }}',
-            {{/ if }}
-            {{# if subItem.hiddenBy }}
-                hiddenBy: '{{ subItem.hiddenBy }}',
-            {{/ if }}
-            },
-        {{/ each }}
-        ],
-    },
+        {{> actor/src/menu-items-recurse.fragment.hbs item=item  }}
     {{/ each }}
 ];
