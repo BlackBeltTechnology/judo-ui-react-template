@@ -46,10 +46,10 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
 
     {{# each table.actions as |action| }}
         {{# if action.isAddAction }}
-            {{# if isDebugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
             {{# if isDebugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
             {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
+            {{# if isDebugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
+            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
         {{/ if }}
     {{/ each }}
 
@@ -97,10 +97,12 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                             const res = await {{ table.dataElement.name }}RangeCall();
 
                                             if (res) {
-                                                storeDiff('{{ table.dataElement.name }}', [
+                                                const newList = [
                                                     ...(ownerData.{{ table.dataElement.name }} || []),
                                                     ...(res.value as {{ classDataName table.dataElement.target 'Stored' }}[])
-                                                ]);
+                                                ];
+                                                storeDiff('{{ table.dataElement.name }}', newList);
+                                                setSelectionModel([...newList]);
                                             }
                                         } }
                                         disabled={

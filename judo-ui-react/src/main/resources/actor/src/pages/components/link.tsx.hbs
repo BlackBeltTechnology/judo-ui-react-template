@@ -108,7 +108,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                             rangeCall: async (queryCustomizer) =>
                                 await {{ classServiceName link.dataElement.owner }}Impl.getRangeFor{{ firstToUpper link.dataElement.name }}(ownerData, processQueryCustomizer(queryCustomizer)),
                             single: true,
-                            alreadySelectedItems: ownerData.{{ link.dataElement.name }}?.__identifier as GridRowId,
+                            alreadySelectedItems: ownerData.{{ link.dataElement.name }} ? [ownerData.{{ link.dataElement.name }}] : [],
                             filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
                             initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
                             editMode: editMode,
