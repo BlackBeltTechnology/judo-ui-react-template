@@ -47,7 +47,7 @@ interface RangeDialogProps<T extends JudoStored<T>, U extends QueryCustomizer<T>
   columns: GridColDef<T>[];
   defaultSortField: GridSortItem;
   rangeCall: (queryCustomizer: U) => Promise<Array<T>>;
-  alreadySelectedItems: GridRowSelectionModel | GridRowId;
+  alreadySelectedItems: T[];
   initalQueryCustomizer: U;
   filterOptions: FilterOption[];
   createTrigger?: () => Promise<T | undefined>;
@@ -184,34 +184,6 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
     }
   };
 {{/ if }}
-  // useEffect(() => {
-  //   setPage(0);
-  //   const { field, sort } = sortModel[0];
-
-  //   setQueryCustomizer((prevQueryCustomizer) => {
-  //     const tempQueryCustomizer = { ...prevQueryCustomizer };
-
-  //     filterOptions.forEach(
-  //       (filter) =>
-  //         // @ts-ignore
-  //         (tempQueryCustomizer[filter.attributeName] = mapFiltersToQueryCustomizerProperty(
-  //           filters,
-  //           filter.attributeName,
-  //         )),
-  //     );
-
-  //     return {
-  //       ...prevQueryCustomizer,
-  //       _seek: {
-  //         lastItem: undefined,
-  //         limit: rangeDialogConfig.numberOfElements + 1,
-  //         reverse: undefined,
-  //       },
-  //       _orderBy: [{ attribute: field, descending: sort === 'desc' }],
-  //       ...tempQueryCustomizer,
-  //     };
-  //   });
-  // }, [sortModel, filters]);
 
   useEffect(() => {
     fetchData();
@@ -283,7 +255,10 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
   };
 
   const handleIsRowSelectable = (params: GridRowParams<T & { __selected?: boolean }>) => {
-    return !params.row.__selected;
+    if (typeof params.row.__selected === 'boolean') {
+      return !params.row.__selected;
+    }
+    return !alreadySelectedItems.find(i => i.__identifier === params.row.__identifier);
   };
 
   {{# if (stringValueIsTrue useTableContextMenus) }}
@@ -343,7 +318,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
             {{/ if }}
             checkboxSelection
             onRowSelectionModelChange={!single ? handleOnSelection : handleSingleOnSelection}
-            isRowSelectable={!single ? handleIsRowSelectable : undefined}
+            isRowSelectable={handleIsRowSelectable}
             rowSelectionModel={selectionModel}
             hideFooterSelectedRowCount={single}
             columns={columns}
