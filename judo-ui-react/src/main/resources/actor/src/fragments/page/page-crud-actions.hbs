@@ -26,7 +26,7 @@
 {{# if page.dataElement.isRefreshable }}
     {!editMode && (
         <Grid className="page-action" item>
-            <LoadingButton loading={isLoading} loadingPosition="start" id="page-action-refresh" startIcon={<MdiIcon path="refresh" />} onClick={() => fetchData()}>
+            <LoadingButton loading={isLoading} loadingPosition="start" id="page-action-refresh" startIcon={<MdiIcon path="refresh" />} onClick={ async () => {await fetchData();} }>
                 <span>{t('judo.pages.refresh', { defaultValue: 'Refresh' })}</span>
             </LoadingButton>
         </Grid>

@@ -6,6 +6,7 @@
 
 {{# if isDebugPrint }}// include: actor/src/fragments/page/common-table-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/page/common-table-imports.fragment.hbs }}
+import { {{ classDataName page.dataElement.target 'Stored' }} } from '~/generated/data-api';
 
 import { PageActions } from './components/PageActions';
 {{# each page.originalPageContainer.tables as |table| }}
@@ -21,15 +22,15 @@ export default function {{ pageName page }}() {
     const persistedTableData: PersistedTableData = JSON.parse(
         window.sessionStorage.getItem('pages.{{ pageName page }}') || '{}',
     );
-    const tableRef = useRef<RefreshableTable>(null);
+    const tableRef = useRef<RefreshableTable<{{ classDataName page.dataElement.target 'Stored' }}>>(null);
     const { t } = useTranslation();
     const { signedIdentifier } = useParams();
     const { locale: l10nLocale } = useL10N();
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
 
-    const handleFetchData = async () => {
-        tableRef.current?.fetchData();
+    const handleFetchData = async (): Promise<{{ classDataName page.dataElement.target 'Stored' }}[] | undefined> => {
+        return tableRef.current?.fetchData();
     };
 
     {{# with (getTableForTablePage page) as |table| }}

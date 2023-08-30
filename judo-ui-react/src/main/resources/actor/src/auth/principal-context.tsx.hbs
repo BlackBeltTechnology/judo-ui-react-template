@@ -19,14 +19,18 @@
         const [principal, setPrincipal] = useState<{{ classDataName application.principal 'Stored' }}>({} as unknown as {{ classDataName application.principal 'Stored' }});
         const { isAuthenticated } = useAuth();
 
-        const fetchData = async () => {
+        async function fetchData(): Promise<{{ classDataName application.principal 'Stored' }} | undefined> {
+            let res: {{ classDataName application.principal 'Stored' }} | undefined;
+
             try {
-                const data = await accessServiceImpl.getPrincipal();
-                setPrincipal({ ...data });
+                const res = await accessServiceImpl.getPrincipal();
+                setPrincipal({ ...res });
             } catch (e) {
                 console.error(e);
             }
-        };
+
+            return res;
+        }
 
         const getPrincipal = (): Promise<{{ classDataName application.principal 'Stored' }}> => accessServiceImpl.getPrincipal();
 

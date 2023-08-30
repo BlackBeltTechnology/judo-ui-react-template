@@ -32,18 +32,16 @@
         readonly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         {{# unless child.attributeType.isReadOnly }}
             deleteCallback={ async () => {
-                storeDiff('{{ child.attributeType.name }}', null);
+                const newData = await storeDiff('{{ child.attributeType.name }}', null);
                 {{# if child.onBlur }}
-                    const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: null };
-                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(newData, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
                 {{/ if }}
             } }
         {{/unless}}
         uploadCallback={ async (uploadedData: { token: string }) => {
-            storeDiff('{{ child.attributeType.name }}', uploadedData.token);
+            const newData = await storeDiff('{{ child.attributeType.name }}', uploadedData.token);
             {{# if child.onBlur }}
-                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: uploadedData.token };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(newData, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
             {{/ if }}
         } }
     />

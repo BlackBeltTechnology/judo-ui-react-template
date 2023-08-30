@@ -9,6 +9,6 @@ export interface PersistedTableData {
   filters?: Filter[];
 }
 
-export interface RefreshableTable {
-  fetchData: () => Promise<void>;
+export interface RefreshableTable<T> {
+  fetchData: () => Promise<T[] | undefined>;
 }

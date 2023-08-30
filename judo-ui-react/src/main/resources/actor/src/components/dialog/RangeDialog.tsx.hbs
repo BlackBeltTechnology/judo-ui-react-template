@@ -108,7 +108,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
     setIsNextButtonEnabled(!isNext);
   };
 
-  const fetchData = async () => {
+  async function fetchData() {
     setIsLoading(true);
     try {
       const res = await rangeCall(processQueryCustomizer(queryCustomizer));
@@ -128,7 +128,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
       handleFetchError(error);
     }
     setIsLoading(false);
-  };
+  }
 
   const handleFiltersChange = (newFilters: Filter[]) => {
     setPage(0);

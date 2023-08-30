@@ -24,10 +24,10 @@ export const {{ getCustomizationComponentInterfaceKey table }} = '{{ getCustomiz
 export interface {{ tableComponentName table }}Props {
     ownerData: {{ classDataName table.dataElement.owner 'Stored' }};
     isOwnerLoading: boolean;
-    fetchOwnerData: () => Promise<void>;
+    fetchOwnerData: () => Promise<{{ classDataName table.dataElement.owner 'Stored' }} | undefined>;
     editMode: boolean;
     isFormUpdateable: () => boolean;
-    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner 'Stored' }}, value: any) => void;
+    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => Promise<{{ classTypeName table.dataElement.owner }}>;
     validation: Map<keyof {{ classDataName table.dataElement.owner '' }}, string>;
 }
 
@@ -211,7 +211,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                             const res = await {{ table.dataElement.name }}RangeCall();
 
                                             if (res) {
-                                                storeDiff('{{ table.dataElement.name }}', [
+                                                await storeDiff('{{ table.dataElement.name }}', [
                                                     ...(ownerData.{{ table.dataElement.name }} || []),
                                                     ...(res.value as {{ classDataName table.dataElement.target 'Stored' }}[])
                                                 ]);
@@ -232,7 +232,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                         startIcon={<MdiIcon path="link_off" />}
                                         variant="text"
                                         onClick={ async () => {
-                                            storeDiff('{{ table.dataElement.name }}', []);
+                                            await storeDiff('{{ table.dataElement.name }}', []);
                                         } }
                                         disabled={
                                                isOwnerLoading

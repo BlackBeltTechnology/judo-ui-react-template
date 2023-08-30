@@ -91,10 +91,8 @@ export default function {{ pageName page }}() {
     } as unknown  as {{ classDataName page.dataElement.target '' }});
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
     const [editMode, setEditMode] = useState<boolean>(true);
-    const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
-        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
-        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
-    }, [data]);
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+    {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target suffix='' }}
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target ''}}, string>>(new Map<keyof {{ classDataName page.dataElement.target ''}}, string>());
     const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
 
@@ -105,11 +103,12 @@ export default function {{ pageName page }}() {
     {{> actor/src/fragments/page/input-form-flags.hbs }}
 
     {{# if page.dataElement.target.isTemplateable }}
-        const fetchData = async () => {
+        async function fetchData(): Promise<{{ classDataName page.dataElement.target '' }} | undefined> {
             setIsLoading(true);
+            let res: {{ classDataName page.dataElement.target '' }} | undefined;
 
             try {
-                const res = await {{ classServiceName page.dataElement.target }}Impl.getTemplate();
+                res = await {{ classServiceName page.dataElement.target }}Impl.getTemplate();
                 setData((prevData) => ({ ...prevData, ...res }));
                 setPayloadDiff({
                     ...res,
@@ -119,7 +118,9 @@ export default function {{ pageName page }}() {
             } finally {
                 setIsLoading(false);
             }
-        };
+
+            return res;
+        }
 
         useEffect(() => {
             fetchData();

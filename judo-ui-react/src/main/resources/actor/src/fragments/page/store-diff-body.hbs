@@ -1,27 +1,35 @@
+const storeDiff: (attributeName: keyof typeof data, value: any) => Promise<typeof data> = useCallback(async (attributeName: keyof typeof data, value: any): Promise<typeof data> => {
 {{# if (payloadDiffHasItems classType) }}
-    const dateTypes: string[] = [{{# each (getWritableDateAttributesForClass classType) as |aName| }}
-        '{{ aName }}',
-    {{/ each }}];
-    const dateTimeTypes: string[] = [{{# each (getWritableDateTimeAttributesForClass classType) as |aName| }}
-        '{{ aName }}',
-    {{/ each }}];
-    const timeTypes: string[] = [{{# each (getWritableTimeAttributesForClass classType) as |aName| }}
-        '{{ aName }}',
-    {{/ each }}];
-    if (dateTypes.includes(attributeName as string)) {
-        payloadDiff[attributeName] = uiDateToServiceDate(value);
-    } else if (dateTimeTypes.includes(attributeName as string)) {
-        payloadDiff[attributeName] = value;
-    } else if (timeTypes.includes(attributeName as string)) {
-        payloadDiff[attributeName] = uiTimeToServiceTime(value);
-    } else {
-        payloadDiff[attributeName] = value;
-    }
-    setData((prevData) => ({
-        ...prevData,
-        [attributeName]: value,
-    }));
-    if (!editMode) {
-        setEditMode(true);
-    }
+    return new Promise((resolve) => {
+        const dateTypes: string[] = [{{# each (getWritableDateAttributesForClass classType) as |aName| }}
+            '{{ aName }}',
+        {{/ each }}];
+        const dateTimeTypes: string[] = [{{# each (getWritableDateTimeAttributesForClass classType) as |aName| }}
+            '{{ aName }}',
+        {{/ each }}];
+        const timeTypes: string[] = [{{# each (getWritableTimeAttributesForClass classType) as |aName| }}
+            '{{ aName }}',
+        {{/ each }}];
+        if (dateTypes.includes(attributeName as string)) {
+            payloadDiff[attributeName] = uiDateToServiceDate(value);
+        } else if (dateTimeTypes.includes(attributeName as string)) {
+            payloadDiff[attributeName] = value;
+        } else if (timeTypes.includes(attributeName as string)) {
+            payloadDiff[attributeName] = uiTimeToServiceTime(value);
+        } else {
+            payloadDiff[attributeName] = value;
+        }
+        setData((prevData) => {
+            const next: typeof data = {
+              ...prevData,
+              [attributeName]: value,
+            };
+            resolve(next);
+            return next;
+        });
+        if (!editMode) {
+            setEditMode(true);
+        }
+    });
 {{/ if }}
+}, [data]);

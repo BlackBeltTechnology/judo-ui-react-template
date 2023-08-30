@@ -52,11 +52,10 @@
         value={ serviceDateToUiDate(data.{{ child.attributeType.name }} ?? null) }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
-        onChange={ (newValue: Date) => {
-            storeDiff('{{ child.attributeType.name }}', newValue);
+        onChange={ async (newValue: Date) => {
+            const newData = await storeDiff('{{ child.attributeType.name }}', newValue);
             {{# if child.onBlur }}
-                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: newValue };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(newData, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
             {{/ if }}
         } }
     />

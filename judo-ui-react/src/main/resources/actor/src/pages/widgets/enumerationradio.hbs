@@ -28,11 +28,10 @@
             name="{{ child.attributeType.name }}"
             id="{{ createId child }}"
             value={ data.{{ child.attributeType.name }} || '' }
-            onChange={ (event) => {
-                storeDiff('{{ child.attributeType.name }}', event.target.value);
+            onChange={ async (event) => {
+                const newData = await storeDiff('{{ child.attributeType.name }}', event.target.value);
                 {{# if child.onBlur }}
-                    const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: event.target.value };
-                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(newData, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
                 {{/ if }}
             } }
         >

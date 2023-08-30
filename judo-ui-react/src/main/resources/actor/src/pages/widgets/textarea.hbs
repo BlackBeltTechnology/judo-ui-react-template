@@ -31,9 +31,9 @@
         {{# if child.onBlur }}
         onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();}) }
         {{/ if }}
-        onChange={ (event) => {
+        onChange={ async (event) => {
             const realValue = event.target.value?.length === 0 ? null : event.target.value;
-            storeDiff('{{ child.attributeType.name }}', realValue);
+            await storeDiff('{{ child.attributeType.name }}', realValue);
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {

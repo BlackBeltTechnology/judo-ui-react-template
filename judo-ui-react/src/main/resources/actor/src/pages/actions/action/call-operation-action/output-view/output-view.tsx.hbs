@@ -82,10 +82,9 @@ export default function {{ pageName page }}({ cancel, successCallback, entry } :
     const [editMode, setEditMode] = useState<boolean>(false);
     const [payloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
 
-    const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
-        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
-        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
-    }, [data]);
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+    {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target suffix='' }}
+
     {{# each (getButtonActions page) as |action| }}
         const {{ actionFunctionName action }} = {{ actionFunctionHookName action }}();
     {{/ each }}

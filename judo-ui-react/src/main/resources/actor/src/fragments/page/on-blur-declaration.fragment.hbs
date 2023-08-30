@@ -1,7 +1,7 @@
 {{# each (getOnBlurWidgetsForPage page) as |ve| }}
     export type {{ pageName page }}{{ firstToUpper ve.name }}OnBlurAction = (
         data: {{ classDataName page.dataElement.target '' }},
-        storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void,
+        storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => Promise<{{ classDataName page.dataElement.target '' }}>,
         editMode: boolean,
         setEditMode: Dispatch<SetStateAction<boolean>>,
         setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>>,

@@ -16,11 +16,10 @@
                 sx={ { marginTop: '6px' } }
                 disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
                 control={
-                    <Checkbox checked={ data.{{ child.attributeType.name }} || false } onChange={ (event) => {
-                        storeDiff('{{ child.attributeType.name }}', event.target.checked);
+                    <Checkbox checked={ data.{{ child.attributeType.name }} || false } onChange={ async (event) => {
+                        const newValue = await storeDiff('{{ child.attributeType.name }}', event.target.checked);
                         {{# if child.onBlur }}
-                            const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: event.target.checked };
-                            {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                            {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(newValue, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
                         {{/ if }}
                     } } />
                 }

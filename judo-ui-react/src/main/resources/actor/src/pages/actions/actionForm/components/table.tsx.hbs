@@ -21,11 +21,11 @@ export interface {{ tableComponentName table }}Props {
     isOwnerLoading: boolean;
     editMode: boolean;
     isFormUpdateable: () => boolean;
-    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => void;
+    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => Promise<{{ classTypeName table.dataElement.owner }}>;
     validation: Map<keyof {{ classDataName table.dataElement.owner '' }}, string>;
 }
 
-export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
+export const {{ tableComponentName table }} = forwardRef<RefreshableTable<{{ classDataName table.dataElement.target 'Stored' }}>, {{ tableComponentName table }}Props>((props, ref) => {
     const { ownerData, isOwnerLoading, editMode, isFormUpdateable, storeDiff } = props;
     const { t } = useTranslation();
     const { openRangeDialog } = useRangeDialog();
@@ -97,7 +97,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                             const res = await {{ table.dataElement.name }}RangeCall();
 
                                             if (res) {
-                                                storeDiff('{{ table.dataElement.name }}', [
+                                                await storeDiff('{{ table.dataElement.name }}', [
                                                     ...(ownerData.{{ table.dataElement.name }} || []),
                                                     ...(res.value as {{ classDataName table.dataElement.target 'Stored' }}[])
                                                 ]);
@@ -118,7 +118,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         startIcon={<MdiIcon path="link_off" />}
                                         variant="text"
                                         onClick={ async () => {
-                                            storeDiff('{{ table.dataElement.name }}', []);
+                                            await storeDiff('{{ table.dataElement.name }}', []);
                                         } }
                                         disabled={
                                                isOwnerLoading

@@ -70,13 +70,11 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             editMode={ editMode }
             autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
             onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
-                // storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
                 onChange({{ link.dataElement.name }} as {{ classDataName link.dataElement.target 'Stored' }});
             } }
             {{# each link.actions as |action| }}
                 {{# if action.isRemoveAction }}
                     onRemove={ async () => {
-                        // storeDiff('{{ link.dataElement.name }}', null);
                         onChange(null);
                     } }
                 {{/ if }}
@@ -95,7 +93,6 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                         });
 
                         if (res === undefined) return;
-                        // storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
                         onChange(res.value as {{ classDataName link.dataElement.target 'Stored' }});
                     } }
                     {{# if (isAutocompleteAvailable link) }}
@@ -120,7 +117,6 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 {{/ if }}
                 {{# if action.isUnsetAction }}
                     onUnset={ async () => {
-                        // storeDiff('{{ link.dataElement.name }}', null);
                         onChange(null);
                     } }
                 {{/ if }}

@@ -28,7 +28,7 @@ export interface {{ linkComponentName link }}Props {
     {{# if (isPageRefreshable page) }}
         ownerData: {{ classDataName link.dataElement.owner 'Stored' }};
         validation: Map<keyof {{ classDataName link.dataElement.owner 'Stored' }}, string>;
-        fetchOwnerData: () => Promise<void>;
+        fetchOwnerData: () => Promise<{{ classDataName link.dataElement.owner 'Stored' }} | undefined>;
     {{ else }}
         ownerData: {{ classDataName link.dataElement.owner '' }};
         validation: Map<keyof {{ classDataName link.dataElement.owner '' }}, string>;
@@ -76,7 +76,6 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
             editMode={ editMode }
             autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
             onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
-                // storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
                 onChange({{ link.dataElement.name }} as {{ classDataName link.dataElement.target 'Stored' }});
             } }
             {{# each link.actions as |action| }}
@@ -95,7 +94,6 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 {{/ if }}
                 {{# if action.isRemoveAction }}
                     onRemove={ async () => {
-                        // storeDiff('{{ link.dataElement.name }}', null);
                         onChange(null);
                     } }
                 {{/ if }}
@@ -134,7 +132,6 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                             fetchOwnerData();
                         } else if (res) {
                         {{/ if }}
-                            // storeDiff('{{ link.dataElement.name }}', res.value as {{ classDataName link.dataElement.target 'Stored' }});
                             onChange(res.value as {{ classDataName link.dataElement.target 'Stored' }});
                         {{# if (linkHasCreateAction link)}}
                         }
@@ -162,7 +159,6 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                 {{/ if }}
                 {{# if action.isUnsetAction }}
                     onUnset={ async () => {
-                        // storeDiff('{{ link.dataElement.name }}', null);
                         onChange(null);
                     } }
                 {{/ if }}

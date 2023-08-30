@@ -55,8 +55,8 @@
         {{# if child.onBlur }}
         onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();}) }
         {{/ if }}
-        onChange={ (newValue: string | null | undefined) => {
-            storeDiff('{{ child.attributeType.name }}', newValue);
+        onChange={ async (newValue: string | null | undefined) => {
+            await storeDiff('{{ child.attributeType.name }}', newValue);
         } }
         />
     {{# if child.customImplementation }}

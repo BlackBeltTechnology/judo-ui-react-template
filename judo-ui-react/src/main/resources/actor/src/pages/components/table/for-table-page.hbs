@@ -31,7 +31,7 @@ export interface {{ tableComponentName table }}Props {
     setIsOwnerLoading: (value: boolean) => void;
 }
 
-export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
+export const {{ tableComponentName table }} = forwardRef<RefreshableTable<{{ classDataName table.dataElement.target 'Stored' }}>, {{ tableComponentName table }}Props>((props, ref) => {
     const { isOwnerLoading, setIsOwnerLoading{{# unless table.dataElement.isAccess }}, ownerData{{/ unless }} } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
@@ -189,17 +189,18 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         setIsNextButtonEnabled(!isNext);
     }
 
-    async function fetchData() {
+    async function fetchData(): Promise<{{ classDataName table.dataElement.target 'Stored' }}[] | undefined> {
         setIsOwnerLoading(true);
+        let res: {{ classDataName table.dataElement.target 'Stored' }}[] | undefined;
 
         try {
             {{# unless table.dataElement.isAccess }}
-                const res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
+                res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
                     ownerData,
                     processQueryCustomizer(queryCustomizer),
                 );
             {{ else }}
-                const res = await {{ dataElementRelationName table.dataElement }}Impl.list{{ ucFirst table.dataElement.name }}(processQueryCustomizer(queryCustomizer));
+                res = await {{ dataElementRelationName table.dataElement }}Impl.list{{ ucFirst table.dataElement.name }}(processQueryCustomizer(queryCustomizer));
             {{/ unless }}
 
             if (res.length > {{ calculateTablePageLimit table }}) {
@@ -218,6 +219,8 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         } finally {
             setIsOwnerLoading(false);
         }
+
+        return res;
     }
 
     useImperativeHandle(ref, () => ({

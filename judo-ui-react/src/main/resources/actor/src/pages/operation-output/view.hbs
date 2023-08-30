@@ -37,7 +37,7 @@ import { PageActions } from './components/PageActions';
 
 export type {{ pageName page }}PostRefreshAction = (
     data: {{ classTypeName page.dataElement.target }},
-    storeDiff: (attributeName: keyof {{ classTypeName page.dataElement.target }}, value: any) => void,
+    storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => Promise<{{ classTypeName page.dataElement.target }}>,
     setEditMode: Dispatch<SetStateAction<boolean>>,
     setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>>,
 ) => Promise<void>;
@@ -75,10 +75,8 @@ export default function {{ pageName page }}() {
     const [data, setData] = useState<{{ classDataName page.dataElement.target 'Stored' }}>({} as unknown as {{ classDataName page.dataElement.target 'Stored' }});
     const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target 'Stored' }}, any>);
     const [editMode, setEditMode] = useState<boolean>(false);
-    const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target 'Stored' }}, value: any) => {
-        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
-        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
-    }, [data]);
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+    {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target suffix='' }}
     const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map());
 
     const queryCustomizer: {{ classDataName page.dataElement.target 'QueryCustomizer' }} = {
@@ -106,11 +104,12 @@ export default function {{ pageName page }}() {
 
     useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
 
-    async function fetchData() {
+    async function fetchData(): Promise<{{ classDataName page.dataElement.target 'Stored' }} | undefined> {
         setIsLoading(true);
+        let res: {{ classDataName page.dataElement.target 'Stored' }} | undefined;
 
         try {
-            const res = await {{ classServiceName page.dataElement.target }}Impl.refresh(
+            res = await {{ classServiceName page.dataElement.target }}Impl.refresh(
                 { __signedIdentifier: signedIdentifier } as JudoIdentifiable<{{ classDataName page.dataElement.target '' }}>,
                 processQueryCustomizer(queryCustomizer),
             );
@@ -135,6 +134,8 @@ export default function {{ pageName page }}() {
             setIsLoading(false);
             setRefreshCounter((prevCounter) => prevCounter + 1);
         }
+
+        return res;
     }
 
     {{# if page.dataElement.isUpdatable }}

@@ -17,7 +17,7 @@ import {
 
 export interface PageActionsProps {
     isLoading: boolean;
-    fetchData: () => Promise<void>;
+    fetchData: () => Promise<{{ classDataName page.dataElement.target 'Stored' }}[] | undefined>;
     signedIdentifier?: string;
 }
 
@@ -37,7 +37,7 @@ export function PageActions (props: PageActionsProps) {
                 {{# each (getUniquePageActions page) as |action| }}
                     {{# if action.isRefreshAction }}
                         <Grid className="page-action" item>
-                            <LoadingButton loading={isLoading} loadingPosition="start" id="page-action-refresh" startIcon={<MdiIcon path="refresh" />} onClick={ () => {{ actionFunctionName action }}(() => fetchData()) } disabled={isLoading}>
+                            <LoadingButton loading={isLoading} loadingPosition="start" id="page-action-refresh" startIcon={<MdiIcon path="refresh" />} onClick={ () => {{ actionFunctionName action }}(async () => {await fetchData();}) } disabled={isLoading}>
                                 {t('judo.pages.table.refresh', { defaultValue: 'Refresh' })}
                             </LoadingButton>
                         </Grid>

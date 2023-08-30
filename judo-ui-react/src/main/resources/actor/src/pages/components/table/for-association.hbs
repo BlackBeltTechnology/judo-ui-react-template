@@ -23,15 +23,15 @@ export const {{ getCustomizationComponentInterfaceKey table }} = '{{ getCustomiz
 export interface {{ tableComponentName table }}Props {
     ownerData: JudoIdentifiable<{{ classDataName table.dataElement.owner '' }}>;
     isOwnerLoading: boolean;
-    fetchOwnerData: () => Promise<void>;
+    fetchOwnerData: () => Promise<{{ classDataName table.dataElement.owner '' }} | undefined>;
     editMode: boolean;
     isFormUpdateable: () => boolean;
-    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner 'Stored' }}, value: any) => void;
+    storeDiff: (attributeName: keyof {{ classDataName table.dataElement.owner '' }}, value: any) => Promise<{{ classTypeName table.dataElement.owner }}>;
     refreshCounter: number;
     validation: Map<keyof {{ classDataName table.dataElement.owner '' }}, string>;
 }
 
-export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
+export const {{ tableComponentName table }} = forwardRef<RefreshableTable{{ classDataName table.dataElement.target 'Stored' }}>, {{ tableComponentName table }}Props>((props, ref) => {
     const { ownerData, fetchOwnerData, editMode, isFormUpdateable, refreshCounter } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
@@ -195,12 +195,13 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         setIsNextButtonEnabled(!isNext);
     }
 
-    async function fetchData() {
+    async function fetchData(): Promise<{{ classDataName table.dataElement.target 'Stored' }}[] | undefined> {
         if (ownerData && ownerData.__signedIdentifier) {
             setIsLoading(true);
+            let res: {{ classDataName table.dataElement.target 'Stored' }}[] | undefined;
 
             try {
-                const res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
+                res = await {{ classServiceName table.dataElement.owner }}Impl.get{{ ucFirst table.dataElement.name }}(
                     ownerData,
                     processQueryCustomizer(queryCustomizer),
                 );
@@ -221,6 +222,8 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             } finally {
                 setIsLoading(false);
             }
+
+            return res;
         }
     }
 
