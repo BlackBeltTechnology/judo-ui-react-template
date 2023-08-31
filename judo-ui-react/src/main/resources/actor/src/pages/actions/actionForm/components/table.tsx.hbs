@@ -44,15 +44,6 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{# if isDebugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
 
-    {{# each table.actions as |action| }}
-        {{# if action.isAddAction }}
-            {{# if isDebugPrint }}// include: actor/src/fragments/action/selection-model.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/action/selection-model.fragment.hbs dataElement=table.dataElement }}
-            {{# if isDebugPrint }}// include: actor/src/fragments/action/range-call.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/action/range-call.fragment.hbs dataElement=table.dataElement }}
-        {{/ if }}
-    {{/ each }}
-
     return (
         <>
             <StripedDataGrid
@@ -94,7 +85,17 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         startIcon={<MdiIcon path="attachment-plus" />}
                                         variant="text"
                                         onClick={ async () => {
-                                            const res = await {{ table.dataElement.name }}RangeCall();
+                                            const res = await openRangeDialog<{{ classDataName dataElement.target 'Stored' }}, {{ classDataName dataElement.target 'QueryCustomizer' }}>({
+                                                id: '{{ createId dataElement }}',
+                                                columns: {{ dataElement.name }}Columns,
+                                                defaultSortField: {{ dataElement.name }}SortModel[0],
+                                                rangeCall: async (queryCustomizer) =>
+                                                    await {{ classServiceName dataElement.owner }}Impl.getRangeFor{{ firstToUpper dataElement.name }}(ownerData, processQueryCustomizer(queryCustomizer)),
+                                                single: false,
+                                                alreadySelectedItems: ownerData.{{ table.dataElement.name }} ? [...ownerData.{{ table.dataElement.name }}] : undefined,
+                                                filterOptions: {{ dataElement.name }}RangeFilterOptions,
+                                                initialQueryCustomizer: {{ dataElement.name }}InitialQueryCustomizer,
+                                            });
 
                                             if (res) {
                                                 const newList = [
@@ -102,7 +103,6 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                                     ...(res.value as {{ classDataName table.dataElement.target 'Stored' }}[])
                                                 ];
                                                 storeDiff('{{ table.dataElement.name }}', newList);
-                                                setSelectionModel([...newList]);
                                             }
                                         } }
                                         disabled={
