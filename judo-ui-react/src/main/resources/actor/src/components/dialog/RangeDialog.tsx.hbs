@@ -256,18 +256,6 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
   };
 
   const handleIsRowSelectable = (params: GridRowParams<T & { __selected?: boolean }>) => {
-{{!--     if (Array.isArray(alreadySelectedItems) && alreadySelectedItems.length) { --}}
-{{!--         // This branch should be used by aggregation tables because in these cases callers would pass their in-memory --}}
-{{!--         // item list which we need to check. --}}
-{{!--         return !alreadySelectedItems.find(i => i.__identifier === params.row.__identifier); --}}
-{{!--     } else if (!single) { --}}
-{{!--         // This branch should be used by association table relations which trigger instantly and always have to check the --}}
-{{!--         // backend state. --}}
-{{!--         return !params.row.__selected; --}}
-{{!--     } --}}
-{{!--     // This case is for single aggregations, because users can unset the element in edit mode but would not be able to --}}
-{{!--     // re-set them if we checked the backend response above (since the removal might not be persisted yet). --}}
-{{!--     return true; --}}
     return isRowSelectable(params.row, single, alreadySelectedItems);
   };
 
