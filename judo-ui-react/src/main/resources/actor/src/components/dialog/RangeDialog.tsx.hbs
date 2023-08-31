@@ -29,6 +29,7 @@ import {
   processQueryCustomizer,
   ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
   mapFiltersToQueryCustomizerProperty,
+  isRowSelectable,
 } from '~/utilities';
 import { serverTableConfig, rangeDialogConfig } from '~/config';
 import { SlideUpTransition } from '~/theme/animations';
@@ -47,7 +48,7 @@ interface RangeDialogProps<T extends JudoStored<T>, U extends QueryCustomizer<T>
   columns: GridColDef<T>[];
   defaultSortField: GridSortItem;
   rangeCall: (queryCustomizer: U) => Promise<Array<T>>;
-  alreadySelectedItems: T[];
+  alreadySelectedItems?: T[];
   initalQueryCustomizer: U;
   filterOptions: FilterOption[];
   createTrigger?: () => Promise<T | undefined>;
@@ -255,10 +256,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
   };
 
   const handleIsRowSelectable = (params: GridRowParams<T & { __selected?: boolean }>) => {
-    if (typeof params.row.__selected === 'boolean') {
-      return !params.row.__selected;
-    }
-    return !alreadySelectedItems.find(i => i.__identifier === params.row.__identifier);
+    return isRowSelectable(params.row, single, alreadySelectedItems);
   };
 
   {{# if (stringValueIsTrue useTableContextMenus) }}

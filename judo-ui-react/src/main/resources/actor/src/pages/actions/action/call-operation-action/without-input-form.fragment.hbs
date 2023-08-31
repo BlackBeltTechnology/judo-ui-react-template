@@ -38,7 +38,6 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                 defaultSortField: sortModel[0],
                 rangeCall: async (queryCustomizer) => await {{ classServiceName action.dataElement.owner }}Impl.getRangeFor{{ firstToUpper action.operation.name }}({{# if action.operation.isMapped }}owner{{ else }}undefined{{/ if }}, processQueryCustomizer(queryCustomizer)),
                 single: true,
-                alreadySelectedItems: [],
                 filterOptions,
                 initialQueryCustomizer,
             });
