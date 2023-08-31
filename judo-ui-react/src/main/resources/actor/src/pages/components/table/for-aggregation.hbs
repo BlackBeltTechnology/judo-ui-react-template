@@ -273,12 +273,17 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                     filters={filters}
                     filterOptions={filterOptions}
                     columns={ {{ table.dataElement.name }}Columns }
-                    onFiltersUpdated={ (newFilters: Filter[]) => {
-                        setPaginationModel((prevState) => ({
-                            ...prevState,
-                            page: 0,
-                        }));
-                        setFilters(newFilters);
+                    onFilterByCell={ (filter: Filter) => {
+                        set{{ ucFirst table.dataElement.name }}FilterModel({
+                          ...{{ table.dataElement.name }}FilterModel,
+                          items: [...{{ table.dataElement.name }}FilterModel.items, mapFilterToFilterModel(filter)],
+                        });
+                    } }
+                    onExcludeByCell={ (filter: Filter) => {
+                        set{{ ucFirst table.dataElement.name }}FilterModel({
+                          ...{{ table.dataElement.name }}FilterModel,
+                          items: [...{{ table.dataElement.name }}FilterModel.items, mapFilterToFilterModel(filter)],
+                        });
                     } }
                 />
             {{/ if }}

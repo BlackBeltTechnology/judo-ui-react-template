@@ -25,6 +25,7 @@ import type { Filter, FilterOption } from '~/components-api';
 import {
   mapAllFiltersToQueryCustomizerProperties,
   mapFilterModelToFilters,
+  mapFilterToFilterModel,
   useErrorHandler,
   processQueryCustomizer,
   ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
@@ -136,23 +137,16 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
     setFilters(newFilters);
 
     setQueryCustomizer((prevQueryCustomizer) => {
-      const tempQueryCustomizer: any = { ...prevQueryCustomizer };
-
-      filterOptions.forEach((filter) => {
-        tempQueryCustomizer[filter.attributeName] = mapFiltersToQueryCustomizerProperty(
-          newFilters,
-          filter.attributeName,
-        );
-      });
-
+      // remove previous filter values, so that we can always start with a clean slate
+      for (const name of columns.map(c => c.field)) {
+        delete (prevQueryCustomizer as any)[name];
+      }
       return {
         ...prevQueryCustomizer,
         _seek: {
-          lastItem: undefined,
           limit: rangeDialogConfig.numberOfElements + 1,
-          reverse: undefined,
         },
-        ...tempQueryCustomizer,
+        ...mapAllFiltersToQueryCustomizerProperties(newFilters),
       };
     });
   };
@@ -386,16 +380,25 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
               filters={filters}
               filterOptions={filterOptions}
               columns={columns}
-              onFiltersUpdated={ (newFilters: Filter[]) => {
-                setFilters(newFilters);
-                setPage(0);
-
-                setQueryCustomizer((prevQueryCustomizer) => {
-                  return {
-                    ...prevQueryCustomizer,
-                    ...mapAllFiltersToQueryCustomizerProperties(newFilters),
-                  };
-                });
+              onFilterByCell={ (filter: Filter) => {
+                  {{# if isUseInlineColumnFilters }}
+                    handleFilterModelChange({
+                      ...filterModel,
+                      items: [...filterModel.items, mapFilterToFilterModel(filter)],
+                    });
+                  {{ else }}
+                    handleFiltersChange([...filters, filter]);
+                  {{/ if }}
+              } }
+              onExcludeByCell={ (filter: Filter) => {
+                  {{# if isUseInlineColumnFilters }}
+                    handleFilterModelChange({
+                      ...filterModel,
+                      items: [...filterModel.items, mapFilterToFilterModel(filter)],
+                    });
+                  {{ else }}
+                    handleFiltersChange([...filters, filter]);
+                  {{/ if }}
               } }
             />
           {{/ if }}

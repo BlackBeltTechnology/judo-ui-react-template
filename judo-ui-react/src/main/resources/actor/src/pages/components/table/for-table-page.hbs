@@ -136,26 +136,30 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
 
             if (Array.isArray(newFilters)) {
-                setPage(0);
-                setFilters(newFilters);
-
-                setQueryCustomizer((prevQueryCustomizer: {{ classDataName table.dataElement.target 'QueryCustomizer' }}) => {
-                    // remove previous filter values, so that we can always start with a clean slate
-                    for (const name of {{ table.dataElement.name }}Columns.map(c => c.field)) {
-                        delete (prevQueryCustomizer as any)[name];
-                    }
-                    return {
-                        ...prevQueryCustomizer,
-                        _seek: {
-                            limit: {{ calculateTablePageLimit table }} + 1,
-                        },
-                        ...mapAllFiltersToQueryCustomizerProperties(newFilters),
-                    };
-                });
+                handleFiltersChange(newFilters);
             }
         }
     }
     {{/ if }}
+
+    const handleFiltersChange = (newFilters: Filter[]) => {
+        setPage(0);
+        setFilters(newFilters);
+
+        setQueryCustomizer((prevQueryCustomizer: {{ classDataName table.dataElement.target 'QueryCustomizer' }}) => {
+            // remove previous filter values, so that we can always start with a clean slate
+            for (const name of {{ table.dataElement.name }}Columns.map(c => c.field)) {
+                delete (prevQueryCustomizer as any)[name];
+            }
+            return {
+                ...prevQueryCustomizer,
+                _seek: {
+                    limit: {{ calculateTablePageLimit table }} + 1,
+                },
+                ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+            };
+        });
+    };
 
     function handleSortModelChange (newModel: GridSortModel) {
         setPage(0);
@@ -319,16 +323,25 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     filters={filters}
                     filterOptions={filterOptions}
                     columns={ {{ table.dataElement.name }}Columns }
-                    onFiltersUpdated={ (newFilters: Filter[]) => {
-                        setFilters(newFilters);
-                        setPage(0);
-
-                        setQueryCustomizer((prevQueryCustomizer) => {
-                            return {
-                                ...prevQueryCustomizer,
-                                ...mapAllFiltersToQueryCustomizerProperties(newFilters),
-                            };
-                        });
+                    onFilterByCell={ (filter: Filter) => {
+                        {{# if isUseInlineColumnFilters }}
+                            handleFilterModelChange({
+                                ...filterModel,
+                                items: [...filterModel.items, mapFilterToFilterModel(filter)],
+                            });
+                        {{ else }}
+                            handleFiltersChange([...filters, filter]);
+                        {{/ if }}
+                    } }
+                    onExcludeByCell={ (filter: Filter) => {
+                        {{# if isUseInlineColumnFilters }}
+                            handleFilterModelChange({
+                                ...filterModel,
+                                items: [...filterModel.items, mapFilterToFilterModel(filter)],
+                            });
+                        {{ else }}
+                            handleFiltersChange([...filters, filter]);
+                        {{/ if }}
                     } }
                 />
             {{/ if }}
