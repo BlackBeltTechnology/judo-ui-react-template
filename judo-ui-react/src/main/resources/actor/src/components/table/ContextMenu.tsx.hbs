@@ -28,6 +28,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
     const [selectedRow, setSelectedRow] = useState<string | undefined>();
     const [selectedRowData, setSelectedRowData] = useState<P | undefined>();
     const [selectedValue, setSelectedValue] = useState<any>();
+    const [filterType, setFilterType] = useState<FilterType | undefined>();
     const [textContent, setTextContent] = useState<any>();
     const [contextMenu, setContextMenu] = useState<{
       mouseX: number;
@@ -60,6 +61,11 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
         setSelectedValue(value);
         setSelectedColumn(column);
         setContextMenu(contextMenu === null ? { mouseX: event.clientX - 2, mouseY: event.clientY - 4 } : null);
+        const fo = filterOptions.find((f) => f.attributeName === field)!;
+        const ft: FilterType | undefined = fo?.filterType;
+        if (ft) {
+          setFilterType(ft);
+        }
       }
     };
 
@@ -161,12 +167,12 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
             {t('judo.component.Table.ContextMenu.filterBy', { defaultValue: 'Filter based on the selected value', columnName: selectedColumn?.headerName, field: field, value: selectedValue }) as string}
           </Typography>
         </MenuItem>}
-        {<MenuItem onClick={excludeByCell}>
+        {(filterType !== FilterType.boolean && filterType !== FilterType.trinaryLogic) && (<MenuItem onClick={excludeByCell}>
           <MdiIcon path="not-equal-variant" sx={ { mr: 1 } } />
           <Typography variant="inherit">
             {t('judo.component.Table.ContextMenu.excludeBy', { defaultValue: 'Exclude based on the selected value', columnName: selectedColumn?.headerName, field: field, value: selectedValue }) as string}
           </Typography>
-        </MenuItem>}
+        </MenuItem>)}
       </Menu>
     );
   },
