@@ -296,6 +296,8 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                     >
                                         {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
                                     </Button>
+                                    {{ else }}
+                                        <GridToolbarFilterButton componentsProps={ { button: { variant: 'text' } } }  />
                                     {{/ unless }}
                                 {{/ if }}
                             {{/ each }}
