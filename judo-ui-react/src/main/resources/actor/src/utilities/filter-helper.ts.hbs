@@ -177,6 +177,9 @@ function mapStringOperator(operator: string): _StringOperation {
   if (operator === 'equals') {
     return _StringOperation.equal;
   }
+  if (operator === 'not') {
+    return _StringOperation.notEqual;
+  }
 
   // contains
   return _StringOperation.like;
@@ -331,6 +334,12 @@ export function mapFilterToFilterModel(filter: Filter): GridFilterItem {
    field: filterOption.attributeName,
  };
  switch (filterOption!.filterType) {
+    case FilterType.string:
+      return {
+        ...res,
+        value: filterBy.value,
+        operator: filterBy.operator === _StringOperation.equal ? 'equals' : 'not',
+      };
    case FilterType.numeric:
      return {
        ...res,
@@ -348,8 +357,8 @@ export function mapFilterToFilterModel(filter: Filter): GridFilterItem {
    case FilterType.trinaryLogic:
      return {
        ...res,
-       value: String(filterBy.value), // yeah, this is how we do things here
-       operator: 'is', // not equals is not supported by MUI for bool-ish types
+       value: String(filterBy.value),
+       operator: (filterBy.operator === ('equal' || 'equals')) ? 'is' : 'not',
      };
    case FilterType.enumeration:
      return {
