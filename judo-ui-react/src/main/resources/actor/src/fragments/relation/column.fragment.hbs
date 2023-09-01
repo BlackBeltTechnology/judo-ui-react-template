@@ -84,13 +84,25 @@ filterable: {{ isUseInlineColumnFilters }} && {{# if (isColumnFilterable column)
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {
         return params.row.{{ column.attributeType.name }}
-            ? <Button id="{{ createId column }}-download" startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} size="small" variant="text" onClick={ (event: any) => {
-                event.preventDefault();
-                event.stopPropagation();
-                downloadFile(params.row, '{{ column.attributeType.name }}');
-              } }>
-                { extractFileNameFromToken(params.row.{{ column.attributeType.name }}) }
-              </Button>
+            ? <ButtonGroup size="small" variant="outlined">
+                <Button id="{{ createId column }}-download" startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} onClick={ (event: any) => {
+                    event.preventDefault();
+                    event.stopPropagation();
+                    downloadFile(params.row, '{{ column.attributeType.name }}', 'attachment');
+                  } }>
+                    { extractFileNameFromToken(params.row.{{ column.attributeType.name }}) }
+                  </Button>
+                  <Button
+                    id="{{ createId column }}-view"
+                    onClick={ (event: any) => {
+                      event.preventDefault();
+                      event.stopPropagation();
+                      downloadFile(params.row, '{{ column.attributeType.name }}', 'inline');
+                    } }
+                  >
+                    <MdiIcon path="eye" sx={ { mr: 0.5 } } />
+                  </Button>
+                </ButtonGroup>
             : <MdiIcon path="minus" />;
     },
 {{/ if }}
