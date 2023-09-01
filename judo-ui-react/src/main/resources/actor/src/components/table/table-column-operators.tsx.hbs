@@ -4,6 +4,8 @@ import {
   getGridDateOperators,
   getGridBooleanOperators,
   getGridSingleSelectOperators,
+  GridFilterInputValue,
+  GridFilterItem,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { GridFilterOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 
@@ -38,9 +40,26 @@ function filterSingleSelectColumnOperators(operator: GridFilterOperator): boolea
   return !['not', 'isAnyOf'].includes(operator.value);
 }
 
-export const stringColumnOperators: GridFilterOperator[] = getGridStringOperators().filter(filterStringColumnOperators);
+export const getNotEqualOperator = (type: string): GridFilterOperator<any, number | string | null, any> => ({
+  label: 'not',
+  value: 'not',
+  getApplyFilterFn: (filterItem: GridFilterItem) => {
+    if (!filterItem.field || !filterItem.value || !filterItem.operator) {
+      return null;
+    }
+
+    return (params): boolean => {
+      return params.value !== filterItem.value;
+    };
+  },
+  InputComponent: GridFilterInputValue,
+  InputComponentProps: { type },
+  getValueAsString: (value: string) => value,
+});
+
+export const stringColumnOperators: GridFilterOperator[] = [...getGridStringOperators().filter(filterStringColumnOperators), getNotEqualOperator('string')];
 export const numericColumnOperators: GridFilterOperator[] = getGridNumericOperators().filter(filterNumericColumnOperators);
 export const dateColumnOperators: GridFilterOperator[] = getGridDateOperators().filter(filterDateColumnOperators);
 export const dateTimeColumnOperators: GridFilterOperator[] = getGridDateOperators(true).filter(filterDateTimeColumnOperators); // showTime = true
 export const booleanColumnOperators: GridFilterOperator[] = getGridBooleanOperators().filter(filterBooleanColumnOperators);
-export const singleSelectColumnOperators: GridFilterOperator[] = getGridSingleSelectOperators().filter(filterSingleSelectColumnOperators);
+export const singleSelectColumnOperators: GridFilterOperator[] = [...getGridSingleSelectOperators().filter(filterSingleSelectColumnOperators), getNotEqualOperator('singleSelect')];
