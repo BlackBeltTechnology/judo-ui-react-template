@@ -5,6 +5,7 @@ import {
   getGridBooleanOperators,
   getGridSingleSelectOperators,
   GridFilterInputValue,
+  GridFilterInputBoolean,
   GridFilterItem,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { GridFilterOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
@@ -40,7 +41,7 @@ function filterSingleSelectColumnOperators(operator: GridFilterOperator): boolea
   return !['not', 'isAnyOf'].includes(operator.value);
 }
 
-export const getNotEqualOperator = (type: string): GridFilterOperator<any, number | string | null, any> => ({
+export const getStringyNotEqualOperator = (type: string): GridFilterOperator<any, number | string | null, any> => ({
   label: 'not',
   value: 'not',
   getApplyFilterFn: (filterItem: GridFilterItem) => {
@@ -57,9 +58,27 @@ export const getNotEqualOperator = (type: string): GridFilterOperator<any, numbe
   getValueAsString: (value: string) => value,
 });
 
-export const stringColumnOperators: GridFilterOperator[] = [...getGridStringOperators().filter(filterStringColumnOperators), getNotEqualOperator('string')];
+export const booleanNotEqualOperator = {
+  label: 'not',
+  value: 'not',
+  getApplyFilterFn: (filterItem: GridFilterItem) => {
+    if (!filterItem.value) {
+      return null;
+    }
+
+    const valueAsBoolean = filterItem.value === 'true';
+    return (value: any): boolean => {
+      return Boolean(value) !== valueAsBoolean;
+    };
+  },
+  InputComponent: GridFilterInputBoolean,
+  InputComponentProps: { type: 'boolean' },
+  getValueAsString: (value: any) => String(value),
+};
+
+export const stringColumnOperators: GridFilterOperator[] = [...getGridStringOperators().filter(filterStringColumnOperators), getStringyNotEqualOperator('string')];
 export const numericColumnOperators: GridFilterOperator[] = getGridNumericOperators().filter(filterNumericColumnOperators);
 export const dateColumnOperators: GridFilterOperator[] = getGridDateOperators().filter(filterDateColumnOperators);
 export const dateTimeColumnOperators: GridFilterOperator[] = getGridDateOperators(true).filter(filterDateTimeColumnOperators); // showTime = true
-export const booleanColumnOperators: GridFilterOperator[] = getGridBooleanOperators().filter(filterBooleanColumnOperators);
-export const singleSelectColumnOperators: GridFilterOperator[] = [...getGridSingleSelectOperators().filter(filterSingleSelectColumnOperators), getNotEqualOperator('singleSelect')];
+export const booleanColumnOperators: GridFilterOperator[] = [...getGridBooleanOperators().filter(filterBooleanColumnOperators), booleanNotEqualOperator];
+export const singleSelectColumnOperators: GridFilterOperator[] = [...getGridSingleSelectOperators().filter(filterSingleSelectColumnOperators), getStringyNotEqualOperator('singleSelect')];

@@ -357,8 +357,8 @@ export function mapFilterToFilterModel(filter: Filter): GridFilterItem {
    case FilterType.trinaryLogic:
      return {
        ...res,
-       value: String(filterBy.value), // yeah, this is how we do things here
-       operator: 'is', // not equals is not supported by MUI for bool-ish types
+       value: String(filterBy.value),
+       operator: (filterBy.operator === ('equal' || 'equals')) ? 'is' : 'not',
      };
    case FilterType.enumeration:
      return {
