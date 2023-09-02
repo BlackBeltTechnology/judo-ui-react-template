@@ -22,7 +22,9 @@ export const fileHandling: FileHandlingHook = () => {
 
         if (response && response.status === 200) {
             const fileName = response.headers['content-disposition'].match(/filename=\"(.*)\"/)[1];
-            const url = window.URL.createObjectURL(new Blob([response.data]));
+            const fileType = response.headers['content-type'];
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: fileType }));
+
 
             if (response.headers['content-disposition'].includes('inline')) {
                 createDialog({
