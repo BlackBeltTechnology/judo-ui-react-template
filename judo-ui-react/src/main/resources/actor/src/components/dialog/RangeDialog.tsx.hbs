@@ -12,9 +12,7 @@ import type {
   GridRowSelectionModel,
   GridRowId,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
-import {
-  GridToolbarContainer,
-} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { GridToolbarContainer, GridToolbarFilterButton } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { MouseEvent } from 'react';
 import { useEffect, useRef, useState } from 'react';
 import type { JudoStored, QueryCustomizer } from '@judo/data-api-common';
@@ -318,7 +316,7 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
             components={ {
               Toolbar: () => (
                 <GridToolbarContainer>
-                  {{# unless isUseInlineColumnFilters}}
+                  {{# unless isUseInlineColumnFilters }}
                     <Button
                       id={`${id}-set-filters`}
                       variant="text"
@@ -334,6 +332,8 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
                     >
                       { t('judo.modal.range.set-filters', { defaultValue: 'Set filters' }) as string } {filters.length !== 0 ? '(' + filters.length + ')' : ''}
                     </Button>
+                  {{ else }}
+                    <GridToolbarFilterButton componentsProps={ { button: { variant: 'text' } } }  />
                   {{/ unless }}
                   {createTrigger && (
                     <Button

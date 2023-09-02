@@ -131,6 +131,11 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
                                     </Button>
                                 {{/ if }}
+                                {{# if action.isFilterRelationAction }}
+                                    {{# if isUseInlineColumnFilters }}
+                                        <GridToolbarFilterButton componentsProps={ { button: { variant: 'text' } } }  />
+                                    {{/ if }}
+                                {{/ if }}
                             {{/ each }}
                             <div>{/* Placeholder */}</div>
                         </GridToolbarContainer>

@@ -256,6 +256,8 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                             >
                                 {t('judo.pages.table.set-filters', { defaultValue: 'Set filters' }) + (filters.length !== 0 ? ' (' + filters.length + ')' : '')}
                             </Button>
+                            {{ else }}
+                                <GridToolbarFilterButton componentsProps={ { button: { variant: 'text' } } }  />
                             {{/ unless }}
                             <div>{/* Placeholder */}</div>
                         </GridToolbarContainer>
