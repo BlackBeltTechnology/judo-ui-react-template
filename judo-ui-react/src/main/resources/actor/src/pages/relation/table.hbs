@@ -18,9 +18,6 @@ import { PageActions } from './components/PageActions';
  * Type: Table
  **/
 export default function {{ pageName page }}() {
-    const persistedTableData: PersistedTableData = JSON.parse(
-        window.sessionStorage.getItem('pages.{{ pageName page }}') || '{}',
-    );
     const tableRef = useRef<RefreshableTable>(null);
     const { t } = useTranslation();
     const { signedIdentifier } = useParams();
