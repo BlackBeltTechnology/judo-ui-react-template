@@ -47,8 +47,10 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
     }, [rowHighlighting]);
     {{/ if }}
 
-    const [{{ table.dataElement.name }}FilterModel, set{{ ucFirst table.dataElement.name }}FilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(`{{ createId table }}-${ownerData.__identifier}-filterModel`, { items: [] }));
-    const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(`{{ createId table }}-${ownerData.__identifier}-filters`, []));
+    const filterModelKey = `{{ createId table }}-${ownerData.__identifier}-filterModel`;
+    const filtersKey = `{{ createId table }}-${ownerData.__identifier}-filters`;
+    const [{{ table.dataElement.name }}FilterModel, set{{ ucFirst table.dataElement.name }}FilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
+    const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
     const [data, setData] = useState<{{ classDataName table.dataElement.target 'Stored' }}[]>([]);
     const [paginationModel, setPaginationModel] = useState({
         pageSize: {{ calculateTablePageLimit table }},
@@ -86,7 +88,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 page: 0,
             }));
             setFilters(newFilters);
-            setItemStringified(`{{ createId table }}-${ownerData.__identifier}-filters`, newFilters);
+            setItemStringified(filtersKey, newFilters);
         }
     };
 
@@ -100,12 +102,12 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
 
     useEffect(() => {
         if (ownerData?.__identifier) {
-            const storedFilters = getItemParsed<Filter[]>(`{{ createId table }}-${ownerData.__identifier}-filters`);
+            const storedFilters = getItemParsed<Filter[]>(filtersKey);
             if (storedFilters !== null) {
                 setFilters(storedFilters);
             }
 
-            const storedFilterModel = getItemParsed<GridFilterModel>(`{{ createId table }}-${ownerData.__identifier}-filterModel`);
+            const storedFilterModel = getItemParsed<GridFilterModel>(filterModelKey);
             if (storedFilterModel !== null) {
                 set{{ ucFirst table.dataElement.name }}FilterModel(storedFilterModel);
             }
@@ -179,7 +181,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 filterModel={ {{ table.dataElement.name }}FilterModel }
                 onFilterModelChange={(newModel: GridFilterModel) => {
                     set{{ ucFirst table.dataElement.name }}FilterModel(newModel);
-                    setItemStringified(`{{ createId table }}-${ownerData.__identifier}-filterModel`, newModel);
+                    setItemStringified(filterModelKey, newModel);
                 }}
                 {{/ if }}
                 paginationModel={paginationModel}
@@ -297,11 +299,11 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                 items: [...{{ table.dataElement.name }}FilterModel.items, mapFilterToFilterModel(filter)],
                             };
                             set{{ ucFirst table.dataElement.name }}FilterModel(newFilterModel);
-                            setItemStringified(`{{ createId table }}-${ownerData.__identifier}-filterModel`, newFilterModel);
+                            setItemStringified(filterModelKey, newFilterModel);
                         {{ else }}
                             const newFilters = [...filters, filter];
                             setFilters(newFilters);
-                            setItemStringified(`{{ createId table }}-${ownerData.__identifier}-filters`, newFilters);
+                            setItemStringified(filtersKey, newFilters);
                         {{/ if }}
                     } }
                     onExcludeByCell={ (filter: Filter) => {
@@ -311,11 +313,11 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                 items: [...{{ table.dataElement.name }}FilterModel.items, mapFilterToFilterModel(filter)],
                             };
                             set{{ ucFirst table.dataElement.name }}FilterModel(newFilterModel);
-                            setItemStringified(`{{ createId table }}-${ownerData.__identifier}-filterModel`, newFilterModel);
+                            setItemStringified(filterModelKey, newFilterModel);
                         {{ else }}
                             const newFilters = [...filters, filter];
                             setFilters(newFilters);
-                            setItemStringified(`{{ createId table }}-${ownerData.__identifier}-filters`, newFilters);
+                            setItemStringified(filtersKey, newFilters);
                         {{/ if }}
                     } }
                 />

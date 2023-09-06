@@ -52,8 +52,10 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const [data, setData] = useState<GridRowModel<{{ classDataName table.dataElement.target 'Stored' }}>[]>([]);
     const [rowCount, setRowCount] = useState<number>(0);
     const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
-    const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(`{{ createId table }}-${ownerData.__signedIdentifier}-filterModel`, { items: [] }));
-    const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(`{{ createId table }}-${ownerData.__signedIdentifier}-filters`, []));
+    const filterModelKey = `{{ createId table }}-${ownerData.__signedIdentifier}-filterModel`;
+    const filtersKey = `{{ createId table }}-${ownerData.__signedIdentifier}-filters`;
+    const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
+    const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
     const [lastItem, setLastItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
     const [firstItem, setFirstItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
     const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
@@ -138,7 +140,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{# if isUseInlineColumnFilters }}
     function handleFilterModelChange (newModel: GridFilterModel) {
         setFilterModel(newModel);
-        setItemStringified(`{{ createId table }}-${ownerData.__signedIdentifier}-filterModel`, newModel);
+        setItemStringified(filterModelKey, newModel);
 
         if (newModel.items.every(i => i.value !== undefined)) {
             const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
@@ -153,7 +155,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const handleFiltersChange = (newFilters: Filter[]) => {
         setPage(0);
         setFilters(newFilters);
-        setItemStringified(`{{ createId table }}-${ownerData.__signedIdentifier}-filters`, newFilters);
+        setItemStringified(filtersKey, newFilters);
 
         setQueryCustomizer((prevQueryCustomizer: {{ classDataName table.dataElement.target 'QueryCustomizer' }}) => {
             // remove previous filter values, so that we can always start with a clean slate

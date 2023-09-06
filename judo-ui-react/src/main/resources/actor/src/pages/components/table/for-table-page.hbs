@@ -54,12 +54,14 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const [data, setData] = useState<GridRowModel<{{ classDataName table.dataElement.target 'Stored' }}>[]>([]);
     const [rowCount, setRowCount] = useState<number>(0);
     const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
-    const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(`{{ createId table }}{{# unless table.dataElement.isAccess }}-${__identifier}{{/ unless }}-filterModel`, { items: [] }));
+    const filterModelKey = `{{ createId table }}{{# unless table.dataElement.isAccess }}-${__identifier}{{/ unless }}-filterModel`;
+    const filtersKey = `{{ createId table }}{{# unless table.dataElement.isAccess }}-${__identifier}{{/ unless }}-filters`;
+    const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
+    const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
     const [lastItem, setLastItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
     const [firstItem, setFirstItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
     const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
     const [page, setPage] = useState<number>(0);
-    const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(`{{ createId table }}{{# unless table.dataElement.isAccess }}-${__identifier}{{/ unless }}-filters`, []));
     const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName table.dataElement.target 'QueryCustomizer' }}>({
         _mask: '{{ table.formattedMask }}',
         _seek: {
@@ -80,10 +82,10 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     }, [ownerData]);
     {{/ unless }}
     useEffect(() => {
-        setItemStringified(`{{ createId table }}{{# unless table.dataElement.isAccess }}-${__identifier}{{/ unless }}-filters`, filters);
+        setItemStringified(filtersKey, filters);
     }, [filters]);
     useEffect(() => {
-        setItemStringified(`{{ createId table }}{{# unless table.dataElement.isAccess }}-${__identifier}{{/ unless }}-filterModel`, filterModel);
+        setItemStringified(filterModelKey, filterModel);
     }, [filterModel]);
 
     {{# if isDebugPrint }}// include: actor/src/fragments/table/hook-variables.fragment.hbs{{/ if }}
