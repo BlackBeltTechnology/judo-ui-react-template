@@ -32,6 +32,7 @@ export interface {{ tableComponentName table }}Props {
 }
 
 export const {{ tableComponentName table }} = (props: {{ tableComponentName table }}Props) => {
+    const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
     const { openFilterDialog } = useFilterDialog();
     const { ownerData, isOwnerLoading, editMode, isFormUpdateable, storeDiff, fetchOwnerData } = props;
     const { t } = useTranslation();
@@ -46,7 +47,10 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
     }, [rowHighlighting]);
     {{/ if }}
 
-    const [filters, setFilters] = useState<Filter[]>([]);
+    const filterModelKey = `{{ createId table }}-${ownerData.__identifier}-filterModel`;
+    const filtersKey = `{{ createId table }}-${ownerData.__identifier}-filters`;
+    const [{{ table.dataElement.name }}FilterModel, set{{ ucFirst table.dataElement.name }}FilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
+    const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
     const [data, setData] = useState<{{ classDataName table.dataElement.target 'Stored' }}[]>([]);
     const [paginationModel, setPaginationModel] = useState({
         pageSize: {{ calculateTablePageLimit table }},
@@ -55,9 +59,6 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
-
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/filter-models.fragment.hbs{{/ if }}
-    {{> actor/src/fragments/page/filter-models.fragment.hbs dataElement=table.dataElement columns=table.columns }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/hook-variables.fragment.hbs rel=table }}
@@ -87,6 +88,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 page: 0,
             }));
             setFilters(newFilters);
+            setItemStringified(filtersKey, newFilters);
         }
     };
 
@@ -97,6 +99,20 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
             contextMenuRef.current?.handleContextMenu(event);
         };
     {{/ if }}
+
+    useEffect(() => {
+        if (ownerData?.__identifier) {
+            const storedFilters = getItemParsed<Filter[]>(filtersKey);
+            if (storedFilters !== null) {
+                setFilters(storedFilters);
+            }
+
+            const storedFilterModel = getItemParsed<GridFilterModel>(filterModelKey);
+            if (storedFilterModel !== null) {
+                set{{ ucFirst table.dataElement.name }}FilterModel(storedFilterModel);
+            }
+        }
+    }, [ownerData]);
 
     useEffect(() => {
         const newData = applyInMemoryFilters<{{ classDataName table.dataElement.target 'Stored' }}>(filters, ownerData?.{{ table.dataElement.name }} ?? []);
@@ -165,6 +181,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 filterModel={ {{ table.dataElement.name }}FilterModel }
                 onFilterModelChange={(newModel: GridFilterModel) => {
                     set{{ ucFirst table.dataElement.name }}FilterModel(newModel);
+                    setItemStringified(filterModelKey, newModel);
                 }}
                 {{/ if }}
                 paginationModel={paginationModel}
@@ -276,16 +293,32 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                     filterOptions={filterOptions}
                     columns={ {{ table.dataElement.name }}Columns }
                     onFilterByCell={ (filter: Filter) => {
-                        set{{ ucFirst table.dataElement.name }}FilterModel({
-                          ...{{ table.dataElement.name }}FilterModel,
-                          items: [...{{ table.dataElement.name }}FilterModel.items, mapFilterToFilterModel(filter)],
-                        });
+                        {{# if isUseInlineColumnFilters}}
+                            const newFilterModel = {
+                                ...{{ table.dataElement.name }}FilterModel,
+                                items: [...{{ table.dataElement.name }}FilterModel.items, mapFilterToFilterModel(filter)],
+                            };
+                            set{{ ucFirst table.dataElement.name }}FilterModel(newFilterModel);
+                            setItemStringified(filterModelKey, newFilterModel);
+                        {{ else }}
+                            const newFilters = [...filters, filter];
+                            setFilters(newFilters);
+                            setItemStringified(filtersKey, newFilters);
+                        {{/ if }}
                     } }
                     onExcludeByCell={ (filter: Filter) => {
-                        set{{ ucFirst table.dataElement.name }}FilterModel({
-                          ...{{ table.dataElement.name }}FilterModel,
-                          items: [...{{ table.dataElement.name }}FilterModel.items, mapFilterToFilterModel(filter)],
-                        });
+                        {{# if isUseInlineColumnFilters}}
+                            const newFilterModel = {
+                                ...{{ table.dataElement.name }}FilterModel,
+                                items: [...{{ table.dataElement.name }}FilterModel.items, mapFilterToFilterModel(filter)],
+                            };
+                            set{{ ucFirst table.dataElement.name }}FilterModel(newFilterModel);
+                            setItemStringified(filterModelKey, newFilterModel);
+                        {{ else }}
+                            const newFilters = [...filters, filter];
+                            setFilters(newFilters);
+                            setItemStringified(filtersKey, newFilters);
+                        {{/ if }}
                     } }
                 />
             {{/ if }}

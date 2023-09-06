@@ -32,6 +32,7 @@ export interface {{ tableComponentName table }}Props {
 }
 
 export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
+    const { getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
     const { ownerData, fetchOwnerData, editMode, isFormUpdateable, refreshCounter } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
@@ -51,12 +52,14 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const [data, setData] = useState<GridRowModel<{{ classDataName table.dataElement.target 'Stored' }}>[]>([]);
     const [rowCount, setRowCount] = useState<number>(0);
     const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
-    const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] });
+    const filterModelKey = `{{ createId table }}-${ownerData.__signedIdentifier}-filterModel`;
+    const filtersKey = `{{ createId table }}-${ownerData.__signedIdentifier}-filters`;
+    const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
+    const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
     const [lastItem, setLastItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
     const [firstItem, setFirstItem] = useState<{{ classDataName table.dataElement.target 'Stored' }}>();
     const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
     const [page, setPage] = useState<number>(0);
-    const [filters, setFilters] = useState<Filter[]>([]);
     const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName table.dataElement.target 'QueryCustomizer' }}>({
         _mask: '{{ table.formattedMask }}',
         _seek: {
@@ -137,6 +140,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{# if isUseInlineColumnFilters }}
     function handleFilterModelChange (newModel: GridFilterModel) {
         setFilterModel(newModel);
+        setItemStringified(filterModelKey, newModel);
 
         if (newModel.items.every(i => i.value !== undefined)) {
             const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
@@ -151,6 +155,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const handleFiltersChange = (newFilters: Filter[]) => {
         setPage(0);
         setFilters(newFilters);
+        setItemStringified(filtersKey, newFilters);
 
         setQueryCustomizer((prevQueryCustomizer: {{ classDataName table.dataElement.target 'QueryCustomizer' }}) => {
             // remove previous filter values, so that we can always start with a clean slate
