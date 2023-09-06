@@ -35,8 +35,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
 
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/filter-models.fragment.hbs{{/ if }}
-    {{> actor/src/fragments/page/filter-models.fragment.hbs dataElement=table.dataElement columns=table.columns }}
+    const [{{ table.dataElement.name }}FilterModel, set{{ ucFirst table.dataElement.name }}FilterModel] = useState<GridFilterModel>({ items: [] });
 
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/hook-variables.fragment.hbs rel=table }}
