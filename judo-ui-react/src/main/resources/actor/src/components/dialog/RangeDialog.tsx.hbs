@@ -37,6 +37,7 @@ import { useFilterDialog } from './hooks';
 import type { ContextMenuApi } from '../table';
 import { ContextMenu, StripedDataGrid } from '../table';
 import { MdiIcon } from '../MdiIcon';
+import { GridLogicOperator } from '@mui/x-data-grid';
 
 interface RangeDialogProps<T extends JudoStored<T>, U extends QueryCustomizer<T>> {
   id: string;
@@ -284,13 +285,16 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
                     display: 'grid',
                 }
             }
+            slotProps={ {
             {{# if (stringValueIsTrue useTableContextMenus) }}
-              slotProps={ {
-                cell: {
-                  onContextMenu: handleContextMenu,
-                },
-              } }
+              cell: {
+                onContextMenu: handleContextMenu,
+              },
             {{/ if }}
+              filterPanel: {
+                logicOperators: [GridLogicOperator.And],
+              },
+            } }
             {...serverTableConfig}
             pageSizeOptions={[10]}
             getRowId={(row: T) => row.__identifier as GridRowId}
