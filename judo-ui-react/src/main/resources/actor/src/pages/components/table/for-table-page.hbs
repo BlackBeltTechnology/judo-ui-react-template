@@ -20,6 +20,7 @@ import {
         {{/ each }}
     } from '../actions';
 {{/ if }}
+import { GridLogicOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 
 export const {{ getCustomizationComponentInterfaceKey table }} = '{{ getCustomizationComponentInterface table }}';
 
@@ -265,13 +266,16 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     ...transformRowStylings(rowStylings),
                     {{/ if }}
                 } }
+                slotProps={ {
                 {{# if (stringValueIsTrue useTableContextMenus) }}
-                    slotProps={ {
-                        cell: {
-                            onContextMenu: handleContextMenu,
-                        },
-                    } }
+                  cell: {
+                    onContextMenu: handleContextMenu,
+                  },
                 {{/ if }}
+                  filterPanel: {
+                    logicOperators: [GridLogicOperator.And],
+                  },
+                } }
                 getRowId={(row: { __identifier: string }) => row.__identifier}
                 loading={ isOwnerLoading }
                 rows={ data }

@@ -15,6 +15,7 @@ import {
         {{ classServiceName ownerPage.dataElement.target }}Impl,
     {{/ neq }}
 } from '~/generated/data-axios';
+import { GridLogicOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 
 export interface {{ tableComponentName table }}Props {
     ownerData: {{ classDataName table.dataElement.owner '' }};
@@ -55,6 +56,11 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                     // overflow: 'hidden',
                     display: 'grid',
                     border: (theme) => props.validation.has('{{ table.dataElement.name }}') ? `2px solid ${theme.palette.error.main}` : undefined,
+                } }
+                slotProps={ {
+                  filterPanel: {
+                    logicOperators: [GridLogicOperator.And],
+                  },
                 } }
                 getRowId={(row: { __identifier: string }) => row.__identifier}
                 loading={ isOwnerLoading }
