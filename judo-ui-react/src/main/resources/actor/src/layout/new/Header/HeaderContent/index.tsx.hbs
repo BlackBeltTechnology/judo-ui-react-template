@@ -1,0 +1,36 @@
+import { Theme } from '@mui/material/styles';
+import { Box, useMediaQuery } from '@mui/material';
+
+// project import
+import Search from './Search';
+import Profile from './Profile';
+import MobileSection from './MobileSection';
+
+import useConfig from '../../etc/useConfig';
+import DrawerHeader from '../../Drawer/DrawerHeader';
+
+// types
+import { MenuOrientation } from '../../etc/types/config';
+import Customization from './Customization';
+
+// ==============================|| HEADER - CONTENT ||============================== //
+
+const HeaderContent = () => {
+  const { /*i18n, */menuOrientation } = useConfig();
+
+  const downLG = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
+
+  return (
+    <>
+      {menuOrientation === MenuOrientation.HORIZONTAL && !downLG && <DrawerHeader open={true} />}
+      {!downLG && <Search />}
+      {downLG && <Box sx={ { width: '100%', ml: 1 } } />}
+
+      <Customization />
+      {!downLG && <Profile />}
+      {downLG && <MobileSection />}
+    </>
+  );
+};
+
+export default HeaderContent;

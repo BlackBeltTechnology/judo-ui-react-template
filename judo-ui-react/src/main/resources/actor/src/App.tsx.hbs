@@ -9,6 +9,7 @@ import { DialogProvider } from './components/dialog';
 import { Layout } from './layout';
 import { menuItems } from './menu-items';
 import { useHeroProps, useLogoProps } from './hooks';
+import MainLayout from './layout/new';
 {{# if application.authentication }}
     import { PrincipalProvider } from './auth';
 {{/ if }}
@@ -29,7 +30,8 @@ function App() {
             )}>
                 <DialogProvider>
                     <BreadcrumbProvider>
-                        <Layout items={menuItems} drawerWidth={drawerWidth} logo={logoProps} hero={heroProps} />
+                        {/*<Layout items={menuItems} drawerWidth={drawerWidth} logo={logoProps} hero={heroProps} />*/}
+                        <MainLayout />
                     </BreadcrumbProvider>
                 </DialogProvider>
             </SnackbarProvider>
