@@ -9,7 +9,6 @@ import useConfig from '../../../etc/useConfig';
 
 // assets
 import defaultLayout from '~/assets/images/customization/default.svg';
-import rtlLayout from '~/assets/images/customization/rtl.svg';
 import miniMenu from '~/assets/images/customization/mini-menu.svg';
 
 // types
@@ -85,25 +84,6 @@ const ThemeLayout = () => {
             />
           </Grid>
         ) : null}
-
-        <Grid item>
-          <FormControlLabel
-            value="rtl"
-            control={<Radio value="rtl" sx={ { display: 'none' } } />}
-            sx={ { display: 'flex', '& .MuiFormControlLabel-label': { flex: 1 } } }
-            label={
-              <Card
-                sx={ { bgcolor: value === ThemeDirection.RTL ? 'primary.lighter' : 'secondary.lighter', p: 1 } }
-                {...(value === ThemeDirection.RTL && { boxShadow: true/*, shadow: theme.customShadows.primary*/ })}
-              >
-                <Stack spacing={1.25} alignItems="center">
-                  <CardMedia component="img" src={rtlLayout} alt="Vertical" sx={ { borderRadius: 1, width: 64, height: 64 } } />
-                  <Typography variant="caption">RTL</Typography>
-                </Stack>
-              </Card>
-            }
-          />
-        </Grid>
       </Grid>
     </RadioGroup>
   );

@@ -1,6 +1,8 @@
 {{> fragment.header.hbs }}
 
-import { alpha, createTheme } from '@mui/material';
+import { alpha, createTheme, StyledEngineProvider } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
+import type { Theme } from '@mui/material/styles';
 import type {} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}/themeAugmentation';
 import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForMaterial' }} } from '@mui/material/locale';
 import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForGrids' }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
@@ -11,7 +13,7 @@ import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ mui
 {{/ eq }}
 import { mainContainerPadding } from './extras';
 import { applicationTheme } from './application-theme';
-import { paletteTheme } from './palette';
+import { paletteThemeLight, paletteThemeDark } from './palette';
 import { density } from './density';
 import { ReactNode, createContext, useMemo, useState } from 'react';
 import useConfig from '~/layout/new/etc/useConfig';
