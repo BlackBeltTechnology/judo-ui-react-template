@@ -3,17 +3,15 @@ import { createContext, ReactNode } from 'react';
 import config from './config';
 import useLocalStorage from './useLocalStorage';
 
-import { CustomizationProps, FontFamily, I18n, MenuOrientation, PresetColor, ThemeDirection, ThemeMode } from './types/config';
+import { CustomizationProps, I18n, MenuOrientation, ThemeDirection, ThemeMode } from './types/config';
 
 const initialState: CustomizationProps = {
   ...config,
   onChangeContainer: () => {},
   onChangeLocalization: (lang: I18n) => {},
   onChangeMode: (mode: ThemeMode) => {},
-  onChangePresetColor: (theme: PresetColor) => {},
   onChangeMiniDrawer: (miniDrawer: boolean) => {},
   onChangeMenuOrientation: (menuOrientation: MenuOrientation) => {},
-  onChangeFontFamily: (fontFamily: FontFamily) => {}
 };
 
 
@@ -47,13 +45,6 @@ function ConfigProvider({ children }: ConfigProviderProps) {
     });
   };
 
-  const onChangePresetColor = (theme: PresetColor) => {
-    setConfig({
-      ...config,
-      presetColor: theme
-    });
-  };
-
   const onChangeDirection = (direction: ThemeDirection) => {
     setConfig({
       ...config,
@@ -75,13 +66,6 @@ function ConfigProvider({ children }: ConfigProviderProps) {
     });
   };
 
-  const onChangeFontFamily = (fontFamily: FontFamily) => {
-    setConfig({
-      ...config,
-      fontFamily
-    });
-  };
-
   return (
     <ConfigContext.Provider
       value={ {
@@ -89,11 +73,9 @@ function ConfigProvider({ children }: ConfigProviderProps) {
         onChangeContainer,
         onChangeLocalization,
         onChangeMode,
-        onChangePresetColor,
         onChangeDirection,
         onChangeMiniDrawer,
         onChangeMenuOrientation,
-        onChangeFontFamily
       } }
     >
       {children}
