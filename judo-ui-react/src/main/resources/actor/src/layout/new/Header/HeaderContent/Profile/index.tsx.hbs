@@ -1,24 +1,17 @@
 import { useRef, useState, ReactNode, SyntheticEvent } from 'react';
-
-// material-ui
 import { useTheme } from '@mui/material/styles';
 import {
   Avatar, Box, ButtonBase, Card, CardContent, ClickAwayListener, Grid,
-  IconButton, Paper, Popper, Stack, Tab, Tabs, Tooltip, Typography } from '@mui/material';
+  IconButton, Paper, Popper, Stack, Tab, Tabs, Tooltip, Typography
+} from '@mui/material';
 
-// project import
 import ProfileTab from './ProfileTab';
 import SettingTab from './SettingTab';
 import Transitions from '../../../Transitions';
 
-// assets
-const avatar1 = 'ninja.png';
-
-// types
 import { ThemeMode } from '../../../etc/types/config';
 import { MdiIcon } from '~/components';
 
-// types
 interface TabPanelProps {
   children?: ReactNode;
   dir?: string;
@@ -26,7 +19,6 @@ interface TabPanelProps {
   value: number;
 }
 
-// tab panel wrapper
 function TabPanel(props: TabPanelProps) {
   const { children, value, index, ...other } = props;
 
@@ -47,6 +39,7 @@ function a11yProps(index: number) {
 // ==============================|| HEADER CONTENT - PROFILE ||============================== //
 
 const Profile = () => {
+  const avatar1 = 'ninja.png';
   const theme = useTheme();
 
   const user = {

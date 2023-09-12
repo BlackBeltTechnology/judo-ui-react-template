@@ -1,32 +1,30 @@
 import { useMemo, useState } from 'react';
 
-// material-ui
 import { useTheme } from '@mui/material/styles';
-import { Accordion, AccordionDetails, AccordionSummary, Box, Button, Card, Drawer, IconButton, Stack, Typography } from '@mui/material';
+import {
+  Box,
+  Card,
+  Drawer,
+  IconButton,
+  Stack,
+  Typography,
+} from '@mui/material';
 
-// project import
 import DefaultThemeMode from './ThemeMode';
 import ThemeWidth from './ThemeWidth';
 import ThemeMenuLayout from './ThemeMenuLayout';
 import SimpleBar from '../../../Drawer/DrawerContent/SimpleBar';
 import useConfig from '../../../etc/useConfig';
 
-
-// types
 import { ThemeMode } from '../../../etc/types/config';
 import { MdiIcon } from '~/components';
-
-// ==============================|| HEADER CONTENT - CUSTOMIZATION ||============================== //
 
 const Customization = () => {
   const theme = useTheme();
   const { container, mode, menuOrientation } = useConfig();
 
-  // eslint-disable-next-line
   const themeMenuLayout = useMemo(() => <ThemeMenuLayout />, [menuOrientation]);
-  // eslint-disable-next-line
   const themeMode = useMemo(() => <DefaultThemeMode />, [mode]);
-  // eslint-disable-next-line
   const themeWidth = useMemo(() => <ThemeWidth />, [container]);
 
   const [open, setOpen] = useState(false);
@@ -36,10 +34,11 @@ const Customization = () => {
 
   const iconBackColorOpen = theme.palette.mode === ThemeMode.DARK ? 'grey.200' : 'grey.300';
   const iconBackColor = theme.palette.mode === ThemeMode.DARK ? 'background.default' : 'grey.100';
+  const experimentOn = window.localStorage.getItem('judo.experiment');
 
   return (
     <>
-      <Box sx={ { flexShrink: 0, ml: 0.75 } }>
+      {experimentOn && <Box sx={ { flexShrink: 0, ml: 0.75 } }>
         <IconButton
           // color="secondary"
           // variant="light"
@@ -48,18 +47,18 @@ const Customization = () => {
         >
           <MdiIcon path="cog-outline" />
         </IconButton>
-      </Box>
+      </Box>}
       <Drawer
         sx={ {
-          zIndex: 2001
+          zIndex: 2001,
         } }
         anchor="right"
         onClose={handleToggle}
         open={open}
         PaperProps={ {
           sx: {
-            width: 340
-          }
+            width: 340,
+          },
         } }
       >
         {open && (
@@ -69,111 +68,77 @@ const Customization = () => {
               border: 'none',
               borderRadius: 0,
               height: '100vh',
-              '& .MuiCardHeader-root': { color: 'background.paper', bgcolor: 'primary.main', '& .MuiTypography-root': { fontSize: '1rem' } }
+              '& .MuiCardHeader-root': {
+                color: 'background.paper',
+                bgcolor: 'primary.main',
+                '& .MuiTypography-root': { fontSize: '1rem' },
+              },
             } }
           >
             <SimpleBar
               sx={ {
                 '& .simplebar-content': {
                   display: 'flex',
-                  flexDirection: 'column'
-                }
+                  flexDirection: 'column',
+                },
               } }
             >
               <Box
                 sx={ {
                   height: 'calc(100vh - 64px)',
+                  padding: 2,
                   '& .MuiAccordion-root': {
                     borderColor: theme.palette.divider,
                     '& .MuiAccordionSummary-root': {
                       bgcolor: 'transparent',
                       flexDirection: 'row',
-                      pl: 1
+                      pl: 1,
                     },
                     '& .MuiAccordionDetails-root': {
-                      border: 'none'
+                      border: 'none',
                     },
                     '& .Mui-expanded': {
-                      color: theme.palette.primary.main
-                    }
-                  }
+                      color: theme.palette.primary.main,
+                    },
+                  },
                 } }
               >
-                <IconButton size="small" onClick={handleToggle} sx={ { color: 'background.paper' } }>
-                  <MdiIcon path="close-circle-outline" sx={ { fontSize: '1.15rem' } } />
-                </IconButton>
-                <Accordion defaultExpanded>
-                  <AccordionSummary aria-controls="panel4d-content" id="panel4d-header">
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <IconButton
-                        disableRipple
-                        color="primary"
-                        sx={ { bgcolor: 'primary.lighter' } }
-                        onClick={handleToggle}
-                        aria-label="settings toggler"
-                      >
-                        <MdiIcon path="border-inside" />
-                      </IconButton>
-                      <Stack>
-                        <Typography variant="subtitle1" color="textPrimary">
-                          Menu Orientation
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          Choose Vertical or Horizontal Menu Orientation
-                        </Typography>
-                      </Stack>
+                <Stack direction="column">
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Stack>
+                      <Typography variant="subtitle1" color="textPrimary">
+                        Menu Orientation
+                      </Typography>
                     </Stack>
-                  </AccordionSummary>
-                  <AccordionDetails>{themeMenuLayout}</AccordionDetails>
-                </Accordion>
-                <Accordion defaultExpanded>
-                  <AccordionSummary aria-controls="panel2d-content" id="panel2d-header">
-                    <Stack direction="row" spacing={1.25} alignItems="center">
-                      <IconButton
-                        disableRipple
-                        color="primary"
-                        sx={ { bgcolor: 'primary.lighter' } }
-                        onClick={handleToggle}
-                        aria-label="settings toggler"
-                      >
-                        <MdiIcon path="palette-outline" />
-                      </IconButton>
-                      <Stack>
-                        <Typography variant="subtitle1" color="textPrimary">
-                          Theme Mode
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          Choose light or dark mode
-                        </Typography>
-                      </Stack>
+                  </Stack>
+                  <Stack direction="column" sx={ { ml: '10px' } }>
+                    {themeMenuLayout}
+                  </Stack>
+                </Stack>
+                <Stack direction="column">
+                  <Stack direction="row" spacing={1.25} alignItems="center">
+                    <Stack>
+                      <Typography variant="subtitle1" color="textPrimary">
+                        Theme Mode
+                      </Typography>
                     </Stack>
-                  </AccordionSummary>
-                  <AccordionDetails>{themeMode}</AccordionDetails>
-                </Accordion>
-                <Accordion defaultExpanded>
-                  <AccordionSummary aria-controls="panel4d-content" id="panel4d-header">
-                    <Stack direction="row" spacing={1.5} alignItems="center">
-                      <IconButton
-                        disableRipple
-                        color="primary"
-                        sx={ { bgcolor: 'primary.lighter' } }
-                        onClick={handleToggle}
-                        aria-label="settings toggler"
-                      >
-                        <MdiIcon path="border-inside" />
-                      </IconButton>
-                      <Stack>
-                        <Typography variant="subtitle1" color="textPrimary">
-                          Layout Width
-                        </Typography>
-                        <Typography variant="caption" color="textSecondary">
-                          Choose fluid or container layout
-                        </Typography>
-                      </Stack>
+                  </Stack>
+                  <Stack direction="column" sx={ { ml: '10px' } }>
+                    {themeMode}
+                  </Stack>
+                </Stack>
+                <Stack direction="column">
+                  <Stack direction="row" spacing={1.5} alignItems="center">
+                    <Stack>
+                      <Typography variant="subtitle1" color="textPrimary">
+                        Layout Width
+                      </Typography>
                     </Stack>
-                  </AccordionSummary>
-                  <AccordionDetails>{themeWidth}</AccordionDetails>
-                </Accordion>
+                  </Stack>
+                  <Stack direction="column" sx={ { ml: '10px' } }>
+                    {themeWidth}
+                  </Stack>
+                </Stack>
               </Box>
             </SimpleBar>
           </Card>

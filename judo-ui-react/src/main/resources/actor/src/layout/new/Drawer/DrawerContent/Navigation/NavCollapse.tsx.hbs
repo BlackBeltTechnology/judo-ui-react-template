@@ -1,7 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-
-// material-ui
 import { styled, useTheme } from '@mui/material/styles';
 import {
   Box,
@@ -16,16 +14,11 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-
-// project import
 import NavItem from './NavItem';
 import Dot from './Dot';
 import SimpleBar from '../SimpleBar';
 import Transitions from '../../../Transitions';
-
 import useConfig from '../../../etc/useConfig';
-
-// types
 import { NavItemType } from '../../../etc/types/menu';
 import { MenuOrientation, ThemeMode } from '../../../etc/types/config';
 import { MdiIcon } from '~/components';
@@ -35,7 +28,6 @@ type VirtualElement = {
   contextElement?: Element;
 };
 
-// mini-menu - wrapper
 const PopperStyled = styled(Popper)(({ theme }) => ({
   overflow: 'visible',
   zIndex: 1202,
@@ -55,8 +47,6 @@ const PopperStyled = styled(Popper)(({ theme }) => ({
     borderBottom: `1px solid ${theme.palette.divider}`,
   }
 }));
-
-// ==============================|| NAVIGATION - LIST COLLAPSE ||============================== //
 
 interface Props {
   menu: NavItemType;
