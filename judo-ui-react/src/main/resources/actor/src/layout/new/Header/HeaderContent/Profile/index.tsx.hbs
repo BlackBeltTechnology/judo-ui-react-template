@@ -1,4 +1,5 @@
 import { useRef, useState, ReactNode, SyntheticEvent } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material/styles';
 import {
   Avatar, Box, ButtonBase, Card, CardContent, ClickAwayListener, Grid,
@@ -40,6 +41,7 @@ function a11yProps(index: number) {
 
 const Profile = () => {
   const avatar1 = 'ninja.png';
+  const { t } = useTranslation();
   const theme = useTheme();
 
   const user = {
@@ -140,7 +142,7 @@ const Profile = () => {
                           <Stack>
                             <Typography variant="h6">{user?.name}</Typography>
                             <Typography variant="body2" color="textSecondary">
-                              {{ modelName application.name }}
+                              {t('applications.{{ application.actor.simpleName }}', { defaultValue: '{{ application.actor.simpleName }}' })}
                             </Typography>
                           </Stack>
                         </Stack>
