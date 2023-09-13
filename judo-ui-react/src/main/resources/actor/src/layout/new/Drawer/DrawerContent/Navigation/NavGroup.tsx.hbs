@@ -135,7 +135,8 @@ const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, sele
       sx={ {
         fontSize: 20,
         stroke: '1.5',
-        color: selectedID === currentItem.id ? theme.palette.primary.main : theme.palette.secondary.dark
+        // color: selectedID === currentItem.id ? theme.palette.primary.main : theme.palette.secondary.dark,
+        color: theme.palette.primary.main,
       } }
     />
   ) : null;
@@ -283,7 +284,7 @@ const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, sele
               primary={
                 <Typography
                   variant="body1"
-                  color={selectedID === currentItem.id ? theme.palette.primary.main : theme.palette.secondary.dark}
+                  color={theme.palette.text.primary}
                 >
                   {currentItem.id === lastItemId ? t('judo.navigation.more-items', { defaultValue: 'More Items' }) : currentItem.title}
                 </Typography>
