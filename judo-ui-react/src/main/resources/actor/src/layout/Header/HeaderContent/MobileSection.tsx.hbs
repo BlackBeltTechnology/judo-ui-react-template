@@ -1,14 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { AppBar, Box, ClickAwayListener, IconButton, Paper, Popper, Toolbar } from '@mui/material';
-{{# if application.authentication }}
-import Profile from './Profile';
-{{/ if }}
-import { Transitions } from '../../Transitions';
 import { ThemeMode } from '~/config';
 import { MdiIcon } from '~/components';
+{{# if application.authentication }}
+import { Profile } from './Profile';
+{{/ if }}
+import { Transitions } from '../../Transitions';
 
-const MobileSection = () => {
+export const MobileSection = () => {
   const theme = useTheme();
 
   const [open, setOpen] = useState(false);
@@ -89,5 +89,3 @@ const MobileSection = () => {
     </>
   );
 };
-
-export default MobileSection;

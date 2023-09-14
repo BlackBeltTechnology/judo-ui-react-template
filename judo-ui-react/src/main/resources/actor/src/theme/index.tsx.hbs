@@ -14,7 +14,7 @@ import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ mui
 {{ else }}
     import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 {{/ eq }}
-import { useConfig } from '~/hooks';
+import { useConfig } from '../hooks';
 import { mainContainerPadding } from './extras';
 import { paletteThemeLight, paletteThemeDark } from './palette';
 import { density } from './density';
@@ -132,28 +132,7 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
           },
         },
       },
-      // To override this block, please create the 'actor/src/theme/index.ts.mui-text-field.fragment.hbs' file
-      MuiTextField: {
-        defaultProps: {
-          fullWidth: true,
-          variant: 'filled',
-          color: 'secondary',
-        },
-        styleOverrides: {
-          root: {
-            '&.JUDO-viewMode:not(.Mui-readOnly):not(.Mui-disabled) .MuiInputBase-root': {
-              background: 'transparent',
-            },
-            '.MuiInputBase-root.Mui-readOnly': {
-              background: 'transparent',
-            },
-            '.MuiInputBase-root.Mui-disabled': {
-              background: 'transparent',
-            },
-          },
-        },
-      },
-      // End of 'actor/src/theme/index.ts.mui-text-field.fragment.hbs'
+      {{> actor/src/theme/index.ts.mui-text-field.fragment.hbs }}
       MuiAutocomplete: {
         defaultProps: {
           fullWidth: true,
@@ -175,16 +154,10 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
           },
         },
       },
-      // To override this block, please create the 'actor/src/theme/index.ts.mui-data-grid.fragment.hbs' file
-      MuiDataGrid: {
-        styleOverrides: {
-          root: {
-            border: 'none',
-            fontSize: 'inherit',
-          },
-        },
-      },
-      // End of 'actor/src/theme/index.ts.mui-data-grid.fragment.hbs'
+      {{> actor/src/theme/index.ts.mui-data-grid.fragment.hbs }}
+      {{# if isMUILicensePlanPro }}
+          {{> actor/src/theme/index.ts.mui-data-grid-pro.fragment.hbs }}
+      {{/ if }}
       MuiPaper: {
         styleOverrides: {
           rounded: {
@@ -278,9 +251,9 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
       },
     },
   },
-  enUSForMaterial,
-  enUSForGrids,
-  enUSForDatePickers,
+  {{ muiTranslationToken (getDefaultLanguage application) 'ForMaterial' }},
+  {{ muiTranslationToken (getDefaultLanguage application) 'ForGrids' }},
+  {{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }},
 );
 
 declare module '@mui/material/styles' {

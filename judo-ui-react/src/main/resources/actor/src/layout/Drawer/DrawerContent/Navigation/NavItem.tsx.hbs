@@ -1,9 +1,10 @@
-import { forwardRef, useEffect, ForwardRefExoticComponent, RefAttributes, ReactNode } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { forwardRef, useEffect } from 'react';
+import type { ForwardRefExoticComponent, RefAttributes, ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material/styles';
 import { Avatar, Chip, ChipProps, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material';
-import Dot from './Dot';
+import { Dot } from './Dot';
 import { useConfig } from '~/hooks';
 import { MenuOrientation, ThemeMode } from '~/config';
 import { MdiIcon } from '~/components';
@@ -18,7 +19,6 @@ export type NavItemType = {
   chip?: ChipProps;
   color?: 'primary' | 'secondary' | 'default' | undefined;
   disabled?: boolean;
-  external?: boolean;
   icon?: string;
   id?: string;
   search?: string;
@@ -29,20 +29,19 @@ export type NavItemType = {
   hiddenBy?: string;
 };
 
-interface NavItemProps {
+export interface NavItemProps {
   item: NavItemType;
   level: number;
 }
 
-const NavItem = ({ item, level }: NavItemProps) => {
+export const NavItem = ({ item, level }: NavItemProps) => {
   const { t } = useTranslation();
+  const { menuOrientation, miniDrawer, onChangeMiniDrawer } = useConfig();
   const theme = useTheme();
 
   const matchDownLg = useMediaQuery(theme.breakpoints.down('lg'));
-
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
 
-  const { menuOrientation, miniDrawer, onChangeMiniDrawer } = useConfig();
   let itemTarget: LinkTarget = '_self';
   if (item.target) {
     itemTarget = '_blank';
@@ -53,39 +52,9 @@ const NavItem = ({ item, level }: NavItemProps) => {
     href?: string;
     target?: LinkTarget;
   } = { component: forwardRef((props, ref) => <Link {...props} to={item.url!} target={itemTarget} ref={ref} />) };
-  if (item?.external) {
-    listItemProps = { component: 'a', href: item.url, target: itemTarget };
-  }
 
   const itemIcon = item.icon ? <MdiIcon path={item.icon!} sx={ { fontSize: !miniDrawer ? '1rem' : '1.25rem' } } /> : false;
-
   const isSelected = false; // TODO IMPLEMENT
-
-  const { pathname } = useLocation();
-
-  // active menu item on page load
-  useEffect(() => {
-    if (pathname && pathname.includes('product-details')) {
-      if (item.url && item.url.includes('product-details')) {
-        // dispatch(activeItem({ openItem: [item.id] }));
-        // TODO implement
-      }
-    }
-
-    if (pathname && pathname.includes('kanban')) {
-      if (item.url && item.url.includes('kanban')) {
-        // dispatch(activeItem({ openItem: [item.id] }));
-        // TODO implement
-      }
-    }
-
-    if (pathname === item.url) {
-      // dispatch(activeItem({ openItem: [item.id] }));
-      // TODO implement
-    }
-    // eslint-disable-next-line
-  }, [pathname]);
-
   const textColor = theme.palette.mode === ThemeMode.DARK ? 'grey.400' : 'text.primary';
   const iconSelectedColor = theme.palette.mode === ThemeMode.DARK && !miniDrawer ? 'text.primary' : 'primary.main';
 
@@ -281,5 +250,3 @@ const NavItem = ({ item, level }: NavItemProps) => {
     </>
   );
 };
-
-export default NavItem;

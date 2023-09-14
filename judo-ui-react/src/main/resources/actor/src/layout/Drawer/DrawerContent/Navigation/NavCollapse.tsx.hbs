@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useMemo } from 'react';
+import type { Dispatch, MouseEvent, SetStateAction } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { styled, useTheme } from '@mui/material/styles';
 import {
@@ -15,14 +16,14 @@ import {
   Typography,
   useMediaQuery,
 } from '@mui/material';
-import NavItem from './NavItem';
-import Dot from './Dot';
-import SimpleBar from '../SimpleBar';
-import { Transitions } from '../../../Transitions';
 import { useConfig } from '~/hooks';
-import { NavItemType } from './NavItem';
 import { MenuOrientation, ThemeMode } from '~/config';
 import { MdiIcon } from '~/components';
+import { NavItem } from './NavItem';
+import { Dot } from './Dot';
+import { SimpleBar } from '../SimpleBar';
+import { Transitions } from '../../../Transitions';
+import { NavItemType } from './NavItem';
 
 type VirtualElement = {
   getBoundingClientRect: () => ClientRect | DOMRect;
@@ -49,25 +50,17 @@ const PopperStyled = styled(Popper)(({ theme }) => ({
   },
 }));
 
-interface Props {
+export interface NavCollapseProps {
   menu: NavItemType;
   level: number;
   parentId: string;
-  setSelectedItems: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setSelectedItems: Dispatch<SetStateAction<string | undefined>>;
   selectedItems: string | undefined;
-  setSelectedLevel: React.Dispatch<React.SetStateAction<number>>;
+  setSelectedLevel: Dispatch<SetStateAction<number>>;
   selectedLevel: number;
 }
 
-const NavCollapse = ({
-  menu,
-  level,
-  parentId,
-  setSelectedItems,
-  selectedItems,
-  setSelectedLevel,
-  selectedLevel,
-}: Props) => {
+export const NavCollapse = ({ menu, level, parentId, setSelectedItems, selectedItems, setSelectedLevel, selectedLevel }: NavCollapseProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
 
@@ -80,9 +73,7 @@ const NavCollapse = ({
   const [selected, setSelected] = useState<string | null | undefined>(null);
   const [anchorEl, setAnchorEl] = useState<VirtualElement | (() => VirtualElement) | null | undefined>(null);
 
-  const handleClick = (
-    event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLDivElement, MouseEvent> | undefined,
-  ) => {
+  const handleClick = (event: MouseEvent) => {
     setAnchorEl(null);
     setSelectedLevel(level);
     if (!miniDrawer) {
@@ -102,9 +93,7 @@ const NavCollapse = ({
     }
   };
 
-  const handleHover = (
-    event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLDivElement, MouseEvent> | undefined,
-  ) => {
+  const handleHover = (event: MouseEvent) => {
     setAnchorEl(event?.currentTarget);
     if (miniDrawer) {
       setSelected(menu.id);
@@ -141,62 +130,6 @@ const NavCollapse = ({
     }
   }, [selectedItems, level, selected, miniMenuOpened, !miniDrawer, selectedLevel]);
 
-  const { pathname } = useLocation();
-
-  useEffect(() => {
-    if (pathname === menu.url) {
-      setSelected(menu.id);
-    }
-    // eslint-disable-next-line
-  }, [pathname]);
-
-  const checkOpenForParent = (child: NavItemType[], id: string) => {
-    child.forEach((item: NavItemType) => {
-      if (item.url === pathname) {
-        setOpen(true);
-        setSelected(id);
-      }
-    });
-  };
-
-  // menu collapse for sub-levels
-  useEffect(() => {
-    setOpen(false);
-    if (!miniMenuOpened) {
-      setSelected(null);
-    }
-    if (miniMenuOpened) setAnchorEl(null);
-    if (menu.children) {
-      menu.children.forEach((item: NavItemType) => {
-        if (item.children?.length) {
-          checkOpenForParent(item.children, menu.id!);
-        }
-        if (pathname && pathname.includes('product-details')) {
-          if (item.url && item.url.includes('product-details')) {
-            setSelected(menu.id);
-            setOpen(true);
-          }
-        }
-        if (item.url === pathname) {
-          setSelected(menu.id);
-          setOpen(true);
-        }
-      });
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, menu.children]);
-
-  useEffect(() => {
-    if (menu.url === pathname) {
-      // dispatch(activeItem({ openItem: [menu.id] }));
-      // TODO update selected menu id
-      setSelected(menu.id);
-      setAnchorEl(null);
-      setOpen(true);
-    }
-  }, [pathname, menu]);
-
   const navCollapse = menu.children?.map((item) => {
     switch (item.type) {
       case 'collapse':
@@ -230,8 +163,7 @@ const NavCollapse = ({
     borderIcon
   );
   const textColor = theme.palette.mode === ThemeMode.DARK ? 'grey.400' : 'text.primary';
-  const iconSelectedColor =
-    theme.palette.mode === ThemeMode.DARK && !miniDrawer ? theme.palette.text.primary : theme.palette.primary.main;
+  const iconSelectedColor = theme.palette.mode === ThemeMode.DARK && !miniDrawer ? theme.palette.text.primary : theme.palette.primary.main;
   const popperId = miniMenuOpened ? `collapse-pop-${menu.id}` : undefined;
   const FlexBox = { display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' };
   return (
@@ -351,7 +283,6 @@ const NavCollapse = ({
                       sx={ {
                         overflow: 'hidden',
                         mt: 1.5,
-                        // boxShadow: theme.customShadows.z1,
                         backgroundImage: 'none',
                         border: `1px solid ${theme.palette.divider}`,
                       } }
@@ -474,5 +405,3 @@ const NavCollapse = ({
     </>
   );
 };
-
-export default NavCollapse;

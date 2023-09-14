@@ -1,14 +1,16 @@
-import { CSSObject, PaletteColor, useTheme } from '@mui/material/styles';
-import { Box, Palette } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
+import type { CSSObject, PaletteColor } from '@mui/material/styles';
+import { Box } from '@mui/material';
+import type { Palette } from '@mui/material';
 
-interface Props {
+export interface DotProps {
   color: keyof Palette;
   size?: number;
   variant?: string;
   sx?: CSSObject;
 }
 
-const Dot = ({ color, size, variant, sx }: Props) => {
+export const Dot = ({ color, size, variant, sx }: DotProps) => {
   const theme = useTheme();
 
   return (
@@ -18,7 +20,6 @@ const Dot = ({ color, size, variant, sx }: Props) => {
         width: size || 8,
         height: size || 8,
         borderRadius: '50%',
-        // bgcolor: variant === 'outlined' ? '' : (theme.palette[color] as PaletteColor).main,
         ...(variant === 'outlined' && {
           border: `1px solid ${(theme.palette[color] as PaletteColor).main}`
         }),
@@ -27,5 +28,3 @@ const Dot = ({ color, size, variant, sx }: Props) => {
     />
   );
 };
-
-export default Dot;

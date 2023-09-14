@@ -1,15 +1,15 @@
 import { Theme } from '@mui/material/styles';
 import { Box, useMediaQuery } from '@mui/material';
-{{# if application.authentication }}
-import Profile from './Profile';
-{{/ if }}
-import MobileSection from './MobileSection';
 import { useConfig } from '~/hooks';
-import DrawerHeader from '../../Drawer/DrawerHeader';
 import { MenuOrientation } from '~/config';
-import Customization from './Customization';
+{{# if application.authentication }}
+import { Profile } from './Profile';
+{{/ if }}
+import { MobileSection } from './MobileSection';
+import { DrawerHeader } from '../../Drawer/DrawerHeader';
+import { Customization } from './Customization';
 
-const HeaderContent = () => {
+export const HeaderContent = () => {
   const { /*i18n, */menuOrientation } = useConfig();
 
   const downLG = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
@@ -28,5 +28,3 @@ const HeaderContent = () => {
     </>
   );
 };
-
-export default HeaderContent;

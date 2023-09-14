@@ -1,6 +1,6 @@
 import { alpha, styled } from '@mui/material/styles';
 import { Box, Theme } from '@mui/material';
-import SimpleBar, { Props } from 'simplebar-react';
+import { default as SimpleBarOriginal, Props as SimpleBarProps } from 'simplebar-react';
 import { BrowserView, MobileView } from 'react-device-detect';
 import type { MUIStyledCommonProps } from '@mui/system';
 import type { ReactNode } from 'react';
@@ -13,7 +13,7 @@ const RootStyle = styled(BrowserView)({
   overflow: 'hidden'
 });
 
-const SimpleBarStyle = styled(SimpleBar)(({ theme }) => ({
+export const SimpleBarStyle = styled(SimpleBarOriginal)(({ theme }) => ({
   maxHeight: '100%',
   '& .simplebar-scrollbar': {
     '&:before': {
@@ -34,7 +34,7 @@ const SimpleBarStyle = styled(SimpleBar)(({ theme }) => ({
   }
 }));
 
-export default function SimpleBarScroll({ children, sx, ...other }: MUIStyledCommonProps<Theme> & Props) {
+export function SimpleBar({ children, sx, ...other }: MUIStyledCommonProps<Theme> & SimpleBarProps) {
   return (
     <>
       <RootStyle>

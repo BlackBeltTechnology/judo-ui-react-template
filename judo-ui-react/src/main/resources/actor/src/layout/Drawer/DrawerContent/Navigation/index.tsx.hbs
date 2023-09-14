@@ -5,14 +5,14 @@ import { Box, Typography, useMediaQuery } from '@mui/material';
   import { usePrincipal } from '~/auth';
   import { {{ classDataName application.principal 'Stored' }} } from '~/generated/data-api';
 {{/ if }}
-import NavGroup from './NavGroup';
-import NavItem from './NavItem';
-import { menus } from './menu-items';
 import { useConfig } from '~/hooks';
 import { HORIZONTAL_MAX_ITEM, MenuOrientation } from '~/config';
+import { NavGroup } from './NavGroup';
+import { NavItem } from './NavItem';
+import { menus } from './menu-items';
 import { NavItemType } from './NavItem';
 
-const Navigation = () => {
+export const Navigation = () => {
   const theme = useTheme();
 
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
@@ -61,9 +61,6 @@ const Navigation = () => {
   let remItems: NavItemType[] = [];
   let lastItemId: string;
 
-  //  first it checks menu item is more than giving HORIZONTAL_MAX_ITEM after that get lastItemid by giving horizontal max
-  // item and it sets horizontal menu by giving horizontal max item lastly slice menuItem from array and set into remItems
-
   if (lastItem && lastItem < menuItems.length) {
     lastItemId = menuItems[lastItem - 1].id!;
     lastItemIndex = lastItem - 1;
@@ -95,7 +92,7 @@ const Navigation = () => {
       default:
         return (
           <Typography key={item.id} variant="h6" color="error" align="center">
-            Fix - Navigation Group
+            Invalid item type: {item.type}!
           </Typography>
         );
     }
@@ -112,5 +109,3 @@ const Navigation = () => {
     </Box>
   );
 };
-
-export default Navigation;

@@ -1,5 +1,4 @@
 import { Fragment, useEffect, useState } from 'react';
-import { useLocation } from 'react-router';
 import { useTranslation } from 'react-i18next';
 import { useTheme, styled } from '@mui/material/styles';
 import {
@@ -14,25 +13,14 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import NavItem from './NavItem';
-import NavCollapse from './NavCollapse';
-import SimpleBar from '../SimpleBar';
-import { Transitions } from '../../../Transitions';
 import { useConfig } from '~/hooks';
-import { NavItemType } from './NavItem';
 import { MenuOrientation, ThemeMode } from '~/config';
 import { MdiIcon } from '~/components';
-
-interface Props {
-  item: NavItemType;
-  lastItem: number;
-  remItems: NavItemType[];
-  lastItemId: string;
-  setSelectedItems: React.Dispatch<React.SetStateAction<string | undefined>>;
-  selectedItems: string | undefined;
-  setSelectedLevel: React.Dispatch<React.SetStateAction<number>>;
-  selectedLevel: number;
-}
+import { NavItem } from './NavItem';
+import { NavCollapse } from './NavCollapse';
+import { SimpleBar } from '../SimpleBar';
+import { Transitions } from '../../../Transitions';
+import { NavItemType } from './NavItem';
 
 type VirtualElement = {
   getBoundingClientRect: () => ClientRect | DOMRect;
@@ -60,10 +48,20 @@ const PopperStyled = styled(Popper)(({ theme }) => ({
   }
 }));
 
-const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, selectedItems, setSelectedLevel, selectedLevel }: Props) => {
+export interface NavGroupProps {
+  item: NavItemType;
+  lastItem: number;
+  remItems: NavItemType[];
+  lastItemId: string;
+  setSelectedItems: React.Dispatch<React.SetStateAction<string | undefined>>;
+  selectedItems: string | undefined;
+  setSelectedLevel: React.Dispatch<React.SetStateAction<number>>;
+  selectedLevel: number;
+}
+
+export const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, selectedItems, setSelectedLevel, selectedLevel }: NavGroupProps) => {
   const theme = useTheme();
   const { t } = useTranslation();
-  const { pathname } = useLocation();
 
   const { menuOrientation, miniDrawer, onChangeMiniDrawer } = useConfig();
   const selectedID = 'TODO LOL';// TODO wire in proper selection
@@ -86,38 +84,7 @@ const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, sele
         setCurrentItem(item);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [item, lastItem, downLG]);
-
-  const checkOpenForParent = (child: NavItemType[], id: string) => {
-    child.forEach((ele: NavItemType) => {
-      if (ele.children?.length) {
-        checkOpenForParent(ele.children, currentItem.id!);
-      }
-      if (ele.url === pathname) {
-        // dispatch(activeID(id));
-        // TODO update active menu id
-      }
-    });
-  };
-  const checkSelectedOnload = (data: NavItemType) => {
-    const childrens = data.children ? data.children : [];
-    childrens.forEach((itemCheck: NavItemType) => {
-      if (itemCheck.children?.length) {
-        checkOpenForParent(itemCheck.children, currentItem.id!);
-      }
-      if (itemCheck.url === pathname) {
-        // dispatch(activeID(currentItem.id!));
-        // TODO update active menu id
-      }
-    });
-  };
-
-  useEffect(() => {
-    checkSelectedOnload(currentItem);
-    if (openMini) setAnchorEl(null);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pathname, currentItem]);
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
     if (!openMini) {
@@ -337,5 +304,3 @@ const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, sele
     </>
   );
 };
-
-export default NavGroup;

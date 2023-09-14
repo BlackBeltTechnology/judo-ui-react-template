@@ -1,17 +1,17 @@
 import { useMemo } from 'react';
 import { useTheme } from '@mui/material/styles';
-import { Box, Drawer, useMediaQuery } from '@mui/material';
-import DrawerHeader from './DrawerHeader';
-import DrawerContent from './DrawerContent';
-import MiniDrawerStyled from './MiniDrawerStyled';
+import { Box, Drawer as MuiDrawer, useMediaQuery } from '@mui/material';
+import { DrawerHeader } from './DrawerHeader';
+import { DrawerContent } from './DrawerContent';
+import { MiniDrawerStyled } from './MiniDrawerStyled';
 import { DRAWER_WIDTH } from '~/config';
 import { useConfig } from '~/hooks';
 
-interface Props {
+export interface DrawerProps {
   window?: () => Window;
 }
 
-const MainDrawer = ({ window }: Props) => {
+export const Drawer = ({ window }: DrawerProps) => {
   const theme = useTheme();
   const { miniDrawer, onChangeMiniDrawer } = useConfig();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));
@@ -31,7 +31,7 @@ const MainDrawer = ({ window }: Props) => {
           {drawerContent}
         </MiniDrawerStyled>
       ) : (
-        <Drawer
+        <MuiDrawer
           container={container}
           variant="temporary"
           open={!miniDrawer}
@@ -50,10 +50,8 @@ const MainDrawer = ({ window }: Props) => {
         >
           {drawerHeader}
           {drawerContent}
-        </Drawer>
+        </MuiDrawer>
       )}
     </Box>
   );
 };
-
-export default MainDrawer;

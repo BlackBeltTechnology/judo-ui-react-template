@@ -1,8 +1,8 @@
 import React, { ReactElement } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { AppBar, Box, Container, useScrollTrigger } from '@mui/material';
-import Navigation from './DrawerContent/Navigation';
 import { useConfig } from '~/hooks';
+import { Navigation } from './DrawerContent/Navigation';
 
 interface ElevationScrollProps {
   children: ReactElement;
@@ -11,25 +11,18 @@ interface ElevationScrollProps {
 
 function ElevationScroll({ children, window }: ElevationScrollProps) {
   // const theme = useTheme();
-  // Note that you normally won't need to set the window ref as useScrollTrigger
-  // will default to window.
-  // This is only being set here because the demo is in an iframe.
   const trigger = useScrollTrigger({
     disableHysteresis: true,
     threshold: 0,
     target: window!
   });
 
-  // theme.shadows[4] = theme.customShadows.z1;
-
   return React.cloneElement(children, {
     elevation: trigger ? 4 : 0
   });
 }
 
-// ==============================|| HORIZONTAL MENU LIST ||============================== //
-
-const CustomAppBar = () => {
+export const HorizontalBar = () => {
   const theme = useTheme();
   const { container } = useConfig();
 
@@ -57,5 +50,3 @@ const CustomAppBar = () => {
     </ElevationScroll>
   );
 };
-
-export default CustomAppBar;

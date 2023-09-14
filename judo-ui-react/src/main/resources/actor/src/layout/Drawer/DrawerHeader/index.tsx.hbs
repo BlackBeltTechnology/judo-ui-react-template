@@ -1,15 +1,15 @@
 import { useTheme } from '@mui/material/styles';
 import { useMediaQuery } from '@mui/material';
-import DrawerHeaderStyled from './DrawerHeaderStyled';
+import { DrawerHeaderStyled } from './DrawerHeaderStyled';
 import { LogoSection } from '../../logo';
 import { useConfig } from '~/hooks';
 import { MenuOrientation } from '~/config';
 
-interface Props {
+export interface DrawerHeaderProps {
   open: boolean;
 }
 
-const DrawerHeader = ({ open }: Props) => {
+export const DrawerHeader = ({ open }: DrawerHeaderProps) => {
   const theme = useTheme();
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
 
@@ -32,5 +32,3 @@ const DrawerHeader = ({ open }: Props) => {
     </DrawerHeaderStyled>
   );
 };
-
-export default DrawerHeader;

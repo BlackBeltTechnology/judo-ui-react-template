@@ -26,11 +26,11 @@ import { useTranslation } from 'react-i18next';
 {{/ if }}
 import { MdiIcon } from '~/components';
 
-interface Props {
+interface ProfileTabProps {
   handleLogout: () => void;
 }
 
-const ProfileTab = ({ handleLogout }: Props) => {
+export const ProfileTab = ({ handleLogout }: ProfileTabProps) => {
   const { t } = useTranslation();
   {{# if (otherApplicationsAvailable application applications) }}
     const [createDialog, closeDialog] = useDialog();
@@ -187,5 +187,3 @@ const ProfileTab = ({ handleLogout }: Props) => {
     </List>
   );
 };
-
-export default ProfileTab;

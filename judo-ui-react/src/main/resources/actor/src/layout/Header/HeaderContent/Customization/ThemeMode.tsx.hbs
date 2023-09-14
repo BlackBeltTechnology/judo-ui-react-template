@@ -1,17 +1,15 @@
-import { ChangeEvent } from 'react';
+import type { ChangeEvent } from 'react';
 import { useTheme } from '@mui/material/styles';
 import { FormControlLabel, Radio, RadioGroup } from '@mui/material';
-
 import { useConfig } from '~/hooks';
-import { ThemeMode } from '~/config';
+import { ThemeMode as ThemeModeEnum } from '~/config';
 
-const ThemeModeLayout = () => {
+export const ThemeMode = () => {
   const theme = useTheme();
-
   const { mode, onChangeMode } = useConfig();
 
   const handleModeChange = (event: ChangeEvent<HTMLInputElement>) => {
-    onChangeMode(event.target.value as ThemeMode);
+    onChangeMode(event.target.value as ThemeModeEnum);
   };
 
   return (
@@ -29,5 +27,3 @@ const ThemeModeLayout = () => {
     </RadioGroup>
   );
 };
-
-export default ThemeModeLayout;

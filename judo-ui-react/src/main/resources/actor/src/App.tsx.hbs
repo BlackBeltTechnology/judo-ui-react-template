@@ -6,18 +6,12 @@ import { LoadingButton } from '@mui/lab';
 import { SnackbarProvider, closeSnackbar } from 'notistack';
 import { BreadcrumbProvider, MdiIcon } from './components';
 import { DialogProvider } from './components/dialog';
-import { menuItems } from './menu-items';
-import { useHeroProps, useLogoProps } from './hooks';
-import MainLayout from './layout';
+import { Layout } from './layout';
 {{# if application.authentication }}
     import { PrincipalProvider } from './auth';
 {{/ if }}
 
 function App() {
-    const [drawerWidth] = useState<number>(300);
-    const heroProps = useHeroProps();
-    const logoProps = useLogoProps();
-
     return (
         {{# if application.authentication }}
         <PrincipalProvider>
@@ -29,8 +23,7 @@ function App() {
             )}>
                 <DialogProvider>
                     <BreadcrumbProvider>
-                        {/*<Layout items={menuItems} drawerWidth={drawerWidth} logo={logoProps} hero={heroProps} />*/}
-                        <MainLayout />
+                        <Layout />
                     </BreadcrumbProvider>
                 </DialogProvider>
             </SnackbarProvider>
