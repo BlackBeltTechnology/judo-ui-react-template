@@ -17,23 +17,17 @@ export const Header = () => {
 
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
 
-  // header content
   const headerContent = useMemo(() => <HeaderContent />, []);
 
   const iconBackColorOpen = theme.palette.mode === ThemeMode.DARK ? 'grey.200' : 'grey.300';
   const iconBackColor = theme.palette.mode === ThemeMode.DARK ? 'background.default' : 'grey.100';
 
-  // common header
   const mainHeader: ReactNode = (
     <Toolbar>
       {!isHorizontal ? (
         <IconButton
           aria-label="open drawer"
           onClick={() => onChangeMiniDrawer(!miniDrawer)}
-          // edge="start"
-          // color="secondary"
-          // variant="outlined"
-          // sx={ { color: 'text.primary', bgcolor: !miniDrawer ? iconBackColorOpen : iconBackColor, ml: { xs: 0, lg: -2 } } }
         >
           {!miniDrawer ? <MdiIcon path="menu-open" /> : <MdiIcon path="menu" />}
         </IconButton>
@@ -42,7 +36,6 @@ export const Header = () => {
     </Toolbar>
   );
 
-  // app-bar params
   const appBar: AppBarProps = {
     position: 'fixed',
     color: 'inherit',

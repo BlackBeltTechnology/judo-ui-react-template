@@ -18,10 +18,8 @@ export const Drawer = ({ window }: DrawerProps) => {
   const { miniDrawer, onChangeMiniDrawer } = useConfig();
   const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));
 
-  // responsive drawer container
   const container = window !== undefined ? () => window().document.body : undefined;
 
-  // header content
   const drawerContent = useMemo(() => <DrawerContent />, []);
   const drawerHeader = useMemo(() => <DrawerHeader open={!miniDrawer} />, [!miniDrawer]);
 
