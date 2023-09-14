@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import type { Dispatch, MouseEvent, SetStateAction } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useJudoNavigation } from '~/components';
 import { useTranslation } from 'react-i18next';
 import { styled, useTheme } from '@mui/material/styles';
 import {
@@ -63,11 +63,10 @@ export interface NavCollapseProps {
 export const NavCollapse = ({ menu, level, parentId, setSelectedItems, selectedItems, setSelectedLevel, selectedLevel }: NavCollapseProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
+  const { navigate } = useJudoNavigation();
+  const { menuOrientation, miniDrawer } = useConfig();
 
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
-
-  const { menuOrientation, miniDrawer } = useConfig();
-  const Navigation = useNavigate();
 
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string | null | undefined>(null);
@@ -80,7 +79,7 @@ export const NavCollapse = ({ menu, level, parentId, setSelectedItems, selectedI
       setOpen(!open);
       setSelected(!selected ? menu.id : null);
       setSelectedItems(!selected ? menu.id : '');
-      if (menu.url) Navigation(`${menu.url}`);
+      if (menu.url) navigate(`${menu.url}`);
     } else {
       setAnchorEl(event?.currentTarget);
     }
@@ -88,7 +87,7 @@ export const NavCollapse = ({ menu, level, parentId, setSelectedItems, selectedI
 
   const handlerIconLink = () => {
     if (miniDrawer) {
-      if (menu.url) Navigation(`${menu.url}`);
+      if (menu.url) navigate(`${menu.url}`);
       setSelected(menu.id);
     }
   };

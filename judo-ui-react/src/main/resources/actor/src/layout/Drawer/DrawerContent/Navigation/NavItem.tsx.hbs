@@ -7,7 +7,7 @@ import { Avatar, Chip, ChipProps, ListItemButton, ListItemIcon, ListItemText, Ty
 import { Dot } from './Dot';
 import { useConfig } from '~/hooks';
 import { MenuOrientation, ThemeMode } from '~/config';
-import { MdiIcon } from '~/components';
+import { MdiIcon, useJudoNavigation } from '~/components';
 
 export type LinkTarget = '_blank' | '_self' | '_parent' | '_top';
 
@@ -36,6 +36,7 @@ export interface NavItemProps {
 
 export const NavItem = ({ item, level }: NavItemProps) => {
   const { t } = useTranslation();
+  const { clearNavigate } = useJudoNavigation();
   const { menuOrientation, miniDrawer, onChangeMiniDrawer } = useConfig();
   const theme = useTheme();
 
@@ -51,7 +52,20 @@ export const NavItem = ({ item, level }: NavItemProps) => {
     component: ForwardRefExoticComponent<RefAttributes<HTMLAnchorElement>> | string;
     href?: string;
     target?: LinkTarget;
-  } = { component: forwardRef((props, ref) => <Link {...props} to={item.url!} target={itemTarget} ref={ref} />) };
+  } = { component: forwardRef((props, ref) => (
+    <Link
+      {...props}
+      to={item.url!}
+      target={itemTarget}
+      ref={ref}
+      onClick={ (e) => {
+          // menu item-based navigations should always clear the breadcrumbs
+          e.preventDefault();
+          e.stopPropagation();
+          clearNavigate(item.url!);
+      } }
+    />
+  )) };
 
   const itemIcon = item.icon ? <MdiIcon path={item.icon!} sx={ { fontSize: !miniDrawer ? '1rem' : '1.25rem' } } /> : false;
   const isSelected = false; // TODO IMPLEMENT
