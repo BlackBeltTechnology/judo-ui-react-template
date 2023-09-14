@@ -1,0 +1,19 @@
+{{> fragment.header.hbs }}
+
+import { Navigation } from './Navigation';
+import { SimpleBar } from './SimpleBar';
+
+export const DrawerContent = () => {
+  return (
+    <SimpleBar
+      sx={ {
+        '& .simplebar-content': {
+          display: 'flex',
+          flexDirection: 'column'
+        }
+      } }
+    >
+      <Navigation />
+    </SimpleBar>
+  );
+};
