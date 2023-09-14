@@ -1,7 +1,8 @@
-import { forwardRef, CSSProperties, ExoticComponent, ReactElement, Ref } from 'react';
+import { forwardRef } from 'react';
+import type { CSSProperties, ExoticComponent, ReactElement, Ref } from 'react';
 import { Collapse, Fade, Box, Grow, Slide, Zoom, ZoomProps } from '@mui/material';
 
-interface Props {
+export interface TransitionProps {
   children?: ReactElement;
   position?: string;
   sx?: CSSProperties;
@@ -11,8 +12,8 @@ interface Props {
   [others: string]: any;
 }
 
-const Transitions = forwardRef(
-  ({ children, position = 'top-left', sx, type = 'grow', direction = 'up', ...others }: Props, ref: Ref<ExoticComponent>) => {
+export const Transitions = forwardRef(
+  ({ children, position = 'top-left', sx, type = 'grow', direction = 'up', ...others }: TransitionProps, ref: Ref<ExoticComponent>) => {
     let positionSX = {
       transformOrigin: '0 0 0'
     };
@@ -108,8 +109,6 @@ const Transitions = forwardRef(
     );
   }
 );
-
-export default Transitions;
 
 export const PopupTransition = forwardRef(function Transition(props: ZoomProps, ref: Ref<unknown>) {
   return <Zoom ref={ref} timeout={200} {...props} />;

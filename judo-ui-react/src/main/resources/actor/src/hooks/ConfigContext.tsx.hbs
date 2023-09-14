@@ -1,12 +1,12 @@
 import { createContext, ReactNode } from 'react';
 
-import config from './config';
-import useLocalStorage from './useLocalStorage';
+import { defaultLayoutConfig } from '../config';
+import { useLocalStorage } from '../hooks/useLocalStorage';
 
-import { CustomizationProps, I18n, MenuOrientation, ThemeDirection, ThemeMode } from './types/config';
+import { CustomizationProps, I18n, MenuOrientation, ThemeDirection, ThemeMode } from '../config';
 
 const initialState: CustomizationProps = {
-  ...config,
+  ...defaultLayoutConfig,
   onChangeContainer: () => {},
   onChangeLocalization: (lang: I18n) => {},
   onChangeMode: (mode: ThemeMode) => {},

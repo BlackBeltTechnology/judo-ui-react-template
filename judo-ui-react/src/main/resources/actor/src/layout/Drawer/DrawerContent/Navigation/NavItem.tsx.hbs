@@ -1,20 +1,40 @@
-import { forwardRef, useEffect, ForwardRefExoticComponent, RefAttributes } from 'react';
+import { forwardRef, useEffect, ForwardRefExoticComponent, RefAttributes, ReactNode } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material/styles';
-import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material';
+import { Avatar, Chip, ChipProps, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material';
 import Dot from './Dot';
-import useConfig from '../../../etc/useConfig';
-import { LinkTarget, NavItemType } from '../../../etc/types/menu';
-import { MenuOrientation, ThemeMode } from '../../../etc/types/config';
+import { useConfig } from '~/hooks';
+import { MenuOrientation, ThemeMode } from '~/config';
 import { MdiIcon } from '~/components';
 
-interface Props {
+export type LinkTarget = '_blank' | '_self' | '_parent' | '_top';
+
+export type NavItemType = {
+  breadcrumbs?: boolean;
+  caption?: ReactNode | string;
+  children?: NavItemType[];
+  elements?: NavItemType[];
+  chip?: ChipProps;
+  color?: 'primary' | 'secondary' | 'default' | undefined;
+  disabled?: boolean;
+  external?: boolean;
+  icon?: string;
+  id?: string;
+  search?: string;
+  target?: boolean;
+  title?: ReactNode | string;
+  type?: string;
+  url?: string;
+  hiddenBy?: string;
+};
+
+interface NavItemProps {
   item: NavItemType;
   level: number;
 }
 
-const NavItem = ({ item, level }: Props) => {
+const NavItem = ({ item, level }: NavItemProps) => {
   const { t } = useTranslation();
   const theme = useTheme();
 

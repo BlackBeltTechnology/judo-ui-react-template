@@ -1,11 +1,10 @@
-import { useTheme } from '@mui/material/styles';
-import { ThemeMode } from '../etc/types/config';
+import { useLogoProps } from '~/hooks';
 
-const LogoMain = ({ reverse, ...others }: { reverse?: boolean }) => {
-  const theme = useTheme();
+export const LogoMain = ({ reverse, ...others }: { reverse?: boolean }) => {
+  // const theme = useTheme(); // we an use theme in the future to detect light/dark modes
+  const logoProps = useLogoProps();
+
   return (
-      <img src={'judo-color-logo.png'} style={ { height: '100%', maxWidth: '100%' } } />
+    <img src={logoProps.imgSrc} style={ { height: '100%', maxWidth: '100%' } } />
   );
 };
-
-export default LogoMain;

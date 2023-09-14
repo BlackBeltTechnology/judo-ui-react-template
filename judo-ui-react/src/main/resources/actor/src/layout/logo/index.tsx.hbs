@@ -1,21 +1,19 @@
 import { Link } from 'react-router-dom';
 import { ButtonBase } from '@mui/material';
 import { SxProps } from '@mui/system';
-import Logo from './LogoMain';
-import LogoIcon from './LogoIcon';
-import { APP_DEFAULT_PATH } from '../etc/config';
+import { routeToDashboard } from '~/routes';
+import { LogoMain } from './LogoMain';
+import { LogoIcon } from './LogoIcon';
 
-interface Props {
+export interface LogoSectionProps {
   reverse?: boolean;
   isIcon?: boolean;
   sx?: SxProps;
   to?: any;
 }
 
-const LogoSection = ({ reverse, isIcon, sx, to }: Props) => (
-  <ButtonBase disableRipple component={Link} to={!to ? APP_DEFAULT_PATH : to} sx={sx}>
-    {isIcon ? <LogoIcon /> : <Logo reverse={reverse} />}
+export const LogoSection = ({ reverse, isIcon, sx, to }: LogoSectionProps) => (
+  <ButtonBase disableRipple component={Link} to={!to ? routeToDashboard() : to} sx={sx}>
+    {isIcon ? <LogoIcon /> : <LogoMain reverse={reverse} />}
   </ButtonBase>
 );
-
-export default LogoSection;
