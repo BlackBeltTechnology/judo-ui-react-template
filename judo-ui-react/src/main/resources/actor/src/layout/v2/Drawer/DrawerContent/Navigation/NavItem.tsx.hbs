@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, ForwardRefExoticComponent, RefAttributes } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material/styles';
 import { Avatar, Chip, ListItemButton, ListItemIcon, ListItemText, Typography, useMediaQuery } from '@mui/material';
 import Dot from './Dot';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 const NavItem = ({ item, level }: Props) => {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   const matchDownLg = useMediaQuery(theme.breakpoints.down('lg'));
@@ -139,7 +141,7 @@ const NavItem = ({ item, level }: Props) => {
             <ListItemText
               primary={
                 <Typography variant="h6" sx={ { color: isSelected ? iconSelectedColor : textColor } }>
-                  {item.title}
+                  {t(`menuTree.${item.title}`, { defaultValue: item.title })}
                 </Typography>
               }
             />
@@ -241,7 +243,7 @@ const NavItem = ({ item, level }: Props) => {
           <ListItemText
             primary={
               <Typography variant="h6" color="inherit">
-                {item.title}
+                {t(`menuTree.${item.title}`, { defaultValue: item.title })}
               </Typography>
             }
           />

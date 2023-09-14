@@ -361,4 +361,14 @@ public class UiWidgetHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
+    public static String getMenuType(NavigationItem item, Boolean isRoot) {
+        if (item.getItems() != null && !item.getItems().isEmpty()) {
+            if (isRoot) {
+                return "group";
+            }
+            return "collapse";
+        }
+        return "item";
+    }
+
 }

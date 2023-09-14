@@ -1,6 +1,8 @@
 import { Theme } from '@mui/material/styles';
 import { Box, useMediaQuery } from '@mui/material';
+{{# if application.authentication }}
 import Profile from './Profile';
+{{/ if }}
 import MobileSection from './MobileSection';
 import useConfig from '../../etc/useConfig';
 import DrawerHeader from '../../Drawer/DrawerHeader';
@@ -19,7 +21,9 @@ const HeaderContent = () => {
       {downLG && <Box sx={ { width: '100%', ml: 1 } } />}
 
       <Customization />
-      {!downLG && <Profile />}
+      {{# if application.authentication }}
+        {!downLG && <Profile />}
+      {{/ if }}
       {downLG && <MobileSection />}
     </>
   );

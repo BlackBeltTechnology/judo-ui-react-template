@@ -1,6 +1,6 @@
 import { NavItemType } from '../../../etc/types/menu';
 
-const formsTables: NavItemType = {
+/* const formsTables: NavItemType = {
   id: 'group-forms-tables',
   title: "forms-tables",
   icon: 'check-outline',
@@ -124,8 +124,10 @@ const other: NavItemType = {
       disabled: true
     }
   ]
-};
+}; */
 
-export const menuItem: { items: NavItemType[] } = {
-  items: [formsTables, other]
-};
+export const menus: NavItemType[] = [
+  {{# each application.navigationController.items as |item| }}
+    {{> actor/src/layout/v2/Drawer/DrawerContent/Navigation/menu-items-recurse.fragment.hbs item=item isRoot=true }}
+  {{/ each }}
+];

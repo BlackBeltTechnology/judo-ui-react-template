@@ -1,0 +1,21 @@
+{
+    id: '{{ createId item }}',
+    type: '{{ getMenuType item isRoot }}',
+    {{# unless (isNavItemAGroup item) }}
+        url: '{{ getPageRoute item.target }}',
+    {{/ unless }}
+    {{# if item.icon }}
+        icon: '{{ item.icon.name }}',
+    {{/ if }}
+    {{# if item.label }}
+        title: '{{ item.label }}',
+    {{/ if }}
+    {{# if item.hiddenBy }}
+        hiddenBy: '{{ item.hiddenBy }}',
+    {{/ if }}
+    children: [
+        {{# each item.items as |subItem| }}
+            {{> actor/src/layout/v2/Drawer/DrawerContent/Navigation/menu-items-recurse.fragment.hbs item=subItem isRoot=false }}
+        {{/ each }}
+    ],
+},

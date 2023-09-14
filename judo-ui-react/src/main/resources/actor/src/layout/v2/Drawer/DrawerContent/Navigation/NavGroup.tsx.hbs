@@ -171,7 +171,7 @@ const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, sele
     <Fragment key={i}>
       {itemRem.title && (
         <Typography variant="caption" sx={ { pl: 2 } }>
-          {itemRem.title}
+          {t(`menuTree.${itemRem.title}`, { defaultValue: itemRem.title })}
         </Typography>
       )}
       {itemRem?.elements?.map((menu) => {
@@ -240,7 +240,7 @@ const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, sele
             !miniDrawer && (
               <Box sx={ { pl: 3, mb: 1.5 } }>
                 <Typography variant="subtitle2" color={theme.palette.mode === ThemeMode.DARK ? 'textSecondary' : 'text.secondary'}>
-                  {item.title}
+                  {t(`menuTree.${item.title}`, { defaultValue: item.title })}
                 </Typography>
                 {item.caption && (
                   <Typography variant="caption" color="secondary">
@@ -286,7 +286,7 @@ const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItems, sele
                   variant="body1"
                   color={theme.palette.text.primary}
                 >
-                  {currentItem.id === lastItemId ? t('judo.navigation.more-items', { defaultValue: 'More Items' }) : currentItem.title}
+                  {currentItem.id === lastItemId ? t('judo.navigation.more-items', { defaultValue: 'More Items' }) : t(`menuTree.${currentItem.title}`, { defaultValue: currentItem.title })}
                 </Typography>
               }
             />

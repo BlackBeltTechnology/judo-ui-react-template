@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { styled, useTheme } from '@mui/material/styles';
 import {
   Box,
@@ -67,6 +68,7 @@ const NavCollapse = ({
   setSelectedLevel,
   selectedLevel,
 }: Props) => {
+  const { t } = useTranslation();
   const theme = useTheme();
 
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
@@ -302,7 +304,7 @@ const NavCollapse = ({
               <ListItemText
                 primary={
                   <Typography variant="h6" color={selected === menu.id ? 'primary' : textColor}>
-                    {menu.title}
+                    {t(`menuTree.${menu.title}`, { defaultValue: menu.title })}
                   </Typography>
                 }
                 secondary={
@@ -414,7 +416,7 @@ const NavCollapse = ({
               <ListItemText
                 primary={
                   <Typography variant="body1" color="inherit" sx={ { my: 'auto' } }>
-                    {menu.title}
+                    {t(`menuTree.${menu.title}`, { defaultValue: menu.title })}
                   </Typography>
                 }
               />
