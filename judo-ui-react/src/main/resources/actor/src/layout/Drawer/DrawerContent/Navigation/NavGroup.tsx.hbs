@@ -1,4 +1,7 @@
+{{> fragment.header.hbs }}
+
 import { Fragment, useEffect, useState } from 'react';
+import type { MouseEvent, Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme, styled } from '@mui/material/styles';
 import {
@@ -42,9 +45,6 @@ const PopperStyled = styled(Popper)(({ theme }) => ({
     transform: 'translateY(-50%) rotate(45deg)',
     zIndex: 120,
     backgroundColor: theme.palette.background.paper,
-    // borderWidth: '6px',
-    // borderStyle: 'solid',
-    // borderColor: `${theme.palette.background.paper}  transparent transparent ${theme.palette.background.paper}`,
   }
 }));
 
@@ -53,9 +53,9 @@ export interface NavGroupProps {
   lastItem: number;
   remItems: NavItemType[];
   lastItemId: string;
-  setSelectedItems: React.Dispatch<React.SetStateAction<string | undefined>>;
+  setSelectedItems: Dispatch<SetStateAction<string | undefined>>;
   selectedItems: string | undefined;
-  setSelectedLevel: React.Dispatch<React.SetStateAction<number>>;
+  setSelectedLevel: Dispatch<SetStateAction<number>>;
   selectedLevel: number;
 }
 
@@ -86,7 +86,7 @@ export const NavGroup = ({ item, lastItem, remItems, lastItemId, setSelectedItem
     }
   }, [item, lastItem, downLG]);
 
-  const handleClick = (event: React.MouseEvent<HTMLAnchorElement> | React.MouseEvent<HTMLDivElement, MouseEvent> | undefined) => {
+  const handleClick = (event: MouseEvent) => {
     if (!openMini) {
       setAnchorEl(event?.currentTarget);
     }
