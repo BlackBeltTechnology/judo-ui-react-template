@@ -1,0 +1,12 @@
+{{> fragment.header.hbs }}
+
+import { useLogoProps } from '~/hooks';
+
+export const LogoMain = ({ reverse, ...others }: { reverse?: boolean }) => {
+  // const theme = useTheme(); // we an use theme in the future to detect light/dark modes
+  const logoProps = useLogoProps();
+
+  return (
+    <img src={logoProps.imgSrc} style={ { height: '100%', maxWidth: '100%' } } />
+  );
+};

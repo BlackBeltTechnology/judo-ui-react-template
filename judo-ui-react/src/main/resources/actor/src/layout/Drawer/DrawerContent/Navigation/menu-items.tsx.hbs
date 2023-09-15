@@ -1,0 +1,9 @@
+{{> fragment.header.hbs }}
+
+import { NavItemType } from './NavItem';
+
+export const menus: NavItemType[] = [
+  {{# each application.navigationController.items as |item| }}
+    {{> actor/src/layout/Drawer/DrawerContent/Navigation/menu-items-recurse.fragment.hbs item=item isRoot=true }}
+  {{/ each }}
+];
