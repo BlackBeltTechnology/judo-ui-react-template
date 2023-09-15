@@ -39,7 +39,7 @@ import {
   booleanToStringSelect,
   stringToBooleanSelect,
 } from '~/utilities';
-import { baseTableConfig, toastConfig, dividerHeight } from '~/config';
+import { baseTableConfig, toastConfig, DIVIDER_HEIGHT } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomFormVisualElementProps } from '~/custom';
 import { useL10N } from '~/l10n/l10n-context';
 import { PageContainerTransition } from '~/theme/animations';
@@ -156,18 +156,16 @@ export default function {{ pageName page }}() {
                         </Button>
                     </Grid>
                 </PageHeader>
-                <Container component="main" maxWidth="xl">
-                    <PageContainerTransition>
-                        <Box sx={mainContainerPadding}>
-                            <Grid container spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
-                                {{# each rootChild.children as |child| }}
-                                    {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
-                                    {{> (getWidgetTemplate child) }}
-                                {{/ each }}
-                            </Grid>
-                        </Box>
-                    </PageContainerTransition>
-                </Container>
+                <PageContainerTransition>
+                    <Box sx={mainContainerPadding}>
+                        <Grid container spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+                            {{# each rootChild.children as |child| }}
+                                {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                                {{> (getWidgetTemplate child) }}
+                            {{/ each }}
+                        </Grid>
+                    </Box>
+                </PageContainerTransition>
             {{/ with }}
         </>
     );

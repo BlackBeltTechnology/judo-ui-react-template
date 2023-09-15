@@ -1,0 +1,21 @@
+{{> fragment.header.hbs }}
+
+import { Link } from 'react-router-dom';
+import { ButtonBase } from '@mui/material';
+import type { SxProps } from '@mui/system';
+import { routeToDashboard } from '~/routes';
+import { LogoMain } from './LogoMain';
+import { LogoIcon } from './LogoIcon';
+
+export interface LogoSectionProps {
+  reverse?: boolean;
+  isIcon?: boolean;
+  sx?: SxProps;
+  to?: any;
+}
+
+export const LogoSection = ({ reverse, isIcon, sx, to }: LogoSectionProps) => (
+  <ButtonBase disableRipple component={Link} to={!to ? routeToDashboard() : to} sx={sx}>
+    {isIcon ? <LogoIcon /> : <LogoMain reverse={reverse} />}
+  </ButtonBase>
+);

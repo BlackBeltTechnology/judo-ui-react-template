@@ -1,11 +1,17 @@
 {{> fragment.header.hbs }}
 
-import type { HeroProps } from '../components-api';
 {{# if application.authentication }}
   import { getUser } from '../auth';
 {{/ if }}
 
-export function useHeroProps(): HeroProps {
+export interface UseHeroProps {
+  imgSrc: string;
+  actorName: string;
+  preferredUsername?: string;
+  email?: string;
+}
+
+export function useHeroProps(): UseHeroProps {
   {{# if application.authentication }}
     const { profile } = getUser();
   {{/ if }}
