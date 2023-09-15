@@ -50,6 +50,10 @@ public class UiGeneralHelper extends Helper {
         return input.replaceAll("[^\\.A-Za-z0-9_]", "_").toLowerCase();
     }
 
+    public static String getApplicationConfigRestPathName(ClassType classType) {
+        return classType.getFQName().replaceAll("[#\\.]", "/").replace("[^0-9a-zA-Z_~/]", "_");
+    }
+
     public static String projectPathName(String fqName) {
         return fqName
                 .replaceAll("\\.", "__")
@@ -80,10 +84,7 @@ public class UiGeneralHelper extends Helper {
     }
 
     public static String modelName(String fqName) {
-        String[] splitted = fqName.split("::");
-        return fqClass(stream(splitted)
-                .map(StringUtils::capitalize)
-                .findFirst().get());
+        return fqName.split("::")[0];
     }
 
     @Deprecated
