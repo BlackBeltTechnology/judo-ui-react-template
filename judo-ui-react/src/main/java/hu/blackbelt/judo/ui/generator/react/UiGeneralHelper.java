@@ -50,10 +50,6 @@ public class UiGeneralHelper extends Helper {
         return input.replaceAll("[^\\.A-Za-z0-9_]", "_").toLowerCase();
     }
 
-    public static String getApplicationConfigRestPathName(ClassType classType) {
-        return classType.getFQName().replaceAll("[#\\.]", "/").replace("[^0-9a-zA-Z_~/]", "_");
-    }
-
     public static String projectPathName(String fqName) {
         return fqName
                 .replaceAll("\\.", "__")
