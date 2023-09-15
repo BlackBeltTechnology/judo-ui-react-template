@@ -160,8 +160,14 @@ export const RangeDialog = <T extends JudoStored<T>, U extends QueryCustomizer<T
     }));
 
     setQueryCustomizer((prevQueryCustomizer) => {
+      const strippedQueryCustomizer: U = {
+        ...prevQueryCustomizer
+      };
+      if (!!strippedQueryCustomizer._seek) {
+        delete strippedQueryCustomizer._seek.lastItem;
+      }
       return {
-        ...prevQueryCustomizer,
+        ...strippedQueryCustomizer,
         _orderBy,
       };
     });

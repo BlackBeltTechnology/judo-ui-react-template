@@ -190,8 +190,14 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         }));
 
         setQueryCustomizer((prevQueryCustomizer) => {
+            const strippedQueryCustomizer: {{ classDataName table.dataElement.target 'QueryCustomizer' }} = {
+              ...prevQueryCustomizer
+            };
+            if (!!strippedQueryCustomizer._seek) {
+              delete strippedQueryCustomizer._seek.lastItem;
+            }
             return {
-                ...prevQueryCustomizer,
+                ...strippedQueryCustomizer,
                 _orderBy,
             };
         });
