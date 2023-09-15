@@ -80,10 +80,7 @@ public class UiGeneralHelper extends Helper {
     }
 
     public static String modelName(String fqName) {
-        String[] splitted = fqName.split("::");
-        return fqClass(stream(splitted)
-                .map(StringUtils::capitalize)
-                .findFirst().get());
+        return fqName.split("::")[0];
     }
 
     @Deprecated
