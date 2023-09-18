@@ -300,16 +300,34 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                             {{/ unless }}
                             {{# if (tableHasRemoveAction table) }}
                                 <Button
-                                    disabled={!selectionModel.length || isOwnerLoading || !data.length}
+                                    disabled={
+                                           isOwnerLoading
+                                        || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
+                                        || !isFormUpdateable()
+                                        || !selectionModel.length
+                                        || !data.length
+                                    }
                                     variant="text"
                                     startIcon={<MdiIcon path="link-off" />}
-                                    onClick={bulkRemoveSelected}>
+                                    onClick={ () => {
+                                        const newList = data.filter(e => !(selectionModel.find(s => s === e.__identifier)));
+                                        storeDiff('{{ table.dataElement.name }}', newList);
+                                        setSelectionModel([]);
+                                    } }>
                                     {t('judo.pages.table.remove.selected', { defaultValue: 'Remove selected' })}
                                 </Button>
                             {{/ if }}
                             {{# if (tableHasDeleteAction table) }}
                                 <Button
-                                    disabled={!selectionModel.length || isOwnerLoading || !data.length || !data[0].__deleteable}
+                                    disabled={
+                                           isOwnerLoading
+                                        || editMode
+                                        || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
+                                        || !isFormUpdateable()
+                                        || !selectionModel.length
+                                        || !data.length
+                                        || !data[0].__deleteable
+                                    }
                                     variant="text"
                                     startIcon={<MdiIcon path="delete-forever" />}
                                     onClick={bulkDeleteSelected}>

@@ -46,12 +46,6 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{# if isDebugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
 
-    {{# if (tableHasRemoveAction table) }}
-      const bulkRemoveSelected = useCallback(() => {
-        alert(JSON.stringify(selectedRows.current.map(r => r.__identifier)));
-      }, []);
-    {{/ if }}
-
     return (
         <>
             <StripedDataGrid
@@ -139,6 +133,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                                isOwnerLoading
                                             || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
                                             || !isFormUpdateable()
+                                            || !ownerData?.{{ table.dataElement.name }}?.length
                                         }
                                     >
                                         {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
@@ -152,10 +147,20 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                             {{/ each }}
                             {{# if (tableHasRemoveAction table) }}
                                 <Button
-                                    disabled={!selectionModel.length || isOwnerLoading || !(ownerData?.{{ table.dataElement.name }}?.length)}
+                                    disabled={
+                                           isOwnerLoading
+                                        || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
+                                        || !isFormUpdateable()
+                                        || !selectionModel.length
+                                        || !ownerData?.{{ table.dataElement.name }}?.length
+                                    }
                                     variant="text"
                                     startIcon={<MdiIcon path="link-off" />}
-                                    onClick={bulkRemoveSelected}>
+                                    onClick={ () => {
+                                        const newList = (ownerData?.{{ table.dataElement.name }} ?? []).filter(e => !(selectionModel.find(s => s === e.__identifier)));
+                                        storeDiff('{{ table.dataElement.name }}', newList);
+                                        setSelectionModel([]);
+                                    } }>
                                     {t('judo.pages.table.remove.selected', { defaultValue: 'Remove selected' })}
                                 </Button>
                             {{/ if }}

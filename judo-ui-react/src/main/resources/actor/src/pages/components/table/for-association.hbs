@@ -48,6 +48,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         return rowHighlighting ? rowHighlighting() : [];
     }, [rowHighlighting]);
     {{/ if }}
+    const openCRUDDialog = useCRUDDialog();
 
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [data, setData] = useState<GridRowModel<{{ classDataName table.dataElement.target 'Stored' }}>[]>([]);
@@ -139,7 +140,25 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{/ if }}
     {{# if (tableHasRemoveAction table) }}
       const bulkRemoveSelected = useCallback(() => {
-        alert(JSON.stringify(selectedRows.current.map(r => r.__identifier)));
+        openCRUDDialog<{{ classDataName table.dataElement.target 'Stored' }}>({
+          dialogTitle: t('judo.dialogs.crud-bulk.remove.title', { defaultValue: 'Remove selected items' }),
+          itemTitleFn: (item) => item.mass + ' ' + item.shortNote,
+          selectedItems: selectedRows.current,
+          action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
+            {{# each table.rowActions as |action| }}
+              {{# if action.isRemoveAction }}
+                await {{ actionFunctionName action }}(ownerData, item, successHandler, errorHandler);
+              {{/ if }}
+            {{/ each }}
+          },
+          onClose: (needsRefresh) => {
+            if (needsRefresh) {
+              fetchData();
+              setSelectionModel([]); // not resetting on fetchData because refreshes would always remove selections...
+            }
+          },
+          // autoCloseOnSuccess: true,
+        });
       }, []);
     {{/ if }}
 
@@ -384,7 +403,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                             {{/ each }}
                             {{# if (tableHasRemoveAction table) }}
                                 <Button
-                                    disabled={!selectionModel.length || isLoading || !data.length}
+                                    disabled={ {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} !selectionModel.length || isLoading || !data.length }
                                     variant="text"
                                     startIcon={<MdiIcon path="link-off" />}
                                     onClick={bulkRemoveSelected}>
@@ -393,7 +412,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                             {{/ if }}
                             {{# if (tableHasDeleteAction table) }}
                                 <Button
-                                    disabled={!selectionModel.length || isLoading || !data.length || !data[0].__deleteable}
+                                    disabled={ {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} !selectionModel.length || isLoading || !data.length || !data[0]?.__deleteable }
                                     variant="text"
                                     startIcon={<MdiIcon path="delete-forever" />}
                                     onClick={bulkDeleteSelected}>
