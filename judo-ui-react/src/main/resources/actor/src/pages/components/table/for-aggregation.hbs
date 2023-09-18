@@ -47,6 +47,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
         return rowHighlighting ? rowHighlighting() : [];
     }, [rowHighlighting]);
     {{/ if }}
+    const openCRUDDialog = useCRUDDialog();
 
     const filterModelKey = `{{ createId table }}-${ownerData.__identifier}-filterModel`;
     const filtersKey = `{{ createId table }}-${ownerData.__identifier}-filters`;
@@ -57,6 +58,8 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
         pageSize: {{ calculateTablePageLimit table }},
         page: 0,
     });
+    {{# if isDebugPrint }}// include: actor/src/fragments/table/row-selection.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/table/row-selection.fragment.hbs table=table }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
@@ -92,6 +95,68 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
             setItemStringified(filtersKey, newFilters);
         }
     };
+
+    {{# if (tableHasDeleteAction table) }}
+      const bulkDeleteSelected = useCallback(() => {
+        openCRUDDialog<{{ classDataName table.dataElement.target 'Stored' }}>({
+          dialogTitle: t('judo.dialogs.crud-bulk.delete.title', { defaultValue: 'Delete selected items' }),
+          {{# with (getFirstTitleColumnForTable table) as |column| }}
+            itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
+          {{ else }}
+            itemTitleFn: (item) => t('judo.placeholder', { defaultValue: 'placeholder' }) as string,
+          {{/ with }}
+          selectedItems: selectedRows.current,
+          action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
+            {{# each table.rowActions as |action| }}
+              {{# if action.isDeleteAction }}
+                await {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}item, successHandler, errorHandler, true);
+              {{/ if }}
+            {{/ each }}
+          },
+          onClose: (needsRefresh) => {
+            if (needsRefresh) {
+              fetchOwnerData();
+              setSelectionModel([]); // not resetting on fetchData because refreshes would always remove selections...
+            }
+          },
+          // autoCloseOnSuccess: true,
+        });
+      }, []);
+      const isBulkDeleteAvailable: () => boolean = useCallback(()=> {
+        // every row has the same `__deleteable` flag
+        return !!selectionModel.length && {{# if table.enabledBy }}ownerData.{{ table.enabledBy.name }}{{ else }}true{{/ if }} && isFormUpdateable() && !{{ boolValue table.dataElement.isReadOnly }} && !!data[0]?.__deleteable;
+      }, [ownerData, data, selectionModel]);
+    {{/ if }}
+    {{# if (tableHasRemoveAction table) }}
+      const bulkRemoveSelected = useCallback(() => {
+        openCRUDDialog<{{ classDataName table.dataElement.target 'Stored' }}>({
+          dialogTitle: t('judo.dialogs.crud-bulk.remove.title', { defaultValue: 'Remove selected items' }),
+          {{# with (getFirstTitleColumnForTable table) as |column| }}
+            itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
+          {{ else }}
+            itemTitleFn: (item) => t('judo.placeholder', { defaultValue: 'placeholder' }) as string,
+          {{/ with }}
+          selectedItems: selectedRows.current,
+          action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
+            {{# each table.rowActions as |action| }}
+              {{# if action.isRemoveAction }}
+                await {{ actionFunctionName action }}(ownerData, item, successHandler, errorHandler);
+              {{/ if }}
+            {{/ each }}
+          },
+          onClose: (needsRefresh) => {
+            if (needsRefresh) {
+              fetchOwnerData();
+              setSelectionModel([]); // not resetting on fetchData because refreshes would always remove selections...
+            }
+          },
+          // autoCloseOnSuccess: true,
+        });
+      }, []);
+      const isBulkRemoveAvailable: () => boolean = useCallback(()=> {
+        return !!selectionModel.length && {{# if table.enabledBy }}ownerData.{{ table.enabledBy.name }}{{ else }}true{{/ if }} && isFormUpdateable() && !{{ boolValue table.dataElement.isReadOnly }};
+      }, [ownerData, selectionModel]);
+    {{/ if }}
 
     {{# if (stringValueIsTrue useTableContextMenus) }}
         const contextMenuRef = useRef<ContextMenuApi>(null);
@@ -168,6 +233,11 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, t, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
+                checkboxSelection
+                rowSelectionModel={selectionModel}
+                onRowSelectionModelChange={(newRowSelectionModel) => {
+                  setSelectionModel(newRowSelectionModel);
+                }}
                 {{# each table.rowActions as |action| }}
                     {{# if action.isViewAction }}
                         onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {
@@ -280,6 +350,28 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                             {{ else }}
                                 <GridToolbarFilterButton componentsProps={ { button: { variant: 'text' } } }  />
                             {{/ unless }}
+                            {{# if (tableHasRemoveAction table) }}
+                                {isBulkRemoveAvailable() ? <Button
+                                    disabled={isOwnerLoading}
+                                    variant="text"
+                                    startIcon={<MdiIcon path="link-off" />}
+                                    onClick={ () => {
+                                        const newList = data.filter(e => !(selectionModel.find(s => s === e.__identifier)));
+                                        storeDiff('{{ table.dataElement.name }}', newList);
+                                        setSelectionModel([]);
+                                    } }>
+                                    {t('judo.pages.table.remove.selected', { defaultValue: 'Remove selected' })}
+                                </Button> : null}
+                            {{/ if }}
+                            {{# if (tableHasDeleteAction table) }}
+                                {isBulkDeleteAvailable() ? <Button
+                                    disabled={isOwnerLoading || editMode}
+                                    variant="text"
+                                    startIcon={<MdiIcon path="delete-forever" />}
+                                    onClick={bulkDeleteSelected}>
+                                    {t('judo.pages.table.delete.selected', { defaultValue: 'Delete selected' })}
+                                </Button> : null}
+                            {{/ if }}
                             <div>{/* Placeholder */}</div>
                         </GridToolbarContainer>
                     ),
