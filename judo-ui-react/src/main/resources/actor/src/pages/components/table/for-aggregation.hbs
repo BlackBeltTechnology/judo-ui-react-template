@@ -57,6 +57,8 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
         pageSize: {{ calculateTablePageLimit table }},
         page: 0,
     });
+    {{# if isDebugPrint }}// include: actor/src/fragments/table/row-selection.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/table/row-selection.fragment.hbs table=table }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
@@ -92,6 +94,17 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
             setItemStringified(filtersKey, newFilters);
         }
     };
+
+    {{# if (tableHasDeleteAction table) }}
+      const bulkDeleteSelected = useCallback(() => {
+        alert(JSON.stringify(selectedRows.current.map(r => r.__identifier)));
+      }, []);
+    {{/ if }}
+    {{# if (tableHasRemoveAction table) }}
+      const bulkRemoveSelected = useCallback(() => {
+        alert(JSON.stringify(selectedRows.current.map(r => r.__identifier)));
+      }, []);
+    {{/ if }}
 
     {{# if (stringValueIsTrue useTableContextMenus) }}
         const contextMenuRef = useRef<ContextMenuApi>(null);
@@ -168,6 +181,11 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, t, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
+                checkboxSelection
+                rowSelectionModel={selectionModel}
+                onRowSelectionModelChange={(newRowSelectionModel) => {
+                  setSelectionModel(newRowSelectionModel);
+                }}
                 {{# each table.rowActions as |action| }}
                     {{# if action.isViewAction }}
                         onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {
@@ -280,6 +298,24 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                             {{ else }}
                                 <GridToolbarFilterButton componentsProps={ { button: { variant: 'text' } } }  />
                             {{/ unless }}
+                            {{# if (tableHasRemoveAction table) }}
+                                <Button
+                                    disabled={!selectionModel.length || isOwnerLoading || !data.length}
+                                    variant="text"
+                                    startIcon={<MdiIcon path="link-off" />}
+                                    onClick={bulkRemoveSelected}>
+                                    {t('judo.pages.table.remove.selected', { defaultValue: 'Remove selected' })}
+                                </Button>
+                            {{/ if }}
+                            {{# if (tableHasDeleteAction table) }}
+                                <Button
+                                    disabled={!selectionModel.length || isOwnerLoading || !data.length || !data[0].__deleteable}
+                                    variant="text"
+                                    startIcon={<MdiIcon path="delete-forever" />}
+                                    onClick={bulkDeleteSelected}>
+                                    {t('judo.pages.table.delete.selected', { defaultValue: 'Delete selected' })}
+                                </Button>
+                            {{/ if }}
                             <div>{/* Placeholder */}</div>
                         </GridToolbarContainer>
                     ),

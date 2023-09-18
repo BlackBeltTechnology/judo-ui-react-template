@@ -76,6 +76,8 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         ] : [],
         ...mapAllFiltersToQueryCustomizerProperties(filters),
     });
+    {{# if isDebugPrint }}// include: actor/src/fragments/table/row-selection.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/table/row-selection.fragment.hbs table=table }}
 
     {{# unless table.dataElement.isAccess }}
     useEffect(() => {
@@ -138,6 +140,17 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             {{/ if }}
         {{/ each }}
     ];
+
+    {{# if (tableHasDeleteAction table) }}
+      const bulkDeleteSelected = useCallback(() => {
+        alert(JSON.stringify(selectedRows.current.map(r => r.__identifier)));
+      }, []);
+    {{/ if }}
+    {{# if (tableHasRemoveAction table) }}
+      const bulkRemoveSelected = useCallback(() => {
+        alert(JSON.stringify(selectedRows.current.map(r => r.__identifier)));
+      }, []);
+    {{/ if }}
 
     {{# if (stringValueIsTrue useTableContextMenus) }}
         const contextMenuRef = useRef<ContextMenuApi>(null);
@@ -296,6 +309,12 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
+                checkboxSelection
+                rowSelectionModel={selectionModel}
+                onRowSelectionModelChange={(newRowSelectionModel) => {
+                  setSelectionModel(newRowSelectionModel);
+                }}
+                keepNonExistentRowsSelected
                 {{# each table.rowActions as |action| }}
                     {{# if action.isViewAction }}
                         onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {{ actionFunctionName action }}({{# unless table.dataElement.isAccess }}ownerData, {{/ unless }}params.row, () => fetchData()) }
@@ -329,6 +348,24 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                     {{/ unless }}
                                 {{/ if }}
                             {{/ each }}
+                            {{# if (tableHasRemoveAction table) }}
+                                <Button
+                                    disabled={!selectionModel.length || isOwnerLoading || !data.length}
+                                    variant="text"
+                                    startIcon={<MdiIcon path="link-off" />}
+                                    onClick={bulkRemoveSelected}>
+                                    {t('judo.pages.table.remove.selected', { defaultValue: 'Remove selected' })}
+                                </Button>
+                            {{/ if }}
+                            {{# if (tableHasDeleteAction table) }}
+                                <Button
+                                    disabled={!selectionModel.length || isOwnerLoading || !data.length || !data[0].__deleteable}
+                                    variant="text"
+                                    startIcon={<MdiIcon path="delete-forever" />}
+                                    onClick={bulkDeleteSelected}>
+                                    {t('judo.pages.table.delete.selected', { defaultValue: 'Delete selected' })}
+                                </Button>
+                            {{/ if }}
                             <div>{/* Placeholder */}</div>
                         </GridToolbarContainer>
                     ),

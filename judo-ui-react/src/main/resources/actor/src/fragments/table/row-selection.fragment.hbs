@@ -1,0 +1,6 @@
+const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+const selectedRows = useRef<{{ classDataName table.dataElement.target 'Stored' }}[]>([]);
+
+useEffect(() => {
+  selectedRows.current = getUpdatedRowsSelected(selectedRows, data, selectionModel);
+}, [selectionModel]);

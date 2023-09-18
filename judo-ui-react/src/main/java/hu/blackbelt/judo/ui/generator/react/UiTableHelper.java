@@ -26,6 +26,7 @@ import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @TemplateHelper
@@ -213,6 +214,22 @@ public class UiTableHelper extends Helper {
 
     public static Boolean tableHasActions(Table table) {
         return table.getActions().size() > 0;
+    }
+
+    public static boolean tableHasDeleteAction(Table table) {
+        return getTableDeleteAction(table) != null;
+    }
+
+    public static Action getTableDeleteAction(Table table) {
+        return table.getRowActions().stream().filter(Action::getIsDeleteAction).findFirst().orElse(null);
+    }
+
+    public static boolean tableHasRemoveAction(Table table) {
+        return getTableRemoveAction(table) != null;
+    }
+
+    public static Action getTableRemoveAction(Table table) {
+        return table.getRowActions().stream().filter(Action::getIsRemoveAction).findFirst().orElse(null);
     }
 
     public static boolean isAttributeTypeEnumeration(AttributeType attributeType) {

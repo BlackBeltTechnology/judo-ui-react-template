@@ -32,6 +32,8 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const { openRangeDialog } = useRangeDialog();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
+    {{# if isDebugPrint }}// include: actor/src/fragments/table/row-selection.form.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/table/row-selection.form.fragment.hbs table=table }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
@@ -43,6 +45,12 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
 
     {{# if isDebugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
+
+    {{# if (tableHasRemoveAction table) }}
+      const bulkRemoveSelected = useCallback(() => {
+        alert(JSON.stringify(selectedRows.current.map(r => r.__identifier)));
+      }, []);
+    {{/ if }}
 
     return (
         <>
@@ -142,6 +150,15 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                     {{/ if }}
                                 {{/ if }}
                             {{/ each }}
+                            {{# if (tableHasRemoveAction table) }}
+                                <Button
+                                    disabled={!selectionModel.length || isOwnerLoading || !(ownerData?.{{ table.dataElement.name }}?.length)}
+                                    variant="text"
+                                    startIcon={<MdiIcon path="link-off" />}
+                                    onClick={bulkRemoveSelected}>
+                                    {t('judo.pages.table.remove.selected', { defaultValue: 'Remove selected' })}
+                                </Button>
+                            {{/ if }}
                             <div>{/* Placeholder */}</div>
                         </GridToolbarContainer>
                     ),
