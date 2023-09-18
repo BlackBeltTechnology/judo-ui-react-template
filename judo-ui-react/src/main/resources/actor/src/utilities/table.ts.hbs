@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 
-import type { GridSortModel, GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type { MutableRefObject } from 'react';
+import type { GridSortModel, GridFilterModel, GridRowSelectionModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { JudoStored } from '@judo/data-api-common';
 import type { Filter } from '../components-api';
 
@@ -28,3 +29,20 @@ export const isRowSelectable = <T extends JudoStored<T>>(row: T & { __selected?:
   // re-set them if we checked the backend response above (since the removal might not be persisted yet).
   return true;
 };
+
+export const getUpdatedRowsSelected = <T extends JudoStored<any>>(selectedRows: MutableRefObject<T[]>, data: T[], selectionModel: GridRowSelectionModel): T[] => {
+  const newSelectedRows: T[] = [];
+  for (const selection of selectionModel) {
+    const prevItem = selectedRows.current.find(r => r.__identifier === selection);
+    if (prevItem) {
+      newSelectedRows.push(prevItem);
+    } else {
+      const newItem = data.find(r => r.__identifier === selection);
+      if (newItem) {
+        newSelectedRows.push(newItem);
+      }
+    }
+  }
+
+  return newSelectedRows;
+}
