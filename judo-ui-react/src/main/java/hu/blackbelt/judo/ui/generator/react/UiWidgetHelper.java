@@ -302,6 +302,13 @@ public class UiWidgetHelper extends Helper {
         return column.orElse(null);
     }
 
+    public static Column getFirstTitleColumnForTable(Table table) {
+        Optional<Column> column = table.getColumns().stream()
+                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .findFirst();
+        return column.orElse(null);
+    }
+
     public static boolean isAutocompleteAvailable(Link link) {
         if (link.getParts().size() == 0) {
             return false;

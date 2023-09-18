@@ -25,6 +25,7 @@ export type {{ actionFunctionTypeName action }} = () => (
     selected: {{ classDataName action.dataElement.target 'Stored' }},
     successCallback: () => void,
     errorCallback?: (error: any) => void,
+    silentMode?: boolean,
 ) => Promise<void>;
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
@@ -38,20 +39,23 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
         selected: {{ classDataName action.dataElement.target 'Stored' }},
         successCallback: () => void,
         errorCallback?: (error: any) => void,
+        silentMode?: boolean,
     ) {
         try {
-            const confirmed = await openConfirmDialog(
+            const confirmed = !silentMode ? await openConfirmDialog(
                 'row-delete-action',
                 t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
                 t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
-            );
+            ) : true;
 
             if (confirmed) {
                 await {{ classServiceName action.dataElement.target }}Impl.delete(selected);
-                enqueueSnackbar(t('judo.action.delete.success', { defaultValue: 'Delete successful' }), {
-                    variant: 'success',
-                    ...toastConfig.success,
-                });
+                if (!silentMode) {
+                  enqueueSnackbar(t('judo.action.delete.success', { defaultValue: 'Delete successful' }), {
+                      variant: 'success',
+                      ...toastConfig.success,
+                  });
+                }
                 successCallback();
             }
         } catch (error) {
