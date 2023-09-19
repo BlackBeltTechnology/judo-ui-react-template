@@ -115,7 +115,6 @@ public class UiI18NHelper extends Helper {
             for (EnumerationMember em: it.getMembers()) {
                 translations.put("enumerations."+ restParamName(it) + "." + em.getName(), em.getName());
             }
-            translations.put("enumerations."+ restParamName(it) + "." + "undefined", "undefined");
         }
 
         // iterate over routed pages
