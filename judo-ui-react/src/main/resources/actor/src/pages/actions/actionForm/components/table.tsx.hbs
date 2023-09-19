@@ -32,6 +32,8 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     const { openRangeDialog } = useRangeDialog();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
+    {{# if isDebugPrint }}// include: actor/src/fragments/table/row-selection.form.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/table/row-selection.form.fragment.hbs table=table }}
 
     {{# if isDebugPrint }}// include: actor/src/fragments/page/sort-models.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/sort-models.fragment.hbs dataElement=table.dataElement defaultSortColumn=table.defaultSortColumn columns=table.columns }}
@@ -43,6 +45,10 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
 
     {{# if isDebugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
+
+    const isBulkRemoveAvailable: () => boolean = useCallback(()=> {
+      return !!selectionModel.length && {{# if table.enabledBy }}ownerData.{{ table.enabledBy.name }}{{ else }}true{{/ if }} && !{{ boolValue table.dataElement.isReadOnly }} && isFormUpdateable();
+    }, [ownerData, selectionModel]);
 
     return (
         <>
@@ -70,6 +76,11 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, t, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
+                checkboxSelection
+                rowSelectionModel={selectionModel}
+                onRowSelectionModelChange={(newRowSelectionModel) => {
+                  setSelectionModel(newRowSelectionModel);
+                }}
                 sortModel={ {{ table.dataElement.name }}SortModel }
                 onSortModelChange={(newModel: GridSortModel) => {
                     set{{ ucFirst table.dataElement.name }}SortModel(newModel);
@@ -119,6 +130,19 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                         {t('judo.pages.table.add', { defaultValue: 'Add' })}
                                     </Button>
                                 {{/ if }}
+                                {{# if action.isRemoveAction }}
+                                    {isBulkRemoveAvailable() ? <Button
+                                        disabled={isOwnerLoading}
+                                        variant="text"
+                                        startIcon={<MdiIcon path="link-off" />}
+                                        onClick={ () => {
+                                            const newList = (ownerData?.{{ table.dataElement.name }} ?? []).filter(e => !(selectionModel.find(s => s === e.__identifier)));
+                                            storeDiff('{{ table.dataElement.name }}', newList);
+                                            setSelectionModel([]);
+                                        } }>
+                                        {t('judo.pages.table.remove.selected', { defaultValue: 'Remove' })}
+                                    </Button> : null}
+                                {{/ if }}
                                 {{# if action.isClearAction }}
                                     <Button
                                         id="{{ createId table.dataElement }}-clear"
@@ -131,6 +155,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                                isOwnerLoading
                                             || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
                                             || !isFormUpdateable()
+                                            || !ownerData?.{{ table.dataElement.name }}?.length
                                         }
                                     >
                                         {t('judo.pages.table.clear', { defaultValue: 'Clear' })}
