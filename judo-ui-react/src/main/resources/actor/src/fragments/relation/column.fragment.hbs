@@ -33,7 +33,9 @@ filterable: {{ isUseInlineColumnFilters }} && {{# if (isColumnFilterable column)
 {{/ if }}
 {{# if (isColumnEnumeration column) }}
     valueFormatter: ({ value }: GridValueFormatterParams<string>) => {
-        return t(`enumerations.{{ restParamName column.attributeType.dataType }}.${value}`, { defaultValue: value });
+        if(value !== undefined) {
+            return t(`enumerations.{{ restParamName column.attributeType.dataType }}.${value}`, { defaultValue: value });
+        }
     },
     {{# if isUseInlineColumnFilters }}
         filterOperators: singleSelectColumnOperators,
