@@ -80,15 +80,15 @@ const iconMapping: Record<ItemStatus, ReactNode> = {
   error: <MdiIcon path='close-circle' color='red' />,
 };
 
-export type QueueItem = { id: string; title: string; status: ItemStatus; data: any, error?: any };
+export type QueueItem = { id: string, title: string, status: ItemStatus, data: any, error?: any };
 
 export type CRUDDialogProps = {
-  title: string;
-  close: (needsRefresh: boolean) => void;
-  queueItems: Array<QueueItem>;
-  action: (item: any, successHandler: () => void, errorHandler: (error: any) => void) => Promise<void>;
-  autoCloseOnSuccess?: boolean;
-  faultPrefix?: string;
+  title: string,
+  close: (needsRefresh: boolean) => void,
+  queueItems: Array<QueueItem>,
+  action: (item: any, successHandler: () => void, errorHandler: (error: any) => void) => Promise<void>,
+  autoCloseOnSuccess?: boolean,
+  faultPrefix?: string,
 };
 
 export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSuccess, faultPrefix }: CRUDDialogProps) {
@@ -104,7 +104,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
   const updateQueueItem = useCallback(
     (queueItem: QueueItem, status: ItemStatus, error?: any) => {
       setQueue((prevQueue) => {
-        const idx = prevQueue.findIndex((i) => i.id === queueItem.id);
+        const idx = prevQueue.findIndex(i => i.id === queueItem.id);
         prevQueue[idx].status = status;
         prevQueue[idx].error = error;
         return [...prevQueue];
@@ -136,7 +136,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
       return newQueue;
     });
 
-    for (const queueItem of queue.filter((i) => i.status !== 'success')) {
+    for (const queueItem of queue.filter(i => i.status !== 'success')) {
       try {
         await action(
           queueItem.data,
@@ -223,9 +223,11 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
         <Grid container spacing={2} direction="column" alignItems="stretch" justifyContent="flex-start">
           <Grid item>
             <List>
-              {queue.map((item) => (
+              {queue.map(item => (
                   <ListItem key={item.id} disablePadding>
-                    <ListItemIcon>{iconMapping[item.status]}</ListItemIcon>
+                    <ListItemIcon>
+                      {iconMapping[item.status]}
+                    </ListItemIcon>
                     <ListItemText
                       primary={item.title}
                       secondary={item.status === 'error' ? <Typography sx={ { color: 'red' } }>{mapErrors(item.error)}</Typography> : undefined}
@@ -242,7 +244,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
           {t('judo.modal.close', { defaultValue: 'Close' }) as string}
         </Button>
         <LoadingButton
-          disabled={queue.every((i) => i.status === 'success')}
+          disabled={queue.every(i => i.status === 'success')}
           loading={inProgress}
           loadingPosition="start"
           id="use-crud-dialog-execute"
