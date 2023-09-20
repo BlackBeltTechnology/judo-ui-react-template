@@ -76,7 +76,7 @@ export type {{ actionFunctionHandlerTypeName action 'PostHandler' }} = (ownerCal
 export const {{ getCustomizationActionFunctionHandlerInterfaceKey action 'PostHandlerHook' }} = '{{ actionFunctionHandlerTypeName action 'PostHandlerHook' }}';
 export type {{ actionFunctionHandlerTypeName action 'PostHandlerHook' }} = () => {{ actionFunctionHandlerTypeName action 'PostHandler' }};
 
-export type {{ actionFunctionTypeName action }} = () => ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) => Promise<void>;
+export type {{ actionFunctionTypeName action }} = () => ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void, errorCallback?: (error: any) => void, silentMode?: boolean) => Promise<void>;
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const { t } = useTranslation();
