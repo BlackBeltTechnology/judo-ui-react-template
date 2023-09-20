@@ -1,4 +1,4 @@
-return async function {{ actionFunctionName action }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void) {
+return async function {{ actionFunctionName action }} ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void, errorCallback?: (error: any) => void, silentMode?: boolean) {
     {{# if action.operation.input }}
         {{# with action.inputParameterPage.originalPageContainer.tables.[0] as |table| }}
             const columns: GridColDef<{{ classDataName action.inputParameterPage.dataElement.target 'Stored' }}>[] = [
@@ -47,11 +47,13 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
 
     {{ else }}
         {{# if (hasConfirmation action) }}
-            // TODO: implement shiny MUI Dialog here
-            const result = confirm(t('{{ getTranslationKeyForAction action }}.confirmation', { defaultValue: '{{ action.confirmationMessage }}' }) as string);
+            if (!silentMode) {
+                // TODO: implement shiny MUI Dialog here
+                const result = confirm(t('{{ getTranslationKeyForAction action }}.confirmation', { defaultValue: '{{ action.confirmationMessage }}' }) as string);
 
-            if (!result) {
-                return;
+                if (!result) {
+                    return;
+                }
             }
         {{/ if }}
     {{/ if }}
@@ -117,48 +119,54 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
         {{ else }}
             successCallback();
         {{/ if }}
-        enqueueSnackbar(title, {
-            variant: 'success',
-            ...toastConfig.success,
-        });
+        if (!silentMode) {
+            enqueueSnackbar(title, {
+                variant: 'success',
+                ...toastConfig.success,
+            });
+        }
     } catch (error: any) {
-        {{# if (hasCallOperationActionFaults action) }}
-            if (isErrorOperationFault(error)) {
-                const faultObjectKeys = Object.keys(error.response.data);
-                const firstFaultKey = faultObjectKeys[0];
-                const faultMappings: Record<string, {{# each action.operation.faults as |fault| }}{{ nameWithoutModel fault.target.name }}FaultHandler{{# unless @last}} | {{/ unless}}{{/ each }}> = {
-                    {{# each action.operation.faults as |fault| }}
-                        '{{ classServiceTypeName fault.target }}': (payload: {{ nameWithoutModel fault.target.name }}) => {
-                            return {
-                                {{# each fault.target.attributes as |attribute| }}
-                                    [t('faults.{{ classServiceTypeName fault.target }}.{{ attribute.name }}', { defaultValue: '{{ attribute.name }}' })]: payload?.{{ attribute.name }},
-                                {{/ each }}
-                            };
-                        },
-                    {{/ each }}
-                };
+        if (errorCallback) {
+            errorCallback(error); // consider passing mapped content here eventually
+        } else {
+            {{# if (hasCallOperationActionFaults action) }}
+                if (isErrorOperationFault(error)) {
+                    const faultObjectKeys = Object.keys(error.response.data);
+                    const firstFaultKey = faultObjectKeys[0];
+                    const faultMappings: Record<string, {{# each action.operation.faults as |fault| }}{{ nameWithoutModel fault.target.name }}FaultHandler{{# unless @last}} | {{/ unless}}{{/ each }}> = {
+                        {{# each action.operation.faults as |fault| }}
+                            '{{ classServiceTypeName fault.target }}': (payload: {{ nameWithoutModel fault.target.name }}) => {
+                                return {
+                                    {{# each fault.target.attributes as |attribute| }}
+                                        [t('faults.{{ classServiceTypeName fault.target }}.{{ attribute.name }}', { defaultValue: '{{ attribute.name }}' })]: payload?.{{ attribute.name }},
+                                    {{/ each }}
+                                };
+                            },
+                        {{/ each }}
+                    };
 
-                createErrorDialog({
-                    fullWidth: true,
-                    maxWidth: 'md',
-                    onClose: (event: object, reason: string) => {
-                        if (reason !== 'backdropClick') {
-                            closeErrorDialog();
-                        }
-                    },
-                    children: (
-                        <OperationFaultDialog
-                            close={() => closeErrorDialog()}
-                            faultObjectKey={firstFaultKey}
-                            content={faultMappings[firstFaultKey](error.response.data[firstFaultKey])}
-                        />
-                    ),
-                });
-            } else {
+                    createErrorDialog({
+                        fullWidth: true,
+                        maxWidth: 'md',
+                        onClose: (event: object, reason: string) => {
+                            if (reason !== 'backdropClick') {
+                                closeErrorDialog();
+                            }
+                        },
+                        children: (
+                            <OperationFaultDialog
+                                close={() => closeErrorDialog()}
+                                faultObjectKey={firstFaultKey}
+                                content={faultMappings[firstFaultKey](error.response.data[firstFaultKey])}
+                            />
+                        ),
+                    });
+                } else {
+                    handleActionError(error{{# if action.operation.isMapped }}, undefined, owner{{/ if }});
+                }
+            {{ else }}
                 handleActionError(error{{# if action.operation.isMapped }}, undefined, owner{{/ if }});
-            }
-        {{ else }}
-            handleActionError(error{{# if action.operation.isMapped }}, undefined, owner{{/ if }});
-        {{/ if }}
+            {{/ if }}
+        }
     }
 }

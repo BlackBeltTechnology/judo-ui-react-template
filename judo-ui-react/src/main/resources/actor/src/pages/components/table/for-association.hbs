@@ -195,6 +195,31 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
         return !!selectionModel.length && {{# if table.enabledBy }}ownerData.{{ table.enabledBy.name }}{{ else }}true{{/ if }} && !{{ boolValue table.dataElement.isReadOnly }};
       }, [ownerData, selectionModel]);
     {{/ if }}
+    {{# if (tableHasBulkOperations table) }}
+      const bulkCallOperation = useCallback((title: string, actionName: string, action: (item: {{ classDataName table.dataElement.target 'Stored' }}, successHandler: () => void, errorHandler: (error: any) => void) => Promise<void>) => {
+        openCRUDDialog<{{ classDataName table.dataElement.target 'Stored' }}>({
+          dialogTitle: title,
+          {{# with (getFirstTitleColumnForTable table) as |column| }}
+            itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
+          {{ else }}
+            itemTitleFn: (item) => t('judo.placeholder', { defaultValue: 'placeholder' }) as string,
+          {{/ with }}
+          selectedItems: selectedRows.current,
+          action: action,
+          onClose: (needsRefresh) => {
+            if (needsRefresh) {
+              fetchData();
+              setSelectionModel([]); // not resetting on fetchData because refreshes would always remove selections...
+            }
+          },
+          faultPrefix: `{{ classServiceTypeName table.dataElement.target }}.${actionName}`,
+        });
+      }, []);
+
+      const isBulkOperationAvailable: () => boolean = useCallback(() => {
+        return !!selectionModel.length;
+      }, [selectionModel]);
+    {{/ if }}
 
     {{# if (stringValueIsTrue useTableContextMenus) }}
         const contextMenuRef = useRef<ContextMenuApi>(null);
@@ -453,6 +478,17 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                                     {t('judo.pages.table.delete.selected', { defaultValue: 'Delete' })}
                                 </Button> : null}
                             {{/ if }}
+                            {{# each (getBulkOperationActionsForTable table) as |bulkOp| }}
+                                {isBulkOperationAvailable() ? <Button
+                                    disabled={ isOwnerLoading{{# if bulkOp.enabledBy }} || selectedRows.current.some(r => !r.{{ bulkOp.enabledBy.name }}){{/ if }} }
+                                    variant="text"
+                                    {{# if bulkOp.icon }}
+                                    startIcon={<MdiIcon path="{{ bulkOp.icon.name }}" />}
+                                    {{/ if }}
+                                    onClick={() => bulkCallOperation(t('{{ getTranslationKeyForAction bulkOp }}', { defaultValue: '{{ bulkOp.label }}' }), '{{ bulkOp.dataElement.name }}', {{ actionFunctionName bulkOp }}BulkCall)}>
+                                    {t('{{ getTranslationKeyForAction bulkOp }}', { defaultValue: '{{ bulkOp.label }}' })}
+                                </Button> : null}
+                            {{/ each }}
                             <div>{/* Placeholder */}</div>
                         </GridToolbarContainer>
                     ),
