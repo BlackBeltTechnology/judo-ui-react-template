@@ -26,7 +26,7 @@ import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
-import java.util.Optional;
+import java.util.Comparator;
 
 @Slf4j
 @TemplateHelper
@@ -247,5 +247,17 @@ public class UiTableHelper extends Helper {
         } else {
             return "null";
         }
+    }
+
+    public static java.util.List<Action> getBulkOperationActionsForTable(Table table) {
+        return table.getRowActions().stream()
+                .filter(Action::getIsCallOperationAction)
+                .filter(Action::isIsBulk)
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .toList();
+    }
+
+    public static boolean tableHasBulkOperations(Table table) {
+        return !getBulkOperationActionsForTable(table).isEmpty();
     }
 }
