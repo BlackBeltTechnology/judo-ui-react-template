@@ -54,7 +54,7 @@ export const Navigation = () => {
       const filteredMenus: NavItemType[] = [];
       handlerMenuItems(menus, filteredMenus);
       setMenuItems(filteredMenus);
-    }, [principal]);
+    }, [{{# if application.authentication }}principal{{/ if }}]);
 
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
 
