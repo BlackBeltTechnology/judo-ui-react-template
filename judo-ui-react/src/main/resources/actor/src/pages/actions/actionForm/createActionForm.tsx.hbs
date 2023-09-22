@@ -35,6 +35,7 @@ import {
 {{> actor/src/fragments/page/on-blur-declaration.fragment.hbs page=page }}
 
 export interface {{ pageActionFormComponentName action }}Props {
+    callerEditMode?: boolean;
     successCallback: (result: {{ classDataName page.dataElement.target 'Stored' }}, open?: boolean) => void;
     cancel: () => void;
     {{# if (hasDataElementOwner action.dataElement) }}
@@ -43,6 +44,7 @@ export interface {{ pageActionFormComponentName action }}Props {
 }
 
 export function {{ pageActionFormComponentName action }}({
+    callerEditMode,
     successCallback,
     cancel,
     {{# if (hasDataElementOwner action.dataElement) }}
@@ -110,9 +112,16 @@ export function {{ pageActionFormComponentName action }}({
         setIsLoading(true);
 
         try {
-            const res = await {{ dataElementRelationName page.dataElement }}Impl.create{{ ucFirst page.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }}payloadDiff);
-
-            return res;
+            if (!callerEditMode) {
+                // only call backend if the create dialog has been triggered on a View Page
+                return await {{ dataElementRelationName page.dataElement }}Impl.create{{ ucFirst page.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }}payloadDiff);
+            } else {
+                // add temp identifier in order to counter mui key errors in tables, the `storeDiff` function should take care of it.
+                return {
+                    ...payloadDiff,
+                    __identifier: `JUDO_TMP_${new Date()}`,
+                } as {{ classDataName page.dataElement.target 'Stored' }};
+            }
         } catch (error) {
             handleCreateError(error, { setValidation }, data);
         } finally {
@@ -187,30 +196,33 @@ export function {{ pageActionFormComponentName action }}({
 
                                                 if (result) {
                                                     successCallback(result);
-                                                    {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
-                                                        navigate(routeTo{{ pageName (getViewPageForCreatePage page application) }}(result.__signedIdentifier));
-                                                    {{ else }}
-                                                        createDialog({
-                                                            {{# if (adjustDialogSize (getViewPageForCreatePage page application)) }}
-                                                                fullWidth: true,
-                                                                maxWidth: '{{ getDialogSizeForViewPageOfCreatePage page application }}',
-                                                            {{/ if }}
-                                                            onClose: (event: object, reason: string) => {
-                                                                if (reason !== 'backdropClick') {
-                                                                    closeDialog();
-                                                                }
-                                                            },
-                                                            children: (
-                                                                <{{ pageName (getViewPageForCreatePage page application) }}
-                                                                    successCallback={ () => {
-                                                                        successCallback(result, true);
-                                                                    } }
-                                                                    cancel={closeDialog}
-                                                                    entry={result}
-                                                                />
-                                                            ),
-                                                        });
-                                                    {{/ unless }}
+                                                    if (!callerEditMode) {
+                                                        // only trigger followup behaviors if action was initiated on a View Page and not in editMode
+                                                        {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
+                                                            navigate(routeTo{{ pageName (getViewPageForCreatePage page application) }}(result.__signedIdentifier));
+                                                        {{ else }}
+                                                            createDialog({
+                                                                {{# if (adjustDialogSize (getViewPageForCreatePage page application)) }}
+                                                                    fullWidth: true,
+                                                                    maxWidth: '{{ getDialogSizeForViewPageOfCreatePage page application }}',
+                                                                {{/ if }}
+                                                                onClose: (event: object, reason: string) => {
+                                                                    if (reason !== 'backdropClick') {
+                                                                        closeDialog();
+                                                                    }
+                                                                },
+                                                                children: (
+                                                                    <{{ pageName (getViewPageForCreatePage page application) }}
+                                                                        successCallback={ () => {
+                                                                            successCallback(result, true);
+                                                                        } }
+                                                                        cancel={closeDialog}
+                                                                        entry={result}
+                                                                    />
+                                                                ),
+                                                            });
+                                                        {{/ unless }}
+                                                    }
                                                 }
                                             } } disabled={isLoading}>
                                                 {t('judo.pages.create-and-navigate', { defaultValue: 'Create and navigate' })}

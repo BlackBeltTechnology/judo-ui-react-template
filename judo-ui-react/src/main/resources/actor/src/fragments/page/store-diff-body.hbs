@@ -8,12 +8,26 @@
     const timeTypes: string[] = [{{# each (getWritableTimeAttributesForClass classType) as |aName| }}
         '{{ aName }}',
     {{/ each }}];
+    const tableTypes: string[] = [{{# each (getWritableTablesForClass classType) as |aName| }}
+        '{{ aName }}',
+    {{/ each }}];
     if (dateTypes.includes(attributeName as string)) {
         payloadDiff[attributeName] = uiDateToServiceDate(value);
     } else if (dateTimeTypes.includes(attributeName as string)) {
         payloadDiff[attributeName] = value;
     } else if (timeTypes.includes(attributeName as string)) {
         payloadDiff[attributeName] = uiTimeToServiceTime(value);
+    } else if (tableTypes.includes(attributeName as string)) {
+        const filteredList = [];
+        for (const filtered of value) {
+            const shallow = {...filtered};
+            if (shallow.__identifier && shallow.__identifier.startsWith('JUDO_TMP_')) {
+                // remove temp identifier which has been put in place to mitigate mui key errors in tables.
+                delete shallow.__identifier;
+            }
+            filteredList.push(shallow);
+        }
+        payloadDiff[attributeName] = filteredList;
     } else {
         payloadDiff[attributeName] = value;
     }

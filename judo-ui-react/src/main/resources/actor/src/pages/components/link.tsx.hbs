@@ -84,8 +84,12 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                     onView={ async () => {{ actionFunctionName action }}(ownerData, ownerData?.{{ link.dataElement.name }}!, () => fetchOwnerData()) }
                 {{/ if }}
                 {{# if action.isCreateAction }}
-                    onCreate={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {
-                        fetchOwnerData();
+                    onCreate={ async () => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}editMode, (result: {{ classDataName action.dataElement.target 'Stored' }}) => {
+                        if (!editMode) {
+                            fetchOwnerData();
+                        } else {
+                            storeDiff('{{ link.dataElement.name }}', result);
+                        }
                     }) }
                 {{/ if }}
                 {{# if action.isDeleteAction }}
@@ -118,7 +122,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                                 // we do not allow creation in such cases.
                                 createTrigger: !ownerData.{{ link.dataElement.name }} ? async () => {
                                     return new Promise((resolve) => {
-                                        {{ actionFunctionName (getCreateActionForLink link) }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}(result: {{ classDataName link.dataElement.target 'Stored' }}) => {
+                                        {{ actionFunctionName (getCreateActionForLink link) }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}editMode, (result: {{ classDataName link.dataElement.target 'Stored' }}) => {
                                             resolve(result);
                                         }, () => {
                                             resolve(undefined);

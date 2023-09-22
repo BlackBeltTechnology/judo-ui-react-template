@@ -196,6 +196,15 @@ public class UiGeneralHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
+    public static List<String> getWritableTablesForClass(ClassType classType) {
+        return classType.getRelations().stream()
+                .filter(ReferenceType::isIsCollection)
+                .filter(r -> !r.isIsReadOnly())
+                .map(NamedElement::getName)
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
     public static boolean hasRelationRange(ReferenceType ref) {
         return ref.getIsRangeable() || ref.getIsSetable() || ref.getIsAddable();
     }

@@ -298,11 +298,15 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                                             id="{{ createId action }}"
                                             startIcon={<MdiIcon path="file_document_plus" />}
                                             variant="text"
-                                            onClick={() => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}() => {
-                                                fetchOwnerData();
+                                            onClick={() => {{ actionFunctionName action }}({{# unless (isActionAccess action) }}ownerData, {{/ unless }}editMode, (result: {{ classDataName action.dataElement.target 'Stored' }}) => {
+                                                if (!editMode) {
+                                                    fetchOwnerData();
+                                                } else {
+                                                    storeDiff('{{ table.dataElement.name }}', [...(ownerData.{{ table.dataElement.name }} || []), result]);
+                                                }
                                             })}
                                             disabled={
-                                                   editMode
+                                                   {{# if table.dataElement.isRelationKindComposition }}false{{ else }}editMode{{/ if }}
                                                 || isOwnerLoading
                                                 || {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} ||{{/ if }} {{ boolValue table.dataElement.isReadOnly }}
                                                 || !isFormUpdateable()
