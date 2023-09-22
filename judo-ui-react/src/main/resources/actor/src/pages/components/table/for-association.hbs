@@ -34,7 +34,7 @@ export interface {{ tableComponentName table }}Props {
 
 export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ tableComponentName table }}Props>((props, ref) => {
     const { getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
-    const { ownerData, fetchOwnerData, editMode, isFormUpdateable, refreshCounter } = props;
+    const { ownerData, isOwnerLoading, fetchOwnerData, editMode, isFormUpdateable, refreshCounter } = props;
     const { t } = useTranslation();
     const { openFilterDialog } = useFilterDialog();
     const { openRangeDialog } = useRangeDialog();
@@ -156,7 +156,6 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
               setSelectionModel([]); // not resetting on fetchData because refreshes would always remove selections...
             }
           },
-          // autoCloseOnSuccess: true,
         });
       }, []);
       const isBulkDeleteAvailable: () => boolean = useCallback(()=> {
@@ -187,14 +186,17 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
               setSelectionModel([]); // not resetting on fetchData because refreshes would always remove selections...
             }
           },
-          // autoCloseOnSuccess: true,
         });
       }, []);
-
       const isBulkRemoveAvailable: () => boolean = useCallback(()=> {
         return !!selectionModel.length && {{# if table.enabledBy }}ownerData.{{ table.enabledBy.name }}{{ else }}true{{/ if }} && !{{ boolValue table.dataElement.isReadOnly }};
       }, [ownerData, selectionModel]);
     {{/ if }}
+    {{# each (getBulkOperationActionsForTable table) as |action| }}
+      const {{ actionFunctionName action }}BulkCall = async (item: {{ classDataName table.dataElement.target 'Stored' }}, successHandler: () => void, errorHandler: (error: any) => void) => {
+        await {{ actionFunctionName action }}(item, successHandler, errorHandler, true);
+      }
+    {{/ each }}
     {{# if (tableHasBulkOperations table) }}
       const bulkCallOperation = useCallback((title: string, actionName: string, action: (item: {{ classDataName table.dataElement.target 'Stored' }}, successHandler: () => void, errorHandler: (error: any) => void) => Promise<void>) => {
         openCRUDDialog<{{ classDataName table.dataElement.target 'Stored' }}>({
