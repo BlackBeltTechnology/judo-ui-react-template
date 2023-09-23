@@ -739,6 +739,48 @@ const customGodCreateNameOnBlurHook: GodCreateNameOnBlurHook = () => {
 };
 ----
 
+=== Implementing filter initializers for components representing single relations
+
+There are cases when we need to provide additional filtering for Link components besides the modeled range expressions.
+Usually this occurs when we need to rely on what state our current forms/pages are in.
+
+We can achieve this by providing a FilterInitializer service for the Link component which we would like to fine tune.
+
+Just like every other hook, these have their corresponding `INTERFACE_KEY` and the interfaces for the keys.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { ApplicationCustomizer } from './interfaces';
+import {
+  CITY_LINK_FILTER_INITIALIZER_INTERFACE_KEY, CityLinkFilterInitializerHook
+} from "~/pages/admin/admin/dashboardhome/view/actions/adminDashboard/AdminDashboardCreateIssueForm/components/CityLink";
+import { _StringOperation, AdminCityStored, AdminCreateIssueInput } from "~/generated/data-api";
+import { Filter, FilterType } from "~/components-api";
+import { buildFilter } from "~/utilities";
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    // register your implementations here
+    context.registerService(CITY_LINK_FILTER_INITIALIZER_INTERFACE_KEY, cityLinkFilterInitializer);
+  }
+}
+
+// We are building an initializer for the "City" component on the AdminDashboardCreateIssueForm
+const cityLinkFilterInitializer: CityLinkFilterInitializerHook = () => {
+  return (ownerData: AdminCreateIssueInput): Filter[] | undefined => {
+    // we are interested in another single's value on the form (county)
+    if (ownerData.county) {
+      // we are utilizing the `buildFilter` helper to create a basic `Filter` instance
+      return [
+        buildFilter<AdminCityStored>(FilterType.string, _StringOperation.equal, 'county', ownerData.county.name),
+      ];
+    }
+  };
+};
+----
+
 === (Global) Hotkey support
 
 Currently you can wire in hotkeys for access-based actions, such as triggering create dialogs.
