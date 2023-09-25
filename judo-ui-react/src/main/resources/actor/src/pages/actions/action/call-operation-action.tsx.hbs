@@ -27,7 +27,7 @@ import { useSnackbar } from 'notistack';
         {{# unless (pageShouldOpenInDialog action.outputParameterPage) }}
             import { routeTo{{ pageName action.outputParameterPage }} } from '~/routes';
         {{ else }}
-            import { {{ pageName action.outputParameterPage }} } from '~/pages/{{ pageIndexRelativeImportPath action.outputParameterPage }}';
+            import {{ pageName action.outputParameterPage }} from '~/pages/{{ pageIndexRelativeImportPath action.outputParameterPage }}';
         {{/ unless }}
     {{/ unless }}
 {{/ if }}
@@ -48,7 +48,7 @@ import { FilterOption, FilterType } from '~/components-api';
 import { useL10N } from '~/l10n/l10n-context';
 import { isErrorOperationFault, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
 {{# if (actionHasInputForm action) }}
-    import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
+    import {{ pageActionFormComponentName action }} from './{{ pageActionFormComponentName action }}';
 {{/ if }}
 {{# if (actionHasUnmappedOutputForm action) }}
     import {{ pageName action.outputParameterPage }} from '~/{{ pagePathForTilde action.outputParameterPage }}';

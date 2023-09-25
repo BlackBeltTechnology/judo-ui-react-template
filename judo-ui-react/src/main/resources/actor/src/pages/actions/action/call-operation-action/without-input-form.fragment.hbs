@@ -44,6 +44,9 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
 
             if (res === undefined) return;
         {{/ with }}
+        {{# unless action.inputParameterPage.originalPageContainer.tables.[0] }}
+            // GENERATOR WARNING: INPUT SELECTION TABLE IS MISSING OR HAS NO COLUMNS!
+        {{/ unless }}
 
     {{ else }}
         {{# if (hasConfirmation action) }}
