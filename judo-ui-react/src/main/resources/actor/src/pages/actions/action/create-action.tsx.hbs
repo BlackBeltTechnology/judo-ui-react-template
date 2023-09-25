@@ -34,7 +34,7 @@ import {
 {{# unless (actionHasVisualElements action) }}
     import { routeTo{{ pageName (getViewPageForCreatePage action.target application) }} } from '~/routes';
 {{/ unless }}
-import { {{ pageActionFormComponentName action }} } from './{{ pageActionFormComponentName action }}';
+import {{ pageActionFormComponentName action }} from './{{ pageActionFormComponentName action }}';
 
 export type {{ actionFunctionTypeName action }} = () => (
   {{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}
