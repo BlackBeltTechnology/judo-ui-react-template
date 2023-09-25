@@ -1,6 +1,8 @@
 import { useTranslation } from 'react-i18next';
 import { Button, ButtonGroup } from '@mui/material';
 import type { {{ getMuiDataGridImportsForLinks }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { useTrackService } from '@pandino/react-hooks';
+import { OBJECTCLASS } from '@pandino/pandino-api';
 import { MdiIcon } from '~/components';
 {{# if isUseInlineColumnFilters }}
 import {
@@ -20,10 +22,12 @@ import {
     TrinaryLogicCombobox,
 } from '~/components/widgets';
 import { useFilterDialog, useRangeDialog } from '~/components/dialog';
-import { FilterOption, FilterType } from '~/components-api';
+import { FilterType } from '~/components-api';
+import type { FilterOption, Filter } from '~/components-api';
 import { baseColumnConfig, toastConfig } from '~/config';
 import {
     fileHandling,
+    mapAllFiltersToQueryCustomizerProperties,
     serviceDateToUiDate,
     serviceTimeToUiTime,
     processQueryCustomizer,

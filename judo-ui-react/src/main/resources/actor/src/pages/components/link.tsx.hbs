@@ -24,6 +24,17 @@ import {
     } from '../actions';
 {{/ if }}
 
+export type {{ linkComponentName link }}FilterInitializer = (
+    {{# if (isPageRefreshable page) }}
+        ownerData: {{ classDataName link.dataElement.owner 'Stored' }},
+    {{ else }}
+        ownerData: {{ classDataName link.dataElement.owner '' }},
+    {{/ if }}
+) => Filter[] | undefined;
+
+export const {{ camelCaseNameToInterfaceKey (linkComponentName link) }}_FILTER_INITIALIZER_INTERFACE_KEY = '{{ linkComponentName link }}FilterInitializerHook';
+export type {{ linkComponentName link }}FilterInitializerHook = () => {{ linkComponentName link }}FilterInitializer;
+
 export interface {{ linkComponentName link }}Props {
     {{# if (isPageRefreshable page) }}
         ownerData: {{ classDataName link.dataElement.owner 'Stored' }};
@@ -46,6 +57,9 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
     const { openRangeDialog } = useRangeDialog();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
+
+    const { service: filterInitializerHook } = useTrackService<{{ linkComponentName link }}FilterInitializerHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (linkComponentName link) }}_FILTER_INITIALIZER_INTERFACE_KEY})`);
+    const callFilterInitializer: {{ linkComponentName link }}FilterInitializer | undefined = filterInitializerHook && filterInitializerHook();
 
     {{# if isDebugPrint }}// include: actor/src/fragments/link/hook-variables.fragment.hbs{{/ if }}
     {{> actor/src/fragments/link/hook-variables.fragment.hbs link=link }}
@@ -111,6 +125,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                             alreadySelectedItems: ownerData.{{ link.dataElement.name }} ? [ownerData.{{ link.dataElement.name }}] : undefined,
                             filterOptions: {{ link.dataElement.name }}RangeFilterOptions,
                             initialQueryCustomizer: {{ link.dataElement.name }}InitialQueryCustomizer,
+                            initialFilters: callFilterInitializer && callFilterInitializer(ownerData),
                             editMode: editMode,
                             {{# if (linkHasCreateAction link)}}
                                 // If there is a value set we cannot predict if is a persisted value or not. If it's persisted
@@ -149,6 +164,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
                                             { operator: _StringOperation.like, value: searchText }
                                         ],
                                     } : {}),
+                                    ...mapAllFiltersToQueryCustomizerProperties((callFilterInitializer && callFilterInitializer(ownerData)) || []),
                                     _mask: '{{ link.formattedMask }}',
                                     _orderBy: [
                                         { attribute: '{{ column.attributeType.name }}', descending: false },
