@@ -389,11 +389,13 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
-                checkboxSelection
-                rowSelectionModel={selectionModel}
-                onRowSelectionModelChange={(newRowSelectionModel) => {
-                  setSelectionModel(newRowSelectionModel);
-                }}
+                {{# if (tableHasSelectorColumn table) }}
+                  checkboxSelection
+                  rowSelectionModel={selectionModel}
+                  onRowSelectionModelChange={(newRowSelectionModel) => {
+                    setSelectionModel(newRowSelectionModel);
+                  }}
+                {{/ if }}
                 keepNonExistentRowsSelected
                 {{# each table.rowActions as |action| }}
                     {{# if action.isViewAction }}
