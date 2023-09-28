@@ -150,7 +150,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
             }
           },
         });
-      }, []);
+      }, [ownerData]);
       const isBulkRemoveAvailable: () => boolean = useCallback(()=> {
         return !!selectionModel.length && {{# if table.enabledBy }}ownerData.{{ table.enabledBy.name }}{{ else }}true{{/ if }} && isFormUpdateable() && !{{ boolValue table.dataElement.isReadOnly }};
       }, [ownerData, selectionModel]);
@@ -382,6 +382,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                             {{/ unless }}
                             {{# if (tableHasRemoveAction table) }}
                                 {isBulkRemoveAvailable() ? <Button
+                                    id="{{ createId table.dataElement }}-bulk-remove"
                                     disabled={isOwnerLoading}
                                     variant="text"
                                     startIcon={<MdiIcon path="link-off" />}
@@ -395,6 +396,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                             {{/ if }}
                             {{# if (tableHasDeleteAction table) }}
                                 {isBulkDeleteAvailable() ? <Button
+                                    id="{{ createId table.dataElement }}-bulk-delete"
                                     disabled={isOwnerLoading || editMode}
                                     variant="text"
                                     startIcon={<MdiIcon path="delete-forever" />}
@@ -404,6 +406,7 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                             {{/ if }}
                             {{# each (getBulkOperationActionsForTable table) as |bulkOp| }}
                                 {isBulkOperationAvailable() ? <Button
+                                    id="{{ createId bulkOp }}-bulk-call-operation"
                                     disabled={ isOwnerLoading || editMode{{# if bulkOp.enabledBy }} || selectedRows.current.some(r => !r.{{ bulkOp.enabledBy.name }}){{/ if }} }
                                     variant="text"
                                     {{# if bulkOp.icon }}
