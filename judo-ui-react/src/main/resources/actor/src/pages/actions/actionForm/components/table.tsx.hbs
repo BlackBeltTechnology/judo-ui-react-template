@@ -46,9 +46,11 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
     {{# if isDebugPrint }}// include: actor/src/fragments/table/row-actions.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/row-actions.fragment.hbs table=table page=page }}
 
-    const isBulkRemoveAvailable: () => boolean = useCallback(()=> {
-      return !!selectionModel.length && {{# if table.enabledBy }}ownerData.{{ table.enabledBy.name }}{{ else }}true{{/ if }} && !{{ boolValue table.dataElement.isReadOnly }} && isFormUpdateable();
-    }, [ownerData, selectionModel]);
+    {{# if (tableHasRemoveAction table) }}
+      const isBulkRemoveAvailable: () => boolean = useCallback(()=> {
+        return !!selectionModel.length && {{# if table.enabledBy }}ownerData.{{ table.enabledBy.name }}{{ else }}true{{/ if }} && !{{ boolValue table.dataElement.isReadOnly }} && isFormUpdateable();
+      }, [ownerData, selectionModel]);
+    {{/ if }}
 
     return (
         <>
@@ -76,11 +78,13 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                 } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, t, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
-                checkboxSelection
-                rowSelectionModel={selectionModel}
-                onRowSelectionModelChange={(newRowSelectionModel) => {
-                  setSelectionModel(newRowSelectionModel);
-                }}
+                {{# if (tableHasSelectorColumn table) }}
+                  checkboxSelection
+                  rowSelectionModel={selectionModel}
+                  onRowSelectionModelChange={(newRowSelectionModel) => {
+                    setSelectionModel(newRowSelectionModel);
+                  }}
+                {{/ if }}
                 sortModel={ {{ table.dataElement.name }}SortModel }
                 onSortModelChange={(newModel: GridSortModel) => {
                     set{{ ucFirst table.dataElement.name }}SortModel(newModel);

@@ -261,11 +261,13 @@ export const {{ tableComponentName table }} = (props: {{ tableComponentName tabl
                 } }
                 columns={[ ...{{ table.dataElement.name }}Columns, ...columnsActionCalculator('{{ createId table.dataElement }}', {{ table.dataElement.name }}RowActions, t, { shownActions: 2 }) ]}
                 disableRowSelectionOnClick
-                checkboxSelection
-                rowSelectionModel={selectionModel}
-                onRowSelectionModelChange={(newRowSelectionModel) => {
-                  setSelectionModel(newRowSelectionModel);
-                }}
+                {{# if (tableHasSelectorColumn table) }}
+                  checkboxSelection
+                  rowSelectionModel={selectionModel}
+                  onRowSelectionModelChange={(newRowSelectionModel) => {
+                    setSelectionModel(newRowSelectionModel);
+                  }}
+                {{/ if }}
                 {{# each table.rowActions as |action| }}
                     {{# if action.isViewAction }}
                         onRowClick={ (params: GridRowParams<{{ classDataName table.dataElement.target 'Stored' }}>) => {

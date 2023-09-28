@@ -260,4 +260,10 @@ public class UiTableHelper extends Helper {
     public static boolean tableHasBulkOperations(Table table) {
         return !getBulkOperationActionsForTable(table).isEmpty();
     }
+
+    public static boolean tableHasSelectorColumn(Table table) {
+        return getBulkOperationActionsForTable(table).size() > 0
+                || table.getRowActions().stream().filter(Action::getIsDeleteAction).count() > 0
+                || table.getRowActions().stream().filter(Action::getIsRemoveAction).count() > 0;
+    }
 }
