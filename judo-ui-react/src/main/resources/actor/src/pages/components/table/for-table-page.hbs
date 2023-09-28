@@ -166,7 +166,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             }
           },
         });
-      }, []);
+      }, [{{# unless table.dataElement.isAccess }}ownerData{{/ unless }}]);
       const isBulkDeleteAvailable: () => boolean = useCallback(()=> {
         // every row has the same `__deleteable` flag
         return !!selectionModel.length && !{{ boolValue table.dataElement.isReadOnly }} && !!data[0]?.__deleteable;
@@ -196,7 +196,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
             }
           },
         });
-      }, []);
+      }, [{{# unless table.dataElement.isAccess }}ownerData{{/ unless }}]);
       const isBulkRemoveAvailable: () => boolean = useCallback(()=> {
         return !!selectionModel.length;
       }, [selectionModel]);
@@ -432,6 +432,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                             {{/ each }}
                             {{# if (tableHasRemoveAction table) }}
                                 {isBulkRemoveAvailable() ? <Button
+                                    id="{{ createId table.dataElement }}-bulk-remove"
                                     disabled={isOwnerLoading}
                                     variant="text"
                                     startIcon={<MdiIcon path="link-off" />}
@@ -441,6 +442,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                             {{/ if }}
                             {{# if (tableHasDeleteAction table) }}
                                 {isBulkDeleteAvailable() ? <Button
+                                    id="{{ createId table.dataElement }}-bulk-delete"
                                     disabled={isOwnerLoading}
                                     variant="text"
                                     startIcon={<MdiIcon path="delete-forever" />}
@@ -450,6 +452,7 @@ export const {{ tableComponentName table }} = forwardRef<RefreshableTable, {{ ta
                             {{/ if }}
                             {{# each (getBulkOperationActionsForTable table) as |bulkOp| }}
                                 {isBulkOperationAvailable() ? <Button
+                                    id="{{ createId bulkOp }}-bulk-call-operation"
                                     disabled={ isOwnerLoading{{# if bulkOp.enabledBy }} || selectedRows.current.some(r => !r.{{ bulkOp.enabledBy.name }}){{/ if }} }
                                     variant="text"
                                     {{# if bulkOp.icon }}
