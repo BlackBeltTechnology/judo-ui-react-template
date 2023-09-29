@@ -1,233 +1,120 @@
 {{> fragment.header.hbs }}
-// Action: CreateAction
+// Action: CallOperationAction
+// Is Access: {{# if page.dataElement.isAccess }}yes{{ else }}no{{/ if }}
+// Is Mapped: {{# if action.operation.isMapped }}yes{{ else }}no{{/ if }}
+// Is Static: {{# if action.operation.isStatic }}yes{{ else }}no{{/ if }}
+// Input: {{# if action.operation.input }}yes{{ else }}no{{/ if }}
+// InputParameterPage: {{# if action.inputParameterPage }}yes{{ else }}no{{/ if }}
+// OutputParameterPage: {{# if action.outputParameterPage }}yes{{ else }}no{{/ if }}
 
-{{# if isDebugPrint }}// include: actor/src/fragments/page/common-form-imports.fragment.hbs{{/ if }}
-{{> actor/src/fragments/page/common-form-imports.fragment.hbs }}
-{{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
-    import { routeTo{{ pageName (getViewPageForCreatePage page application) }} } from '~/routes';
-{{ else }}
-    import { lazy, Suspense } from 'react';
-{{/ unless }}
+import { useTranslation } from 'react-i18next';
+import { Button, ButtonGroup } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import type {
+    GridColDef,
+    GridRenderCellParams,
+    GridRowParams,
+    GridFilterModel,
+    GridSortModel,
+    GridRowSelectionModel,
+    GridValueFormatterParams,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+import { useSnackbar } from 'notistack';
+{{# if action.outputParameterPage }}
+    {{# unless (actionHasUnmappedOutputForm action) }}
+        {{# unless (pageShouldOpenInDialog action.outputParameterPage) }}
+            import { routeTo{{ pageName action.outputParameterPage }} } from '~/routes';
+        {{ else }}
+            import { lazy, Suspense } from 'react';
+        {{/ unless }}
+    {{ else }}
+      import { lazy, Suspense } from 'react';
+    {{/ unless }}
+{{/ if }}
+import { useJudoNavigation, MdiIcon } from '~/components';
+{{# if isUseInlineColumnFilters }}
 import {
-    {{# each (getApiImportsForCreateAction action) as |imp| }}
+    stringColumnOperators,
+    numericColumnOperators,
+    dateColumnOperators,
+    dateTimeColumnOperators,
+    booleanColumnOperators,
+    singleSelectColumnOperators,
+} from '~/components/table';
+{{/ if }}
+import { useDialog, useRangeDialog{{# if (hasCallOperationActionFaults action) }}, OperationFaultDialog{{/ if }} } from '~/components/dialog';
+import { baseColumnConfig, toastConfig } from '~/config';
+import { FilterOption, FilterType } from '~/components-api';
+import { useL10N } from '~/l10n/l10n-context';
+import { isErrorOperationFault, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
+{{# if (actionHasInputForm action) }}
+    import { lazy, Suspense } from 'react';
+{{/ if }}
+import {
+    {{# each (getApiImportsForCallOperationAction action) as |imp| }}
         {{ imp }},
     {{/ each }}
 } from '~/generated/data-api';
-import {
-    {{ dataElementRelationName page.dataElement }}Impl,
-    {{ classServiceName page.dataElement.target }}Impl,
-} from '~/generated/data-axios';
+{{# unless (actionHasInputForm action) }}
+    import {
+        {{ classServiceName page.dataElement.target }}Impl,
+        {{# neq (classServiceName page.dataElement.target) (classServiceName action.dataElement.owner) }}
+            {{ classServiceName action.dataElement.owner }}Impl,
+        {{/ neq }}
+    } from '~/generated/data-axios';
+{{/ unless }}
 
-{{# each page.originalPageContainer.links as |link| }}
-    import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
-{{/ each }}
-{{# each page.originalPageContainer.tables as |table| }}
-    import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
-{{/ each }}
-
-{{# each (getVisualElementsWithCustomImplementation page) as |ve| }}
-    export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
-    export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName page.dataElement.target '' }}>> {}
+{{# each action.operation.faults as |fault| }}
+    type {{ nameWithoutModel fault.target.name }}FaultHandler = (payload: {{ nameWithoutModel fault.target.name }}) => Record<string, any> | object;
 {{/ each }}
 
-{{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-declaration.fragment.hbs{{/ if }}
-{{> actor/src/fragments/page/on-blur-declaration.fragment.hbs page=page }}
+export type {{ actionFunctionHandlerTypeName action 'PostHandler' }} = (ownerCallback: () => void{{# if action.outputParameterPage }}, result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => Promise<void>;
 
-{{# if (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
-  const {{ pageName (getViewPageForCreatePage page application) }} = lazy(() => import('~/pages/{{ pageIndexRelativeImportPath (getViewPageForCreatePage page application) }}'));
+export const {{ getCustomizationActionFunctionHandlerInterfaceKey action 'PostHandlerHook' }} = '{{ actionFunctionHandlerTypeName action 'PostHandlerHook' }}';
+export type {{ actionFunctionHandlerTypeName action 'PostHandlerHook' }} = () => {{ actionFunctionHandlerTypeName action 'PostHandler' }};
+
+export type {{ actionFunctionTypeName action }} = () => ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void, errorCallback?: (error: any) => void, silentMode?: boolean) => Promise<void>;
+
+{{# if action.outputParameterPage }}
+    {{# unless (actionHasUnmappedOutputForm action) }}
+        {{# if (pageShouldOpenInDialog action.outputParameterPage) }}
+          const {{ pageName action.outputParameterPage }} = lazy(() => import('~/pages/{{ pageIndexRelativeImportPath action.outputParameterPage }}'));
+        {{/ if }}
+    {{ else }}
+      const {{ pageName action.outputParameterPage }} = lazy(() => import('~/pages/{{ pageIndexRelativeImportPath action.outputParameterPage }}'));
+    {{/ unless }}
 {{/ if }}
 
-export interface {{ pageActionFormComponentName action }}Props {
-    successCallback: (result: {{ classDataName page.dataElement.target 'Stored' }}, open?: boolean) => void;
-    cancel: () => void;
-    {{# if (hasDataElementOwner action.dataElement) }}
-        owner: JudoIdentifiable<{{ classDataName ownerPage.dataElement.target '' }}>;
-    {{/ if }}
-}
+{{# if (actionHasInputForm action) }}
+    const {{ pageActionFormComponentName action }} = lazy(() => import('./{{ pageActionFormComponentName action }}'));
+{{/ if }}
 
-export default function {{ pageActionFormComponentName action }}({
-    successCallback,
-    cancel,
-    {{# if (hasDataElementOwner action.dataElement) }}
-        owner,
-    {{/ if }}
-} : {{ pageActionFormComponentName action }}Props) {
+export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const { t } = useTranslation();
-    const { openRangeDialog } = useRangeDialog();
     const { downloadFile, extractFileNameFromToken, uploadFile } = fileHandling();
     const { locale: l10nLocale } = useL10N();
-    const anchorRef = useRef<HTMLDivElement>(null);
-    const { navigate } = useJudoNavigation();
-    const [open, setOpen] = useState(false);
-    const [createDialog, closeDialog] = useDialog();
-
-    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-    const handleCreateError = useErrorHandler<{{ classDataName page.dataElement.target '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageActionFormComponentName action }}))`);
+    const handleActionError = useErrorHandler{{# if action.operation.isMapped }}<{{ classDataName action.dataElement.owner '' }}>{{/ if }}(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=CallOperation)(component={{ actionFunctionTypeName action }}))`);
     const { enqueueSnackbar } = useSnackbar();
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [data, setData] = useState<{{ classDataName page.dataElement.target '' }}>({
-      __referenceId: uuidv1(),
-    } as unknown as {{ classDataName page.dataElement.target '' }});
-    const [validation, setValidation] = useState<Map<keyof {{ classDataName page.dataElement.target '' }}, string>>(new Map<keyof {{ classDataName page.dataElement.target '' }}, string>());
-    const [editMode, setEditMode] = useState<boolean>(true);
-    const [payloadDiff, setPayloadDiff] = useState<Record<keyof {{ classDataName page.dataElement.target '' }}, any>>({} as unknown as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
-    const storeDiff: (attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName page.dataElement.target '' }}, value: any) => {
-        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
-        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target }}
-    }, [data]);
-    const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
-
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-hook-call.fragment.hbs{{/ if }}
-    {{> actor/src/fragments/page/on-blur-hook-call.fragment.hbs page=page }}
-
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/input-form-flags.hbs{{/ if }}
-    {{> actor/src/fragments/page/input-form-flags.hbs }}
-
-    {{# if page.dataElement.target.isTemplateable }}
-        const fetchData = async () => {
-            setIsLoading(true);
-
-            try {
-                const res = await {{ classServiceName page.dataElement.target }}Impl.getTemplate();
-                setData((prevData) => ({ ...prevData, ...res }));
-                setPayloadDiff({
-                    ...res,
-                } as Record<keyof {{ classDataName page.dataElement.target '' }}, any>);
-            } catch(error) {
-                handleFetchError(error);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        useEffect(() => {
-            fetchData();
-        }, []);
+    const { openRangeDialog } = useRangeDialog();
+    const [createDialog, closeDialog] = useDialog();
+    {{# if (hasCallOperationActionFaults action) }}
+        const [createErrorDialog, closeErrorDialog] = useDialog();
     {{/ if }}
+    {{# if (actionHasUnmappedOutputForm action) }}
+        const [createOutputDialog, closeOutputDialog] = useDialog();
+    {{/ if }}
+    const { navigate } = useJudoNavigation();
+    const title: string = t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ action.label }}' });
+    const { service: customPostHandler } = useTrackService<{{ actionFunctionHandlerTypeName action 'PostHandlerHook' }}>(`(${OBJECTCLASS}=${ {{~ getCustomizationActionFunctionHandlerInterfaceKey action 'PostHandlerHook' ~}} })`);
+    const postHandler: {{ actionFunctionHandlerTypeName action 'PostHandler' }} | undefined = customPostHandler && customPostHandler();
 
-    const submit = async () => {
-        {{# if (hasPageRequiredBy page) }}
-            {{> actor/src/fragments/page/local-validate.fragment.hbs }}
-        {{/ if }}
-
-        setIsLoading(true);
-
-        try {
-            const res = await {{ dataElementRelationName page.dataElement }}Impl.create{{ ucFirst page.dataElement.name }}({{# if (hasDataElementOwner action.dataElement) }}owner, {{/ if }}payloadDiff);
-
-            return res;
-        } catch (error) {
-            handleCreateError(error, { setValidation }, data);
-        } finally {
-            setIsLoading(false);
-        }
-    };
-
-    const handleToggle = () => {
-        setOpen((prevOpen) => !prevOpen);
-    };
-
-    const handleClose = (event: Event) => {
-        if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
-            return;
-        }
-
-        setOpen(false);
-    };
-
-    return (
-        {{# with (getDataContainerForPage page) as |rootChild| }}
-            <>
-                <DialogTitle>
-                    {title}
-                    <IconButton
-                        id="{{ createId action }}-dialog-close"
-                        aria-label="close"
-                        onClick={ () => cancel() }
-                        sx={ {
-                            position: 'absolute',
-                            right: 8,
-                            top: 8,
-                            color: (theme) => theme.palette.grey[500],
-                        } }
-                    >
-                        <MdiIcon path="close" />
-                    </IconButton>
-                </DialogTitle>
-                <DialogContent dividers>
-                    <Grid container spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
-                        {{# each rootChild.children as |child| }}
-                            {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
-                            {{> (getWidgetTemplate child) }}
-                        {{/ each }}
-                    </Grid>
-                </DialogContent>
-                <DialogActions>
-                    <Button id="{{ createId action }}-action-form-action-cancel" variant="text" onClick={ () => cancel() } disabled={isLoading}>
-                        {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
-                    </Button>
-                    <ButtonGroup size="small" ref={anchorRef} aria-label="split button" disabled={isLoading}>
-                        <LoadingButton loading={isLoading} loadingPosition="start" id="{{ createId action }}-action-form-action-create" variant="contained" onClick={ async () => {
-                                const result = await submit();
-                                if (result) {
-                                    successCallback(result);
-                                }
-                            } }>
-                            <span>{t('judo.pages.create', { defaultValue: 'Create' })}</span>
-                        </LoadingButton>
-                        <Button variant="contained" size="small" onClick={handleToggle}>
-                            <MdiIcon path="menu-down" />
-                        </Button>
-                    </ButtonGroup>
-                    <Popper sx={ { zIndex: 1 } } open={open} anchorEl={anchorRef.current} transition disablePortal>
-                        {({ TransitionProps, placement }) => (
-                            <Grow {...TransitionProps} style={ { transformOrigin: placement === 'bottom' ? 'center top' : 'center bottom' } }>
-                                <Paper>
-                                    <ClickAwayListener onClickAway={handleClose}>
-                                        <MenuList id="split-button-menu" autoFocusItem>
-                                            <MenuItem key="create-and-navigate" onClick={ async (event: any) => {
-                                                const result: {{ classDataName page.dataElement.target 'Stored' }} | undefined = await submit();
-
-                                                if (result) {
-                                                    successCallback(result);
-                                                    {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
-                                                        navigate(routeTo{{ pageName (getViewPageForCreatePage page application) }}(result.__signedIdentifier));
-                                                    {{ else }}
-                                                        createDialog({
-                                                            {{# if (adjustDialogSize (getViewPageForCreatePage page application)) }}
-                                                                fullWidth: true,
-                                                                maxWidth: '{{ getDialogSizeForViewPageOfCreatePage page application }}',
-                                                            {{/ if }}
-                                                            onClose: (event: object, reason: string) => {
-                                                                if (reason !== 'backdropClick') {
-                                                                    closeDialog();
-                                                                }
-                                                            },
-                                                            children: (
-                                                                <Suspense>
-                                                                  <{{ pageName (getViewPageForCreatePage page application) }}
-                                                                      successCallback={ () => {
-                                                                          successCallback(result, true);
-                                                                      } }
-                                                                      cancel={closeDialog}
-                                                                      entry={result}
-                                                                  />
-                                                                </Suspense>
-                                                            ),
-                                                        });
-                                                    {{/ unless }}
-                                                }
-                                            } } disabled={isLoading}>
-                                                {t('judo.pages.create-and-navigate', { defaultValue: 'Create and navigate' })}
-                                            </MenuItem>
-                                        </MenuList>
-                                    </ClickAwayListener>
-                                </Paper>
-                            </Grow>
-                        )}
-                    </Popper>
-                </DialogActions>
-            </>
-        {{/ with }}
-    );
+    {{# if (actionHasInputForm action) }}
+        {{# if isDebugPrint }}// include: actor/src/pages/actions/action/call-operation-action/with-input-form.fragment.hbs{{/ if }}
+        {{> actor/src/pages/actions/action/call-operation-action/with-input-form.fragment.hbs action=action page=page }}
+    {{ else }}
+        {{# if isDebugPrint }}// include: actor/src/pages/actions/action/call-operation-action/without-input-form.fragment.hbs{{/ if }}
+        {{> actor/src/pages/actions/action/call-operation-action/without-input-form.fragment.hbs action=action page=page }}
+    {{/ if }}
 }
