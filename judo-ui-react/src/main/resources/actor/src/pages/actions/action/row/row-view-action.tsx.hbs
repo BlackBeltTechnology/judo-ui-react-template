@@ -15,12 +15,20 @@ import { useDialog } from '~/components/dialog';
     {{# unless (pageShouldOpenInDialog action.target) }}
         import { routeTo{{ pageName action.target }} } from '~/routes';
     {{ else }}
-        import {{ pageName action.target }} from '~/pages/{{ pageIndexRelativeImportPath action.target }}';
+        import { lazy, Suspense } from 'react';
     {{/ unless }}
 {{/ if }}
 
 export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
 export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
+
+{{# if action.target.dataElement.isRefreshable }}
+    {{# if (pageShouldOpenInDialog action.target) }}
+      const {{ pageName action.target }} = lazy(() => import('~/pages/{{ pageIndexRelativeImportPath action.target }}'));
+    {{/ if }}
+{{/ if }}
+
+
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const [createDialog, closeDialog, closeAllDialogs] = useDialog();
@@ -49,13 +57,15 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                         }
                     },
                     children: (
-                        <{{ pageName action.target }}
-                            successCallback={ () => {
-                                successCallback();
-                            } }
-                            cancel={closeDialog}
-                            entry={entry}
-                        />
+                        <Suspense>
+                          <{{ pageName action.target }}
+                              successCallback={ () => {
+                                  successCallback();
+                              } }
+                              cancel={closeDialog}
+                              entry={entry}
+                          />
+                        </Suspense>
                     ),
                 });
             {{/ unless }}
