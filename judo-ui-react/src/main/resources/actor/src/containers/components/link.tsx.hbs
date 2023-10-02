@@ -1,0 +1,83 @@
+{{> fragment.header.hbs }}
+
+import { useTranslation } from 'react-i18next';
+import { IconButton } from '@mui/material';
+import { MdiIcon } from '~/components';
+import {
+  AggregationInput,
+  AssociationButton,
+  BinaryInput,
+  CollectionAssociationButton,
+  TrinaryLogicCombobox,
+} from '~/components/widgets';
+import type { {{ classDataName link.dataElement.target '' }}, {{ classDataName link.dataElement.target 'Stored' }} } from '~/generated/data-api';
+
+export interface {{ linkComponentName link }}ActionDefinitions {
+  {{# each link.actionDefinitions as |actionDefinition| }}
+    {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+  {{/ each }}
+}
+
+export interface {{ linkComponentName link }}Props {
+  data?: {{ classDataName link.dataElement.target 'Stored' }} | null;
+  actions: {{ linkComponentName link }}ActionDefinitions;
+  onChange: (value: {{ classDataName link.dataElement.target '' }} | {{ classDataName link.dataElement.target 'Stored' }} | null) => void;
+  validationError?: string;
+  disabled?: boolean;
+  editMode?: boolean;
+}
+
+// Name: {{ link.name }}
+export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
+  const { data, actions, onChange, validationError, disabled, editMode } = props;
+  const { t } = useTranslation();
+
+  return (
+    <AggregationInput
+      name="{{ link.dataElement.name }}"
+      id="{{ createId link }}"
+      label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
+      labelList={[
+        {{# each link.parts as |part| }}
+          data?.{{ part.attributeType.name }}?.toString() ?? '',
+        {{/ each }}
+      ]}
+      data={data}
+      error={!!validationError}
+      helperText={validationError}
+      {{# if link.icon }}
+        icon={<MdiIcon path="{{ link.icon.name }}" />}
+      {{/ if }}
+      disabled={disabled}
+      editMode={editMode}
+      autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
+      onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
+          // storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
+          onChange({{ link.dataElement.name }} as {{ classDataName link.dataElement.target 'Stored' }});
+      } }
+      {{# each link.actionButtonGroup.buttons as |button| }}
+        {{# if (actionIsSetOpenAction button.actionDefinition) }}
+          onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        {{/ if }}
+        {{# if button.actionDefinition.isUnsetAction }}
+          onUnset={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        {{/ if }}
+        {{# if button.actionDefinition.isOpenPageAction }}
+          {{# unless (actionIsSetOpenAction button.actionDefinition) }}
+            onView={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+          {{/ unless }}
+        {{/ if }}
+        {{# if button.actionDefinition.isCreateAction }}
+          onCreate={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        {{/ if }}
+        {{# if button.actionDefinition.isDeleteAction }}
+          onDelete={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        {{/ if }}
+        {{# if button.actionDefinition.isRemoveAction }}
+          onRemove={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        {{/ if }}
+      {{/ each }}
+    >
+    </AggregationInput>
+  );
+}

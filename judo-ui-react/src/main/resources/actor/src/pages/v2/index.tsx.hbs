@@ -1,0 +1,68 @@
+import { useState, useEffect } from 'react';
+import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type { Filter } from '~/components-api';
+import { {{ containerComponentName page.container }} } from '~/containers/{{ containerPath page.container }}';
+import type { {{ containerComponentName page.container }}ActionDefinitions } from '~/containers/{{ containerPath page.container }}';
+import type {
+  {{# each (getApiImportsForPage page) as |imp| }}
+    {{ imp }},
+  {{/ each }}
+} from '~/generated/data-api';
+
+// Name: {{ page.name }}
+export default function {{ pageName page }}() {
+  {{# unless (containerIsEmptyDashboard page.container) }}
+    {{# unless (isPageContainerTable page.container) }}
+      const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}>({} as {{ classDataName (getReferenceClassType page) 'Stored' }});
+      const [isLoading, setIsLoading] = useState<boolean>(false);
+      const [editMode, setEditMode] = useState<boolean>(false);
+      const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
+
+      const storeDiff = (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {};
+      const isFormUpdateable = () => false;
+      const isFormDeleteable = () => true;
+    {{/ unless }}
+  {{/ unless }}
+
+  {{# each page.actions as |action| }}
+    {{# if action.actionDefinition.isFilterAction }}
+      const {{ simpleActionDefinitionName action.actionDefinition }} = async (newModel?: GridFilterModel, newFilters?: Filter[]) => {};
+    {{ else }}
+      {{# if action.actionDefinition.isRefreshAction }}
+        const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}[]> => {
+          return Promise.resolve({} as any);
+        };
+      {{ else }}
+        const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {};
+      {{/ if }}
+    {{/ if }}
+  {{/ each }}
+
+  const actions: {{ containerComponentName page.container }}ActionDefinitions = {
+    {{# each page.actions as |action| }}
+      {{ simpleActionDefinitionName action.actionDefinition }},
+    {{/ each }}
+  };
+
+  return (
+    <>
+      <h1>Yo</h1>
+      <p>from: {{ page.name }}</p>
+      <{{ containerComponentName page.container }}
+        actions={actions}
+        {{# unless (containerIsEmptyDashboard page.container) }}
+          {{# unless (isPageContainerTable page.container) }}
+            data={data}
+            isLoading={isLoading}
+            editMode={editMode}
+            storeDiff={storeDiff}
+            isFormUpdateable={isFormUpdateable}
+            isFormDeleteable={isFormDeleteable}
+            validation={validation}
+            setValidation={setValidation}
+          {{/ unless }}
+        {{/ unless }}
+      />
+    </>
+  );
+}

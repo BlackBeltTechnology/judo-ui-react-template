@@ -1,0 +1,100 @@
+{{> fragment.header.hbs }}
+
+{{# if isDebugPrint }}// include: actor/src/fragments/container/common-imports.fragment.hbs{{/ if }}
+{{> actor/src/fragments/container/common-imports.fragment.hbs }}
+{{# unless (isPageContainerTable container) }}
+  {{# if isDebugPrint }}// include: actor/src/fragments/container/view-imports.fragment.hbs{{/ if }}
+  {{> actor/src/fragments/container/view-imports.fragment.hbs }}
+{{/ unless }}
+{{# unless (containerIsEmptyDashboard container) }}
+  import { {{# each (getContainerApiImports container) as |imp| }}
+    {{ imp }},
+  {{/ each }} } from '~/generated/data-api';
+{{/ unless }}
+{{# each container.tables as |table| }}
+  import type { {{ tableComponentName table }}ActionDefinitions } from './components/{{ tableComponentName table }}';
+  import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
+{{/ each }}
+{{# each container.links as |link| }}
+  import type { {{ linkComponentName link }}ActionDefinitions } from './components/{{ linkComponentName link }}';
+  import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
+{{/ each }}
+
+{{# unless (containerIsEmptyDashboard container) }}
+export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
+  {{# each container.pageActionDefinitions as |actionDefinition| }}
+    {{# if actionDefinition.isRefreshAction }}
+      {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}[]>;
+    {{ else }}
+      {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+    {{/ if }}
+  {{/ each }}
+  {{# each (getButtonGroupActionDefinitions container) as |actionDefinition| }}
+    {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+  {{/ each }}
+  {{# each container.tables as |table| }}
+    {{# each table.tableActionDefinitions as |actionDefinition| }}
+      {{# if actionDefinition.isFilterAction }}
+        {{ simpleActionDefinitionName actionDefinition }}?: (newModel?: GridFilterModel, newFilters?: Filter[]) => void;
+      {{ else }}
+        {{# if actionDefinition.isRefreshAction }}
+          {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+        {{ else }}
+          {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+        {{/ if }}
+      {{/ if }}
+    {{/ each }}
+    {{# each table.rowActionDefinitions as |actionDefinition| }}
+      {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => Promise<void>;
+    {{/ each }}
+  {{/ each }}
+  {{# each container.links as |link| }}
+    {{# each link.actionDefinitions as |actionDefinition| }}
+        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+      {{/ each }}
+  {{/ each }}
+}
+{{/ unless }}
+
+export interface {{ containerComponentName container }}Props {
+  {{# unless (containerIsEmptyDashboard container) }}
+    {{# unless (isPageContainerTable container) }}
+    data: {{ classDataName container.dataElement '' }};
+    isLoading: boolean;
+    {{/ unless }}
+    actions: {{ pageContainerActionDefinitionTypeName container }};
+    {{# unless (isPageContainerTable container) }}
+      isFormUpdateable: () => boolean;
+      isFormDeleteable: () => boolean;
+      storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
+      editMode: boolean;
+      validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
+      setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
+    {{/ unless }}
+  {{/ unless }}
+};
+
+// Name: {{ container.name }}
+export function {{ containerComponentName container }}(props: {{ containerComponentName container }}Props) {
+  {{# unless (containerIsEmptyDashboard container) }}
+  const { t } = useTranslation();
+  const { navigate, back } = useJudoNavigation();
+  const { {{# unless (isPageContainerTable container) }}data, isLoading, {{/ unless }}actions{{# unless (isPageContainerTable container) }}, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
+  const { locale: l10nLocale } = useL10N();
+  {{/ unless }}
+
+  return (
+    <>
+      {{# with container.children.[0] as |rootChild| }}
+        <Box sx={mainContainerPadding}>
+          <Grid container spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+            {{# each rootChild.children as |child| }}
+              {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+              {{> (getWidgetTemplate child) }}
+            {{/ each }}
+          </Grid>
+        </Box>
+      {{/ with }}
+    </>
+  );
+}

@@ -96,4 +96,14 @@ public class StoredVariableHelper extends StaticMethodValueResolver {
     public static synchronized String muiDataGridPropsType() {
         return muiDataGridComponent() + "Props";
     }
+
+    public static synchronized String getMUIPickersPlanSuffix() {
+        String muiPlan = (String) ThreadLocalContextHolder.getVariable("muiLicensePlan");
+
+        if (MUI_PLAN_PRO.equalsIgnoreCase(muiPlan) || MUI_PLAN_PREMIUM.equalsIgnoreCase(muiPlan)) {
+            return "-" + MUI_PLAN_PRO;
+        } else {
+            return ""; // community also means no suffix
+        }
+    }
 }

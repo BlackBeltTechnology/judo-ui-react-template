@@ -8,7 +8,7 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
                         field: '{{ column.attributeType.name }}',
                         headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
                         {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
-                        {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=table.dataElement name=table.name }}
+                        {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
                     },
                 {{/ each }}
             ];

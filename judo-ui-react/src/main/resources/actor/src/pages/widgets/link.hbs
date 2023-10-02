@@ -3,29 +3,22 @@
     {{# if child.customImplementation }}
         <ComponentProxy
             filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
-            data={data}
-            validation={validation}
+            data={ data?.{{ classDataName link.dataElement.name }} }
+            disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
             editMode={editMode}
-            storeDiff={storeDiff}
-            payloadDiff={payloadDiff}
+            validation={validation}
+            actions={ actionsFor{{ linkComponentName child }} }
         >
     {{/ if }}
     <{{ linkComponentName child }}
-        ownerData={data}
-        readOnly={ {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
+        data={data['{{ child.dataElement.name }}']}
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
         editMode={editMode}
-        {{# if (isPageRefreshable page) }}
-            fetchOwnerData={fetchData}
-        {{/ if }}
+        validationError={ validation.get('{{ child.dataElement.name }}') }
+        actions={actions}
         onChange={ (value: {{ classDataName child.dataElement.target '' }} | {{ classDataName child.dataElement.target 'Stored' }} | null) => {
-            storeDiff('{{ child.dataElement.name }}', value);
-            {{# if child.onBlur }}
-                const eagerCopy: {{ classDataName child.dataElement.owner '' }} = { ...data, ['{{ child.dataElement.name }}' as keyof {{ classDataName child.dataElement.owner '' }}]: value };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
-            {{/ if }}
+          alert(JSON.stringify(value));
         } }
-        validation={validation}
     />
     {{# if child.customImplementation }}
         </ComponentProxy>

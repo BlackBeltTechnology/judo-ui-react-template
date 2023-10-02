@@ -3,34 +3,25 @@
     {{# if child.customImplementation }}
         <ComponentProxy
             filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
-            data={data}
-            validation={validation}
-            editMode={editMode}
-            storeDiff={storeDiff}
-            payloadDiff={payloadDiff}
+            ownerData={data}
+            isOwnerLoading={isLoading}
+            actions={ actionsFor{{ tableComponentName child }} }
+            {{# unless (isPageContainerTable pageContainer) }}
+              editMode={editMode}
+              isFormUpdateable={isFormUpdateable}
+            {{/ unless }}
         >
     {{/ if }}
     <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
         <{{ tableComponentName child }}
-            isOwnerLoading={isLoading}
-            validation={validation}
-            {{# if page.isPageTypeTable }}
-                {{# unless child.dataElement.isAccess }}
-                    ownerData={data}
-                {{/ unless }}
-                setIsOwnerLoading={setIsOwnerLoading}
-            {{ else }}
-                {{# if (isPageRefreshable page) }}
-                    fetchOwnerData={fetchData}
-                {{/ if }}
-                {{# if child.dataElement.isRelationKindAssociation }}
-                    refreshCounter={refreshCounter}
-                {{/ if }}
-                ownerData={data}
-                editMode={editMode}
-                isFormUpdateable={isFormUpdateable}
-                storeDiff={storeDiff}
-            {{/ if }}
+            uniqueId={'TMP'}
+            actions={actions}
+            validationError={undefined}
+            {{# unless (isPageContainerTable pageContainer) }}
+              refreshCounter={0}
+              editMode={editMode}
+              isFormUpdateable={isFormUpdateable}
+            {{/ unless }}
         />
     </Grid>
     {{# if child.customImplementation }}

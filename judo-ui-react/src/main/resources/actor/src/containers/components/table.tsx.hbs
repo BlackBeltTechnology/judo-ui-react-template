@@ -1,0 +1,392 @@
+{{> fragment.header.hbs }}
+
+import { useState, useEffect, useMemo, useImperativeHandle, useRef, forwardRef } from 'react';
+import type { MouseEvent } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { JudoIdentifiable } from '@judo/data-api-common';
+import { Box, IconButton, Button, Typography } from '@mui/material';
+import { GridToolbarContainer, GridLogicOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type {
+  GridColDef,
+  GridFilterModel,
+  GridRowModel,
+  GridRowId,
+  GridRenderCellParams,
+  GridRowSelectionModel,
+  GridSortItem,
+  GridSortModel,
+  GridPaginationModel,
+  GridValueFormatterParams,
+  GridRowClassNameParams,
+  GridValidRowModel,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { baseColumnConfig, baseTableConfig } from '~/config';
+import { MdiIcon, CustomTablePagination } from '~/components';
+import { columnsActionCalculator, ContextMenu, StripedDataGrid } from '~/components/table';
+import type { ContextMenuApi } from '~/components/table/ContextMenu';
+import type { Filter, FilterOption } from '~/components-api';
+import { FilterType } from '~/components-api';
+import type { {{ classDataName (getReferenceClassType table) '' }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }} } from '~/generated/data-api';
+import { useL10N } from '~/l10n/l10n-context';
+import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '~/utilities';
+import type { PersistedTableData, RefreshableTable, TableRowAction } from '~/utilities';
+import { useDataStore } from '~/hooks';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+{{# if (stringValueIsTrue useTableRowHighlighting) }}
+  import { useTrackService } from '@pandino/react-hooks';
+  import { RowHighlightLegend } from '~/components/table';
+  import { TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY, transformRowStylings } from '~/theme/table-row-highlighting';
+  import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+{{/ if }}
+
+export interface {{ tableComponentName table }}ActionDefinitions {
+  {{# each table.tableActionDefinitions as |actionDefinition| }}
+    {{# if actionDefinition.isFilterAction }}
+      {{ simpleActionDefinitionName actionDefinition }}?: (newModel?: GridFilterModel, newFilters?: Filter[]) => void;
+    {{ else }}
+      {{# if actionDefinition.isRefreshAction }}
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+      {{ else }}
+        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+      {{/ if }}
+    {{/ if }}
+  {{/ each }}
+  {{# each table.rowActionDefinitions as |actionDefinition| }}
+    {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => Promise<void>;
+  {{/ each }}
+}
+
+export interface {{ tableComponentName table }}Props {
+  uniqueId: string;
+  actions: {{ tableComponentName table }}ActionDefinitions;
+  validationError?: string;
+  {{# unless (isPageContainerTable container) }}
+    refreshCounter: number;
+    editMode: boolean;
+    isFormUpdateable: () => boolean;
+  {{/ unless }}
+}
+
+// Name: {{ table.name }}
+export function {{ tableComponentName table }}(props: {{ tableComponentName table }}Props) {
+  const { uniqueId, actions, validationError{{# unless (isPageContainerTable container) }}, refreshCounter, editMode, isFormUpdateable{{/ unless }} } = props;
+  const filterModelKey = `{{ createId table }}-${uniqueId}-filterModel`;
+  const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
+
+  const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
+  const { locale: l10nLocale } = useL10N();
+  const { downloadFile, extractFileNameFromToken } = fileHandling();
+  const { t } = useTranslation();
+  const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+
+  {{# if (stringValueIsTrue useTableRowHighlighting) }}
+    const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component=${ {{~ tableComponentName table ~}} }))`);
+    const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
+    const rowStylings: RowStylerConfigured<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = useMemo(() => {
+        return rowHighlighting ? rowHighlighting() : [];
+    }, [rowHighlighting]);
+  {{/ if }}
+
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [data, setData] = useState<GridRowModel<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>([]);
+  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+  const [rowCount, setRowCount] = useState<number>(0);
+  const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
+  const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
+  const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
+  const [lastItem, setLastItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
+  const [firstItem, setFirstItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
+  const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
+  const [page, setPage] = useState<number>(0);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: {{ calculateTablePageLimit table }},
+    page: 0,
+  });
+  const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>({
+    _mask: '{{ table.formattedMask }}',
+    _seek: {
+      limit: {{ calculateTablePageLimit table }} + 1,
+    },
+    _orderBy: sortModel.length ? [
+      {
+        attribute: sortModel[0].field,
+        descending: sortModel[0].sort === 'desc',
+      },
+    ] : [],
+    ...mapAllFiltersToQueryCustomizerProperties(filters),
+  });
+
+  {{# if (stringValueIsTrue useTableContextMenus) }}
+    const contextMenuRef = useRef<ContextMenuApi>(null);
+
+    const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+      contextMenuRef.current?.handleContextMenu(event);
+    };
+  {{/ if }}
+
+  const columns: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
+    {{# each table.columns as |column| }}
+      {
+        ...baseColumnConfig,
+        field: '{{ column.attributeType.name }}',
+        headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
+        headerClassName: 'data-grid-column-header',
+        {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
+        {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
+      },
+    {{/ each }}
+  ];
+
+  const filterOptions: FilterOption[] = [
+    {{# each table.filters as |filter| }}
+      {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
+      {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
+    {{/ each }}
+  ];
+
+  const rowActions: any[] = [];
+
+  {{# if isUseInlineColumnFilters }}
+      function handleFilterModelChange (newModel: GridFilterModel) {
+          setFilterModel(newModel);
+          setItemStringified(filterModelKey, newModel);
+
+          if (newModel.items.every(i => i.value !== undefined)) {
+              const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
+
+              if (Array.isArray(newFilters)) {
+                  handleFiltersChange(newFilters);
+              }
+          }
+      }
+  {{/ if }}
+
+  const handleFiltersChange = (newFilters: Filter[]) => {
+      setPage(0);
+      setFilters(newFilters);
+      setItemStringified(filtersKey, newFilters);
+
+      setQueryCustomizer((prevQueryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => {
+          // remove previous filter values, so that we can always start with a clean slate
+          for (const name of columns.map(c => c.field)) {
+              delete (prevQueryCustomizer as any)[name];
+          }
+          return {
+              ...prevQueryCustomizer,
+              _seek: {
+                  limit: {{ calculateTablePageLimit table }} + 1,
+              },
+              ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+          };
+      });
+  };
+
+  function handleSortModelChange (newModel: GridSortModel) {
+      setPage(0);
+      setSortModel(newModel);
+
+      const _orderBy = newModel.filter(m => m.sort).map(m => ({
+          attribute: m.field,
+          descending: m.sort === 'desc',
+      }));
+
+      setQueryCustomizer((prevQueryCustomizer) => {
+          const strippedQueryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }} = {
+            ...prevQueryCustomizer
+          };
+          if (!!strippedQueryCustomizer._seek) {
+            delete strippedQueryCustomizer._seek.lastItem;
+          }
+          return {
+              ...strippedQueryCustomizer,
+              _orderBy,
+          };
+      });
+  }
+
+  async function handlePageChange (isNext: boolean) {
+      setQueryCustomizer((prevQueryCustomizer) => {
+          return {
+              ...prevQueryCustomizer,
+              _seek: {
+                  limit: isNext ? {{ calculateTablePageLimit table }} + 1 : {{ calculateTablePageLimit table }},
+                  reverse: !isNext,
+                  lastItem: isNext ? lastItem : firstItem,
+              },
+          };
+      });
+
+      setIsNextButtonEnabled(!isNext);
+  }
+
+  {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
+      async function fetchData() {
+          if (!isLoading) {
+              setIsLoading(true);
+
+              try {
+                  const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
+                      processQueryCustomizer(queryCustomizer),
+                  );
+
+                  if (res.length > {{ calculateTablePageLimit table }}) {
+                      setIsNextButtonEnabled(true);
+                      res.pop();
+                  } else if (queryCustomizer._seek?.limit === {{ calculateTablePageLimit table }} + 1) {
+                      setIsNextButtonEnabled(false);
+                  }
+
+                  setData(res);
+                  setFirstItem(res[0]);
+                  setLastItem(res[res.length - 1]);
+                  setRowCount(res.length || 0);
+              } catch (error) {
+                  handleFetchError(error);
+              } finally {
+                  setIsLoading(false);
+              }
+          }
+      }
+  {{/ with }}
+
+  useEffect(() => {
+      fetchData();
+  }, [queryCustomizer{{# unless (isPageContainerTable container) }}, refreshCounter{{/ unless }}]);
+
+  return (
+    <>
+      <StripedDataGrid
+        { ...baseTableConfig }
+        {{# if isMUILicensePlanPro }}
+          initialState={ { pinnedColumns: { right: ['actions'] } } }
+        {{/ if }}
+        pageSizeOptions={[{{ calculateTablePageLimit table }}]}
+        sx={ {
+          // overflow: 'hidden',
+          display: 'grid',
+          {{# unless (isPageContainerTable container) }}
+            border: (theme) => validationError ? `2px solid ${theme.palette.error.main}` : undefined,
+          {{/ unless }}
+          {{# if (stringValueIsTrue useTableRowHighlighting) }}
+            ...transformRowStylings(rowStylings),
+          {{/ if }}
+        } }
+        slotProps={ {
+        {{# if (stringValueIsTrue useTableContextMenus) }}
+          cell: {
+            onContextMenu: handleContextMenu,
+          },
+        {{/ if }}
+          filterPanel: {
+            logicOperators: [GridLogicOperator.And],
+          },
+        } }
+        getRowId={(row: { __identifier: string }) => row.__identifier}
+        loading={isLoading}
+        rows={data}
+        getRowClassName={ (params: GridRowClassNameParams) => {
+          {{# if (stringValueIsTrue useTableRowHighlighting) }}
+            const customStyle = rowStylings.find(r => r.condition(params));
+            if (customStyle) {
+              return customStyle.name;
+            }
+          {{/ if }}
+          return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+        } }
+        columns={[ ...columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { shownActions: 2 }) ]}
+        disableRowSelectionOnClick
+        {{# if (tableHasSelectorColumn table) }}
+            checkboxSelection
+            rowSelectionModel={selectionModel}
+            onRowSelectionModelChange={(newRowSelectionModel) => {
+              setSelectionModel(newRowSelectionModel);
+            }}
+        {{/ if }}
+        keepNonExistentRowsSelected
+        {{# each table.rowActions as |action| }}
+          {{# if action.isViewAction }}
+            onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}(params.row) : undefined }
+          {{/ if }}
+        {{/ each }}
+        sortModel={sortModel}
+        onSortModelChange={handleSortModelChange}
+        {{# if isUseInlineColumnFilters }}
+        filterModel={filterModel}
+        onFilterModelChange={handleFilterModelChange}
+        {{/ if }}
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        components={ {
+          Toolbar: () => (
+            <GridToolbarContainer>
+              {{# each table.tableActionButtonGroup.buttons as |button| }}
+                {actions.{{ simpleActionDefinitionName button.actionDefinition }} && <Button
+                  id="{{ createId button }}"
+                  startIcon={<MdiIcon path="{{ button.icon.name }}" />}
+                  variant="text"
+                  onClick={ () => {
+                    alert('TMP');
+                  } }
+                  disabled={
+                    isLoading
+                    {{# unless (isPageContainerTable container) }}
+                      || editMode
+                      || !isFormUpdateable()
+                    {{/ unless }}
+                  }
+                >
+                  {t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}
+                </Button>}
+              {{/ each }}
+              <div>{/* Placeholder */}</div>
+            </GridToolbarContainer>
+          ),
+          Pagination: () => (
+            <CustomTablePagination
+              {{# with (getPaginateActionDefinitionForTable table) as |actionDefinition| }}
+                pageChange={handlePageChange}
+              {{/ with }}
+              isNextButtonEnabled={isNextButtonEnabled}
+              page={page}
+              setPage={setPage}
+              rowPerPage={ {{ calculateTablePageLimit table }} }
+            />
+          ),
+        } }
+      />
+      {{> actor/src/fragments/table/error-feedback.fragment.hbs }}
+      {{# if (stringValueIsTrue useTableRowHighlighting) }}
+        <RowHighlightLegend rowStylings={rowStylings} />
+      {{/ if }}
+      {{# if (stringValueIsTrue useTableContextMenus) }}
+        <ContextMenu
+            ref={contextMenuRef}
+            data={data}
+            filters={filters}
+            filterOptions={filterOptions}
+            columns={columns}
+            onFilterByCell={ (filter: Filter) => {
+                {{# if isUseInlineColumnFilters }}
+                    handleFilterModelChange({
+                        ...filterModel,
+                        items: [...filterModel.items, mapFilterToFilterModel(filter)],
+                    });
+                {{ else }}
+                    handleFiltersChange([...filters, filter]);
+                {{/ if }}
+            } }
+            onExcludeByCell={ (filter: Filter) => {
+                {{# if isUseInlineColumnFilters }}
+                    handleFilterModelChange({
+                        ...filterModel,
+                        items: [...filterModel.items, mapFilterToFilterModel(filter)],
+                    });
+                {{ else }}
+                    handleFiltersChange([...filters, filter]);
+                {{/ if }}
+            } }
+        />
+      {{/ if }}
+    </>
+  );
+}

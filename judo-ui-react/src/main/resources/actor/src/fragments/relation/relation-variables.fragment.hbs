@@ -8,7 +8,7 @@ const {{ rel.dataElement.name }}Columns: GridColDef<{{ classDataName rel.dataEle
             headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
             headerClassName: 'data-grid-column-header',
             {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
-            {{> actor/src/fragments/relation/column.fragment.hbs column=column dataElement=rel.dataElement name=rel.name }}
+            {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=rel name=rel.name }}
         },
     {{/ each }}
 ];

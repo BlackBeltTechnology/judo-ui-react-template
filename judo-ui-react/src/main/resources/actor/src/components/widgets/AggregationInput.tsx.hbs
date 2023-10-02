@@ -32,7 +32,7 @@ interface AggregationInputProps {
   id: string;
   required?: boolean;
   label?: string;
-  ownerData: any;
+  data?: any;
   error?: boolean;
   helperText?: string;
   readOnly?: boolean;
@@ -57,7 +57,7 @@ export const AggregationInput = ({
   id,
   required,
   label,
-  ownerData,
+  data,
   error = false,
   helperText,
   readOnly = false,
@@ -79,15 +79,15 @@ export const AggregationInput = ({
   const [options, setOptions] = useState<JudoStored<any>[]>([]);
   const [loading, setLoading] = useState(false);
   const [allowFetch, setAllowFetch] = useState(false);
-  const [value, setValue] = useState<any>(ownerData[name] || null);
+  const [value, setValue] = useState<any>(data || null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
 
   const { t } = useTranslation();
 
   useEffect(() => {
-    setValue(ownerData[name] || null);
-  }, [ownerData[name]]);
+    setValue(data || null);
+  }, [data]);
 
   const handleSearch = async (searchText: string) => {
     try {
@@ -111,7 +111,7 @@ export const AggregationInput = ({
       }
     },
     debounceInputs,
-  ), [ownerData, allowFetch]);
+  ), [data, allowFetch]);
 
   const handleDropdownToggle = () => {
     setDropdownOpen((prevOpen) => !prevOpen);
@@ -143,7 +143,7 @@ export const AggregationInput = ({
           isOptionEqualToValue={ (option: any, value: any) => option[autoCompleteAttribute] === value[autoCompleteAttribute] }
           getOptionLabel={ (option) => option[autoCompleteAttribute as keyof JudoStored<any>] as string || '' }
           options={options}
-          value={ownerData[name] || null}
+          value={data || null}
           clearOnBlur={true}
           loading={loading}
           disableClearable={true}
