@@ -5,10 +5,7 @@
 {{> actor/src/fragments/page/common-form-imports.fragment.hbs }}
 {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
     import { routeTo{{ pageName (getViewPageForCreatePage page application) }} } from '~/routes';
-{{ else }}
-    import {{ pageName (getViewPageForCreatePage page application) }} from '~/pages/{{ pageIndexRelativeImportPath (getViewPageForCreatePage page application) }}';
 {{/ unless }}
-
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}
         {{ imp }},
@@ -33,6 +30,10 @@ import {
 
 {{# if isDebugPrint }}// include: actor/src/fragments/page/on-blur-declaration.fragment.hbs{{/ if }}
 {{> actor/src/fragments/page/on-blur-declaration.fragment.hbs page=page }}
+
+{{# if (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
+  const {{ pageName (getViewPageForCreatePage page application) }} = lazy(() => import('~/pages/{{ pageIndexRelativeImportPath (getViewPageForCreatePage page application) }}'));
+{{/ if }}
 
 export interface {{ pageActionFormComponentName action }}Props {
     successCallback: (result: {{ classDataName page.dataElement.target 'Stored' }}, open?: boolean) => void;
@@ -201,13 +202,15 @@ export default function {{ pageActionFormComponentName action }}({
                                                                 }
                                                             },
                                                             children: (
-                                                                <{{ pageName (getViewPageForCreatePage page application) }}
-                                                                    successCallback={ () => {
-                                                                        successCallback(result, true);
-                                                                    } }
-                                                                    cancel={closeDialog}
-                                                                    entry={result}
-                                                                />
+                                                                <Suspense>
+                                                                  <{{ pageName (getViewPageForCreatePage page application) }}
+                                                                      successCallback={ () => {
+                                                                          successCallback(result, true);
+                                                                      } }
+                                                                      cancel={closeDialog}
+                                                                      entry={result}
+                                                                  />
+                                                                </Suspense>
                                                             ),
                                                         });
                                                     {{/ unless }}
