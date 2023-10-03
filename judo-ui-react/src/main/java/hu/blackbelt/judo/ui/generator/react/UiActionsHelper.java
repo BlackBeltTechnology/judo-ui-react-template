@@ -329,14 +329,6 @@ public class UiActionsHelper {
         }
     }
 
-    public static ActionDefinition getPaginateActionDefinitionForTable(Table table) {
-        return table.getEvents().stream().filter(ActionDefinition::getIsPaginateAction).findFirst().get();
-    }
-
-    public static ActionDefinition getSortActionDefinitionForTable(Table table) {
-        return table.getEvents().stream().filter(ActionDefinition::getIsSortAction).findFirst().get();
-    }
-
     public static ActionDefinition getFilterActionDefinitionForTable(Table table) {
         return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsFilterAction()).findFirst().get();
     }

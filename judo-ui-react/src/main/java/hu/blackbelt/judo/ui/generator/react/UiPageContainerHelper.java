@@ -51,6 +51,10 @@ public class UiPageContainerHelper extends Helper {
         return name.endsWith("::Table") || name.endsWith("::AddSelector") || name.endsWith("::SetSelector");
     }
 
+    public static boolean isPageContainerForm(PageContainer container) {
+        return container.getName().endsWith("::Form");
+    }
+
     public static String pageContainerActionDefinitionsName(PageContainer pageContainer) {
         return containerComponentName(pageContainer) + "ActionDefinitions";
     }

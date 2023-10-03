@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.hasDataElementOwner;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.toLower;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
@@ -355,10 +356,10 @@ public class UiPageHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
-//    public static Boolean titleComesFromAttribute(PageDefinition page) {
-//        return page.getTitleFrom() != null && page.getTitleFrom() == TitleFrom.ATTRIBUTE;
-//    }
-//
+    public static Boolean titleComesFromAttribute(PageDefinition page) {
+        return page.getContainer().getTitleFrom() != null && page.getContainer().getTitleFrom() == TitleFrom.ATTRIBUTE;
+    }
+
 //    public static Boolean isSingleAccessPage(PageDefinition page) {
 //        if (page.getRelationType() != null) {
 //            return !page.getRelationType().isIsCollection() && page.getRelationType().isIsAccess();
@@ -441,6 +442,18 @@ public class UiPageHelper extends Helper {
 //        addReferenceTypesToCollection(pageDefinition, res);
 
         return res.stream().sorted().collect(Collectors.toList());
+    }
+
+    public static boolean isPageUpdateable(PageDefinition pageDefinition) {
+        return getReferenceClassType(pageDefinition).getIsUpdatable();
+    }
+
+    public static boolean isPageDeleteable(PageDefinition pageDefinition) {
+        return getReferenceClassType(pageDefinition).getIsDeletable();
+    }
+
+    public static boolean isPageTypeForm(PageDefinition pageDefinition) {
+        return pageDefinition.getContainer().getName().endsWith("::Form");
     }
 
 //    public static List<String> getApiImportsForCreatePage(PageDefinition pageDefinition) {
@@ -556,11 +569,11 @@ public class UiPageHelper extends Helper {
 //    public static boolean isPageContainerTransferType(PageContainer pageContainer, String type) {
 //        return pageContainer.getTransferPageType().getName().equals(type);
 //    }
-//
-//    public static boolean payloadDiffHasItems(ClassType classType) {
-//        return classType.getAttributes().size() + classType.getRelations().size() > 0;
-//    }
-//
+
+    public static boolean payloadDiffHasItems(ClassType classType) {
+        return classType.getAttributes().size() + classType.getRelations().size() > 0;
+    }
+
 //    public static List<PageDefinition> getViewDialogs(Application application) {
 //        return application.getPages().stream()
 //                .filter(p -> (p.getIsPageTypeView() || p.getIsPageTypeOperationOutput()) && p.isOpenInDialog())

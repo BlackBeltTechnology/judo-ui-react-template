@@ -75,7 +75,9 @@ export interface {{ containerComponentName container }}Props {
 };
 
 // Name: {{ container.name }}
-export function {{ containerComponentName container }}(props: {{ containerComponentName container }}Props) {
+export const {{ containerComponentName container }} = forwardRef<PageContainerRef, {{ containerComponentName container }}Props>((props, ref) => {
+  const [refreshCounter, setRefreshCounter] = useState<number>(0);
+
   {{# unless (containerIsEmptyDashboard container) }}
   const { t } = useTranslation();
   const { navigate, back } = useJudoNavigation();
@@ -83,8 +85,14 @@ export function {{ containerComponentName container }}(props: {{ containerCompon
   const { locale: l10nLocale } = useL10N();
   {{/ unless }}
 
+  useImperativeHandle(ref, () => ({
+    refresh: () => {
+      setRefreshCounter((prev) => prev + 1);
+    },
+  }));
+
   return (
-    <>
+    {{# unless (containerIsEmptyDashboard container) }}
       {{# with container.children.[0] as |rootChild| }}
         <Box sx={mainContainerPadding}>
           <Grid container spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
@@ -95,6 +103,8 @@ export function {{ containerComponentName container }}(props: {{ containerCompon
           </Grid>
         </Box>
       {{/ with }}
-    </>
+    {{ else }}
+      <></>
+    {{/ unless }}
   );
-}
+});

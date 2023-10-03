@@ -1,68 +1,116 @@
-import { useState, useEffect } from 'react';
-import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
-import type { Filter } from '~/components-api';
-import { {{ containerComponentName page.container }} } from '~/containers/{{ containerPath page.container }}';
-import type { {{ containerComponentName page.container }}ActionDefinitions } from '~/containers/{{ containerPath page.container }}';
-import type {
-  {{# each (getApiImportsForPage page) as |imp| }}
-    {{ imp }},
-  {{/ each }}
-} from '~/generated/data-api';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import type { RefObject } from 'react';
+{{# unless (containerIsEmptyDashboard page.container) }}
+  import { useTranslation } from 'react-i18next';
+  import { PageHeader } from '~/components';
+  import { uiDateToServiceDate, uiTimeToServiceTime } from '~/utilities';
+  import { PageContainerTransition } from '~/theme/animations';
+  import { {{ containerComponentName page.container }} } from '~/containers/{{ containerPath page.container }}';
+  import type { {{ containerComponentName page.container }}ActionDefinitions } from '~/containers/{{ containerPath page.container }}';
+  import type {
+    {{# each (getApiImportsForPage page) as |imp| }}
+      {{ imp }},
+    {{/ each }}
+  } from '~/generated/data-api';
+{{/ unless }}
+
+{{# unless (containerIsEmptyDashboard page.container) }}
+  {{# unless (isPageContainerTable page.container) }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
+  {{/ unless }}
+{{/ unless }}
 
 // Name: {{ page.name }}
 export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
+    const { t } = useTranslation();
     {{# unless (isPageContainerTable page.container) }}
+      // State section
       const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}>({} as {{ classDataName (getReferenceClassType page) 'Stored' }});
       const [isLoading, setIsLoading] = useState<boolean>(false);
       const [editMode, setEditMode] = useState<boolean>(false);
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
-      const storeDiff = (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {};
-      const isFormUpdateable = () => false;
-      const isFormDeleteable = () => true;
+      // Ref section
+      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
+
+      // Callback section
+      const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {
+        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target page=page }}
+      }, [data, editMode]);
+      const isFormUpdateable = useCallback(() => {
+        {{# if (isPageContainerForm page.container) }}
+          return true;
+        {{ else }}
+          return {{ boolValue (isPageUpdateable page) }} && typeof data?.__updateable === 'boolean' && data?.__updateable;
+        {{/ if }}
+      }, [data]);
+      const isFormDeleteable = useCallback(() => {
+        {{# if (isPageContainerForm page.container) }}
+          return false;
+        {{ else }}
+          return {{ boolValue (isPageDeleteable page) }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
+        {{/ if }}
+      }, [data]);
     {{/ unless }}
-  {{/ unless }}
 
-  {{# each page.actions as |action| }}
-    {{# if action.actionDefinition.isFilterAction }}
-      const {{ simpleActionDefinitionName action.actionDefinition }} = async (newModel?: GridFilterModel, newFilters?: Filter[]) => {};
+    // Calculated section
+    {{# if (titleComesFromAttribute page) }}
+      const title: string = data.{{ page.container.titleAttribute.name }} as string;
     {{ else }}
-      {{# if action.actionDefinition.isRefreshAction }}
-        const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}[]> => {
-          return Promise.resolve({} as any);
-        };
-      {{ else }}
-        const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {};
-      {{/ if }}
+      const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
     {{/ if }}
-  {{/ each }}
 
-  const actions: {{ containerComponentName page.container }}ActionDefinitions = {
+    // Action section
     {{# each page.actions as |action| }}
-      {{ simpleActionDefinitionName action.actionDefinition }},
+      {{# if action.actionDefinition.isFilterAction }}
+        const {{ simpleActionDefinitionName action.actionDefinition }} = async (newModel?: GridFilterModel, newFilters?: Filter[]) => {};
+      {{ else }}
+        {{# if action.actionDefinition.isRefreshAction }}
+          const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}[]> => {
+            return Promise.resolve({} as any);
+          };
+        {{ else }}
+          const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {};
+        {{/ if }}
+      {{/ if }}
     {{/ each }}
-  };
+
+    const actions: {{ containerComponentName page.container }}ActionDefinitions = {
+      {{# each page.actions as |action| }}
+        {{ simpleActionDefinitionName action.actionDefinition }},
+      {{/ each }}
+    };
+  {{/ unless }}
 
   return (
     <>
-      <h1>Yo</h1>
-      <p>from: {{ page.name }}</p>
-      <{{ containerComponentName page.container }}
-        actions={actions}
-        {{# unless (containerIsEmptyDashboard page.container) }}
-          {{# unless (isPageContainerTable page.container) }}
-            data={data}
-            isLoading={isLoading}
-            editMode={editMode}
-            storeDiff={storeDiff}
-            isFormUpdateable={isFormUpdateable}
-            isFormDeleteable={isFormDeleteable}
-            validation={validation}
-            setValidation={setValidation}
-          {{/ unless }}
-        {{/ unless }}
-      />
+      {{# unless (containerIsEmptyDashboard page.container) }}
+        <PageHeader title={title}>
+            <div></div>
+        </PageHeader>
+        <PageContainerTransition>
+          <{{ containerComponentName page.container }}
+            actions={actions}
+            {{# unless (containerIsEmptyDashboard page.container) }}
+              {{# unless (isPageContainerTable page.container) }}
+                data={data}
+                isLoading={isLoading}
+                editMode={editMode}
+                storeDiff={storeDiff}
+                isFormUpdateable={isFormUpdateable}
+                isFormDeleteable={isFormDeleteable}
+                validation={validation}
+                setValidation={setValidation}
+              {{/ unless }}
+            {{/ unless }}
+          />
+        </PageContainerTransition>
+      {{ else }}
+        <h1>Hello!</h1>
+      {{/ unless }}
     </>
   );
 }

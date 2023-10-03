@@ -36,6 +36,7 @@ import java.util.stream.Collectors;
 import static hu.blackbelt.judo.ui.generator.react.StoredVariableHelper.DEFAULT_I18N_LANGUAGE;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.modelName;
+import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerIsEmptyDashboard;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiServiceHelper.classServiceTypeName;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
@@ -453,21 +454,11 @@ public class UiI18NHelper extends Helper {
 //                + "." + nameSplit[nameSplit.length - 1]
 //        );
 //    }
-//
-//    public static String getTranslationKeyForPage(PageDefinition page) {
-//        if (page.getIsPageTypeDashboard()) {
-//            return transformTranslationKey(page.getName());
-//        }
-//        String prefix = String.join(".", page.getOriginalPageContainer().getTransferPackageNameTokens());
-//        String transferPageName = page.getOriginalPageContainer().getTransferPageName();
-//
-//        if (transferPageName == null || transferPageName.trim().equals("")) {
-//            throw new RuntimeException("TransferPageName was missing or empty, please check the UI model!");
-//        }
-//
-//        return prefix.length() > 0 ? prefix + "." + transferPageName : transferPageName;
-//    }
-//
+
+    public static String getTranslationKeyForPage(PageDefinition page) {
+        return stream(page.getName().split("::")).map(org.springframework.util.StringUtils::capitalize).collect(Collectors.joining("."));
+    }
+
 //    public static String transformTranslationKey(String source) {
 //        return stream(source.replaceAll("[#./_]", "::")
 //                .split("::"))
