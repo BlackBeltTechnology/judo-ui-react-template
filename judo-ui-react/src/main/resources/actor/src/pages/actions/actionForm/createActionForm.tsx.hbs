@@ -5,8 +5,6 @@
 {{> actor/src/fragments/page/common-form-imports.fragment.hbs }}
 {{# unless (pageShouldOpenInDialog (getViewPageForCreatePage page application)) }}
     import { routeTo{{ pageName (getViewPageForCreatePage page application) }} } from '~/routes';
-{{ else }}
-    import { lazy, Suspense } from 'react';
 {{/ unless }}
 import {
     {{# each (getApiImportsForCreateAction action) as |imp| }}

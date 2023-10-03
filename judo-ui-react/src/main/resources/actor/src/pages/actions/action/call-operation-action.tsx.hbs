@@ -7,6 +7,7 @@
 // InputParameterPage: {{# if action.inputParameterPage }}yes{{ else }}no{{/ if }}
 // OutputParameterPage: {{# if action.outputParameterPage }}yes{{ else }}no{{/ if }}
 
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ButtonGroup } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -26,11 +27,7 @@ import { useSnackbar } from 'notistack';
     {{# unless (actionHasUnmappedOutputForm action) }}
         {{# unless (pageShouldOpenInDialog action.outputParameterPage) }}
             import { routeTo{{ pageName action.outputParameterPage }} } from '~/routes';
-        {{ else }}
-            import { lazy, Suspense } from 'react';
         {{/ unless }}
-    {{ else }}
-      import { lazy, Suspense } from 'react';
     {{/ unless }}
 {{/ if }}
 import { useJudoNavigation, MdiIcon } from '~/components';
@@ -49,9 +46,6 @@ import { baseColumnConfig, toastConfig } from '~/config';
 import { FilterOption, FilterType } from '~/components-api';
 import { useL10N } from '~/l10n/l10n-context';
 import { isErrorOperationFault, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
-{{# if (actionHasInputForm action) }}
-    import { lazy, Suspense } from 'react';
-{{/ if }}
 import {
     {{# each (getApiImportsForCallOperationAction action) as |imp| }}
         {{ imp }},

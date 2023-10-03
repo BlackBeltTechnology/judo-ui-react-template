@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 // Action: ViewAction
 
+import { lazy, Suspense } from 'react';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import type { JudoIdentifiable } from '@judo/data-api-common';
@@ -14,8 +15,6 @@ import { useDialog } from '~/components/dialog';
 {{# if action.target.dataElement.isRefreshable }}
     {{# unless (pageShouldOpenInDialog action.target) }}
         import { routeTo{{ pageName action.target }} } from '~/routes';
-    {{ else }}
-        import { lazy, Suspense } from 'react';
     {{/ unless }}
 {{/ if }}
 

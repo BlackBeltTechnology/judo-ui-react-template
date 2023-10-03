@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 // Action: CreateAction
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Button,
@@ -34,8 +34,6 @@ import {
 {{# unless (actionHasVisualElements action) }}
     import { routeTo{{ pageName (getViewPageForCreatePage action.target application) }} } from '~/routes';
     import {{ pageActionFormComponentName action }} from './{{ pageActionFormComponentName action }}';
-{{ else }}
-  import { lazy, Suspense } from 'react';
 {{/ unless }}
 
 {{# if (actionHasVisualElements action) }}
