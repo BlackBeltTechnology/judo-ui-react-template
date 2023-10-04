@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 // Action: ViewAction
 
+import { lazy, Suspense } from 'react';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import type { JudoIdentifiable } from '@judo/data-api-common';
@@ -14,13 +15,19 @@ import { useDialog } from '~/components/dialog';
 {{# if action.target.dataElement.isRefreshable }}
     {{# unless (pageShouldOpenInDialog action.target) }}
         import { routeTo{{ pageName action.target }} } from '~/routes';
-    {{ else }}
-        import {{ pageName action.target }} from '~/pages/{{ pageIndexRelativeImportPath action.target }}';
     {{/ unless }}
 {{/ if }}
 
 export const {{ getCustomizationActionFunctionInterfaceKey action }} = '{{ actionFunctionTypeName action }}';
 export type {{ actionFunctionTypeName action }} = () => ({{# if (hasDataElementOwner action.dataElement) }}owner: {{{ getTypeForRelationOwner action.dataElement }}}, {{/ if }}entry: {{ classDataName action.target.dataElement.target 'Stored' }}, successCallback: () => void) => Promise<void>;
+
+{{# if action.target.dataElement.isRefreshable }}
+    {{# if (pageShouldOpenInDialog action.target) }}
+      const {{ pageName action.target }} = lazy(() => import('~/pages/{{ pageIndexRelativeImportPath action.target }}'));
+    {{/ if }}
+{{/ if }}
+
+
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const [createDialog, closeDialog, closeAllDialogs] = useDialog();
@@ -49,13 +56,15 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                         }
                     },
                     children: (
-                        <{{ pageName action.target }}
-                            successCallback={ () => {
-                                successCallback();
-                            } }
-                            cancel={closeDialog}
-                            entry={entry}
-                        />
+                        <Suspense>
+                          <{{ pageName action.target }}
+                              successCallback={ () => {
+                                  successCallback();
+                              } }
+                              cancel={closeDialog}
+                              entry={entry}
+                          />
+                        </Suspense>
                     ),
                 });
             {{/ unless }}

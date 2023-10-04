@@ -7,6 +7,7 @@
 // InputParameterPage: {{# if action.inputParameterPage }}yes{{ else }}no{{/ if }}
 // OutputParameterPage: {{# if action.outputParameterPage }}yes{{ else }}no{{/ if }}
 
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button, ButtonGroup } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
@@ -26,8 +27,6 @@ import { useSnackbar } from 'notistack';
     {{# unless (actionHasUnmappedOutputForm action) }}
         {{# unless (pageShouldOpenInDialog action.outputParameterPage) }}
             import { routeTo{{ pageName action.outputParameterPage }} } from '~/routes';
-        {{ else }}
-            import {{ pageName action.outputParameterPage }} from '~/pages/{{ pageIndexRelativeImportPath action.outputParameterPage }}';
         {{/ unless }}
     {{/ unless }}
 {{/ if }}
@@ -47,12 +46,6 @@ import { baseColumnConfig, toastConfig } from '~/config';
 import { FilterOption, FilterType } from '~/components-api';
 import { useL10N } from '~/l10n/l10n-context';
 import { isErrorOperationFault, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY, fileHandling, processQueryCustomizer, serviceDateToUiDate, serviceTimeToUiTime, } from '~/utilities';
-{{# if (actionHasInputForm action) }}
-    import {{ pageActionFormComponentName action }} from './{{ pageActionFormComponentName action }}';
-{{/ if }}
-{{# if (actionHasUnmappedOutputForm action) }}
-    import {{ pageName action.outputParameterPage }} from '~/{{ pagePathForTilde action.outputParameterPage }}';
-{{/ if }}
 import {
     {{# each (getApiImportsForCallOperationAction action) as |imp| }}
         {{ imp }},
@@ -77,6 +70,20 @@ export const {{ getCustomizationActionFunctionHandlerInterfaceKey action 'PostHa
 export type {{ actionFunctionHandlerTypeName action 'PostHandlerHook' }} = () => {{ actionFunctionHandlerTypeName action 'PostHandler' }};
 
 export type {{ actionFunctionTypeName action }} = () => ({{# if action.operation.isMapped }}owner: {{ classDataName action.dataElement.owner 'Stored' }}, {{/ if }}successCallback: () => void, errorCallback?: (error: any) => void, silentMode?: boolean) => Promise<void>;
+
+{{# if action.outputParameterPage }}
+    {{# unless (actionHasUnmappedOutputForm action) }}
+        {{# if (pageShouldOpenInDialog action.outputParameterPage) }}
+          const {{ pageName action.outputParameterPage }} = lazy(() => import('~/pages/{{ pageIndexRelativeImportPath action.outputParameterPage }}'));
+        {{/ if }}
+    {{ else }}
+      const {{ pageName action.outputParameterPage }} = lazy(() => import('~/pages/{{ pageIndexRelativeImportPath action.outputParameterPage }}'));
+    {{/ unless }}
+{{/ if }}
+
+{{# if (actionHasInputForm action) }}
+    const {{ pageActionFormComponentName action }} = lazy(() => import('./{{ pageActionFormComponentName action }}'));
+{{/ if }}
 
 export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName action }} = () => {
     const { t } = useTranslation();

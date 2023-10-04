@@ -4,8 +4,5 @@
     export {};
 {{/ unless }}
 {{# each (getUniquePageActions page) as |action| }}
-    {{# if (actionHasInputForm action) }}
-        export * from './{{ pageActionFormPathSuffix action }}';
-    {{/ if }}
     export * from './{{ pageActionPathSuffix action }}';
 {{/ each }}
