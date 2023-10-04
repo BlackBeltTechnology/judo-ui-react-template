@@ -13,7 +13,7 @@ import type { RefObject } from 'react';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  {{# unless (isPageContainerTable page.container) }}
+  {{# unless page.container.isCollection }}
     {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
   {{/ unless }}
@@ -29,7 +29,7 @@ export default function {{ pageName page }}() {
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
-    {{# unless (isPageContainerTable page.container) }}
+    {{# unless page.container.isCollection }}
       const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}>({} as {{ classDataName (getReferenceClassType page) 'Stored' }});
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
@@ -70,7 +70,7 @@ export default function {{ pageName page }}() {
         const {{ simpleActionDefinitionName action.actionDefinition }} = async (newModel?: GridFilterModel, newFilters?: Filter[]) => {};
       {{ else }}
         {{# if action.actionDefinition.isRefreshAction }}
-          const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if (isPageContainerTable page.container) }}[]{{/ if }}> => {
+          const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.isCollection }}[]{{/ if }}> => {
             return Promise.resolve({} as any);
           };
         {{ else }}
@@ -97,7 +97,7 @@ export default function {{ pageName page }}() {
               isLoading={isLoading}
               editMode={editMode}
               {{# unless (containerIsEmptyDashboard page.container) }}
-                {{# unless (isPageContainerTable page.container) }}
+                {{# unless page.container.isCollection }}
                   data={data}
                   storeDiff={storeDiff}
                   isFormUpdateable={isFormUpdateable}

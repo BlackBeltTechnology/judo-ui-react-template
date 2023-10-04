@@ -6,7 +6,7 @@
             ownerData={data}
             isOwnerLoading={isLoading}
             actions={ actionsFor{{ tableComponentName child }} }
-            {{# unless (isPageContainerTable pageContainer) }}
+            {{# unless container.isCollection }}
               editMode={editMode}
               isFormUpdateable={isFormUpdateable}
             {{/ unless }}
@@ -16,9 +16,13 @@
         <{{ tableComponentName child }}
             uniqueId={'TMP'}
             actions={actions}
-            validationError={undefined}
+            {{# unless container.isCollection }}
+                {{# unless child.isSelectorTable }}
+                    validationError={validation.get('{{ child.dataElement.name }}')}
+                {{/ unless }}
+            {{/ unless }}
             refreshCounter={refreshCounter}
-            {{# unless (isPageContainerTable pageContainer) }}
+            {{# unless container.isCollection }}
               editMode={editMode}
               isFormUpdateable={isFormUpdateable}
             {{/ unless }}

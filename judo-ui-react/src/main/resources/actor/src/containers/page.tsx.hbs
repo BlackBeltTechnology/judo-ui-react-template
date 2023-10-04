@@ -24,7 +24,7 @@ import { useL10N } from '~/l10n/l10n-context';
   export interface {{ containerComponentName container }}PageActions extends {{ pageContainerActionDefinitionTypeName container }} {
     {{# each container.pageActionDefinitions as |actionDefinition| }}
       {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if (isPageContainerTable container) }}[]{{/ if }}>;
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.isCollection }}[]{{/ if }}>;
       {{ else }}
         {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
       {{/ if }}
@@ -38,7 +38,7 @@ export interface {{ containerComponentName container }}PageProps {
     actions: {{ containerComponentName container }}PageActions;
     isLoading: boolean;
     editMode: boolean;
-    {{# unless (isPageContainerTable container) }}
+    {{# unless container.isCollection }}
       data: {{ classDataName container.dataElement '' }};
       isFormUpdateable: () => boolean;
       isFormDeleteable: () => boolean;
@@ -57,10 +57,10 @@ export default (props: {{ containerComponentName container }}PageProps) => {
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { title, actions, isLoading, editMode{{# unless (isPageContainerTable container) }}, data{{/ unless }}{{# unless (isPageContainerTable container) }}, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
+    const { title, actions, isLoading, editMode{{# unless container.isCollection }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
 
-    {{# unless (isPageContainerTable container) }}
+    {{# unless container.isCollection }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
         _mask: '',
       };
@@ -68,7 +68,7 @@ export default (props: {{ containerComponentName container }}PageProps) => {
   {{/ unless }}
 
   const imperativeRefresh = () => {
-    {{# unless (isPageContainerTable container) }}
+    {{# unless container.isCollection }}
       {{# with (getRefreshActionDefinitionForContainer container) as |actionDefinition| }}
         if (actions.{{ simpleActionDefinitionName actionDefinition }}) {
           actions.{{ simpleActionDefinitionName actionDefinition }}!(queryCustomizer);
@@ -83,8 +83,8 @@ export default (props: {{ containerComponentName container }}PageProps) => {
     <>
       {{# unless (containerIsEmptyDashboard container) }}
         <PageHeader title={title}>
-          {{# unless (isPageContainerTable container) }}
-            {editMode{{# unless (isPageContainerTable container) }} && isFormUpdateable(){{/ unless }} && (
+          {{# unless container.isCollection }}
+            {editMode{{# unless container.isCollection }} && isFormUpdateable(){{/ unless }} && (
               <Grid className="page-action" item>
                 <Button id="page-action-edit-cancel" variant="outlined" startIcon={<MdiIcon path="cancel" />} onClick={imperativeRefresh} disabled={isLoading}>
                   {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
@@ -134,7 +134,7 @@ export default (props: {{ containerComponentName container }}PageProps) => {
             actions={actions}
             refreshCounter={refreshCounter}
             {{# unless (containerIsEmptyDashboard container) }}
-              {{# unless (isPageContainerTable container) }}
+              {{# unless container.isCollection }}
                 data={data}
                 isLoading={isLoading}
                 editMode={editMode}

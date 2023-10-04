@@ -2,7 +2,7 @@
 
 {{# if isDebugPrint }}// include: actor/src/fragments/container/common-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/container/common-imports.fragment.hbs }}
-{{# unless (isPageContainerTable container) }}
+{{# unless container.isCollection }}
   {{# if isDebugPrint }}// include: actor/src/fragments/container/view-imports.fragment.hbs{{/ if }}
   {{> actor/src/fragments/container/view-imports.fragment.hbs }}
 {{/ unless }}
@@ -32,7 +32,7 @@ export interface {{ containerComponentName container }}Props {
   {{# unless (containerIsEmptyDashboard container) }}
     refreshCounter: number;
     actions: {{ pageContainerActionDefinitionTypeName container }};
-    {{# unless (isPageContainerTable container) }}
+    {{# unless container.isCollection }}
       data: {{ classDataName container.dataElement '' }};
       isLoading: boolean;
       isFormUpdateable: () => boolean;
@@ -50,7 +50,7 @@ export default (props: {{ containerComponentName container }}Props) => {
   {{# unless (containerIsEmptyDashboard container) }}
   const { t } = useTranslation();
   const { navigate, back } = useJudoNavigation();
-  const { refreshCounter, actions{{# unless (isPageContainerTable container) }}, data, isLoading{{/ unless }}{{# unless (isPageContainerTable container) }}, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
+  const { refreshCounter, actions{{# unless container.isCollection }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
   const { locale: l10nLocale } = useL10N();
   {{/ unless }}
 
@@ -58,11 +58,25 @@ export default (props: {{ containerComponentName container }}Props) => {
     {{# unless (containerIsEmptyDashboard container) }}
       {{# with container.children.[0] as |rootChild| }}
         <Box sx={mainContainerPadding}>
-          <Grid container spacing={2} direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems rootChild }}" justifyContent="{{ justifyContent rootChild }}">
+          <Grid
+            container
+            spacing={2}
+            direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}"
+            alignItems="{{# if container.isCollection }}stretch{{ else }}{{ alignItems rootChild }}{{/ if }}"
+            justifyContent="{{ justifyContent rootChild }}"
+          >
+            {{# if container.isCollection }}
+              <Card>
+                <CardContent>
+            {{/ if }}
             {{# each rootChild.children as |child| }}
               {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
               {{> (getWidgetTemplate child) }}
             {{/ each }}
+            {{# if container.isCollection }}
+                </CardContent>
+              </Card>
+            {{/ if }}
           </Grid>
         </Box>
       {{/ with }}

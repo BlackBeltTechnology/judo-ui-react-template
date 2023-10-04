@@ -46,11 +46,6 @@ public class UiPageContainerHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
-    public static boolean isPageContainerTable(PageContainer container) {
-        String name = container.getName();
-        return name.endsWith("::Table") || name.endsWith("::AddSelector") || name.endsWith("::SetSelector");
-    }
-
     public static boolean isPageContainerForm(PageContainer container) {
         return container.getName().endsWith("::Form");
     }
