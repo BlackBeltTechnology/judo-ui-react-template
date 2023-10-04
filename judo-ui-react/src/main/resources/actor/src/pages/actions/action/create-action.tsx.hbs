@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 // Action: CreateAction
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
     Button,
@@ -33,8 +33,12 @@ import {
 } from '~/generated/data-axios';
 {{# unless (actionHasVisualElements action) }}
     import { routeTo{{ pageName (getViewPageForCreatePage action.target application) }} } from '~/routes';
+    import {{ pageActionFormComponentName action }} from './{{ pageActionFormComponentName action }}';
 {{/ unless }}
-import {{ pageActionFormComponentName action }} from './{{ pageActionFormComponentName action }}';
+
+{{# if (actionHasVisualElements action) }}
+  const {{ pageActionFormComponentName action }} = lazy(() => import('./{{ pageActionFormComponentName action }}'));
+{{/ if }}
 
 export type {{ actionFunctionTypeName action }} = () => (
   {{# unless (isActionAccess action) }}owner: JudoIdentifiable<{{ classDataName action.dataElement.target '' }}>,{{/ unless }}
@@ -65,26 +69,28 @@ export const {{ actionFunctionHookName action }}: {{ actionFunctionTypeName acti
                     }
                 },
                 children: (
-                    <{{ pageActionFormComponentName action }}
-                        successCallback={(result: {{ classDataName action.dataElement.target 'Stored' }}, open?: boolean) => {
-                            if(!open) {
-                              closeDialog();
-                              enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
-                                  variant: 'success',
-                                  ...toastConfig.success,
-                              });
-                            }
+                    <Suspense>
+                      <{{ pageActionFormComponentName action }}
+                          successCallback={(result: {{ classDataName action.dataElement.target 'Stored' }}, open?: boolean) => {
+                              if(!open) {
+                                closeDialog();
+                                enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
+                                    variant: 'success',
+                                    ...toastConfig.success,
+                                });
+                              }
 
-                            successCallback(result);
-                        }}
-                        cancel={ () => {
-                            closeDialog();
-                            closedCallback && closedCallback();
-                        } }
-                        {{# unless (isActionAccess action) }}
-                            owner={owner}
-                        {{/ unless }}
-                    />
+                              successCallback(result);
+                          }}
+                          cancel={ () => {
+                              closeDialog();
+                              closedCallback && closedCallback();
+                          } }
+                          {{# unless (isActionAccess action) }}
+                              owner={owner}
+                          {{/ unless }}
+                      />
+                    </Suspense>
                 ),
             });
         {{ else }}

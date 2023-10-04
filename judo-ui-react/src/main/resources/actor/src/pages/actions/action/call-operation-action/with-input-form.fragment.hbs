@@ -10,78 +10,84 @@ return async function {{ actionFunctionName action }} ({{# if action.operation.i
             }
         },
         children: (
-            <{{ pageActionFormComponentName action }}
-                successCallback={ ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => {
-                    closeDialog();
-                    if (postHandler) {
-                        postHandler(successCallback{{# if action.outputParameterPage }}, result{{/ if }});
-                        return;
-                    }
-                    enqueueSnackbar(title, {
-                        variant: 'success',
-                        ...toastConfig.success,
-                    });
-                    {{# if action.outputParameterPage }}
-                        if (result) {
-                            {{# unless (actionHasUnmappedOutputForm action) }}
-                                {{# unless (pageShouldOpenInDialog action.outputParameterPage) }}
-                                    navigate(routeTo{{ pageName action.outputParameterPage }}(result.__signedIdentifier));
-                                {{ else }}
-                                    createDialog({
-                                        {{# if action.outputParameterPage.dialogSize }}
-                                            fullWidth: true,
-                                            maxWidth: '{{ toLower action.outputParameterPage.dialogSize.name }}',
-                                        {{/ if }}
-                                        onClose: (event: object, reason: string) => {
-                                            if (reason !== 'backdropClick') {
-                                                closeDialog();
-                                            }
-                                        },
-                                        children: (
-                                            <{{ pageName action.outputParameterPage }}
-                                                successCallback={ () => {
-                                                    closeDialog();
-                                                } }
-                                                cancel={() => closeDialog()}
-                                                entry={result}
-                                            />
-                                        ),
-                                    });
-                                {{/ unless }}
-                            {{ else }}
-                                createOutputDialog({
-                                    {{# if action.outputParameterPage.dialogSize }}
-                                        fullWidth: true,
-                                        maxWidth: '{{ toLower action.outputParameterPage.dialogSize.name }}',
-                                    {{/ if }}
-                                    onClose: (event: object, reason: string) => {
-                                        if (reason !== 'backdropClick') {
-                                            closeOutputDialog();
-                                        }
-                                    },
-                                    children: (
-                                        <{{ pageName action.outputParameterPage }} entry={result} cancel={ () => {
-                                          closeOutputDialog();
-                                          successCallback();
-                                        } } successCallback={ () => {
-                                          closeOutputDialog();
-                                          successCallback();
-                                        } } />
-                                    )
-                                });
-                            {{/ unless }}
-                        } else {
-                            successCallback();
-                        }
-                    {{ else }}
-                        successCallback();
-                    {{/ if }}
-                } }
-                cancel={closeDialog}
-                {{# if action.operation.isMapped }}
-                    owner={owner}
-                {{/ if }}
-            />
+            <Suspense>
+              <{{ pageActionFormComponentName action }}
+                  successCallback={ ({{# if action.outputParameterPage }}result?: {{ classDataName action.outputParameterPage.dataElement.target 'Stored' }}{{/ if }}) => {
+                      closeDialog();
+                      if (postHandler) {
+                          postHandler(successCallback{{# if action.outputParameterPage }}, result{{/ if }});
+                          return;
+                      }
+                      enqueueSnackbar(title, {
+                          variant: 'success',
+                          ...toastConfig.success,
+                      });
+                      {{# if action.outputParameterPage }}
+                          if (result) {
+                              {{# unless (actionHasUnmappedOutputForm action) }}
+                                  {{# unless (pageShouldOpenInDialog action.outputParameterPage) }}
+                                      navigate(routeTo{{ pageName action.outputParameterPage }}(result.__signedIdentifier));
+                                  {{ else }}
+                                      createDialog({
+                                          {{# if action.outputParameterPage.dialogSize }}
+                                              fullWidth: true,
+                                              maxWidth: '{{ toLower action.outputParameterPage.dialogSize.name }}',
+                                          {{/ if }}
+                                          onClose: (event: object, reason: string) => {
+                                              if (reason !== 'backdropClick') {
+                                                  closeDialog();
+                                              }
+                                          },
+                                          children: (
+                                              <Suspense>
+                                                <{{ pageName action.outputParameterPage }}
+                                                    successCallback={ () => {
+                                                        closeDialog();
+                                                    } }
+                                                    cancel={() => closeDialog()}
+                                                    entry={result}
+                                                />
+                                              </Suspense>
+                                          ),
+                                      });
+                                  {{/ unless }}
+                              {{ else }}
+                                  createOutputDialog({
+                                      {{# if action.outputParameterPage.dialogSize }}
+                                          fullWidth: true,
+                                          maxWidth: '{{ toLower action.outputParameterPage.dialogSize.name }}',
+                                      {{/ if }}
+                                      onClose: (event: object, reason: string) => {
+                                          if (reason !== 'backdropClick') {
+                                              closeOutputDialog();
+                                          }
+                                      },
+                                      children: (
+                                          <Suspense>
+                                            <{{ pageName action.outputParameterPage }} entry={result} cancel={ () => {
+                                              closeOutputDialog();
+                                              successCallback();
+                                            } } successCallback={ () => {
+                                              closeOutputDialog();
+                                              successCallback();
+                                            } } />
+                                          </Suspense>
+                                      )
+                                  });
+                              {{/ unless }}
+                          } else {
+                              successCallback();
+                          }
+                      {{ else }}
+                          successCallback();
+                      {{/ if }}
+                  } }
+                  cancel={closeDialog}
+                  {{# if action.operation.isMapped }}
+                      owner={owner}
+                  {{/ if }}
+              />
+            </Suspense>
         ),
     });
 }
