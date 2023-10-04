@@ -356,8 +356,8 @@ public class UiPageHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
-    public static Boolean titleComesFromAttribute(PageDefinition page) {
-        return page.getContainer().getTitleFrom() != null && page.getContainer().getTitleFrom() == TitleFrom.ATTRIBUTE;
+    public static Boolean titleComesFromAttribute(PageContainer pageContainer) {
+        return pageContainer.getTitleFrom() != null && pageContainer.getTitleFrom() == TitleFrom.ATTRIBUTE;
     }
 
 //    public static Boolean isSingleAccessPage(PageDefinition page) {

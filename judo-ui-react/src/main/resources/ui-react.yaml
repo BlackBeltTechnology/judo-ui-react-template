@@ -628,10 +628,26 @@ templates:
 
   # Actor - src - containers
 
-  - name: actor/src/containers/index.tsx
+  - name: actor/src/containers/container.tsx
     factoryExpression: "#application.pageContainers"
-    pathExpression: "'src/containers/' + #containerPath(#self) + '/index.tsx'"
-    templateName: actor/src/containers/index.tsx.hbs
+    pathExpression: "'src/containers/' + #containerPath(#self) + '/' + #containerComponentName(#self) + '.tsx'"
+    templateName: actor/src/containers/container.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
+  - name: actor/src/containers/page.tsx
+    factoryExpression: "#application.pageContainers"
+    pathExpression: "'src/containers/' + #containerPath(#self) + '/' + #containerComponentName(#self) + 'PageContainer.tsx'"
+    templateName: actor/src/containers/page.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
+  - name: actor/src/containers/dialog.tsx
+    factoryExpression: "#application.pageContainers"
+    pathExpression: "'src/containers/' + #containerPath(#self) + '/' + #containerComponentName(#self) + 'DialogContainer.tsx'"
+    templateName: actor/src/containers/dialog.tsx.hbs
     templateContext:
       - name: container
         expression: "#self"

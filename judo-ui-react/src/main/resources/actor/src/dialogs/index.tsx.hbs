@@ -1,5 +1,7 @@
-import { {{ containerComponentName page.container }} } from '~/containers/{{ containerPath page.container }}';
-import type { {{ containerComponentName page.container }}Props } from '~/containers/{{ containerPath page.container }}';
+import { lazy, Suspense } from 'react';
+import type { {{ containerComponentName page.container }}ActionDefinitions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}';
+
+const {{ containerComponentName page.container }}PageContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer'));
 
 // Name: {{ page.name }}
 export default function {{ pageName page }}() {
@@ -7,6 +9,9 @@ export default function {{ pageName page }}() {
     <>
       <h1>Yo</h1>
       <p>from: {{ page.name }}</p>
+      <Suspense>
+        <div>palceholder</div>
+      </Suspense>
     </>
   );
 }

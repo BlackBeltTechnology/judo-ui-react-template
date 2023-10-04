@@ -1,12 +1,10 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 import type { RefObject } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   import { useTranslation } from 'react-i18next';
-  import { PageHeader } from '~/components';
   import { uiDateToServiceDate, uiTimeToServiceTime } from '~/utilities';
   import { PageContainerTransition } from '~/theme/animations';
-  import { {{ containerComponentName page.container }} } from '~/containers/{{ containerPath page.container }}';
-  import type { {{ containerComponentName page.container }}ActionDefinitions } from '~/containers/{{ containerPath page.container }}';
+  import type { {{ containerComponentName page.container }}PageActions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer';
   import type {
     {{# each (getApiImportsForPage page) as |imp| }}
       {{ imp }},
@@ -19,17 +17,20 @@ import type { RefObject } from 'react';
     {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
   {{/ unless }}
+
+  const {{ containerComponentName page.container }}PageContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer'));
 {{/ unless }}
 
 // Name: {{ page.name }}
 export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
     const { t } = useTranslation();
+
+    // State section
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>(false);
     {{# unless (isPageContainerTable page.container) }}
-      // State section
       const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}>({} as {{ classDataName (getReferenceClassType page) 'Stored' }});
-      const [isLoading, setIsLoading] = useState<boolean>(false);
-      const [editMode, setEditMode] = useState<boolean>(false);
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
       // Ref section
@@ -57,7 +58,7 @@ export default function {{ pageName page }}() {
     {{/ unless }}
 
     // Calculated section
-    {{# if (titleComesFromAttribute page) }}
+    {{# if (titleComesFromAttribute page.container) }}
       const title: string = data.{{ page.container.titleAttribute.name }} as string;
     {{ else }}
       const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
@@ -69,7 +70,7 @@ export default function {{ pageName page }}() {
         const {{ simpleActionDefinitionName action.actionDefinition }} = async (newModel?: GridFilterModel, newFilters?: Filter[]) => {};
       {{ else }}
         {{# if action.actionDefinition.isRefreshAction }}
-          const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}[]> => {
+          const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if (isPageContainerTable page.container) }}[]{{/ if }}> => {
             return Promise.resolve({} as any);
           };
         {{ else }}
@@ -78,7 +79,7 @@ export default function {{ pageName page }}() {
       {{/ if }}
     {{/ each }}
 
-    const actions: {{ containerComponentName page.container }}ActionDefinitions = {
+    const actions: {{ containerComponentName page.container }}PageActions = {
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
       {{/ each }}
@@ -88,26 +89,26 @@ export default function {{ pageName page }}() {
   return (
     <>
       {{# unless (containerIsEmptyDashboard page.container) }}
-        <PageHeader title={title}>
-            <div></div>
-        </PageHeader>
-        <PageContainerTransition>
-          <{{ containerComponentName page.container }}
-            actions={actions}
-            {{# unless (containerIsEmptyDashboard page.container) }}
-              {{# unless (isPageContainerTable page.container) }}
-                data={data}
-                isLoading={isLoading}
-                editMode={editMode}
-                storeDiff={storeDiff}
-                isFormUpdateable={isFormUpdateable}
-                isFormDeleteable={isFormDeleteable}
-                validation={validation}
-                setValidation={setValidation}
+        <Suspense>
+          <PageContainerTransition>
+            <{{ containerComponentName page.container }}PageContainer
+              title={title}
+              actions={actions}
+              isLoading={isLoading}
+              editMode={editMode}
+              {{# unless (containerIsEmptyDashboard page.container) }}
+                {{# unless (isPageContainerTable page.container) }}
+                  data={data}
+                  storeDiff={storeDiff}
+                  isFormUpdateable={isFormUpdateable}
+                  isFormDeleteable={isFormDeleteable}
+                  validation={validation}
+                  setValidation={setValidation}
+                {{/ unless }}
               {{/ unless }}
-            {{/ unless }}
-          />
-        </PageContainerTransition>
+            />
+          </PageContainerTransition>
+        </Suspense>
       {{ else }}
         <h1>Hello!</h1>
       {{/ unless }}

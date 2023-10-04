@@ -105,4 +105,11 @@ public class UiPageContainerHelper extends Helper {
     public static boolean containerIsEmptyDashboard(PageContainer container) {
         return getXMIID(container).endsWith("EmptyDashboardPageContainer");
     }
+
+    public static String containerButtonAvailable(Button button) {
+        if (button.getActionDefinition().getIsUpdateAction()) {
+            return "editMode";
+        }
+        return "!editMode";
+    }
 }

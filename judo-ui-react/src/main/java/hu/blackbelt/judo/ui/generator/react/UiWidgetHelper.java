@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
 import static java.util.Arrays.stream;
 
 @Log
@@ -283,15 +284,17 @@ public class UiWidgetHelper extends Helper {
 //    }
 
     public static String linkComponentName(Link link) {
+        String containerName = containerComponentName(link.getPageContainer());
         String[] splitted = link.getName().split(NAME_SPLITTER);
-        return stream(splitted)
+        return containerName + stream(splitted)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining()) + "Component";
     }
 
     public static String tableComponentName(Table table) {
+        String containerName = containerComponentName(table.getPageContainer());
         String[] splitted = table.getName().split(NAME_SPLITTER);
-        return stream(splitted)
+        return containerName + stream(splitted)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining()) + "Component";
     }

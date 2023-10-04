@@ -336,4 +336,12 @@ public class UiActionsHelper {
     public static ActionDefinition getRefreshActionDefinitionForTable(Table table) {
         return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().get();
     }
+
+    public static ActionDefinition getRefreshActionDefinitionForContainer(PageContainer container) {
+        return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
+    }
+
+    public static ActionDefinition getUpdateActionDefinitionForContainer(PageContainer container) {
+        return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsUpdateAction()).findFirst().orElse(null);
+    }
 }
