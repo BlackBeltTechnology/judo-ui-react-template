@@ -1,3 +1,5 @@
+{{> fragment.header.hbs }}
+
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 import type { RefObject } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
@@ -29,6 +31,7 @@ export default function {{ pageName page }}() {
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
+    const [refreshCounter, setRefreshCounter] = useState<number>(0);
     {{# unless page.container.isCollection }}
       const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}>({} as {{ classDataName (getReferenceClassType page) 'Stored' }});
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
@@ -66,22 +69,18 @@ export default function {{ pageName page }}() {
 
     // Action section
     {{# each page.actions as |action| }}
-      {{# if action.actionDefinition.isFilterAction }}
-        const {{ simpleActionDefinitionName action.actionDefinition }} = async (newModel?: GridFilterModel, newFilters?: Filter[]) => {};
-      {{ else }}
-        {{# if action.actionDefinition.isRefreshAction }}
-          const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.isCollection }}[]{{/ if }}> => {
-            return Promise.resolve({} as any);
-          };
-        {{ else }}
-          const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {};
-        {{/ if }}
-      {{/ if }}
+      {{> (getActionTemplate action) }}
     {{/ each }}
 
     const actions: {{ containerComponentName page.container }}PageActions = {
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
+        {{# if action.actionDefinition.isRefreshAction }}
+          {{ simpleActionDefinitionName action.actionDefinition }}ServiceCall,
+        {{/ if }}
+        {{# if action.actionDefinition.isRefreshRelationAction }}
+          {{ simpleActionDefinitionName action.actionDefinition }}ServiceCall,
+        {{/ if }}
       {{/ each }}
     };
   {{/ unless }}
@@ -96,6 +95,7 @@ export default function {{ pageName page }}() {
               actions={actions}
               isLoading={isLoading}
               editMode={editMode}
+              refreshCounter={refreshCounter}
               {{# unless (containerIsEmptyDashboard page.container) }}
                 {{# unless page.container.isCollection }}
                   data={data}

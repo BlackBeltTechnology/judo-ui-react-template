@@ -1,0 +1,7 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+  alert('RefreshRelationAction');
+};
+
+const {{ simpleActionDefinitionName action.actionDefinition }}ServiceCall = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.isCollection }}[]{{/ if }}> => {
+  return Promise.resolve({{# if page.container.isCollection }}[]{{ else }}{} as any{{/ if}});
+};

@@ -344,4 +344,12 @@ public class UiActionsHelper {
     public static ActionDefinition getUpdateActionDefinitionForContainer(PageContainer container) {
         return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsUpdateAction()).findFirst().orElse(null);
     }
+
+    public static String getActionTemplate(Action action) {
+        String componentsLocation = "actor/src/pages/v2/actions/";
+        String actionDefinitionBareName = action.getActionDefinition().eClass().getInstanceClass().getSimpleName();
+        String suffixToCut = "Definition";
+        String actionName = actionDefinitionBareName.substring(0, actionDefinitionBareName.length() - suffixToCut.length());
+        return componentsLocation + actionName + ".fragment.hbs";
+    }
 }

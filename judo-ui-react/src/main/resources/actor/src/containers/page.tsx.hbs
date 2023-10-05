@@ -23,10 +23,12 @@ import { useL10N } from '~/l10n/l10n-context';
 
   export interface {{ containerComponentName container }}PageActions extends {{ pageContainerActionDefinitionTypeName container }} {
     {{# each container.pageActionDefinitions as |actionDefinition| }}
+      {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
       {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.isCollection }}[]{{/ if }}>;
-      {{ else }}
-        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.isCollection }}[]{{/ if }}>;
+      {{/ if }}
+      {{# if actionDefinition.isRefreshRelationAction }}
+        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.isCollection }}[]{{/ if }}>;
       {{/ if }}
     {{/ each }}
   }
@@ -38,6 +40,7 @@ export interface {{ containerComponentName container }}PageProps {
     actions: {{ containerComponentName container }}PageActions;
     isLoading: boolean;
     editMode: boolean;
+    refreshCounter: number;
     {{# unless container.isCollection }}
       data: {{ classDataName container.dataElement '' }};
       isFormUpdateable: () => boolean;
@@ -51,33 +54,14 @@ export interface {{ containerComponentName container }}PageProps {
 
 // Name: {{ container.name }}
 export default (props: {{ containerComponentName container }}PageProps) => {
-  const [refreshCounter, setRefreshCounter] = useState<number>(0);
   const { openConfirmDialog } = useConfirmDialog();
 
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { title, actions, isLoading, editMode{{# unless container.isCollection }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
+    const { title, actions, isLoading, editMode, refreshCounter{{# unless container.isCollection }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
-
-    {{# unless container.isCollection }}
-      const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
-        _mask: '',
-      };
-    {{/ unless }}
   {{/ unless }}
-
-  const imperativeRefresh = () => {
-    {{# unless container.isCollection }}
-      {{# with (getRefreshActionDefinitionForContainer container) as |actionDefinition| }}
-        if (actions.{{ simpleActionDefinitionName actionDefinition }}) {
-          actions.{{ simpleActionDefinitionName actionDefinition }}!(queryCustomizer);
-        }
-      {{/ with }}
-    {{ else }}
-      setRefreshCounter((prev) => prev + 1);
-    {{/ unless }}
-  };
 
   return (
     <>
@@ -86,9 +70,11 @@ export default (props: {{ containerComponentName container }}PageProps) => {
           {{# unless container.isCollection }}
             {editMode{{# unless container.isCollection }} && isFormUpdateable(){{/ unless }} && (
               <Grid className="page-action" item>
-                <Button id="page-action-edit-cancel" variant="outlined" startIcon={<MdiIcon path="cancel" />} onClick={imperativeRefresh} disabled={isLoading}>
-                  {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
-                </Button>
+                {{# with (getRefreshActionDefinitionForContainer container) as |actionDefinition| }}
+                  <Button id="page-action-edit-cancel" variant="outlined" startIcon={<MdiIcon path="cancel" />} onClick={actions.{{ simpleActionDefinitionName actionDefinition }}!} disabled={isLoading}>
+                    {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
+                  </Button>
+                {{/ with }}
               </Grid>
             )}
           {{/ unless }}
@@ -114,11 +100,7 @@ export default (props: {{ containerComponentName container }}PageProps) => {
                         actions.{{ simpleActionDefinitionName actionDefinition }}!();
                       }
                     {{ else }}
-                      {{# if button.actionDefinition.isRefreshAction }}
-                        imperativeRefresh();
-                      {{ else }}
-                        actions.{{ simpleActionDefinitionName actionDefinition }}!();
-                      {{/ if }}
+                      actions.{{ simpleActionDefinitionName actionDefinition }}!();
                     {{/ if }}
                   } }
                 >
