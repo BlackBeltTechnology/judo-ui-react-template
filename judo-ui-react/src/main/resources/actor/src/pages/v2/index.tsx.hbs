@@ -77,12 +77,6 @@ export default function {{ pageName page }}() {
     const actions: {{ containerComponentName page.container }}PageActions = {
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
-        {{# if action.actionDefinition.isRefreshAction }}
-          {{ simpleActionDefinitionName action.actionDefinition }}ServiceCall,
-        {{/ if }}
-        {{# if action.actionDefinition.isRefreshRelationAction }}
-          {{ simpleActionDefinitionName action.actionDefinition }}ServiceCall,
-        {{/ if }}
       {{/ each }}
     };
   {{/ unless }}

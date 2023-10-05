@@ -10,6 +10,9 @@ import { useJudoNavigation, MdiIcon, PageHeader } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { useL10N } from '~/l10n/l10n-context';
 {{# unless (containerIsEmptyDashboard container) }}
+  {{# unless container.table }}
+    import { processQueryCustomizer } from '~/utilities';
+  {{/ unless }}
   import type { {{ containerComponentName container }}ActionDefinitions } from './{{ containerComponentName container }}';
   import type {
     {{ classDataName container.dataElement '' }},
@@ -23,12 +26,10 @@ import { useL10N } from '~/l10n/l10n-context';
 
   export interface {{ containerComponentName container }}PageActions extends {{ pageContainerActionDefinitionTypeName container }} {
     {{# each container.pageActionDefinitions as |actionDefinition| }}
-      {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
       {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>;
-      {{/ if }}
-      {{# if actionDefinition.isRefreshRelationAction }}
-        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>;
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>;
+      {{ else }}
+        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
       {{/ if }}
     {{/ each }}
   }
@@ -61,6 +62,11 @@ export default (props: {{ containerComponentName container }}PageProps) => {
     const { navigate, back } = useJudoNavigation();
     const { title, actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
+    {{# unless container.table }}
+      const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName container.dataElement 'QueryCustomizer' }}>({
+        _mask: '{}',
+      });
+    {{/ unless }}
   {{/ unless }}
 
   return (
@@ -71,7 +77,15 @@ export default (props: {{ containerComponentName container }}PageProps) => {
             {editMode{{# unless container.table }} && isFormUpdateable(){{/ unless }} && (
               <Grid className="page-action" item>
                 {{# with (getRefreshActionDefinitionForContainer container) as |actionDefinition| }}
-                  <Button id="page-action-edit-cancel" variant="outlined" startIcon={<MdiIcon path="cancel" />} onClick={actions.{{ simpleActionDefinitionName actionDefinition }}!} disabled={isLoading}>
+                  <Button
+                    id="page-action-cancel"
+                    variant="outlined"
+                    startIcon={<MdiIcon path="cancel" />}
+                    onClick={ async () => {
+                      await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                    } }
+                    disabled={isLoading}
+                  >
                     {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
                   </Button>
                 {{/ with }}
@@ -100,7 +114,11 @@ export default (props: {{ containerComponentName container }}PageProps) => {
                         actions.{{ simpleActionDefinitionName actionDefinition }}!();
                       }
                     {{ else }}
-                      actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      {{# if actionDefinition.isRefreshAction }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                      {{ else }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      {{/ if }}
                     {{/ if }}
                   } }
                 >

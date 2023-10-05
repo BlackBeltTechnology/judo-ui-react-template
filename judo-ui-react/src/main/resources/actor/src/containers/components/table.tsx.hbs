@@ -44,12 +44,10 @@ export interface {{ tableComponentName table }}ActionDefinitions {
     {{# if actionDefinition.isFilterAction }}
       {{ simpleActionDefinitionName actionDefinition }}?: (newModel?: GridFilterModel, newFilters?: Filter[]) => void;
     {{ else }}
-      {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
       {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
-      {{/ if }}
-      {{# if actionDefinition.isRefreshRelationAction }}
-        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+      {{ else }}
+        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
       {{/ if }}
     {{/ if }}
   {{/ each }}
@@ -105,7 +103,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
     page: 0,
   });
   const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>({
-    _mask: '{{ table.formattedMask }}',
+    _mask: '{}',
     _seek: {
       limit: {{ calculateTablePageLimit table }} + 1,
     },
@@ -227,7 +225,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
               setIsLoading(true);
 
               try {
-                  const res = await actions.{{ simpleActionDefinitionName actionDefinition }}ServiceCall!(
+                  const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
                       processQueryCustomizer(queryCustomizer),
                   );
 
@@ -330,7 +328,11 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
                     {{# if button.actionDefinition.isFilterAction }}
                       await actions.{{ simpleActionDefinitionName actionDefinition }}!(filterModel, filters);
                     {{ else }}
-                      await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      {{# if actionDefinition.isRefreshAction }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                      {{ else }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      {{/ if }}
                     {{/ if }}
                   } }
                   disabled={
