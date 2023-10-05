@@ -2,7 +2,7 @@
 
 {{# if isDebugPrint }}// include: actor/src/fragments/container/common-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/container/common-imports.fragment.hbs }}
-{{# unless container.isCollection }}
+{{# unless container.table }}
   {{# if isDebugPrint }}// include: actor/src/fragments/container/view-imports.fragment.hbs{{/ if }}
   {{> actor/src/fragments/container/view-imports.fragment.hbs }}
 {{/ unless }}
@@ -32,7 +32,7 @@ export interface {{ containerComponentName container }}Props {
   {{# unless (containerIsEmptyDashboard container) }}
     refreshCounter: number;
     actions: {{ pageContainerActionDefinitionTypeName container }};
-    {{# unless container.isCollection }}
+    {{# unless container.table }}
       data: {{ classDataName container.dataElement '' }};
       isLoading: boolean;
       isFormUpdateable: () => boolean;
@@ -50,7 +50,7 @@ export default (props: {{ containerComponentName container }}Props) => {
   {{# unless (containerIsEmptyDashboard container) }}
   const { t } = useTranslation();
   const { navigate, back } = useJudoNavigation();
-  const { refreshCounter, actions{{# unless container.isCollection }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
+  const { refreshCounter, actions{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
   const { locale: l10nLocale } = useL10N();
   {{/ unless }}
 
@@ -62,10 +62,10 @@ export default (props: {{ containerComponentName container }}Props) => {
             container
             spacing={2}
             direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}"
-            alignItems="{{# if container.isCollection }}stretch{{ else }}{{ alignItems rootChild }}{{/ if }}"
+            alignItems="{{# if container.table }}stretch{{ else }}{{ alignItems rootChild }}{{/ if }}"
             justifyContent="{{ justifyContent rootChild }}"
           >
-            {{# if container.isCollection }}
+            {{# if container.table }}
               <Card>
                 <CardContent>
             {{/ if }}
@@ -73,7 +73,7 @@ export default (props: {{ containerComponentName container }}Props) => {
               {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
               {{> (getWidgetTemplate child) }}
             {{/ each }}
-            {{# if container.isCollection }}
+            {{# if container.table }}
                 </CardContent>
               </Card>
             {{/ if }}

@@ -330,11 +330,11 @@ public class UiActionsHelper {
     }
 
     public static ActionDefinition getFilterActionDefinitionForTable(Table table) {
-        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsFilterAction()).findFirst().get();
+        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsFilterAction()).findFirst().orElse(null);
     }
 
     public static ActionDefinition getRefreshActionDefinitionForTable(Table table) {
-        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().get();
+        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
     }
 
     public static ActionDefinition getRefreshActionDefinitionForContainer(PageContainer container) {

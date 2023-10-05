@@ -79,10 +79,6 @@ public class UiGeneralHelper extends Helper {
         }
     }
 
-    public static String modelName(String fqName) {
-        return fqName.split("::")[0];
-    }
-
     @Deprecated
     public static String fqClass(String fqName) {
         return stream(fqName.replaceAll("#", "::")

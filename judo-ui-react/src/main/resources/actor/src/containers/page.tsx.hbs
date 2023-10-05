@@ -25,10 +25,10 @@ import { useL10N } from '~/l10n/l10n-context';
     {{# each container.pageActionDefinitions as |actionDefinition| }}
       {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
       {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.isCollection }}[]{{/ if }}>;
+        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>;
       {{/ if }}
       {{# if actionDefinition.isRefreshRelationAction }}
-        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.isCollection }}[]{{/ if }}>;
+        {{ simpleActionDefinitionName actionDefinition }}ServiceCall?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>;
       {{/ if }}
     {{/ each }}
   }
@@ -41,7 +41,7 @@ export interface {{ containerComponentName container }}PageProps {
     isLoading: boolean;
     editMode: boolean;
     refreshCounter: number;
-    {{# unless container.isCollection }}
+    {{# unless container.table }}
       data: {{ classDataName container.dataElement '' }};
       isFormUpdateable: () => boolean;
       isFormDeleteable: () => boolean;
@@ -59,7 +59,7 @@ export default (props: {{ containerComponentName container }}PageProps) => {
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { title, actions, isLoading, editMode, refreshCounter{{# unless container.isCollection }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
+    const { title, actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
   {{/ unless }}
 
@@ -67,8 +67,8 @@ export default (props: {{ containerComponentName container }}PageProps) => {
     <>
       {{# unless (containerIsEmptyDashboard container) }}
         <PageHeader title={title}>
-          {{# unless container.isCollection }}
-            {editMode{{# unless container.isCollection }} && isFormUpdateable(){{/ unless }} && (
+          {{# unless container.table }}
+            {editMode{{# unless container.table }} && isFormUpdateable(){{/ unless }} && (
               <Grid className="page-action" item>
                 {{# with (getRefreshActionDefinitionForContainer container) as |actionDefinition| }}
                   <Button id="page-action-edit-cancel" variant="outlined" startIcon={<MdiIcon path="cancel" />} onClick={actions.{{ simpleActionDefinitionName actionDefinition }}!} disabled={isLoading}>
@@ -116,7 +116,7 @@ export default (props: {{ containerComponentName container }}PageProps) => {
             actions={actions}
             refreshCounter={refreshCounter}
             {{# unless (containerIsEmptyDashboard container) }}
-              {{# unless container.isCollection }}
+              {{# unless container.table }}
                 data={data}
                 isLoading={isLoading}
                 editMode={editMode}

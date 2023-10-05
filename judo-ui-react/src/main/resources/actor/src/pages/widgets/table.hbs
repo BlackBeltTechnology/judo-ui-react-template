@@ -6,7 +6,7 @@
             ownerData={data}
             isOwnerLoading={isLoading}
             actions={ actionsFor{{ tableComponentName child }} }
-            {{# unless container.isCollection }}
+            {{# unless container.table }}
               editMode={editMode}
               isFormUpdateable={isFormUpdateable}
             {{/ unless }}
@@ -16,16 +16,14 @@
         <{{ tableComponentName child }}
             uniqueId={'TMP'}
             actions={actions}
-            {{# unless container.isCollection }}
+            {{# unless container.table }}
+                editMode={editMode}
+                isFormUpdateable={isFormUpdateable}
                 {{# unless child.isSelectorTable }}
                     validationError={validation.get('{{ child.dataElement.name }}')}
                 {{/ unless }}
             {{/ unless }}
             refreshCounter={refreshCounter}
-            {{# unless container.isCollection }}
-              editMode={editMode}
-              isFormUpdateable={isFormUpdateable}
-            {{/ unless }}
         />
     </Grid>
     {{# if child.customImplementation }}

@@ -63,7 +63,7 @@ export interface {{ tableComponentName table }}Props {
   actions: {{ tableComponentName table }}ActionDefinitions;
   refreshCounter: number;
   validationError?: string;
-  {{# unless container.isCollection }}
+  {{# unless container.table }}
     editMode: boolean;
     isFormUpdateable: () => boolean;
   {{/ unless }}
@@ -71,7 +71,7 @@ export interface {{ tableComponentName table }}Props {
 
 // Name: {{ table.name }}
 export function {{ tableComponentName table }}(props: {{ tableComponentName table }}Props) {
-  const { uniqueId, actions, refreshCounter, validationError{{# unless container.isCollection }}, editMode, isFormUpdateable{{/ unless }} } = props;
+  const { uniqueId, actions, refreshCounter, validationError{{# unless container.table }}, editMode, isFormUpdateable{{/ unless }} } = props;
   const filterModelKey = `{{ createId table }}-${uniqueId}-filterModel`;
   const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
 
@@ -253,7 +253,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
 
   useEffect(() => {
       fetchData();
-  }, [queryCustomizer{{# unless container.isCollection }}, refreshCounter{{/ unless }}]);
+  }, [queryCustomizer{{# unless container.table }}, refreshCounter{{/ unless }}]);
 
   return (
     <>
@@ -266,7 +266,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
         sx={ {
           // overflow: 'hidden',
           display: 'grid',
-          {{# unless container.isCollection }}
+          {{# unless container.table }}
             border: (theme) => validationError ? `2px solid ${theme.palette.error.main}` : undefined,
           {{/ unless }}
           {{# if (stringValueIsTrue useTableRowHighlighting) }}
@@ -335,7 +335,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
                   } }
                   disabled={
                     isLoading
-                    {{# unless container.isCollection }}
+                    {{# unless container.table }}
                       || editMode
                       || !isFormUpdateable()
                     {{/ unless }}

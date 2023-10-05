@@ -29,18 +29,10 @@ import org.eclipse.emf.common.util.EList;
 
 import java.util.*;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.StoredVariableHelper.DEFAULT_I18N_LANGUAGE;
-import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
-import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.modelName;
-import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerIsEmptyDashboard;
-import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
-import static hu.blackbelt.judo.ui.generator.react.UiServiceHelper.classServiceTypeName;
-import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
 
 @Log
