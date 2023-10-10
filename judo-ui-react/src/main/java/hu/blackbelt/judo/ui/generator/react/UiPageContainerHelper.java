@@ -77,6 +77,13 @@ public class UiPageContainerHelper extends Helper {
         imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "Stored")).toList());
         imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "QueryCustomizer")).toList());
 
+        for (ActionDefinition actionDefinition: (List<ActionDefinition>) container.getAllActionDefinitions()) {
+            if (actionDefinition.getTargetType() != null) {
+                imports.add(classDataName(actionDefinition.getTargetType(), ""));
+                imports.add(classDataName(actionDefinition.getTargetType(), "Stored"));
+            }
+        }
+
         return imports.stream().sorted().collect(Collectors.toList());
     }
 

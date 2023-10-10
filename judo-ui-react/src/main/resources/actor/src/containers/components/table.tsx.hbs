@@ -48,7 +48,7 @@ export interface {{ tableComponentName table }}ActionDefinitions {
       {{# if actionDefinition.isRefreshAction }}
         {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
       {{ else }}
-        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+        {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
       {{/ if }}
     {{/ if }}
   {{/ each }}

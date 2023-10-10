@@ -14,7 +14,7 @@ import type { {{ classDataName link.dataElement.target '' }}, {{ classDataName l
 
 export interface {{ linkComponentName link }}ActionDefinitions {
   {{# each link.actionDefinitions as |actionDefinition| }}
-    {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+    {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
   {{/ each }}
 }
 
@@ -63,9 +63,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
           onUnset={ actions.{{ simpleActionDefinitionName actionDefinition }} }
         {{/ if }}
         {{# if button.actionDefinition.isOpenPageAction }}
-          {{# unless (actionIsSetOpenAction button.actionDefinition) }}
-            onView={ actions.{{ simpleActionDefinitionName actionDefinition }} }
-          {{/ unless }}
+          onView={ (data && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(data!) : undefined }
         {{/ if }}
         {{# if button.actionDefinition.isCreateAction }}
           onCreate={ actions.{{ simpleActionDefinitionName actionDefinition }} }

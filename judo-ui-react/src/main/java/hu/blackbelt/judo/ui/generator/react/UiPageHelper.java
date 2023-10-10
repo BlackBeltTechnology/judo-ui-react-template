@@ -429,6 +429,30 @@ public class UiPageHelper extends Helper {
             res.addAll(getApiImportsForReferenceType((ReferenceType) pageDefinition.getDataElement()));
         }
 
+        for (Object table: pageDefinition.getContainer().getTables()) {
+            Table theTable = (Table) table;
+            // for some reason table's dataElement can be ClassType, not ReferenceType
+            if (theTable.getDataElement() instanceof ClassType) {
+                res.add(classDataName((ClassType) theTable.getDataElement(), ""));
+                res.add(classDataName((ClassType) theTable.getDataElement(), "Stored"));
+            }
+            if (theTable.getDataElement() instanceof RelationType) {
+                res.addAll(getApiImportsForReferenceType((RelationType) theTable.getDataElement()));
+            }
+        }
+
+        for (Object link: pageDefinition.getContainer().getLinks()) {
+            Link theLink = (Link) link;
+            res.addAll(getApiImportsForReferenceType((RelationType) theLink.getDataElement()));
+        }
+
+        for (ActionDefinition actionDefinition: (List<ActionDefinition>) pageDefinition.getContainer().getAllActionDefinitions()) {
+            if (actionDefinition.getTargetType() != null) {
+                res.add(classDataName(actionDefinition.getTargetType(), ""));
+                res.add(classDataName(actionDefinition.getTargetType(), "Stored"));
+            }
+        }
+
         getEnumAttributesForPage(pageDefinition).forEach(a -> {
             res.add(restParamName(a.getDataType()));
         });
