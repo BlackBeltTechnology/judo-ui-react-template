@@ -20,7 +20,6 @@ package hu.blackbelt.judo.ui.generator.react;
  * #L%
  */
 
-import hu.blackbelt.judo.generator.commons.ThreadLocalContextHolder;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
@@ -32,7 +31,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.StoredVariableHelper.DEFAULT_I18N_LANGUAGE;
+import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.DEFAULT_I18N_LANGUAGE;
 import static java.util.Arrays.stream;
 
 @Log

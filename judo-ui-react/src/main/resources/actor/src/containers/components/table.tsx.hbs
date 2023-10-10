@@ -103,7 +103,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
     page: 0,
   });
   const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>({
-    _mask: '{}',
+    _mask: '{{ getMaskForContainer container }}',
     _seek: {
       limit: {{ calculateTablePageLimit table }} + 1,
     },
@@ -303,8 +303,8 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
             }}
         {{/ if }}
         keepNonExistentRowsSelected
-        {{# each table.rowActions as |action| }}
-          {{# if action.isViewAction }}
+        {{# each table.rowActionDefinitions as |actionDefinition| }}
+          {{# if actionDefinition.isOpenPageAction }}
             onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}(params.row) : undefined }
           {{/ if }}
         {{/ each }}

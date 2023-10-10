@@ -1,4 +1,15 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}> => {
-  alert('RefreshAction');
-  return Promise.resolve({{# if page.container.table }}[]{{ else }}{} as any{{/ if}});
+  // alert('RefreshAction');
+  try {
+    setIsLoading(true);
+    {{# if page.container.table }}
+      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}undefined{{/ if }}, queryCustomizer);
+    {{ else }}
+      return {{ getServiceImplForPage page }}.refresh({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}undefined{{/ if }}, queryCustomizer);
+    {{/ if }}
+  } catch(e) {
+    return Promise.resolve({{# if page.container.table }}[]{{ else }}{} as any{{/ if}});
+  } finally {
+    setIsLoading(false);
+  }
 };

@@ -103,4 +103,16 @@ public class UiPageContainerHelper extends Helper {
         }
         return "!editMode";
     }
+
+    public static String getMaskForContainer(PageContainer container) {
+        StringBuilder mask = new StringBuilder();
+        mask.append("{");
+        if (container.isTable()) {
+            String tableColumns = ((Table) container.getTables().get(0)).getColumns().stream().map(c -> c.getAttributeType().getName()).collect(Collectors.joining(","));
+            mask.append(tableColumns);
+        }
+        mask.append("}");
+
+        return mask.toString();
+    }
 }

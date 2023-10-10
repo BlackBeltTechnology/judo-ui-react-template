@@ -21,47 +21,46 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
-
-import java.util.stream.Collectors;
-
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 
 @Log
 @TemplateHelper
 public class UiServiceHelper extends Helper {
-    public static String dataElementRelationName(DataElement dataElement) {
-        if (dataElement instanceof RelationType) {
-            RelationType relation = (RelationType) dataElement;
-
-            return variable(
-                    relation.getOwnerPackageNameTokens().stream()
-                            .map(Helper::getCamelCaseVersion)
-                            .collect(Collectors.joining())
-                            .concat(getCamelCaseVersion(relation.getOwnerSimpleName()))
-                            .concat("ServiceFor")
-                            .concat(getCamelCaseVersion(relation.getName()))
-            );
-        } else if (dataElement instanceof OperationParameterType) {
-            OperationParameterType operationParameterType = (OperationParameterType) dataElement;
-
-            return classServiceName(operationParameterType.getTarget());
-        }
-
-        throw new RuntimeException("Unable to process DataElement for dataElementRelationName: " + dataElement.getName());
-    }
-
-    public static String classServiceName(ClassType classType) {
-        return variable(nameWithoutModel(classType.getName()) + "ServiceForClass");
-    }
-
-    public static String classServiceTypeName(ClassType classType) {
-        return classType.getName().replaceAll("::", ".");
-    }
-
-    public static String classTypeName(ClassType classType) {
-        // we should replace classDataName calls gradually later in templates for this
-        return classDataName(classType, classType.isIsMapped() ? "Stored" : "");
-    }
+//    public static String dataElementRelationName(DataElement dataElement) {
+//        if (dataElement instanceof RelationType) {
+//            RelationType relation = (RelationType) dataElement;
+//
+//            return variable(
+//                    relation.getOwnerPackageNameTokens().stream()
+//                            .map(Helper::getCamelCaseVersion)
+//                            .collect(Collectors.joining())
+//                            .concat(getCamelCaseVersion(relation.getOwnerSimpleName()))
+//                            .concat("ServiceFor")
+//                            .concat(getCamelCaseVersion(relation.getName()))
+//            );
+//        } else if (dataElement instanceof OperationParameterType) {
+//            OperationParameterType operationParameterType = (OperationParameterType) dataElement;
+//
+//            return classServiceName(operationParameterType.getTarget());
+//        }
+//
+//        throw new RuntimeException("Unable to process DataElement for dataElementRelationName: " + dataElement.getName());
+//    }
+//
+//    public static String serviceClassName(ClassType type) {
+//        return classDataName(type, "").concat("ServiceForClass");
+//    }
+//
+//    public static String classServiceName(ClassType classType) {
+//        return variable(nameWithoutModel(classType.getName()) + "ServiceForClass");
+//    }
+//
+//    public static String classServiceTypeName(ClassType classType) {
+//        return classType.getName().replaceAll("::", ".");
+//    }
+//
+//    public static String classTypeName(ClassType classType) {
+//        // we should replace classDataName calls gradually later in templates for this
+//        return classDataName(classType, classType.isIsMapped() ? "Stored" : "");
+//    }
 }

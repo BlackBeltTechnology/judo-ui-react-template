@@ -22,16 +22,11 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
-import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
-import org.eclipse.emf.ecore.EObject;
-import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
 
 @Log
 @TemplateHelper

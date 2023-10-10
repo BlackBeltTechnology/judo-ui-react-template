@@ -24,7 +24,6 @@ import hu.blackbelt.judo.generator.commons.StaticMethodValueResolver;
 import hu.blackbelt.judo.generator.commons.ThreadLocalContextHolder;
 import hu.blackbelt.judo.generator.commons.annotations.ContextAccessor;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.Application;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
@@ -36,7 +35,7 @@ import java.util.Map;
  */
 @TemplateHelper
 @ContextAccessor
-public class StoredVariableHelper extends StaticMethodValueResolver {
+public class ReactStoredVariableHelper extends StaticMethodValueResolver {
     public static final String DEFAULT_I18N_LANGUAGE = "en-US";
     public static final String MUI_PLAN_COMMUNITY = "community";
     public static final String MUI_PLAN_PRO = "pro";

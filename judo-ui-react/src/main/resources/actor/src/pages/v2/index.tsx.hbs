@@ -3,7 +3,9 @@
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 import type { RefObject } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
+  import type { JudoIdentifiable } from '@judo/data-api-common';
   import { useTranslation } from 'react-i18next';
+  import { useParams } from 'react-router-dom';
   import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
   import type { Filter } from '~/components-api';
   import { uiDateToServiceDate, uiTimeToServiceTime } from '~/utilities';
@@ -14,6 +16,9 @@ import type { RefObject } from 'react';
       {{ imp }},
     {{/ each }}
   } from '~/generated/data-api';
+  {{# if (getServiceImplForPage page) }}
+      import { {{ getServiceImplForPage page }} } from '~/generated/data-axios';
+  {{/ if }}
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
@@ -29,6 +34,9 @@ import type { RefObject } from 'react';
 export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
     const { t } = useTranslation();
+    {{# if (pageHasSignedId page) }}
+    const { signedIdentifier } = useParams();
+    {{/ if }}
 
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);

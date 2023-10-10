@@ -20,23 +20,17 @@ package hu.blackbelt.judo.ui.generator.react;
  * #L%
  */
 
-import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
-import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
 
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.hasDataElementOwner;
-import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.toLower;
-import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
 
 
@@ -360,14 +354,14 @@ public class UiPageHelper extends Helper {
         return pageContainer.getTitleFrom() != null && pageContainer.getTitleFrom() == TitleFrom.ATTRIBUTE;
     }
 
-//    public static Boolean isSingleAccessPage(PageDefinition page) {
-//        if (page.getRelationType() != null) {
-//            return !page.getRelationType().isIsCollection() && page.getRelationType().isIsAccess();
-//        }
-//
-//        return false;
-//    }
-//
+    public static Boolean isSingleAccessPage(PageDefinition page) {
+        if (page.getRelationType() != null) {
+            return !page.getRelationType().isIsCollection() && page.getRelationType().isIsAccess();
+        }
+
+        return false;
+    }
+
 //    public static PageDefinition getViewPageForCreatePage(PageDefinition page, Application application) {
 //        String viewPageFQName = page.getFQName().replace("#Create", "#View");
 //        return application.getPages().stream()
@@ -442,6 +436,28 @@ public class UiPageHelper extends Helper {
 //        addReferenceTypesToCollection(pageDefinition, res);
 
         return res.stream().sorted().collect(Collectors.toList());
+    }
+
+    public static String getServiceImplForPage(PageDefinition pageDefinition) {
+        Set<String> res = new HashSet<>();
+        DataElement dataElement = pageDefinition.getDataElement();
+
+        if (dataElement instanceof RelationType) {
+            return firstToLower(serviceRelationName((RelationType) dataElement)) + "Impl";
+        } else if (dataElement instanceof OperationParameterType) {
+            ClassType cls = ((OperationParameterType) dataElement).getTarget();
+            Application application = (Application) pageDefinition.eContainer();
+            RelationType relationType = (RelationType) application.getRelationTypes().stream()
+                    .filter(r -> ((RelationType) r).getTarget().equals(cls) && ((RelationType) r).isIsAccess())
+                    .findFirst()
+                    .orElse(null);
+
+            if (relationType != null) {
+                return firstToLower(serviceRelationName(relationType)) + "Impl";
+            }
+        }
+
+        return null;
     }
 
     public static boolean isPageUpdateable(PageDefinition pageDefinition) {

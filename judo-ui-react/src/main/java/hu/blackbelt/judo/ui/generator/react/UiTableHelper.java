@@ -184,7 +184,7 @@ public class UiTableHelper extends Helper {
     }
 
     public static String getDefaultSortParams(Column defaultSortColumn, Collection<Column> columns) {
-        if (defaultSortColumn != null) {
+        if (defaultSortColumn != null && isSortableAttributeType(defaultSortColumn.getAttributeType())) {
             return "[{ field: '" + defaultSortColumn.getAttributeType().getName() + "', sort: " + getSortDirection(defaultSortColumn) + " }]";
         }
 

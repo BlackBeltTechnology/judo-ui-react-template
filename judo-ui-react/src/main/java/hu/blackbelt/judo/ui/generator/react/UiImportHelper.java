@@ -28,7 +28,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.StoredVariableHelper.muiDataGridComponent;
+import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.muiDataGridComponent;
 
 @Log
 @TemplateHelper
