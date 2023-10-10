@@ -297,7 +297,7 @@ public class UiActionsHelper {
         List<ActionDefinition> actionDefinitions = groups.stream()
                 .flatMap(g -> g.getButtons().stream())
                 .map(b -> b.getActionDefinition())
-                .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || actionIsSetOpenAction(a) || actionIsAddOpenAction(a))
+                .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition/* || actionIsSetOpenAction(a) || actionIsAddOpenAction(a)*/)
                 .collect(Collectors.toList());
 
         List<Button> buttons = new ArrayList<>();

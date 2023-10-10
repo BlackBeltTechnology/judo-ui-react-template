@@ -18,6 +18,7 @@ import type {
   GridPaginationModel,
   GridValueFormatterParams,
   GridRowClassNameParams,
+  GridRowParams,
   GridValidRowModel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { baseColumnConfig, baseTableConfig } from '~/config';
@@ -305,7 +306,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
         keepNonExistentRowsSelected
         {{# each table.rowActionDefinitions as |actionDefinition| }}
           {{# if actionDefinition.isOpenPageAction }}
-            onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}(params.row) : undefined }
+            onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row) : undefined }
           {{/ if }}
         {{/ each }}
         sortModel={sortModel}
