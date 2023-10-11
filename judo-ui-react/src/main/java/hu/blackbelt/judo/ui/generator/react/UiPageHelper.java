@@ -462,6 +462,18 @@ public class UiPageHelper extends Helper {
         return res.stream().sorted().collect(Collectors.toList());
     }
 
+    public static List<PageDefinition> getRelatedPages(PageDefinition pageDefinition) {
+        Set<PageDefinition> res = new HashSet<>();
+        try {
+            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getIsOpenPageAction() && !a.getTargetPageDefinition().isOpenInDialog()).toList()) {
+                res.add(action.getTargetPageDefinition());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
     public static String getServiceImplForPage(PageDefinition pageDefinition) {
         Set<String> res = new HashSet<>();
         DataElement dataElement = pageDefinition.getDataElement();
@@ -612,6 +624,14 @@ public class UiPageHelper extends Helper {
 
     public static boolean payloadDiffHasItems(ClassType classType) {
         return classType.getAttributes().size() + classType.getRelations().size() > 0;
+    }
+
+    public static boolean pageShouldInitialize(PageDefinition pageDefinition) {
+        // tables initialize themselves
+        if (!pageDefinition.getContainer().isTable() && pageDefinition.getContainer().getOnInit() != null) {
+            return pageDefinition.getActions().stream().anyMatch(a -> a.getActionDefinition().equals(pageDefinition.getContainer().getOnInit()));
+        }
+        return false;
     }
 
 //    public static List<PageDefinition> getViewDialogs(Application application) {

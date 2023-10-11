@@ -3,10 +3,12 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
+import hu.blackbelt.judo.meta.ui.data.RelationType;
 import lombok.extern.java.Log;
 
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -66,22 +68,26 @@ public class UiPageContainerHelper extends Helper {
     public static List<String> getContainerApiImports(PageContainer container) {
         Set<String> imports = new HashSet<>();
 
-        imports.add(classDataName((ClassType) container.getDataElement(), ""));
-        imports.add(classDataName((ClassType) container.getDataElement(), "Stored"));
-        imports.add(classDataName((ClassType) container.getDataElement(), "QueryCustomizer"));
-        imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "")).toList());
-        imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "Stored")).toList());
-        imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "QueryCustomizer")).toList());
+        try {
+            imports.add(classDataName((ClassType) container.getDataElement(), ""));
+            imports.add(classDataName((ClassType) container.getDataElement(), "Stored"));
+            imports.add(classDataName((ClassType) container.getDataElement(), "QueryCustomizer"));
+            imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "")).toList());
+            imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "Stored")).toList());
+            imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "QueryCustomizer")).toList());
 
-        imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "")).toList());
-        imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "Stored")).toList());
-        imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "QueryCustomizer")).toList());
+            imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "")).toList());
+            imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "Stored")).toList());
+            imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "QueryCustomizer")).toList());
 
-        for (ActionDefinition actionDefinition: (List<ActionDefinition>) container.getAllActionDefinitions()) {
-            if (actionDefinition.getTargetType() != null) {
-                imports.add(classDataName(actionDefinition.getTargetType(), ""));
-                imports.add(classDataName(actionDefinition.getTargetType(), "Stored"));
+            for (ActionDefinition actionDefinition : (List<ActionDefinition>) container.getAllActionDefinitions()) {
+                if (actionDefinition.getTargetType() != null) {
+                    imports.add(classDataName(actionDefinition.getTargetType(), ""));
+                    imports.add(classDataName(actionDefinition.getTargetType(), "Stored"));
+                }
             }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
 
         return imports.stream().sorted().collect(Collectors.toList());
@@ -111,15 +117,43 @@ public class UiPageContainerHelper extends Helper {
         return "!editMode";
     }
 
-    public static String getMaskForContainer(PageContainer container) {
-        StringBuilder mask = new StringBuilder();
-        mask.append("{");
-        if (container.isTable()) {
-            String tableColumns = ((Table) container.getTables().get(0)).getColumns().stream().map(c -> c.getAttributeType().getName()).collect(Collectors.joining(","));
-            mask.append(tableColumns);
-        }
-        mask.append("}");
+    public static String getMaskForTable(Table table) {
+        String tableColumns = table.getColumns().stream().map(c -> c.getAttributeType().getName()).collect(Collectors.joining(","));
 
-        return mask.toString();
+        return "{" + tableColumns + "}";
+    }
+
+    public static String getMaskForLink(Link link) {
+        String linkColumns = ((List<Column>) link.getColumns()).stream().map(c -> c.getAttributeType().getName()).collect(Collectors.joining(","));
+
+        return "{" + linkColumns + "}";
+    }
+
+    public static String getMaskForView(PageContainer container) {
+        StringBuilder mask = new StringBuilder();
+
+        Set<VisualElement> inputs = new HashSet<>();
+        collectVisualElementsMatchingCondition(container, (VisualElement element) -> element instanceof Input, inputs);
+
+        Set<String> attributeNames = inputs.stream().map(i -> ((Input) i)).map(i -> i.getAttributeType().getName()).collect(Collectors.toSet());
+
+        Set<VisualElement> AllVisualElements = new HashSet<>();
+        collectVisualElementsMatchingCondition(container, (VisualElement element) -> true, AllVisualElements);
+
+        attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getHiddenBy() != null).map(i -> i.getHiddenBy().getName()).collect(Collectors.toSet()));
+        attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getEnabledBy() != null).map(i -> i.getEnabledBy().getName()).collect(Collectors.toSet()));
+        attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getRequiredBy() != null).map(i -> i.getRequiredBy().getName()).collect(Collectors.toSet()));
+
+        mask.append(String.join(",", attributeNames));
+
+        for (Table table: ((List<Table>) container.getTables()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
+            if (!mask.toString().endsWith(",")) {
+                mask.append(",");
+            }
+            mask.append(table.getDataElement().getName());
+            mask.append(getMaskForTable(table));
+        }
+
+        return "{" + mask + "}";
     }
 }

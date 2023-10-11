@@ -2,14 +2,28 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
   // alert('RefreshAction');
   try {
     setIsLoading(true);
+    setEditMode(false);
     {{# if page.container.table }}
       return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}undefined{{/ if }}, queryCustomizer);
     {{ else }}
-      return {{ getServiceImplForPage page }}.refresh({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}undefined{{/ if }}, queryCustomizer);
+      const result = await {{ getServiceImplForPage page }}.refresh({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}undefined{{/ if }}, pageQueryCustomizer);
+
+      setData(result);
+
+      payloadDiff.current = {
+          __identifier: result.__identifier,
+          __signedIdentifier: result.__signedIdentifier,
+          __version: result.__version,
+          __entityType: result.__entityType,
+      } as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
+
+      return result;
     {{/ if }}
-  } catch(e) {
-    return Promise.resolve({{# if page.container.table }}[]{{ else }}{} as any{{/ if}});
+  } catch (e) {
+    handleFetchError(e);
+    return Promise.reject(e);
   } finally {
     setIsLoading(false);
+    setRefreshCounter((prevCounter) => prevCounter + 1);
   }
 };

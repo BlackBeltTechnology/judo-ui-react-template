@@ -62,6 +62,7 @@ export const useErrorHandler = <T>(filter: string): ErrorHandler<T> => {
     const customErrorProcessor = processorHook && processorHook();
 
     return (error: any, options?: ErrorHandlingOption<T>, payload?: T) => {
+        console.error(error);
         const errorResults: ErrorProcessResult<T> = {
             errorToastConfig: {
                 ...toastConfig.error,

@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
+  import { OBJECTCLASS } from '@pandino/pandino-api';
   import type { JudoIdentifiable } from '@judo/data-api-common';
   import { useTranslation } from 'react-i18next';
   import { useParams } from 'react-router-dom';
@@ -10,8 +11,11 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   import type { Filter } from '~/components-api';
   {{/ if }}
   import { useJudoNavigation } from '~/components';
-  import { uiDateToServiceDate, uiTimeToServiceTime } from '~/utilities';
+  import { uiDateToServiceDate, uiTimeToServiceTime, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '~/utilities';
   import { PageContainerTransition } from '~/theme/animations';
+  {{# each (getRelatedPages page) as |relatedPage| }}
+    import { routeTo{{ pageName relatedPage }} } from '~/routes';
+  {{/ each }}
   import type { {{ containerComponentName page.container }}PageActions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer';
   import type {
     {{# each (getApiImportsForPage page) as |imp| }}
@@ -37,6 +41,7 @@ export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
+    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     {{# if (pageHasSignedId page) }}
     const { signedIdentifier } = useParams();
     {{/ if }}
@@ -71,6 +76,12 @@ export default function {{ pageName page }}() {
           return {{ boolValue (isPageDeleteable page) }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
         {{/ if }}
       }, [data]);
+
+      {{# if page.container.view }}
+        const pageQueryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = {
+          _mask: '{{ getMaskForView page.container }}',
+        };
+      {{/ if }}
     {{/ unless }}
 
     // Calculated section
@@ -90,6 +101,13 @@ export default function {{ pageName page }}() {
         {{ simpleActionDefinitionName action.actionDefinition }},
       {{/ each }}
     };
+
+    // Effect section
+    {{# if (pageShouldInitialize page) }}
+      useEffect(() => {
+        actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}pageQueryCustomizer{{/ if }});
+      }, []);
+    {{/ if }}
   {{/ unless }}
 
   return (

@@ -1,3 +1,7 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
-  alert('OpenPageAction');
+  {{# if action.targetPageDefinition.openInDialog }}
+    alert('TODO Open Dialog');
+  {{ else }}
+    navigate(routeTo{{ pageName action.targetPageDefinition }}({{# if (pageHasSignedId action.targetPageDefinition) }}target.__signedIdentifier{{/ if }}));
+  {{/ if }}
 };
