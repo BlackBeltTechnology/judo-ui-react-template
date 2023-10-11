@@ -5,7 +5,7 @@ const requiredByRecord: Record<string, boolean> = {
   {{/ each }}
 };
 
-const result = passesLocalValidation<{{ classDataName page.dataElement.target '' }}>(data, requiredByRecord, t, setValidation);
+const result = passesLocalValidation<{{ classDataName (getReferenceClassType page) '' }}>(data, requiredByRecord, t, setValidation);
 
 if (!result) {
   return;

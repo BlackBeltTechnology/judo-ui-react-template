@@ -1,3 +1,27 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  alert('UpdateAction');
+  {{# if (hasPageRequiredBy page) }}
+    {{> actor/src/fragments/page/local-validate.fragment.hbs }}
+  {{/ if }}
+
+  setIsLoading(true);
+
+  try {
+    const res = await {{ getServiceImplForPage page }}.update({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier! }, {{/ unless }}payloadDiff.current);
+
+    if (res) {
+      enqueueSnackbar(t('judo.action.save.success', { defaultValue: 'Changes saved' }), {
+        variant: 'success',
+        ...toastConfig.success,
+      });
+      setValidation(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
+      {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+      await actions.{{ simpleActionDefinitionName actionDefinition }}!(pageQueryCustomizer);
+      {{/ with }}
+      setEditMode(false);
+    }
+  } catch (error) {
+    handleUpdateError(error, { setValidation }, data);
+  } finally {
+    setIsLoading(false);
+  }
 };

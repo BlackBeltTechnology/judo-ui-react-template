@@ -6,12 +6,20 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   import type { JudoIdentifiable } from '@judo/data-api-common';
   import { useTranslation } from 'react-i18next';
   import { useParams } from 'react-router-dom';
+  import { useSnackbar } from 'notistack';
   {{# if page.container.table }}
   import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
   import type { Filter } from '~/components-api';
   {{/ if }}
   import { useJudoNavigation } from '~/components';
-  import { uiDateToServiceDate, uiTimeToServiceTime, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '~/utilities';
+  import { toastConfig } from '~/config';
+  import {
+    passesLocalValidation,
+    uiDateToServiceDate,
+    uiTimeToServiceTime,
+    useErrorHandler,
+    ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
+  } from '~/utilities';
   import { PageContainerTransition } from '~/theme/animations';
   {{# each (getRelatedPages page) as |relatedPage| }}
     import { routeTo{{ pageName relatedPage }} } from '~/routes';
@@ -40,8 +48,15 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
     const { t } = useTranslation();
+    const { enqueueSnackbar } = useSnackbar();
     const { navigate, back } = useJudoNavigation();
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+    {{# if page.dataElement.isUpdatable }}
+      const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
+    {{/ if }}
+    {{# if page.dataElement.isDeletable }}
+      const handleDeleteError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
+    {{/ if }}
     {{# if (pageHasSignedId page) }}
     const { signedIdentifier } = useParams();
     {{/ if }}

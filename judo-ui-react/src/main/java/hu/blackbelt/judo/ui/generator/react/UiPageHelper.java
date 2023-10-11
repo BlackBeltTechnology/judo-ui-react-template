@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
@@ -644,15 +645,15 @@ public class UiPageHelper extends Helper {
 //    public static boolean pageShouldOpenInDialog(PageDefinition pageDefinition) {
 //        return pageDefinition.isOpenInDialog();
 //    }
-//
-//    public static boolean hasPageRequiredBy(PageDefinition pageDefinition) {
-//        return !(getRequiredByWidgetsForPage(pageDefinition).isEmpty());
-//    }
-//
-//    public static List<VisualElement> getRequiredByWidgetsForPage(PageDefinition pageDefinition) {
-//        Set<VisualElement> elements = new LinkedHashSet<>();
-//        collectVisualElementsMatchingCondition(pageDefinition.getOriginalPageContainer(), (element) -> element.getRequiredBy() != null, elements);
-//
-//        return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
-//    }
+
+    public static boolean hasPageRequiredBy(PageDefinition pageDefinition) {
+        return !(getRequiredByWidgetsForPage(pageDefinition).isEmpty());
+    }
+
+    public static List<VisualElement> getRequiredByWidgetsForPage(PageDefinition pageDefinition) {
+        Set<VisualElement> elements = new LinkedHashSet<>();
+        collectVisualElementsMatchingCondition(pageDefinition.getContainer(), (element) -> element.getRequiredBy() != null, elements);
+
+        return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
 }
