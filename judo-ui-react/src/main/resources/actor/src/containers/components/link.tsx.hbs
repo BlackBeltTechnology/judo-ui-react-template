@@ -10,7 +10,11 @@ import {
   CollectionAssociationButton,
   TrinaryLogicCombobox,
 } from '~/components/widgets';
-import type { {{ classDataName link.dataElement.target '' }}, {{ classDataName link.dataElement.target 'Stored' }} } from '~/generated/data-api';
+import type {
+  {{ classDataName container.dataElement '' }},
+  {{ classDataName container.dataElement 'Stored' }},
+  {{ classDataName link.dataElement.target 'Stored' }},
+} from '~/generated/data-api';
 
 export interface {{ linkComponentName link }}ActionDefinitions {
   {{# each link.actionDefinitions as |actionDefinition| }}
@@ -19,9 +23,8 @@ export interface {{ linkComponentName link }}ActionDefinitions {
 }
 
 export interface {{ linkComponentName link }}Props {
-  data?: {{ classDataName link.dataElement.target 'Stored' }} | null;
+  ownerData: {{ classDataName container.dataElement '' }} | {{ classDataName container.dataElement 'Stored' }};
   actions: {{ linkComponentName link }}ActionDefinitions;
-  onChange: (value: {{ classDataName link.dataElement.target '' }} | {{ classDataName link.dataElement.target 'Stored' }} | null) => void;
   validationError?: string;
   disabled?: boolean;
   editMode?: boolean;
@@ -29,7 +32,7 @@ export interface {{ linkComponentName link }}Props {
 
 // Name: {{ link.name }}
 export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
-  const { data, actions, onChange, validationError, disabled, editMode } = props;
+  const { ownerData, actions, validationError, disabled, editMode } = props;
   const { t } = useTranslation();
 
   return (
@@ -39,10 +42,10 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
       label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
       labelList={[
         {{# each link.parts as |part| }}
-          data?.{{ part.attributeType.name }}?.toString() ?? '',
+          ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
         {{/ each }}
       ]}
-      data={data}
+      ownerData={ownerData}
       error={!!validationError}
       helperText={validationError}
       {{# if link.icon }}
@@ -53,7 +56,8 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
       autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
       onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
           // storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
-          onChange({{ link.dataElement.name }} as {{ classDataName link.dataElement.target 'Stored' }});
+          console.log({{ link.dataElement.name }});
+          alert('TMP');
       } }
       {{# each link.actionButtonGroup.buttons as |button| }}
         {{# if (actionIsSetOpenAction button.actionDefinition) }}
@@ -63,7 +67,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
           onUnset={ actions.{{ simpleActionDefinitionName actionDefinition }} }
         {{/ if }}
         {{# if button.actionDefinition.isOpenPageAction }}
-          onView={ (data && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(data!) : undefined }
+          onView={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
         {{/ if }}
         {{# if button.actionDefinition.isCreateAction }}
           onCreate={ actions.{{ simpleActionDefinitionName actionDefinition }} }

@@ -154,6 +154,14 @@ public class UiPageContainerHelper extends Helper {
             mask.append(getMaskForTable(table));
         }
 
+        for (Link link: ((List<Link>) container.getLinks()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
+            if (!mask.toString().endsWith(",")) {
+                mask.append(",");
+            }
+            mask.append(link.getDataElement().getName());
+            mask.append(getMaskForLink(link));
+        }
+
         return "{" + mask + "}";
     }
 }

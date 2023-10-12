@@ -11,14 +11,11 @@
         >
     {{/ if }}
     <{{ linkComponentName child }}
-        data={data['{{ child.dataElement.name }}']}
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
+        ownerData={data}
         editMode={editMode}
-        validationError={ validation.get('{{ child.dataElement.name }}') }
+        validationError={validation.get('{{ child.dataElement.name }}')}
         actions={actions}
-        onChange={ (value: {{ classDataName child.dataElement.target '' }} | {{ classDataName child.dataElement.target 'Stored' }} | null) => {
-          alert(JSON.stringify(value));
-        } }
     />
     {{# if child.customImplementation }}
         </ComponentProxy>
