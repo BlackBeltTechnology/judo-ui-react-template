@@ -410,4 +410,15 @@ public class UiWidgetHelper extends Helper {
     public static Boolean displayDropdownForButtonGroup(ButtonGroup actionGroup) {
         return nonFeaturedButtonsForButtonGroup(actionGroup).size() > 0;
     }
+
+    public static String tableButtonVisibilityConditions(Button button, Table table) {
+        if (button.getActionDefinition().isIsBulk()) {
+            String condition = "selectionModel.length > 0";
+            if (button.getHiddenBy() != null) {
+                condition += "&& !ownerData?." + button.getHiddenBy().getName();
+            }
+            return condition;
+        }
+        return "true";
+    }
 }

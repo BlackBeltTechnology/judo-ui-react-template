@@ -355,7 +355,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
           Toolbar: () => (
             <GridToolbarContainer>
               {{# each table.tableActionButtonGroup.buttons as |button| }}
-                {actions.{{ simpleActionDefinitionName button.actionDefinition }} ? <Button
+                {actions.{{ simpleActionDefinitionName button.actionDefinition }} && ({{{ tableButtonVisibilityConditions button table }}}) ? <Button
                   id="{{ createId button }}"
                   startIcon={<MdiIcon path="{{ button.icon.name }}" />}
                   variant="text"
