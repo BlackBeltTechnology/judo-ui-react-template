@@ -1,3 +1,7 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (newModel?: GridFilterModel, newFilters?: Filter[]) => {
-  alert('FilterAction');
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
+  // alert('FilterAction');
+  const newFilters = await openFilterDialog(id, filterOptions, filters);
+  return {
+    filters: newFilters,
+  };
 };

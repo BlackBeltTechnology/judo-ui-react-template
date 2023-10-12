@@ -43,7 +43,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 export interface {{ tableComponentName table }}ActionDefinitions {
   {{# each table.tableActionDefinitions as |actionDefinition| }}
     {{# if actionDefinition.isFilterAction }}
-      {{ simpleActionDefinitionName actionDefinition }}?: (newModel?: GridFilterModel, newFilters?: Filter[]) => void;
+      {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
     {{ else }}
       {{# if actionDefinition.isRefreshAction }}
         {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
@@ -321,13 +321,24 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
           Toolbar: () => (
             <GridToolbarContainer>
               {{# each table.tableActionButtonGroup.buttons as |button| }}
-                {actions.{{ simpleActionDefinitionName button.actionDefinition }} && <Button
+                {actions.{{ simpleActionDefinitionName button.actionDefinition }} ? <Button
                   id="{{ createId button }}"
                   startIcon={<MdiIcon path="{{ button.icon.name }}" />}
                   variant="text"
                   onClick={ async () => {
                     {{# if button.actionDefinition.isFilterAction }}
-                      await actions.{{ simpleActionDefinitionName actionDefinition }}!(filterModel, filters);
+                      const filterResults = await actions.{{ simpleActionDefinitionName actionDefinition }}!('{{ createId button }}', filterOptions, filterModel, filters);
+                      {{# if isUseInlineColumnFilters }}
+                        if (filterResults.model) {
+                          handleFilterModelChange({
+                            ...filterResults.model!,
+                          });
+                        }
+                      {{ else }}
+                        if (Array.isArray(filterResults.filters)) {
+                          handleFiltersChange([...filterResults.filters!]);
+                        }
+                      {{/ if }}
                     {{ else }}
                       {{# if actionDefinition.isRefreshAction }}
                         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
@@ -345,7 +356,10 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
                   }
                 >
                   {t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}
-                </Button>}
+                  {{# if button.actionDefinition.isFilterAction }}
+                    {filters.length ? ` (${filters.length})` : ''}
+                  {{/ if }}
+                </Button> : null}
               {{/ each }}
               <div>{/* Placeholder */}</div>
             </GridToolbarContainer>

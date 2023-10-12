@@ -9,9 +9,10 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   import { useSnackbar } from 'notistack';
   {{# if page.container.table }}
   import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
-  import type { Filter } from '~/components-api';
+  import type { Filter, FilterOption } from '~/components-api';
   {{/ if }}
   import { useJudoNavigation } from '~/components';
+  import { useFilterDialog } from '~/components/dialog';
   import { toastConfig } from '~/config';
   import {
     passesLocalValidation,
@@ -47,18 +48,22 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 // Name: {{ page.name }}
 export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
+    {{# if (pageHasSignedId page) }}
+      // Router params section
+      const { signedIdentifier } = useParams();
+    {{/ if }}
+
+    // Hooks section
     const { t } = useTranslation();
     const { enqueueSnackbar } = useSnackbar();
     const { navigate, back } = useJudoNavigation();
+    const { openFilterDialog } = useFilterDialog();
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     {{# if page.dataElement.isUpdatable }}
       const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
     {{/ if }}
     {{# if page.dataElement.isDeletable }}
       const handleDeleteError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
-    {{/ if }}
-    {{# if (pageHasSignedId page) }}
-    const { signedIdentifier } = useParams();
     {{/ if }}
 
     // State section
