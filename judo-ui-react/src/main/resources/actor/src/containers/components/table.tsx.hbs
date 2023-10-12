@@ -27,9 +27,26 @@ import { columnsActionCalculator, ContextMenu, StripedDataGrid } from '~/compone
 import type { ContextMenuApi } from '~/components/table/ContextMenu';
 import type { Filter, FilterOption } from '~/components-api';
 import { FilterType } from '~/components-api';
-import type { {{ classDataName (getReferenceClassType table) '' }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }} } from '~/generated/data-api';
+import type {
+  {{# unless container.table }}
+    {{ classDataName container.dataElement '' }},
+    {{ classDataName container.dataElement 'Stored' }},
+  {{/ unless }}
+  {{ classDataName (getReferenceClassType table) '' }},
+  {{ classDataName (getReferenceClassType table) 'Stored' }},
+  {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }},
+} from '~/generated/data-api';
 import { useL10N } from '~/l10n/l10n-context';
-import { fileHandling, serviceDateToUiDate, serviceTimeToUiTime, mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, useErrorHandler, ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '~/utilities';
+import {
+  applyInMemoryFilters,
+  fileHandling,
+  serviceDateToUiDate,
+  serviceTimeToUiTime,
+  mapAllFiltersToQueryCustomizerProperties,
+  processQueryCustomizer,
+  useErrorHandler,
+  ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
+} from '~/utilities';
 import type { PersistedTableData, RefreshableTable, TableRowAction } from '~/utilities';
 import { useDataStore } from '~/hooks';
 import { OBJECTCLASS } from '@pandino/pandino-api';
@@ -63,6 +80,7 @@ export interface {{ tableComponentName table }}Props {
   refreshCounter: number;
   validationError?: string;
   {{# unless container.table }}
+    ownerData: {{ classDataName container.dataElement '' }};
     editMode: boolean;
     isFormUpdateable: () => boolean;
   {{/ unless }}
@@ -70,7 +88,7 @@ export interface {{ tableComponentName table }}Props {
 
 // Name: {{ table.name }}
 export function {{ tableComponentName table }}(props: {{ tableComponentName table }}Props) {
-  const { uniqueId, actions, refreshCounter, validationError{{# unless container.table }}, editMode, isFormUpdateable{{/ unless }} } = props;
+  const { uniqueId, actions, refreshCounter, validationError{{# unless container.table }}, ownerData, editMode, isFormUpdateable{{/ unless }} } = props;
   const filterModelKey = `{{ createId table }}-${uniqueId}-filterModel`;
   const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
 
@@ -89,7 +107,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
   {{/ if }}
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [data, setData] = useState<GridRowModel<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>([]);
+  const [data, setData] = useState<GridRowModel<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>({{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }});
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
   const [rowCount, setRowCount] = useState<number>(0);
   const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
@@ -220,15 +238,17 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
     setIsNextButtonEnabled(!isNext);
   }
 
-  {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
+  {{# unless table.isEager }}
     async function fetchData() {
       if (!isLoading) {
         setIsLoading(true);
 
         try {
-          const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
-            processQueryCustomizer(queryCustomizer),
-          );
+          {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
+            const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
+              processQueryCustomizer(queryCustomizer),
+            );
+          {{/ with }}
 
           if (res.length > {{ calculateTablePageLimit table }}) {
             setIsNextButtonEnabled(true);
@@ -249,10 +269,24 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
       }
     }
 
+    useEffect(() => {
+      fetchData();
+    }, [queryCustomizer{{# unless table.isEager }}, refreshCounter{{/ unless }}]);
+
+  {{ else }}
+    useEffect(() => {
+      const newData = applyInMemoryFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }} ?? []{{ else }}data{{/ unless}});
+      setData(newData);
+    }, [{{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }}, {{/ unless }}filters]);
+
+    {{# if isUseInlineColumnFilters}}
       useEffect(() => {
-        fetchData();
-      }, [queryCustomizer{{# unless container.table }}, refreshCounter{{/ unless }}]);
-  {{/ with }}
+        if (filterModel.items.every((i) => i.value !== undefined)) {
+          setFilters(mapFilterModelToFilters(filterModel, filterOptions));
+        }
+      }, [{{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }}, {{/ unless }}filterModel]);
+    {{/ if }}
+  {{/ unless }}
 
   return (
     <>

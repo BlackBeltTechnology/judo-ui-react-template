@@ -48,10 +48,14 @@ export interface {{ containerComponentName container }}Props {
 // Name: {{ container.name }}
 export default (props: {{ containerComponentName container }}Props) => {
   {{# unless (containerIsEmptyDashboard container) }}
-  const { t } = useTranslation();
-  const { navigate, back } = useJudoNavigation();
-  const { refreshCounter, actions{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
-  const { locale: l10nLocale } = useL10N();
+    const { t } = useTranslation();
+    const { navigate, back } = useJudoNavigation();
+    const { refreshCounter, actions{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
+    const { locale: l10nLocale } = useL10N();
+
+    {{# unless container.table }}
+      useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
+    {{/ unless }}
   {{/ unless }}
 
   return (

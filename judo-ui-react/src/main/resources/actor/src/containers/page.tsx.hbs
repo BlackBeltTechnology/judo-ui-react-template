@@ -63,9 +63,9 @@ export default (props: {{ containerComponentName container }}PageProps) => {
     const { title, actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
     {{# unless container.table }}
-      const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName container.dataElement 'QueryCustomizer' }}>({
-        _mask: '{}',
-      });
+      const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
+        _mask: '{{ getMaskForView container }}',
+      };
     {{/ unless }}
   {{/ unless }}
 
