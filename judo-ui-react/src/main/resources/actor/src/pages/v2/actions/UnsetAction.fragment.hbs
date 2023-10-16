@@ -1,3 +1,5 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  alert('UnsetAction');
+  {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+    storeDiff('{{ link.dataElement.name }}', null);
+  {{/ with }}
 };

@@ -23,6 +23,7 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import lombok.extern.java.Log;
+import org.eclipse.emf.ecore.EObject;
 
 import java.util.*;
 import java.util.List;
@@ -349,5 +350,37 @@ public class UiActionsHelper {
         String suffixToCut = "Definition";
         String actionName = actionDefinitionBareName.substring(0, actionDefinitionBareName.length() - suffixToCut.length());
         return componentsLocation + actionName + ".fragment.hbs";
+    }
+
+    public static Link getLinkParentForActionDefinition(ActionDefinition actionDefinition) {
+        Link link = null;
+        EObject parent = actionDefinition.eContainer();
+
+        while (parent.eContainer() != null) {
+            if (parent instanceof Link) {
+                link = (Link) parent;
+                break;
+            } else {
+                parent = parent.eContainer();
+            }
+        }
+
+        return link;
+    }
+
+    public static Table getTableParentForActionDefinition(ActionDefinition actionDefinition) {
+        Table table = null;
+        EObject parent = actionDefinition.eContainer();
+
+        while (parent.eContainer() != null) {
+            if (parent instanceof Table) {
+                table = (Table) parent;
+                break;
+            } else {
+                parent = parent.eContainer();
+            }
+        }
+
+        return table;
     }
 }
