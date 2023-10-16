@@ -1,0 +1,9 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.actionDefinition.targetType 'QueryCustomizer' }}): Promise<{{ classDataName action.actionDefinition.targetType 'Stored' }}[]> => {
+  // alert('AutocompleteRangeAction');
+  try {
+    return {{ getServiceImplForPage page }}.getRangeFor{{ firstToUpper action.actionDefinition.eContainer.dataElement.name }}(data, queryCustomizer);
+  } catch (e) {
+     handleFetchError(e);
+     return Promise.resolve([]);
+   }
+};

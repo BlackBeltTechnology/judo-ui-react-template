@@ -2,6 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '@mui/material';
+import { processQueryCustomizer } from '~/utilities';
 import { MdiIcon } from '~/components';
 import {
   AggregationInput,
@@ -10,21 +11,28 @@ import {
   CollectionAssociationButton,
   TrinaryLogicCombobox,
 } from '~/components/widgets';
+import { StringOperation } from '~/generated/data-api';
 import type {
   {{ classDataName container.dataElement '' }},
   {{ classDataName container.dataElement 'Stored' }},
   {{ classDataName link.dataElement.target 'Stored' }},
+  {{ classDataName link.dataElement.target 'QueryCustomizer' }},
 } from '~/generated/data-api';
 
 export interface {{ linkComponentName link }}ActionDefinitions {
   {{# each link.actionDefinitions as |actionDefinition| }}
-    {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+    {{# if actionDefinition.isAutocompleteRangeAction }}
+      {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName link.dataElement.target 'QueryCustomizer' }}) => Promise<{{ classDataName link.dataElement.target 'Stored' }}[]>;
+    {{ else }}
+      {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+    {{/ if }}
   {{/ each }}
 }
 
 export interface {{ linkComponentName link }}Props {
   ownerData: {{ classDataName container.dataElement '' }} | {{ classDataName container.dataElement 'Stored' }};
   actions: {{ linkComponentName link }}ActionDefinitions;
+  storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
   validationError?: string;
   disabled?: boolean;
   editMode?: boolean;
@@ -32,7 +40,7 @@ export interface {{ linkComponentName link }}Props {
 
 // Name: {{ link.name }}
 export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
-  const { ownerData, actions, validationError, disabled, editMode } = props;
+  const { ownerData, actions, storeDiff, validationError, disabled, editMode } = props;
   const { t } = useTranslation();
 
   return (
@@ -55,12 +63,31 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
       editMode={editMode}
       autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
       onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
-          // storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
-          console.log({{ link.dataElement.name }});
-          alert('TMP');
+        storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
       } }
+      {{# if (isAutocompleteAvailable link) }}
+        {{# with (getFirstAutocompleteColumnForLink link) as |column| }}
+          {{# with link.autocompleteRangeActionDefinition as |actionDefinition| }}
+            onAutoCompleteSearch={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (searchText: string) => {
+              const queryCustomizer: {{ classDataName link.dataElement.target 'QueryCustomizer' }} = {
+                ...(searchText?.length ? {
+                  {{ column.attributeType.name }}: [
+                    { operator: StringOperation.like, value: searchText }
+                  ],
+                } : {}),
+                _mask: '{ {{~ column.attributeType.name ~}} }',
+                _orderBy: [
+                  { attribute: '{{ column.attributeType.name }}', descending: false },
+                ],
+                _seek: { limit: 10 },
+              };
+              return await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+            } : undefined }
+          {{/ with }}
+        {{/ with }}
+      {{/ if }}
       {{# each link.actionButtonGroup.buttons as |button| }}
-        {{# if (actionIsSetOpenAction button.actionDefinition) }}
+        {{# if button.actionDefinition.isOpenSelectorAction }}
           onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} }
         {{/ if }}
         {{# if button.actionDefinition.isUnsetAction }}
