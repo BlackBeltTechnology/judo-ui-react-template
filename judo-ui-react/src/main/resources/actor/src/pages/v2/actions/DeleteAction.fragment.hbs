@@ -1,3 +1,30 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  alert('DeleteAction');
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if}}) => {
+  // alert('DeleteAction');
+  try {
+    const confirmed = await openConfirmDialog(
+        'row-delete-action',
+        t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
+        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+    );
+    if (confirmed) {
+      await {{ getServiceImplForPage page }}.delete{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if action.actionDefinition.targetType }}target{{ else }}data{{/ if }});
+
+      enqueueSnackbar(t('judo.action.delete.success', { defaultValue: 'Delete successful' }), {
+          variant: 'success',
+          ...toastConfig.success,
+      });
+
+      {{# if action.targetDataElement }}
+        {{# if (containerIsRefreshable page.container) }}
+          {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+            {{ simpleActionDefinitionName refreshActionDefinition }}(pageQueryCustomizer);
+          {{/ with }}
+        {{/ if }}
+      {{ else }}
+        back();
+      {{/ if }}
+    }
+  } catch(error) {
+    handleDeleteError(error, undefined, {{# if action.actionDefinition.targetType }}target{{ else }}data{{/ if }});
+  }
 };

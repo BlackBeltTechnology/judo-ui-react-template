@@ -91,7 +91,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
           onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} }
         {{/ if }}
         {{# if button.actionDefinition.isUnsetAction }}
-          onUnset={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+          onUnset={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
         {{/ if }}
         {{# if button.actionDefinition.isOpenPageAction }}
           onView={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
@@ -100,10 +100,7 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
           onCreate={ actions.{{ simpleActionDefinitionName actionDefinition }} }
         {{/ if }}
         {{# if button.actionDefinition.isDeleteAction }}
-          onDelete={ actions.{{ simpleActionDefinitionName actionDefinition }} }
-        {{/ if }}
-        {{# if button.actionDefinition.isRemoveAction }}
-          onRemove={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+          onDelete={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
         {{/ if }}
       {{/ each }}
     >

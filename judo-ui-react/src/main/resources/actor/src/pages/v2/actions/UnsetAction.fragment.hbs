@@ -1,4 +1,4 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.targetDataElement }}target: {{ classDataName action.targetDataElement.target 'Stored' }}{{/ if }}) => {
   {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
     storeDiff('{{ link.dataElement.name }}', null);
   {{/ with }}

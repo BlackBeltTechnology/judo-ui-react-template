@@ -7,12 +7,10 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   import { useTranslation } from 'react-i18next';
   import { useParams } from 'react-router-dom';
   import { useSnackbar } from 'notistack';
-  {{# if page.container.table }}
   import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
   import type { Filter, FilterOption } from '~/components-api';
-  {{/ if }}
   import { useJudoNavigation } from '~/components';
-  import { useFilterDialog } from '~/components/dialog';
+  import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
   import { toastConfig } from '~/config';
   import {
     passesLocalValidation,
@@ -58,13 +56,10 @@ export default function {{ pageName page }}() {
     const { enqueueSnackbar } = useSnackbar();
     const { navigate, back } = useJudoNavigation();
     const { openFilterDialog } = useFilterDialog();
+    const { openConfirmDialog } = useConfirmDialog();
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-    {{# if page.dataElement.isUpdatable }}
-      const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
-    {{/ if }}
-    {{# if page.dataElement.isDeletable }}
-      const handleDeleteError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
-    {{/ if }}
+    const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
+    const handleDeleteError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
 
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);
