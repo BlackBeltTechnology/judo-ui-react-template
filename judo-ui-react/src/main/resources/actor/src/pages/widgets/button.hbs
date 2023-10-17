@@ -10,48 +10,38 @@
       payloadDiff={payloadDiff}
     >
   {{/ if }}
-  {{# if action.isCallOperationAction }}
+  {{# if child.actionDefinition.isCallOperationAction }}
     <LoadingButton
-      id="{{ createId action }}"
+      id="{{ createId child }}"
       loading={isLoading}
       variant={ {{{ variantForButton child }}} }
       {{# if child.icon }}
         startIcon={<MdiIcon path="{{ child.icon.name }}" />}
         loadingPosition="start"
       {{/ if }}
-      onClick={() => {{ simpleActionDefinitionName action }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData())}
-      disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
+      onClick={ async () => {
+        if (actions.{{ simpleActionDefinitionName child.actionDefinition }}) {
+          await actions.{{ simpleActionDefinitionName child.actionDefinition }}!();
+        }
+      } }
+      disabled={ !actions.{{ simpleActionDefinitionName child.actionDefinition }} ||{{# if child.enabledBy }} !data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
     >
       <span>{ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }</span>
     </LoadingButton>
   {{/ if }}
 
-  {{# if action.isNavigationToPageAction }}
-    {{# if action.dataElement.isCollection }}
-      <CollectionAssociationButton
-        id="{{ createId action }}"
-        variant={ {{{ variantForButton child }}} }
-        editMode={editMode}
-        navigateAction={() => {{ simpleActionDefinitionName action }}(data)}
-      >
-        { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
-        <MdiIcon path="arrow-right" />
-      </CollectionAssociationButton>
-    {{ else }}
-      <AssociationButton
-        id="{{ createId action }}"
-        variant={ {{{ variantForButton child }}} }
-        editMode={editMode}
-        navigateAction={(target) => {{ simpleActionDefinitionName action }}(data, target)}
-        owner={data}
-        fetchCall={async (owner: JudoIdentifiable<any>) => {
-          alert('TODO');
-        } }
-      >
-        { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
-        <MdiIcon path="arrow-right" />
-      </AssociationButton>
-    {{/ if }}
+  {{# if child.actionDefinition.isOpenPageAction }}
+    <AssociationButton
+      id="{{ createId child }}"
+      variant={ {{{ variantForButton child }}} }
+      editMode={editMode}
+      navigateAction={ actions.{{ simpleActionDefinitionName child.actionDefinition }} }
+      refreshCounter={refreshCounter}
+      {{# if child.preFetchActionDefinition }}fetchCall={ actions.{{ simpleActionDefinitionName child.preFetchActionDefinition }} }{{/ if }}
+    >
+      { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
+      <MdiIcon path="arrow-right" />
+    </AssociationButton>
   {{/ if }}
   {{# if child.customImplementation }}
     </ComponentProxy>

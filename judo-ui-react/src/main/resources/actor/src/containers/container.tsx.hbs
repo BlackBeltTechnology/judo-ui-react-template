@@ -22,8 +22,8 @@
 
 {{# unless (containerIsEmptyDashboard container) }}
 export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
-  {{# each (getButtonGroupActionDefinitions container) as |actionDefinition| }}
-    {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+  {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
+    {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target?: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
   {{/ each }}
 }
 {{/ unless }}

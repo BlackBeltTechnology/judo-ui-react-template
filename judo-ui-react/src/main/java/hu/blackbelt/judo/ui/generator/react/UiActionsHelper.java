@@ -294,13 +294,13 @@ public class UiActionsHelper {
         return actionDefinition.getName().endsWith("::Add::Open");
     }
 
-    public static List<ActionDefinition> getButtonGroupActionDefinitions(PageContainer container) {
+    public static List<ActionDefinition> getContainerOwnActionDefinitions(PageContainer container) {
         List<ButtonGroup> groups = new ArrayList<>();
         collectElementsOfType(container, groups, ButtonGroup.class);
 
         List<ActionDefinition> actionDefinitions = groups.stream()
                 .flatMap(g -> g.getButtons().stream())
-                .map(b -> b.getActionDefinition())
+                .map(Button::getActionDefinition)
                 .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition/* || actionIsSetOpenAction(a) || actionIsAddOpenAction(a)*/)
                 .collect(Collectors.toList());
 
@@ -308,10 +308,18 @@ public class UiActionsHelper {
         collectElementsOfType(container, buttons, Button.class);
 
         actionDefinitions.addAll(buttons.stream().map(Button::getActionDefinition).toList());
+        actionDefinitions.addAll(buttons.stream().map(Button::getPreFetchActionDefinition).filter(Objects::nonNull).toList());
 
         actionDefinitions.sort(Comparator.comparing(NamedElement::getFQName));
 
         return actionDefinitions;
+    }
+
+    public static String getContainerOwnActionReturnType(ActionDefinition actionDefinition, PageContainer container) {
+        if (actionDefinition.getIsPreFetchAction()) {
+            return classDataName(actionDefinition.getTargetType(), "Stored");
+        }
+        return "void";
     }
 
     public static <T extends VisualElement> void collectElementsOfType(VisualElement visualElement, List<T> acc, Class<T> elementType) {

@@ -1,0 +1,5 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<{{ classDataName action.actionDefinition.targetType 'Stored' }}> => {
+  return {{ getServiceImplForPage page }}.get{{ firstToUpper action.targetDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}undefined{{/ if }}, {
+    _mask: '{}',
+  });
+};
