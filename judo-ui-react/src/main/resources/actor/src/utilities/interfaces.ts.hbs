@@ -9,3 +9,10 @@ export type ColumnActionsProvider<R> = (id: string, actions: TableRowAction<R>[]
 export interface PageContainerRef {
   refresh: () => void;
 }
+
+export type PageResultType = 'close' | 'submit';
+
+export interface PageResult<T> {
+  resultType?: PageResultType;
+  resultData?: T;
+}

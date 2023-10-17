@@ -22,12 +22,15 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
+import hu.blackbelt.judo.meta.ui.data.ReferenceType;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 
 @Log
 @TemplateHelper
@@ -382,5 +385,21 @@ public class UiActionsHelper {
         }
 
         return table;
+    }
+
+    public static String linkActionDefinitionParameters(Link link, ActionDefinition actionDefinition) {
+        if (actionDefinition.getIsAutocompleteRangeAction()) {
+            return "queryCustomizer: " + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "QueryCustomizer");
+        } else if (actionDefinition.getTargetType() != null) {
+            return "target: " + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored");
+        }
+        return "";
+    }
+
+    public static String linkActionDefinitionResponseType(Link link, ActionDefinition actionDefinition) {
+        if (actionDefinition.getIsAutocompleteRangeAction()) {
+            return "Array<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + ">";
+        }
+        return "void";
     }
 }

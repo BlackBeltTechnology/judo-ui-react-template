@@ -2,6 +2,7 @@
 
 import { useTranslation } from 'react-i18next';
 import { IconButton } from '@mui/material';
+import type { PageResult } from '~/utilities';
 import { processQueryCustomizer } from '~/utilities';
 import { MdiIcon } from '~/components';
 import {
@@ -21,11 +22,7 @@ import type {
 
 export interface {{ linkComponentName link }}ActionDefinitions {
   {{# each link.actionDefinitions as |actionDefinition| }}
-    {{# if actionDefinition.isAutocompleteRangeAction }}
-      {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName link.dataElement.target 'QueryCustomizer' }}) => Promise<{{ classDataName link.dataElement.target 'Stored' }}[]>;
-    {{ else }}
-      {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
-    {{/ if }}
+    {{ simpleActionDefinitionName actionDefinition }}?: ({{{ linkActionDefinitionParameters link actionDefinition }}}) => Promise<{{{ linkActionDefinitionResponseType link actionDefinition }}}>;
   {{/ each }}
 }
 
@@ -88,16 +85,22 @@ export function {{ linkComponentName link }}(props: {{ linkComponentName link }}
       {{/ if }}
       {{# each link.actionButtonGroup.buttons as |button| }}
         {{# if button.actionDefinition.isOpenSelectorAction }}
-          onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+          onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async () => {
+            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+          } : undefined }
         {{/ if }}
         {{# if button.actionDefinition.isUnsetAction }}
           onUnset={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
         {{/ if }}
         {{# if button.actionDefinition.isOpenPageAction }}
-          onView={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
+          onView={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => {
+            await actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!);
+          } : undefined }
         {{/ if }}
-        {{# if button.actionDefinition.isCreateAction }}
-          onCreate={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        {{# if button.actionDefinition.isOpenFormAction }}
+          onCreate={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async () => {
+            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+          } : undefined }
         {{/ if }}
         {{# if button.actionDefinition.isDeleteAction }}
           onDelete={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
