@@ -436,6 +436,7 @@ public class UiPageHelper extends Helper {
             if (theTable.getDataElement() instanceof ClassType) {
                 res.add(classDataName((ClassType) theTable.getDataElement(), ""));
                 res.add(classDataName((ClassType) theTable.getDataElement(), "Stored"));
+                res.add(classDataName((ClassType) theTable.getDataElement(), "QueryCustomizer"));
             }
             if (theTable.getDataElement() instanceof RelationType) {
                 res.addAll(getApiImportsForReferenceType((RelationType) theTable.getDataElement()));
@@ -451,6 +452,7 @@ public class UiPageHelper extends Helper {
             if (actionDefinition.getTargetType() != null) {
                 res.add(classDataName(actionDefinition.getTargetType(), ""));
                 res.add(classDataName(actionDefinition.getTargetType(), "Stored"));
+                res.add(classDataName(actionDefinition.getTargetType(), "QueryCustomizer"));
             }
         }
 

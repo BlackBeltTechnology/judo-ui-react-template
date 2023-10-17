@@ -1,19 +1,128 @@
 {{> fragment.header.hbs }}
 
-import { lazy, Suspense } from 'react';
+import { lazy, useCallback, useRef, useState, Suspense } from 'react';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import type { JudoIdentifiable } from '@judo/data-api-common';
+import { useTranslation } from 'react-i18next';
+import { useSnackbar } from 'notistack';
+import { useJudoNavigation } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+import {
+  passesLocalValidation,
+  uiDateToServiceDate,
+  uiTimeToServiceTime,
+  useErrorHandler,
+  ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
+} from '~/utilities';
+import type { {{ containerComponentName page.container }}PageActions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer';
 import type { {{ containerComponentName page.container }}ActionDefinitions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}';
+import type {
+  {{# each (getApiImportsForPage page) as |imp| }}
+    {{ imp }},
+  {{/ each }}
+} from '~/generated/data-api';
+{{# if (getServiceImplForPage page) }}
+    import { {{ getServiceImplForPage page }} } from '~/generated/data-axios';
+{{/ if }}
+
+{{# unless page.container.table }}
+  {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
+  {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
+{{/ unless }}
 
 const {{ containerComponentName page.container }}PageContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer'));
 
+export interface {{ pageName page }}Props {
+  ownerData: any;
+
+}
+
 // Name: {{ page.name }}
-export default function {{ pageName page }}() {
+export default function {{ pageName page }}(props: {{ pageName page }}Props) {
+  const { ownerData } = props;
+
+  // Hooks section
+  const { t } = useTranslation();
+  const { enqueueSnackbar } = useSnackbar();
+  const { navigate, back } = useJudoNavigation();
+  const { openConfirmDialog } = useConfirmDialog();
+  const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+  const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
+  const handleDeleteError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
+
+  // State section
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [refreshCounter, setRefreshCounter] = useState<number>(0);
+  {{# unless page.container.table }}
+    const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}>({} as {{ classDataName (getReferenceClassType page) 'Stored' }});
+    const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
+
+    // Ref section
+    const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
+
+    // Callback section
+    const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {
+      {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+      {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target page=page }}
+    }, [data, editMode]);
+    const isFormUpdateable = useCallback(() => {
+      {{# if page.container.form }}
+        return true;
+      {{ else }}
+        return {{ boolValue (isPageUpdateable page) }} && typeof data?.__updateable === 'boolean' && data?.__updateable;
+      {{/ if }}
+    }, [data]);
+    const isFormDeleteable = useCallback(() => {
+      {{# if page.container.form }}
+        return false;
+      {{ else }}
+        return {{ boolValue (isPageDeleteable page) }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
+      {{/ if }}
+    }, [data]);
+
+    {{# if page.container.view }}
+      const pageQueryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = {
+        _mask: '{{ getMaskForView page.container }}',
+      };
+    {{/ if }}
+  {{/ unless }}
+
+  // Calculated section
+  {{# if (titleComesFromAttribute page.container) }}
+    const title: string = data.{{ page.container.titleAttribute.name }} as string;
+  {{ else }}
+    const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
+  {{/ if }}
+
+  // Action section
+  {{# each page.actions as |action| }}
+    {{> (getActionTemplate action) }}
+  {{/ each }}
+
+  const actions: {{ containerComponentName page.container }}PageActions = {
+    {{# each page.actions as |action| }}
+      {{ simpleActionDefinitionName action.actionDefinition }},
+    {{/ each }}
+  };
+
   return (
-    <>
-      <h1>Yo</h1>
-      <p>from: {{ page.name }}</p>
-      <Suspense>
-        <div>palceholder</div>
-      </Suspense>
-    </>
+    <Suspense>
+      <{{ containerComponentName page.container }}PageContainer
+        title={title}
+        actions={actions}
+        isLoading={isLoading}
+        editMode={editMode}
+        refreshCounter={refreshCounter}
+        {{# unless page.container.table }}
+          data={data}
+          storeDiff={storeDiff}
+          isFormUpdateable={isFormUpdateable}
+          isFormDeleteable={isFormDeleteable}
+          validation={validation}
+          setValidation={setValidation}
+        {{/ unless }}
+      />
+    </Suspense>
   );
 }

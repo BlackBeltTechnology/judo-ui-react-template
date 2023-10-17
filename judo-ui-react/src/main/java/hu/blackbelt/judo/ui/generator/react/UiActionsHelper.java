@@ -22,6 +22,7 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
+import hu.blackbelt.judo.meta.ui.data.OperationType;
 import hu.blackbelt.judo.meta.ui.data.ReferenceType;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
@@ -409,5 +410,9 @@ public class UiActionsHelper {
             return "Array<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + ">";
         }
         return "void";
+    }
+
+    public static boolean actionIsOperationAction(Action action) {
+        return action.getOwnerDataElement() instanceof OperationType;
     }
 }

@@ -334,9 +334,16 @@ public class UiWidgetHelper extends Helper {
             return ((OperationParameterType) dataElement).getTarget();
         } else if (dataElement instanceof ClassType) {
             return (ClassType) dataElement;
+        } else if (dataElement instanceof OperationType) {
+            OperationType operationType = (OperationType) ref.getDataElement();
+            if (operationType.getOutput() != null) {
+                return operationType.getOutput().getTarget();
+            } else {
+                return operationType.getInput().getTarget();
+            }
         }
 
-        throw new RuntimeException("Input's ClassType cannot be discovered: " + ref.getClass().getName());
+        throw new RuntimeException("Parameter's ClassType cannot be discovered: " + ref.getClass().getName());
     }
 
 //    public static Action getCreateActionForLink(Link link) {

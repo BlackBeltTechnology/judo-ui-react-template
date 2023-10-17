@@ -10,7 +10,7 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
   import type { Filter, FilterOption } from '~/components-api';
   import { useJudoNavigation } from '~/components';
-  import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
+  import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
   import { toastConfig } from '~/config';
   import {
     passesLocalValidation,
@@ -60,6 +60,7 @@ export default function {{ pageName page }}() {
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
     const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
     const handleDeleteError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
+    const [createDialog, closeDialog] = useDialog();
 
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);
