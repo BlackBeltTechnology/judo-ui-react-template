@@ -156,14 +156,28 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
     {{/ each }}
   ];
 
+  const rowActions: TableRowAction<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
+    {{# each table.rowActionButtonGroup.buttons as |button| }}
+      {{# unless button.actionDefinition.isOpenPageAction }}
+        {
+          id: '{{ createId button }}',
+          label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
+          {{# if button.icon }}
+          icon: <MdiIcon path="{{ button.icon.name }}" />,
+          {{/ if }}
+          disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {{{ tableRowButtonDisabledConditions button table container }}},
+          action: actions.{{ simpleActionDefinitionName button.actionDefinition }}
+        },
+      {{/ unless }}
+    {{/ each }}
+  ];
+
   const filterOptions: FilterOption[] = [
     {{# each table.filters as |filter| }}
       {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
       {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
     {{/ each }}
   ];
-
-  const rowActions: any[] = [];
 
   {{# if isUseInlineColumnFilters }}
     function handleFilterModelChange (newModel: GridFilterModel) {

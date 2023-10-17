@@ -421,4 +421,31 @@ public class UiWidgetHelper extends Helper {
         }
         return "true";
     }
+
+    public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
+        String result = "";
+
+        if (button.getActionDefinition().getIsRemoveAction()) {
+            if (!container.isTable() && table.getEnabledBy() != null) {
+                result += "!ownerData.{{ table.enabledBy.name }} || ";
+            }
+        } else if (button.getActionDefinition().getIsDeleteAction()) {
+            if (!container.isTable()) {
+                result += "editMode || ";
+
+                if (table.getEnabledBy() != null) {
+                    result += "!ownerData.{{ table.enabledBy.name }} || ";
+                }
+            }
+            result += "!row.__deleteable || ";
+        } else if (!container.isTable()) {
+            result += "editMode || ";
+        }
+
+        if (button.getEnabledBy() != null) {
+            result += "!row." + button.getEnabledBy().getName() + " || ";
+        }
+
+        return result + "isLoading";
+    }
 }
