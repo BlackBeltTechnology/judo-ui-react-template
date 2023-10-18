@@ -23,6 +23,9 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   {{# each (getRelatedPages page) as |relatedPage| }}
     import { routeTo{{ pageName relatedPage }} } from '~/routes';
   {{/ each }}
+  {{# each (getRelatedDialogs page) as |relatedDialog| }}
+    import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}';
+  {{/ each }}
   import type { {{ containerComponentName page.container }}PageActions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer';
   import type {
     {{# each (getApiImportsForPage page) as |imp| }}
@@ -66,8 +69,8 @@ export default function {{ pageName page }}() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>(false);
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
+    const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{} as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
     {{# unless page.container.table }}
-      const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}>({} as {{ classDataName (getReferenceClassType page) 'Stored' }});
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
       // Ref section
@@ -100,6 +103,11 @@ export default function {{ pageName page }}() {
       {{/ if }}
     {{/ unless }}
 
+    // Dialog hooks
+    {{# each (getRelatedDialogs page) as |relatedDialog| }}
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}(data);
+    {{/ each }}
+
     // Calculated section
     {{# if (titleComesFromAttribute page.container) }}
       const title: string = data.{{ page.container.titleAttribute.name }} as string;
@@ -127,32 +135,30 @@ export default function {{ pageName page }}() {
   {{/ unless }}
 
   return (
-    <>
-      {{# unless (containerIsEmptyDashboard page.container) }}
-        <Suspense>
-          <PageContainerTransition>
-            <{{ containerComponentName page.container }}PageContainer
-              title={title}
-              actions={actions}
-              isLoading={isLoading}
-              editMode={editMode}
-              refreshCounter={refreshCounter}
-              {{# unless (containerIsEmptyDashboard page.container) }}
-                {{# unless page.container.table }}
-                  data={data}
-                  storeDiff={storeDiff}
-                  isFormUpdateable={isFormUpdateable}
-                  isFormDeleteable={isFormDeleteable}
-                  validation={validation}
-                  setValidation={setValidation}
-                {{/ unless }}
+    {{# unless (containerIsEmptyDashboard page.container) }}
+      <Suspense>
+        <PageContainerTransition>
+          <{{ containerComponentName page.container }}PageContainer
+            title={title}
+            actions={actions}
+            isLoading={isLoading}
+            editMode={editMode}
+            refreshCounter={refreshCounter}
+            {{# unless (containerIsEmptyDashboard page.container) }}
+              {{# unless page.container.table }}
+                data={data}
+                storeDiff={storeDiff}
+                isFormUpdateable={isFormUpdateable}
+                isFormDeleteable={isFormDeleteable}
+                validation={validation}
+                setValidation={setValidation}
               {{/ unless }}
-            />
-          </PageContainerTransition>
-        </Suspense>
-      {{ else }}
-        <h1>Hello!</h1>
-      {{/ unless }}
-    </>
+            {{/ unless }}
+          />
+        </PageContainerTransition>
+      </Suspense>
+    {{ else }}
+      <h1>Hello!</h1>
+    {{/ unless }}
   );
 }

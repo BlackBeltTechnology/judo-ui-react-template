@@ -262,11 +262,19 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
         setIsLoading(true);
 
         try {
-          {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
-            const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
-              processQueryCustomizer(queryCustomizer),
-            );
-          {{/ with }}
+          {{# if container.isSelector }}
+            {{# with (getRangeActionDefinitionForTable table) as |actionDefinition| }}
+              const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
+                processQueryCustomizer(queryCustomizer),
+              );
+            {{/ with }}
+          {{ else }}
+            {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
+              const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
+                processQueryCustomizer(queryCustomizer),
+              );
+            {{/ with }}
+          {{/ if }}
 
           if (res.length > {{ calculateTablePageLimit table }}) {
             setIsNextButtonEnabled(true);
@@ -395,7 +403,11 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
                       {{# if actionDefinition.isRefreshAction }}
                         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
                       {{ else }}
-                        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                        {{# if actionDefinition.isSelectorRangeAction }}
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                        {{ else }}
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                        {{/ if }}
                       {{/ if }}
                     {{/ if }}
                   } }

@@ -23,7 +23,7 @@
 {{# unless (containerIsEmptyDashboard container) }}
 export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
   {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
-    {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target?: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
+    {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
   {{/ each }}
 }
 {{/ unless }}
@@ -61,28 +61,26 @@ export default (props: {{ containerComponentName container }}Props) => {
   return (
     {{# unless (containerIsEmptyDashboard container) }}
       {{# with container.children.[0] as |rootChild| }}
-        <Box sx={mainContainerPadding}>
-          <Grid
-            container
-            spacing={2}
-            direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}"
-            alignItems="{{# if container.table }}stretch{{ else }}{{ alignItems rootChild }}{{/ if }}"
-            justifyContent="{{ justifyContent rootChild }}"
-          >
-            {{# if container.table }}
-              <Card>
-                <CardContent>
-            {{/ if }}
-            {{# each rootChild.children as |child| }}
-              {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
-              {{> (getWidgetTemplate child) }}
-            {{/ each }}
-            {{# if container.table }}
-                </CardContent>
-              </Card>
-            {{/ if }}
-          </Grid>
-        </Box>
+        <Grid
+          container
+          spacing={2}
+          direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}"
+          alignItems="{{# if container.table }}stretch{{ else }}{{ alignItems rootChild }}{{/ if }}"
+          justifyContent="{{ justifyContent rootChild }}"
+        >
+          {{# if container.table }}
+            <Card>
+              <CardContent>
+          {{/ if }}
+          {{# each rootChild.children as |child| }}
+            {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+            {{> (getWidgetTemplate child) }}
+          {{/ each }}
+          {{# if container.table }}
+              </CardContent>
+            </Card>
+          {{/ if }}
+        </Grid>
       {{/ with }}
     {{ else }}
       <></>

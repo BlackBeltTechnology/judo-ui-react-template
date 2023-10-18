@@ -311,14 +311,32 @@ public class UiActionsHelper {
         actionDefinitions.addAll(buttons.stream().map(Button::getActionDefinition).toList());
         actionDefinitions.addAll(buttons.stream().map(Button::getPreFetchActionDefinition).filter(Objects::nonNull).toList());
 
+        // the TemplateAction is not defined on any button, that's why need to check the container for it's existence
+//        if (container.getTemplateAction() != null) {
+//            actionDefinitions.add(container.getTemplateAction());
+//        }
+
         actionDefinitions.sort(Comparator.comparing(NamedElement::getFQName));
 
         return actionDefinitions;
     }
 
+    public static String getContainerOwnActionParameters(ActionDefinition actionDefinition, PageContainer container) {
+        String res = "";
+        if (actionDefinition.getTargetType() != null) {
+            if (!actionDefinition.getIsGetTemplateAction()) {
+                res += "target?: " + classDataName(actionDefinition.getTargetType(), "Stored");
+            }
+        }
+
+        return res;
+    }
+
     public static String getContainerOwnActionReturnType(ActionDefinition actionDefinition, PageContainer container) {
         if (actionDefinition.getIsPreFetchAction()) {
             return classDataName(actionDefinition.getTargetType(), "Stored");
+        } else if (actionDefinition.getIsGetTemplateAction()) {
+            return classDataName(actionDefinition.getTargetType(), "");
         }
         return "void";
     }
@@ -346,6 +364,10 @@ public class UiActionsHelper {
             return null;
         }
         return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
+    }
+
+    public static ActionDefinition getRangeActionDefinitionForTable(Table table) {
+        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsSelectorRangeAction()).findFirst().orElse(null);
     }
 
     public static ActionDefinition getRefreshActionDefinitionForContainer(PageContainer container) {

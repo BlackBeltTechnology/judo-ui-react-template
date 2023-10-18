@@ -2,12 +2,13 @@
 
 import { forwardRef, lazy, useImperativeHandle, useState, Suspense } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import { Grid, Button } from '@mui/material';
+import { Box, Grid, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
 import type { PageContainerRef } from '~/utilities';
 import { useJudoNavigation, MdiIcon, PageHeader } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
+import { mainContainerPadding } from '~/theme';
 import { useL10N } from '~/l10n/l10n-context';
 {{# unless (containerIsEmptyDashboard container) }}
   {{# unless container.table }}
@@ -70,8 +71,8 @@ export default (props: {{ containerComponentName container }}PageProps) => {
   {{/ unless }}
 
   return (
-    <>
-      {{# unless (containerIsEmptyDashboard container) }}
+    {{# unless (containerIsEmptyDashboard container) }}
+      <>
         <PageHeader title={title}>
           {{# unless container.table }}
             {editMode{{# unless container.table }} && isFormUpdateable(){{/ unless }} && (
@@ -130,24 +131,28 @@ export default (props: {{ containerComponentName container }}PageProps) => {
           <div>{/* Placeholder */}</div>
         </PageHeader>
         <Suspense>
-          <{{ containerComponentName container }}
-            actions={actions}
-            refreshCounter={refreshCounter}
-            {{# unless (containerIsEmptyDashboard container) }}
-              {{# unless container.table }}
-                data={data}
-                isLoading={isLoading}
-                editMode={editMode}
-                storeDiff={storeDiff}
-                isFormUpdateable={isFormUpdateable}
-                isFormDeleteable={isFormDeleteable}
-                validation={validation}
-                setValidation={setValidation}
+          <Box sx={mainContainerPadding}>
+            <{{ containerComponentName container }}
+              actions={actions}
+              refreshCounter={refreshCounter}
+              {{# unless (containerIsEmptyDashboard container) }}
+                {{# unless container.table }}
+                  data={data}
+                  isLoading={isLoading}
+                  editMode={editMode}
+                  storeDiff={storeDiff}
+                  isFormUpdateable={isFormUpdateable}
+                  isFormDeleteable={isFormDeleteable}
+                  validation={validation}
+                  setValidation={setValidation}
+                {{/ unless }}
               {{/ unless }}
-            {{/ unless }}
-          />
+            />
+          </Box>
         </Suspense>
-      {{/ unless }}
-    </>
+      </>
+    {{ else }}
+      <></>
+    {{/ unless }}
   );
 };

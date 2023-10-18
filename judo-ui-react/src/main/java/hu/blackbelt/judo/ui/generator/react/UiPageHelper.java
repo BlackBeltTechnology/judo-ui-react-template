@@ -477,6 +477,18 @@ public class UiPageHelper extends Helper {
         return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
+    public static List<PageDefinition> getRelatedDialogs(PageDefinition pageDefinition) {
+        Set<PageDefinition> res = new HashSet<>();
+        try {
+            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getTargetPageDefinition() != null && a.getTargetPageDefinition().isOpenInDialog() && !a.getTargetPageDefinition().equals(pageDefinition)).toList()) {
+                res.add(action.getTargetPageDefinition());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
     public static String getServiceImplForPage(PageDefinition pageDefinition) {
         Set<String> res = new HashSet<>();
         DataElement dataElement = pageDefinition.getDataElement();
@@ -657,5 +669,9 @@ public class UiPageHelper extends Helper {
         collectVisualElementsMatchingCondition(pageDefinition.getContainer(), (element) -> element.getRequiredBy() != null, elements);
 
         return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<PageContainer> getPageContainersToGenerate(Application application) {
+        return application.getPageContainers().stream().filter(c -> !c.isForm() && !c.isIsSelector()).toList();
     }
 }
