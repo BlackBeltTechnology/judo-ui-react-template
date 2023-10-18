@@ -1,4 +1,15 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<{{ classDataName action.actionDefinition.targetType '' }}> => {
-  alert('GetTemplateAction');
-  return Promise.resolve({} as unknown as any);
+  try {
+    setIsLoading(true);
+    const result = await {{ getServiceImplForPage page }}.getTemplate{{ firstToUpper (getServiceMethodSuffix action) }}();
+
+    setData(result as {{ classDataName action.actionDefinition.targetType 'Stored' }});
+
+    return result;
+  } catch (e) {
+    handleFetchError(e);
+    return Promise.reject(e);
+  } finally {
+    setIsLoading(false);
+  }
 };

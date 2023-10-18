@@ -498,13 +498,22 @@ public class UiPageHelper extends Helper {
         } else if (dataElement instanceof OperationParameterType) {
             ClassType cls = ((OperationParameterType) dataElement).getTarget();
             Application application = (Application) pageDefinition.eContainer();
-            RelationType relationType = (RelationType) application.getRelationTypes().stream()
-                    .filter(r -> ((RelationType) r).getTarget().equals(cls) && ((RelationType) r).isIsAccess())
+            RelationType targetRelationType = (RelationType) application.getRelationTypes().stream()
+                    .filter(r -> ((RelationType) r).getTarget().equals(cls))
                     .findFirst()
                     .orElse(null);
 
-            if (relationType != null) {
-                return firstToLower(serviceRelationName(relationType)) + "Impl";
+            if (targetRelationType != null) {
+                return firstToLower(serviceRelationName(targetRelationType)) + "Impl";
+            }
+
+            RelationType operationInputRelationType = (RelationType) application.getRelationTypes().stream()
+                    .filter(r -> ((RelationType) r).getTarget().getOperations().stream().anyMatch(o -> o.getInput() != null && o.getInput().getTarget().equals(cls)))
+                    .findFirst()
+                    .orElse(null);
+
+            if (operationInputRelationType != null) {
+                return firstToLower(serviceRelationName(operationInputRelationType)) + "Impl";
             }
         }
 

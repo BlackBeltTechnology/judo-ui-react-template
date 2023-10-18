@@ -24,6 +24,7 @@ import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.OperationType;
 import hu.blackbelt.judo.meta.ui.data.ReferenceType;
+import hu.blackbelt.judo.meta.ui.data.RelationType;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 
@@ -32,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToUpper;
 
 @Log
 @TemplateHelper
@@ -436,5 +438,15 @@ public class UiActionsHelper {
 
     public static boolean actionIsOperationAction(Action action) {
         return action.getOwnerDataElement() instanceof OperationType;
+    }
+
+    public static String getServiceMethodSuffix(Action action) {
+        String suffix = "";
+        if (action.getOwnerDataElement() instanceof OperationType) {
+            suffix += "For" + firstToUpper(action.getOwnerDataElement().getName());
+        } else if (action.getOwnerDataElement() instanceof RelationType) {
+            suffix += "For" + firstToUpper(action.getOwnerDataElement().getName());
+        }
+        return suffix;
     }
 }

@@ -111,7 +111,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [editMode, setEditMode] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{} as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
     {{# unless page.container.table }}

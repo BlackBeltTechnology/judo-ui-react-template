@@ -69,16 +69,18 @@ export default (props: {{ containerComponentName container }}Props) => {
           justifyContent="{{ justifyContent rootChild }}"
         >
           {{# if container.table }}
-            <Card>
-              <CardContent>
+            <Grid item xs={12} sm={12}>
+              <Card>
+                <CardContent>
           {{/ if }}
           {{# each rootChild.children as |child| }}
             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
             {{> (getWidgetTemplate child) }}
           {{/ each }}
           {{# if container.table }}
-              </CardContent>
-            </Card>
+                </CardContent>
+              </Card>
+            </Grid>
           {{/ if }}
         </Grid>
       {{/ with }}
