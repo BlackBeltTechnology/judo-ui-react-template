@@ -14,6 +14,7 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   import { toastConfig } from '~/config';
   import {
     passesLocalValidation,
+    processQueryCustomizer,
     uiDateToServiceDate,
     uiTimeToServiceTime,
     useErrorHandler,
@@ -40,10 +41,10 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  export const use{{ pageName page }} = (ownerData: any): () => Promise<DialogResult<{{# if page.container.table }}Array<{{/ if }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}>{{/ if }}>> => {
+  export const use{{ pageName page }} = (ownerData: any): ({{# if page.container.view}}targetData: JudoIdentifiable<any>{{/ if }}) => Promise<DialogResult<{{# if page.container.table }}Array<{{/ if }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}>{{/ if }}>> => {
     const [createDialog, closeDialog] = useDialog();
 
-    return () => new Promise((resolve) => {
+    return ({{# if page.container.view}}targetData: JudoIdentifiable<any>{{/ if }}) => new Promise((resolve) => {
       createDialog({
         {{# if page.dialogSize }}
             fullWidth: true,
@@ -60,6 +61,9 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
         children: (
           <{{ pageName page }}
             ownerData={ownerData}
+            {{# if page.container.view}}
+            targetData={targetData}
+            {{/ if }}
             onClose={() => {
               closeDialog();
               resolve({
@@ -89,13 +93,14 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 
 export interface {{ pageName page }}Props {
   ownerData: any;
+  {{# if page.container.view}}targetData: JudoIdentifiable<any>{{/ if }}
   onClose: () => void;
   onSubmit: (result: {{# if page.container.table }}Array<{{/ if }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}>{{/ if }}) => void;
 }
 
 // Name: {{ page.name }}
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
-  const { ownerData, onClose, onSubmit } = props;
+  const { ownerData, {{# if page.container.view}}targetData, {{/ if }}onClose, onSubmit } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
     // Hooks section

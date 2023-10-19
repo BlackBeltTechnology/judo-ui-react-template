@@ -5,7 +5,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{# if page.container.table }}
       return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{{# if page.openInDialog }}data{{ else }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{/ if }}{{ else }}undefined{{/ if }}, queryCustomizer);
     {{ else }}
-      const result = await {{ getServiceImplForPage page }}.refresh({{# if (pageHasSignedId page) }}{{# if page.openInDialog }}data{{ else }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{/ if }}{{ else }}undefined{{/ if }}, pageQueryCustomizer);
+      const result = await {{ getServiceImplForPage page }}.refresh({{# if (pageHasSignedId page) }}{{# if page.openInDialog }}targetData{{ else }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{/ if }}{{ else }}undefined{{/ if }}, pageQueryCustomizer);
 
       setData(result);
 
