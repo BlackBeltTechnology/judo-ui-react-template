@@ -1,15 +1,13 @@
 {{> fragment.header.hbs }}
 
-import { forwardRef, lazy, useImperativeHandle, useState, Suspense } from 'react';
+import { lazy, Suspense } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { Box, Grid, Button } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
-import type { PageContainerRef } from '~/utilities';
 import { useJudoNavigation, MdiIcon, PageHeader } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { mainContainerPadding } from '~/theme';
-import { useL10N } from '~/l10n/l10n-context';
 {{# unless (containerIsEmptyDashboard container) }}
   {{# unless container.table }}
     import { processQueryCustomizer } from '~/utilities';
@@ -62,7 +60,6 @@ export default (props: {{ containerComponentName container }}PageProps) => {
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
     const { title, actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
-    const { locale: l10nLocale } = useL10N();
     {{# unless container.table }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
         _mask: '{{ getMaskForView container }}',
