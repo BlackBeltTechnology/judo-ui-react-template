@@ -13,6 +13,7 @@ import {
 import { LoadingButton } from '@mui/lab';
 import { useTranslation } from 'react-i18next';
 import { useJudoNavigation, MdiIcon, PageHeader } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
 {{# unless (containerIsEmptyDashboard container) }}
   {{# unless container.table }}
     import { processQueryCustomizer } from '~/utilities';
@@ -65,6 +66,8 @@ export interface {{ containerComponentName container }}DialogProps {
 
 // Name: {{ container.name }}
 export default (props: {{ containerComponentName container }}DialogProps) => {
+  const { openConfirmDialog } = useConfirmDialog();
+
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
@@ -132,18 +135,42 @@ export default (props: {{ containerComponentName container }}DialogProps) => {
           </Suspense>
         </DialogContent>
         <DialogActions>
-          <Grid className="page-action" item>
-            <Button
-              id="{{ containerComponentName container }}-dialog-close-button"
-              variant="text"
-              onClick={onClose}
-              {{# unless (containerIsEmptyDashboard container) }}
-              disabled={isLoading}
-              {{/ unless }}
-            >
-                {t('judo.pages.close', { defaultValue: 'Close' })}
-            </Button>
-          </Grid>
+          {{# each container.actionButtonGroup.buttons as |button| }}
+            { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
+              <Grid className="page-action" item>
+                <LoadingButton
+                  id="{{ button.name }}"
+                  loading={isLoading}
+                  loadingPosition="start"
+                  variant={ {{{ variantForButton button }}} }
+                  {{# if button.icon }}
+                    startIcon={<MdiIcon path="{{ button.icon.name }}" />}
+                  {{/ if }}
+                  onClick={ async () => {
+                    {{# if button.actionDefinition.isDeleteAction }}
+                      const confirmed = await openConfirmDialog(
+                        'page-delete-action',
+                        t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
+                        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+                      );
+
+                      if (confirmed) {
+                        actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      }
+                    {{ else }}
+                      {{# if actionDefinition.isRefreshAction }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                      {{ else }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      {{/ if }}
+                    {{/ if }}
+                  } }
+                >
+                  <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
+                </LoadingButton>
+              </Grid>
+            )}
+          {{/ each }}
         </DialogActions>
       {{/ unless }}
     </>

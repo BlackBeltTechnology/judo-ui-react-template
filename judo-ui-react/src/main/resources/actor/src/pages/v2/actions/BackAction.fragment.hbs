@@ -1,3 +1,7 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  back();
+  {{# if page.openInDialog }}
+    onClose();
+  {{ else }}
+    back();
+  {{/ if }}
 };

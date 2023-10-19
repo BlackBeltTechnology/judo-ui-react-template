@@ -384,7 +384,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
                 {actions.{{ simpleActionDefinitionName button.actionDefinition }} && ({{{ tableButtonVisibilityConditions button table }}}) ? <Button
                   id="{{ createId button }}"
                   startIcon={<MdiIcon path="{{ button.icon.name }}" />}
-                  variant="text"
+                  variant={ {{{ variantForButton button }}} }
                   onClick={ async () => {
                     {{# if button.actionDefinition.isFilterAction }}
                       const filterResults = await actions.{{ simpleActionDefinitionName actionDefinition }}!('{{ createId button }}', filterOptions, filterModel, filters);
