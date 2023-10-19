@@ -34,7 +34,10 @@
         onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();}) }
         {{/ if }}
         onValueChange={(values, sourceInfo) => {
-            storeDiff('{{ child.attributeType.name }}', values.floatValue === undefined ? null : values.floatValue);
+            const newValue = values.floatValue === undefined ? null : values.floatValue;
+            if (data.{{ child.attributeType.name }} !== newValue) {
+                storeDiff('{{ child.attributeType.name }}', newValue);
+            }
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {

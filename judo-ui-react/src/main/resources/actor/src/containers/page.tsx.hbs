@@ -53,7 +53,7 @@ export interface {{ containerComponentName container }}PageProps {
 };
 
 // Name: {{ container.name }}
-export default (props: {{ containerComponentName container }}PageProps) => {
+export default function {{ containerComponentName container }}Page (props: {{ containerComponentName container }}PageProps) {
   const { openConfirmDialog } = useConfirmDialog();
 
   {{# unless (containerIsEmptyDashboard container) }}
@@ -71,25 +71,6 @@ export default (props: {{ containerComponentName container }}PageProps) => {
     {{# unless (containerIsEmptyDashboard container) }}
       <>
         <PageHeader title={title}>
-          {{# unless container.table }}
-            {editMode{{# unless container.table }} && isFormUpdateable(){{/ unless }} && (
-              <Grid className="page-action" item>
-                {{# with (getRefreshActionDefinitionForContainer container) as |actionDefinition| }}
-                  <Button
-                    id="page-action-cancel"
-                    variant="outlined"
-                    startIcon={<MdiIcon path="cancel" />}
-                    onClick={ async () => {
-                      await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
-                    } }
-                    disabled={isLoading}
-                  >
-                    {t('judo.pages.cancel', { defaultValue: 'Cancel' })}
-                  </Button>
-                {{/ with }}
-              </Grid>
-            )}
-          {{/ unless }}
           {{# each container.actionButtonGroup.buttons as |button| }}
             { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
               <Grid className="page-action" item>
@@ -153,4 +134,4 @@ export default (props: {{ containerComponentName container }}PageProps) => {
       <></>
     {{/ unless }}
   );
-};
+}

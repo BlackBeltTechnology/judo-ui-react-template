@@ -46,7 +46,7 @@ export interface {{ containerComponentName container }}Props {
 };
 
 // Name: {{ container.name }}
-export default (props: {{ containerComponentName container }}Props) => {
+export default function {{ containerComponentName container }}(props: {{ containerComponentName container }}Props) {
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
@@ -88,4 +88,4 @@ export default (props: {{ containerComponentName container }}Props) => {
       <></>
     {{/ unless }}
   );
-};
+}

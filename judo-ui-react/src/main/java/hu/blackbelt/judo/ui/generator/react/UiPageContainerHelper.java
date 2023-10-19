@@ -113,7 +113,7 @@ public class UiPageContainerHelper extends Helper {
     public static String containerButtonAvailable(Button button) {
         if (button.getPageContainer().isForm()) {
             return "editMode";
-        } else if (button.getActionDefinition().getIsUpdateAction()) {
+        } else if (button.getActionDefinition().getIsCancelAction() || button.getActionDefinition().getIsUpdateAction()) {
             return "editMode";
         }
         return "!editMode";
