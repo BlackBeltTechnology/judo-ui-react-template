@@ -22,6 +22,7 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
+import hu.blackbelt.judo.meta.ui.data.ClassType;
 import hu.blackbelt.judo.meta.ui.data.OperationType;
 import hu.blackbelt.judo.meta.ui.data.ReferenceType;
 import hu.blackbelt.judo.meta.ui.data.RelationType;
@@ -32,6 +33,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToUpper;
 
@@ -325,9 +327,15 @@ public class UiActionsHelper {
 
     public static String getContainerOwnActionParameters(ActionDefinition actionDefinition, PageContainer container) {
         String res = "";
-        if (actionDefinition.getTargetType() != null) {
-            if (!actionDefinition.getIsGetTemplateAction()) {
-                res += "target?: " + classDataName(actionDefinition.getTargetType(), "Stored");
+        // queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}
+        if (actionDefinition.getIsRefreshAction()) {
+            res += "queryCustomizer: " + classDataName((ClassType) container.getDataElement(), "QueryCustomizer");
+        } else if (actionDefinition.getTargetType() != null) {
+            String targetName = classDataName(actionDefinition.getTargetType(), "Stored");
+            if (container.isIsRelationSelector()) {
+                res += "selected: " + targetName + "[]";
+            } else if (!actionDefinition.getIsGetTemplateAction()) {
+                res += "target?: " + targetName;
             }
         }
 
@@ -335,7 +343,10 @@ public class UiActionsHelper {
     }
 
     public static String getContainerOwnActionReturnType(ActionDefinition actionDefinition, PageContainer container) {
-        if (actionDefinition.getIsPreFetchAction()) {
+        if (actionDefinition.getIsRefreshAction()) {
+            // {{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}
+            return classDataName((ClassType) container.getDataElement(), "Stored") + (container.isTable() ? "[]" : "");
+        } else if (actionDefinition.getIsPreFetchAction()) {
             return classDataName(actionDefinition.getTargetType(), "Stored");
         } else if (actionDefinition.getIsGetTemplateAction()) {
             return classDataName(actionDefinition.getTargetType(), "");
@@ -436,10 +447,6 @@ public class UiActionsHelper {
         return "void";
     }
 
-    public static boolean actionIsOperationAction(Action action) {
-        return action.getOwnerDataElement() instanceof OperationType;
-    }
-
     public static String getServiceMethodSuffix(Action action) {
         String suffix = "";
         if (action.getOwnerDataElement() instanceof OperationType) {
@@ -448,5 +455,39 @@ public class UiActionsHelper {
             suffix += "For" + firstToUpper(action.getOwnerDataElement().getName());
         }
         return suffix;
+    }
+
+    public static String getDialogOpenParameters(PageDefinition pageDefinition) {
+        Set<String> result = new TreeSet<>();
+
+        if (pageDefinition.getContainer().isView()) {
+            result.add("targetData: JudoIdentifiable<any>");
+        }
+        if (pageDefinition.getContainer().isIsRelationSelector()) {
+            result.add("alreadySelected: " + classDataName(getReferenceClassType(pageDefinition), "Stored") + "[]");
+        }
+
+        return String.join(", ", result);
+    }
+
+    public static String getSelectorOpenActionParameters(Action action, PageContainer container) {
+        if (container.isTable()) {
+            return "[]";
+        }
+        if (action.getTargetPageDefinition().getContainer().isIsRelationSelector()) {
+            if (action.getTargetDataElement() instanceof RelationType check) {
+                String result = "data." + check.getName();
+                boolean isCollection = check.isIsCollection();
+                if (isCollection) {
+                    return result + " ?? []";
+                }
+                return result + "? [" + result + "] : []";
+            }
+        }
+        return "";
+    }
+
+    public static boolean isActionAddOrSet(ActionDefinition actionDefinition) {
+        return actionDefinition.getIsAddAction() || actionDefinition.getIsSetAction();
     }
 }

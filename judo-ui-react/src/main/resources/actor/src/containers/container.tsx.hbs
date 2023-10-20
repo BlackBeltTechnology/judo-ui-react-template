@@ -32,6 +32,11 @@ export interface {{ containerComponentName container }}Props {
   {{# unless (containerIsEmptyDashboard container) }}
     refreshCounter: number;
     actions: {{ pageContainerActionDefinitionTypeName container }};
+    {{# if container.isSelector }}
+      selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
+      setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
+    {{/ if }}
+    {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
     {{# unless container.table }}
       data: {{ classDataName container.dataElement '' }};
       isLoading: boolean;
@@ -50,7 +55,7 @@ export default function {{ containerComponentName container }}(props: {{ contain
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { refreshCounter, actions{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
+    const { refreshCounter, actions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
 
     {{# unless container.table }}

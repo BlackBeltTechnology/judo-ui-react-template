@@ -262,7 +262,7 @@ public class UiTableHelper extends Helper {
     }
 
     public static boolean tableHasSelectorColumn(Table table) {
-        return !getBulkOperationActionDefinitionsForTable(table).isEmpty()
+        return table.isIsSelectorTable() || !getBulkOperationActionDefinitionsForTable(table).isEmpty()
                 || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsDeleteAction())
                 || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRemoveAction());
     }

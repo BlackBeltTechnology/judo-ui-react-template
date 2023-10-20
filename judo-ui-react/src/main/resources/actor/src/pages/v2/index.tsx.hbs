@@ -71,6 +71,9 @@ export default function {{ pageName page }}() {
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{} as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
+    {{# if page.container.isSelector }}
+      const [selectionDiff, setSelectionDiff] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}[]>([]);
+    {{/ if }}
     {{# unless page.container.table }}
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
@@ -146,6 +149,10 @@ export default function {{ pageName page }}() {
             editMode={editMode}
             refreshCounter={refreshCounter}
             {{# unless (containerIsEmptyDashboard page.container) }}
+              {{# if page.container.isSelector }}
+                selectionDiff={selectionDiff}
+                setSelectionDiff={setSelectionDiff}
+              {{/ if }}
               {{# unless page.container.table }}
                 data={data}
                 storeDiff={storeDiff}

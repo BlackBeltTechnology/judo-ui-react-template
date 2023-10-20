@@ -1,4 +1,16 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   // alert('OpenSelectorAction');
-  const result = await open{{ pageName action.targetPageDefinition }}();
+  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
+  if (result === 'submit') {
+    {{# if action.targetPageDefinition.container.isRelationSelector }}
+      if (Array.isArray(returnedData) && returnedData.length) {
+        {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+          storeDiff('{{ link.dataElement.name }}', returnedData[0]);
+        {{/ with }}
+        {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+          // TODO handle case for add action...
+        {{/ with }}
+      }
+    {{/ if }}
+  }
 };

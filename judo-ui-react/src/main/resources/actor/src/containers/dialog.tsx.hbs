@@ -31,15 +31,7 @@ import { useConfirmDialog } from '~/components/dialog';
 
   export interface {{ containerComponentName container }}DialogActions extends {{ pageContainerActionDefinitionTypeName container }} {
     {{# each container.pageActionDefinitions as |actionDefinition| }}
-      {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>;
-      {{ else }}
-        {{# if actionDefinition.isGetTemplateAction }}
-          {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<{{ classDataName container.dataElement '' }}>;
-        {{ else }}
-          {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
-        {{/ if }}
-      {{/ if }}
+      {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
     {{/ each }}
   }
 {{/ unless }}
@@ -53,6 +45,11 @@ export interface {{ containerComponentName container }}DialogProps {
     isLoading: boolean;
     editMode: boolean;
     refreshCounter: number;
+    {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
+    {{# if container.isSelector }}
+      selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
+      setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
+    {{/ if }}
     {{# unless container.table }}
       data: {{ classDataName container.dataElement '' }};
       isFormUpdateable: () => boolean;
@@ -80,6 +77,13 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
         isLoading,
         editMode,
         refreshCounter
+        {{# if container.isSelector }},
+          selectionDiff,
+          setSelectionDiff
+        {{/ if }}
+        {{# if container.isRelationSelector }},
+          alreadySelected
+        {{/ if }}
         {{# unless container.table }},
           data,
           isFormUpdateable,
@@ -121,6 +125,13 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
             <{{ containerComponentName container }}
               actions={actions}
               refreshCounter={refreshCounter}
+              {{# if container.isSelector }}
+                selectionDiff={selectionDiff}
+                setSelectionDiff={setSelectionDiff}
+              {{/ if }}
+              {{# if container.isRelationSelector }}
+                alreadySelected={alreadySelected}
+              {{/ if }}
               {{# unless container.table }}
                 data={data}
                 isLoading={isLoading}
@@ -161,7 +172,11 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                       {{# if actionDefinition.isRefreshAction }}
                         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
                       {{ else }}
-                        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                        {{# if (isActionAddOrSet actionDefinition) }}
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff);
+                        {{ else }}
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                        {{/ if }}
                       {{/ if }}
                     {{/ if }}
                   } }

@@ -490,6 +490,7 @@ public class UiPageHelper extends Helper {
     }
 
     public static String getServiceImplForPage(PageDefinition pageDefinition) {
+        Application application = (Application) pageDefinition.eContainer();
         Set<String> res = new HashSet<>();
         DataElement dataElement = pageDefinition.getDataElement();
 
@@ -497,7 +498,6 @@ public class UiPageHelper extends Helper {
             return firstToLower(serviceRelationName((RelationType) dataElement)) + "Impl";
         } else if (dataElement instanceof OperationParameterType) {
             ClassType cls = ((OperationParameterType) dataElement).getTarget();
-            Application application = (Application) pageDefinition.eContainer();
             RelationType targetRelationType = (RelationType) application.getRelationTypes().stream()
                     .filter(r -> ((RelationType) r).getTarget().equals(cls))
                     .findFirst()
@@ -514,6 +514,19 @@ public class UiPageHelper extends Helper {
 
             if (operationInputRelationType != null) {
                 return firstToLower(serviceRelationName(operationInputRelationType)) + "Impl";
+            }
+        } else if (dataElement instanceof OperationType) {
+            OperationType operationType = (OperationType) dataElement;
+            if (operationType.getInput() != null) {
+                ClassType cls = operationType.getInput().getTarget();
+                RelationType operationInputRelationType = (RelationType) application.getRelationTypes().stream()
+                        .filter(r -> ((RelationType) r).getTarget().getOperations().stream().anyMatch(o -> o.getInput() != null && o.getInput().getTarget().equals(cls)))
+                        .findFirst()
+                        .orElse(null);
+
+                if (operationInputRelationType != null) {
+                    return firstToLower(serviceRelationName(operationInputRelationType)) + "Impl";
+                }
             }
         }
 

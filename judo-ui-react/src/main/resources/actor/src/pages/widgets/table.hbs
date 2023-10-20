@@ -16,6 +16,13 @@
         <{{ tableComponentName child }}
             uniqueId={'TMP'}
             actions={actions}
+            {{# if container.isSelector }}
+              selectionDiff={selectionDiff}
+              setSelectionDiff={setSelectionDiff}
+            {{/ if }}
+            {{# if container.isRelationSelector }}
+              alreadySelected={alreadySelected}
+            {{/ if }}
             {{# unless container.table }}
                 ownerData={data}
                 editMode={editMode}
