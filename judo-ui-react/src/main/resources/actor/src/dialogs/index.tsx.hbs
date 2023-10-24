@@ -114,6 +114,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const { openFilterDialog } = useFilterDialog();
     const { openConfirmDialog } = useConfirmDialog();
     const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+    const handleCreateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageName page }}))`);
     const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
     const handleDeleteError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
     const [createDialog, closeDialog] = useDialog();

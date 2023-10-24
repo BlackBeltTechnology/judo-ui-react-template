@@ -6,6 +6,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
         storeDiff('{{ table.dataElement.name }}', newList);
       {{ else }}
         try {
+          setIsLoading(true);
           await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.ownerDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
           {{# if page.container.table }}
             setRefreshCounter((prev) => prev + 1);
@@ -19,6 +20,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
           {{/ if }}
         } catch(e) {
           console.error(e);
+        } finally {
+          setIsLoading(false);
         }
       {{/ if }}
     }

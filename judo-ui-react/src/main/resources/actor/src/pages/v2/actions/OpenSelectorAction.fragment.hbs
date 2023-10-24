@@ -12,6 +12,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
             storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []), ...returnedData]);
           {{ else }}
             try {
+              setIsLoading(true);
               await {{ getServiceImplForPage page }}.add{{ firstToUpper action.ownerDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}ownerData{{/ if }}, returnedData);
               {{# if page.container.table }}
                 setRefreshCounter((prev) => prev + 1);
@@ -25,6 +26,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
               {{/ if }}
             } catch(e) {
               console.error(e);
+            } finally {
+              setIsLoading(false);
             }
           {{/ if }}
         {{/ with }}

@@ -213,9 +213,7 @@ public class UiPageHelper extends Helper {
 //
     public static boolean pageHasSignedId(PageDefinition page) {
         if (page.getDataElement() != null) {
-            if (page.getDataElement() instanceof RelationType) {
-                RelationType dataElement = (RelationType) page.getDataElement();
-
+            if (page.getDataElement() instanceof RelationType dataElement) {
                 if (dataElement.getIsMemberTypeAccess()) {
                     return page.getName().endsWith("::View::Page") && !(dataElement.getIsCreatable() && !dataElement.isIsCollection());
                 }
