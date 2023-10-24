@@ -1,5 +1,4 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
-  // alert('RemoveAction');
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
     if (target) {
       {{# if table.isEager }}
