@@ -442,7 +442,7 @@ public class UiWidgetHelper extends Helper {
                 if (button.getActionDefinition().getIsAddAction() || button.getActionDefinition().getIsClearAction()) {
                     result += "!isFormUpdateable() || ";
                 }
-            } else if (button.getActionDefinition().getIsCreateAction()) {
+            } else if (button.getActionDefinition().getIsOpenFormAction()) {
                 result += "editMode || ";
             }
         }
