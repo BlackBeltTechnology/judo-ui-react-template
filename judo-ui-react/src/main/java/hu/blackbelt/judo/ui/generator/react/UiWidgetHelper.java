@@ -418,7 +418,10 @@ public class UiWidgetHelper extends Helper {
         return nonFeaturedButtonsForButtonGroup(actionGroup).size() > 0;
     }
 
-    public static String tableButtonVisibilityConditions(Button button, Table table) {
+    public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {
+        if (button.getActionDefinition().getIsClearAction()) {
+            return "data.length";
+        }
         if (button.getActionDefinition().isIsBulk()) {
             String condition = "selectionModel.length > 0";
             if (button.getHiddenBy() != null) {
@@ -427,6 +430,24 @@ public class UiWidgetHelper extends Helper {
             return condition;
         }
         return "true";
+    }
+
+    public static String tableToolbarButtonDisabledConditions(Button button, Table table, PageContainer container) {
+        String result = "";
+
+        if (!container.isTable()) {
+            if (!table.isIsEager()) {
+                result += "editMode || ";
+
+                if (button.getActionDefinition().getIsAddAction() || button.getActionDefinition().getIsClearAction()) {
+                    result += "!isFormUpdateable() || ";
+                }
+            } else if (button.getActionDefinition().getIsCreateAction()) {
+                result += "editMode || ";
+            }
+        }
+
+        return result + "isLoading";
     }
 
     public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {

@@ -462,7 +462,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
           Toolbar: () => (
             <GridToolbarContainer>
               {{# each table.tableActionButtonGroup.buttons as |button| }}
-                {actions.{{ simpleActionDefinitionName button.actionDefinition }} && ({{{ tableButtonVisibilityConditions button table }}}) ? <Button
+                {actions.{{ simpleActionDefinitionName button.actionDefinition }} && ({{{ tableButtonVisibilityConditions button table container }}}) ? <Button
                   id="{{ createId button }}"
                   startIcon={<MdiIcon path="{{ button.icon.name }}" />}
                   variant={ {{{ variantForButton button }}} }
@@ -492,13 +492,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
                       {{/ if }}
                     {{/ if }}
                   } }
-                  disabled={
-                    isLoading
-                    {{# unless container.table }}
-                      || editMode
-                      || !isFormUpdateable()
-                    {{/ unless }}
-                  }
+                  disabled={ {{{ tableToolbarButtonDisabledConditions button table container }}} }
                 >
                   {t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}
                   {{# if button.actionDefinition.isFilterAction }}
