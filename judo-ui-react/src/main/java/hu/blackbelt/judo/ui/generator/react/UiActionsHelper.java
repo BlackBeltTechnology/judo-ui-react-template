@@ -384,6 +384,9 @@ public class UiActionsHelper {
     }
 
     public static ActionDefinition getRefreshActionDefinitionForContainer(PageContainer container) {
+        if (container.isTable()) {
+            return (ActionDefinition) ((Table) container.getTables().get(0)).getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
+        }
         return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
     }
 

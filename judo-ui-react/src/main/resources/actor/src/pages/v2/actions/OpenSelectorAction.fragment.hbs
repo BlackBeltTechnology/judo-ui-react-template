@@ -8,9 +8,22 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
           storeDiff('{{ link.dataElement.name }}', returnedData[0]);
         {{/ with }}
         {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
-          // TODO handle case for add action...
+          {{# if table.isEager }}
+            storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []), ...returnedData]);
+          {{/ if }}
         {{/ with }}
       }
+    {{/ if }}
+  } else if (result === 'close') {
+    {{# if page.container.view }}
+      if (!editMode) {
+        {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+        {{/ with }}
+      }
+    {{/ if }}
+    {{# if page.container.table }}
+      setRefreshCounter((prev) => prev + 1);
     {{/ if }}
   }
 };
