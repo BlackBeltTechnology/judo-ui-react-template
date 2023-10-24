@@ -1,3 +1,27 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  alert('RemoveAction');
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
+  // alert('RemoveAction');
+  {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+    if (target) {
+      {{# if table.isEager }}
+        const newList = (data?.{{ table.dataElement.name }} ?? []).filter(c => c.__identifier !== target!.__identifier);
+        storeDiff('{{ table.dataElement.name }}', newList);
+      {{ else }}
+        try {
+          await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.ownerDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
+          {{# if page.container.table }}
+            setRefreshCounter((prev) => prev + 1);
+          {{/ if }}
+          {{# if page.container.view }}
+            if (!editMode) {
+              {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+                await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+              {{/ with }}
+            }
+          {{/ if }}
+        } catch(e) {
+          console.error(e);
+        }
+      {{/ if }}
+    }
+  {{/ with }}
 };

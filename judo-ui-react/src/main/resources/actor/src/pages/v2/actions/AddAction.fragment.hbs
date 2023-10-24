@@ -1,15 +1,3 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected: {{ classDataName action.actionDefinition.targetType 'Stored' }}[]) => {
-  // alert('AddAction');
-  {{# with page.container.tables.[0] as |table| }}
-    {{# if table.isEager }}
-      onSubmit(selected);
-    {{ else }}
-      try {
-        await {{ getServiceImplForPage page }}.add{{ firstToUpper action.ownerDataElement.name }}(ownerData, selected);
-        onClose();
-      } catch(e) {
-        handleFetchError(e);
-      }
-    {{/ if }}
-  {{/ with }}
+  onSubmit(selected);
 };
