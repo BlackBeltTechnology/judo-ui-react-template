@@ -37,73 +37,13 @@ import static java.util.Arrays.stream;
 
 @Log
 @TemplateHelper
-public class UiWidgetHelper extends Helper {
+public class UiWidgetHelper {
     public static final String NAME_SPLITTER = "::";
 
     public static String getWidgetTemplate(VisualElement visualElementType) {
         String componentsLocation = "actor/src/pages/widgets/";
         return componentsLocation + visualElementType.eClass().getInstanceClass().getSimpleName().toLowerCase() + ".hbs";
     }
-
-//    private static Boolean visualElementHasSaveInputAction(VisualElement visualElementType) {
-//        if (visualElementType instanceof Button) {
-//            return ((Button) visualElementType).getAction() instanceof SaveInputAction;
-//        }
-//        return false;
-//    }
-
-//    private static Boolean visualElementHasBackAction(VisualElement visualElementType) {
-//        if (visualElementType instanceof Button) {
-//            return ((Button) visualElementType).getAction() instanceof BackAction;
-//        }
-//        return false;
-//    }
-//
-//    public static Boolean excludeWidgetFromTree(VisualElement visualElementType) {
-//        return visualElementHasSaveInputAction(visualElementType) || visualElementHasBackAction(visualElementType);
-//    }
-//
-//    public static Button getSaveButtonForOperationInputPage(PageDefinition pageDefinition) {
-//        PageContainer root = pageDefinition.getOriginalPageContainer();
-//        VisualElement button = findSaveButton(root);
-//
-//        return button != null ? (Button) button : null;
-//    }
-//
-//    public static Button getBackButtonForOperationInputPage(PageDefinition pageDefinition) {
-//        PageContainer root = pageDefinition.getOriginalPageContainer();
-//        VisualElement button = findBackButton(root);
-//
-//        return button != null ? (Button) button : null;
-//    }
-
-//    private static VisualElement findSaveButton(VisualElement visualElement) {
-//        if (visualElementHasSaveInputAction(visualElement)) {
-//            return visualElement;
-//        } else if (visualElement instanceof Container) {
-//            for (VisualElement child: ((Container) visualElement).getChildren()) {
-//                VisualElement nested = findSaveButton(child);
-//                if (nested != null) {
-//                    return nested;
-//                }
-//            }
-//        }
-//        return null;
-//    }
-//
-//    private static VisualElement findBackButton(VisualElement visualElement) {
-//        if (visualElementHasBackAction(visualElement)) {
-//            return visualElement;
-//        } else if (visualElement instanceof Container) {
-//            for (VisualElement child: ((Container) visualElement).getChildren()) {
-//                VisualElement nested = findBackButton(child);
-//                if (nested != null) {
-//                    return nested;
-//                }
-//            }
-//        }
-//        return null;
-//    }
 
     public static Double calculateSize(VisualElement element) {
         if (isParentFrame(element)) {
@@ -184,19 +124,6 @@ public class UiWidgetHelper extends Helper {
         }
     }
 
-//    public static List<Button> featuredActionsForActionGroup(ActionGroup actionGroup) {
-//        return actionGroup.getActions().stream().limit(actionGroup.getFeaturedActions()).collect(Collectors.toList());
-//    }
-//
-//    public static List<Button> nonFeaturedActionsForActionGroup(ActionGroup actionGroup) {
-//        return actionGroup.getActions().stream().skip(actionGroup.getFeaturedActions()).collect(Collectors.toList());
-//    }
-//
-//    public static Boolean displayDropdownForActionGroup(ActionGroup actionGroup) {
-//        return nonFeaturedActionsForActionGroup(actionGroup).size() > 0;
-//    }
-
-
     public static Boolean shouldElementHaveAutoFocus(VisualElement element) {
         Input input = findFirstInput(element.getPageContainer());
 
@@ -259,30 +186,6 @@ public class UiWidgetHelper extends Helper {
         return "undefined";
     }
 
-//    public static List<Action> getFilteredLinkActions (Link link) {
-//        return link.getActions().stream()
-//                .filter(a -> !a.getIsSetAction() && !a.getIsRemoveAction() && !a.getIsUnsetAction())
-//                .collect(Collectors.toList());
-//    }
-//
-//    public static boolean linkHasActionsToImport(Link link) {
-//        return  getFilteredLinkActions(link).size() > 0;
-//    }
-//
-//    public static List<Action> getFilteredTableActions (Table table) {
-//        SortedSet<Action> actions = new TreeSet<>(Comparator.comparing((Action a) -> a.getFQName().trim()));
-//        actions.addAll(table.getActions());
-//        actions.addAll(table.getRowActions());
-//        actions.addAll((List<? extends Action>) table.getPageDefinition().getPageActions());
-//        return actions.stream()
-//                .filter(a -> !a.getIsBackAction())
-//                .collect(Collectors.toList());
-//    }
-
-//    public static boolean tableHasActionsToImport(Table table) {
-//        return  getFilteredTableActions(table).size() > 0;
-//    }
-
     public static String linkComponentName(Link link) {
         String containerName = containerComponentName(link.getPageContainer());
         String[] splitted = link.getName().split(NAME_SPLITTER);
@@ -299,19 +202,8 @@ public class UiWidgetHelper extends Helper {
                 .collect(Collectors.joining()) + "Component";
     }
 
-//    public static boolean isTableFilterable(Table table) {
-//        return getFilteredTableActions(table).stream().anyMatch(a -> a instanceof FilterAction || a instanceof FilterRelationAction);
-//    }
-
     public static Column getFirstAutocompleteColumnForLink(Link link) {
         Optional<Column> column = link.getParts().stream()
-                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
-                .findFirst();
-        return column.orElse(null);
-    }
-
-    public static Column getFirstTitleColumnForTable(Table table) {
-        Optional<Column> column = table.getColumns().stream()
                 .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
                 .findFirst();
         return column.orElse(null);
@@ -345,14 +237,6 @@ public class UiWidgetHelper extends Helper {
 
         throw new RuntimeException("Parameter's ClassType cannot be discovered: " + ref.getClass().getName());
     }
-
-//    public static Action getCreateActionForLink(Link link) {
-//        return link.getActions().stream().filter(Action::getIsCreateAction).findAny().orElse(null);
-//    }
-
-//    public static boolean linkHasCreateAction(Link link) {
-//        return getCreateActionForLink(link) != null;
-//    }
 
     public static void collectVisualElementsMatchingCondition(VisualElement root, Predicate<VisualElement> condition, Collection<VisualElement> matches) {
         if (root == null || condition == null) {

@@ -162,7 +162,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     // Dialog hooks
     {{# each (getRelatedDialogs page) as |relatedDialog| }}
-      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}(data);
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}({{# unless page.container.table }}data{{ else }}{}{{/ unless }});
     {{/ each }}
 
     // Calculated section

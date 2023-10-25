@@ -109,7 +109,7 @@ export default function {{ pageName page }}() {
 
     // Dialog hooks
     {{# each (getRelatedDialogs page) as |relatedDialog| }}
-      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}(data);
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}({{# if page.container.table }}{{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier }{{ else }}{}{{/ if }}{{ else }}data{{/ if }});
     {{/ each }}
 
     // Calculated section

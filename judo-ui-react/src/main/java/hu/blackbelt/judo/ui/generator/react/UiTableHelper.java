@@ -30,7 +30,7 @@ import java.util.Comparator;
 
 @Slf4j
 @TemplateHelper
-public class UiTableHelper extends Helper {
+public class UiTableHelper {
 
     public static String getFilterTypeForAttribute(AttributeType attributeType) {
         DataType dataType = attributeType.getDataType();
@@ -212,26 +212,6 @@ public class UiTableHelper extends Helper {
         return defaultValue != null ? defaultValue : 10;
     }
 
-//    public static Boolean tableHasActions(Table table) {
-//        return table.getActions().size() > 0;
-//    }
-//
-//    public static boolean tableHasDeleteAction(Table table) {
-//        return getTableDeleteAction(table) != null;
-//    }
-
-//    public static Action getTableDeleteAction(Table table) {
-//        return table.getRowActions().stream().filter(Action::getIsDeleteAction).findFirst().orElse(null);
-//    }
-//
-//    public static boolean tableHasRemoveAction(Table table) {
-//        return getTableRemoveAction(table) != null;
-//    }
-//
-//    public static Action getTableRemoveAction(Table table) {
-//        return table.getRowActions().stream().filter(Action::getIsRemoveAction).findFirst().orElse(null);
-//    }
-
     public static boolean isAttributeTypeEnumeration(AttributeType attributeType) {
         return attributeType.getDataType() instanceof EnumerationType;
     }
@@ -265,9 +245,5 @@ public class UiTableHelper extends Helper {
         return table.isIsSelectorTable() || !getBulkOperationActionDefinitionsForTable(table).isEmpty()
                 || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsDeleteAction())
                 || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRemoveAction());
-    }
-
-    public static boolean isTableFilterable(Table table) {
-        return table.getTableActionDefinitions().stream().anyMatch(a -> a instanceof FilterActionDefinition);
     }
 }

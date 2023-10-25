@@ -28,8 +28,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.muiDataGridComponent;
-
 @Log
 @TemplateHelper
 public class UiImportHelper {
@@ -57,63 +55,6 @@ public class UiImportHelper {
             Map.entry("timeinput", Set.of("TextField", "InputAdornment")),
             Map.entry("trinarylogiccombo", Set.of("TextField", "MenuItem", "InputAdornment"))
     );
-
-    private static final Map<String, Set<String>> muiDataGridWidgetImportPairs = Map.ofEntries(
-            Map.entry("table", Set.of(muiDataGridComponent(), "GridToolbarContainer"))
-    );
-
-    private static final Map<String, Set<String>> muiDatePickerWidgetImportPairs = Map.ofEntries(
-            Map.entry("dateinput", Set.of("DatePicker")),
-            Map.entry("datetimeinput", Set.of("DateTimePicker")),
-            Map.entry("timeinput", Set.of("TimePicker"))
-    );
-
-//    public static boolean hasPageDateTimePickers(PageDefinition pageDefinition) {
-//        Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
-//                .map(String::toLowerCase)
-//                .collect(Collectors.toSet());
-//
-//        return uniqueVisualElementNames.stream()
-//                .anyMatch(muiDatePickerWidgetImportPairs::containsKey);
-//    }
-
-//    public static String getMuiDateTimePickerImportsForPage(PageDefinition pageDefinition) {
-//        Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
-//                .map(String::toLowerCase)
-//                .collect(Collectors.toSet());
-//        SortedSet<String> imports = new TreeSet<>();
-//
-//        muiDatePickerWidgetImportPairs.forEach((key, value) -> {
-//            if (uniqueVisualElementNames.contains(key)) {
-//                imports.addAll(value);
-//            }
-//        });
-//
-//        return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
-//    }
-//
-//    public static SortedSet<String> getMuiDataGridImports(PageDefinition pageDefinition) {
-//        Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
-//                .map(String::toLowerCase)
-//                .collect(Collectors.toSet());
-//        SortedSet<String> imports = new TreeSet<>();
-//
-//        muiDataGridWidgetImportPairs.forEach((key, value) -> {
-//            if (uniqueVisualElementNames.contains(key)) {
-//                imports.addAll(value);
-//            }
-//        });
-//
-//        return imports;
-//    }
-
-    public static SortedSet<String> getMuiDataGridTypeImports(PageDefinition pageDefinition) {
-        SortedSet<String> imports = new TreeSet<>();
-
-        imports.addAll(Set.of("GridRowId", "GridSortModel", "GridFilterModel", "GridSortItem", "GridRowParams"));
-
-        return imports;
-    }
 
     public static String getMuiMaterialImportsForPageContainer(PageContainer container) {
         SortedSet<String> imports = getMaterialImportsForPageContainer(container);
@@ -155,105 +96,9 @@ public class UiImportHelper {
         return flattenedVisualElements;
     }
 
-//    public static String getMuiDataGridImportsForPage(PageDefinition pageDefinition) {
-//        SortedSet<String> imports = getMuiDataGridImports(pageDefinition);
-//
-//        return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
-//    }
-
-    public static String getMuiDataGridTypeImportsForPage(PageDefinition pageDefinition) {
-        SortedSet<String> imports = getMuiDataGridTypeImports(pageDefinition);
-
-        imports.addAll(Set.of("GridRowSelectionModel", "GridRenderCellParams", "GridColDef", "GridValueFormatterParams"));
-
-        return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
-    }
-
-    public static String getMuiDataGridImportsForHooks() {
-        SortedSet<String> imports = new TreeSet<>(Set.of("GridColDef", "GridSortModel", "GridFilterModel", "GridRenderCellParams", "GridRowParams", "GridValueFormatterParams"));
-        return String.join(", ", imports);
-    }
-
-    public static String getMuiDataGridImportsForLinks() {
-        SortedSet<String> imports = new TreeSet<>(Set.of(getMuiDataGridImportsForHooks(), "GridRowId", "GridSortItem"));
-        return String.join(", ", imports);
-    }
-
-    public static String getMuiDataGridImportsForTables() {
-        SortedSet<String> imports = new TreeSet<>(Set.of(getMuiDataGridImportsForHooks(), "GridRowId", "GridSortItem", "GridRowModel", "GridRowSelectionModel", "GridRowClassNameParams"));
-        return String.join(", ", imports);
-    }
-
-//    public static SortedSet<String> getMaterialImportsForPage(PageDefinition pageDefinition) {
-//        Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPage(pageDefinition).stream()
-//                .map(String::toLowerCase)
-//                .collect(Collectors.toSet());
-//        SortedSet<String> imports = new TreeSet<>();
-//
-//        imports.addAll(Set.of("Button"));
-//
-//        muiMaterialWidgetImportPairs.forEach((key, value) -> {
-//            if (uniqueVisualElementNames.contains(key)) {
-//                imports.addAll(value);
-//            }
-//        });
-//
-//        return imports;
-//    }
-
-//    public static String getMuiMaterialImportsForPage(PageDefinition pageDefinition) {
-//        SortedSet<String> imports = getMaterialImportsForPage(pageDefinition);
-//
-//        return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
-//    }
-//
-//    public static String getMuiMaterialImportsForActionForm(PageDefinition pageDefinition) {
-//        SortedSet<String> imports = getMaterialImportsForPage(pageDefinition);
-//
-//        imports.addAll(Set.of(
-//                "Button",
-//                "ButtonGroup",
-//                "IconButton",
-//                "DialogActions",
-//                "DialogContent",
-//                "DialogContentText",
-//                "DialogTitle",
-//                "Grow",
-//                "Paper",
-//                "Popper",
-//                "MenuList",
-//                "MenuItem",
-//                "ClickAwayListener"
-//        ));
-//
-//        return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
-//    }
-
-//    public static SortedSet<String>getUniqueVisualElementNamesForPage(PageDefinition pageDefinition) {
-//        SortedSet<VisualElement> flattenedVisualElements = createFlattenedSetOfVisualElements(pageDefinition);
-//        SortedSet<String> uniqueVisualElementNames = new TreeSet<>();
-//
-//        flattenedVisualElements.forEach(v -> uniqueVisualElementNames.add(getVisualElementWidgetName(v)));
-//
-//        return uniqueVisualElementNames;
-//    }
-
-    public static boolean isVisualElementName(VisualElement visualElement, String name) {
-        return getVisualElementWidgetName(visualElement).equalsIgnoreCase(name);
-    }
-
     public static String getVisualElementWidgetName(VisualElement visualElement) {
         return visualElement.eClass().getInstanceClass().getSimpleName();
     }
-
-//    public static SortedSet<VisualElement> createFlattenedSetOfVisualElements(PageDefinition pageDefinition) {
-//        SortedSet<VisualElement> flattenedVisualElements = new TreeSet<>(Comparator.comparing((VisualElement v) -> v.getFQName().trim()));
-//        Container container = pageDefinition.getOriginalPageContainer();
-//
-//        fillFlattenedVisualElements(container, flattenedVisualElements);
-//
-//        return flattenedVisualElements;
-//    }
 
     public static void fillFlattenedVisualElements(Container container, SortedSet<VisualElement> elements) {
         List<VisualElement> contents = container.getChildren();

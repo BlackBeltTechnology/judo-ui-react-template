@@ -3,12 +3,10 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
-import hu.blackbelt.judo.meta.ui.data.RelationType;
 import lombok.extern.java.Log;
 
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -21,7 +19,7 @@ import static java.util.Arrays.stream;
 
 @Log
 @TemplateHelper
-public class UiPageContainerHelper extends Helper {
+public class UiPageContainerHelper {
     public static final String NAME_SPLITTER = "::";
 
     public static String containerPath(PageContainer container) {
@@ -59,10 +57,6 @@ public class UiPageContainerHelper extends Helper {
     public static String simpleActionDefinitionName(ActionDefinition actionDefinition) {
         String[] tokens = actionDefinition.getName().split(NAME_SPLITTER);
         return StringUtils.uncapitalize(stream(tokens).map(StringUtils::capitalize).collect(Collectors.joining()));
-    }
-
-    public static String simpleActionDefinitionTypeName(ActionDefinition actionDefinition) {
-        return StringUtils.capitalize(simpleActionDefinitionName(actionDefinition));
     }
 
     public static List<String> getContainerApiImports(PageContainer container) {
