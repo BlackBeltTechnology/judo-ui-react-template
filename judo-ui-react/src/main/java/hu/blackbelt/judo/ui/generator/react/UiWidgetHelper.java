@@ -436,14 +436,12 @@ public class UiWidgetHelper extends Helper {
         String result = "";
 
         if (!container.isTable()) {
-            if (!table.isIsEager()) {
+            if (button.getActionDefinition().getIsOpenFormAction()) {
                 result += "editMode || ";
-
-                if (button.getActionDefinition().getIsAddAction() || button.getActionDefinition().getIsClearAction()) {
-                    result += "!isFormUpdateable() || ";
+            } else if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsClearAction()) {
+                if (container.isView()) {
+                    result += "editMode || !isFormUpdateable() || ";
                 }
-            } else if (button.getActionDefinition().getIsOpenFormAction()) {
-                result += "editMode || ";
             }
         }
 

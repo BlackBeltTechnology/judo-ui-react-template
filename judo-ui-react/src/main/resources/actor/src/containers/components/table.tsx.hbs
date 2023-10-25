@@ -198,7 +198,17 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
           icon: <MdiIcon path="{{ button.icon.name }}" />,
           {{/ if }}
           disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {{{ tableRowButtonDisabledConditions button table container }}},
-          action: actions.{{ simpleActionDefinitionName button.actionDefinition }}
+          action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
+            {{# if button.confirmation }}
+              // TODO: implement shiny MUI Dialog here
+              const result = confirm(t('TMP', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+
+              if (!result) {
+                return;
+              }
+            {{/ if }}
+            await actions.{{ simpleActionDefinitionName button.actionDefinition }}!(rowData);
+          } : undefined,
         },
       {{/ unless }}
     {{/ each }}
@@ -411,7 +421,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
         {{# if isMUILicensePlanPro }}
           initialState={ { pinnedColumns: { right: ['actions'] } } }
         {{/ if }}
-        pageSizeOptions={[{{ calculateTablePageLimit table }}]}
+        pageSizeOptions={[paginationModel.pageSize]}
         sx={ {
           // overflow: 'hidden',
           display: 'grid',

@@ -21,7 +21,17 @@
             startIcon={<MdiIcon path="{{ button.icon.name }}" />}
             loadingPosition="start"
           {{/ if }}
-          onClick={ () => alert('TMP') }
+          onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
+            {{# if button.confirmation }}
+              // TODO: implement shiny MUI Dialog here
+              const result = confirm(t('TMP', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+
+              if (!result) {
+                return;
+              }
+            {{/ if }}
+            await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
+          } : undefined }
           disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
         >
           <span>{ t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) }</span>
@@ -42,8 +52,22 @@
               {
                 id: '{{ createId button }}',
                 label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
-                onClick: () => alert('TMP'),
-                startIcon: <MdiIcon path="arrow_right" />,
+                onClick: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
+                  {{# if button.confirmation }}
+                    // TODO: implement shiny MUI Dialog here
+                    const result = confirm(t('TMP', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+
+                    if (!result) {
+                      return;
+                    }
+                  {{/ if }}
+                  await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
+                } : undefined,
+                {{# if button.icon }}
+                  startIcon: <MdiIcon path="{{ button.icon.name }}" />,
+                {{ else }}
+                  startIcon: <MdiIcon path="arrow_right" />,
+                {{/ if }}
                 disabled: {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} isLoading || editMode,
                 {{# if button.hiddenBy }}visible: !data.{{ button.hiddenBy.name }},{{/ if }}
               },

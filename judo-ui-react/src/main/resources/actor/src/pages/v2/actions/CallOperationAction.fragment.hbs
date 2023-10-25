@@ -1,3 +1,64 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  alert('CallOperationAction');
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
+  // alert('CallOperationAction');
+  {{# with action.actionDefinition.operation as |operation| }}
+  try {
+    setIsLoading(true);
+    {{# if operation.output }}const result = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}(
+      {{# if page.container.form }}
+        {{# unless operation.isStatic }}ownerData{{/ unless }}
+        {{# if operation.input }}{{# unless operation.isStatic }}, {{/ unless }}data{{/ if }}
+      {{ else }}
+        {{# if page.container.isSelector }}
+          ownerData, data[0]
+        {{ else }}
+          {{# if page.container.table }}
+            {{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>, {{/ if }}target!
+          {{ else }}
+            {{# unless operation.isStatic }}data{{/ unless }}
+            {{# if operation.input }}
+              {{# unless operation.isStatic }}, {{/ unless }}target!
+            {{/ if }}
+          {{/ if }}
+        {{/ if }}
+      {{/ if }}
+    );
+    {{# if page.container.form }}
+      {{# if operation.output }}
+        if (result) {
+          onSubmit(result);
+        } else {
+          onClose();
+        }
+      {{ else }}
+        onClose();
+      {{/ if }}
+    {{/ if }}
+    {{# if page.container.view }}
+      if (!editMode) {
+        {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+        {{/ with }}
+      }
+    {{/ if }}
+    {{# if page.container.table }}
+      {{# if page.container.isSelector }}
+        {{# if operation.output }}
+        if (result) {
+            onSubmit(result);
+          } else {
+            onClose();
+          }
+        {{ else }}
+          onClose();
+        {{/ if }}
+      {{ else }}
+        setRefreshCounter((prev) => prev + 1);
+      {{/ if }}
+    {{/ if }}
+  } catch (e) {
+    console.error(e);
+  } finally {
+    setIsLoading(false);
+  }
+  {{/ with }}
 };
