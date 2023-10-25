@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 import { useState, useEffect, useMemo, useRef } from 'react';
-import type { Dispatch, MouseEvent, SetStateAction } from 'react';
+import type { MouseEvent{{# if container.isSelector }}, Dispatch, SetStateAction{{/ if }} } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { JudoIdentifiable } from '@judo/data-api-common';
 import { Box, IconButton, Button, Typography } from '@mui/material';
@@ -15,14 +15,13 @@ import type {
   GridRowSelectionModel,
   GridSortItem,
   GridSortModel,
-  GridPaginationModel,
   GridValueFormatterParams,
   GridRowClassNameParams,
   GridRowParams,
   GridValidRowModel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { baseColumnConfig, baseTableConfig } from '~/config';
-import { MdiIcon, CustomTablePagination } from '~/components';
+import { MdiIcon{{# unless table.isEager }}, CustomTablePagination{{/ unless }} } from '~/components';
 import { columnsActionCalculator, ContextMenu, StripedDataGrid } from '~/components/table';
 import type { ContextMenuApi } from '~/components/table/ContextMenu';
 import type { Filter, FilterOption } from '~/components-api';
@@ -140,14 +139,9 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [data, setData] = useState<GridRowModel<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>({{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }});
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
-  const [rowCount, setRowCount] = useState<number>(0);
   const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
   const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
-  const [lastItem, setLastItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
-  const [firstItem, setFirstItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
-  const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
-  const [page, setPage] = useState<number>(0);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: {{ calculateTablePageLimit table }},
     page: 0,
@@ -165,6 +159,13 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
     ] : [],
     ...mapAllFiltersToQueryCustomizerProperties(filters),
   });
+  {{# unless table.isEager }}
+    const [page, setPage] = useState<number>(0);
+    const [rowCount, setRowCount] = useState<number>(0);
+    const [lastItem, setLastItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
+    const [firstItem, setFirstItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
+    const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
+  {{/ unless }}
 
   {{# if (stringValueIsTrue useTableContextMenus) }}
     const contextMenuRef = useRef<ContextMenuApi>(null);
@@ -226,7 +227,14 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
   {{/ if }}
 
   const handleFiltersChange = (newFilters: Filter[]) => {
-    setPage(0);
+    {{# unless table.isEager }}
+      setPage(0);
+    {{ else }}
+      setPaginationModel((prevState) => ({
+        ...prevState,
+        page: 0,
+      }));
+    {{/ unless }}
     setFilters(newFilters);
     setItemStringified(filtersKey, newFilters);
 
@@ -246,7 +254,14 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
   };
 
   function handleSortModelChange (newModel: GridSortModel) {
-    setPage(0);
+    {{# unless table.isEager }}
+      setPage(0);
+    {{ else }}
+      setPaginationModel((prevState) => ({
+        ...prevState,
+        page: 0,
+      }));
+    {{/ unless }}
     setSortModel(newModel);
 
     const _orderBy = newModel.filter(m => m.sort).map(m => ({
@@ -268,6 +283,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
     });
   }
 
+  {{# unless table.isEager }}
   async function handlePageChange (isNext: boolean) {
     setQueryCustomizer((prevQueryCustomizer) => {
       return {
@@ -282,6 +298,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
 
     setIsNextButtonEnabled(!isNext);
   }
+  {{/ unless }}
 
   {{# if container.isSelector }}
     const handleIsRowSelectable = (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }} & { __selected?: boolean }>) => {
@@ -503,15 +520,17 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
               <div>{/* Placeholder */}</div>
             </GridToolbarContainer>
           ),
-          Pagination: () => (
-            <CustomTablePagination
-              pageChange={handlePageChange}
-              isNextButtonEnabled={isNextButtonEnabled}
-              page={page}
-              setPage={setPage}
-              rowPerPage={ {{ calculateTablePageLimit table }} }
-            />
-          ),
+          {{# unless table.isEager }}
+            Pagination: () => (
+              <CustomTablePagination
+                pageChange={handlePageChange}
+                isNextButtonEnabled={isNextButtonEnabled}
+                page={page}
+                setPage={setPage}
+                rowPerPage={ {{ calculateTablePageLimit table }} }
+              />
+            ),
+          {{/ unless }}
         } }
       />
       {{> actor/src/fragments/table/error-feedback.fragment.hbs }}
