@@ -22,6 +22,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{/ if }}
       {{/ if }}
     );
+
+    enqueueSnackbar(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string, {
+      variant: 'success',
+      ...toastConfig.success,
+    });
+
     {{# if page.container.form }}
       {{# if operation.output }}
         if (result) {
