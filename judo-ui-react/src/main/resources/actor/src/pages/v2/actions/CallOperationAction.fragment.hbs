@@ -9,7 +9,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{# if operation.input }}{{# unless operation.isStatic }}, {{/ unless }}data{{/ if }}
       {{ else }}
         {{# if page.container.isSelector }}
-          ownerData, data[0]
+          ownerData, selectionDiff[0]
         {{ else }}
           {{# if page.container.table }}
             {{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>, {{/ if }}target!
@@ -27,10 +27,10 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         if (result) {
           onSubmit(result);
         } else {
-          onClose();
+          onSubmit();
         }
       {{ else }}
-        onClose();
+        onSubmit(data);
       {{/ if }}
     {{/ if }}
     {{# if page.container.view }}
@@ -43,13 +43,13 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{# if page.container.table }}
       {{# if page.container.isSelector }}
         {{# if operation.output }}
-        if (result) {
+          if (result) {
             onSubmit(result);
           } else {
-            onClose();
+            onSubmit();
           }
         {{ else }}
-          onClose();
+          onSubmit(selectionDiff);
         {{/ if }}
       {{ else }}
         setRefreshCounter((prev) => prev + 1);

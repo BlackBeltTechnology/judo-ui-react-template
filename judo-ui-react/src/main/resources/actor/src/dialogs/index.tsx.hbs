@@ -169,7 +169,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# if (titleComesFromAttribute page.container) }}
       const title: string = data.{{ page.container.titleAttribute.name }} as string;
     {{ else }}
-      const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
+      const title: string = t('{{ getI18NKeyForNamedElement page.container }}', { defaultValue: '{{ page.container.label }}' });
     {{/ if }}
 
     // Action section

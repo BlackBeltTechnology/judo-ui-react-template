@@ -446,8 +446,8 @@ public class UiI18NHelper extends Helper {
 //        );
 //    }
 
-    public static String getTranslationKeyForPage(PageDefinition page) {
-        return stream(page.getName().split("::")).map(org.springframework.util.StringUtils::capitalize).collect(Collectors.joining("."));
+    public static String getI18NKeyForNamedElement(NamedElement namedElement) {
+        return stream(namedElement.getName().split("::")).map(org.springframework.util.StringUtils::capitalize).collect(Collectors.joining("."));
     }
 
 //    public static String transformTranslationKey(String source) {

@@ -312,7 +312,12 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
 
   {{# if container.isSelector }}
     const handleIsRowSelectable = (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }} & { __selected?: boolean }>) => {
-      return isRowSelectable(params.row, !{{ boolValue table.allowSelectMultiple }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }});
+      {{# unless container.isRelationSelector }}
+        // For operation inputs, we allow all elements to be selected.
+        return true;
+      {{ else }}
+        return isRowSelectable(params.row, !{{ boolValue table.allowSelectMultiple }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }});
+      {{/ unless }}
     };
 
     const handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {

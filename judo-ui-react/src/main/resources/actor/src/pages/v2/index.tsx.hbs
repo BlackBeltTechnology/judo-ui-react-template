@@ -70,7 +70,7 @@ export default function {{ pageName page }}() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
-    const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{} as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
+    const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{ {{# if (pageHasSignedId page) }}__signedIdentifier: signedIdentifier{{/ if }} } as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
     {{# if page.container.isSelector }}
       const [selectionDiff, setSelectionDiff] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}[]>([]);
     {{/ if }}
@@ -109,14 +109,14 @@ export default function {{ pageName page }}() {
 
     // Dialog hooks
     {{# each (getRelatedDialogs page) as |relatedDialog| }}
-      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier }{{ else }}data{{/ if }});
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}(data);
     {{/ each }}
 
     // Calculated section
     {{# if (titleComesFromAttribute page.container) }}
       const title: string = data.{{ page.container.titleAttribute.name }} as string;
     {{ else }}
-      const title: string = t('{{ getTranslationKeyForPage page }}', { defaultValue: '{{ page.label }}' });
+      const title: string = t('{{ getI18NKeyForNamedElement page.container }}', { defaultValue: '{{ page.container.label }}' });
     {{/ if }}
 
     // Action section
