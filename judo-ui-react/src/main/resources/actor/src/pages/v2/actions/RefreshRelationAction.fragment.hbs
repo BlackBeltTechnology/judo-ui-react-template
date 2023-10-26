@@ -1,4 +1,0 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}> => {
-  alert('RefreshRelationAction');
-  return Promise.resolve({{# if page.container.table }}[]{{ else }}{} as any{{/ if}});
-};
