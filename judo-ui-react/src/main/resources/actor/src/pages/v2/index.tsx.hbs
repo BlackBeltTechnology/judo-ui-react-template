@@ -18,7 +18,6 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
     uiDateToServiceDate,
     uiTimeToServiceTime,
     useErrorHandler,
-    ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
   } from '~/utilities';
   import { PageContainerTransition } from '~/theme/animations';
   {{# each (getRelatedPages page) as |relatedPage| }}
@@ -61,9 +60,7 @@ export default function {{ pageName page }}() {
     const { navigate, back } = useJudoNavigation();
     const { openFilterDialog } = useFilterDialog();
     const { openConfirmDialog } = useConfirmDialog();
-    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-    const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
-    const handleDeleteError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
+    const handleError = useErrorHandler();
     const [createDialog, closeDialog] = useDialog();
 
     // State section
@@ -112,7 +109,7 @@ export default function {{ pageName page }}() {
 
     // Dialog hooks
     {{# each (getRelatedDialogs page) as |relatedDialog| }}
-      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}({{# if page.container.table }}{{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier }{{ else }}{}{{/ if }}{{ else }}data{{/ if }});
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
     {{/ each }}
 
     // Calculated section

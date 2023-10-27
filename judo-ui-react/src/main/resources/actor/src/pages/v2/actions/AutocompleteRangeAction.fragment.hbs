@@ -2,8 +2,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
   {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
   try {
     return {{ getServiceImplForPage page }}.getRangeFor{{ firstToUpper link.dataElement.name }}(data, queryCustomizer);
-  } catch (e) {
-    handleFetchError(e);
+  } catch (error) {
+    handleError(error);
     return Promise.resolve([]);
   }
   {{/ with }}

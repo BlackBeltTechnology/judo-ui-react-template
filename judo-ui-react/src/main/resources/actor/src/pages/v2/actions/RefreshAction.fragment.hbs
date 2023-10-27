@@ -8,7 +8,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
       const result = await {{ getServiceImplForPage page }}.refresh(
         {{# if (pageHasSignedId page) }}
           {{# if page.openInDialog }}
-            targetData
+            ownerData
           {{ else }}
             { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
           {{/ if }}
@@ -34,9 +34,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
 
       return result;
     {{/ if }}
-  } catch (e) {
-    handleFetchError(e);
-    return Promise.reject(e);
+  } catch (error) {
+    handleError(error);
+    return Promise.reject(error);
   } finally {
     setIsLoading(false);
     setRefreshCounter((prevCounter) => prevCounter + 1);

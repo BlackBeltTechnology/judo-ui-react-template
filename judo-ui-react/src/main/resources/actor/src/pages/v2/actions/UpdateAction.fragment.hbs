@@ -20,7 +20,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
       setEditMode(false);
     }
   } catch (error) {
-    handleUpdateError(error, { setValidation }, data);
+    handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
   } finally {
     setIsLoading(false);
   }

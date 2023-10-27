@@ -5,8 +5,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{ else }}
       return {{ getServiceImplForPage page }}.getRangeFor{{ firstToUpper action.ownerDataElement.name }}(ownerData, queryCustomizer);
     {{/ if }}
-  } catch (e) {
-    handleFetchError(e);
+  } catch (error) {
+    handleError(error);
     return Promise.resolve([]);
   }
 };

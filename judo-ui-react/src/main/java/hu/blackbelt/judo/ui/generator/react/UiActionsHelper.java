@@ -194,33 +194,42 @@ public class UiActionsHelper {
     }
 
     public static String getDialogOpenParameters(PageDefinition pageDefinition) {
-        Set<String> result = new TreeSet<>();
-
-        if (pageDefinition.getContainer().isView()) {
-            result.add("targetData: JudoIdentifiable<any>");
-        }
+        List<String> result = new ArrayList<>();
+        result.add("ownerData: any");
         if (pageDefinition.getContainer().isIsRelationSelector()) {
             result.add("alreadySelected: " + classDataName(getReferenceClassType(pageDefinition), "Stored") + "[]");
         }
-
         return String.join(", ", result);
     }
 
     public static String getSelectorOpenActionParameters(Action action, PageContainer container) {
+        List<String> tokens = new ArrayList<>();
         if (container.isTable()) {
-            return "[]";
+            if (action.getTargetPageDefinition().getContainer().isIsRelationSelector()) {
+                tokens.add("{ __signedIdentifier: signedIdentifier }");
+            } else {
+                tokens.add("[]");
+            }
+        } else {
+            tokens.add("data");
         }
+
         if (action.getTargetPageDefinition().getContainer().isIsRelationSelector()) {
             if (action.getTargetDataElement() instanceof RelationType check) {
-                String result = "data." + check.getName();
-                boolean isCollection = check.isIsCollection();
-                if (isCollection) {
-                    return result + " ?? []";
+                if (container.isTable()) {
+                    tokens.add("[]");
+                } else {
+                    String result = "data." + check.getName();
+                    boolean isCollection = check.isIsCollection();
+                    if (isCollection) {
+                        tokens.add(result + " ?? []");
+                    } else {
+                        tokens.add(result + "? [" + result + "] : []");
+                    }
                 }
-                return result + "? [" + result + "] : []";
             }
         }
-        return "";
+        return String.join(", ", tokens);
     }
 
     public static boolean isActionAddOrSet(ActionDefinition actionDefinition) {

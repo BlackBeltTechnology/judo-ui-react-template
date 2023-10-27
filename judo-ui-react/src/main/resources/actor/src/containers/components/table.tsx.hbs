@@ -47,7 +47,6 @@ import {
   mapAllFiltersToQueryCustomizerProperties,
   processQueryCustomizer,
   useErrorHandler,
-  ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
 } from '~/utilities';
 import type { TableRowAction } from '~/utilities';
 import { useDataStore } from '~/hooks';
@@ -126,7 +125,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
   const { locale: l10nLocale } = useL10N();
   const { downloadFile, extractFileNameFromToken } = fileHandling();
   const { t } = useTranslation();
-  const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
+  const handleError = useErrorHandler();
 
   {{# if (stringValueIsTrue useTableRowHighlighting) }}
     const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ tableComponentName table ~}}))`);
@@ -393,7 +392,7 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
           setLastItem(res[res.length - 1]);
           setRowCount(res.length || 0);
         } catch (error) {
-          handleFetchError(error);
+          handleError(error);
         } finally {
           setIsLoading(false);
         }

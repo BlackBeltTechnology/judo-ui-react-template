@@ -61,8 +61,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         setRefreshCounter((prev) => prev + 1);
       {{/ if }}
     {{/ if }}
-  } catch (e) {
-    console.error(e);
+  } catch (error) {
+    {{# unless page.container.table }}
+      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
+    {{ else }}
+      handleError(error);
+    {{/ unless }}
   } finally {
     setIsLoading(false);
   }

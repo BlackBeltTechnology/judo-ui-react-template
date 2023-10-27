@@ -6,9 +6,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
     setData(result as {{ classDataName action.actionDefinition.targetType 'Stored' }});
 
     return result;
-  } catch (e) {
-    handleFetchError(e);
-    return Promise.reject(e);
+  } catch (error) {
+    handleError(error);
+    return Promise.reject(error);
   } finally {
     setIsLoading(false);
   }

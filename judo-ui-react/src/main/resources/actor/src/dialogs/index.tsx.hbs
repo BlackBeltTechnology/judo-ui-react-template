@@ -18,7 +18,6 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
     uiDateToServiceDate,
     uiTimeToServiceTime,
     useErrorHandler,
-    ERROR_PROCESSOR_HOOK_INTERFACE_KEY,
   } from '~/utilities';
   import type {
     DialogResult,
@@ -41,7 +40,7 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  export const use{{ pageName page }} = (ownerData: any): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<{{# if page.container.table }}Array<{{/ if }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}>{{/ if }}>> => {
+  export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<{{# if page.container.table }}Array<{{/ if }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}>{{/ if }}>> => {
     const [createDialog, closeDialog] = useDialog();
 
     return ({{{ getDialogOpenParameters page }}}) => new Promise((resolve) => {
@@ -61,9 +60,6 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
         children: (
           <{{ pageName page }}
             ownerData={ownerData}
-            {{# if page.container.view}}
-            targetData={targetData}
-            {{/ if }}
             {{# if page.container.isRelationSelector}}
             alreadySelected={alreadySelected}
             {{/ if }}
@@ -96,7 +92,6 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 
 export interface {{ pageName page }}Props {
   ownerData: any;
-  {{# if page.container.view}}targetData: JudoIdentifiable<any>{{/ if }}
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
   onClose: () => void;
   onSubmit: (result: {{# if page.container.table }}Array<{{/ if }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}>{{/ if }}) => void;
@@ -104,7 +99,7 @@ export interface {{ pageName page }}Props {
 
 // Name: {{ page.name }}
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
-  const { ownerData, {{# if page.container.view}}targetData, {{/ if }}{{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}onClose, onSubmit } = props;
+  const { ownerData, {{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}onClose, onSubmit } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
     // Hooks section
@@ -113,10 +108,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const { navigate, back } = useJudoNavigation();
     const { openFilterDialog } = useFilterDialog();
     const { openConfirmDialog } = useConfirmDialog();
-    const handleFetchError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Fetch))`);
-    const handleCreateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Create)(component={{ pageName page }}))`);
-    const handleUpdateError = useErrorHandler<{{ classDataName (getReferenceClassType page) '' }}>(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Update)(component={{ pageName page }}))`);
-    const handleDeleteError = useErrorHandler(`(&(${OBJECTCLASS}=${ERROR_PROCESSOR_HOOK_INTERFACE_KEY})(operation=Delete)(component={{ pageName page }}))`);
+    const handleError = useErrorHandler();
     const [createDialog, closeDialog] = useDialog();
 
     // State section
@@ -162,7 +154,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     // Dialog hooks
     {{# each (getRelatedDialogs page) as |relatedDialog| }}
-      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}({{# unless page.container.table }}data{{ else }}{}{{/ unless }});
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
     {{/ each }}
 
     // Calculated section

@@ -34,6 +34,10 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{/ if }}
     }
   } catch(error) {
-    handleDeleteError(error, undefined, {{# if action.actionDefinition.targetType }}target{{ else }}data{{/ if }});
+    {{# if action.actionDefinition.targetType }}
+      handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, undefined, target);
+    {{ else }}
+      handleError(error, undefined, data);
+    {{/ if }}
   }
 };

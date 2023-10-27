@@ -10,7 +10,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
 
     onSubmit(res);
   } catch (error) {
-     handleCreateError(error, { setValidation }, data);
+     handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
   } finally {
     setIsLoading(false);
   }
