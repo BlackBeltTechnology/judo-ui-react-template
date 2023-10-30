@@ -316,7 +316,7 @@ public class UiWidgetHelper {
         String result = "";
 
         if (!container.isTable()) {
-            if (button.getActionDefinition().getIsOpenFormAction()) {
+            if (button.getActionDefinition().getIsOpenFormAction() || button.getActionDefinition().getIsBulkDeleteAction()) {
                 result += "editMode || ";
             } else if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsClearAction()) {
                 if (container.isView()) {
@@ -325,7 +325,10 @@ public class UiWidgetHelper {
             }
         }
         if (button.getActionDefinition().isIsBulk() && button.getHiddenBy() != null) {
-            result += "!selectedRows.current.every(s => !s." + button.getHiddenBy().getName() + ") ||";
+            result += "!selectedRows.current.every(s => !s." + button.getHiddenBy().getName() + ") || ";
+        }
+        if (button.getActionDefinition().getIsBulkDeleteAction()) {
+            result += "selectedRows.current.some(s => !s.__deleteable) || ";
         }
 
         return result + "isLoading";

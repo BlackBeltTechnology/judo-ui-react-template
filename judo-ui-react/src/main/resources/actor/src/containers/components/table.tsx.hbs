@@ -42,7 +42,9 @@ import {
   {{ else }}
     getUpdatedRowsSelected,
   {{/ if }}
+  {{# if table.isEager }}
   applyInMemoryFilters,
+  {{/ if }}
   fileHandling,
   serviceDateToUiDate,
   serviceTimeToUiTime,
@@ -50,8 +52,8 @@ import {
   processQueryCustomizer,
   useErrorHandler,
 } from '~/utilities';
-import type { TableRowAction } from '~/utilities';
-import { {{# if (tableHasBulkOperations table) }}useCRUDDialog, {{/ if }}useDataStore } from '~/hooks';
+import type { DialogResult, TableRowAction } from '~/utilities';
+import { useDataStore } from '~/hooks';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 {{# if (stringValueIsTrue useTableRowHighlighting) }}
   import { useTrackService } from '@pandino/react-hooks';
@@ -71,7 +73,11 @@ export interface {{ tableComponentName table }}ActionDefinitions {
         {{# if actionDefinition.isSelectorRangeAction }}
           {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
         {{ else }}
-          {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+          {{# if actionDefinition.isBulk }}
+            {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+          {{ else }}
+            {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+          {{/ if }}
         {{/ if }}
       {{/ if }}
     {{/ if }}
@@ -128,9 +134,6 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
   const { downloadFile, extractFileNameFromToken } = fileHandling();
   const { t } = useTranslation();
   const handleError = useErrorHandler();
-  {{# if (tableHasBulkOperations table) }}
-  const openCRUDDialog = useCRUDDialog();
-  {{/ if }}
 
   {{# if (stringValueIsTrue useTableRowHighlighting) }}
     const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ tableComponentName table ~}}))`);
@@ -531,31 +534,10 @@ export function {{ tableComponentName table }}(props: {{ tableComponentName tabl
                           await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
                         {{ else }}
                           {{# if actionDefinition.isBulk }}
-                            openCRUDDialog<{{ classDataName (getReferenceClassType table) 'Stored' }}>({
-                              dialogTitle: t('TMP', { defaultValue: '{{ button.label }}' }),
-                              {{# with (getFirstTitleColumnForTable table) as |column| }}
-                                itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
-                              {{ else }}
-                                itemTitleFn: (item) => t('judo.placeholder', { defaultValue: 'placeholder' }) as string,
-                              {{/ with }}
-                              selectedItems: selectedRows.current,
-                              action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
-                                try {
-                                  await actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}!(item, true);
-                                  successHandler();
-                                } catch (error) {
-                                  errorHandler(error);
-                                }
-                              },
-                              onClose: async (needsRefresh) => {
-                                if (needsRefresh) {
-                                  {{# with (getRefreshActionDefinitionForTable table) as |refreshActionDefinition| }}
-                                    await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(queryCustomizer));
-                                  {{/ with }}
-                                  setSelectionModel([]); // not resetting on refreshes because refreshes would always remove selections...
-                                }
-                              },
-                            });
+                            const { result: bulkResult } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectedRows.current);
+                            if (bulkResult === 'submit') {
+                              setSelectionModel([]); // not resetting on refreshes because refreshes would always remove selections...
+                            }
                           {{ else }}
                             await actions.{{ simpleActionDefinitionName actionDefinition }}!();
                           {{/ if }}

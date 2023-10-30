@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   import { useJudoNavigation } from '~/components';
   import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
   import { toastConfig } from '~/config';
+  import { useCRUDDialog } from '~/hooks';
   import {
     passesLocalValidation,
     processQueryCustomizer,
@@ -109,6 +110,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const { openFilterDialog } = useFilterDialog();
     const { openConfirmDialog } = useConfirmDialog();
     const handleError = useErrorHandler();
+    const openCRUDDialog = useCRUDDialog();
     const [createDialog, closeDialog] = useDialog();
 
     // State section

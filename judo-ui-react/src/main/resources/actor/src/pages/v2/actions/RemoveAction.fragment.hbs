@@ -6,13 +6,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
         storeDiff('{{ table.dataElement.name }}', newList);
       {{ else }}
         try {
-          {{# if action.actionDefinition.isBulkCapable }}
-            if (!silentMode) {
-              await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.ownerDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
-            }
-          {{ else }}
+          if (!silentMode) {
             setIsLoading(true);
-            await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.ownerDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
+          }
+          await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.ownerDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
+          if (!silentMode) {
             {{# if page.container.table }}
               setRefreshCounter((prev) => prev + 1);
             {{/ if }}
@@ -23,27 +21,19 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
                 {{/ with }}
               }
             {{/ if }}
-          {{/ if }}
+          }
         } catch(error) {
-          {{# if action.actionDefinition.isBulkCapable }}
           if (!silentMode) {
-          {{/ if }}
             {{# if action.actionDefinition.targetType }}
               handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, undefined, target);
             {{ else }}
               handleError(error, undefined, data);
             {{/ if }}
-          {{# if action.actionDefinition.isBulkCapable }}
           }
-          {{/ if }}
         } finally {
-          {{# if action.actionDefinition.isBulkCapable }}
           if (!silentMode) {
-          {{/ if }}
             setIsLoading(false);
-          {{# if action.actionDefinition.isBulkCapable }}
           }
-          {{/ if }}
         }
       {{/ if }}
     }
