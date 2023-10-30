@@ -1,4 +1,4 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{# if action.actionDefinition.isBulkCapable }}, silentMode?: boolean{{/ if }}) => {
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
     if (target) {
       {{# if table.isEager }}
@@ -6,22 +6,44 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
         storeDiff('{{ table.dataElement.name }}', newList);
       {{ else }}
         try {
-          setIsLoading(true);
-          await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.ownerDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
-          {{# if page.container.table }}
-            setRefreshCounter((prev) => prev + 1);
-          {{/ if }}
-          {{# if page.container.view }}
-            if (!editMode) {
-              {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-                await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
-              {{/ with }}
+          {{# if action.actionDefinition.isBulkCapable }}
+            if (!silentMode) {
+              await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.ownerDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
             }
+          {{ else }}
+            setIsLoading(true);
+            await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.ownerDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
+            {{# if page.container.table }}
+              setRefreshCounter((prev) => prev + 1);
+            {{/ if }}
+            {{# if page.container.view }}
+              if (!editMode) {
+                {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+                {{/ with }}
+              }
+            {{/ if }}
           {{/ if }}
-        } catch(e) {
-          console.error(e);
+        } catch(error) {
+          {{# if action.actionDefinition.isBulkCapable }}
+          if (!silentMode) {
+          {{/ if }}
+            {{# if action.actionDefinition.targetType }}
+              handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, undefined, target);
+            {{ else }}
+              handleError(error, undefined, data);
+            {{/ if }}
+          {{# if action.actionDefinition.isBulkCapable }}
+          }
+          {{/ if }}
         } finally {
-          setIsLoading(false);
+          {{# if action.actionDefinition.isBulkCapable }}
+          if (!silentMode) {
+          {{/ if }}
+            setIsLoading(false);
+          {{# if action.actionDefinition.isBulkCapable }}
+          }
+          {{/ if }}
         }
       {{/ if }}
     }

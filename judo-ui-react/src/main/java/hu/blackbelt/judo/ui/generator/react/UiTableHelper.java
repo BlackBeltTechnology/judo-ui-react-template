@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 
 @Slf4j
 @TemplateHelper
@@ -230,8 +231,7 @@ public class UiTableHelper {
     }
 
     public static java.util.List<ActionDefinition> getBulkOperationActionDefinitionsForTable(Table table) {
-        return table.getRowActionDefinitions().stream()
-                .filter(a ->((ActionDefinition) a).getIsCallOperationAction())
+        return table.getTableActionDefinitions().stream()
                 .filter(a -> ((ActionDefinition) a).isIsBulk())
                 .sorted(Comparator.comparing(NamedElement::getFQName))
                 .toList();
@@ -242,8 +242,16 @@ public class UiTableHelper {
     }
 
     public static boolean tableHasSelectorColumn(Table table) {
-        return table.isIsSelectorTable() || !getBulkOperationActionDefinitionsForTable(table).isEmpty()
+        return table.isIsSelectorTable()
+                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).isIsBulkCapable())
                 || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsDeleteAction())
                 || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRemoveAction());
+    }
+
+    public static Column getFirstTitleColumnForTable(Table table) {
+        Optional<Column> column = table.getColumns().stream()
+                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .findFirst();
+        return column.orElse(null);
     }
 }

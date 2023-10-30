@@ -307,11 +307,7 @@ public class UiWidgetHelper {
             return "data.length";
         }
         if (button.getActionDefinition().isIsBulk()) {
-            String condition = "selectionModel.length > 0";
-            if (button.getHiddenBy() != null) {
-                condition += "&& !ownerData?." + button.getHiddenBy().getName();
-            }
-            return condition;
+            return "selectionModel.length > 0";
         }
         return "true";
     }
@@ -327,6 +323,9 @@ public class UiWidgetHelper {
                     result += "editMode || !isFormUpdateable() || ";
                 }
             }
+        }
+        if (button.getActionDefinition().isIsBulk() && button.getHiddenBy() != null) {
+            result += "!selectedRows.current.every(s => !s." + button.getHiddenBy().getName() + ") ||";
         }
 
         return result + "isLoading";
