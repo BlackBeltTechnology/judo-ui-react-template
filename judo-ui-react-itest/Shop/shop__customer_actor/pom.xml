@@ -14,10 +14,10 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <actor>shop__customeractor</actor>
+        <actor>customeractor</actor>
         <actor-shortname>customer_actor</actor-shortname>
         <actor-name>CustomerActor</actor-name>
-        <actor-fq-name>Shop::CustomerActor</actor-fq-name>
+        <actor-fq-name>CustomerActor</actor-fq-name>
 
         <ui-model>${project.parent.basedir}/model/${model-name}-ui.model</ui-model>
 
@@ -84,8 +84,8 @@
                             <type>ui-react</type>
                             <scanPackages>
                                 hu.blackbelt.judo.generator.commons,
-                                hu.blackbelt.judo.ui.generator.react,
-                                hu.blackbelt.judo.ui.generator.typescript.rest.commons
+                                hu.blackbelt.judo.ui.generator.typescript.rest.commons, <!-- only importing commons so that multiple ContextAccessors do not collide -->
+                                hu.blackbelt.judo.ui.generator.react
                             </scanPackages>
                             <applications>
                                 ${actor-fq-name}
@@ -109,6 +109,16 @@
                     </execution>
                 </executions>
                 <dependencies>
+                    <dependency>
+                        <groupId>hu.blackbelt.judo.meta</groupId>
+                        <artifactId>hu.blackbelt.judo.meta.ui.model</artifactId>
+                        <version>${judo-meta-ui-version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>hu.blackbelt.judo.generator</groupId>
+                        <artifactId>judo-generator-commons</artifactId>
+                        <version>${judo-generator-commons-version}</version>
+                    </dependency>
                     <dependency>
                         <groupId>hu.blackbelt.judo.generator</groupId>
                         <artifactId>judo-ui-typescript-rest-commons</artifactId>
@@ -172,17 +182,6 @@
                         <phase>generate-sources</phase>
                         <configuration>
                             <arguments>run build</arguments>
-                        </configuration>
-                    </execution>
-
-                    <execution>
-                        <id>test</id>
-                        <goals>
-                            <goal>pnpm</goal>
-                        </goals>
-                        <phase>test</phase>
-                        <configuration>
-                            <arguments>run --if-present test</arguments>
                         </configuration>
                     </execution>
                 </executions>
