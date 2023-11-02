@@ -41,7 +41,13 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<{{# if page.container.table }}Array<{{/ if }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}>{{/ if }}>> => {
+  export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<
+    {{# if (isPageForOperationParameterType page) }}
+      {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}void{{/ if }}
+    {{ else }}
+      {{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}
+    {{/ if }}
+  >> => {
     const [createDialog, closeDialog] = useDialog();
 
     return ({{{ getDialogOpenParameters page }}}) => new Promise((resolve) => {
@@ -70,11 +76,13 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
                 result: 'close',
               });
             }}
-            onSubmit={(result) => {
+            onSubmit={({{# if (dialogHasResult page) }}result{{/ if }}) => {
               closeDialog();
               resolve({
                 result: 'submit',
+                {{# if (dialogHasResult page) }}
                 data: result,
+                {{/ if }}
               });
             }}
           />
@@ -95,7 +103,11 @@ export interface {{ pageName page }}Props {
   ownerData: any;
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
   onClose: () => void;
-  onSubmit: (result: {{# if page.container.table }}Array<{{/ if }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}>{{/ if }}) => void;
+  {{# if (isPageForOperationParameterType page) }}
+  onSubmit: ({{# if (pageHasOutputTarget page) }}result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}{{/ if }}) => void;
+  {{ else }}
+  onSubmit: (result?: {{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}) => void;
+  {{/ if }}
 }
 
 // Name: {{ page.name }}

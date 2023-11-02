@@ -174,6 +174,11 @@ public class UiPageHelper {
             }
         }
 
+        if (isPageForOperationParameterType(pageDefinition) && pageHasOutputTarget(pageDefinition)) {
+            res.add(classDataName(getPageOutputTarget(pageDefinition), ""));
+            res.add(classDataName(getPageOutputTarget(pageDefinition), "Stored"));
+        }
+
         getEnumAttributesForPage(pageDefinition).forEach(a -> {
             res.add(restParamName(a.getDataType()));
         });
@@ -282,5 +287,26 @@ public class UiPageHelper {
 
     public static List<PageContainer> getPageContainersToGenerate(Application application) {
         return application.getPageContainers().stream().filter(c -> !c.isForm() && !c.isIsSelector()).toList();
+    }
+
+    public static boolean isPageForOperationParameterType(PageDefinition page) {
+        return page.getDataElement() instanceof OperationParameterType;
+    }
+
+    public static boolean pageHasOutputTarget(PageDefinition page) {
+        OperationParameterType type = (OperationParameterType) page.getDataElement();
+        if (type.eContainer() instanceof OperationType) {
+            return ((OperationType) type.eContainer()).getOutput() != null;
+        }
+        return false;
+    }
+
+    public static ClassType getPageOutputTarget(PageDefinition page) {
+        OperationParameterType type = (OperationParameterType) page.getDataElement();
+        return ((OperationType) type.eContainer()).getOutput().getTarget();
+    }
+
+    public static boolean dialogHasResult(PageDefinition page) {
+        return !isPageForOperationParameterType(page) || pageHasOutputTarget(page);
     }
 }

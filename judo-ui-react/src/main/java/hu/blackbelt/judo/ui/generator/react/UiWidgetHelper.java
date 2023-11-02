@@ -228,19 +228,19 @@ public class UiWidgetHelper {
 
     public static ClassType getReferenceClassType(ReferenceTypedVisualElement ref) {
         DataElement dataElement = ref.getDataElement();
-        if (dataElement instanceof RelationType) {
-            return ((RelationType) dataElement).getTarget();
-        } else if (dataElement instanceof OperationParameterType) {
-            return ((OperationParameterType) dataElement).getTarget();
-        } else if (dataElement instanceof ClassType) {
-            return (ClassType) dataElement;
-        } else if (dataElement instanceof OperationType) {
+        if (dataElement instanceof OperationType) {
             OperationType operationType = (OperationType) ref.getDataElement();
             if (operationType.getOutput() != null) {
                 return operationType.getOutput().getTarget();
             } else {
                 return operationType.getInput().getTarget();
             }
+        } else if (dataElement instanceof RelationType) {
+            return ((RelationType) dataElement).getTarget();
+        } else if (dataElement instanceof OperationParameterType) {
+            return ((OperationParameterType) dataElement).getTarget();
+        } else if (dataElement instanceof ClassType) {
+            return (ClassType) dataElement;
         }
 
         throw new RuntimeException("Parameter's ClassType cannot be discovered: " + ref.getClass().getName());
