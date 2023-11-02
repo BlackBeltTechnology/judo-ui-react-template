@@ -3,6 +3,7 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
+import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
 
 import org.springframework.util.StringUtils;
@@ -13,8 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.getXMIID;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
 
 @Log
@@ -23,7 +23,7 @@ public class UiPageContainerHelper {
     public static final String NAME_SPLITTER = "::";
 
     public static String containerPath(PageContainer container) {
-        return String.join("/", container.getName().split(NAME_SPLITTER));
+        return String.join("/", stream(container.getName().split(NAME_SPLITTER)).map(UiCommonsHelper::firstToUpper).toList());
     }
 
     public static String containerComponentName(PageContainer container) {
