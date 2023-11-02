@@ -211,43 +211,31 @@ public class UiPageHelper {
     }
 
     public static String getServiceImplForPage(PageDefinition pageDefinition) {
-        Application application = (Application) pageDefinition.eContainer();
-        Set<String> res = new HashSet<>();
         DataElement dataElement = pageDefinition.getDataElement();
 
-        if (dataElement instanceof RelationType) {
-            return firstToLower(serviceRelationName((RelationType) dataElement)) + "Impl";
-        } else if (dataElement instanceof OperationParameterType) {
-            ClassType cls = ((OperationParameterType) dataElement).getTarget();
-            RelationType targetRelationType = (RelationType) application.getRelationTypes().stream()
-                    .filter(r -> ((RelationType) r).getTarget().equals(cls))
-                    .findFirst()
-                    .orElse(null);
-
-            if (targetRelationType != null) {
-                return firstToLower(serviceRelationName(targetRelationType)) + "Impl";
-            }
-
-            RelationType operationInputRelationType = (RelationType) application.getRelationTypes().stream()
-                    .filter(r -> ((RelationType) r).getTarget().getOperations().stream().anyMatch(o -> o.getInput() != null && o.getInput().getTarget().equals(cls)))
-                    .findFirst()
-                    .orElse(null);
-
-            if (operationInputRelationType != null) {
-                return firstToLower(serviceRelationName(operationInputRelationType)) + "Impl";
-            }
-        } else if (dataElement instanceof OperationType) {
-            OperationType operationType = (OperationType) dataElement;
-            if (operationType.getInput() != null) {
-                ClassType cls = operationType.getInput().getTarget();
-                RelationType operationInputRelationType = (RelationType) application.getRelationTypes().stream()
-                        .filter(r -> ((RelationType) r).getTarget().getOperations().stream().anyMatch(o -> o.getInput() != null && o.getInput().getTarget().equals(cls)))
-                        .findFirst()
-                        .orElse(null);
-
-                if (operationInputRelationType != null) {
-                    return firstToLower(serviceRelationName(operationInputRelationType)) + "Impl";
+        if (dataElement instanceof RelationType relationType) {
+            return firstToLower(serviceRelationName(relationType) + "Impl");
+        } else if (dataElement instanceof OperationParameterType operationParameterType) {
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                if (operationType.getOutput() != null && pageDefinition.getContainer().isView()) {
+                    return firstToLower(serviceClassName(operationType.getOutput().getTarget()) + "Impl");
                 }
+                if (operationType.eContainer() instanceof ClassType classType) {
+                    return firstToLower(serviceClassName(classType) + "Impl");
+                }
+                if (operationParameterType.eContainer() instanceof RelationType relationType) {
+                    return firstToLower(serviceRelationName(relationType) + "Impl");
+                }
+            }
+        } else if (dataElement instanceof OperationType operationType) {
+            if (operationType.getOutput() != null && pageDefinition.getContainer().isView()) {
+                return firstToLower(serviceClassName(operationType.getOutput().getTarget()) + "Impl");
+            }
+            if (operationType.eContainer() instanceof ClassType classType) {
+                return firstToLower(serviceClassName(classType) + "Impl");
+            }
+            if (operationType.getInput() != null) {
+                return firstToLower(serviceClassName(operationType.getInput().getTarget()) + "Impl");
             }
         }
 
