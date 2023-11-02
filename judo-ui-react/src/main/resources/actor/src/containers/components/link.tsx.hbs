@@ -13,21 +13,18 @@ import {
 } from '~/components/widgets';
 import { StringOperation } from '~/generated/data-api';
 import type {
-  {{ classDataName container.dataElement '' }},
-  {{ classDataName container.dataElement 'Stored' }},
-  {{ classDataName link.dataElement.target 'Stored' }},
-  {{ classDataName link.dataElement.target 'QueryCustomizer' }},
+  {{ getLinkAPIImports link container }}
 } from '~/generated/data-api';
 
-export interface {{ linkComponentName link }}ActionDefinitions {
+export interface {{ componentName link }}ActionDefinitions {
   {{# each link.actionDefinitions as |actionDefinition| }}
     {{ simpleActionDefinitionName actionDefinition }}?: ({{{ linkActionDefinitionParameters link actionDefinition }}}) => Promise<{{{ linkActionDefinitionResponseType link actionDefinition }}}>;
   {{/ each }}
 }
 
-export interface {{ linkComponentName link }}Props {
+export interface {{ componentName link }}Props {
   ownerData: {{ classDataName container.dataElement '' }} | {{ classDataName container.dataElement 'Stored' }};
-  actions: {{ linkComponentName link }}ActionDefinitions;
+  actions: {{ componentName link }}ActionDefinitions;
   storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
   validationError?: string;
   disabled?: boolean;
@@ -35,7 +32,7 @@ export interface {{ linkComponentName link }}Props {
 }
 
 // Name: {{ link.name }}
-export function {{ linkComponentName link }}(props: {{ linkComponentName link }}Props) {
+export function {{ componentName link }}(props: {{ componentName link }}Props) {
   const { ownerData, actions, storeDiff, validationError, disabled, editMode } = props;
   const { t } = useTranslation();
 

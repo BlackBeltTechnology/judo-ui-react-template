@@ -94,8 +94,8 @@ public class UiPageContainerHelper {
     public static List<String> getContainerActionsExtends(PageContainer container) {
         Set<String> imports = new HashSet<>();
 
-        imports.addAll(container.getTables().stream().map(t -> tableComponentName(((Table) t)) + "ActionDefinitions").toList());
-        imports.addAll(container.getLinks().stream().map(l -> linkComponentName(((Link) l)) + "ActionDefinitions").toList());
+        imports.addAll(container.getTables().stream().map(t -> componentName(((Table) t)) + "ActionDefinitions").toList());
+        imports.addAll(container.getLinks().stream().map(l -> componentName(((Link) l)) + "ActionDefinitions").toList());
 
         return imports.stream().sorted().collect(Collectors.toList());
     }

@@ -3,12 +3,11 @@
   <Grid container spacing={2}>
     {{# if child.customImplementation }}
       <ComponentProxy
-        filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+        filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component={{ componentName child }}))`}
         data={data}
         validation={validation}
         editMode={editMode}
         storeDiff={storeDiff}
-        payloadDiff={payloadDiff}
       >
     {{/ if }}
     {{# each (featuredButtonsForButtonGroup child) as |button| }}

@@ -22,11 +22,16 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
+import hu.blackbelt.judo.meta.ui.data.ClassType;
+import hu.blackbelt.judo.meta.ui.data.RelationType;
 import lombok.extern.java.Log;
 
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 
 @Log
 @TemplateHelper
@@ -127,5 +132,44 @@ public class UiImportHelper {
                 fillFlattenedVisualElements(((Container) element), elements);
             }
         });
+    }
+
+    public static String getTableAPIImports(Table table, PageContainer container) {
+        Set<String> res = new HashSet<>();
+
+        if (!container.isTable() && container.getDataElement() instanceof ClassType dataElement) {
+            res.add(classDataName(dataElement, ""));
+            res.add(classDataName(dataElement, "Stored"));
+        }
+
+        ClassType classType = getReferenceClassType(table);
+
+        if (classType != null) {
+            res.add(classDataName(classType, ""));
+            res.add(classDataName(classType, "Stored"));
+            res.add(classDataName(classType, "QueryCustomizer"));
+        }
+
+        return res.stream().sorted().collect(Collectors.joining(", "));
+    }
+
+    public static String getLinkAPIImports(Link link, PageContainer container) {
+        Set<String> res = new HashSet<>();
+
+        if (!container.isTable() && container.getDataElement() instanceof ClassType dataElement) {
+            res.add(classDataName(dataElement, ""));
+            res.add(classDataName(dataElement, "Stored"));
+        }
+
+        if (link.getDataElement() instanceof RelationType relationType) {
+            ClassType classType = relationType.getTarget();
+
+            if (classType != null) {
+                res.add(classDataName(classType, "Stored"));
+                res.add(classDataName(classType, "QueryCustomizer"));
+            }
+        }
+
+        return res.stream().sorted().collect(Collectors.joining(", "));
     }
 }

@@ -2,10 +2,10 @@
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component={{ componentName child }}))`}
             ownerData={data}
             isOwnerLoading={isLoading}
-            actions={ actionsFor{{ tableComponentName child }} }
+            actions={ actionsFor{{ componentName child }} }
             {{# unless container.table }}
               editMode={editMode}
               isFormUpdateable={isFormUpdateable}
@@ -13,7 +13,7 @@
         >
     {{/ if }}
     <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
-        <{{ tableComponentName child }}
+        <{{ componentName child }}
             uniqueId={'TMP'}
             actions={actions}
             {{# if container.isSelector }}

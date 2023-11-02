@@ -186,6 +186,14 @@ public class UiWidgetHelper {
         return "undefined";
     }
 
+    public static String componentName(VisualElement element) {
+        String containerName = containerComponentName(element.getPageContainer());
+        String[] splitted = element.getName().split(NAME_SPLITTER);
+        return containerName + stream(splitted)
+                .map(StringUtils::capitalize)
+                .collect(Collectors.joining()) + "Component";
+    }
+
     public static String linkComponentName(Link link) {
         String containerName = containerComponentName(link.getPageContainer());
         String[] splitted = link.getName().split(NAME_SPLITTER);

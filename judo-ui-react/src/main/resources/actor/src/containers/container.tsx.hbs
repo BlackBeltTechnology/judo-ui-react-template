@@ -12,12 +12,12 @@
   {{/ each }} } from '~/generated/data-api';
 {{/ unless }}
 {{# each container.tables as |table| }}
-  import type { {{ tableComponentName table }}ActionDefinitions } from './components/{{ tableComponentName table }}';
-  import { {{ tableComponentName table }} } from './components/{{ tableComponentName table }}';
+  import type { {{ componentName table }}ActionDefinitions } from './components/{{ componentName table }}';
+  import { {{ componentName table }} } from './components/{{ componentName table }}';
 {{/ each }}
 {{# each container.links as |link| }}
-  import type { {{ linkComponentName link }}ActionDefinitions } from './components/{{ linkComponentName link }}';
-  import { {{ linkComponentName link }} } from './components/{{ linkComponentName link }}';
+  import type { {{ componentName link }}ActionDefinitions } from './components/{{ componentName link }}';
+  import { {{ componentName link }} } from './components/{{ componentName link }}';
 {{/ each }}
 
 {{# unless (containerIsEmptyDashboard container) }}
