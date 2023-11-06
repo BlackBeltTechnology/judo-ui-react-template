@@ -1,71 +1,49 @@
-{{# unless page.isPageTypeCreate }}
-    {{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
-    <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
-        {{# if child.customImplementation }}
-            <ComponentProxy
-                filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
-                data={data}
-                validation={validation}
-                editMode={editMode}
-                storeDiff={storeDiff}
-                payloadDiff={payloadDiff}
-            >
-        {{/ if }}
-        {{# if action.isCallOperationAction }}
-            <LoadingButton
-                id="{{ createId action }}"
-                loading={isLoading}
-                variant={ {{{ variantForButton child }}} }
-                {{# if child.icon }}
-                    startIcon={<MdiIcon path="{{ child.icon.name }}" />}
-                    loadingPosition="start"
-                {{/ if }}
-                onClick={ async () => {
-                    try {
-                        setIsLoading(true);
-                        await {{ actionFunctionName action }}({{# if action.operation.isMapped }}data, {{/ if }}() => fetchData());
-                    } finally {
-                        setIsLoading(false);
-                    }
-                } }
-                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
-            >
-                <span>{ t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ child.label }}' }) }</span>
-            </LoadingButton>
-        {{/ if }}
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+  {{# if child.customImplementation }}
+    <ComponentProxy
+      filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component={{ componentName child }}))`}
+      data={data}
+      validation={validation}
+      editMode={editMode}
+      storeDiff={storeDiff}
+    >
+  {{/ if }}
+  {{# if child.actionDefinition.isCallOperationAction }}
+    <LoadingButton
+      id="{{ createId child }}"
+      loading={isLoading}
+      variant={ {{{ variantForButton child }}} }
+      {{# if child.icon }}
+        startIcon={<MdiIcon path="{{ child.icon.name }}" />}
+        loadingPosition="start"
+      {{/ if }}
+      onClick={ async () => {
+        if (actions.{{ simpleActionDefinitionName child.actionDefinition }}) {
+          await actions.{{ simpleActionDefinitionName child.actionDefinition }}!();
+        }
+      } }
+      disabled={ !actions.{{ simpleActionDefinitionName child.actionDefinition }} ||{{# if child.enabledBy }} !data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
+    >
+      <span>{ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }</span>
+    </LoadingButton>
+  {{/ if }}
 
-        {{# if action.isNavigationToPageAction }}
-            {{# if action.dataElement.isCollection }}
-                <CollectionAssociationButton
-                    id="{{ createId action }}"
-                    variant={ {{{ variantForButton child }}} }
-                    editMode={editMode}
-                    navigateAction={() => {{ actionFunctionName action }}(data)}
-                >
-                    { t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ child.label }}' }) }
-                    <MdiIcon path="arrow-right" />
-                </CollectionAssociationButton>
-            {{ else }}
-                <AssociationButton
-                    id="{{ createId action }}"
-                    variant={ {{{ variantForButton child }}} }
-                    editMode={editMode}
-                    navigateAction={(target) => {{ actionFunctionName action }}(data, target)}
-                    owner={data}
-                    fetchCall={async (owner: JudoIdentifiable<any>) => {{ classServiceName action.dataElement.owner }}Impl.get{{ firstToUpper action.dataElement.name }}(owner, {
-                        _mask: '{}',
-                    })}
-                >
-                    { t('{{ getTranslationKeyForAction action }}', { defaultValue: '{{ child.label }}' }) }
-                    <MdiIcon path="arrow-right" />
-                </AssociationButton>
-            {{/ if }}
-        {{/ if }}
-        {{# if child.customImplementation }}
-            </ComponentProxy>
-        {{/ if }}
-    </Grid>
-    {{# if child.hiddenBy }} } {{/ if }}
-{{ else }}
-    {/* Skipping generation of {{ child.name }} because currently it's not supported on create pages */}
-{{/ unless }}
+  {{# if child.actionDefinition.isOpenPageAction }}
+    <AssociationButton
+      id="{{ createId child }}"
+      variant={ {{{ variantForButton child }}} }
+      editMode={editMode}
+      navigateAction={ actions.{{ simpleActionDefinitionName child.actionDefinition }} }
+      refreshCounter={refreshCounter}
+      {{# if child.preFetchActionDefinition }}fetchCall={ actions.{{ simpleActionDefinitionName child.preFetchActionDefinition }} }{{/ if }}
+    >
+      { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
+      <MdiIcon path="arrow-right" />
+    </AssociationButton>
+  {{/ if }}
+  {{# if child.customImplementation }}
+    </ComponentProxy>
+  {{/ if }}
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}

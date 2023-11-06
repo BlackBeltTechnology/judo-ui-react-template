@@ -2,12 +2,11 @@
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component={{ componentName child }}))`}
             data={data}
             validation={validation}
             editMode={editMode}
             storeDiff={storeDiff}
-            payloadDiff={payloadDiff}
         >
     {{/ if }}
     <NumericInput
@@ -34,7 +33,10 @@
         onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();}) }
         {{/ if }}
         onValueChange={(values, sourceInfo) => {
-            storeDiff('{{ child.attributeType.name }}', values.floatValue === undefined ? null : values.floatValue);
+            const newValue = values.floatValue === undefined ? null : values.floatValue;
+            if (data.{{ child.attributeType.name }} !== newValue) {
+                storeDiff('{{ child.attributeType.name }}', newValue);
+            }
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {

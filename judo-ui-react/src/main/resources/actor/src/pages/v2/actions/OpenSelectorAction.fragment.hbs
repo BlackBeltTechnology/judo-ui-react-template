@@ -1,0 +1,47 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+  // alert('OpenSelectorAction');
+  {{ debug action }}
+  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
+  if (result === 'submit') {
+    {{# if action.targetPageDefinition.container.isRelationSelector }}
+      if (Array.isArray(returnedData) && returnedData.length) {
+        {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+          storeDiff('{{ link.dataElement.name }}', returnedData[0]);
+        {{/ with }}
+        {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+          {{# if table.isEager }}
+            storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.dataElement.name }} || []), ...returnedData]);
+          {{ else }}
+            try {
+              setIsLoading(true);
+              await {{ getServiceImplForPage page }}.add{{ firstToUpper action.ownerDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}ownerData{{/ if }}, returnedData);
+              {{# if page.container.table }}
+                setRefreshCounter((prev) => prev + 1);
+              {{/ if }}
+              {{# if page.container.view }}
+                if (!editMode) {
+                  {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+                    await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+                  {{/ with }}
+                }
+              {{/ if }}
+            } catch(e) {
+              console.error(e);
+            } finally {
+              setIsLoading(false);
+            }
+          {{/ if }}
+        {{/ with }}
+      }
+
+    {{ else }}
+      {{# if page.container.view }}
+        if (!editMode) {
+          {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+            await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+          {{/ with }}
+        }
+      {{/ if }}
+    {{/ if }}
+  }
+};
