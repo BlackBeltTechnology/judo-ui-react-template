@@ -35,9 +35,9 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
     {{# each (getApiImportsForPage page) as |imp| }}
       {{ imp }},
     {{/ each }}
-  } from '~/generated/data-api';
+  } from '~/services/data-api';
   {{# if (getServiceImplForPage page) }}
-      import { {{ getServiceImplForPage page }} } from '~/generated/data-axios';
+      import { {{ getServiceImplForPage page }} } from '~/services/data-axios';
   {{/ if }}
 {{/ unless }}
 

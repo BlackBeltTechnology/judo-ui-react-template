@@ -9,7 +9,7 @@
 {{# unless (containerIsEmptyDashboard container) }}
   import { {{# each (getContainerApiImports container) as |imp| }}
     {{ imp }},
-  {{/ each }} } from '~/generated/data-api';
+  {{/ each }} } from '~/services/data-api';
 {{/ unless }}
 {{# each container.tables as |table| }}
   import type { {{ componentName table }}ActionDefinitions } from './components/{{ componentName table }}';

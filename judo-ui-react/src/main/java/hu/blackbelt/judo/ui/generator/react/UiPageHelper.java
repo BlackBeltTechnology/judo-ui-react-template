@@ -144,8 +144,8 @@ public class UiPageHelper {
     public static List<String> getApiImportsForPage(PageDefinition pageDefinition) {
         Set<String> res = new HashSet<>();
 
-        if (pageDefinition.getDataElement() instanceof ReferenceType) {
-            res.addAll(getApiImportsForReferenceType((ReferenceType) pageDefinition.getDataElement()));
+        if (pageDefinition.getDataElement() instanceof ReferenceType referenceType) {
+            res.addAll(getApiImportsForReferenceType(referenceType));
         }
 
         for (Object table: pageDefinition.getContainer().getTables()) {
@@ -174,9 +174,29 @@ public class UiPageHelper {
             }
         }
 
-        if (isPageForOperationParameterType(pageDefinition) && pageHasOutputTarget(pageDefinition)) {
-            res.add(classDataName(getPageOutputTarget(pageDefinition), ""));
-            res.add(classDataName(getPageOutputTarget(pageDefinition), "Stored"));
+        if (pageDefinition.getContainer().isIsSelector()) {
+            if (pageDefinition.getDataElement() instanceof OperationType operationType) {
+                if (operationType.getInput() != null) {
+                    res.add(classDataName(operationType.getInput().getTarget(), "Stored"));
+                }
+                if (operationType.getOutput() != null) {
+                    res.add(classDataName(operationType.getOutput().getTarget(), "Stored"));
+                }
+            } else if (pageDefinition.getDataElement() instanceof RelationType relationType) {
+                res.add(classDataName(relationType.getTarget(), "Stored"));
+            }
+        }
+        if (pageDefinition.getDataElement() instanceof OperationParameterType operationParameterType) {
+            res.add(classDataName(operationParameterType.getTarget(), "Stored"));
+
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                if (operationType.getOutput() != null) {
+                    res.add(classDataName(operationType.getOutput().getTarget(), "Stored"));
+                }
+            }
+        }
+        if (pageDefinition.getDataElement() instanceof RelationType relationType) {
+            res.add(classDataName(relationType.getTarget(), "Stored"));
         }
 
         getEnumAttributesForPage(pageDefinition).forEach(a -> {
@@ -189,7 +209,8 @@ public class UiPageHelper {
     public static List<PageDefinition> getRelatedPages(PageDefinition pageDefinition) {
         Set<PageDefinition> res = new HashSet<>();
         try {
-            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getIsOpenPageAction() && !a.getTargetPageDefinition().isOpenInDialog()).toList()) {
+            // a.getTargetPageDefinition() != null check is for the case where the target view is not present because it was most likely empty
+            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getIsOpenPageAction() && a.getTargetPageDefinition() != null && !a.getTargetPageDefinition().isOpenInDialog()).toList()) {
                 res.add(action.getTargetPageDefinition());
             }
         } catch (Exception e) {
@@ -282,19 +303,47 @@ public class UiPageHelper {
     }
 
     public static boolean pageHasOutputTarget(PageDefinition page) {
-        OperationParameterType type = (OperationParameterType) page.getDataElement();
-        if (type.eContainer() instanceof OperationType) {
-            return ((OperationType) type.eContainer()).getOutput() != null;
+        if (page.getDataElement() instanceof OperationType operationType) {
+            return operationType.getOutput() != null;
+        }
+        if (page.getDataElement() instanceof OperationParameterType operationParameterType) {
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                return operationType.getOutput() != null;
+            }
         }
         return false;
     }
 
     public static ClassType getPageOutputTarget(PageDefinition page) {
-        OperationParameterType type = (OperationParameterType) page.getDataElement();
-        return ((OperationType) type.eContainer()).getOutput().getTarget();
+        if (page.getDataElement() instanceof OperationType operationType) {
+            return operationType.getOutput().getTarget();
+        }
+        if (page.getDataElement() instanceof OperationParameterType operationParameterType) {
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                return operationType.getOutput().getTarget();
+            }
+        }
+        return null;
     }
 
     public static boolean dialogHasResult(PageDefinition page) {
         return !isPageForOperationParameterType(page) || pageHasOutputTarget(page);
+    }
+
+    public static String dialogDataType(PageDefinition page) {
+        if (page.getContainer().isIsSelector()) {
+            if (page.getDataElement() instanceof OperationType operationType) {
+                return classDataName(operationType.getInput().getTarget(), "Stored");
+            } else if (page.getDataElement() instanceof RelationType relationType) {
+                return classDataName(relationType.getTarget(), "Stored");
+            }
+        }
+        if (page.getDataElement() instanceof OperationParameterType operationParameterType) {
+            return classDataName(operationParameterType.getTarget(), "Stored");
+        }
+        if (page.getDataElement() instanceof RelationType relationType) {
+            return classDataName(relationType.getTarget(), "Stored");
+        }
+        return "void";
     }
 }

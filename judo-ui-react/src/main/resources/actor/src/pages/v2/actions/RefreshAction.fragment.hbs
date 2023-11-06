@@ -1,3 +1,23 @@
+{{# if action.targetDataElement }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{/ if }}> => {
+  return {{ getServiceImplForPage page }}.list{{ firstToUpper action.targetDataElement.name }}(
+    {{# if (pageHasSignedId page) }}
+      {{# if page.openInDialog }}
+        ownerData
+      {{ else }}
+        { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
+      {{/ if }}
+    {{ else }}
+      {{# if (isSingleAccessPage page) }}
+        singletonHost.current
+      {{ else }}
+        undefined
+      {{/ if }}
+    {{/ if }},
+    queryCustomizer
+  );
+}
+{{ else }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}> => {
   try {
     setIsLoading(true);
@@ -42,3 +62,4 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     setRefreshCounter((prevCounter) => prevCounter + 1);
   }
 };
+{{/ if }}

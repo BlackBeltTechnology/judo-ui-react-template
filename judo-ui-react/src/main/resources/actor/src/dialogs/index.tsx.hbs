@@ -34,18 +34,18 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
     {{# each (getApiImportsForPage page) as |imp| }}
       {{ imp }},
     {{/ each }}
-  } from '~/generated/data-api';
+  } from '~/services/data-api';
   {{# if (getServiceImplForPage page) }}
-      import { {{ getServiceImplForPage page }} } from '~/generated/data-axios';
+      import { {{ getServiceImplForPage page }} } from '~/services/data-axios';
   {{/ if }}
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
   export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<
-    {{# if (isPageForOperationParameterType page) }}
+    {{# if (pageHasOutputTarget page) }}
       {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}void{{/ if }}
     {{ else }}
-      {{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}
+      {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}
     {{/ if }}
   >> => {
     const [createDialog, closeDialog] = useDialog();
@@ -103,10 +103,10 @@ export interface {{ pageName page }}Props {
   ownerData: any;
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
   onClose: () => void;
-  {{# if (isPageForOperationParameterType page) }}
+  {{# if (pageHasOutputTarget page) }}
   onSubmit: ({{# if (pageHasOutputTarget page) }}result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}{{/ if }}) => void;
   {{ else }}
-  onSubmit: (result?: {{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}) => void;
+  onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}) => void;
   {{/ if }}
 }
 
@@ -129,9 +129,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
-    const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{} as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
+    const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{} as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
     {{# if page.container.isSelector }}
-      const [selectionDiff, setSelectionDiff] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}[]>([]);
+      const [selectionDiff, setSelectionDiff] = useState<{{ dialogDataType page }}[]>([]);
     {{/ if }}
     {{# unless page.container.table }}
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
