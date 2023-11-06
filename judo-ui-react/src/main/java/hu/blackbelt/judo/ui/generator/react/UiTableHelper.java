@@ -27,10 +27,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 
 @Slf4j
 @TemplateHelper
-public class UiTableHelper extends Helper {
+public class UiTableHelper {
 
     public static String getFilterTypeForAttribute(AttributeType attributeType) {
         DataType dataType = attributeType.getDataType();
@@ -184,7 +185,7 @@ public class UiTableHelper extends Helper {
     }
 
     public static String getDefaultSortParams(Column defaultSortColumn, Collection<Column> columns) {
-        if (defaultSortColumn != null) {
+        if (defaultSortColumn != null && isSortableAttributeType(defaultSortColumn.getAttributeType())) {
             return "[{ field: '" + defaultSortColumn.getAttributeType().getName() + "', sort: " + getSortDirection(defaultSortColumn) + " }]";
         }
 
@@ -212,26 +213,6 @@ public class UiTableHelper extends Helper {
         return defaultValue != null ? defaultValue : 10;
     }
 
-    public static Boolean tableHasActions(Table table) {
-        return table.getActions().size() > 0;
-    }
-
-    public static boolean tableHasDeleteAction(Table table) {
-        return getTableDeleteAction(table) != null;
-    }
-
-    public static Action getTableDeleteAction(Table table) {
-        return table.getRowActions().stream().filter(Action::getIsDeleteAction).findFirst().orElse(null);
-    }
-
-    public static boolean tableHasRemoveAction(Table table) {
-        return getTableRemoveAction(table) != null;
-    }
-
-    public static Action getTableRemoveAction(Table table) {
-        return table.getRowActions().stream().filter(Action::getIsRemoveAction).findFirst().orElse(null);
-    }
-
     public static boolean isAttributeTypeEnumeration(AttributeType attributeType) {
         return attributeType.getDataType() instanceof EnumerationType;
     }
@@ -249,21 +230,28 @@ public class UiTableHelper extends Helper {
         }
     }
 
-    public static java.util.List<Action> getBulkOperationActionsForTable(Table table) {
-        return table.getRowActions().stream()
-                .filter(Action::getIsCallOperationAction)
-                .filter(Action::isIsBulk)
+    public static java.util.List<ActionDefinition> getBulkOperationActionDefinitionsForTable(Table table) {
+        return table.getTableActionDefinitions().stream()
+                .filter(a -> ((ActionDefinition) a).isIsBulk())
                 .sorted(Comparator.comparing(NamedElement::getFQName))
                 .toList();
     }
 
     public static boolean tableHasBulkOperations(Table table) {
-        return !getBulkOperationActionsForTable(table).isEmpty();
+        return !getBulkOperationActionDefinitionsForTable(table).isEmpty();
     }
 
     public static boolean tableHasSelectorColumn(Table table) {
-        return getBulkOperationActionsForTable(table).size() > 0
-                || table.getRowActions().stream().filter(Action::getIsDeleteAction).count() > 0
-                || table.getRowActions().stream().filter(Action::getIsRemoveAction).count() > 0;
+        return table.isIsSelectorTable()
+                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).isIsBulkCapable())
+                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsDeleteAction())
+                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRemoveAction());
+    }
+
+    public static Column getFirstTitleColumnForTable(Table table) {
+        Optional<Column> column = table.getColumns().stream()
+                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .findFirst();
+        return column.orElse(null);
     }
 }
