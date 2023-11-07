@@ -1,6 +1,4 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  // alert('OpenSelectorAction');
-  {{ debug action }}
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
   if (result === 'submit') {
     {{# if action.targetPageDefinition.container.isRelationSelector }}

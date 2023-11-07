@@ -128,7 +128,7 @@ public class UiActionsHelper {
     }
 
     public static String getActionTemplate(Action action) {
-        String componentsLocation = "actor/src/pages/v2/actions/";
+        String componentsLocation = "actor/src/pages/actions/";
         String actionDefinitionBareName = action.getActionDefinition().eClass().getInstanceClass().getSimpleName();
         String suffixToCut = "Definition";
         String actionName = actionDefinitionBareName.substring(0, actionDefinitionBareName.length() - suffixToCut.length());
@@ -168,10 +168,13 @@ public class UiActionsHelper {
     }
 
     public static String linkActionDefinitionParameters(Link link, ActionDefinition actionDefinition) {
-        if (actionDefinition.getIsAutocompleteRangeAction()) {
-            return "queryCustomizer: " + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "QueryCustomizer");
-        } else if (actionDefinition.getTargetType() != null) {
-            return "target: " + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored");
+        if (link.getDataElement() instanceof ReferenceType referenceType) {
+            ClassType target = referenceType.getTarget();
+            if (actionDefinition.getIsAutocompleteRangeAction()) {
+                return "queryCustomizer: " + classDataName(target, "QueryCustomizer");
+            } else if (actionDefinition.getTargetType() != null) {
+                return "target: " + classDataName(target, target.isIsMapped() ? "Stored" : "");
+            }
         }
         return "";
     }

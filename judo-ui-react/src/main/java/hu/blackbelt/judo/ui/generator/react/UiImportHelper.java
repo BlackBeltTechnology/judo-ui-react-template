@@ -165,6 +165,7 @@ public class UiImportHelper {
             ClassType classType = relationType.getTarget();
 
             if (classType != null) {
+                res.add(classDataName(classType, ""));
                 res.add(classDataName(classType, "Stored"));
                 res.add(classDataName(classType, "QueryCustomizer"));
             }

@@ -41,7 +41,7 @@ public class UiWidgetHelper {
     public static final String NAME_SPLITTER = "::";
 
     public static String getWidgetTemplate(VisualElement visualElementType) {
-        String componentsLocation = "actor/src/pages/widgets/";
+        String componentsLocation = "actor/src/containers/widget-fragments/";
         return componentsLocation + visualElementType.eClass().getInstanceClass().getSimpleName().toLowerCase() + ".hbs";
     }
 

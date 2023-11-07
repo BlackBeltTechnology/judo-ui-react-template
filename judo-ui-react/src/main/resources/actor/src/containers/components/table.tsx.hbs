@@ -153,7 +153,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{/ if }}
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [data, setData] = useState<GridRowModel<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>({{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }});
+  {{# with (getReferenceClassType table) as |classType| }}
+  const [data, setData] = useState<GridRowModel<{{# if classType.isMapped }}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}>[]>({{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }});
+  {{/ with }}
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
   const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
@@ -429,7 +431,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
 
   {{ else }}
     useEffect(() => {
-      const newData = applyInMemoryFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }} ?? []{{ else }}data{{/ unless}});
+      {{# with (getReferenceClassType table) as |classType| }}
+      const newData = applyInMemoryFilters<{{# if classType.isMapped}}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}>(filters, {{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }} ?? []{{ else }}data{{/ unless}});
+      {{/ with }}
       setData(newData);
     }, [{{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }}, {{/ unless }}filters]);
 
