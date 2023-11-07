@@ -21,21 +21,9 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.Action;
-import hu.blackbelt.judo.meta.ui.NamedElement;
-import hu.blackbelt.judo.meta.ui.PageDefinition;
 import hu.blackbelt.judo.meta.ui.VisualElement;
 import lombok.extern.java.Log;
 import org.springframework.util.StringUtils;
-
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.actionFunctionHandlerTypeName;
-import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.actionFunctionName;
-import static hu.blackbelt.judo.ui.generator.react.UiImportHelper.createFlattenedSetOfVisualElements;
-import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.pageName;
-import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 
 @Log
 @TemplateHelper
@@ -44,37 +32,11 @@ public class UiPandinoHelper {
         return name.replaceAll("([a-z])([A-Z]+)", "$1_$2").toUpperCase();
     }
 
-    public static SortedSet<VisualElement> getVisualElementsWithCustomImplementation(PageDefinition pageDefinition) {
-        Set<VisualElement> visualElements = createFlattenedSetOfVisualElements(pageDefinition).stream()
-                .filter(VisualElement::isCustomImplementation).collect(Collectors.toSet());
-
-        SortedSet<VisualElement> result = new TreeSet<>(Comparator.comparing((VisualElement v) -> v.getFQName().trim()));
-
-        result.addAll(visualElements);
-
-        return result;
-    }
-
     public static String getCustomizationComponentInterface(VisualElement element) {
-        return pageName(element.getPageDefinition()) + StringUtils.capitalize(element.getName());
+        return /*pageName(element.getPageDefinition()) + */StringUtils.capitalize(element.getName());
     }
 
     public static String getCustomizationComponentInterfaceKey(VisualElement element) {
         return camelCaseNameToInterfaceKey(getCustomizationComponentInterface(element));
-    }
-
-    public static String getCustomizationActionFunctionInterfaceKey(Action action) {
-        return camelCaseNameToInterfaceKey(actionFunctionName(action)) + "_INTERFACE_KEY";
-    }
-
-    public static String getCustomizationActionFunctionHandlerInterfaceKey(Action action, String handlerType) {
-        return camelCaseNameToInterfaceKey(actionFunctionHandlerTypeName(action, handlerType)) + "_INTERFACE_KEY";
-    }
-
-    public static List<VisualElement> getOnBlurWidgetsForPage(PageDefinition pageDefinition) {
-        Set<VisualElement> elements = new LinkedHashSet<>();
-        collectVisualElementsMatchingCondition(pageDefinition.getOriginalPageContainer(), e -> e.getOnBlur() != null && e.getOnBlur(), elements);
-
-        return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 }

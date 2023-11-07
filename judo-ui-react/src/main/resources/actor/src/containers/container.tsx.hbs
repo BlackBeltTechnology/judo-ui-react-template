@@ -1,0 +1,97 @@
+{{> fragment.header.hbs }}
+
+{{# if isDebugPrint }}// include: actor/src/fragments/container/common-imports.fragment.hbs{{/ if }}
+{{> actor/src/fragments/container/common-imports.fragment.hbs }}
+{{# unless container.table }}
+  {{# if isDebugPrint }}// include: actor/src/fragments/container/view-imports.fragment.hbs{{/ if }}
+  {{> actor/src/fragments/container/view-imports.fragment.hbs }}
+{{/ unless }}
+{{# unless (containerIsEmptyDashboard container) }}
+  import { {{# each (getContainerApiImports container) as |imp| }}
+    {{ imp }},
+  {{/ each }} } from '~/services/data-api';
+{{/ unless }}
+{{# each container.tables as |table| }}
+  import type { {{ componentName table }}ActionDefinitions } from './components/{{ componentName table }}';
+  import { {{ componentName table }} } from './components/{{ componentName table }}';
+{{/ each }}
+{{# each container.links as |link| }}
+  import type { {{ componentName link }}ActionDefinitions } from './components/{{ componentName link }}';
+  import { {{ componentName link }} } from './components/{{ componentName link }}';
+{{/ each }}
+
+{{# unless (containerIsEmptyDashboard container) }}
+export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
+  {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
+    {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
+  {{/ each }}
+}
+{{/ unless }}
+
+export interface {{ containerComponentName container }}Props {
+  {{# unless (containerIsEmptyDashboard container) }}
+    refreshCounter: number;
+    actions: {{ pageContainerActionDefinitionTypeName container }};
+    {{# if container.isSelector }}
+      selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
+      setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
+    {{/ if }}
+    {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
+    {{# unless container.table }}
+      data: {{ classDataName container.dataElement '' }};
+      isLoading: boolean;
+      isFormUpdateable: () => boolean;
+      isFormDeleteable: () => boolean;
+      storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
+      editMode: boolean;
+      validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
+      setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
+    {{/ unless }}
+  {{/ unless }}
+};
+
+// XMIID: {{ getXMIID container }}
+// Name: {{ container.name }}
+export default function {{ containerComponentName container }}(props: {{ containerComponentName container }}Props) {
+  {{# unless (containerIsEmptyDashboard container) }}
+    const { t } = useTranslation();
+    const { navigate, back } = useJudoNavigation();
+    const { refreshCounter, actions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
+    const { locale: l10nLocale } = useL10N();
+
+    {{# unless container.table }}
+      useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
+    {{/ unless }}
+  {{/ unless }}
+
+  return (
+    {{# unless (containerIsEmptyDashboard container) }}
+      {{# with container.children.[0] as |rootChild| }}
+        <Grid
+          container
+          spacing={2}
+          direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}"
+          alignItems="{{# if container.table }}stretch{{ else }}{{ alignItems rootChild }}{{/ if }}"
+          justifyContent="{{ justifyContent rootChild }}"
+        >
+          {{# if container.table }}
+            <Grid item xs={12} sm={12}>
+              <Card>
+                <CardContent>
+          {{/ if }}
+          {{# each rootChild.children as |child| }}
+            {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+            {{> (getWidgetTemplate child) }}
+          {{/ each }}
+          {{# if container.table }}
+                </CardContent>
+              </Card>
+            </Grid>
+          {{/ if }}
+        </Grid>
+      {{/ with }}
+    {{ else }}
+      <></>
+    {{/ unless }}
+  );
+}
