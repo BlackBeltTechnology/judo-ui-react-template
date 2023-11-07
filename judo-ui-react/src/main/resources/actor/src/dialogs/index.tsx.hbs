@@ -26,7 +26,7 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
   {{# each (getRelatedPages page) as |relatedPage| }}
     import { routeTo{{ pageName relatedPage }} } from '~/routes';
   {{/ each }}
-  {{# each (getRelatedDialogs page) as |relatedDialog| }}
+  {{# each (getRelatedDialogs page true) as |relatedDialog| }}
     import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}';
   {{/ each }}
   import type { {{ containerComponentName page.container }}DialogActions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer';
@@ -167,7 +167,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{/ unless }}
 
     // Dialog hooks
-    {{# each (getRelatedDialogs page) as |relatedDialog| }}
+    {{# each (getRelatedDialogs page false) as |relatedDialog| }}
       const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
     {{/ each }}
 

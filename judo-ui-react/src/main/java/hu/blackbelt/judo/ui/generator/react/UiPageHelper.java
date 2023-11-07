@@ -219,10 +219,10 @@ public class UiPageHelper {
         return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
-    public static List<PageDefinition> getRelatedDialogs(PageDefinition pageDefinition) {
+    public static List<PageDefinition> getRelatedDialogs(PageDefinition pageDefinition, Boolean skipSelf) {
         Set<PageDefinition> res = new HashSet<>();
         try {
-            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getTargetPageDefinition() != null && a.getTargetPageDefinition().isOpenInDialog() && !a.getTargetPageDefinition().equals(pageDefinition)).toList()) {
+            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getTargetPageDefinition() != null && a.getTargetPageDefinition().isOpenInDialog() && (!skipSelf || !a.getTargetPageDefinition().equals(pageDefinition))).toList()) {
                 res.add(action.getTargetPageDefinition());
             }
         } catch (Exception e) {
