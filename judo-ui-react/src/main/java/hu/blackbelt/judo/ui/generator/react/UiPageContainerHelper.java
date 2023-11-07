@@ -33,7 +33,7 @@ public class UiPageContainerHelper {
     }
 
     public static boolean containerIsRefreshable(PageContainer container) {
-        return container.getAllActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRefreshAction());
+        return container.getPageActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRefreshAction());
     }
 
     public static List<Link> getLinksForPageContainers(Application application) {

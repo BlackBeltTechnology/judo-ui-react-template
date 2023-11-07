@@ -56,11 +56,6 @@ public class UiActionsHelper {
         actionDefinitions.addAll(buttons.stream().map(Button::getActionDefinition).toList());
         actionDefinitions.addAll(buttons.stream().map(Button::getPreFetchActionDefinition).filter(Objects::nonNull).toList());
 
-        // the TemplateAction is not defined on any button, that's why need to check the container for it's existence
-//        if (container.getTemplateAction() != null) {
-//            actionDefinitions.add(container.getTemplateAction());
-//        }
-
         actionDefinitions.sort(Comparator.comparing(NamedElement::getFQName));
 
         return actionDefinitions;
@@ -122,7 +117,7 @@ public class UiActionsHelper {
 
     public static ActionDefinition getRefreshActionDefinitionForContainer(PageContainer container) {
         if (container.isTable()) {
-            return (ActionDefinition) ((Table) container.getTables().get(0)).getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
+            return getRefreshActionDefinitionForTable((Table) container.getTables().get(0));
         }
         return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
     }

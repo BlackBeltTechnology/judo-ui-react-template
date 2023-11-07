@@ -64,16 +64,15 @@ public class UiImportHelper {
     public static String getMuiMaterialImportsForPageContainer(PageContainer container) {
         SortedSet<String> imports = getMaterialImportsForPageContainer(container);
 
-        return String.join(", ", imports).concat(imports.size() > 0 ? "," : "");
+        return String.join(", ", imports).concat(!imports.isEmpty() ? "," : "");
     }
 
     public static SortedSet<String> getMaterialImportsForPageContainer(PageContainer container) {
         Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPageContainer(container).stream()
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
-        SortedSet<String> imports = new TreeSet<>();
 
-        imports.addAll(Set.of("Button"));
+        SortedSet<String> imports = new TreeSet<>(Set.of("Button"));
 
         muiMaterialWidgetImportPairs.forEach((key, value) -> {
             if (uniqueVisualElementNames.contains(key)) {
@@ -117,13 +116,13 @@ public class UiImportHelper {
         List<TabController> tabControllers = contents.stream()
                 .filter(c -> c instanceof TabController)
                 .map(t -> ((TabController) t))
-                .collect(Collectors.toList());
+                .toList();
 
         elements.addAll(tabControllers);
 
         List<Tab> tabs = tabControllers.stream()
                 .flatMap(t -> t.getTabs().stream())
-                .collect(Collectors.toList());
+                .toList();
 
         tabs.forEach(t -> {
             VisualElement element = t.getElement();

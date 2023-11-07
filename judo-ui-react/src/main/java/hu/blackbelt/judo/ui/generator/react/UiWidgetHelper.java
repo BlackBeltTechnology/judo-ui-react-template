@@ -218,7 +218,7 @@ public class UiWidgetHelper {
     }
 
     public static boolean isAutocompleteAvailable(Link link) {
-        if (link.getParts().size() == 0) {
+        if (link.getParts().isEmpty()) {
             return false;
         }
         Column column = getFirstAutocompleteColumnForLink(link);
@@ -307,7 +307,7 @@ public class UiWidgetHelper {
     }
 
     public static Boolean displayDropdownForButtonGroup(ButtonGroup actionGroup) {
-        return nonFeaturedButtonsForButtonGroup(actionGroup).size() > 0;
+        return !nonFeaturedButtonsForButtonGroup(actionGroup).isEmpty();
     }
 
     public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {

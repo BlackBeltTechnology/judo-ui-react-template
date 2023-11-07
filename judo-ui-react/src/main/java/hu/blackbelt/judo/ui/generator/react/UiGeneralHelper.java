@@ -20,7 +20,6 @@ package hu.blackbelt.judo.ui.generator.react;
  * #L%
  */
 
-import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.Application;
 import hu.blackbelt.judo.meta.ui.NamedElement;
@@ -61,10 +60,6 @@ public class UiGeneralHelper {
         return navigationItem.getTarget() == null;
     }
 
-    public static String ucFirst(String name) {
-        return StringUtils.capitalize(name);
-    }
-
     public static String toLower(String str) {
         if (str == null) {
             return "";
@@ -74,10 +69,6 @@ public class UiGeneralHelper {
 
     public static boolean boolValue(Boolean original) {
         return original != null && original;
-    }
-
-    public static String emptyStringFallback(String input) {
-        return input == null ? "" : input;
     }
 
     public static Boolean stringValueIsTrue(String input) {
@@ -106,7 +97,7 @@ public class UiGeneralHelper {
     }
 
     public static boolean otherApplicationsAvailable(Application application, Collection<Application> applications) {
-        return getAlternativeApplications(application, applications).size() > 0;
+        return !getAlternativeApplications(application, applications).isEmpty();
     }
 
     public static List<String> getWritableDateAttributesForClass(ClassType classType) {

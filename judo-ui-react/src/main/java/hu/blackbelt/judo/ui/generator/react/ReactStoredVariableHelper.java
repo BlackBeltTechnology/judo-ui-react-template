@@ -41,7 +41,6 @@ public class ReactStoredVariableHelper extends StaticMethodValueResolver {
     public static final String MUI_PLAN_PRO = "pro";
     public static final String MUI_PLAN_PREMIUM = "premium";
 
-
     public static void bindContext(Map<String, ?> context) {
         ThreadLocalContextHolder.bindContext(context);
     }
@@ -85,7 +84,7 @@ public class ReactStoredVariableHelper extends StaticMethodValueResolver {
     public static synchronized String getMUIDataGridPlanSuffix() {
         String muiPlan = getMUILicensePlan();
 
-        return  muiPlan.length() > 0 ? "-" + muiPlan : muiPlan;
+        return !muiPlan.isEmpty() ? "-" + muiPlan : muiPlan;
     }
 
     public static synchronized String muiDataGridComponent() {

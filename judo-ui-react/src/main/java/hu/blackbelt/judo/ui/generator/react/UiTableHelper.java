@@ -203,10 +203,6 @@ public class UiTableHelper {
         return getDefaultSortParams(table.getDefaultSortColumn(), table.getColumns());
     }
 
-    public static String getDefaultSortParamsForLink (Link link) {
-        return getDefaultSortParams(link.getDefaultSortColumn(), link.getColumns());
-    }
-
     public static Integer calculateTablePageLimit(Table table) {
         Integer defaultValue = table.getRowsPerPage();
 
