@@ -1,8 +1,11 @@
 {
     "translation": {
-        "applications.{{ application.actor.simpleName }}": "{{ application.actor.simpleName }}"
-    {{# each (getAlternativeApplications application applications) as |app| }}
+        "applications.{{ application.actor.simpleName }}": "{{ application.actor.simpleName }}",
+        {{# each (getAlternativeApplications application applications) as |app| }}
         "applications.{{ app.actor.simpleName }}": "{{ app.actor.simpleName }}",
-    {{/ each }}
+        {{/ each }}
+        {{# each (getApplicationTranslations application) as |translation| }}
+        "{{ @key }}": "{{ this }}"{{# unless @last }},{{/ unless }}
+        {{/ each }}
     }
 }

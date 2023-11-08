@@ -16,7 +16,7 @@
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
         error={validation.has('{{ child.attributeType.name }}')}
     >
-        <InputLabel id="{{ createId child }}" shrink={true} size={'small'}>
+        <InputLabel id="{{ getXMIID child }}" shrink={true} size={'small'}>
             { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }{{# if child.attributeType.isRequired }} *{{/ if }}
         </InputLabel>
         <RadioGroup
@@ -25,7 +25,7 @@
                 row
             {{/ unless }}
             name="{{ child.attributeType.name }}"
-            id="{{ createId child }}"
+            id="{{ getXMIID child }}"
             value={ data.{{ child.attributeType.name }} || '' }
             onChange={ (event) => {
                 storeDiff('{{ child.attributeType.name }}', event.target.value);
@@ -37,7 +37,7 @@
         >
         {{# each child.attributeType.dataType.members as |member| }}
             <FormControlLabel
-                id="{{ createId member }}"
+                id="{{ getXMIID member }}"
                 value={ '{{ member.name }}' }
                 control={<Radio size='small' />}
                 label= { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }

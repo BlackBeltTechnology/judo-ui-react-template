@@ -12,7 +12,7 @@
     <TextField
         required={ {{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }} }
         name="{{ child.attributeType.name }}"
-        id="{{ createId child }}"
+        id="{{ getXMIID child }}"
         {{# if (shouldElementHaveAutoFocus child) }}
             autoFocus
         {{/ if }}
@@ -45,7 +45,7 @@
         select
     >
         {{# each child.attributeType.dataType.members as |member| }}
-            <MenuItem id="{{ createId member }}" value={ '{{ member.name }}' }>
+            <MenuItem id="{{ getXMIID member }}" value={ '{{ member.name }}' }>
                 { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }
             </MenuItem>
         {{/ each }}

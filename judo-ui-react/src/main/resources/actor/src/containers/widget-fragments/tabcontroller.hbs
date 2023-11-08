@@ -10,14 +10,14 @@
         >
     {{/ if }}
     <ModeledTabs
-        id="{{ createId child }}"
+        id="{{ getXMIID child }}"
         ownerData={data}
         validation={validation}
         {{# if child.orientation }}orientation='{{ toLower child.orientation.name }}'{{/ if }}
         childTabs={[
             {{# each child.tabs as |tab| }}
                 {
-                    id: '{{ createId tab }}',
+                    id: '{{ getXMIID tab }}',
                     name: '{{ getTranslationKeyForVisualElement tab.element }}',
                     label: t('{{ getTranslationKeyForVisualElement tab.element }}', { defaultValue: '{{ tab.element.label }}' }) as string,
                     disabled: {{# if tab.element.enabledBy }}!data.{{ tab.element.enabledBy.name }} ||{{/ if }} isLoading,

@@ -10,7 +10,7 @@
         >
     {{/ if }}
     {{# if this.card }}
-        <Card id="{{ createId this }}">
+        <Card id="{{ getXMIID this }}">
             <CardContent>
                 <Grid container direction="column" alignItems="stretch" justifyContent="flex-start" spacing={2}>
                     {{# each this.children as |child| }}
@@ -23,7 +23,7 @@
             </CardContent>
         </Card>
     {{ else }}
-        <Grid id="{{ createId this }}" container direction="column" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+        <Grid id="{{ getXMIID this }}" container direction="column" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
             {{# each this.children as |child| }}
                 {{# if child }}
                     {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}

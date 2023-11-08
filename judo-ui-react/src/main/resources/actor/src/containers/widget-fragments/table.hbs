@@ -12,9 +12,9 @@
             {{/ unless }}
         >
     {{/ if }}
-    <Grid id="{{ createId child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
+    <Grid id="{{ getXMIID child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
         <{{ componentName child }}
-            uniqueId={'TMP'}
+            uniqueId={'{{ getXMIID child }}'}
             actions={actions}
             {{# if container.isSelector }}
               selectionDiff={selectionDiff}

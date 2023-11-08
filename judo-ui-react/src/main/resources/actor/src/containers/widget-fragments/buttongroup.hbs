@@ -14,7 +14,7 @@
       {{# if button.hiddenBy }}( !data.{{ button.hiddenBy.name }} && {{/ if }}
       <Grid item>
         <LoadingButton
-          id="{{ createId button }}"
+          id="{{ getXMIID button }}"
           loading={isLoading}
           {{# if button.icon }}
             startIcon={<MdiIcon path="{{ button.icon.name }}" />}
@@ -23,7 +23,7 @@
           onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
             {{# if button.confirmation }}
               // TODO: implement shiny MUI Dialog here
-              const result = confirm(t('TMP', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+              const result = confirm(t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
 
               if (!result) {
                 return;
@@ -41,7 +41,7 @@
     {{# if (displayDropdownForButtonGroup child) }}
       <Grid item>
         <DropdownButton
-          id="{{ createId child }}-button-group"
+          id="{{ getXMIID child }}-button-group"
           disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
           {{# if child.icon }}
             startIcon={ <MdiIcon path="{{ child.icon.name }}" /> }
@@ -49,12 +49,12 @@
           menuItems={[
             {{# each (nonFeaturedButtonsForButtonGroup child) as |button| }}
               {
-                id: '{{ createId button }}',
+                id: '{{ getXMIID button }}',
                 label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
                 onClick: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
                   {{# if button.confirmation }}
                     // TODO: implement shiny MUI Dialog here
-                    const result = confirm(t('TMP', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+                    const result = confirm(t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
 
                     if (!result) {
                       return;

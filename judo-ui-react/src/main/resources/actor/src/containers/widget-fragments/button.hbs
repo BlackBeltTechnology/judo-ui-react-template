@@ -11,7 +11,7 @@
   {{/ if }}
   {{# if child.actionDefinition.isCallOperationAction }}
     <LoadingButton
-      id="{{ createId child }}"
+      id="{{ getXMIID child }}"
       loading={isLoading}
       variant={ {{{ variantForButton child }}} }
       {{# if child.icon }}
@@ -31,7 +31,7 @@
 
   {{# if child.actionDefinition.isOpenPageAction }}
     <AssociationButton
-      id="{{ createId child }}"
+      id="{{ getXMIID child }}"
       variant={ {{{ variantForButton child }}} }
       editMode={editMode}
       navigateAction={ actions.{{ simpleActionDefinitionName child.actionDefinition }} }

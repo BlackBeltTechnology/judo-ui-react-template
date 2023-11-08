@@ -213,7 +213,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{# each table.rowActionButtonGroup.buttons as |button| }}
       {{# unless button.actionDefinition.isOpenPageAction }}
         {
-          id: '{{ createId button }}',
+          id: '{{ getXMIID button }}',
           label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
           {{# if button.icon }}
           icon: <MdiIcon path="{{ button.icon.name }}" />,
@@ -222,7 +222,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
           action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
             {{# if button.confirmation }}
               // TODO: implement shiny MUI Dialog here
-              const result = confirm(t('TMP', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+              const result = confirm(t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
 
               if (!result) {
                 return;
@@ -447,7 +447,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{/ unless }}
 
   return (
-    <>
+    <div id="{{ getXMIID table }}" data-table-name="{{ table.name }}">
       <StripedDataGrid
         { ...baseTableConfig }
         {{# if isMUILicensePlanPro }}
@@ -522,8 +522,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
             <GridToolbarContainer>
               {{# each table.tableActionButtonGroup.buttons as |button| }}
                 {actions.{{ simpleActionDefinitionName button.actionDefinition }} && ({{{ tableButtonVisibilityConditions button table container }}}) ? <Button
-                  id="{{ createId button }}"
+                  id="{{ getXMIID button }}"
+                  {{# if button.icon }}
                   startIcon={<MdiIcon path="{{ button.icon.name }}" />}
+                  {{/ if }}
                   variant={ {{{ variantForButton button }}} }
                   onClick={ async () => {
                     {{# if button.actionDefinition.isFilterAction }}
@@ -615,6 +617,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
             } }
         />
       {{/ if }}
-    </>
+    </div>
   );
 }

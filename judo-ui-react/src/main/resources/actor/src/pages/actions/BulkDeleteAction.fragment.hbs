@@ -2,7 +2,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   return new Promise((resolve) => {
     openCRUDDialog<{{ classDataName (getReferenceClassType table) 'Stored' }}>({
-      dialogTitle: t('TMP', { defaultValue: 'Delete' }),
+      dialogTitle: t('{{ getTranslationKeyForVisualElement action.actionDefinition.eContainer }}', { defaultValue: '{{ action.actionDefinition.eContainer.label }}' }),
       {{# with (getFirstTitleColumnForTable table) as |column| }}
         itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
       {{ else }}

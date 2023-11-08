@@ -107,7 +107,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
         <DialogTitle>
           {title}
           <IconButton
-            id="{{ containerComponentName container }}-dialog-close-wrapper"
+            id="{{ getXMIID container }}-dialog-close-wrapper"
             aria-label="close"
             onClick={onClose}
             sx={ {
@@ -150,7 +150,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
             { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
               <Grid className="page-action" item>
                 <LoadingButton
-                  id="{{ button.name }}"
+                  id="{{ getXMIID button }}"
                   loading={isLoading}
                   loadingPosition="start"
                   variant={ {{{ variantForButton button }}} }
