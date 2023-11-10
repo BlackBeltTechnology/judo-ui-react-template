@@ -1,302 +1,667 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xmi:XMI xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:data="http://blackbelt.hu/judo/meta/ui/data" xmlns:ui="http://blackbelt.hu/judo/meta/ui" xsi:schemaLocation="http://blackbelt.hu/judo/meta/ui/data http://blackbelt.hu/judo/meta/ui#//data">
-  <ui:Application xmi:id="Application@Shop/CustomerActor" name="Shop::CustomerActor" dashboard="PageDefinition@Shop/CustomerActor/Shop/CustomerActor/Dashboard" actor="ClassType@Shop/CustomerActor/Shop/CustomerActor" principal="ClassType@Shop/CustomerActor/Shop/domain/Person" authentication="_H2oYoCGTEe6bCqdVgfCdiQ" version="1.0.0.20230713_173658_SNAPSHOT">
-    <navigationController xmi:id="NavigationController@Shop/CustomerActor/Shop/CustomerActor/NavigationController" name="Shop::CustomerActor#NavigationController">
-      <items xmi:id="NavigationItem@Shop/CustomerActor/Shop/CustomerActor/NavigationController/Shop/CustomerActor.myCart/NavigationItem" name="Shop::CustomerActor.myCart#NavigationItem" label="My Cart" target="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.myCart/View">
-        <icon xmi:id="NavigationItem@Shop/CustomerActor/Shop/CustomerActor/NavigationController/Shop/CustomerActor.myCart/NavigationItem/Icon" name="cart"/>
+  <ui:Application xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/Application" name="CustomerActor" actor="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/Actor" principal="CustomerActor/(esm/_ZSAgoCFiEe6qTO_pIGxAJA)/ClassType" modelName="Shop">
+    <navigationController xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NavigationController" name="CustomerActor::NavigationController">
+      <items xmi:id="CustomerActor/(esm/_hUKtUCFvEe6qTO_pIGxAJA)/AccessMenuNavigationItemView" name="CustomerActor::myCart::NavigationItem" label="My Cart" target="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition">
+        <icon xmi:id="_HLgJIX_nEe6zjtaSgS-Mtw" name="cart"/>
       </items>
-      <items xmi:id="NavigationItem@Shop/CustomerActor/Shop/CustomerActor/NavigationController/Shop/CustomerActor.products/NavigationItem" name="Shop::CustomerActor.products#NavigationItem" label="Products" target="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.products/Table">
-        <icon xmi:id="NavigationItem@Shop/CustomerActor/Shop/CustomerActor/NavigationController/Shop/CustomerActor.products/NavigationItem/Icon" name="format-list-text"/>
+      <items xmi:id="CustomerActor/(esm/_nwScMCFvEe6qTO_pIGxAJA)/AccessMenuNavigationItemTable" name="CustomerActor::products::NavigationItem" label="Products" target="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessTablePageDefinition">
+        <icon xmi:id="_HLSGtH_nEe6zjtaSgS-Mtw" name="format-list-text"/>
       </items>
     </navigationController>
-    <pages xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor/Dashboard" name="Shop::CustomerActor#Dashboard" pageType="DASHBOARD">
-      <containers xmi:id="PageContainer@Shop/CustomerActor/Shop/CustomerActor/Dashboard/default" name="default" col="12.0" direction="VERTICAL" mainAxisAlignment="START" layoutType="LayoutType@Shop/CustomerActor/default"/>
+    <pages xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/EmptyDashboardPageDefinition" name="CustomerActor::Dashboard::Page" dataElement="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/Actor" container="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/EmptyDashboardPageContainer" dashboard="true"/>
+    <pages xmi:id="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessTablePageDefinition" name="CustomerActor::products::Access::Table::Page" dataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access" container="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTablePageContainer">
+      <actions xmi:id="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessTableRowViewAction" name="CustomerActor::products::View" actionDefinition="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowViewActionDefinition" targetPageDefinition="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition" ownerDataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessTableTableFilterAction" name="CustomerActor::products::Table::Filter" actionDefinition="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTableFilterActionDefinition" ownerDataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessTableTableRefreshAction" name="CustomerActor::products::Table::Refresh" actionDefinition="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" ownerDataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_AiOY4CF9Ee6qTO_pIGxAJA)/OperationFormTableRowCallOperationAction/(discriminator/CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessTablePageDefinition)" name="ui::ProductTransfer::ProductTransfer_View_Edit::orderProduct::OperationFormTableRowCallAction" actionDefinition="CustomerActor/(esm/_AiOY4CF9Ee6qTO_pIGxAJA)/OperationFormTableRowCallActionDefinition/(discriminator/CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowButtonGroup)" targetDataElement="CustomerActor/(esm/_-1DscCF8Ee6qTO_pIGxAJA)/OperationType" ownerDataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access"/>
     </pages>
-    <pages xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.products/View" name="Shop::CustomerActor.products#View" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/products" label="ProductTransfer View / Edit">
-      <containers xmi:id="PageContainer@Shop/CustomerActor/Shop/CustomerActor.products/View/default" name="default" col="12.0" direction="VERTICAL" mainAxisAlignment="START" layoutType="LayoutType@Shop/CustomerActor/default" transferPageName="ProductTransferView">
-        <children xsi:type="ui:Flex" xmi:id="Flex@Shop/CustomerActor/Shop/CustomerActor.products/View/default/ProductTransfer_View_Edit" name="ProductTransfer_View_Edit" sourceId="_gWZCASFlEe6qTO_pIGxAJA" label="ProductTransfer View / Edit" col="12.0" stretch="BOTH" direction="VERTICAL" mainAxisAlignment="START" dataElement="ClassType@Shop/CustomerActor/Shop/ui/ProductTransfer">
-          <children xsi:type="ui:Flex" xmi:id="Flex@Shop/CustomerActor/Shop/CustomerActor.products/View/default/ProductTransfer_View_Edit/group" name="group" sourceId="_nDsLACFmEe6qTO_pIGxAJA" fit="LOOSE" col="12.0" stretch="VERTICAL" isReadOnly="true" direction="VERTICAL" mainAxisAlignment="START">
-            <children xsi:type="ui:TextInput" xmi:id="TextInput@Shop/CustomerActor/Shop/CustomerActor.products/View/default/ProductTransfer_View_Edit/group/name" name="name" sourceId="_s2tSgCFmEe6qTO_pIGxAJA" label="Name" fit="LOOSE" isReadOnly="true" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/name">
-              <icon xmi:id="TextInput@Shop/CustomerActor/Shop/CustomerActor.products/View/default/ProductTransfer_View_Edit/group/name/Icon" name="text_fields"/>
-            </children>
-            <children xsi:type="ui:TextInput" xmi:id="TextInput@Shop/CustomerActor/Shop/CustomerActor.products/View/default/ProductTransfer_View_Edit/group/price" name="price" sourceId="_s2t5kCFmEe6qTO_pIGxAJA" label="Price" fit="LOOSE" isReadOnly="true" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/price">
-              <icon xmi:id="TextInput@Shop/CustomerActor/Shop/CustomerActor.products/View/default/ProductTransfer_View_Edit/group/price/Icon" name="text_fields"/>
-            </children>
-          </children>
-          <children xsi:type="ui:Button" xmi:id="Button@Shop/CustomerActor/Shop/CustomerActor.products/View/default/ProductTransfer_View_Edit/orderProduct" name="orderProduct" sourceId="_AiOY4CF9Ee6qTO_pIGxAJA" label="Order Product" fit="LOOSE" isReadOnly="true" dataElement="OperationType@Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct" action="CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.products/View/Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct/ButtonCallOperation">
-            <icon xmi:id="Button@Shop/CustomerActor/Shop/CustomerActor.products/View/default/ProductTransfer_View_Edit/orderProduct/Icon" name="chevron_right"/>
-          </children>
-        </children>
-        <transferPackageNameTokens>ui</transferPackageNameTokens>
-      </containers>
-      <actions xsi:type="ui:CallOperationAction" xmi:id="CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.products/View/Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct/ButtonCallOperation" label="Order Product" name="Shop::CustomerActor::Shop::ui::ProductTransfer::orderProduct#ButtonCallOperation" dataElement="OperationType@Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct" type="BUTTON" operation="OperationType@Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct">
-        <icon xmi:id="CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.products/View/Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct/ButtonCallOperation/Icon" name="chevron_right"/>
-      </actions>
-      <actions xsi:type="ui:BackAction" xmi:id="BackAction@Shop/CustomerActor/Shop/CustomerActor.products/View/Shop/CustomerActor/Shop/CustomerActor/products/PageBack" label="Back" name="Shop::CustomerActor::Shop::CustomerActor::products#PageBack" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/products">
-        <icon xmi:id="BackAction@Shop/CustomerActor/Shop/CustomerActor.products/View/Shop/CustomerActor/Shop/CustomerActor/products/PageBack/Icon" name="arrow_back"/>
-      </actions>
-      <actions xsi:type="ui:RefreshAction" xmi:id="RefreshAction@Shop/CustomerActor/Shop/CustomerActor.products/View/Shop/CustomerActor/Shop/CustomerActor/products/PageRefresh" label="Refresh" name="Shop::CustomerActor::Shop::CustomerActor::products#PageRefresh" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/products">
-        <icon xmi:id="RefreshAction@Shop/CustomerActor/Shop/CustomerActor.products/View/Shop/CustomerActor/Shop/CustomerActor/products/PageRefresh/Icon" name="refresh"/>
-      </actions>
-      <mask xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.products/View/Mask" attributeTypes="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/name AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/price"/>
+    <pages xmi:id="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition" name="CustomerActor::products::Access::View::Page" dataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access" container="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewPageContainer">
+      <actions xmi:id="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessViewBackAction" name="CustomerActor::products::Back" actionDefinition="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewBackActionDefinition" ownerDataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessViewRefreshAction" name="CustomerActor::products::Refresh" actionDefinition="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshActionDefinition" ownerDataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_AiOY4CF9Ee6qTO_pIGxAJA)/OperationFormCallAction/(discriminator/CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition)" name="ui::ProductTransfer::ProductTransfer_View_Edit::orderProduct::OperationFormCallAction" actionDefinition="CustomerActor/(esm/_AiOY4CF9Ee6qTO_pIGxAJA)/OperationFormCallActionDefinition" targetDataElement="CustomerActor/(esm/_-1DscCF8Ee6qTO_pIGxAJA)/OperationType" ownerDataElement="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access"/>
     </pages>
-    <pages xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.products/Table" name="Shop::CustomerActor.products#Table" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/products" label="ProductTransfer Table" pageType="TABLE">
-      <containers xmi:id="PageContainer@Shop/CustomerActor/Shop/CustomerActor.products/Table/default" name="default" col="12.0" direction="VERTICAL" mainAxisAlignment="START" layoutType="LayoutType@Shop/CustomerActor/default" transferPageName="ProductTransferTable" transferPageType="TABLE">
-        <children xsi:type="ui:Flex" xmi:id="Flex@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products" name="products" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
-          <children xsi:type="ui:Table" xmi:id="Table@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table" name="ProductTransfer_Table" sourceId="_gWZpESFlEe6qTO_pIGxAJA" label="ProductTransfer Table" col="12.0" row="12.0" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/products" rowActions="ViewAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/CustomerActor/products/RowView CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct/ButtonCallOperation">
-            <columns xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table/name" name="name" label="Name" col="2.0" format="%s" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/name" sort="NONE">
-              <icon xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table/name/Icon" name="text_fields"/>
-            </columns>
-            <columns xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table/price" name="price" label="Price" col="2.0" format="%s" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/price" sort="NONE">
-              <icon xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table/price/Icon" name="text_fields"/>
-            </columns>
-            <filters xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table/name/Filter" name="name#Filter" label="Name" col="2.0" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/name">
-              <icon xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table/name/Filter/Icon" name="text_fields"/>
-            </filters>
-            <filters xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table/price/Filter" name="price#Filter" label="Price" col="2.0" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/price">
-              <icon xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table/price/Filter/Icon" name="text_fields"/>
-            </filters>
-          </children>
-        </children>
-        <transferPackageNameTokens>ui</transferPackageNameTokens>
-      </containers>
-      <actions xsi:type="ui:ViewAction" xmi:id="ViewAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/CustomerActor/products/RowView" label="View" name="Shop::CustomerActor::Shop::CustomerActor::products#RowView" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/products" type="ROW" definedOn="Table@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table" target="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.products/View">
-        <icon xmi:id="ViewAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/CustomerActor/products/RowView/Icon" name="visibility"/>
-      </actions>
-      <actions xsi:type="ui:CallOperationAction" xmi:id="CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct/ButtonCallOperation" label="Order Product" name="Shop::CustomerActor::Shop::ui::ProductTransfer::orderProduct#ButtonCallOperation" dataElement="OperationType@Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct" type="ROW" definedOn="Table@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table" operation="OperationType@Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct">
-        <icon xmi:id="CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct/ButtonCallOperation/Icon" name="chevron_right"/>
-      </actions>
-      <actions xsi:type="ui:RefreshAction" xmi:id="RefreshAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/CustomerActor/products/PageRefresh" label="Refresh" name="Shop::CustomerActor::Shop::CustomerActor::products#PageRefresh" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/products">
-        <icon xmi:id="RefreshAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/CustomerActor/products/PageRefresh/Icon" name="refresh"/>
-      </actions>
-      <actions xsi:type="ui:FilterAction" xmi:id="FilterAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/CustomerActor/products/PageFilter" label="Add Filter" name="Shop::CustomerActor::Shop::CustomerActor::products#PageFilter" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/products" definedOn="Table@Shop/CustomerActor/Shop/CustomerActor.products/Table/default/products/ProductTransfer_Table">
-        <icon xmi:id="FilterAction@Shop/CustomerActor/Shop/CustomerActor.products/Table/Shop/CustomerActor/Shop/CustomerActor/products/PageFilter/Icon" name="filter_alt"/>
-      </actions>
-      <mask xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.products/Table/Mask" attributeTypes="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/name">
-        <maskRelations xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.products/Table/Mask/MaskRelation" attributeTypes="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/name AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/price" relationType="RelationType@Shop/CustomerActor/Shop/CustomerActor/products"/>
-      </mask>
+    <pages xmi:id="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition" name="CustomerActor::myCart::Access::View::Page" dataElement="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/Access" container="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewPageContainer">
+      <actions xmi:id="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/AccessViewBackAction" name="CustomerActor::myCart::Back" actionDefinition="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewBackActionDefinition" ownerDataElement="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/AccessViewRefreshAction" name="CustomerActor::myCart::Refresh" actionDefinition="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshActionDefinition" ownerDataElement="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_gDvbsCF5Ee6qTO_pIGxAJA)/OperationFormCallAction/(discriminator/CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition)" name="ui::CartTransfer::CartTransfer_View_Edit::order::OperationFormCallAction" actionDefinition="CustomerActor/(esm/_gDvbsCF5Ee6qTO_pIGxAJA)/OperationFormCallActionDefinition" targetDataElement="CustomerActor/(esm/_TzkZoCFwEe6qTO_pIGxAJA)/OperationType" ownerDataElement="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowViewAction/(discriminator/CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition)" name="ui::CartTransfer::CartTransfer_View_Edit::items::TabularReferenceTableRowViewAction" actionDefinition="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowViewActionDefinition" targetDataElement="CustomerActor/(esm/_HBfkYCFnEe6qTO_pIGxAJA)/RelationType" ownerDataElement="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableFilterAction/(discriminator/CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition)" name="ui::CartTransfer::CartTransfer_View_Edit::items::TabularReferenceTableFilterAction" actionDefinition="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableFilterActionDefinition" targetDataElement="CustomerActor/(esm/_HBfkYCFnEe6qTO_pIGxAJA)/RelationType" ownerDataElement="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/Access"/>
+      <actions xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRefreshAction/(discriminator/CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/AccessViewPageDefinition)" name="ui::CartTransfer::CartTransfer_View_Edit::items::TabularReferenceTableRefreshAction" actionDefinition="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRefreshActionDefinition" targetDataElement="CustomerActor/(esm/_HBfkYCFnEe6qTO_pIGxAJA)/RelationType" ownerDataElement="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/Access"/>
     </pages>
-    <pages xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.myCart/View" name="Shop::CustomerActor.myCart#View" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/myCart" label="CartTransfer View / Edit">
-      <containers xmi:id="PageContainer@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default" name="default" col="12.0" direction="VERTICAL" mainAxisAlignment="START" layoutType="LayoutType@Shop/CustomerActor/default" transferPageName="CartTransferView">
-        <children xsi:type="ui:Flex" xmi:id="Flex@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit" name="CartTransfer_View_Edit" sourceId="_ivckECFlEe6qTO_pIGxAJA" label="CartTransfer View / Edit" col="12.0" stretch="BOTH" direction="VERTICAL" mainAxisAlignment="START" dataElement="ClassType@Shop/CustomerActor/Shop/ui/CartTransfer">
-          <children xsi:type="ui:Flex" xmi:id="Flex@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper" name="items#LabelWrapper" col="12.0" row="4.0" direction="VERTICAL" mainAxisAlignment="START" crossAxisAlignment="STRETCH">
-            <children xsi:type="ui:Label" xmi:id="Label@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/Label" name="items#Label" label="Items" col="12.0" stretch="HORIZONTAL">
-              <icon xmi:id="Label@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/Label/Icon" name="table_rows"/>
-            </children>
-            <children xsi:type="ui:Table" xmi:id="Table@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items" name="items" sourceId="_nMmkgCFoEe6qTO_pIGxAJA" label="Items" fit="LOOSE" col="12.0" row="3.0" stretch="BOTH" isReadOnly="true" dataElement="RelationType@Shop/CustomerActor/Shop/ui/CartTransfer/items" actions="RefreshRelationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/items/TableRefreshRelation FilterRelationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/items/TableAction">
-              <icon xmi:id="Table@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/Icon" name="table_rows"/>
-              <columns xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/name" name="name" label="Name" col="2.0" format="%s" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/name" sort="NONE">
-                <icon xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/name/Icon" name="text_fields"/>
-              </columns>
-              <columns xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/amount" name="amount" label="Amount" col="2.0" format="%s" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/amount" sort="NONE">
-                <icon xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/amount/Icon" name="dialpad"/>
-              </columns>
-              <columns xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/price" name="price" label="Price" col="2.0" format="%s" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/price" sort="NONE">
-                <icon xmi:id="Column@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/price/Icon" name="dialpad"/>
-              </columns>
-              <filters xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/name/Filter" name="name#Filter" label="Name" col="2.0" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/name">
-                <icon xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/name/Filter/Icon" name="text_fields"/>
-              </filters>
-              <filters xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/amount/Filter" name="amount#Filter" label="Amount" col="2.0" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/amount">
-                <icon xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/amount/Filter/Icon" name="dialpad"/>
-              </filters>
-              <filters xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/price/Filter" name="price#Filter" label="Price" col="2.0" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/price">
-                <icon xmi:id="Filter@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items/price/Filter/Icon" name="dialpad"/>
-              </filters>
-            </children>
-          </children>
-          <children xsi:type="ui:NumericInput" xmi:id="NumericInput@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/price" name="price" sourceId="_4UHa4CFvEe6qTO_pIGxAJA" label="Price" fit="LOOSE" isReadOnly="true" attributeType="AttributeType@Shop/CustomerActor/Shop/ui/CartTransfer/price">
-            <icon xmi:id="NumericInput@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/price/Icon" name="dialpad"/>
-          </children>
-          <children xsi:type="ui:Button" xmi:id="Button@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/order" name="order" sourceId="_gDvbsCF5Ee6qTO_pIGxAJA" label="Order" fit="LOOSE" isReadOnly="true" dataElement="OperationType@Shop/CustomerActor/Shop/ui/CartTransfer/order" action="CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/order/ButtonCallOperation">
-            <icon xmi:id="Button@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/order/Icon" name="chevron_right"/>
-          </children>
-        </children>
-        <transferPackageNameTokens>ui</transferPackageNameTokens>
-      </containers>
-      <actions xsi:type="ui:CallOperationAction" xmi:id="CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/order/ButtonCallOperation" label="Order" name="Shop::CustomerActor::Shop::ui::CartTransfer::order#ButtonCallOperation" dataElement="OperationType@Shop/CustomerActor/Shop/ui/CartTransfer/order" type="BUTTON" outputParameterPage="PageDefinition@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output" operation="OperationType@Shop/CustomerActor/Shop/ui/CartTransfer/order">
-        <icon xmi:id="CallOperationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/order/ButtonCallOperation/Icon" name="chevron_right"/>
-      </actions>
-      <actions xsi:type="ui:RefreshRelationAction" xmi:id="RefreshRelationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/items/TableRefreshRelation" label="RefreshRelation" name="Shop::CustomerActor::Shop::ui::CartTransfer::items#TableRefreshRelation" dataElement="RelationType@Shop/CustomerActor/Shop/ui/CartTransfer/items" type="TABLE" definedOn="Table@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items">
-        <icon xmi:id="RefreshRelationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/items/TableRefreshRelation/Icon" name="refresh"/>
-      </actions>
-      <actions xsi:type="ui:FilterRelationAction" xmi:id="FilterRelationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/items/TableAction" label="Add Filter" name="Shop::CustomerActor::Shop::ui::CartTransfer::items#TableAction" dataElement="RelationType@Shop/CustomerActor/Shop/ui/CartTransfer/items" type="TABLE" definedOn="Table@Shop/CustomerActor/Shop/CustomerActor.myCart/View/default/CartTransfer_View_Edit/items/LabelWrapper/items">
-        <icon xmi:id="FilterRelationAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/ui/CartTransfer/items/TableAction/Icon" name="filter_alt"/>
-      </actions>
-      <actions xsi:type="ui:RefreshAction" xmi:id="RefreshAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/CustomerActor/myCart/PageRefresh" label="Refresh" name="Shop::CustomerActor::Shop::CustomerActor::myCart#PageRefresh" dataElement="RelationType@Shop/CustomerActor/Shop/CustomerActor/myCart">
-        <icon xmi:id="RefreshAction@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Shop/CustomerActor/Shop/CustomerActor/myCart/PageRefresh/Icon" name="refresh"/>
-      </actions>
-      <mask xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Mask" attributeTypes="AttributeType@Shop/CustomerActor/Shop/ui/CartTransfer/price">
-        <maskRelations xmi:id="PageDefinition@Shop/CustomerActor/Shop/CustomerActor.myCart/View/Mask/MaskRelation" attributeTypes="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/name AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/amount AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/price" relationType="RelationType@Shop/CustomerActor/Shop/ui/CartTransfer/items"/>
-      </mask>
-    </pages>
-    <pages xmi:id="PageDefinition@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output" name="Shop::ui::CartTransfer.order#Output" dataElement="OperationParameterType@Shop/CustomerActor/Shop/ui/CartTransfer/order/output" label="ThankYouView View / Edit" pageType="OPERATION_OUTPUT">
-      <containers xmi:id="PageContainer@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/default" name="default" col="12.0" direction="VERTICAL" layoutType="LayoutType@Shop/CustomerActor/default" transferPageName="ThankYouViewView">
-        <children xsi:type="ui:Flex" xmi:id="Flex@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/default/instanceActions" name="instanceActions" col="12.0" stretch="BOTH" mainAxisAlignment="START" crossAxisAlignment="CENTER">
-          <children xsi:type="ui:Button" xmi:id="Button@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/default/instanceActions/ok" name="ok" label="Ok" col="2.0" action="BackAction@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/Shop/CustomerActor/Shop/ui/CartTransfer/order/output/PageBack">
-            <icon xmi:id="Button@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/default/instanceActions/ok/Icon" name="check"/>
-          </children>
-        </children>
-        <children xsi:type="ui:Flex" xmi:id="Flex@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/default/ThankYouView_View_Edit" name="ThankYouView_View_Edit" sourceId="_kUEYgSFlEe6qTO_pIGxAJA" label="ThankYouView View / Edit" col="12.0" stretch="BOTH" direction="VERTICAL" mainAxisAlignment="START" dataElement="ClassType@Shop/CustomerActor/Shop/ui/ThankYouView">
-          <children xsi:type="ui:Text" xmi:id="Text@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/default/ThankYouView_View_Edit/message" name="message" sourceId="_xe-SkCFwEe6qTO_pIGxAJA" label="Message" fit="LOOSE" isReadOnly="true" text="Thank you for your order. Please check other products at"/>
-        </children>
-        <transferPackageNameTokens>ui</transferPackageNameTokens>
-      </containers>
-      <actions xsi:type="ui:BackAction" xmi:id="BackAction@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/Shop/CustomerActor/Shop/ui/CartTransfer/order/output/PageBack" label="Ok" name="Shop::CustomerActor::Shop::ui::CartTransfer::order::output#PageBack" dataElement="OperationParameterType@Shop/CustomerActor/Shop/ui/CartTransfer/order/output">
-        <icon xmi:id="BackAction@Shop/CustomerActor/Shop/ui/CartTransfer.order/Output/Shop/CustomerActor/Shop/ui/CartTransfer/order/output/PageBack/Icon" name="check"/>
-      </actions>
-    </pages>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/CustomerActor" name="Shop::CustomerActor" isActor="true" representation="AttributeType@Shop/CustomerActor/Shop/CustomerActor/email" simpleName="CustomerActor">
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/CustomerActor/myCart" name="myCart" isCollection="false" target="ClassType@Shop/CustomerActor/Shop/ui/CartTransfer" isOrderable="true" isFilterable="true" relationKind="STATIC" memberType="ACCESS" isAccess="true">
+    <pages xmi:id="CustomerActor/(esm/_gDvbsCF5Ee6qTO_pIGxAJA)/OperationOutputPageDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::order::Output::View" dataElement="CustomerActor/(esm/_Tznc8CFwEe6qTO_pIGxAJA)/OperationOutputParameterType" container="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewPageContainer" openInDialog="true"/>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/Actor" name="CustomerActor" isActor="true" simpleName="CustomerActor">
+      <relations xmi:id="CustomerActor/(esm/_hUEmsCFvEe6qTO_pIGxAJA)/Access" name="myCart" isCollection="false" target="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType" isOrderable="true" isFilterable="true" relationKind="STATIC" memberType="ACCESS" isAccess="true">
         <behaviours>LIST</behaviours>
         <behaviours>REFRESH</behaviours>
       </relations>
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/CustomerActor/products" name="products" target="ClassType@Shop/CustomerActor/Shop/ui/ProductTransfer" isOrderable="true" isFilterable="true" relationKind="STATIC" memberType="ACCESS" isAccess="true">
+      <relations xmi:id="CustomerActor/(esm/_nwJSQCFvEe6qTO_pIGxAJA)/Access" name="products" target="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType" isOrderable="true" isFilterable="true" relationKind="STATIC" memberType="ACCESS" isAccess="true">
         <behaviours>LIST</behaviours>
         <behaviours>REFRESH</behaviours>
       </relations>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/CustomerActor/email" name="email" isReadOnly="false" dataType="StringType@Shop/CustomerActor/Shop/types.Email" isFilterable="true" isRequired="true"/>
     </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/ui/CartTransfer" name="Shop::ui::CartTransfer" representation="AttributeType@Shop/CustomerActor/Shop/ui/CartTransfer/price" transferObjectTypeName="Shop::ui::CartTransfer" isOptional="true" simpleName="CartTransfer">
-      <operations xmi:id="OperationType@Shop/CustomerActor/Shop/ui/CartTransfer/order" name="order">
-        <output xmi:id="OperationParameterType@Shop/CustomerActor/Shop/ui/CartTransfer/order/output" name="output" isCollection="false" target="ClassType@Shop/CustomerActor/Shop/ui/ThankYouView" isOptional="false"/>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_ZSAgoCFiEe6qTO_pIGxAJA)/ClassType" name="domain::Person" isPrincipal="true" transferObjectTypeName="_default_transferobjecttypes::domain::Person" isOptional="true" simpleName="Person">
+      <relations xmi:id="CustomerActor/(esm/_CXBWICFjEe6qTO_pIGxAJA)/RelationType" name="cart" isCollection="false" target="CustomerActor/(esm/_eWCGECFgEe6qTO_pIGxAJA)/ClassType" isOrderable="true" isFilterable="true" memberType="DERIVED" isReadOnly="true">
+        <behaviours>LIST</behaviours>
+        <behaviours>REFRESH</behaviours>
+      </relations>
+      <relations xmi:id="CustomerActor/(esm/_W8r58CFgEe6qTO_pIGxAJA)/RelationType/(discriminator/CustomerActor/(esm/_ZSAgoCFiEe6qTO_pIGxAJA)/ClassType)" name="address" isCollection="false" target="CustomerActor/(esm/_u69GYCFfEe6qTO_pIGxAJA)/ClassType" isOptional="false" isOrderable="true" isFilterable="true" relationKind="COMPOSITION" originalRelationType="CustomerActor/(esm/_W8r58CFgEe6qTO_pIGxAJA)/RelationType">
+        <behaviours>LIST</behaviours>
+        <behaviours>REFRESH</behaviours>
+      </relations>
+      <relations xmi:id="CustomerActor/(esm/_vZr-4CFhEe6qTO_pIGxAJA)/RelationType/(discriminator/CustomerActor/(esm/_ZSAgoCFiEe6qTO_pIGxAJA)/ClassType)" name="orders" target="CustomerActor/(esm/_eWCGECFgEe6qTO_pIGxAJA)/ClassType" isOrderable="true" isFilterable="true" originalRelationType="CustomerActor/(esm/_vZr-4CFhEe6qTO_pIGxAJA)/RelationType">
+        <behaviours>LIST</behaviours>
+        <behaviours>REFRESH</behaviours>
+      </relations>
+      <attributes xmi:id="CustomerActor/(esm/_x9MA8CFiEe6qTO_pIGxAJA)/AttributeType" name="firstName" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true" isRequired="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_zsWRcCFiEe6qTO_pIGxAJA)/AttributeType" name="lastName" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true" isRequired="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_1MoYcCFiEe6qTO_pIGxAJA)/AttributeType" name="fullName" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_Iz4MMCFgEe6qTO_pIGxAJA)/AttributeType/(discriminator/CustomerActor/(esm/_ZSAgoCFiEe6qTO_pIGxAJA)/ClassType)" name="email" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2LiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true" isRequired="true" originalAttributeType="CustomerActor/(esm/_Iz4MMCFgEe6qTO_pIGxAJA)/AttributeType"/>
+      <behaviours>REFRESH</behaviours>
+      <packageNameTokens>domain</packageNameTokens>
+    </dataElements>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_DJUdICFgEe6qTO_pIGxAJA)/ClassType" name="domain::User" transferObjectTypeName="_default_transferobjecttypes::domain::User" isOptional="true" simpleName="User">
+      <attributes xmi:id="CustomerActor/(esm/_Iz4MMCFgEe6qTO_pIGxAJA)/AttributeType" name="email" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2LiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true" isRequired="true"/>
+      <behaviours>REFRESH</behaviours>
+      <packageNameTokens>domain</packageNameTokens>
+    </dataElements>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_eWCGECFgEe6qTO_pIGxAJA)/ClassType" name="domain::Order" transferObjectTypeName="_default_transferobjecttypes::domain::Order" isOptional="true" simpleName="Order">
+      <operations xmi:id="CustomerActor/(esm/_gc9jECFwEe6qTO_pIGxAJA)/OperationType" name="order">
+        <output xmi:id="CustomerActor/(esm/_sTKVACFwEe6qTO_pIGxAJA)/OperationOutputParameterType" name="output" isCollection="false" target="CustomerActor/(esm/_kUEYgCFlEe6qTO_pIGxAJA)/ClassType" isOptional="false"/>
       </operations>
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/ui/CartTransfer/items" name="items" target="ClassType@Shop/CustomerActor/Shop/ui/OrderItemTransfer" isOrderable="true" isFilterable="true" memberType="DERIVED" isReadOnly="true">
+      <relations xmi:id="CustomerActor/(esm/_mlbT8CFhEe6qTO_pIGxAJA)/RelationType" name="orderItems" target="CustomerActor/(esm/_nUmjkCFgEe6qTO_pIGxAJA)/ClassType" isOrderable="true" isFilterable="true" relationKind="COMPOSITION">
         <behaviours>LIST</behaviours>
         <behaviours>REFRESH</behaviours>
       </relations>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/ui/CartTransfer/price" name="price" memberType="DERIVED" dataType="NumericType@Shop/CustomerActor/Shop/types.Integer" isFilterable="true"/>
-      <behaviours>REFRESH</behaviours>
-      <packageNameTokens>ui</packageNameTokens>
-    </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/ui/OrderItemTransfer" name="Shop::ui::OrderItemTransfer" representation="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/name" transferObjectTypeName="Shop::ui::OrderItemTransfer" isOptional="true" simpleName="OrderItemTransfer">
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/name" name="name" memberType="DERIVED" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/amount" name="amount" memberType="DERIVED" dataType="NumericType@Shop/CustomerActor/Shop/types.Integer" isFilterable="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/ui/OrderItemTransfer/price" name="price" memberType="DERIVED" dataType="NumericType@Shop/CustomerActor/Shop/types.Integer" isFilterable="true"/>
-      <behaviours>REFRESH</behaviours>
-      <packageNameTokens>ui</packageNameTokens>
-    </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/ui/ThankYouView" name="Shop::ui::ThankYouView" isMapped="false" transferObjectTypeName="Shop::ui::ThankYouView" simpleName="ThankYouView">
-      <packageNameTokens>ui</packageNameTokens>
-    </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/ui/ProductTransfer" name="Shop::ui::ProductTransfer" representation="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/name" transferObjectTypeName="Shop::ui::ProductTransfer" isOptional="true" simpleName="ProductTransfer">
-      <operations xmi:id="OperationType@Shop/CustomerActor/Shop/ui/ProductTransfer/orderProduct" name="orderProduct"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/name" name="name" memberType="DERIVED" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/ui/ProductTransfer/price" name="price" memberType="DERIVED" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true"/>
-      <behaviours>REFRESH</behaviours>
-      <packageNameTokens>ui</packageNameTokens>
-    </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/domain/Person" name="Shop::domain::Person" isPrincipal="true" representation="AttributeType@Shop/CustomerActor/Shop/domain/Person/firstName" transferObjectTypeName="Shop::_default_transferobjecttypes::domain::Person" isOptional="true" simpleName="Person">
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/Person/cart" name="cart" isCollection="false" target="ClassType@Shop/CustomerActor/Shop/domain/Order" isOrderable="true" isFilterable="true" memberType="DERIVED" isReadOnly="true">
+      <relations xmi:id="CustomerActor/(esm/_vZo7kCFhEe6qTO_pIGxAJA)/RelationType" name="customer" isCollection="false" target="CustomerActor/(esm/_PJ7IQCFgEe6qTO_pIGxAJA)/ClassType" isOptional="false">
         <behaviours>LIST</behaviours>
         <behaviours>REFRESH</behaviours>
       </relations>
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/Person/address" name="address" isCollection="false" target="ClassType@Shop/CustomerActor/Shop/domain/Address" isOptional="false" isOrderable="true" isFilterable="true" relationKind="COMPOSITION">
-        <behaviours>LIST</behaviours>
-        <behaviours>REFRESH</behaviours>
-      </relations>
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/Person/orders" name="orders" target="ClassType@Shop/CustomerActor/Shop/domain/Order" isOrderable="true" isFilterable="true">
-        <behaviours>LIST</behaviours>
-        <behaviours>REFRESH</behaviours>
-      </relations>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Person/firstName" name="firstName" isReadOnly="false" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true" isRequired="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Person/lastName" name="lastName" isReadOnly="false" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true" isRequired="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Person/fullName" name="fullName" memberType="DERIVED" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Person/email" name="email" isReadOnly="false" dataType="StringType@Shop/CustomerActor/Shop/types.Email" isFilterable="true" isRequired="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_hNEkoCFgEe6qTO_pIGxAJA)/AttributeType" name="status" isReadOnly="false" dataType="CustomerActor/(esm/_xKaAgCFfEe6qTO_pIGxAJA)/EnumerationType" isFilterable="true" isRequired="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_IQh8oCFiEe6qTO_pIGxAJA)/AttributeType" name="price" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2JCFfEe6qTO_pIGxAJA)/NumericType" isFilterable="true"/>
       <behaviours>REFRESH</behaviours>
       <packageNameTokens>domain</packageNameTokens>
     </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/domain/Order" name="Shop::domain::Order" representation="AttributeType@Shop/CustomerActor/Shop/domain/Order/status" transferObjectTypeName="Shop::_default_transferobjecttypes::domain::Order" isOptional="true" simpleName="Order">
-      <operations xmi:id="OperationType@Shop/CustomerActor/Shop/domain/Order/order" name="order">
-        <output xmi:id="OperationParameterType@Shop/CustomerActor/Shop/domain/Order/order/output" name="output" isCollection="false" target="ClassType@Shop/CustomerActor/Shop/ui/ThankYouView" isOptional="false"/>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_u69GYCFfEe6qTO_pIGxAJA)/ClassType" name="domain::Address" transferObjectTypeName="_default_transferobjecttypes::domain::Address" isOptional="true" simpleName="Address">
+      <attributes xmi:id="CustomerActor/(esm/_94juICFfEe6qTO_pIGxAJA)/AttributeType" name="street" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true" isRequired="true"/>
+      <attributes xmi:id="CustomerActor/(esm/__-YyMCFfEe6qTO_pIGxAJA)/AttributeType" name="city" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true" isRequired="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_BYQvMCFgEe6qTO_pIGxAJA)/AttributeType" name="country" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true"/>
+      <behaviours>REFRESH</behaviours>
+      <packageNameTokens>domain</packageNameTokens>
+    </dataElements>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_pFEboCFgEe6qTO_pIGxAJA)/ClassType" name="domain::Product" transferObjectTypeName="_default_transferobjecttypes::domain::Product" isOptional="true" simpleName="Product">
+      <operations xmi:id="CustomerActor/(esm/_OWS_ACF4Ee6qTO_pIGxAJA)/OperationType" name="orderProduct"/>
+      <relations xmi:id="CustomerActor/(esm/_zSQBUCFgEe6qTO_pIGxAJA)/RelationType" name="orderItems" target="CustomerActor/(esm/_nUmjkCFgEe6qTO_pIGxAJA)/ClassType" isOrderable="true" isFilterable="true">
+        <behaviours>LIST</behaviours>
+        <behaviours>REFRESH</behaviours>
+      </relations>
+      <attributes xmi:id="CustomerActor/(esm/_q8ZwsCFgEe6qTO_pIGxAJA)/AttributeType" name="name" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true" isRequired="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_tv_SoCFgEe6qTO_pIGxAJA)/AttributeType" name="price" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2JCFfEe6qTO_pIGxAJA)/NumericType" isFilterable="true" isRequired="true"/>
+      <behaviours>REFRESH</behaviours>
+      <packageNameTokens>domain</packageNameTokens>
+    </dataElements>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_nUmjkCFgEe6qTO_pIGxAJA)/ClassType" name="domain::OrderItem" transferObjectTypeName="_default_transferobjecttypes::domain::OrderItem" isOptional="true" simpleName="OrderItem">
+      <relations xmi:id="CustomerActor/(esm/_zSM-ACFgEe6qTO_pIGxAJA)/RelationType" name="product" isCollection="false" target="CustomerActor/(esm/_pFEboCFgEe6qTO_pIGxAJA)/ClassType" isOptional="false" isOrderable="true" isFilterable="true">
+        <behaviours>LIST</behaviours>
+        <behaviours>REFRESH</behaviours>
+      </relations>
+      <attributes xmi:id="CustomerActor/(esm/_EOL-ACFhEe6qTO_pIGxAJA)/AttributeType" name="amount" isReadOnly="false" dataType="CustomerActor/(esm/_P-U2JCFfEe6qTO_pIGxAJA)/NumericType" isFilterable="true" isRequired="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_Hm8CgCFhEe6qTO_pIGxAJA)/AttributeType" name="productName" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_Ltm88CFhEe6qTO_pIGxAJA)/AttributeType" name="price" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2JCFfEe6qTO_pIGxAJA)/NumericType" isFilterable="true"/>
+      <behaviours>REFRESH</behaviours>
+      <packageNameTokens>domain</packageNameTokens>
+    </dataElements>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType" name="ui::ProductTransfer" transferObjectTypeName="ui::ProductTransfer" isOptional="true" simpleName="ProductTransfer">
+      <operations xmi:id="CustomerActor/(esm/_-1DscCF8Ee6qTO_pIGxAJA)/OperationType" name="orderProduct"/>
+      <attributes xmi:id="CustomerActor/(esm/_rEp7gCFlEe6qTO_pIGxAJA)/AttributeType" name="name" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_tY5PACFlEe6qTO_pIGxAJA)/AttributeType" name="price" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true"/>
+      <behaviours>REFRESH</behaviours>
+      <packageNameTokens>ui</packageNameTokens>
+    </dataElements>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType" name="ui::CartTransfer" transferObjectTypeName="ui::CartTransfer" isOptional="true" simpleName="CartTransfer">
+      <operations xmi:id="CustomerActor/(esm/_TzkZoCFwEe6qTO_pIGxAJA)/OperationType" name="order">
+        <output xmi:id="CustomerActor/(esm/_Tznc8CFwEe6qTO_pIGxAJA)/OperationOutputParameterType" name="output" isCollection="false" target="CustomerActor/(esm/_kUEYgCFlEe6qTO_pIGxAJA)/ClassType" isOptional="false"/>
       </operations>
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/Order/orderItems" name="orderItems" target="ClassType@Shop/CustomerActor/Shop/domain/OrderItem" isOrderable="true" isFilterable="true" relationKind="COMPOSITION">
+      <relations xmi:id="CustomerActor/(esm/_HBfkYCFnEe6qTO_pIGxAJA)/RelationType" name="items" target="CustomerActor/(esm/_lctbkCFlEe6qTO_pIGxAJA)/ClassType" isOrderable="true" isFilterable="true" memberType="DERIVED" isReadOnly="true">
         <behaviours>LIST</behaviours>
         <behaviours>REFRESH</behaviours>
       </relations>
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/Order/customer" name="customer" isCollection="false" target="ClassType@Shop/CustomerActor/Shop/domain/Customer" isOptional="false">
-        <behaviours>LIST</behaviours>
-        <behaviours>REFRESH</behaviours>
-      </relations>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Order/status" name="status" isReadOnly="false" dataType="EnumerationType@Shop/CustomerActor/Shop/domain.OrderStatus" isFilterable="true" isRequired="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Order/price" name="price" memberType="DERIVED" dataType="NumericType@Shop/CustomerActor/Shop/types.Integer" isFilterable="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_V4t3UCFnEe6qTO_pIGxAJA)/AttributeType" name="price" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2JCFfEe6qTO_pIGxAJA)/NumericType" isFilterable="true"/>
       <behaviours>REFRESH</behaviours>
-      <packageNameTokens>domain</packageNameTokens>
+      <packageNameTokens>ui</packageNameTokens>
     </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/domain/OrderItem" name="Shop::domain::OrderItem" representation="AttributeType@Shop/CustomerActor/Shop/domain/OrderItem/productName" transferObjectTypeName="Shop::_default_transferobjecttypes::domain::OrderItem" isOptional="true" simpleName="OrderItem">
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/OrderItem/product" name="product" isCollection="false" target="ClassType@Shop/CustomerActor/Shop/domain/Product" isOptional="false" isOrderable="true" isFilterable="true">
-        <behaviours>LIST</behaviours>
-        <behaviours>REFRESH</behaviours>
-      </relations>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/OrderItem/amount" name="amount" isReadOnly="false" dataType="NumericType@Shop/CustomerActor/Shop/types.Integer" isFilterable="true" isRequired="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/OrderItem/productName" name="productName" memberType="DERIVED" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/OrderItem/price" name="price" memberType="DERIVED" dataType="NumericType@Shop/CustomerActor/Shop/types.Integer" isFilterable="true"/>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_lctbkCFlEe6qTO_pIGxAJA)/ClassType" name="ui::OrderItemTransfer" transferObjectTypeName="ui::OrderItemTransfer" isOptional="true" simpleName="OrderItemTransfer">
+      <attributes xmi:id="CustomerActor/(esm/_ZrX0ICFoEe6qTO_pIGxAJA)/AttributeType" name="name" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" isFilterable="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_clD-ECFoEe6qTO_pIGxAJA)/AttributeType" name="amount" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2JCFfEe6qTO_pIGxAJA)/NumericType" isFilterable="true"/>
+      <attributes xmi:id="CustomerActor/(esm/_gAQ5oCFoEe6qTO_pIGxAJA)/AttributeType" name="price" memberType="DERIVED" dataType="CustomerActor/(esm/_P-U2JCFfEe6qTO_pIGxAJA)/NumericType" isFilterable="true"/>
       <behaviours>REFRESH</behaviours>
-      <packageNameTokens>domain</packageNameTokens>
+      <packageNameTokens>ui</packageNameTokens>
     </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/domain/Product" name="Shop::domain::Product" representation="AttributeType@Shop/CustomerActor/Shop/domain/Product/name" transferObjectTypeName="Shop::_default_transferobjecttypes::domain::Product" isOptional="true" simpleName="Product">
-      <operations xmi:id="OperationType@Shop/CustomerActor/Shop/domain/Product/orderProduct" name="orderProduct"/>
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/Product/orderItems" name="orderItems" target="ClassType@Shop/CustomerActor/Shop/domain/OrderItem" isOrderable="true" isFilterable="true">
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_PJ7IQCFgEe6qTO_pIGxAJA)/ClassType" name="domain::Customer" transferObjectTypeName="_default_transferobjecttypes::domain::Customer" isOptional="true" simpleName="Customer">
+      <relations xmi:id="CustomerActor/(esm/_W8r58CFgEe6qTO_pIGxAJA)/RelationType" name="address" isCollection="false" target="CustomerActor/(esm/_u69GYCFfEe6qTO_pIGxAJA)/ClassType" isOptional="false" isOrderable="true" isFilterable="true" relationKind="COMPOSITION">
         <behaviours>LIST</behaviours>
         <behaviours>REFRESH</behaviours>
       </relations>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Product/name" name="name" isReadOnly="false" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true" isRequired="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Product/price" name="price" isReadOnly="false" dataType="NumericType@Shop/CustomerActor/Shop/types.Integer" isFilterable="true" isRequired="true"/>
-      <behaviours>REFRESH</behaviours>
-      <packageNameTokens>domain</packageNameTokens>
-    </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/domain/Customer" name="Shop::domain::Customer" transferObjectTypeName="Shop::_default_transferobjecttypes::domain::Customer" isOptional="true" simpleName="Customer">
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/Customer/address" name="address" isCollection="false" target="ClassType@Shop/CustomerActor/Shop/domain/Address" isOptional="false" isOrderable="true" isFilterable="true" relationKind="COMPOSITION">
-        <behaviours>LIST</behaviours>
-        <behaviours>REFRESH</behaviours>
-      </relations>
-      <relations xmi:id="RelationType@Shop/CustomerActor/Shop/domain/Customer/orders" name="orders" target="ClassType@Shop/CustomerActor/Shop/domain/Order" isOrderable="true" isFilterable="true">
+      <relations xmi:id="CustomerActor/(esm/_vZr-4CFhEe6qTO_pIGxAJA)/RelationType" name="orders" target="CustomerActor/(esm/_eWCGECFgEe6qTO_pIGxAJA)/ClassType" isOrderable="true" isFilterable="true">
         <behaviours>LIST</behaviours>
         <behaviours>REFRESH</behaviours>
       </relations>
       <behaviours>REFRESH</behaviours>
       <packageNameTokens>domain</packageNameTokens>
     </dataElements>
-    <dataElements xsi:type="data:ClassType" xmi:id="ClassType@Shop/CustomerActor/Shop/domain/Address" name="Shop::domain::Address" representation="AttributeType@Shop/CustomerActor/Shop/domain/Address/street" transferObjectTypeName="Shop::_default_transferobjecttypes::domain::Address" isOptional="true" simpleName="Address">
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Address/street" name="street" isReadOnly="false" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true" isRequired="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Address/city" name="city" isReadOnly="false" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true" isRequired="true"/>
-      <attributes xmi:id="AttributeType@Shop/CustomerActor/Shop/domain/Address/country" name="country" isReadOnly="false" dataType="StringType@Shop/CustomerActor/Shop/types.String" isFilterable="true"/>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_kUEYgCFlEe6qTO_pIGxAJA)/ClassType" name="ui::ThankYouView" isMapped="false" transferObjectTypeName="ui::ThankYouView" simpleName="ThankYouView">
+      <packageNameTokens>ui</packageNameTokens>
+    </dataElements>
+    <dataElements xsi:type="data:ClassType" xmi:id="CustomerActor/(esm/_BsyTECFzEe6qTO_pIGxAJA)/ClassType" name="domain::Application" transferObjectTypeName="_default_transferobjecttypes::domain::Application" isOptional="true" simpleName="Application">
+      <operations xmi:id="CustomerActor/(esm/_EdVIECFzEe6qTO_pIGxAJA)/OperationType" name="initPersons" operationType="STATIC"/>
+      <operations xmi:id="CustomerActor/(esm/_Gn-asCFzEe6qTO_pIGxAJA)/OperationType" name="initProducts" operationType="STATIC"/>
       <behaviours>REFRESH</behaviours>
       <packageNameTokens>domain</packageNameTokens>
     </dataElements>
-    <dataTypes xsi:type="data:EnumerationType" xmi:id="EnumerationType@Shop/CustomerActor/_NumericOperation" name="_NumericOperation">
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_NumericOperation/lessThan" name="lessThan"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_NumericOperation/greaterThan" name="greaterThan" ordinal="1"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_NumericOperation/lessOrEqual" name="lessOrEqual" ordinal="2"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_NumericOperation/greaterOrEqual" name="greaterOrEqual" ordinal="3"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_NumericOperation/equal" name="equal" ordinal="4"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_NumericOperation/notEqual" name="notEqual" ordinal="5"/>
+    <dataTypes xsi:type="data:StringType" xmi:id="CustomerActor/(esm/_P-U2LiFfEe6qTO_pIGxAJA)/StringType" name="types::Email" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperation" maxLength="255" regExp="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,})$"/>
+    <dataTypes xsi:type="data:EnumerationType" xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperation" name="StringOperation">
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperationLessThan" name="lessThan"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperationGreaterThan" name="greaterThan" ordinal="1"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperationLessOrEqual" name="lessOrEqual" ordinal="2"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperationGreaterOrEqual" name="greaterOrEqual" ordinal="3"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperationEqual" name="equal" ordinal="4"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperationNotEqual" name="notEqual" ordinal="5"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperationMatches" name="matches" ordinal="6"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperationLike" name="like" ordinal="7"/>
     </dataTypes>
-    <dataTypes xsi:type="data:NumericType" xmi:id="NumericType@Shop/CustomerActor/Shop/types.Integer" name="Shop::types.Integer" operator="EnumerationType@Shop/CustomerActor/_NumericOperation" precision="9"/>
-    <dataTypes xsi:type="data:EnumerationType" xmi:id="EnumerationType@Shop/CustomerActor/_StringOperation" name="_StringOperation">
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_StringOperation/lessThan" name="lessThan"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_StringOperation/greaterThan" name="greaterThan" ordinal="1"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_StringOperation/lessOrEqual" name="lessOrEqual" ordinal="2"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_StringOperation/greaterOrEqual" name="greaterOrEqual" ordinal="3"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_StringOperation/equal" name="equal" ordinal="4"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_StringOperation/notEqual" name="notEqual" ordinal="5"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_StringOperation/matches" name="matches" ordinal="6"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_StringOperation/like" name="like" ordinal="7"/>
+    <dataTypes xsi:type="data:EnumerationType" xmi:id="CustomerActor/(esm/_xKaAgCFfEe6qTO_pIGxAJA)/EnumerationType" name="domain::OrderStatus" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/EnumerationOperation">
+      <members xmi:id="CustomerActor/(esm/_6DKJ4CFfEe6qTO_pIGxAJA)/EnumerationTypeMember" name="OPEN" ordinal="1"/>
+      <members xmi:id="CustomerActor/(esm/_7RtnsCFfEe6qTO_pIGxAJA)/EnumerationTypeMember" name="ORDERED" ordinal="2"/>
+      <members xmi:id="CustomerActor/(esm/_8Vh1ICFfEe6qTO_pIGxAJA)/EnumerationTypeMember" name="DELIVERED" ordinal="3"/>
     </dataTypes>
-    <dataTypes xsi:type="data:StringType" xmi:id="StringType@Shop/CustomerActor/Shop/types.String" name="Shop::types.String" operator="EnumerationType@Shop/CustomerActor/_StringOperation" maxLength="255"/>
-    <dataTypes xsi:type="data:StringType" xmi:id="StringType@Shop/CustomerActor/Shop/types.Email" name="Shop::types.Email" operator="EnumerationType@Shop/CustomerActor/_StringOperation" maxLength="255" regExp="^[_A-Za-z0-9-\+]+(\.[_A-Za-z0-9-]+)*@[A-Za-z0-9-]+(\.[A-Za-z0-9-]+)*(\.[A-Za-z]{2,})$"/>
-    <dataTypes xsi:type="data:EnumerationType" xmi:id="EnumerationType@Shop/CustomerActor/_EnumerationOperation" name="_EnumerationOperation">
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_EnumerationOperation/equals" name="equals"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/_EnumerationOperation/notEquals" name="notEquals" ordinal="1"/>
+    <dataTypes xsi:type="data:EnumerationType" xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/EnumerationOperation" name="EnumerationOperation">
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/EnumerationOperationEquals" name="equals"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/EnumerationOperationNotEquals" name="notEquals" ordinal="1"/>
     </dataTypes>
-    <dataTypes xsi:type="data:EnumerationType" xmi:id="EnumerationType@Shop/CustomerActor/Shop/domain.OrderStatus" name="Shop::domain.OrderStatus" operator="EnumerationType@Shop/CustomerActor/_EnumerationOperation">
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/Shop/domain.OrderStatus/OPEN" name="OPEN" ordinal="1"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/Shop/domain.OrderStatus/ORDERED" name="ORDERED" ordinal="2"/>
-      <members xmi:id="EnumerationMember@Shop/CustomerActor/Shop/domain.OrderStatus/DELIVERED" name="DELIVERED" ordinal="3"/>
+    <dataTypes xsi:type="data:NumericType" xmi:id="CustomerActor/(esm/_P-U2JCFfEe6qTO_pIGxAJA)/NumericType" name="types::Integer" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperation" precision="9"/>
+    <dataTypes xsi:type="data:EnumerationType" xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperation" name="NumericOperation">
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperationLessThan" name="lessThan"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperationGreaterThan" name="greaterThan" ordinal="1"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperationLessOrEqual" name="lessOrEqual" ordinal="2"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperationGreaterOrEqual" name="greaterOrEqual" ordinal="3"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperationEqual" name="equal" ordinal="4"/>
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperationNotEqual" name="notEqual" ordinal="5"/>
     </dataTypes>
-    <layoutTypes xmi:id="LayoutType@Shop/CustomerActor/default" name="default"/>
-    <theme xmi:id="_yT9MYDYBEe6rzYlNwP8N5g" textPrimaryColor="#17191DFF" textSecondaryColor="#434448FF" primaryColor="#E7501DFF" subtitleColor="#8C8C8C" secondaryColor="#3C4166FF" backgroundColor="#FAFAFAFF"/>
+    <dataTypes xsi:type="data:StringType" xmi:id="CustomerActor/(esm/_P-U2IiFfEe6qTO_pIGxAJA)/StringType" name="types::String" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperation" maxLength="255"/>
+    <dataTypes xsi:type="data:BooleanType" xmi:id="CustomerActor/(esm/_P-U2JyFfEe6qTO_pIGxAJA)/BooleanType" name="types::Boolean" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/BooleanOperation"/>
+    <dataTypes xsi:type="data:EnumerationType" xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/BooleanOperation" name="BooleanOperation">
+      <members xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/BooleanOperationEquals" name="equals"/>
+    </dataTypes>
+    <dataTypes xsi:type="data:DateType" xmi:id="CustomerActor/(esm/_P-U2KCFfEe6qTO_pIGxAJA)/DateType" name="types::Date" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperation"/>
+    <dataTypes xsi:type="data:NumericType" xmi:id="CustomerActor/(esm/_P-U2IyFfEe6qTO_pIGxAJA)/NumericType" name="types::Long" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperation" precision="18"/>
+    <dataTypes xsi:type="data:NumericType" xmi:id="CustomerActor/(esm/_P-U2JSFfEe6qTO_pIGxAJA)/NumericType" name="types::Double" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperation" precision="15" scale="4"/>
+    <dataTypes xsi:type="data:NumericType" xmi:id="CustomerActor/(esm/_P-U2JiFfEe6qTO_pIGxAJA)/NumericType" name="types::Float" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperation" precision="7" scale="4"/>
+    <dataTypes xsi:type="data:StringType" xmi:id="CustomerActor/(esm/_P-U2KyFfEe6qTO_pIGxAJA)/StringType" name="types::Phone" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperation" maxLength="20"/>
+    <dataTypes xsi:type="data:StringType" xmi:id="CustomerActor/(esm/_P-U2LCFfEe6qTO_pIGxAJA)/StringType" name="types::Text" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperation" maxLength="250"/>
+    <dataTypes xsi:type="data:StringType" xmi:id="CustomerActor/(esm/_P-U2LSFfEe6qTO_pIGxAJA)/StringType" name="types::URL" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/StringOperation" maxLength="1024"/>
+    <dataTypes xsi:type="data:TimestampType" xmi:id="CustomerActor/(esm/_P-U2KSFfEe6qTO_pIGxAJA)/TimestampType" name="types::Timestamp" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperation"/>
+    <dataTypes xsi:type="data:TimeType" xmi:id="CustomerActor/(esm/_P-U2KiFfEe6qTO_pIGxAJA)/TimeType" name="types::Time" operator="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/NumericOperation"/>
+    <authentication xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/Authentication" realm="SHOP">
+      <claims xmi:id="CustomerActor/(esm/_JoY3sCFzEe6qTO_pIGxAJA)/Claim" type="EMAIL" attributeType="CustomerActor/(esm/_Iz4MMCFgEe6qTO_pIGxAJA)/AttributeType"/>
+    </authentication>
+    <pageContainers xmi:id="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/EmptyDashboardPageContainer" name="CustomerActor::Dashboard" label="Dashboard" dataElement="CustomerActor/(esm/_VItdECFvEe6qTO_pIGxAJA)/Actor"/>
+    <pageContainers xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="ui::ProductTransfer::ProductTransfer_Table" label="ProductTransfer Table" dataElement="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="ProductTransfer_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Table" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTable" name="ProductTransfer_Table" sourceId="_gWZpESFlEe6qTO_pIGxAJA" label="ProductTransfer Table" col="12.0" row="12.0" dataElement="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType">
+          <columns xmi:id="CustomerActor/(esm/_jmCYYCFmEe6qTO_pIGxAJA)/TabularTable/(discriminator/CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTable)" name="name" label="Name" col="2.0" format="%s" attributeType="CustomerActor/(esm/_rEp7gCFlEe6qTO_pIGxAJA)/AttributeType">
+            <icon xmi:id="_HLbQoX_nEe6zjtaSgS-Mtw" name="text_fields"/>
+          </columns>
+          <columns xmi:id="CustomerActor/(esm/_jmC_cCFmEe6qTO_pIGxAJA)/TabularTable/(discriminator/CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTable)" name="price" label="Price" col="2.0" format="%s" attributeType="CustomerActor/(esm/_tY5PACFlEe6qTO_pIGxAJA)/AttributeType">
+            <icon xmi:id="_HLb3s3_nEe6zjtaSgS-Mtw" name="text_fields"/>
+          </columns>
+          <filters xmi:id="_HLbQon_nEe6zjtaSgS-Mtw" name="name::Filter" label="Name" col="2.0" attributeType="CustomerActor/(esm/_rEp7gCFlEe6qTO_pIGxAJA)/AttributeType">
+            <icon xmi:id="_HLb3sH_nEe6zjtaSgS-Mtw" name="text_fields"/>
+          </filters>
+          <filters xmi:id="_HLb3tn_nEe6zjtaSgS-Mtw" name="price::Filter" label="Price" col="2.0" attributeType="CustomerActor/(esm/_tY5PACFlEe6qTO_pIGxAJA)/AttributeType">
+            <icon xmi:id="_HLb3uH_nEe6zjtaSgS-Mtw" name="text_fields"/>
+          </filters>
+          <tableActionButtonGroup xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTableButtonGroup" name="ui::ProductTransfer::ProductTransfer_Table::TableActions" label="Actions">
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTableFilterButton" name="ui::ProductTransfer::ProductTransfer_Table::Table::Filter" label="Set Filters" buttonStyle="text">
+              <icon xmi:id="_HLZbcn_nEe6zjtaSgS-Mtw" name="filter"/>
+              <actionDefinition xsi:type="ui:FilterActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTableFilterActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::Table::Filter" sourceId="_gWZpESFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshButton" name="ui::ProductTransfer::ProductTransfer_Table::Table::Refresh" label="Refresh" buttonStyle="text">
+              <icon xmi:id="_HLZbdX_nEe6zjtaSgS-Mtw" name="refresh"/>
+              <actionDefinition xsi:type="ui:RefreshActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::Table::Refresh" sourceId="_gWZpESFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableCreateButton" name="ui::ProductTransfer::ProductTransfer_Table::Create" label="Create" buttonStyle="text">
+              <icon xmi:id="_HLaCgH_nEe6zjtaSgS-Mtw" name="note-add"/>
+              <actionDefinition xsi:type="ui:OpenFormActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableCreateOpenActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::Create::Open" sourceId="_gWZpESFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableAddSelectorOpenButton" name="ui::ProductTransfer::ProductTransfer_Table::Add" label="Add" buttonStyle="text">
+              <icon xmi:id="_HLaCg3_nEe6zjtaSgS-Mtw" name="attachment-plus"/>
+              <actionDefinition xsi:type="ui:OpenSelectorActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableAddSelectorOpenPageActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::Add::Open::Selector" sourceId="_gWZpESFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableClearButton" name="ui::ProductTransfer::ProductTransfer_Table::Clear" label="Clear" buttonStyle="text">
+              <icon xmi:id="_HLaCiH_nEe6zjtaSgS-Mtw" name="link_off"/>
+              <actionDefinition xsi:type="ui:ClearActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableClearActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::Clear" sourceId="_gWZpESFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableBulkRemoveButton" name="ui::ProductTransfer::ProductTransfer_Table::BulkRemove" label="Remove" buttonStyle="text">
+              <icon xmi:id="_HLapk3_nEe6zjtaSgS-Mtw" name="link_off"/>
+              <actionDefinition xsi:type="ui:BulkRemoveActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableBulkRemoveActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::BulkRemove" sourceId="_gWZpESFlEe6qTO_pIGxAJA" isBulk="true" bulkOf="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowRemoveActionDefinition"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableBulkDeleteButton" name="ui::ProductTransfer::ProductTransfer_Table::BulkDelete" label="Delete" buttonStyle="text">
+              <icon xmi:id="_HLapln_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+              <actionDefinition xsi:type="ui:BulkDeleteActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableBulkDeleteActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::BulkDelete" sourceId="_gWZpESFlEe6qTO_pIGxAJA" isBulk="true" bulkOf="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowDeleteActionDefinition"/>
+            </buttons>
+          </tableActionButtonGroup>
+          <rowActionButtonGroup xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowButtonGroup" name="ui::ProductTransfer::ProductTransfer_Table::RowActions" label="Actions">
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowViewButton" name="ui::ProductTransfer::ProductTransfer_Table::View" label="View" buttonStyle="contained">
+              <icon xmi:id="_HLTU2H_nEe6zjtaSgS-Mtw" name="visibility"/>
+              <actionDefinition xsi:type="ui:OpenPageActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowViewActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::View" sourceId="_gWZpESFlEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowRemoveButton" name="ui::ProductTransfer::ProductTransfer_Table::Remove" label="Remove" buttonStyle="contained">
+              <icon xmi:id="_HLT74X_nEe6zjtaSgS-Mtw" name="link_off"/>
+              <actionDefinition xsi:type="ui:RemoveActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowRemoveActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::Remove" sourceId="_gWZpESFlEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType" isBulkCapable="true"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowDeleteButton" name="ui::ProductTransfer::ProductTransfer_Table::Delete" label="Delete" buttonStyle="contained">
+              <icon xmi:id="_HLT76X_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+              <actionDefinition xsi:type="ui:DeleteActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowDeleteActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::Delete" sourceId="_gWZpESFlEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType" isBulkCapable="true"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_AiOY4CF9Ee6qTO_pIGxAJA)/OperationFormTableRowCallOperationButton/(discriminator/CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowButtonGroup)" name="orderProduct" label="orderProduct" fit="LOOSE" dataElement="CustomerActor/(esm/_-1DscCF8Ee6qTO_pIGxAJA)/OperationType" buttonStyle="contained">
+              <icon xmi:id="_HLY0YH_nEe6zjtaSgS-Mtw" name="chevron_right"/>
+              <actionDefinition xsi:type="ui:CallOperationActionDefinition" xmi:id="CustomerActor/(esm/_AiOY4CF9Ee6qTO_pIGxAJA)/OperationFormTableRowCallActionDefinition/(discriminator/CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableRowButtonGroup)" name="ui::ProductTransfer::ProductTransfer_View_Edit::orderProduct" targetType="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType" operation="CustomerActor/(esm/_-1DscCF8Ee6qTO_pIGxAJA)/OperationType"/>
+            </buttons>
+          </rowActionButtonGroup>
+        </children>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="ui::ProductTransfer::ProductTransfer_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="ui::ProductTransfer::ProductTransfer_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HLb3vX_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_gWZpESFlEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="ui::ProductTransfer::ProductTransfer_Table::Back" sourceId="_gWZpESFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewPageContainer" name="ui::ProductTransfer::ProductTransfer_View_Edit" label="ProductTransfer View / Edit" dataElement="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshActionDefinition" type="VIEW">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewVisualElement" name="ProductTransfer_View_Edit" sourceId="_gWZCASFlEe6qTO_pIGxAJA" label="ProductTransfer View / Edit" col="12.0" stretch="BOTH" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_nDsLACFmEe6qTO_pIGxAJA)/GroupVisualElement" name="group" sourceId="_nDsLACFmEe6qTO_pIGxAJA" fit="LOOSE" col="12.0" stretch="VERTICAL" direction="VERTICAL" mainAxisAlignment="START">
+          <children xsi:type="ui:TextInput" xmi:id="CustomerActor/(esm/_s2tSgCFmEe6qTO_pIGxAJA)/StringTypeTextInput" name="name" sourceId="_s2tSgCFmEe6qTO_pIGxAJA" label="Name" fit="LOOSE" attributeType="CustomerActor/(esm/_rEp7gCFlEe6qTO_pIGxAJA)/AttributeType">
+            <icon xmi:id="_HLtkgX_nEe6zjtaSgS-Mtw" name="text_fields"/>
+          </children>
+          <children xsi:type="ui:TextInput" xmi:id="CustomerActor/(esm/_s2t5kCFmEe6qTO_pIGxAJA)/StringTypeTextInput" name="price" sourceId="_s2t5kCFmEe6qTO_pIGxAJA" label="Price" fit="LOOSE" attributeType="CustomerActor/(esm/_tY5PACFlEe6qTO_pIGxAJA)/AttributeType">
+            <icon xmi:id="_HLuLkH_nEe6zjtaSgS-Mtw" name="text_fields"/>
+          </children>
+        </children>
+        <children xsi:type="ui:Button" xmi:id="CustomerActor/(esm/_AiOY4CF9Ee6qTO_pIGxAJA)/OperationFormVisualElement" name="orderProduct" label="Order Product" fit="LOOSE" dataElement="CustomerActor/(esm/_-1DscCF8Ee6qTO_pIGxAJA)/OperationType">
+          <icon xmi:id="_HLvZsX_nEe6zjtaSgS-Mtw" name="chevron_right"/>
+          <actionDefinition xsi:type="ui:CallOperationActionDefinition" xmi:id="CustomerActor/(esm/_AiOY4CF9Ee6qTO_pIGxAJA)/OperationFormCallActionDefinition" name="ui::ProductTransfer::ProductTransfer_View_Edit::orderProduct" operation="CustomerActor/(esm/_-1DscCF8Ee6qTO_pIGxAJA)/OperationType"/>
+        </children>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewButtonGroup" name="ui::ProductTransfer::ProductTransfer_View_Edit::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewBackButton" name="ui::ProductTransfer::ProductTransfer_View_Edit::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HLdF2X_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewBackActionDefinition" name="ui::ProductTransfer::ProductTransfer_View_Edit::Back" sourceId="_gWZCASFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshButton" name="ui::ProductTransfer::ProductTransfer_View_Edit::Refresh" label="Refresh" buttonStyle="contained">
+          <icon xmi:id="_HLds5n_nEe6zjtaSgS-Mtw" name="refresh"/>
+          <actionDefinition xsi:type="ui:RefreshActionDefinition" xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshActionDefinition" name="ui::ProductTransfer::ProductTransfer_View_Edit::Refresh" sourceId="_gWZCASFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewDeleteButton" name="ui::ProductTransfer::ProductTransfer_View_Edit::Delete" label="Delete" buttonStyle="contained">
+          <icon xmi:id="_HLds6n_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+          <actionDefinition xsi:type="ui:DeleteActionDefinition" xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewDeleteActionDefinition" name="ui::ProductTransfer::ProductTransfer_View_Edit::Delete" sourceId="_gWZCASFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewCancelButton" name="ui::ProductTransfer::ProductTransfer_View_Edit::Cancel" label="Cancel" buttonStyle="text">
+          <icon xmi:id="_HLeT8H_nEe6zjtaSgS-Mtw" name="cancel"/>
+          <actionDefinition xsi:type="ui:CancelActionDefinition" xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewCancelActionDefinition" name="ui::ProductTransfer::ProductTransfer_View_Edit::Cancel" sourceId="_gWZCASFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewUpdateButton" name="ui::ProductTransfer::ProductTransfer_View_Edit::Update" label="Save" buttonStyle="contained">
+          <icon xmi:id="_HLeT9H_nEe6zjtaSgS-Mtw" name="content-save"/>
+          <actionDefinition xsi:type="ui:UpdateActionDefinition" xmi:id="CustomerActor/(esm/_gWZCASFlEe6qTO_pIGxAJA)/TransferObjectViewUpdateActionDefinition" name="ui::ProductTransfer::ProductTransfer_View_Edit::Update" sourceId="_gWZCASFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewPageContainer" name="ui::CartTransfer::CartTransfer_View_Edit" label="CartTransfer View / Edit" dataElement="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshActionDefinition" type="VIEW">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewVisualElement" name="CartTransfer_View_Edit" sourceId="_ivckECFlEe6qTO_pIGxAJA" label="CartTransfer View / Edit" col="12.0" stretch="BOTH" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceFieldRelationDefinedTable)/LabelWrapper" name="items::LabelWrapper" col="12.0" row="2.0" direction="VERTICAL" mainAxisAlignment="START" crossAxisAlignment="CENTER">
+          <children xsi:type="ui:Label" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceFieldRelationDefinedTable)/Label" name="items::Label" label="Items" col="12.0" stretch="HORIZONTAL">
+            <icon xmi:id="_HL1gUX_nEe6zjtaSgS-Mtw" name="table_rows"/>
+          </children>
+          <children xsi:type="ui:Table" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceFieldRelationDefinedTable" name="items" sourceId="_nMmkgCFoEe6qTO_pIGxAJA" label="Items" fit="LOOSE" col="12.0" disabled="true" stretch="BOTH" dataElement="CustomerActor/(esm/_HBfkYCFnEe6qTO_pIGxAJA)/RelationType">
+            <icon xmi:id="_HL05RH_nEe6zjtaSgS-Mtw" name="table_rows"/>
+            <columns xmi:id="CustomerActor/(esm/_nMmkgSFoEe6qTO_pIGxAJA)/TabularTable/(discriminator/CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceFieldRelationDefinedTable)" name="name" label="Name" col="2.0" format="%s" attributeType="CustomerActor/(esm/_ZrX0ICFoEe6qTO_pIGxAJA)/AttributeType">
+              <icon xmi:id="_HL0SMH_nEe6zjtaSgS-Mtw" name="text_fields"/>
+            </columns>
+            <columns xmi:id="CustomerActor/(esm/_nMnLkCFoEe6qTO_pIGxAJA)/TabularTable/(discriminator/CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceFieldRelationDefinedTable)" name="amount" label="Amount" col="2.0" format="%s" attributeType="CustomerActor/(esm/_clD-ECFoEe6qTO_pIGxAJA)/AttributeType">
+              <icon xmi:id="_HL0SNH_nEe6zjtaSgS-Mtw" name="dialpad"/>
+            </columns>
+            <columns xmi:id="CustomerActor/(esm/_nMnLkSFoEe6qTO_pIGxAJA)/TabularTable/(discriminator/CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceFieldRelationDefinedTable)" name="price" label="Price" col="2.0" format="%s" attributeType="CustomerActor/(esm/_gAQ5oCFoEe6qTO_pIGxAJA)/AttributeType">
+              <icon xmi:id="_HL05QX_nEe6zjtaSgS-Mtw" name="dialpad"/>
+            </columns>
+            <filters xmi:id="_HL0SMX_nEe6zjtaSgS-Mtw" name="name::Filter" label="Name" col="2.0" attributeType="CustomerActor/(esm/_ZrX0ICFoEe6qTO_pIGxAJA)/AttributeType">
+              <icon xmi:id="_HL0SMn_nEe6zjtaSgS-Mtw" name="text_fields"/>
+            </filters>
+            <filters xmi:id="_HL0SNX_nEe6zjtaSgS-Mtw" name="amount::Filter" label="Amount" col="2.0" attributeType="CustomerActor/(esm/_clD-ECFoEe6qTO_pIGxAJA)/AttributeType">
+              <icon xmi:id="_HL0SNn_nEe6zjtaSgS-Mtw" name="dialpad"/>
+            </filters>
+            <filters xmi:id="_HL05Qn_nEe6zjtaSgS-Mtw" name="price::Filter" label="Price" col="2.0" attributeType="CustomerActor/(esm/_gAQ5oCFoEe6qTO_pIGxAJA)/AttributeType">
+              <icon xmi:id="_HL05Q3_nEe6zjtaSgS-Mtw" name="dialpad"/>
+            </filters>
+            <tableActionButtonGroup xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableButtonGroup" name="ui::CartTransfer::CartTransfer_View_Edit::items::PageActions" label="Actions">
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableFilterButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::Filter" label="Set Filters" buttonStyle="text">
+                <icon xmi:id="_HL1gVX_nEe6zjtaSgS-Mtw" name="filter"/>
+                <actionDefinition xsi:type="ui:FilterActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableFilterActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::Filter" sourceId="_nMmkgCFoEe6qTO_pIGxAJA"/>
+              </buttons>
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRefreshButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::Refresh" label="Refresh" buttonStyle="text">
+                <icon xmi:id="_HL1gV3_nEe6zjtaSgS-Mtw" name="refresh"/>
+                <actionDefinition xsi:type="ui:RefreshActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRefreshActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::Refresh" sourceId="_nMmkgCFoEe6qTO_pIGxAJA"/>
+              </buttons>
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableCreateButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::Create" label="Create" buttonStyle="text">
+                <icon xmi:id="_HL1gWX_nEe6zjtaSgS-Mtw" name="note-add"/>
+                <actionDefinition xsi:type="ui:OpenFormActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableCreateOpenActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::Create::Open" sourceId="_nMmkgCFoEe6qTO_pIGxAJA"/>
+              </buttons>
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableAddSelectorOpenButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::Add" label="Add" buttonStyle="text">
+                <icon xmi:id="_HL2HYX_nEe6zjtaSgS-Mtw" name="attachment-plus"/>
+                <actionDefinition xsi:type="ui:OpenSelectorActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableAddSelectorOpenPageActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::Add::Open::Selector" sourceId="_nMmkgCFoEe6qTO_pIGxAJA"/>
+              </buttons>
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableClearButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::Clear" label="Clear" buttonStyle="text">
+                <icon xmi:id="_HL2HZH_nEe6zjtaSgS-Mtw" name="link_off"/>
+                <actionDefinition xsi:type="ui:ClearActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableClearActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::Clear" sourceId="_nMmkgCFoEe6qTO_pIGxAJA"/>
+              </buttons>
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableBulkRemoveButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::BulkRemove" label="Remove" buttonStyle="text">
+                <icon xmi:id="_HL2ucX_nEe6zjtaSgS-Mtw" name="link_off"/>
+                <actionDefinition xsi:type="ui:BulkRemoveActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableBulkRemoveActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::BulkRemove" sourceId="_nMmkgCFoEe6qTO_pIGxAJA" isBulk="true" bulkOf="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowRemoveActionDefinition"/>
+              </buttons>
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableBulkDeleteButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::BulkDelete" label="Delete" buttonStyle="text">
+                <icon xmi:id="_HL3VgX_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+                <actionDefinition xsi:type="ui:BulkDeleteActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableBulkDeleteActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::BulkDelete" sourceId="_nMmkgCFoEe6qTO_pIGxAJA" isBulk="true" bulkOf="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowDeleteActionDefinition"/>
+              </buttons>
+            </tableActionButtonGroup>
+            <rowActionButtonGroup xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowButtonGroup" name="ui::CartTransfer::CartTransfer_View_Edit::items::RowActions" label="Actions">
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowViewButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::View" label="View" buttonStyle="contained">
+                <icon xmi:id="_HL38kX_nEe6zjtaSgS-Mtw" name="visibility"/>
+                <actionDefinition xsi:type="ui:OpenPageActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowViewActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::View" sourceId="_nMmkgCFoEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_lctbkCFlEe6qTO_pIGxAJA)/ClassType"/>
+              </buttons>
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowRemoveButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::Remove" label="Remove" buttonStyle="contained">
+                <icon xmi:id="_HL38k3_nEe6zjtaSgS-Mtw" name="link_off"/>
+                <actionDefinition xsi:type="ui:RemoveActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowRemoveActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::Remove" sourceId="_nMmkgCFoEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_lctbkCFlEe6qTO_pIGxAJA)/ClassType" isBulkCapable="true"/>
+              </buttons>
+              <buttons xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowDeleteButton" name="ui::CartTransfer::CartTransfer_View_Edit::items::Delete" label="Delete" buttonStyle="contained">
+                <icon xmi:id="_HL38lX_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+                <actionDefinition xsi:type="ui:DeleteActionDefinition" xmi:id="CustomerActor/(esm/_nMmkgCFoEe6qTO_pIGxAJA)/TabularReferenceTableRowDeleteActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::items::Delete" sourceId="_nMmkgCFoEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_lctbkCFlEe6qTO_pIGxAJA)/ClassType" isContainedRelationAction="true" isBulkCapable="true"/>
+              </buttons>
+            </rowActionButtonGroup>
+          </children>
+        </children>
+        <children xsi:type="ui:NumericInput" xmi:id="CustomerActor/(esm/_4UHa4CFvEe6qTO_pIGxAJA)/NumericTypeVisualInput" name="price" sourceId="_4UHa4CFvEe6qTO_pIGxAJA" label="Price" fit="LOOSE" attributeType="CustomerActor/(esm/_V4t3UCFnEe6qTO_pIGxAJA)/AttributeType">
+          <icon xmi:id="_HLrvUX_nEe6zjtaSgS-Mtw" name="dialpad"/>
+        </children>
+        <children xsi:type="ui:Button" xmi:id="CustomerActor/(esm/_gDvbsCF5Ee6qTO_pIGxAJA)/OperationFormVisualElement" name="order" label="Order" fit="LOOSE" dataElement="CustomerActor/(esm/_TzkZoCFwEe6qTO_pIGxAJA)/OperationType">
+          <icon xmi:id="_HLwAwX_nEe6zjtaSgS-Mtw" name="chevron_right"/>
+          <actionDefinition xsi:type="ui:CallOperationActionDefinition" xmi:id="CustomerActor/(esm/_gDvbsCF5Ee6qTO_pIGxAJA)/OperationFormCallActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::order" operation="CustomerActor/(esm/_TzkZoCFwEe6qTO_pIGxAJA)/OperationType"/>
+        </children>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewButtonGroup" name="ui::CartTransfer::CartTransfer_View_Edit::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewBackButton" name="ui::CartTransfer::CartTransfer_View_Edit::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HLhXQn_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewBackActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::Back" sourceId="_ivckECFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshButton" name="ui::CartTransfer::CartTransfer_View_Edit::Refresh" label="Refresh" buttonStyle="contained">
+          <icon xmi:id="_HLhXRX_nEe6zjtaSgS-Mtw" name="refresh"/>
+          <actionDefinition xsi:type="ui:RefreshActionDefinition" xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::Refresh" sourceId="_ivckECFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewDeleteButton" name="ui::CartTransfer::CartTransfer_View_Edit::Delete" label="Delete" buttonStyle="contained">
+          <icon xmi:id="_HLh-UH_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+          <actionDefinition xsi:type="ui:DeleteActionDefinition" xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewDeleteActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::Delete" sourceId="_ivckECFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewCancelButton" name="ui::CartTransfer::CartTransfer_View_Edit::Cancel" label="Cancel" buttonStyle="text">
+          <icon xmi:id="_HLh-U3_nEe6zjtaSgS-Mtw" name="cancel"/>
+          <actionDefinition xsi:type="ui:CancelActionDefinition" xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewCancelActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::Cancel" sourceId="_ivckECFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewUpdateButton" name="ui::CartTransfer::CartTransfer_View_Edit::Update" label="Save" buttonStyle="contained">
+          <icon xmi:id="_HLh-Vn_nEe6zjtaSgS-Mtw" name="content-save"/>
+          <actionDefinition xsi:type="ui:UpdateActionDefinition" xmi:id="CustomerActor/(esm/_ivckECFlEe6qTO_pIGxAJA)/TransferObjectViewUpdateActionDefinition" name="ui::CartTransfer::CartTransfer_View_Edit::Update" sourceId="_ivckECFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewPageContainer" name="ui::ThankYouView::ThankYouView_View_Edit" label="ThankYouView View / Edit" dataElement="CustomerActor/(esm/_kUEYgCFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshActionDefinition" type="VIEW">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewVisualElement" name="ThankYouView_View_Edit" sourceId="_kUEYgSFlEe6qTO_pIGxAJA" label="ThankYouView View / Edit" col="12.0" stretch="BOTH" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_xe-SkCFwEe6qTO_pIGxAJA)/TextFieldVisualElement" name="message" sourceId="_xe-SkCFwEe6qTO_pIGxAJA" label="Message" fit="LOOSE" text="Thank you for your order. Please check other products at"/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewButtonGroup" name="ui::ThankYouView::ThankYouView_View_Edit::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewBackButton" name="ui::ThankYouView::ThankYouView_View_Edit::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HLxO4H_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewBackActionDefinition" name="ui::ThankYouView::ThankYouView_View_Edit::Back" sourceId="_kUEYgSFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshButton" name="ui::ThankYouView::ThankYouView_View_Edit::Refresh" label="Refresh" buttonStyle="contained">
+          <icon xmi:id="_HLxO43_nEe6zjtaSgS-Mtw" name="refresh"/>
+          <actionDefinition xsi:type="ui:RefreshActionDefinition" xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewRefreshActionDefinition" name="ui::ThankYouView::ThankYouView_View_Edit::Refresh" sourceId="_kUEYgSFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewDeleteButton" name="ui::ThankYouView::ThankYouView_View_Edit::Delete" label="Delete" buttonStyle="contained">
+          <icon xmi:id="_HLxO5X_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+          <actionDefinition xsi:type="ui:DeleteActionDefinition" xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewDeleteActionDefinition" name="ui::ThankYouView::ThankYouView_View_Edit::Delete" sourceId="_kUEYgSFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewCancelButton" name="ui::ThankYouView::ThankYouView_View_Edit::Cancel" label="Cancel" buttonStyle="text">
+          <icon xmi:id="_HLx18X_nEe6zjtaSgS-Mtw" name="cancel"/>
+          <actionDefinition xsi:type="ui:CancelActionDefinition" xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewCancelActionDefinition" name="ui::ThankYouView::ThankYouView_View_Edit::Cancel" sourceId="_kUEYgSFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewUpdateButton" name="ui::ThankYouView::ThankYouView_View_Edit::Update" label="Save" buttonStyle="contained">
+          <icon xmi:id="_HLx19H_nEe6zjtaSgS-Mtw" name="content-save"/>
+          <actionDefinition xsi:type="ui:UpdateActionDefinition" xmi:id="CustomerActor/(esm/_kUEYgSFlEe6qTO_pIGxAJA)/TransferObjectViewUpdateActionDefinition" name="ui::ThankYouView::ThankYouView_View_Edit::Update" sourceId="_kUEYgSFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormPageContainer" name="ui::ProductTransfer::ProductTransfer_Form" label="ProductTransfer Form" dataElement="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormGetTemplateActionDefinition" type="FORM">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormVisualElement" name="ProductTransfer_Form" sourceId="_gWZpECFlEe6qTO_pIGxAJA" label="ProductTransfer Form" col="12.0" stretch="BOTH" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:TextInput" xmi:id="CustomerActor/(esm/_AiLVkCF9Ee6qTO_pIGxAJA)/StringTypeTextInput" name="name" sourceId="_AiLVkCF9Ee6qTO_pIGxAJA" label="Name" fit="LOOSE" attributeType="CustomerActor/(esm/_rEp7gCFlEe6qTO_pIGxAJA)/AttributeType">
+          <icon xmi:id="_HLsWYX_nEe6zjtaSgS-Mtw" name="text_fields"/>
+        </children>
+        <children xsi:type="ui:TextInput" xmi:id="CustomerActor/(esm/_AiNKwCF9Ee6qTO_pIGxAJA)/StringTypeTextInput" name="price" sourceId="_AiNKwCF9Ee6qTO_pIGxAJA" label="Price" fit="LOOSE" attributeType="CustomerActor/(esm/_tY5PACFlEe6qTO_pIGxAJA)/AttributeType">
+          <icon xmi:id="_HLs9cn_nEe6zjtaSgS-Mtw" name="text_fields"/>
+        </children>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormButtonGroup" name="ui::ProductTransfer::ProductTransfer_Form::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormBackButton" name="ui::ProductTransfer::ProductTransfer_Form::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HL4jo3_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormBackActionDefinition" name="ui::ProductTransfer::ProductTransfer_Form::Back" sourceId="_gWZpECFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormCreateButton" name="ui::ProductTransfer::ProductTransfer_Form::Create" label="Create" buttonStyle="contained">
+          <icon xmi:id="_HL5KsX_nEe6zjtaSgS-Mtw" name="content-save"/>
+          <actionDefinition xsi:type="ui:CreateActionDefinition" xmi:id="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormCreateActionDefinition" name="ui::ProductTransfer::ProductTransfer_Form::Create" sourceId="_gWZpECFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+      <templateAction xsi:type="ui:GetTemplateActionDefinition" xmi:id="CustomerActor/(esm/_gWZpECFlEe6qTO_pIGxAJA)/TransferObjectFormGetTemplateActionDefinition" name="ui::ProductTransfer::ProductTransfer_Form::GetTemplate" sourceId="_gWZpECFlEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_gWZCACFlEe6qTO_pIGxAJA)/ClassType"/>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormPageContainer" name="ui::CartTransfer::CartTransfer_Form" label="CartTransfer Form" dataElement="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormGetTemplateActionDefinition" type="FORM">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormVisualElement" name="CartTransfer_Form" sourceId="_ivdLICFlEe6qTO_pIGxAJA" label="CartTransfer Form" col="12.0" stretch="BOTH" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:NumericInput" xmi:id="CustomerActor/(esm/_gDiAUCF5Ee6qTO_pIGxAJA)/NumericTypeVisualInput" name="price" sourceId="_gDiAUCF5Ee6qTO_pIGxAJA" label="Price" fit="LOOSE" attributeType="CustomerActor/(esm/_V4t3UCFnEe6qTO_pIGxAJA)/AttributeType">
+          <icon xmi:id="_HLrIQX_nEe6zjtaSgS-Mtw" name="dialpad"/>
+        </children>
+        <children xsi:type="ui:Button" xmi:id="CustomerActor/(esm/_gDouACF5Ee6qTO_pIGxAJA)/TabularReferenceFieldButton" name="items" label="Items" fit="LOOSE" col="12.0" disabled="true">
+          <icon xmi:id="_HLydAX_nEe6zjtaSgS-Mtw" name="table_rows"/>
+          <actionDefinition xsi:type="ui:OpenPageActionDefinition" xmi:id="CustomerActor/(esm/_gDouACF5Ee6qTO_pIGxAJA)/TabularReferenceFieldButtonOpenPageActionDefinition" name="ui::CartTransfer::CartTransfer_Form::items::OpenPage" sourceId="_gDouACF5Ee6qTO_pIGxAJA" targetType="CustomerActor/(esm/_lctbkCFlEe6qTO_pIGxAJA)/ClassType"/>
+        </children>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormButtonGroup" name="ui::CartTransfer::CartTransfer_Form::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormBackButton" name="ui::CartTransfer::CartTransfer_Form::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HL5xwn_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormBackActionDefinition" name="ui::CartTransfer::CartTransfer_Form::Back" sourceId="_ivdLICFlEe6qTO_pIGxAJA"/>
+        </buttons>
+        <buttons xmi:id="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormCreateButton" name="ui::CartTransfer::CartTransfer_Form::Create" label="Create" buttonStyle="contained">
+          <icon xmi:id="_HL5xxX_nEe6zjtaSgS-Mtw" name="content-save"/>
+          <actionDefinition xsi:type="ui:CreateActionDefinition" xmi:id="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormCreateActionDefinition" name="ui::CartTransfer::CartTransfer_Form::Create" sourceId="_ivdLICFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+      <templateAction xsi:type="ui:GetTemplateActionDefinition" xmi:id="CustomerActor/(esm/_ivdLICFlEe6qTO_pIGxAJA)/TransferObjectFormGetTemplateActionDefinition" name="ui::CartTransfer::CartTransfer_Form::GetTemplate" sourceId="_ivdLICFlEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType"/>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_PKAAwCFgEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="domain::Customer::Customer_Table" label="Customer Table" dataElement="CustomerActor/(esm/_PJ7IQCFgEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_PKAAwCFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_PKAAwCFgEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="Customer_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_PKAAwCFgEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="Customer_Table" label="Customer Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_PKAAwCFgEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="domain::Customer::Customer_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_PKAAwCFgEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="domain::Customer::Customer_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HL6_5H_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_PKAAwCFgEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="domain::Customer::Customer_Table::Back" sourceId="_PKAAwCFgEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_DJW5YCFgEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="domain::User::User_Table" label="User Table" dataElement="CustomerActor/(esm/_DJUdICFgEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_DJW5YCFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_DJW5YCFgEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="User_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_DJW5YCFgEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="User_Table" label="User Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_DJW5YCFgEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="domain::User::User_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_DJW5YCFgEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="domain::User::User_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HL8OAn_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_DJW5YCFgEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="domain::User::User_Table::Back" sourceId="_DJW5YCFgEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_eWD7QCFgEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="domain::Order::Order_Table" label="Order Table" dataElement="CustomerActor/(esm/_eWCGECFgEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_eWD7QCFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_eWD7QCFgEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="Order_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_eWD7QCFgEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="Order_Table" label="Order Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_eWD7QCFgEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="domain::Order::Order_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_eWD7QCFgEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="domain::Order::Order_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HL81FH_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_eWD7QCFgEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="domain::Order::Order_Table::Back" sourceId="_eWD7QCFgEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_u7GQUCFfEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="domain::Address::Address_Table" label="Address Table" dataElement="CustomerActor/(esm/_u69GYCFfEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_u7GQUCFfEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_u7GQUCFfEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="Address_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_u7GQUCFfEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="Address_Table" label="Address Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_u7GQUCFfEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="domain::Address::Address_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_u7GQUCFfEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="domain::Address::Address_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HL-DMH_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_u7GQUCFfEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="domain::Address::Address_Table::Back" sourceId="_u7GQUCFfEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_pFHe8CFgEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="domain::Product::Product_Table" label="Product Table" dataElement="CustomerActor/(esm/_pFEboCFgEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_pFHe8CFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_pFHe8CFgEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="Product_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_pFHe8CFgEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="Product_Table" label="Product Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_pFHe8CFgEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="domain::Product::Product_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_pFHe8CFgEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="domain::Product::Product_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HL-qRH_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_pFHe8CFgEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="domain::Product::Product_Table::Back" sourceId="_pFHe8CFgEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_nUnxsSFgEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="domain::OrderItem::OrderItem_Table" label="OrderItem Table" dataElement="CustomerActor/(esm/_nUmjkCFgEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_nUnxsSFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_nUnxsSFgEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="OrderItem_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_nUnxsSFgEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="OrderItem_Table" label="OrderItem Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_nUnxsSFgEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="domain::OrderItem::OrderItem_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_nUnxsSFgEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="domain::OrderItem::OrderItem_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HL_RVX_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_nUnxsSFgEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="domain::OrderItem::OrderItem_Table::Back" sourceId="_nUnxsSFgEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_ZSC84CFiEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="domain::Person::Person_Table" label="Person Table" dataElement="CustomerActor/(esm/_ZSAgoCFiEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_ZSC84CFiEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_ZSC84CFiEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="Person_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_ZSC84CFiEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="Person_Table" label="Person Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_ZSC84CFiEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="domain::Person::Person_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_ZSC84CFiEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="domain::Person::Person_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HMAfcn_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_ZSC84CFiEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="domain::Person::Person_Table::Back" sourceId="_ZSC84CFiEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="ui::CartTransfer::CartTransfer_Table" label="CartTransfer Table" dataElement="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="CartTransfer_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Table" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableTable" name="CartTransfer_Table" sourceId="_ivdyMCFlEe6qTO_pIGxAJA" label="CartTransfer Table" col="12.0" row="12.0" dataElement="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType">
+          <columns xmi:id="CustomerActor/(esm/_gDmRwCF5Ee6qTO_pIGxAJA)/TabularTable/(discriminator/CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableTable)" name="price" label="Price" col="2.0" format="%s" attributeType="CustomerActor/(esm/_V4t3UCFnEe6qTO_pIGxAJA)/AttributeType">
+            <icon xmi:id="_HMFX8X_nEe6zjtaSgS-Mtw" name="dialpad"/>
+          </columns>
+          <filters xmi:id="_HMFX8n_nEe6zjtaSgS-Mtw" name="price::Filter" label="Price" col="2.0" attributeType="CustomerActor/(esm/_V4t3UCFnEe6qTO_pIGxAJA)/AttributeType">
+            <icon xmi:id="_HMFX83_nEe6zjtaSgS-Mtw" name="dialpad"/>
+          </filters>
+          <tableActionButtonGroup xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableTableButtonGroup" name="ui::CartTransfer::CartTransfer_Table::TableActions" label="Actions">
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableTableFilterButton" name="ui::CartTransfer::CartTransfer_Table::Table::Filter" label="Set Filters" buttonStyle="text">
+              <icon xmi:id="_HMC7s3_nEe6zjtaSgS-Mtw" name="filter"/>
+              <actionDefinition xsi:type="ui:FilterActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableTableFilterActionDefinition" name="ui::CartTransfer::CartTransfer_Table::Table::Filter" sourceId="_ivdyMCFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshButton" name="ui::CartTransfer::CartTransfer_Table::Table::Refresh" label="Refresh" buttonStyle="text">
+              <icon xmi:id="_HMDiwX_nEe6zjtaSgS-Mtw" name="refresh"/>
+              <actionDefinition xsi:type="ui:RefreshActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="ui::CartTransfer::CartTransfer_Table::Table::Refresh" sourceId="_ivdyMCFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableCreateButton" name="ui::CartTransfer::CartTransfer_Table::Create" label="Create" buttonStyle="text">
+              <icon xmi:id="_HMDiw3_nEe6zjtaSgS-Mtw" name="note-add"/>
+              <actionDefinition xsi:type="ui:OpenFormActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableCreateOpenActionDefinition" name="ui::CartTransfer::CartTransfer_Table::Create::Open" sourceId="_ivdyMCFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableAddSelectorOpenButton" name="ui::CartTransfer::CartTransfer_Table::Add" label="Add" buttonStyle="text">
+              <icon xmi:id="_HMDixn_nEe6zjtaSgS-Mtw" name="attachment-plus"/>
+              <actionDefinition xsi:type="ui:OpenSelectorActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableAddSelectorOpenPageActionDefinition" name="ui::CartTransfer::CartTransfer_Table::Add::Open::Selector" sourceId="_ivdyMCFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableClearButton" name="ui::CartTransfer::CartTransfer_Table::Clear" label="Clear" buttonStyle="text">
+              <icon xmi:id="_HMEJ0X_nEe6zjtaSgS-Mtw" name="link_off"/>
+              <actionDefinition xsi:type="ui:ClearActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableClearActionDefinition" name="ui::CartTransfer::CartTransfer_Table::Clear" sourceId="_ivdyMCFlEe6qTO_pIGxAJA"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableBulkRemoveButton" name="ui::CartTransfer::CartTransfer_Table::BulkRemove" label="Remove" buttonStyle="text">
+              <icon xmi:id="_HMEJ1H_nEe6zjtaSgS-Mtw" name="link_off"/>
+              <actionDefinition xsi:type="ui:BulkRemoveActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableBulkRemoveActionDefinition" name="ui::CartTransfer::CartTransfer_Table::BulkRemove" sourceId="_ivdyMCFlEe6qTO_pIGxAJA" isBulk="true" bulkOf="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowRemoveActionDefinition"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableBulkDeleteButton" name="ui::CartTransfer::CartTransfer_Table::BulkDelete" label="Delete" buttonStyle="text">
+              <icon xmi:id="_HMEw4X_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+              <actionDefinition xsi:type="ui:BulkDeleteActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableBulkDeleteActionDefinition" name="ui::CartTransfer::CartTransfer_Table::BulkDelete" sourceId="_ivdyMCFlEe6qTO_pIGxAJA" isBulk="true" bulkOf="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowDeleteActionDefinition"/>
+            </buttons>
+          </tableActionButtonGroup>
+          <rowActionButtonGroup xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowButtonGroup" name="ui::CartTransfer::CartTransfer_Table::RowActions" label="Actions">
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowViewButton" name="ui::CartTransfer::CartTransfer_Table::View" label="View" buttonStyle="contained">
+              <icon xmi:id="_HMBGhH_nEe6zjtaSgS-Mtw" name="visibility"/>
+              <actionDefinition xsi:type="ui:OpenPageActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowViewActionDefinition" name="ui::CartTransfer::CartTransfer_Table::View" sourceId="_ivdyMCFlEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowRemoveButton" name="ui::CartTransfer::CartTransfer_Table::Remove" label="Remove" buttonStyle="contained">
+              <icon xmi:id="_HMBtkX_nEe6zjtaSgS-Mtw" name="link_off"/>
+              <actionDefinition xsi:type="ui:RemoveActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowRemoveActionDefinition" name="ui::CartTransfer::CartTransfer_Table::Remove" sourceId="_ivdyMCFlEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType" isBulkCapable="true"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowDeleteButton" name="ui::CartTransfer::CartTransfer_Table::Delete" label="Delete" buttonStyle="contained">
+              <icon xmi:id="_HMBtlH_nEe6zjtaSgS-Mtw" name="delete_forever"/>
+              <actionDefinition xsi:type="ui:DeleteActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowDeleteActionDefinition" name="ui::CartTransfer::CartTransfer_Table::Delete" sourceId="_ivdyMCFlEe6qTO_pIGxAJA" targetType="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType" isBulkCapable="true"/>
+            </buttons>
+            <buttons xmi:id="CustomerActor/(esm/_gDvbsCF5Ee6qTO_pIGxAJA)/OperationFormTableRowCallOperationButton/(discriminator/CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowButtonGroup)" name="order" label="order" fit="LOOSE" dataElement="CustomerActor/(esm/_TzkZoCFwEe6qTO_pIGxAJA)/OperationType" buttonStyle="contained">
+              <icon xmi:id="_HMCUoX_nEe6zjtaSgS-Mtw" name="chevron_right"/>
+              <actionDefinition xsi:type="ui:CallOperationActionDefinition" xmi:id="CustomerActor/(esm/_gDvbsCF5Ee6qTO_pIGxAJA)/OperationFormTableRowCallActionDefinition/(discriminator/CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableRowButtonGroup)" name="ui::CartTransfer::CartTransfer_View_Edit::order" targetType="CustomerActor/(esm/_ivb9ACFlEe6qTO_pIGxAJA)/ClassType" operation="CustomerActor/(esm/_TzkZoCFwEe6qTO_pIGxAJA)/OperationType"/>
+            </buttons>
+          </rowActionButtonGroup>
+        </children>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="ui::CartTransfer::CartTransfer_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="ui::CartTransfer::CartTransfer_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HMFX9n_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_ivdyMCFlEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="ui::CartTransfer::CartTransfer_Table::Back" sourceId="_ivdyMCFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_kUFmoCFlEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="ui::ThankYouView::ThankYouView_Table" label="ThankYouView Table" dataElement="CustomerActor/(esm/_kUEYgCFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_kUFmoCFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_kUFmoCFlEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="ThankYouView_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_kUFmoCFlEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="ThankYouView_Table" label="ThankYouView Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_kUFmoCFlEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="ui::ThankYouView::ThankYouView_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_kUFmoCFlEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="ui::ThankYouView::ThankYouView_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HMGmEn_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_kUFmoCFlEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="ui::ThankYouView::ThankYouView_Table::Back" sourceId="_kUFmoCFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <pageContainers xmi:id="CustomerActor/(esm/_lcupsSFlEe6qTO_pIGxAJA)/TransferObjectTablePageContainer" name="ui::OrderItemTransfer::OrderItemTransfer_Table" label="OrderItemTransfer Table" dataElement="CustomerActor/(esm/_lctbkCFlEe6qTO_pIGxAJA)/ClassType" onInit="CustomerActor/(esm/_lcupsSFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition">
+      <children xsi:type="ui:Flex" xmi:id="CustomerActor/(esm/_lcupsSFlEe6qTO_pIGxAJA)/TransferObjectTableVisualElement" name="OrderItemTransfer_Table" col="12.0" direction="VERTICAL" mainAxisAlignment="START">
+        <children xsi:type="ui:Text" xmi:id="CustomerActor/(esm/_lcupsSFlEe6qTO_pIGxAJA)/TransferObjectTableEmpty" name="OrderItemTransfer_Table" label="OrderItemTransfer Table" col="12.0" text="No columns."/>
+      </children>
+      <actionButtonGroup xmi:id="CustomerActor/(esm/_lcupsSFlEe6qTO_pIGxAJA)/TransferObjectTableButtonGroup" name="ui::OrderItemTransfer::OrderItemTransfer_Table::PageActions" label="Actions">
+        <buttons xmi:id="CustomerActor/(esm/_lcupsSFlEe6qTO_pIGxAJA)/TransferObjectTableBackButton" name="ui::OrderItemTransfer::OrderItemTransfer_Table::Back" label="Back" buttonStyle="text">
+          <icon xmi:id="_HMHNJH_nEe6zjtaSgS-Mtw" name="arrow-left"/>
+          <actionDefinition xsi:type="ui:BackActionDefinition" xmi:id="CustomerActor/(esm/_lcupsSFlEe6qTO_pIGxAJA)/TransferObjectTableBackActionDefinition" name="ui::OrderItemTransfer::OrderItemTransfer_Table::Back" sourceId="_lcupsSFlEe6qTO_pIGxAJA"/>
+        </buttons>
+      </actionButtonGroup>
+    </pageContainers>
+    <theme xmi:id="_HK5FIX_nEe6zjtaSgS-Mtw" textPrimaryColor="#17191dff" textSecondaryColor="#434448ff" primaryColor="#e7501dff" subtitleColor="#8c8c8cff" secondaryColor="#3c4166ff" backgroundColor="#fafafaff"/>
   </ui:Application>
-  <ui:Authentication xmi:id="_H2oYoCGTEe6bCqdVgfCdiQ" realm="SHOP" claims="_H2oYoSGTEe6bCqdVgfCdiQ"/>
-  <ui:Claim xmi:id="_H2oYoSGTEe6bCqdVgfCdiQ" type="EMAIL" attributeType="AttributeType@Shop/CustomerActor/Shop/CustomerActor/email"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_PKAAwCFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="domain::Customer::Customer_Table::Table::Refresh" sourceId="_PKAAwCFgEe6qTO_pIGxAJA"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_DJW5YCFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="domain::User::User_Table::Table::Refresh" sourceId="_DJW5YCFgEe6qTO_pIGxAJA"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_eWD7QCFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="domain::Order::Order_Table::Table::Refresh" sourceId="_eWD7QCFgEe6qTO_pIGxAJA"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_u7GQUCFfEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="domain::Address::Address_Table::Table::Refresh" sourceId="_u7GQUCFfEe6qTO_pIGxAJA"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_pFHe8CFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="domain::Product::Product_Table::Table::Refresh" sourceId="_pFHe8CFgEe6qTO_pIGxAJA"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_nUnxsSFgEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="domain::OrderItem::OrderItem_Table::Table::Refresh" sourceId="_nUnxsSFgEe6qTO_pIGxAJA"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_ZSC84CFiEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="domain::Person::Person_Table::Table::Refresh" sourceId="_ZSC84CFiEe6qTO_pIGxAJA"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_kUFmoCFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="ui::ThankYouView::ThankYouView_Table::Table::Refresh" sourceId="_kUFmoCFlEe6qTO_pIGxAJA"/>
+  <ui:RefreshActionDefinition xmi:id="CustomerActor/(esm/_lcupsSFlEe6qTO_pIGxAJA)/TransferObjectTableTableRefreshActionDefinition" name="ui::OrderItemTransfer::OrderItemTransfer_Table::Table::Refresh" sourceId="_lcupsSFlEe6qTO_pIGxAJA"/>
 </xmi:XMI>

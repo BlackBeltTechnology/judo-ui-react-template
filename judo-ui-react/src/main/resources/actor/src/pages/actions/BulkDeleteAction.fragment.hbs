@@ -1,0 +1,48 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (selectedRows: {{ classDataName action.actionDefinition.bulkOf.targetType 'Stored' }}[]): Promise<DialogResult<Array<{{ classDataName action.actionDefinition.bulkOf.targetType 'Stored' }}>>> => {
+  {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+  return new Promise((resolve) => {
+    openCRUDDialog<{{ classDataName (getReferenceClassType table) 'Stored' }}>({
+      dialogTitle: t('{{ getTranslationKeyForVisualElement action.actionDefinition.eContainer }}', { defaultValue: '{{ action.actionDefinition.eContainer.label }}' }),
+      {{# with (getFirstTitleColumnForTable table) as |column| }}
+        itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
+      {{ else }}
+        itemTitleFn: (item) => t('judo.placeholder', { defaultValue: 'placeholder' }) as string,
+      {{/ with }}
+      selectedItems: selectedRows,
+      action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
+        try {
+          if (actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}) {
+            await actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}!(item, true);
+          }
+          successHandler();
+        } catch (error) {
+          errorHandler(error);
+        }
+      },
+      onClose: async (needsRefresh) => {
+        if (needsRefresh) {
+          {{# if page.container.table }}
+            setRefreshCounter((prev) => prev + 1);
+          {{/ if }}
+          {{# if page.container.view }}
+            {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+              if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
+                await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+              }
+            {{/ with }}
+          {{/ if }}
+          resolve({
+            result: 'submit',
+            data: [],
+          });
+        } else {
+          resolve({
+            result: 'close',
+            data: [],
+          });
+        }
+      },
+    });
+  });
+  {{/ with }}
+};
