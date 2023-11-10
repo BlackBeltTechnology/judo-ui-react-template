@@ -1,0 +1,137 @@
+{{> fragment.header.hbs }}
+
+import { lazy, Suspense } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { Box, Grid, Button } from '@mui/material';
+import { LoadingButton } from '@mui/lab';
+import { useTranslation } from 'react-i18next';
+import { useJudoNavigation, MdiIcon, PageHeader } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+import { mainContainerPadding } from '~/theme';
+{{# unless (containerIsEmptyDashboard container) }}
+  {{# unless container.table }}
+    import { processQueryCustomizer } from '~/utilities';
+  {{/ unless }}
+  import type { {{ containerComponentName container }}ActionDefinitions } from './{{ containerComponentName container }}';
+  import type {
+    {{ classDataName container.dataElement '' }},
+    {{ classDataName container.dataElement 'Stored' }},
+    {{ classDataName container.dataElement 'QueryCustomizer' }}
+  } from '~/services/data-api';
+{{/ unless }}
+
+{{# unless (containerIsEmptyDashboard container) }}
+  const {{ containerComponentName container }} = lazy(() => import('~/containers/{{ containerPath container }}/{{ containerComponentName container }}'));
+
+  export interface {{ containerComponentName container }}PageActions extends {{ pageContainerActionDefinitionTypeName container }} {
+    {{# each container.pageActionDefinitions as |actionDefinition| }}
+      {{# if actionDefinition.isRefreshAction }}
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>;
+      {{ else }}
+        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+      {{/ if }}
+    {{/ each }}
+  }
+{{/ unless }}
+
+export interface {{ containerComponentName container }}PageProps {
+  title: string;
+  {{# unless (containerIsEmptyDashboard container) }}
+    actions: {{ containerComponentName container }}PageActions;
+    isLoading: boolean;
+    editMode: boolean;
+    refreshCounter: number;
+    {{# unless container.table }}
+      data: {{ classDataName container.dataElement '' }};
+      isFormUpdateable: () => boolean;
+      isFormDeleteable: () => boolean;
+      storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
+      validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
+      setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
+    {{/ unless }}
+  {{/ unless }}
+};
+
+// Name: {{ container.name }}
+export default function {{ containerComponentName container }}Page (props: {{ containerComponentName container }}PageProps) {
+  const { openConfirmDialog } = useConfirmDialog();
+
+  {{# unless (containerIsEmptyDashboard container) }}
+    const { t } = useTranslation();
+    const { navigate, back } = useJudoNavigation();
+    const { title, actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
+    {{# unless container.table }}
+      const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
+        _mask: '{{ getMaskForView container }}',
+      };
+    {{/ unless }}
+  {{/ unless }}
+
+  return (
+    {{# unless (containerIsEmptyDashboard container) }}
+      <>
+        <PageHeader title={title}>
+          {{# each container.actionButtonGroup.buttons as |button| }}
+            { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
+              <Grid className="page-action" item>
+                <LoadingButton
+                  id="{{ getXMIID button }}"
+                  loading={isLoading}
+                  loadingPosition="start"
+                  variant={ {{{ variantForButton button }}} }
+                  {{# if button.icon }}
+                    startIcon={<MdiIcon path="{{ button.icon.name }}" />}
+                  {{/ if }}
+                  onClick={ async () => {
+                    {{# if button.actionDefinition.isDeleteAction }}
+                      const confirmed = await openConfirmDialog(
+                        'page-delete-action',
+                        t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
+                        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+                      );
+
+                      if (confirmed) {
+                        actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      }
+                    {{ else }}
+                      {{# if actionDefinition.isRefreshAction }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                      {{ else }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      {{/ if }}
+                    {{/ if }}
+                  } }
+                >
+                  <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
+                </LoadingButton>
+              </Grid>
+            )}
+          {{/ each }}
+          <div>{/* Placeholder */}</div>
+        </PageHeader>
+        <Suspense>
+          <Box sx={mainContainerPadding}>
+            <{{ containerComponentName container }}
+              actions={actions}
+              refreshCounter={refreshCounter}
+              {{# unless (containerIsEmptyDashboard container) }}
+                {{# unless container.table }}
+                  data={data}
+                  isLoading={isLoading}
+                  editMode={editMode}
+                  storeDiff={storeDiff}
+                  isFormUpdateable={isFormUpdateable}
+                  isFormDeleteable={isFormDeleteable}
+                  validation={validation}
+                  setValidation={setValidation}
+                {{/ unless }}
+              {{/ unless }}
+            />
+          </Box>
+        </Suspense>
+      </>
+    {{ else }}
+      <></>
+    {{/ unless }}
+  );
+}

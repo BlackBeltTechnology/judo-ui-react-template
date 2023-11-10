@@ -1,0 +1,109 @@
+{{> fragment.header.hbs }}
+
+import { useTranslation } from 'react-i18next';
+import { IconButton } from '@mui/material';
+import { processQueryCustomizer } from '~/utilities';
+import { MdiIcon } from '~/components';
+import {
+  AggregationInput,
+  AssociationButton,
+  BinaryInput,
+  CollectionAssociationButton,
+  TrinaryLogicCombobox,
+} from '~/components/widgets';
+import { StringOperation } from '~/services/data-api';
+import type {
+  {{ getLinkAPIImports link container }}
+} from '~/services/data-api';
+
+export interface {{ componentName link }}ActionDefinitions {
+  {{# each link.actionDefinitions as |actionDefinition| }}
+    {{ simpleActionDefinitionName actionDefinition }}?: ({{{ linkActionDefinitionParameters link actionDefinition }}}) => Promise<{{{ linkActionDefinitionResponseType link actionDefinition }}}>;
+  {{/ each }}
+}
+
+export interface {{ componentName link }}Props {
+  ownerData: {{ classDataName container.dataElement '' }} | {{ classDataName container.dataElement 'Stored' }};
+  actions: {{ componentName link }}ActionDefinitions;
+  storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
+  validationError?: string;
+  disabled?: boolean;
+  editMode?: boolean;
+}
+
+// XMIID: {{ getXMIID link }}
+// Name: {{ link.name }}
+export function {{ componentName link }}(props: {{ componentName link }}Props) {
+  const { ownerData, actions, storeDiff, validationError, disabled, editMode } = props;
+  const { t } = useTranslation();
+
+  return (
+    <AggregationInput
+      name="{{ link.dataElement.name }}"
+      id="{{ getXMIID link }}"
+      label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
+      labelList={[
+        {{# each link.parts as |part| }}
+          ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
+        {{/ each }}
+      ]}
+      ownerData={ownerData}
+      error={!!validationError}
+      helperText={validationError}
+      {{# if link.icon }}
+        icon={<MdiIcon path="{{ link.icon.name }}" />}
+      {{/ if }}
+      disabled={disabled}
+      editMode={editMode}
+      autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
+      onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
+        storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
+      } }
+      {{# if (isAutocompleteAvailable link) }}
+        {{# with (getFirstAutocompleteColumnForLink link) as |column| }}
+          {{# with link.autocompleteRangeActionDefinition as |actionDefinition| }}
+            onAutoCompleteSearch={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (searchText: string) => {
+              const queryCustomizer: {{ classDataName link.dataElement.target 'QueryCustomizer' }} = {
+                ...(searchText?.length ? {
+                  {{ column.attributeType.name }}: [
+                    { operator: StringOperation.like, value: searchText }
+                  ],
+                } : {}),
+                _mask: '{ {{~ column.attributeType.name ~}} }',
+                _orderBy: [
+                  { attribute: '{{ column.attributeType.name }}', descending: false },
+                ],
+                _seek: { limit: 10 },
+              };
+              return await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+            } : undefined }
+          {{/ with }}
+        {{/ with }}
+      {{/ if }}
+      {{# each link.actionButtonGroup.buttons as |button| }}
+        {{# if button.actionDefinition.isOpenSelectorAction }}
+          onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async () => {
+            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+          } : undefined }
+        {{/ if }}
+        {{# if button.actionDefinition.isUnsetAction }}
+          onUnset={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
+        {{/ if }}
+        {{# if button.actionDefinition.isOpenPageAction }}
+          onView={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => {
+            await actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!);
+          } : undefined }
+        {{/ if }}
+        {{# if button.actionDefinition.isOpenFormAction }}
+          onCreate={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async () => {
+            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+          } : undefined }
+        {{/ if }}
+        {{# if button.actionDefinition.isDeleteAction }}
+          onDelete={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
+        {{/ if }}
+      {{/ each }}
+    >
+    </AggregationInput>
+  );
+}
