@@ -26,8 +26,10 @@ import hu.blackbelt.judo.meta.ui.data.ClassType;
 import hu.blackbelt.judo.meta.ui.data.OperationType;
 import hu.blackbelt.judo.meta.ui.data.ReferenceType;
 import hu.blackbelt.judo.meta.ui.data.RelationType;
+import jdk.dynalink.Operation;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
+import org.springframework.util.StringUtils;
 
 import java.util.*;
 import java.util.List;
@@ -232,5 +234,17 @@ public class UiActionsHelper {
 
     public static boolean isActionAddOrSet(ActionDefinition actionDefinition) {
         return actionDefinition.getIsAddAction() || actionDefinition.getIsSetAction();
+    }
+
+    public static String operationCallSuffix(Action action) {
+        if (action.getActionDefinition() instanceof CallOperationActionDefinition actionDefinition) {
+            boolean isOnViewPage = ((PageDefinition)action.eContainer()).getContainer().isView();
+            Table table = getTableParentForActionDefinition(actionDefinition);
+            Link link = getLinkParentForActionDefinition(actionDefinition);
+            if (isOnViewPage && (table != null || link != null)) {
+                return "For" + StringUtils.capitalize(action.getOwnerDataElement().getName());
+            }
+        }
+        return "";
     }
 }

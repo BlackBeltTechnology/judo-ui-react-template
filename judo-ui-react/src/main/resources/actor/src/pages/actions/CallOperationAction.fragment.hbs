@@ -2,7 +2,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
   {{# with action.actionDefinition.operation as |operation| }}
   try {
     setIsLoading(true);
-    {{# if operation.output }}const result = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}(
+    {{# if operation.output }}const result = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
       {{# if page.container.form }}
         {{# unless operation.isStatic }}ownerData{{/ unless }}
         {{# if operation.input }}{{# unless operation.isStatic }}, {{/ unless }}data{{/ if }}
@@ -15,7 +15,13 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
               target!
             {{/ unless }}
           {{ else }}
-            {{# unless operation.isStatic }}data{{/ unless }}
+            {{# unless operation.isStatic }}
+              {{# if action.actionDefinition.targetType }}
+                target!
+              {{ else }}
+                data
+              {{/ if }}
+            {{/ unless }}
             {{# if operation.input }}
               {{# unless operation.isStatic }}, {{/ unless }}target!
             {{/ if }}

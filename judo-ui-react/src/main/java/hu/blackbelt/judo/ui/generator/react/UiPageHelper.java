@@ -235,6 +235,9 @@ public class UiPageHelper {
         DataElement dataElement = pageDefinition.getDataElement();
 
         if (dataElement instanceof RelationType relationType) {
+            if (pageDefinition.getContainer().isView() && !isSingleAccessPage(pageDefinition)) {
+                return firstToLower(serviceClassName(relationType.getTarget()) + "Impl");
+            }
             return firstToLower(serviceRelationName(relationType) + "Impl");
         } else if (dataElement instanceof OperationParameterType operationParameterType) {
             if (operationParameterType.eContainer() instanceof OperationType operationType) {
