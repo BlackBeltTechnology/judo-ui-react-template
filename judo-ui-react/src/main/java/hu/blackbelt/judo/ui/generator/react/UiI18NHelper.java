@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.DEFAULT_I18N_LANGUAGE;
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.translationElementForBulkAction;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
@@ -228,5 +229,9 @@ public class UiI18NHelper {
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (e1, e2) -> e1, HashMap::new));
 
         return new TreeMap<>(sorted);
+    }
+
+    public static String defaultLabelForBulkAction(Action action) {
+        return translationElementForBulkAction(action).getLabel();
     }
 }

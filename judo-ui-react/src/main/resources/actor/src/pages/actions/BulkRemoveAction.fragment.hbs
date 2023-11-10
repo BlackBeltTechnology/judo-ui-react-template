@@ -11,7 +11,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
       });
     {{ else }}
       openCRUDDialog<{{ classDataName (getReferenceClassType table) 'Stored' }}>({
-        dialogTitle: t('{{ getTranslationKeyForVisualElement action.actionDefinition.eContainer }}', { defaultValue: '{{ action.actionDefinition.eContainer.label }}' }),
+        dialogTitle: t('{{ getTranslationKeyForVisualElement (translationElementForBulkAction action) }}', { defaultValue: '{{ defaultLabelForBulkAction action }}' }),
         {{# with (getFirstTitleColumnForTable table) as |column| }}
           itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
         {{ else }}

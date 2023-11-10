@@ -247,4 +247,9 @@ public class UiActionsHelper {
         }
         return "";
     }
+
+    public static VisualElement translationElementForBulkAction(Action action) {
+        // .eContainer is not working in templates...
+        return (VisualElement) action.getActionDefinition().eContainer();
+    }
 }
