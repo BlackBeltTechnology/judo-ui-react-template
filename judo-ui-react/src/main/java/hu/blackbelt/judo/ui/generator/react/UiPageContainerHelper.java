@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
@@ -55,8 +56,41 @@ public class UiPageContainerHelper {
     }
 
     public static String simpleActionDefinitionName(ActionDefinition actionDefinition) {
-        String[] tokens = actionDefinition.getName().split(NAME_SPLITTER);
-        return StringUtils.uncapitalize(stream(tokens).map(StringUtils::capitalize).collect(Collectors.joining()));
+        String relationName = "";
+
+        if (!getPageContainerForActionDefinition(actionDefinition).isTable()) {
+            Link link = getLinkParentForActionDefinition(actionDefinition);
+            Table table = getTableParentForActionDefinition(actionDefinition);
+
+            if (link != null && link.getRelationName() != null) {
+                relationName += link.getRelationName();
+            } else if (table != null && table.getRelationName() != null) {
+                relationName += table.getRelationName();
+            }
+        }
+
+        String definitionName = actionDefinition.eClass().getInstanceClass().getSimpleName();
+        String suffix = firstToLower(definitionName.substring(0, definitionName.indexOf("ActionDefinition")));
+
+        if (actionDefinition instanceof CallOperationActionDefinition callOperationActionDefinition) {
+            suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
+        } else if (actionDefinition instanceof BulkCallOperationActionDefinition bulkCallOperationActionDefinition) {
+            suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getBulkOf().getOperation().getName());
+        } else if (actionDefinition instanceof OpenSelectorActionDefinition openSelectorActionDefinition) {
+            if (openSelectorActionDefinition.getSelectorFor() != null) {
+                if (openSelectorActionDefinition.getSelectorFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+                    suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
+                }
+            }
+        } else if (actionDefinition instanceof OpenFormActionDefinition openFormActionDefinition) {
+            if (openFormActionDefinition.getFormFor() != null) {
+                if (openFormActionDefinition.getFormFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+                    suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
+                }
+            }
+        }
+
+        return relationName + (!relationName.isEmpty() ? firstToUpper(suffix) : suffix) + "Action";
     }
 
     public static List<String> getContainerApiImports(PageContainer container) {

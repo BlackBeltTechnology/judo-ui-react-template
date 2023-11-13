@@ -49,7 +49,7 @@ public class UiActionsHelper {
         List<ActionDefinition> actionDefinitions = groups.stream()
                 .flatMap(g -> g.getButtons().stream())
                 .map(Button::getActionDefinition)
-                .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition/* || actionIsSetOpenAction(a) || actionIsAddOpenAction(a)*/)
+                .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition)
                 .collect(Collectors.toList());
 
         List<Button> buttons = new ArrayList<>();
@@ -130,6 +130,22 @@ public class UiActionsHelper {
         String suffixToCut = "Definition";
         String actionName = actionDefinitionBareName.substring(0, actionDefinitionBareName.length() - suffixToCut.length());
         return componentsLocation + actionName + ".fragment.hbs";
+    }
+
+    public static PageContainer getPageContainerForActionDefinition(ActionDefinition actionDefinition) {
+        PageContainer pageContainer = null;
+        EObject parent = actionDefinition.eContainer();
+
+        while (parent.eContainer() != null) {
+            if (parent instanceof PageContainer) {
+                pageContainer = (PageContainer) parent;
+                break;
+            } else {
+                parent = parent.eContainer();
+            }
+        }
+
+        return pageContainer;
     }
 
     public static Link getLinkParentForActionDefinition(ActionDefinition actionDefinition) {
