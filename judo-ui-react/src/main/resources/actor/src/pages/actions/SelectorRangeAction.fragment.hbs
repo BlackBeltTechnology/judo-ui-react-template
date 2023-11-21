@@ -1,0 +1,12 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.actionDefinition.targetType 'QueryCustomizer' }}): Promise<{{ classDataName action.actionDefinition.targetType 'Stored' }}[]> => {
+  try {
+    {{# if container.isRelationSelector }}
+      return {{ getServiceImplForPage page }}.getRange(ownerData, queryCustomizer);
+    {{ else }}
+      return {{ getServiceImplForPage page }}.getRangeFor{{ firstToUpper action.ownerDataElement.name }}(ownerData, queryCustomizer);
+    {{/ if }}
+  } catch (error) {
+    handleError(error);
+    return Promise.resolve([]);
+  }
+};

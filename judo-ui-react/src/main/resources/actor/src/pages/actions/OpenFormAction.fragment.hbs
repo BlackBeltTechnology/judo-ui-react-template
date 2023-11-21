@@ -1,0 +1,13 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if}}) => {
+  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{# if action.actionDefinition.targetType }}target{{ else }}data{{/ if }});
+  {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+    {{# if page.container.view }}
+      if (!editMode) {
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+      }
+    {{/ if }}
+    {{# if page.container.table }}
+      setRefreshCounter((prev) => prev + 1);
+    {{/ if }}
+  {{/ with }}
+};
