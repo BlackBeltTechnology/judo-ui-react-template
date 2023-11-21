@@ -78,7 +78,9 @@ public class UiPageContainerHelper {
         String suffix = firstToLower(definitionName.substring(0, definitionName.indexOf("ActionDefinition")));
 
         if (actionDefinition instanceof CallOperationActionDefinition callOperationActionDefinition) {
-            suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
+            // We need to append a discriminator for actions because for unmapped operation input forms, caller
+            // CallOperation actions are rolled on the form container, which could lead to method name collisions.
+            suffix = firstToLower(callOperationActionDefinition.getOperation().getName()) + "For" + firstToUpper(callOperationActionDefinition.getName().split("::")[0]);
         } else if (actionDefinition instanceof BulkCallOperationActionDefinition bulkCallOperationActionDefinition) {
             suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getBulkOf().getOperation().getName());
         } else if (actionDefinition instanceof OpenOperationInputSelectorActionDefinition openOperationInputSelectorActionDefinition) {
