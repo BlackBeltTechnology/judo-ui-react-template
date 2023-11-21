@@ -216,7 +216,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
           id: '{{ getXMIID button }}',
           label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
           {{# if button.icon }}
-          icon: <MdiIcon path="{{ button.icon.name }}" />,
+          icon: <MdiIcon path="{{ button.icon.iconName }}" />,
           {{/ if }}
           disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {{{ tableRowButtonDisabledConditions button table container }}},
           action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
@@ -524,7 +524,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
                 {actions.{{ simpleActionDefinitionName button.actionDefinition }} && ({{{ tableButtonVisibilityConditions button table container }}}) ? <Button
                   id="{{ getXMIID button }}"
                   {{# if button.icon }}
-                  startIcon={<MdiIcon path="{{ button.icon.name }}" />}
+                  startIcon={<MdiIcon path="{{ button.icon.iconName }}" />}
                   {{/ if }}
                   variant={ {{{ variantForButton button }}} }
                   onClick={ async () => {

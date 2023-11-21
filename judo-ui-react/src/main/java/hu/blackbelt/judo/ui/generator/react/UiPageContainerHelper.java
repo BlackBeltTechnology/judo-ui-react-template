@@ -6,6 +6,7 @@ import hu.blackbelt.judo.meta.ui.data.ClassType;
 import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
 
+import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
@@ -61,11 +62,15 @@ public class UiPageContainerHelper {
         if (!getPageContainerForActionDefinition(actionDefinition).isTable()) {
             Link link = getLinkParentForActionDefinition(actionDefinition);
             Table table = getTableParentForActionDefinition(actionDefinition);
+            EObject container = actionDefinition.eContainer();
 
             if (link != null && link.getRelationName() != null) {
                 relationName += link.getRelationName();
             } else if (table != null && table.getRelationName() != null) {
                 relationName += table.getRelationName();
+            } else if (container instanceof Button button && button.getRelationName() != null) {
+                // single association button case...
+                relationName += button.getRelationName();
             }
         }
 
@@ -76,9 +81,9 @@ public class UiPageContainerHelper {
             suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
         } else if (actionDefinition instanceof BulkCallOperationActionDefinition bulkCallOperationActionDefinition) {
             suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getBulkOf().getOperation().getName());
-        } else if (actionDefinition instanceof OpenSelectorActionDefinition openSelectorActionDefinition) {
-            if (openSelectorActionDefinition.getSelectorFor() != null) {
-                if (openSelectorActionDefinition.getSelectorFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+        } else if (actionDefinition instanceof OpenOperationInputSelectorActionDefinition openOperationInputSelectorActionDefinition) {
+            if (openOperationInputSelectorActionDefinition.getSelectorFor() != null) {
+                if (openOperationInputSelectorActionDefinition.getSelectorFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
                     suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
                 }
             }
@@ -88,6 +93,9 @@ public class UiPageContainerHelper {
                     suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
                 }
             }
+        } else if (actionDefinition instanceof CustomActionDefinition) {
+            Button button = (Button) actionDefinition.eContainer();
+            suffix = button.getName();
         }
 
         return relationName + (!relationName.isEmpty() ? firstToUpper(suffix) : suffix) + "Action";

@@ -17,7 +17,7 @@
           id="{{ getXMIID button }}"
           loading={isLoading}
           {{# if button.icon }}
-            startIcon={<MdiIcon path="{{ button.icon.name }}" />}
+            startIcon={<MdiIcon path="{{ button.icon.iconName }}" />}
             loadingPosition="start"
           {{/ if }}
           onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
@@ -44,7 +44,7 @@
           id="{{ getXMIID child }}-button-group"
           disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
           {{# if child.icon }}
-            startIcon={ <MdiIcon path="{{ child.icon.name }}" /> }
+            startIcon={ <MdiIcon path="{{ child.icon.iconName }}" /> }
           {{/ if }}
           menuItems={[
             {{# each (nonFeaturedButtonsForButtonGroup child) as |button| }}
@@ -63,7 +63,7 @@
                   await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
                 } : undefined,
                 {{# if button.icon }}
-                  startIcon: <MdiIcon path="{{ button.icon.name }}" />,
+                  startIcon: <MdiIcon path="{{ button.icon.iconName }}" />,
                 {{ else }}
                   startIcon: <MdiIcon path="arrow_right" />,
                 {{/ if }}
