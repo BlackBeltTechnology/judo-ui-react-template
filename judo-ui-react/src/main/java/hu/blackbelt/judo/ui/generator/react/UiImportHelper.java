@@ -61,12 +61,6 @@ public class UiImportHelper {
             Map.entry("trinarylogiccombo", Set.of("TextField", "MenuItem", "InputAdornment"))
     );
 
-    public static String getMuiMaterialImportsForPageContainer(PageContainer container) {
-        SortedSet<String> imports = getMaterialImportsForPageContainer(container);
-
-        return String.join(", ", imports).concat(!imports.isEmpty() ? "," : "");
-    }
-
     public static SortedSet<String> getMaterialImportsForPageContainer(PageContainer container) {
         Set<String> uniqueVisualElementNames = getUniqueVisualElementNamesForPageContainer(container).stream()
                 .map(String::toLowerCase)
