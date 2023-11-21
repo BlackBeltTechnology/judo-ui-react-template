@@ -11,7 +11,7 @@ filterable: {{ isUseInlineColumnFilters }} && {{# if (isColumnFilterable column)
 {{/ if }}
 {{# if (isColumnBoolean column) }}
     align: 'center',
-    renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {
+    renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
         if (params.row.{{ column.attributeType.name }} === null || params.row.{{ column.attributeType.name }} === undefined) {
             return <MdiIcon className="undefined" path="minus" color="#ddd" />;
         } else if (params.row.{{ column.attributeType.name }}) {
@@ -84,7 +84,7 @@ filterable: {{ isUseInlineColumnFilters }} && {{# if (isColumnFilterable column)
 {{/ if }}
 {{# if (isColumnBinary column) }}
     align: 'center',
-    renderCell: (params: GridRenderCellParams<any, {{ classDataName dataElement.target 'Stored' }}>) => {
+    renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
         return params.row.{{ column.attributeType.name }}
             ? <ButtonGroup size="small" variant="outlined">
                 <Button id="{{ createId column }}-download" startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} onClick={ (event: any) => {
