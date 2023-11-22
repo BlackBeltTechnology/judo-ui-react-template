@@ -42,16 +42,18 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
   export type {{ containerComponentName page.container }}DialogActionsExtended = {{ containerComponentName page.container }}DialogActions & {
     {{# each (getAllCallOperationActions page) as |action| }}
       post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: (
         {{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }},{{/ if }}
         {{# if action.actionDefinition.operation.output }}output: {{ classDataName action.actionDefinition.operation.output.target '' }},{{/ if }}
-        {{# if page.container.form }}onSubmit: (result?: {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}{{/ if }}) => void{{/ if }}
+        {{# if page.container.form }}onSubmit: (result?: {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}{{/ if }}) => Promise<void>,{{/ if }}
+        onClose: () => Promise<void>
       ) => Promise<void>;
     {{/ each }}
   };
+
+  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
   export type {{ containerComponentName page.container }}ActionsHook = (
     ownerData: any,
     data: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }},
@@ -77,9 +79,9 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
             fullWidth: true,
             maxWidth: '{{ toLower page.dialogSize.name }}',
         {{/ if }}
-        onClose: (event: object, reason: string) => {
+        onClose: async (event: object, reason: string) => {
           if (reason !== 'backdropClick') {
-            closeDialog();
+            await closeDialog();
             resolve({
               result: 'close',
             });
@@ -91,14 +93,14 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
             {{# if page.container.isRelationSelector}}
             alreadySelected={alreadySelected}
             {{/ if }}
-            onClose={() => {
-              closeDialog();
+            onClose={async () => {
+              await closeDialog();
               resolve({
                 result: 'close',
               });
             }}
-            onSubmit={({{# if (dialogHasResult page) }}result{{/ if }}) => {
-              closeDialog();
+            onSubmit={async ({{# if (dialogHasResult page) }}result{{/ if }}) => {
+              await closeDialog();
               resolve({
                 result: 'submit',
                 {{# if (dialogHasResult page) }}
@@ -123,11 +125,11 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 export interface {{ pageName page }}Props {
   ownerData: any;
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
-  onClose: () => void;
+  onClose: () => Promise<void>;
   {{# if (pageHasOutputTarget page) }}
-  onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => void;
+  onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => Promise<void>;
   {{ else }}
-  onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}) => void;
+  onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}) => Promise<void>;
   {{/ if }}
 }
 

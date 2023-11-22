@@ -34,7 +34,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
         {{# if action.actionDefinition.targetType }}target!,{{/ if }}
         {{# if operation.output }}result,{{/ if }}
-        {{# if page.container.form }}onSubmit{{/ if }}
+        {{# if page.container.form }}onSubmit,{{/ if }}
+        {{# if page.openInDialog }}onClose{{/ if }}
       );
     } else {
       enqueueSnackbar(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string, {

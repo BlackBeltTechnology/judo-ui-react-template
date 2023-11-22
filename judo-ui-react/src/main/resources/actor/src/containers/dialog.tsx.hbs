@@ -37,7 +37,7 @@ import { useConfirmDialog } from '~/components/dialog';
 export interface {{ containerComponentName container }}DialogProps {
   ownerData: any;
   title: string;
-  onClose: () => void;
+  onClose: () => Promise<void>;
   {{# unless (containerIsEmptyDashboard container) }}
     actions: {{ containerComponentName container }}DialogActions;
     isLoading: boolean;
