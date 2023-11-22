@@ -21,6 +21,11 @@
 {{/ each }}
 
 {{# unless (containerIsEmptyDashboard container) }}
+{{# each (getVisualElementsWithCustomImplementation container) as |ve| }}
+    export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
+    export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName container.dataElement '' }}>> {}
+{{/ each }}
+
 export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
   {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
     {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;

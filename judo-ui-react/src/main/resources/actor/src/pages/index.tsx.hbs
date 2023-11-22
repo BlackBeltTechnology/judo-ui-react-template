@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   import { OBJECTCLASS } from '@pandino/pandino-api';
+  import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '@judo/data-api-common';
   import { useTranslation } from 'react-i18next';
   import { useParams } from 'react-router-dom';
@@ -42,6 +43,21 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
+  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
+  export type {{ containerComponentName page.container }}PageActionsExtended = {{ containerComponentName page.container }}PageActions & {
+    {{# each (getAllCallOperationActions page) as |action| }}
+      post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}{{# if action.actionDefinition.operation.output }}{{# if action.actionDefinition.targetType }},{{/ if }}output: {{ classDataName action.actionDefinition.operation.output.target '' }}{{/ if }}) => Promise<void>;
+    {{/ each }}
+  };
+  export type {{ containerComponentName page.container }}ActionsHook = (
+    data: {{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }},
+    editMode: boolean,
+    {{# unless page.container.table }}
+    storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void,
+    {{/ unless }}
+    {{# if page.container.isSelector }}selectionDiff: {{ classDataName (getReferenceClassType page) 'Stored' }}[],{{/ if }}
+  ) => {{ containerComponentName page.container }}PageActionsExtended;
+
   {{# unless page.container.table }}
     {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
@@ -113,6 +129,10 @@ export default function {{ pageName page }}() {
       {{/ if }}
     {{/ unless }}
 
+    // Pandino Action overrides
+    const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
+    const customActions: {{ containerComponentName page.container }}PageActionsExtended | undefined = customActionsHook && customActionsHook(data, editMode{{# unless page.container.table }}, storeDiff{{/ unless }}{{# if page.container.isSelector }}, selectionDiff{{/ if }});
+
     // Dialog hooks
     {{# each (getRelatedDialogs page false) as |relatedDialog| }}
       const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
@@ -141,6 +161,7 @@ export default function {{ pageName page }}() {
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
       {{/ each }}
+      ...(customActions ?? {}),
     };
 
     // Effect section

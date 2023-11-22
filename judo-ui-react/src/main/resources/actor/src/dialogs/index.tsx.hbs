@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   import { OBJECTCLASS } from '@pandino/pandino-api';
+  import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '@judo/data-api-common';
   import { useTranslation } from 'react-i18next';
   import { useParams } from 'react-router-dom';
@@ -41,6 +42,26 @@ import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react'
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
+  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
+  export type {{ containerComponentName page.container }}DialogActionsExtended = {{ containerComponentName page.container }}DialogActions & {
+    {{# each (getAllCallOperationActions page) as |action| }}
+      post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: (
+        {{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }},{{/ if }}
+        {{# if action.actionDefinition.operation.output }}output: {{ classDataName action.actionDefinition.operation.output.target '' }},{{/ if }}
+        {{# if page.container.form }}onSubmit: (result?: {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}{{/ if }}) => void{{/ if }}
+      ) => Promise<void>;
+    {{/ each }}
+  };
+  export type {{ containerComponentName page.container }}ActionsHook = (
+    ownerData: any,
+    data: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }},
+    editMode: boolean,
+    {{# unless page.container.table }}
+    storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void,
+    {{/ unless }}
+    {{# if page.container.isSelector }}selectionDiff: {{ dialogDataType page }}[],{{/ if }}
+  ) => {{ containerComponentName page.container }}DialogActionsExtended;
+
   export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<
     {{# if (pageHasOutputTarget page) }}
       {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}void{{/ if }}
@@ -104,7 +125,7 @@ export interface {{ pageName page }}Props {
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
   onClose: () => void;
   {{# if (pageHasOutputTarget page) }}
-  onSubmit: ({{# if (pageHasOutputTarget page) }}result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}{{/ if }}) => void;
+  onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => void;
   {{ else }}
   onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}) => void;
   {{/ if }}
@@ -167,6 +188,10 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{/ if }}
     {{/ unless }}
 
+    // Pandino Action overrides
+    const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
+    const customActions: {{ containerComponentName page.container }}DialogActionsExtended | undefined = customActionsHook && customActionsHook(ownerData, data, editMode{{# unless page.container.table }}, storeDiff{{/ unless }}{{# if page.container.isSelector }}, selectionDiff{{/ if }});
+
     // Dialog hooks
     {{# each (getRelatedDialogs page false) as |relatedDialog| }}
       const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
@@ -188,6 +213,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
       {{/ each }}
+      ...(customActions ?? {}),
     };
 
     // Effect section

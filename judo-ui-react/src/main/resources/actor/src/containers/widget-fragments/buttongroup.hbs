@@ -3,7 +3,7 @@
   <Grid container spacing={2}>
     {{# if child.customImplementation }}
       <ComponentProxy
-        filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component={{ componentName child }}))`}
+        filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
         data={data}
         validation={validation}
         editMode={editMode}

@@ -172,6 +172,10 @@ public class UiPageHelper {
                 res.add(classDataName(actionDefinition.getTargetType(), "Stored"));
                 res.add(classDataName(actionDefinition.getTargetType(), "QueryCustomizer"));
             }
+            if (actionDefinition instanceof CallOperationActionDefinition callOperationActionDefinition && callOperationActionDefinition.getOperation().getOutput() != null) {
+                res.add(classDataName(callOperationActionDefinition.getOperation().getOutput().getTarget(), ""));
+                res.add(classDataName(callOperationActionDefinition.getOperation().getOutput().getTarget(), "Stored"));
+            }
         }
 
         if (pageDefinition.getContainer().isIsSelector()) {

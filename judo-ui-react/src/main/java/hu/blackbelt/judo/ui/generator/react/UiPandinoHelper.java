@@ -21,9 +21,17 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.VisualElement;
+import hu.blackbelt.judo.meta.ui.*;
 import lombok.extern.java.Log;
-import org.springframework.util.StringUtils;
+
+import java.util.*;
+
+import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
+import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.simpleActionDefinitionName;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.componentName;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToLower;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToUpper;
 
 @Log
 @TemplateHelper
@@ -33,10 +41,49 @@ public class UiPandinoHelper {
     }
 
     public static String getCustomizationComponentInterface(VisualElement element) {
-        return /*pageName(element.getPageDefinition()) + */StringUtils.capitalize(element.getName());
+        return /*pageName(element.getPageDefinition()) + */componentName(element);
     }
 
     public static String getCustomizationComponentInterfaceKey(VisualElement element) {
         return camelCaseNameToInterfaceKey(getCustomizationComponentInterface(element));
+    }
+
+    public static SortedSet<VisualElement> getVisualElementsWithCustomImplementation(PageContainer container) {
+        SortedSet<VisualElement> result = new TreeSet<>(Comparator.comparing((VisualElement v) -> v.getFQName().trim()));
+
+        collectVisualElementsMatchingCondition(container, VisualElement::isCustomImplementation, result);
+
+        return result;
+    }
+
+    public static String pageActionFQName(Action action) {
+        String adn = simpleActionDefinitionName(action.getActionDefinition());
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+
+        return firstToLower(containerComponentName(pageDefinition.getContainer())) + firstToUpper(adn);
+    }
+
+    public static String pageActionTypeName(Action action) {
+        String adn = simpleActionDefinitionName(action.getActionDefinition());
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+
+        return containerComponentName(pageDefinition.getContainer()) + firstToUpper(adn);
+    }
+
+    public static String pageActionHookInterfaceKey(Action action) {
+        String asd = pageActionFQName(action);
+        return camelCaseNameToInterfaceKey(firstToUpper(asd)) + "_HOOK_INTERFACE_KEY";
+    }
+
+    public static String pageActionInterfaceKey(Action action) {
+        String asd = pageActionFQName(action);
+        return camelCaseNameToInterfaceKey(firstToUpper(asd)) + "_INTERFACE_KEY";
+    }
+
+    public static List<Action> getAllCallOperationActions(PageDefinition pageDefinition) {
+        return pageDefinition.getActions().stream()
+                .filter(Action::getIsCallOperationAction)
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .toList();
     }
 }
