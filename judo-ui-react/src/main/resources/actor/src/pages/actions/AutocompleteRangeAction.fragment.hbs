@@ -1,0 +1,10 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.actionDefinition.targetType 'QueryCustomizer' }}): Promise<{{ classDataName action.actionDefinition.targetType 'Stored' }}[]> => {
+  {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+  try {
+    return {{ getServiceImplForPage page }}.getRangeFor{{ firstToUpper link.dataElement.name }}(data, queryCustomizer);
+  } catch (error) {
+    handleError(error);
+    return Promise.resolve([]);
+  }
+  {{/ with }}
+};
