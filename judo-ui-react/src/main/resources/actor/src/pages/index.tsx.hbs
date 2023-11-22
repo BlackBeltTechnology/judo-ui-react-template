@@ -132,7 +132,7 @@ export default function {{ pageName page }}() {
 
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
-    const customActions: {{ containerComponentName page.container }}PageActionsExtended | undefined = customActionsHook && customActionsHook(data, editMode{{# unless page.container.table }}, storeDiff{{/ unless }}{{# if page.container.isSelector }}, selectionDiff{{/ if }});
+    const customActions: {{ containerComponentName page.container }}PageActionsExtended | undefined = customActionsHook?.(data, editMode{{# unless page.container.table }}, storeDiff{{/ unless }}{{# if page.container.isSelector }}, selectionDiff{{/ if }});
 
     // Dialog hooks
     {{# each (getRelatedDialogs page false) as |relatedDialog| }}
