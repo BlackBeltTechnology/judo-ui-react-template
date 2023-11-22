@@ -9,10 +9,10 @@ import { ComponentProxy } from '@pandino/react-hooks';
 let routes: Array<{path: string, element: ReactElement, exact?: boolean}> = [];
 
 {{# each (getPagesForRouting application) as |page| }}
-    {{# if page.isPageTypeDashboard }}
+    {{# if page.dashboard }}
         export const ROUTE_DASHBOARD_INTERFACE_KEY = 'DashboardRoute';
         export const routeToDashboard = (): string => '';
-        const DashboardRoute = lazy(() => import('./pages/{{ pageIndexRelativeImportPath page }}'));
+        const DashboardRoute = lazy(() => import('./pages/{{ pagePath page }}'));
 
         routes.push({
             path: '',
@@ -30,7 +30,7 @@ let routes: Array<{path: string, element: ReactElement, exact?: boolean}> = [];
         {{ else }}
             export const routeTo{{ pageName page }} = (): string => '{{ getPageRoute page }}';
         {{/ if }}
-        const {{ pageName page }} = lazy(() => import('./pages/{{ pageIndexRelativeImportPath page }}'));
+        const {{ pageName page }} = lazy(() => import('./pages/{{ pagePath page }}'));
 
         routes.push({
             path: '{{ getPageRoute page }}',
