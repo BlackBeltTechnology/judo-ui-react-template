@@ -62,6 +62,9 @@ public class UiPageHelper {
     }
 
     public static boolean pageHasSignedId(PageDefinition page) {
+        if (isSingleAccessPage(page)) {
+            return false;
+        }
         if (page.getDataElement() != null) {
             if (page.getDataElement() instanceof RelationType dataElement) {
                 if (dataElement.getIsMemberTypeAccess()) {
@@ -85,6 +88,9 @@ public class UiPageHelper {
     }
 
     public static String getPageRoute(PageDefinition page) {
+        if (page.isDashboard()) {
+            return "";
+        }
         String suffix = pageHasSignedId(page) ? "/:signedIdentifier" : "";
         return pagePath(page) + suffix;
     }

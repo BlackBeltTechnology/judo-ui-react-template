@@ -9,7 +9,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
       {{/ if }}
     {{ else }}
       {{# if (isSingleAccessPage page) }}
-        singletonHost.current
+        {{# if page.openInDialog }}
+          ownerData
+        {{ else }}
+          singletonHost.current
+        {{/ if }}
       {{ else }}
         undefined
       {{/ if }}
@@ -34,7 +38,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
           {{/ if }}
         {{ else }}
           {{# if (isSingleAccessPage page) }}
-            singletonHost.current
+            {{# if page.openInDialog }}
+              ownerData
+            {{ else }}
+              singletonHost.current
+            {{/ if }}
           {{ else }}
             undefined
           {{/ if }}
