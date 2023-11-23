@@ -1,0 +1,56 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{# if action.actionDefinition.isBulkCapable }}, silentMode?: boolean{{/ if }}{{/ if}}) => {
+  try {
+    const confirmed = {{# if action.actionDefinition.isBulkCapable }}!silentMode ? {{/ if }}await openConfirmDialog(
+      'row-delete-action',
+      t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+    ){{# if action.actionDefinition.isBulkCapable }} : true{{/ if }};
+    if (confirmed) {
+      await {{ getServiceImplForPage page }}.delete{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if action.actionDefinition.targetType }}target{{ else }}data{{/ if }});
+
+      {{# if action.actionDefinition.isBulkCapable }}
+      if (!silentMode) {
+      {{/ if }}
+      enqueueSnackbar(t('judo.action.delete.success', { defaultValue: 'Delete successful' }), {
+        variant: 'success',
+        ...toastConfig.success,
+      });
+
+      {{# if page.container.table }}
+        setRefreshCounter((prev) => prev + 1);
+      {{/ if }}
+
+      {{# if page.container.view }}
+        {{# unless action.actionDefinition.isContainedRelationAction }}
+          {{# if page.openInDialog }}
+            onClose();
+          {{ else }}
+            navigateBack();
+          {{/ if }}
+        {{ else }}
+          {{# if (containerIsRefreshable page.container) }}
+            {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+              {{ simpleActionDefinitionName refreshActionDefinition }}(pageQueryCustomizer);
+            {{/ with }}
+          {{/ if }}
+        {{/ unless }}
+      {{/ if }}
+
+      {{# if action.actionDefinition.isBulkCapable }}
+      }
+      {{/ if }}
+    }
+  } catch(error) {
+    {{# if action.actionDefinition.isBulkCapable }}
+    if (!silentMode) {
+    {{/ if }}
+      {{# if action.actionDefinition.targetType }}
+        handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, undefined, target);
+      {{ else }}
+        handleError(error, undefined, data);
+      {{/ if }}
+    {{# if action.actionDefinition.isBulkCapable }}
+    }
+    {{/ if }}
+  }
+};

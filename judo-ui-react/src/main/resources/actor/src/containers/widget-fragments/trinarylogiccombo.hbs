@@ -1,0 +1,38 @@
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.customImplementation }}
+        <ComponentProxy
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            data={data}
+            validation={validation}
+            editMode={editMode}
+            storeDiff={storeDiff}
+        >
+    {{/ if }}
+    <TrinaryLogicCombobox
+        name="{{ child.attributeType.name }}"
+        id="{{ getXMIID child }}"
+        {{# if (shouldElementHaveAutoFocus child) }}
+            autoFocus={true}
+        {{/ if }}
+        required={ {{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }} }
+        label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
+        value={ data?.{{ child.attributeType.name }} }
+        editMode={ editMode }
+        error={ !!validation.get('{{ child.attributeType.name }}') }
+        helperText={ validation.get('{{ child.attributeType.name }}') }
+        onChange={ (value) => {
+            storeDiff('{{ child.attributeType.name }}', value);
+            {{# if child.onBlur }}
+                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: value };
+                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+            {{/ if }}
+        } }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || isLoading }
+        readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+    />
+    {{# if child.customImplementation }}
+        </ComponentProxy>
+    {{/ if }}
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}

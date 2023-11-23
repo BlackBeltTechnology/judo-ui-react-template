@@ -1,4 +1,4 @@
-{props.validation.has('{{ table.dataElement.name }}') && <Box sx={ {
+{validationError && <Box sx={ {
     color: (theme) => theme.palette.error.main,
     display: 'flex',
     alignItems: 'center',
@@ -6,5 +6,5 @@
     pr: 1,
 } }>
     <MdiIcon path="alert-circle-outline" sx={ { mr: 1 } } />
-    <Typography>{props.validation.get('{{ table.dataElement.name }}')}</Typography>
+    <Typography>{validationError}</Typography>
 </Box>}
