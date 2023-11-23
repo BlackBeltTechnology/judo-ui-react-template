@@ -4,7 +4,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
       storeDiff('{{ table.dataElement.name }}', []);
     {{ else }}
       try {
-        await {{ getServiceImplForPage page }}.set{{ firstToUpper action.ownerDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}ownerData{{/ if }}, []);
+        await {{ getServiceImplForPage page }}.set{{ firstToUpper action.targetDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}ownerData{{/ if }}, []);
         {{# if page.container.table }}
           setRefreshCounter((prev) => prev + 1);
         {{/ if }}
