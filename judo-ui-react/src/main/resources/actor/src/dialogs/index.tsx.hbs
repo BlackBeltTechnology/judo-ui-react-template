@@ -1,0 +1,266 @@
+{{> fragment.header.hbs }}
+
+import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
+{{# unless (containerIsEmptyDashboard page.container) }}
+  import { OBJECTCLASS } from '@pandino/pandino-api';
+  import { useTrackService } from '@pandino/react-hooks';
+  import type { JudoIdentifiable } from '@judo/data-api-common';
+  import { useTranslation } from 'react-i18next';
+  import { useParams } from 'react-router-dom';
+  import { useSnackbar } from 'notistack';
+  import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+  import type { Filter, FilterOption } from '~/components-api';
+  import { useJudoNavigation } from '~/components';
+  import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
+  import { toastConfig } from '~/config';
+  import { useCRUDDialog } from '~/hooks';
+  import {
+    passesLocalValidation,
+    processQueryCustomizer,
+    uiDateToServiceDate,
+    uiTimeToServiceTime,
+    useErrorHandler,
+  } from '~/utilities';
+  import type {
+    DialogResult,
+  } from '~/utilities';
+  {{# each (getRelatedPages page) as |relatedPage| }}
+    import { routeTo{{ pageName relatedPage }} } from '~/routes';
+  {{/ each }}
+  {{# each (getRelatedDialogs page true) as |relatedDialog| }}
+    import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}';
+  {{/ each }}
+  import type { {{ containerComponentName page.container }}DialogActions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer';
+  import type {
+    {{# each (getApiImportsForPage page) as |imp| }}
+      {{ imp }},
+    {{/ each }}
+  } from '~/services/data-api';
+  {{# if (getServiceImplForPage page) }}
+      import { {{ getServiceImplForPage page }} } from '~/services/data-axios';
+  {{/ if }}
+{{/ unless }}
+
+{{# unless (containerIsEmptyDashboard page.container) }}
+  export type {{ containerComponentName page.container }}DialogActionsExtended = {{ containerComponentName page.container }}DialogActions & {
+    {{# each (getAllCallOperationActions page) as |action| }}
+      post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: (
+        {{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }},{{/ if }}
+        {{# if action.actionDefinition.operation.output }}output: {{ classDataName action.actionDefinition.operation.output.target '' }},{{/ if }}
+        {{# if page.container.form }}onSubmit: (result?: {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}{{/ if }}) => Promise<void>,{{/ if }}
+        onClose: () => Promise<void>
+      ) => Promise<void>;
+    {{/ each }}
+  };
+
+  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
+  export type {{ containerComponentName page.container }}ActionsHook = (
+    ownerData: any,
+    data: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }},
+    editMode: boolean,
+    {{# unless page.container.table }}
+    storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void,
+    {{/ unless }}
+    {{# if page.container.isSelector }}selectionDiff: {{ dialogDataType page }}[],{{/ if }}
+  ) => {{ containerComponentName page.container }}DialogActionsExtended;
+
+  export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<
+    {{# if (pageHasOutputTarget page) }}
+      {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}void{{/ if }}
+    {{ else }}
+      {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}
+    {{/ if }}
+  >> => {
+    const [createDialog, closeDialog] = useDialog();
+
+    return ({{{ getDialogOpenParameters page }}}) => new Promise((resolve) => {
+      createDialog({
+        {{# if page.dialogSize }}
+            fullWidth: true,
+            maxWidth: '{{ toLower page.dialogSize.name }}',
+        {{/ if }}
+        onClose: async (event: object, reason: string) => {
+          if (reason !== 'backdropClick') {
+            await closeDialog();
+            resolve({
+              result: 'close',
+            });
+          }
+        },
+        children: (
+          <{{ pageName page }}
+            ownerData={ownerData}
+            {{# if page.container.isRelationSelector}}
+            alreadySelected={alreadySelected}
+            {{/ if }}
+            onClose={async () => {
+              await closeDialog();
+              resolve({
+                result: 'close',
+              });
+            }}
+            onSubmit={async ({{# if (dialogHasResult page) }}result{{/ if }}) => {
+              await closeDialog();
+              resolve({
+                result: 'submit',
+                {{# if (dialogHasResult page) }}
+                data: result,
+                {{/ if }}
+              });
+            }}
+          />
+        ),
+      });
+    });
+  }
+
+  {{# unless page.container.table }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
+  {{/ unless }}
+
+  const {{ containerComponentName page.container }}DialogContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer'));
+{{/ unless }}
+
+export interface {{ pageName page }}Props {
+  ownerData: any;
+  {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
+  onClose: () => Promise<void>;
+  {{# if (pageHasOutputTarget page) }}
+  onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => Promise<void>;
+  {{ else }}
+  onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}) => Promise<void>;
+  {{/ if }}
+}
+
+// XMIID: {{ getXMIID page }}
+// Name: {{ page.name }}
+// Open in dialog: {{ boolValue page.openInDialog }}
+export default function {{ pageName page }}(props: {{ pageName page }}Props) {
+  const { ownerData, {{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}onClose, onSubmit } = props;
+
+  {{# unless (containerIsEmptyDashboard page.container) }}
+    // Hooks section
+    const { t } = useTranslation();
+    const { enqueueSnackbar } = useSnackbar();
+    const { navigate, back: navigateBack } = useJudoNavigation();
+    const { openFilterDialog } = useFilterDialog();
+    const { openConfirmDialog } = useConfirmDialog();
+    const handleError = useErrorHandler();
+    const openCRUDDialog = useCRUDDialog();
+    const [createDialog, closeDialog] = useDialog();
+
+    // State section
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
+    const [refreshCounter, setRefreshCounter] = useState<number>(0);
+    const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{} as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
+    {{# if page.container.isSelector }}
+      const [selectionDiff, setSelectionDiff] = useState<{{ dialogDataType page }}[]>([]);
+    {{/ if }}
+    {{# unless page.container.table }}
+      const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
+
+      // Ref section
+      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
+
+      // Callback section
+      const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {
+        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target page=page }}
+      }, [data, editMode]);
+      const isFormUpdateable = useCallback(() => {
+        {{# if page.container.form }}
+          return true;
+        {{ else }}
+          return {{ boolValue (isPageUpdateable page) }} && typeof data?.__updateable === 'boolean' && data?.__updateable;
+        {{/ if }}
+      }, [data]);
+      const isFormDeleteable = useCallback(() => {
+        {{# if page.container.form }}
+          return false;
+        {{ else }}
+          return {{ boolValue (isPageDeleteable page) }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
+        {{/ if }}
+      }, [data]);
+
+      {{# if page.container.view }}
+        const pageQueryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = {
+          _mask: '{{ getMaskForView page.container }}',
+        };
+      {{/ if }}
+    {{/ unless }}
+
+    // Pandino Action overrides
+    const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
+    const customActions: {{ containerComponentName page.container }}DialogActionsExtended | undefined = customActionsHook?.(ownerData, data, editMode{{# unless page.container.table }}, storeDiff{{/ unless }}{{# if page.container.isSelector }}, selectionDiff{{/ if }});
+
+    // Dialog hooks
+    {{# each (getRelatedDialogs page false) as |relatedDialog| }}
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
+    {{/ each }}
+
+    // Calculated section
+    {{# if (titleComesFromAttribute page.container) }}
+      const title: string = data.{{ page.container.titleAttribute.name }} as string;
+    {{ else }}
+      const title: string = t('{{ getTranslationKeyForVisualElement page.container }}', { defaultValue: '{{ page.container.label }}' });
+    {{/ if }}
+
+    // Action section
+    {{# each page.actions as |action| }}
+      {{> (getActionTemplate action) }}
+    {{/ each }}
+
+    const actions: {{ containerComponentName page.container }}DialogActions = {
+      {{# each page.actions as |action| }}
+        {{ simpleActionDefinitionName action.actionDefinition }},
+      {{/ each }}
+      ...(customActions ?? {}),
+    };
+
+    // Effect section
+    {{# if (pageShouldInitialize page) }}
+      useEffect(() => {
+        actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}pageQueryCustomizer{{/ if }});
+      }, []);
+    {{/ if }}
+  {{/ unless }}
+
+  return (
+    <div id="{{ getXMIID page }}" data-page-name="{{ page.name }}">
+      {{# unless (containerIsEmptyDashboard page.container) }}
+        <Suspense>
+          <{{ containerComponentName page.container }}DialogContainer
+            ownerData={ownerData}
+            onClose={onClose}
+            title={title}
+            actions={actions}
+            isLoading={isLoading}
+            editMode={editMode}
+            refreshCounter={refreshCounter}
+            {{# unless (containerIsEmptyDashboard page.container) }}
+              {{# if page.container.isSelector }}
+                selectionDiff={selectionDiff}
+                setSelectionDiff={setSelectionDiff}
+              {{/ if }}
+              {{# if page.container.isRelationSelector }}
+                alreadySelected={alreadySelected}
+              {{/ if }}
+              {{# unless page.container.table }}
+                data={data}
+                storeDiff={storeDiff}
+                isFormUpdateable={isFormUpdateable}
+                isFormDeleteable={isFormDeleteable}
+                validation={validation}
+                setValidation={setValidation}
+              {{/ unless }}
+            {{/ unless }}
+          />
+        </Suspense>
+      {{ else }}
+        <h1>Hello!</h1>
+      {{/ unless }}
+    </div>
+  );
+}
