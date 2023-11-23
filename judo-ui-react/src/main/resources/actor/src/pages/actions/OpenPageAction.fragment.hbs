@@ -1,0 +1,28 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
+  {{# if action.targetPageDefinition.openInDialog }}
+    await open{{ pageName action.targetPageDefinition }}(target!);
+
+    {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+      {{# if page.container.view }}
+        if (!editMode) {
+          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+        }
+      {{/ if }}
+      {{# if page.container.table }}
+        setRefreshCounter((prev) => prev + 1);
+      {{/ if }}
+    {{/ with }}
+  {{ else }}
+    {{# if action.targetPageDefinition }}
+      {{# if (pageHasSignedId action.targetPageDefinition) }}
+      // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
+      {{/ if }}
+      navigate(routeTo{{ pageName action.targetPageDefinition }}({{# if (pageHasSignedId action.targetPageDefinition) }}(target{{# if page.container.view }} || data{{ else }}!{{/ if }}).__signedIdentifier{{/ if }}));
+      {{# if page.openInDialog }}
+        onClose();
+      {{/ if }}
+    {{ else }}
+      // There was no .targetPageDefinition for this action. Target Page is most likely empty in the model!
+    {{/ if }}
+  {{/ if }}
+};

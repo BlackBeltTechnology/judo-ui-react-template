@@ -1,0 +1,17 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+  try {
+    setIsLoading(true);
+    const res = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}data);
+
+    enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
+      variant: 'success',
+      ...toastConfig.success,
+    });
+
+    onSubmit(res);
+  } catch (error) {
+     handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
+  } finally {
+    setIsLoading(false);
+  }
+};
