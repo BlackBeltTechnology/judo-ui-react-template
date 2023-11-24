@@ -68,7 +68,7 @@ public class UiPageHelper {
         if (page.getDataElement() != null) {
             if (page.getDataElement() instanceof RelationType dataElement) {
                 if (dataElement.getIsMemberTypeAccess()) {
-                    return page.getName().endsWith("::View::Page") && !(dataElement.getIsCreatable() && !dataElement.isIsCollection());
+                    return page.getName().endsWith("ViewPage") && !(dataElement.getIsCreatable() && !dataElement.isIsCollection());
                 }
                 return true;
             } else if (page.getName().endsWith("Output::View")) {

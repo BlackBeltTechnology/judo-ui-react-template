@@ -2,12 +2,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   {{# if (hasPageRequiredBy page) }}
     {{> actor/src/fragments/page/local-validate.fragment.hbs }}
   {{/ if }}
-
   setIsLoading(true);
-
   try {
     const res = await {{ getServiceImplForPage page }}.update(payloadDiff.current);
-
     if (res) {
       showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
       setValidation(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());

@@ -2,9 +2,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
   try {
     setIsLoading(true);
     const result = await {{ getServiceImplForPage page }}.getTemplate{{ firstToUpper (getServiceMethodSuffix action) }}();
-
     setData(result as {{ classDataName action.actionDefinition.targetType 'Stored' }});
-
     return result;
   } catch (error) {
     handleError(error);

@@ -14,7 +14,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
         {{ else }}
           singletonHost.current
         {{/ if }}
-      {{ else }}
+      {{ else }}/*???*/
         undefined
       {{/ if }}
     {{/ if }},
@@ -43,15 +43,13 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
             {{ else }}
               singletonHost.current
             {{/ if }}
-          {{ else }}
+          {{ else }}/*!!!*/
             undefined
           {{/ if }}
         {{/ if }},
         pageQueryCustomizer
       );
-
       setData(result);
-
       // re-set payloadDiff
       payloadDiff.current = {
           __identifier: result.__identifier,
@@ -59,7 +57,6 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
           __version: result.__version,
           __entityType: result.__entityType,
       } as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
-
       return result;
     {{/ if }}
   } catch (error) {

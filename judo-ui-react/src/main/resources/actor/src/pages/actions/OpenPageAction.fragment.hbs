@@ -1,7 +1,6 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
   {{# if action.targetPageDefinition.openInDialog }}
     await open{{ pageName action.targetPageDefinition }}(target!);
-
     {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
       {{# if page.container.view }}
         if (!editMode) {
