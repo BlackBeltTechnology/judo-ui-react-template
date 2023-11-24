@@ -238,6 +238,10 @@ templates:
     pathExpression: "'src/hooks/useNavigationConfirmation.ts'"
     templateName: actor/src/hooks/useNavigationConfirmation.ts.hbs
 
+  - name: actor/src/hooks/useSnacks.ts
+    pathExpression: "'src/hooks/useSnacks.ts'"
+    templateName: actor/src/hooks/useSnacks.ts.hbs
+
   # Actor - src - config
 
   - name: actor/src/config/index.ts
@@ -367,10 +371,6 @@ templates:
   - name: actor/src/components/dialog/PageDialog.tsx
     pathExpression: "'src/components/dialog/PageDialog.tsx'"
     templateName: actor/src/components/dialog/PageDialog.tsx.hbs
-
-  - name: actor/src/components/dialog/RangeDialog.tsx
-    pathExpression: "'src/components/dialog/RangeDialog.tsx'"
-    templateName: actor/src/components/dialog/RangeDialog.tsx.hbs
 
   - name: actor/src/components/dialog/StackableDialogProvider.tsx
     pathExpression: "'src/components/dialog/StackableDialogProvider.tsx'"
@@ -626,243 +626,73 @@ templates:
     pathExpression: "'src/l10n/l10n-context.tsx'"
     templateName: actor/src/l10n/l10n-context.tsx.hbs
 
+  # Actor - src - containers
+
+  - name: actor/src/containers/container.tsx
+    factoryExpression: "#application.pageContainers"
+    pathExpression: "'src/containers/' + #containerPath(#self) + '/' + #containerComponentName(#self) + '.tsx'"
+    templateName: actor/src/containers/container.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
+  - name: actor/src/containers/page.tsx
+    factoryExpression: "#getPageContainersToGenerate(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self) + '/' + #containerComponentName(#self) + 'PageContainer.tsx'"
+    templateName: actor/src/containers/page.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
+  - name: actor/src/containers/dialog.tsx
+    factoryExpression: "#application.pageContainers"
+    pathExpression: "'src/containers/' + #containerPath(#self) + '/' + #containerComponentName(#self) + 'DialogContainer.tsx'"
+    templateName: actor/src/containers/dialog.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
+  - name: actor/src/containers/components/link.tsx
+    factoryExpression: "#getLinksForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #linkComponentName(#self) + '.tsx'"
+    templateName: actor/src/containers/components/link.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: link
+        expression: "#self"
+
+  - name: actor/src/containers/components/table.tsx
+    factoryExpression: "#getTablesForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #tableComponentName(#self) + '.tsx'"
+    templateName: actor/src/containers/components/table.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
   # Actor - src - pages
 
   - name: actor/src/pages/index.tsx
     factoryExpression: "#getPagesForRouting(#application)"
-    pathExpression: "#pageIndexPath(#self)"
+    pathExpression: "'src/pages/' + #pagePath(#self) + '/index.tsx'"
     templateName: actor/src/pages/index.tsx.hbs
     templateContext:
       - name: page
         expression: "#self"
 
-  - name: actor/src/pages/page-actions.tsx
-    factoryExpression: "#getPagesForRouting(#application)"
-    pathExpression: "#pagePath(#self) + 'components/PageActions.tsx'"
-    templateName: actor/src/pages/page-actions.tsx.hbs
+  # Actor - src - dialogs
+
+  - name: actor/src/dialogs/index.tsx
+    factoryExpression: "#getPagesForDialogs(#application)"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/index.tsx'"
+    templateName: actor/src/dialogs/index.tsx.hbs
     templateContext:
       - name: page
         expression: "#self"
-
-  - name: actor/src/pages/components/link.tsx
-    factoryExpression: "#getLinksForPages(#application)"
-    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #linkComponentName(#self) + '.tsx'"
-    templateName: actor/src/pages/components/link.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self.pageDefinition"
-      - name: link
-        expression: "#self"
-
-  - name: actor/src/pages/components/table.tsx
-    factoryExpression: "#getTablesForPages(#application)"
-    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #tableComponentName(#self) + '.tsx'"
-    templateName: actor/src/pages/components/table.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self.pageDefinition"
-      - name: table
-        expression: "#self"
-
-  - name: actor/src/pages/actions/index.tsx
-    factoryExpression: "#getPagesForRouting(#application)"
-    pathExpression: "#actionsIndexPath(#self)"
-    templateName: actor/src/pages/actions/index.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self"
-
-  - name: actor/src/pages/actions/action.tsx
-    factoryExpression: "#getActionsForPages(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self)) + 'actions/' + #pageActionPathSuffix(#self) + '.tsx'"
-    templateName: actor/src/pages/actions/action.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self"
-      - name: page
-        expression: "#getActionContainer(#self)"
-
-  # Actor - src - pages - action forms
-
-  - name: actor/src/pages/actions/actionForm.tsx
-    factoryExpression: "#getActionFormsForPages(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self)) + 'actions/' + #pageActionFormPathSuffix(#self) + '/index.tsx'"
-    templateName: actor/src/pages/actions/actionForm.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self"
-      - name: page
-        expression: "#getPageForFormAction(#self)"
-      - name: ownerPage
-        expression: "#getActionContainer(#self)"
-
-  - name: actor/src/pages/actions/actionForm/components/link.tsx
-    factoryExpression: "#getLinksForActionFormPages(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #linkComponentName(#self.key) + '.tsx'"
-    templateName: actor/src/pages/actions/actionForm/components/link.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self.value"
-      - name: page
-        expression: "#getPageForFormAction(#self.value)"
-      - name: link
-        expression: "#self.key"
-      - name: ownerPage
-        expression: "#getActionContainer(#self.value)"
-
-  - name: actor/src/pages/actions/actionForm/components/table.tsx
-    factoryExpression: "#getTablesForActionFormPages(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #tableComponentName(#self.key) + '.tsx'"
-    templateName: actor/src/pages/actions/actionForm/components/table.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self.value"
-      - name: page
-        expression: "#getPageForFormAction(#self.value)"
-      - name: table
-        expression: "#self.key"
-      - name: ownerPage
-        expression: "#getActionContainer(#self.value)"
-
-  # Actor - src - pages - unmapped output modals
-
-  - name: actor/src/pages/actions/action/call-operation-action/output-view/output-view.tsx
-    factoryExpression: "#getUnmappedOutputViewsForPages(#application)"
-    pathExpression: "#pagePath(#self) + 'index.tsx'"
-    templateName: actor/src/pages/actions/action/call-operation-action/output-view/output-view.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self"
-
-  - name: actor/src/pages/actions/action/call-operation-action/output-view/components/link.tsx
-    factoryExpression: "#getLinksForUnmappedOutputViewPages(#application)"
-    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #linkComponentName(#self) + '.tsx'"
-    templateName: actor/src/pages/actions/action/call-operation-action/output-view/components/link.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self.pageDefinition"
-      - name: link
-        expression: "#self"
-
-  - name: actor/src/pages/actions/action/call-operation-action/output-view/components/table.tsx
-    factoryExpression: "#getTablesForUnmappedOutputViewPages(#application)"
-    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #tableComponentName(#self) + '.tsx'"
-    templateName: actor/src/pages/actions/action/call-operation-action/output-view/components/table.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self.pageDefinition"
-      - name: table
-        expression: "#self"
-
-  - name: actor/src/pages/actions/index.tsx
-    factoryExpression: "#getUnmappedOutputViewsForPages(#application)"
-    pathExpression: "#pagePath(#self) + 'actions/index.tsx'"
-    templateName: actor/src/pages/actions/index.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self"
-
-  - name: actor/src/pages/actions/action.tsx
-    factoryExpression: "#getActionsForOutputPages(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self)) + '/actions/' + #pageActionPathSuffix(#self) + '.tsx'"
-    templateName: actor/src/pages/actions/action.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self"
-      - name: page
-        expression: "#getActionContainer(#self)"
-
-  # Actor - src - pages - dialog views
-
-  - name: actor/src/pages/dialogs/index.tsx
-    factoryExpression: "#getViewDialogs(#application)"
-    pathExpression: "#pageIndexPath(#self)"
-    templateName: actor/src/pages/dialogs/index.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self"
-
-  - name: actor/src/pages/components/link.tsx
-    factoryExpression: "#getLinksForViewDialogs(#application)"
-    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #linkComponentName(#self) + '.tsx'"
-    templateName: actor/src/pages/components/link.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self.pageDefinition"
-      - name: link
-        expression: "#self"
-
-  - name: actor/src/pages/components/table.tsx
-    factoryExpression: "#getTablesForViewDialogs(#application)"
-    pathExpression: "#pagePath(#self.pageDefinition) + 'components/' + #tableComponentName(#self) + '.tsx'"
-    templateName: actor/src/pages/components/table.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self.pageDefinition"
-      - name: table
-        expression: "#self"
-
-  - name: actor/src/pages/actions/index.tsx
-    factoryExpression: "#getViewDialogs(#application)"
-    pathExpression: "#actionsIndexPath(#self)"
-    templateName: actor/src/pages/actions/index.tsx.hbs
-    templateContext:
-      - name: page
-        expression: "#self"
-
-  - name: actor/src/pages/actions/action.tsx
-    factoryExpression: "#getActionsForViewDialogs(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self)) + 'actions/' + #pageActionPathSuffix(#self) + '.tsx'"
-    templateName: actor/src/pages/actions/action.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self"
-      - name: page
-        expression: "#getActionContainer(#self)"
-
-  - name: actor/src/pages/actions/actionForm.tsx
-    factoryExpression: "#getActionFormsForViewDialogs(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self)) + 'actions/' + #pageActionFormPathSuffix(#self) + '/index.tsx'"
-    templateName: actor/src/pages/actions/actionForm.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self"
-      - name: page
-        expression: "#getPageForFormAction(#self)"
-      - name: ownerPage
-        expression: "#getActionContainer(#self)"
-
-  - name: actor/src/pages/actions/actionForm/components/link.tsx
-    factoryExpression: "#getLinksForActionFormViewDialogs(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #linkComponentName(#self.key) + '.tsx'"
-    templateName: actor/src/pages/actions/actionForm/components/link.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self.value"
-      - name: page
-        expression: "#getPageForFormAction(#self.value)"
-      - name: link
-        expression: "#self.key"
-      - name: ownerPage
-        expression: "#getActionContainer(#self.value)"
-
-  - name: actor/src/pages/actions/actionForm/components/table.tsx
-    factoryExpression: "#getTablesForActionFormViewDialogs(#application)"
-    pathExpression: "#pagePath(#getActionContainer(#self.value)) + 'actions/' + #pageActionFormPathSuffix(#self.value) + '/components/' + #tableComponentName(#self.key) + '.tsx'"
-    templateName: actor/src/pages/actions/actionForm/components/table.tsx.hbs
-    templateContext:
-      - name: action
-        expression: "#self.value"
-      - name: page
-        expression: "#getPageForFormAction(#self.value)"
-      - name: table
-        expression: "#self.key"
-      - name: ownerPage
-        expression: "#getActionContainer(#self.value)"
 
   # Actor - src - layout
-
-  ## START V2
 
   - name: actor/src/layout/Drawer/DrawerContent/Navigation/index.tsx
     pathExpression: "'src/layout/Drawer/DrawerContent/Navigation/index.tsx'"
@@ -971,6 +801,3 @@ templates:
   - name: actor/src/layout/Transitions.tsx
     pathExpression: "'src/layout/Transitions.tsx'"
     templateName: actor/src/layout/Transitions.tsx.hbs
-
-  ## END V2
-
