@@ -1,0 +1,48 @@
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid container item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.customImplementation }}
+        <ComponentProxy
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            data={data}
+            validation={validation}
+            editMode={editMode}
+            storeDiff={storeDiff}
+        >
+    {{/ if }}
+    <ModeledTabs
+        id="{{ getXMIID child }}"
+        ownerData={data}
+        validation={validation}
+        {{# if child.orientation }}orientation='{{ toLower child.orientation.name }}'{{/ if }}
+        childTabs={[
+            {{# each child.tabs as |tab| }}
+                {
+                    id: '{{ getXMIID tab }}',
+                    name: '{{ getTranslationKeyForVisualElement tab.element }}',
+                    label: t('{{ getTranslationKeyForVisualElement tab.element }}', { defaultValue: '{{ tab.element.label }}' }) as string,
+                    disabled: {{# if tab.element.enabledBy }}!data.{{ tab.element.enabledBy.name }} ||{{/ if }} isLoading,
+                    hidden: {{# if tab.element.hiddenBy }}data.{{ tab.element.hiddenBy.name }}{{ else }}false{{/ if }},
+                    {{# if tab.element.icon }}
+                        icon: '{{ tab.element.icon.iconName }}',
+                    {{/ if }}
+                    nestedDataKeys: [
+                        {{# each (getNestedDataKeysForElement tab.element) as |key| }}
+                            '{{ key }}',
+                        {{/ each }}
+                    ],
+                },
+            {{/ each }}
+        ]}
+    >
+        {{# each child.tabs as |tab| }}
+            {{# with tab.element as |child| }}
+                {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                {{> (getWidgetTemplate child) }}
+            {{/ with }}
+        {{/ each }}
+    </ModeledTabs>
+    {{# if child.customImplementation }}
+        </ComponentProxy>
+    {{/ if }}
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}
