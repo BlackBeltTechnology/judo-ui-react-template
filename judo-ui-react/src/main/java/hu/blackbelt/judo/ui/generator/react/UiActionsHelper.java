@@ -32,6 +32,8 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.isSingleAccessPage;
+import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.pageHasSignedId;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToUpper;
@@ -275,5 +277,22 @@ public class UiActionsHelper {
     public static String getOperationNameForActionOnInput(Action action) {
         PageDefinition pageDefinition = (PageDefinition) action.eContainer();
         return ((OperationType) pageDefinition.getDataElement().eContainer()).getName();
+    }
+
+    public static String refreshActionDataParameter(Action action) {
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        if (pageHasSignedId(pageDefinition)) {
+            if (pageDefinition.isOpenInDialog()) {
+                return "ownerData";
+            }
+            return "{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>";
+        }
+        if (isSingleAccessPage(pageDefinition)) {
+            if (pageDefinition.isOpenInDialog()) {
+                return "ownerData";
+            }
+            return "singletonHost.current";
+        }
+        return "undefined";
     }
 }

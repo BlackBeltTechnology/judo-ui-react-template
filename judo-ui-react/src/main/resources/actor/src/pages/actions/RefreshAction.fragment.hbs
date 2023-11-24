@@ -1,25 +1,6 @@
 {{# if action.targetDataElement }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{/ if }}> => {
-  return {{ getServiceImplForPage page }}.list{{ firstToUpper action.targetDataElement.name }}(
-    {{# if (pageHasSignedId page) }}
-      {{# if page.openInDialog }}
-        ownerData
-      {{ else }}
-        { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
-      {{/ if }}
-    {{ else }}
-      {{# if (isSingleAccessPage page) }}
-        {{# if page.openInDialog }}
-          ownerData
-        {{ else }}
-          singletonHost.current
-        {{/ if }}
-      {{ else }}/*???*/
-        undefined
-      {{/ if }}
-    {{/ if }},
-    queryCustomizer
-  );
+  return {{ getServiceImplForPage page }}.list{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer);
 }
 {{ else }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}> => {
@@ -29,26 +10,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{# if page.container.table }}
       return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{{# if page.openInDialog }}data{{ else }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{/ if }}{{ else }}undefined{{/ if }}, queryCustomizer);
     {{ else }}
-      const result = await {{ getServiceImplForPage page }}.refresh(
-        {{# if (pageHasSignedId page) }}
-          {{# if page.openInDialog }}
-            ownerData
-          {{ else }}
-            { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
-          {{/ if }}
-        {{ else }}
-          {{# if (isSingleAccessPage page) }}
-            {{# if page.openInDialog }}
-              ownerData
-            {{ else }}
-              singletonHost.current
-            {{/ if }}
-          {{ else }}/*!!!*/
-            undefined
-          {{/ if }}
-        {{/ if }},
-        pageQueryCustomizer
-      );
+      const result = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, pageQueryCustomizer);
       setData(result);
       // re-set payloadDiff
       payloadDiff.current = {
