@@ -14,10 +14,9 @@
     <packaging>bundle</packaging>
 
     <properties>
-        <actor>formstest__test__testactor</actor>
+        <actor>testactor</actor>
         <actor-shortname>testactor</actor-shortname>
         <actor-name>TestActor</actor-name>
-        <actor-fq-name>FormsTest::test::TestActor</actor-fq-name>
 
         <ui-model>${project.parent.basedir}/model/${model-name}-ui.model</ui-model>
 
@@ -65,10 +64,10 @@
                                 hu.blackbelt.judo.ui.generator.typescript.rest
                             </scanPackages>
                             <applications>
-                                ${actor-fq-name}
+                                ${actor-name}
                             </applications>
                             <ui>${ui-model}</ui>
-                            <destination>${generation-target}/src/generated</destination>
+                            <destination>${generation-target}/src/services</destination>
                         </configuration>
                     </execution>
                     <execution>
@@ -84,11 +83,11 @@
                             <type>ui-react</type>
                             <scanPackages>
                                 hu.blackbelt.judo.generator.commons,
-                                hu.blackbelt.judo.ui.generator.react,
-                                hu.blackbelt.judo.ui.generator.typescript.rest.commons
+                                hu.blackbelt.judo.ui.generator.typescript.rest.commons, <!-- only importing commons so that multiple ContextAccessors do not collide -->
+                                hu.blackbelt.judo.ui.generator.react
                             </scanPackages>
                             <applications>
-                                ${actor-fq-name}
+                                ${actor-name}
                             </applications>
                             <ui>${ui-model}</ui>
                             <destination>${generation-target}</destination>
@@ -107,6 +106,16 @@
                     </execution>
                 </executions>
                 <dependencies>
+                    <dependency>
+                        <groupId>hu.blackbelt.judo.meta</groupId>
+                        <artifactId>hu.blackbelt.judo.meta.ui.model</artifactId>
+                        <version>${judo-meta-ui-version}</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>hu.blackbelt.judo.generator</groupId>
+                        <artifactId>judo-generator-commons</artifactId>
+                        <version>${judo-generator-commons-version}</version>
+                    </dependency>
                     <dependency>
                         <groupId>hu.blackbelt.judo.generator</groupId>
                         <artifactId>judo-ui-typescript-rest-commons</artifactId>
