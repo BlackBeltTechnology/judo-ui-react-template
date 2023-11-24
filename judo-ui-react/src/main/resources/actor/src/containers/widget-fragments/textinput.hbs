@@ -1,0 +1,51 @@
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.customImplementation }}
+        <ComponentProxy
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            data={data}
+            validation={validation}
+            editMode={editMode}
+            storeDiff={storeDiff}
+        >
+    {{/ if }}
+    <TextField
+        required={ {{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }} }
+        name="{{ child.attributeType.name }}"
+        id="{{ getXMIID child }}"
+        {{# if (shouldElementHaveAutoFocus child) }}
+            autoFocus
+        {{/ if }}
+        label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
+        value={ data.{{ child.attributeType.name }} ?? '' }
+        className={ clsx({
+            'JUDO-viewMode': !editMode,
+            'JUDO-required': {{ boolValue child.attributeType.isRequired }},
+        }) }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
+        error={ !!validation.get('{{ child.attributeType.name }}') }
+        helperText={ validation.get('{{ child.attributeType.name }}') }
+        {{# if child.onBlur }}
+        onBlur={ () => {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(data, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();}) }
+        {{/ if }}
+        onChange={ (event) => {
+            const realValue = event.target.value?.length === 0 ? null : event.target.value;
+            storeDiff('{{ child.attributeType.name }}', realValue);
+        } }
+        InputLabelProps={ { shrink: true } }
+        InputProps={ {
+            readOnly: {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable(),
+            {{# if child.icon }}
+                startAdornment: (
+                    <InputAdornment position="start">
+                        <MdiIcon path="{{ child.icon.iconName }}" />
+                    </InputAdornment>
+                ),
+            {{/ if }}
+        } }
+    />
+    {{# if child.customImplementation }}
+        </ComponentProxy>
+    {{/ if }}
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}
