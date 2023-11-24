@@ -131,4 +131,8 @@ public class UiGeneralHelper {
         String logo = application.getLogo();
         return logo == null ? "judo-color-logo.png" : logo;
     }
+
+    public static EObject eContainer(EObject eObject) {
+        return eObject.eContainer();
+    }
 }

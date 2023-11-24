@@ -2,112 +2,112 @@ width: {{ columnWidth column }},
 type: '{{ columnType column }}',
 filterable: {{ isUseInlineColumnFilters }} && {{# if (isColumnFilterable column) }}true{{ else }}false{{/ if }},
 {{# unless (isColumnSortable column) }}
-    sortable: false,
+sortable: false,
 {{/ unless }}
 {{# if (isColumnString column) }}
-    {{# if isUseInlineColumnFilters }}
-        filterOperators: stringColumnOperators,
-    {{/ if }}
+{{# if isUseInlineColumnFilters }}
+filterOperators: stringColumnOperators,
+{{/ if }}
 {{/ if }}
 {{# if (isColumnBoolean column) }}
-    align: 'center',
-    renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
-        if (params.row.{{ column.attributeType.name }} === null || params.row.{{ column.attributeType.name }} === undefined) {
-            return <MdiIcon className="undefined" path="minus" color="#ddd" />;
-        } else if (params.row.{{ column.attributeType.name }}) {
-            return <MdiIcon className="true" path="check-circle" color="green" />;
-        }
-        return <MdiIcon className="false" path="close-circle" color="red" />;
-    },
-    {{# if isUseInlineColumnFilters }}
-        filterOperators: booleanColumnOperators,
-    {{/ if }}
+align: 'center',
+renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
+  if (params.row.{{ column.attributeType.name }} === null || params.row.{{ column.attributeType.name }} === undefined) {
+    return <MdiIcon className="undefined" path="minus" color="#ddd" />;
+  } else if (params.row.{{ column.attributeType.name }}) {
+    return <MdiIcon className="true" path="check-circle" color="green" />;
+  }
+  return <MdiIcon className="false" path="close-circle" color="red" />;
+},
+{{# if isUseInlineColumnFilters }}
+filterOperators: booleanColumnOperators,
+{{/ if }}
 {{/ if }}
 {{# if (isColumnNumeric column) }}
-    valueFormatter: ({ value }: GridValueFormatterParams<number>) => {
-        return value && new Intl.NumberFormat(l10nLocale).format(value);
-    },
-    {{# if isUseInlineColumnFilters }}
-        filterOperators: numericColumnOperators,
-    {{/ if }}
+valueFormatter: ({ value }: GridValueFormatterParams<number>) => {
+  return value && new Intl.NumberFormat(l10nLocale).format(value);
+},
+{{# if isUseInlineColumnFilters }}
+filterOperators: numericColumnOperators,
+{{/ if }}
 {{/ if }}
 {{# if (isColumnEnumeration column) }}
-    valueFormatter: ({ value }: GridValueFormatterParams<string>) => {
-        if (value !== undefined && value !== null) {
-            return t(`enumerations.{{ restParamName column.attributeType.dataType }}.${value}`, { defaultValue: value });
-        }
-    },
-    {{# if isUseInlineColumnFilters }}
-        filterOperators: singleSelectColumnOperators,
-        valueOptions: [
-            {{# each column.attributeType.dataType.members as |member| }}
-                { value: '{{ member.name }}', label: t('enumerations.{{ restParamName column.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) as string },
-            {{/ each }}
-        ],
-    {{/ if }}
+valueFormatter: ({ value }: GridValueFormatterParams<string>) => {
+  if (value !== undefined && value !== null) {
+    return t(`enumerations.{{ restParamName column.attributeType.dataType }}.${value}`, { defaultValue: value });
+  }
+},
+{{# if isUseInlineColumnFilters }}
+  filterOperators: singleSelectColumnOperators,
+  valueOptions: [
+    {{# each column.attributeType.dataType.members as |member| }}
+    { value: '{{ member.name }}', label: t('enumerations.{{ restParamName column.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) as string },
+    {{/ each }}
+  ],
+{{/ if }}
 {{/ if }}
 {{# if (isColumnTimestamp column) }}
-    valueGetter: ({ value }) => value && serviceDateToUiDate(value),
-    valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
-        return value && new Intl.DateTimeFormat(l10nLocale, {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        }).format(value);
-    },
-    {{# if isUseInlineColumnFilters }}
-        filterOperators: dateTimeColumnOperators,
-    {{/ if }}
+valueGetter: ({ value }) => value && serviceDateToUiDate(value),
+valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+  return value && new Intl.DateTimeFormat(l10nLocale, {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(value);
+},
+{{# if isUseInlineColumnFilters }}
+filterOperators: dateTimeColumnOperators,
+{{/ if }}
 {{/ if }}
 {{# if (isColumnTime column) }}
-    valueGetter: ({ value }) => value && serviceTimeToUiTime(value),
-    valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
-        return value && new Intl.DateTimeFormat(l10nLocale, {
-            hour: '2-digit',
-            minute: '2-digit',
-            hour12: false
-        }).format(value);
-    },
+valueGetter: ({ value }) => value && serviceTimeToUiTime(value),
+valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+  return value && new Intl.DateTimeFormat(l10nLocale, {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: false
+  }).format(value);
+},
 {{/ if }}
 {{# if (isColumnDate column) }}
-    valueGetter: ({ value }) => value && new Date(value),
-    valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
-        return value && new Intl.DateTimeFormat(l10nLocale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(value);
-    },
-    {{# if isUseInlineColumnFilters}}
-        filterOperators: dateColumnOperators,
-    {{/ if }}
+valueGetter: ({ value }) => value && new Date(value),
+valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+  return value && new Intl.DateTimeFormat(l10nLocale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(value);
+},
+{{# if isUseInlineColumnFilters}}
+filterOperators: dateColumnOperators,
+{{/ if }}
 {{/ if }}
 {{# if (isColumnBinary column) }}
-    align: 'center',
-    renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
-        return params.row.{{ column.attributeType.name }}
-            ? <ButtonGroup size="small" variant="outlined">
-                <Button id="{{ createId column }}-download" startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} onClick={ (event: any) => {
-                    event.preventDefault();
-                    event.stopPropagation();
-                    downloadFile(params.row, '{{ column.attributeType.name }}', 'attachment');
-                  } }>
-                    { extractFileNameFromToken(params.row.{{ column.attributeType.name }}) }
-                  </Button>
-                  <Button
-                    id="{{ createId column }}-view"
-                    onClick={ (event: any) => {
-                      event.preventDefault();
-                      event.stopPropagation();
-                      downloadFile(params.row, '{{ column.attributeType.name }}', 'inline');
-                    } }
-                  >
-                    <MdiIcon path="eye" sx={ { mr: 0.5 } } />
-                  </Button>
-                </ButtonGroup>
-            : <MdiIcon path="minus" />;
-    },
+align: 'center',
+renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
+  return params.row.{{ column.attributeType.name }}
+    ? <ButtonGroup size="small" variant="outlined">
+        <Button id="{{ createId column }}-download" startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} onClick={ (event: any) => {
+          event.preventDefault();
+          event.stopPropagation();
+          downloadFile(params.row, '{{ column.attributeType.name }}', 'attachment');
+        } }>
+          { extractFileNameFromToken(params.row.{{ column.attributeType.name }}) }
+        </Button>
+        <Button
+          id="{{ createId column }}-view"
+          onClick={ (event: any) => {
+            event.preventDefault();
+            event.stopPropagation();
+            downloadFile(params.row, '{{ column.attributeType.name }}', 'inline');
+          } }
+        >
+          <MdiIcon path="eye" sx={ { mr: 0.5 } } />
+        </Button>
+      </ButtonGroup>
+    : <MdiIcon path="minus" />;
+},
 {{/ if }}
 {{# unless (isColumnSortable column) }}
-    description: t('judo.pages.table.column.not-sortable', { defaultValue: 'This column is not sortable.' }) as string,
+description: t('judo.pages.table.column.not-sortable', { defaultValue: 'This column is not sortable.' }) as string,
 {{/ unless }}

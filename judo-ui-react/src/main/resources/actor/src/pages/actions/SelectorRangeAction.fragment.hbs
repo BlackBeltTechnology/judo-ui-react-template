@@ -3,7 +3,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{# if container.isRelationSelector }}
       return {{ getServiceImplForPage page }}.getRange(ownerData, queryCustomizer);
     {{ else }}
-      return {{ getServiceImplForPage page }}.getRangeFor{{ firstToUpper action.ownerDataElement.name }}(ownerData, queryCustomizer);
+      return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(ownerData, queryCustomizer);
     {{/ if }}
   } catch (error) {
     handleError(error);

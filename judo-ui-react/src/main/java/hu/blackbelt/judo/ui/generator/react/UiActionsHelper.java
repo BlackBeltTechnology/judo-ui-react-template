@@ -22,10 +22,7 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
-import hu.blackbelt.judo.meta.ui.data.ClassType;
-import hu.blackbelt.judo.meta.ui.data.OperationType;
-import hu.blackbelt.judo.meta.ui.data.ReferenceType;
-import hu.blackbelt.judo.meta.ui.data.RelationType;
+import hu.blackbelt.judo.meta.ui.data.*;
 import jdk.dynalink.Operation;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
@@ -202,7 +199,7 @@ public class UiActionsHelper {
     public static String getServiceMethodSuffix(Action action) {
         String suffix = "";
         if (action.getOwnerDataElement() instanceof OperationType) {
-            suffix += "For" + firstToUpper(action.getOwnerDataElement().getName());
+            suffix += "On" + firstToUpper(action.getOwnerDataElement().getName());
         } else if (action.getOwnerDataElement() instanceof RelationType) {
             suffix += "For" + firstToUpper(action.getOwnerDataElement().getName());
         }
@@ -267,5 +264,16 @@ public class UiActionsHelper {
     public static VisualElement translationElementForBulkAction(Action action) {
         // .eContainer is not working in templates...
         return (VisualElement) action.getActionDefinition().eContainer();
+    }
+
+    public static boolean isActionOnOperationInput(Action action) {
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        // exclude output views...
+        return pageDefinition.getDataElement() instanceof OperationParameterType && !pageDefinition.getContainer().isView();
+    }
+
+    public static String getOperationNameForActionOnInput(Action action) {
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        return ((OperationType) pageDefinition.getDataElement().eContainer()).getName();
     }
 }
