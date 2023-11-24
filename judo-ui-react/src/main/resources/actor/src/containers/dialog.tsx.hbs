@@ -1,0 +1,191 @@
+{{> fragment.header.hbs }}
+
+import { lazy, Suspense } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import LoadingButton from '@mui/lab/LoadingButton';
+import { useTranslation } from 'react-i18next';
+import { useJudoNavigation, MdiIcon, PageHeader } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+{{# unless (containerIsEmptyDashboard container) }}
+  {{# unless container.table }}
+    import { processQueryCustomizer } from '~/utilities';
+  {{/ unless }}
+  import type { {{ containerComponentName container }}ActionDefinitions } from './{{ containerComponentName container }}';
+  import type {
+    {{ classDataName container.dataElement '' }},
+    {{ classDataName container.dataElement 'Stored' }},
+    {{ classDataName container.dataElement 'QueryCustomizer' }}
+  } from '~/services/data-api';
+{{/ unless }}
+
+{{# unless (containerIsEmptyDashboard container) }}
+  const {{ containerComponentName container }} = lazy(() => import('~/containers/{{ containerPath container }}/{{ containerComponentName container }}'));
+
+  export interface {{ containerComponentName container }}DialogActions extends {{ pageContainerActionDefinitionTypeName container }} {
+    {{# each container.pageActionDefinitions as |actionDefinition| }}
+      {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
+    {{/ each }}
+  }
+{{/ unless }}
+
+export interface {{ containerComponentName container }}DialogProps {
+  ownerData: any;
+  title: string;
+  onClose: () => Promise<void>;
+  {{# unless (containerIsEmptyDashboard container) }}
+    actions: {{ containerComponentName container }}DialogActions;
+    isLoading: boolean;
+    editMode: boolean;
+    refreshCounter: number;
+    {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
+    {{# if container.isSelector }}
+      selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
+      setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
+    {{/ if }}
+    {{# unless container.table }}
+      data: {{ classDataName container.dataElement 'Stored' }};
+      isFormUpdateable: () => boolean;
+      isFormDeleteable: () => boolean;
+      storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
+      validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
+      setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
+    {{/ unless }}
+  {{/ unless }}
+};
+
+// Name: {{ container.name }}
+export default function {{ containerComponentName container }}Dialog(props: {{ containerComponentName container }}DialogProps) {
+  const { openConfirmDialog } = useConfirmDialog();
+
+  {{# unless (containerIsEmptyDashboard container) }}
+    const { t } = useTranslation();
+    const { navigate, back } = useJudoNavigation();
+    const {
+      ownerData,
+      title,
+      onClose
+      {{# unless (containerIsEmptyDashboard container) }},
+        actions,
+        isLoading,
+        editMode,
+        refreshCounter
+        {{# if container.isSelector }},
+          selectionDiff,
+          setSelectionDiff
+        {{/ if }}
+        {{# if container.isRelationSelector }},
+          alreadySelected
+        {{/ if }}
+        {{# unless container.table }},
+          data,
+          isFormUpdateable,
+          isFormDeleteable,
+          storeDiff,
+          validation,
+          setValidation
+        {{/ unless }}
+      {{/ unless }}
+    } = props;
+    {{# unless container.table }}
+      const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
+        _mask: '{{ getMaskForView container }}',
+      };
+    {{/ unless }}
+  {{/ unless }}
+
+  return (
+    <>
+      {{# unless (containerIsEmptyDashboard container) }}
+        <DialogTitle>
+          {title}
+          <IconButton
+            id="{{ getXMIID container }}-dialog-close-wrapper"
+            aria-label="close"
+            onClick={onClose}
+            sx={ {
+              position: 'absolute',
+              right: 8,
+              top: 8,
+              color: (theme) => theme.palette.grey[500],
+            } }
+          >
+            <MdiIcon path="close" />
+          </IconButton>
+        </DialogTitle>
+        <DialogContent dividers>
+          <Suspense>
+            <{{ containerComponentName container }}
+              actions={actions}
+              refreshCounter={refreshCounter}
+              {{# if container.isSelector }}
+                selectionDiff={selectionDiff}
+                setSelectionDiff={setSelectionDiff}
+              {{/ if }}
+              {{# if container.isRelationSelector }}
+                alreadySelected={alreadySelected}
+              {{/ if }}
+              {{# unless container.table }}
+                data={data}
+                isLoading={isLoading}
+                editMode={editMode}
+                storeDiff={storeDiff}
+                isFormUpdateable={isFormUpdateable}
+                isFormDeleteable={isFormDeleteable}
+                validation={validation}
+                setValidation={setValidation}
+              {{/ unless }}
+            />
+          </Suspense>
+        </DialogContent>
+        <DialogActions>
+          {{# each container.actionButtonGroup.buttons as |button| }}
+            { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
+              <Grid className="page-action" item>
+                <LoadingButton
+                  id="{{ getXMIID button }}"
+                  loading={isLoading}
+                  loadingPosition="start"
+                  variant={ {{{ variantForButton button }}} }
+                  {{# if button.icon }}
+                    startIcon={<MdiIcon path="{{ button.icon.iconName }}" />}
+                  {{/ if }}
+                  onClick={ async () => {
+                    {{# if button.actionDefinition.isDeleteAction }}
+                      const confirmed = await openConfirmDialog(
+                        'page-delete-action',
+                        t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
+                        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+                      );
+
+                      if (confirmed) {
+                        actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                      }
+                    {{ else }}
+                      {{# if actionDefinition.isRefreshAction }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                      {{ else }}
+                        {{# if (isActionAddOrSet actionDefinition) }}
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff);
+                        {{ else }}
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                        {{/ if }}
+                      {{/ if }}
+                    {{/ if }}
+                  } }
+                >
+                  <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
+                </LoadingButton>
+              </Grid>
+            )}
+          {{/ each }}
+        </DialogActions>
+      {{/ unless }}
+    </>
+  );
+}

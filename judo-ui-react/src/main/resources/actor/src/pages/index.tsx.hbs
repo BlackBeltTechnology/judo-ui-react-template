@@ -1,41 +1,221 @@
-{{# if page.dataElement }}
-    {{# if page.dataElement.isAccess }}
-        {{# if page.isPageTypeCreate }}
-            {{# if isDebugPrint }}// include: actor/src/pages/access/create.hbs{{/ if }}
-            {{> actor/src/pages/access/create.hbs }}
-        {{/ if }}
-        {{# if page.isPageTypeTable }}
-            {{# if isDebugPrint }}// include: actor/src/pages/access/table.hbs{{/ if }}
-            {{> actor/src/pages/access/table.hbs }}
-        {{/ if }}
-        {{# if page.isPageTypeView }}
-            {{# if isDebugPrint }}// include: actor/src/pages/access/view.hbs{{/ if }}
-            {{> actor/src/pages/access/view.hbs }}
-        {{/ if }}
-        {{# if page.isPageTypeDashboard }}
-            {{# if page.dataElement.isCollection }}
-                {{# if isDebugPrint }}// include: actor/src/pages/access/table.hbs{{/ if }}
-                {{> actor/src/pages/access/table.hbs }}
-            {{ else }}
-                {{# if isDebugPrint }}// include: actor/src/pages/access/view.hbs{{/ if }}
-                {{> actor/src/pages/access/view.hbs }}
-            {{/ if }}
-        {{/ if }}
-    {{ else }}
-        {{# if page.isPageTypeTable }}
-            {{# if isDebugPrint }}// include: actor/src/pages/relation/table.hbs{{/ if }}
-            {{> actor/src/pages/relation/table.hbs }}
-        {{/ if }}
-        {{# if page.isPageTypeView }}
-            {{# if isDebugPrint }}// include: actor/src/pages/relation/view.hbs{{/ if }}
-            {{> actor/src/pages/relation/view.hbs }}
-        {{/ if }}
-        {{# if page.isPageTypeOperationOutput }}
-            {{# if isDebugPrint }}// include: actor/src/pages/operation-output/view.hbs{{/ if }}
-            {{> actor/src/pages/operation-output/view.hbs }}
-        {{/ if }}
+{{> fragment.header.hbs }}
+
+import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
+{{# unless (containerIsEmptyDashboard page.container) }}
+  import { OBJECTCLASS } from '@pandino/pandino-api';
+  import { useTrackService } from '@pandino/react-hooks';
+  import type { JudoIdentifiable } from '@judo/data-api-common';
+  import { useTranslation } from 'react-i18next';
+  import { useParams } from 'react-router-dom';
+  import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+  import type { Filter, FilterOption } from '~/components-api';
+  import { useJudoNavigation } from '~/components';
+  import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
+  import { toastConfig } from '~/config';
+  import { useSnacks, useCRUDDialog } from '~/hooks';
+  import {
+    passesLocalValidation,
+    processQueryCustomizer,
+    uiDateToServiceDate,
+    uiTimeToServiceTime,
+    useErrorHandler,
+  } from '~/utilities';
+  import type {
+    DialogResult,
+  } from '~/utilities';
+  import { PageContainerTransition } from '~/theme/animations';
+  {{# each (getRelatedPages page) as |relatedPage| }}
+    import { routeTo{{ pageName relatedPage }} } from '~/routes';
+  {{/ each }}
+  {{# each (getRelatedDialogs page false) as |relatedDialog| }}
+    import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}';
+  {{/ each }}
+  import type { {{ containerComponentName page.container }}PageActions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer';
+  import type {
+    {{# each (getApiImportsForPage page) as |imp| }}
+      {{ imp }},
+    {{/ each }}
+  } from '~/services/data-api';
+  {{# if (getServiceImplForPage page) }}
+      import { {{ getServiceImplForPage page }} } from '~/services/data-axios';
+  {{/ if }}
+{{/ unless }}
+
+{{# unless (containerIsEmptyDashboard page.container) }}
+  export type {{ containerComponentName page.container }}PageActionsExtended = {{ containerComponentName page.container }}PageActions & {
+    {{# each (getAllCallOperationActions page) as |action| }}
+      post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}{{# if action.actionDefinition.operation.output }}{{# if action.actionDefinition.targetType }},{{/ if }}output: {{ classDataName action.actionDefinition.operation.output.target '' }}{{/ if }}) => Promise<void>;
+    {{/ each }}
+  };
+
+  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
+  export type {{ containerComponentName page.container }}ActionsHook = (
+    data: {{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }},
+    editMode: boolean,
+    {{# unless page.container.table }}
+    storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void,
+    {{/ unless }}
+    {{# if page.container.isSelector }}selectionDiff: {{ classDataName (getReferenceClassType page) 'Stored' }}[],{{/ if }}
+  ) => {{ containerComponentName page.container }}PageActionsExtended;
+
+  {{# unless page.container.table }}
+    {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
+  {{/ unless }}
+
+  const {{ containerComponentName page.container }}PageContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer'));
+{{/ unless }}
+
+// XMIID: {{ getXMIID page }}
+// Name: {{ page.name }}
+// Access: {{ page.dataElement.isMemberTypeAccess }}
+// Single Access: {{ isSingleAccessPage page }}
+export default function {{ pageName page }}() {
+  {{# unless (containerIsEmptyDashboard page.container) }}
+    {{# if (pageHasSignedId page) }}
+      // Router params section
+      const { signedIdentifier } = useParams();
     {{/ if }}
-{{ else }}
-    {{# if isDebugPrint }}// include: actor/src/pages/page-fallback.hbs{{/ if }}
-    {{> actor/src/pages/page-fallback.hbs }}
-{{/ if }}
+
+    // Hooks section
+    const { t } = useTranslation();
+    const { showSuccessSnack, showErrorSnack } = useSnacks();
+    const { navigate, back: navigateBack } = useJudoNavigation();
+    const { openFilterDialog } = useFilterDialog();
+    const { openConfirmDialog } = useConfirmDialog();
+    const handleError = useErrorHandler();
+    const openCRUDDialog = useCRUDDialog();
+    const [createDialog, closeDialog] = useDialog();
+
+    // State section
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
+    const [refreshCounter, setRefreshCounter] = useState<number>(0);
+    const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{ {{# if (pageHasSignedId page) }}__signedIdentifier: signedIdentifier{{/ if }} } as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
+    {{# if page.container.isSelector }}
+      const [selectionDiff, setSelectionDiff] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}[]>([]);
+    {{/ if }}
+    {{# unless page.container.table }}
+      const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
+
+      // Ref section
+      {{# if (isSingleAccessPage page) }}
+        const singletonHost = useRef<{ __signedIdentifier: string }>({} as unknown as { __signedIdentifier: string });
+      {{/ if }}
+      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
+
+      // Callback section
+      const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {
+        {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
+        {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target page=page }}
+      }, [data, editMode]);
+      const isFormUpdateable = useCallback(() => {
+        {{# if page.container.form }}
+          return true;
+        {{ else }}
+          return {{ boolValue (isPageUpdateable page) }} && typeof data?.__updateable === 'boolean' && data?.__updateable;
+        {{/ if }}
+      }, [data]);
+      const isFormDeleteable = useCallback(() => {
+        {{# if page.container.form }}
+          return false;
+        {{ else }}
+          return {{ boolValue (isPageDeleteable page) }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
+        {{/ if }}
+      }, [data]);
+
+      {{# if page.container.view }}
+        const pageQueryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = {
+          _mask: '{{ getMaskForView page.container }}',
+        };
+      {{/ if }}
+    {{/ unless }}
+
+    // Pandino Action overrides
+    const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
+    const customActions: {{ containerComponentName page.container }}PageActionsExtended | undefined = customActionsHook?.(data, editMode{{# unless page.container.table }}, storeDiff{{/ unless }}{{# if page.container.isSelector }}, selectionDiff{{/ if }});
+
+    // Dialog hooks
+    {{# each (getRelatedDialogs page false) as |relatedDialog| }}
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
+    {{/ each }}
+
+    // Calculated section
+    {{# if (titleComesFromAttribute page.container) }}
+      const title: string = data.{{ page.container.titleAttribute.name }} as string;
+    {{ else }}
+      const title: string = t('{{ getTranslationKeyForVisualElement page.container }}', { defaultValue: '{{ page.container.label }}' });
+    {{/ if }}
+
+    // Action section
+    {{# each page.actions as |action| }}
+      {{> (getActionTemplate action) }}
+    {{/ each }}
+    {{# if (isSingleAccessPage page) }}
+      const getSingletonPayload = async (): Promise<JudoIdentifiable<any>> => {
+        return await {{ getServiceImplForPage page }}.refreshFor{{ firstToUpper page.dataElement.name }}({
+          _mask: '{}',
+        });
+      }
+    {{/ if }}
+
+    const actions: {{ containerComponentName page.container }}PageActions = {
+      {{# each page.actions as |action| }}
+        {{ simpleActionDefinitionName action.actionDefinition }},
+      {{/ each }}
+      ...(customActions ?? {}),
+    };
+
+    // Effect section
+    {{# if (pageShouldInitialize page) }}
+      useEffect(() => {
+        (async () => {
+          {{# if (isSingleAccessPage page) }}
+            const res = await getSingletonPayload();
+            if (res?.__signedIdentifier) {
+              singletonHost.current = res;
+            } else {
+              navigate('*');
+              return;
+            }
+          {{/ if }}
+          await actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}pageQueryCustomizer{{/ if }});
+        })();
+      }, []);
+    {{/ if }}
+  {{/ unless }}
+
+  return (
+    <div id="{{ getXMIID page }}" data-page-name="{{ page.name }}">
+      {{# unless (containerIsEmptyDashboard page.container) }}
+        <Suspense>
+          <PageContainerTransition>
+            <{{ containerComponentName page.container }}PageContainer
+              title={title}
+              actions={actions}
+              isLoading={isLoading}
+              editMode={editMode}
+              refreshCounter={refreshCounter}
+              {{# unless (containerIsEmptyDashboard page.container) }}
+                {{# if page.container.isSelector }}
+                  selectionDiff={selectionDiff}
+                  setSelectionDiff={setSelectionDiff}
+                {{/ if }}
+                {{# unless page.container.table }}
+                  data={data}
+                  storeDiff={storeDiff}
+                  isFormUpdateable={isFormUpdateable}
+                  isFormDeleteable={isFormDeleteable}
+                  validation={validation}
+                  setValidation={setValidation}
+                {{/ unless }}
+              {{/ unless }}
+            />
+          </PageContainerTransition>
+        </Suspense>
+      {{ else }}
+        <h1>Hello!</h1>
+      {{/ unless }}
+    </div>
+  );
+}

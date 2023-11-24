@@ -20,12 +20,10 @@ package hu.blackbelt.judo.ui.generator.react;
  * #L%
  */
 
-import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.Application;
 import hu.blackbelt.judo.meta.ui.NamedElement;
 import hu.blackbelt.judo.meta.ui.NavigationItem;
-import hu.blackbelt.judo.meta.ui.Sort;
 import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
@@ -34,30 +32,14 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.getXMIID;
-import static java.util.Arrays.stream;
 
 @Log
 @TemplateHelper
-public class UiGeneralHelper extends Helper {
+public class UiGeneralHelper {
 
     public static void debug(Object obj) {
         System.out.print(obj);
-    }
-
-    public static String plainName(String input) {
-        return input.replaceAll("[^\\.A-Za-z0-9_]", "_").toLowerCase();
-    }
-
-    public static String projectPathName(String fqName) {
-        return fqName
-                .replaceAll("\\.", "__")
-                .replaceAll("::", "__")
-                .replaceAll("#", "__")
-                .replaceAll("/", "__")
-                .replaceAll("([a-z])([A-Z]+)", "$1_$2")
-                .toLowerCase();
     }
 
     public static String pathName(String fqName) {
@@ -70,40 +52,12 @@ public class UiGeneralHelper extends Helper {
                 .toLowerCase();
     }
 
-    public static String path(String fqName) {
-        String fq = pathName(fqName);
-        if (fq.lastIndexOf("-") > -1) {
-            return fq.substring(fq.lastIndexOf("-") + 2);
-        } else {
-            return fq;
-        }
-    }
-
-    public static String modelName(String fqName) {
-        return fqName.split("::")[0];
-    }
-
-    @Deprecated
-    public static String fqClass(String fqName) {
-        return stream(fqName.replaceAll("#", "::")
-                .replaceAll("\\.", "::")
-                .replaceAll("/", "::")
-                .replaceAll("_", "::")
-                .split("::"))
-                .map(StringUtils::capitalize)
-                .collect(Collectors.joining());
-    }
-
     public static String createId(EObject element) {
-        return fqClass(getXMIID(element).replaceAll("@", ""));
+        return getXMIID(element).replaceAll("@", "");
     }
 
     public static Boolean isNavItemAGroup(NavigationItem navigationItem) {
         return navigationItem.getTarget() == null;
-    }
-
-    public static String ucFirst(String name) {
-        return StringUtils.capitalize(name);
     }
 
     public static String toLower(String str) {
@@ -117,14 +71,6 @@ public class UiGeneralHelper extends Helper {
         return original != null && original;
     }
 
-    public static boolean hasElements(Collection<Object> items) {
-        return items.size() > 0;
-    }
-
-    public static String emptyStringFallback(String input) {
-        return input == null ? "" : input;
-    }
-
     public static Boolean stringValueIsTrue(String input) {
         return input != null && input.equalsIgnoreCase("true");
     }
@@ -134,13 +80,6 @@ public class UiGeneralHelper extends Helper {
                 .concat("/")
                 .concat(attributeType.getOwnerSimpleName())
                 .concat("/").concat(attributeType.getName());
-    }
-
-    public static boolean hasDataElementOwner(DataElement dataElement) {
-        if (dataElement instanceof RelationType) {
-            return !((RelationType) dataElement).isIsAccess();
-        }
-        return false;
     }
 
     public static Collection<Application> getAlternativeApplications(Application application, Collection<Application> applications) {
@@ -158,15 +97,7 @@ public class UiGeneralHelper extends Helper {
     }
 
     public static boolean otherApplicationsAvailable(Application application, Collection<Application> applications) {
-        return getAlternativeApplications(application, applications).size() > 0;
-    }
-
-    public static String getTypeForRelationOwner(RelationType relationType) {
-        ClassType owner = (ClassType) relationType.getOwner();
-        if (owner.isIsMapped()) {
-            return String.format("JudoIdentifiable<%s>", classDataName(owner, ""));
-        }
-        return classDataName(owner, "");
+        return !getAlternativeApplications(application, applications).isEmpty();
     }
 
     public static List<String> getWritableDateAttributesForClass(ClassType classType) {
@@ -196,12 +127,12 @@ public class UiGeneralHelper extends Helper {
                 .collect(Collectors.toList());
     }
 
-    public static boolean hasRelationRange(ReferenceType ref) {
-        return ref.getIsRangeable() || ref.getIsSetable() || ref.getIsAddable();
-    }
-
     public static String getApplicationLogo(Application application) {
         String logo = application.getLogo();
         return logo == null ? "judo-color-logo.png" : logo;
+    }
+
+    public static EObject eContainer(EObject eObject) {
+        return eObject.eContainer();
     }
 }
