@@ -3,10 +3,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
     setIsLoading(true);
     const res = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}data);
 
-    enqueueSnackbar(t('judo.action.create.success', { defaultValue: 'Create successful' }), {
-      variant: 'success',
-      ...toastConfig.success,
-    });
+    showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
 
     onSubmit(res);
   } catch (error) {
