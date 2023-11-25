@@ -1,0 +1,10 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
+  if (result === 'submit') {
+    if (Array.isArray(returnedData) && returnedData.length) {
+      {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+        storeDiff('{{ link.dataElement.name }}', returnedData[0]);
+      {{/ with }}
+    }
+  }
+};
