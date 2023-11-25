@@ -234,6 +234,10 @@ public class UiPageContainerHelper {
         return !collectElementsOfType(container, new ArrayList<>(), Divider.class).isEmpty();
     }
 
+    public static boolean containerHasSpacer(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), Spacer.class).isEmpty();
+    }
+
     public static boolean containerHasBinaryInput(PageContainer container) {
         return !collectElementsOfType(container, new ArrayList<>(), BinaryTypeInput.class).isEmpty();
     }

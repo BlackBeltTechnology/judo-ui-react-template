@@ -21,9 +21,9 @@ import {{ imp }} from '@mui/material/{{ imp }}';
   import CardContent from '@mui/material/CardContent';
 {{/ if }}
 import { useL10N } from '~/l10n/l10n-context';
-{{# if (containerHasDivider container) }}
+{{# or (containerHasDivider container) (containerHasSpacer container) }}
 import { DIVIDER_HEIGHT } from '~/config';
-{{/ if }}
+{{/ or }}
 import {
   MdiIcon,
   {{# if (containerHasTabs container) }}
