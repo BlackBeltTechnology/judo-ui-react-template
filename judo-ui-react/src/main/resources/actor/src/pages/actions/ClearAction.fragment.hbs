@@ -1,0 +1,23 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+  {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+    {{# if table.isEager }}
+      storeDiff('{{ table.dataElement.name }}', []);
+    {{ else }}
+      try {
+        await {{ getServiceImplForPage page }}.set{{ firstToUpper action.targetDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}ownerData{{/ if }}, []);
+        {{# if page.container.table }}
+          setRefreshCounter((prev) => prev + 1);
+        {{/ if }}
+        {{# if page.container.view }}
+          if (!editMode) {
+            {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+              await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+            {{/ with }}
+          }
+        {{/ if }}
+      } catch(e) {
+        console.error(e);
+      }
+    {{/ if }}
+  {{/ with }}
+};

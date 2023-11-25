@@ -1,0 +1,37 @@
+import {
+  {{# if (containerHasDateInput container) }}
+  DatePicker,
+  {{/ if }}
+  {{# if (containerHasDateTimeInput container) }}
+  DateTimePicker,
+  {{/ if }}
+  {{# if (containerHasTimeInput container) }}
+  TimePicker,
+  {{/ if }}
+} from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
+import type {
+  {{# if (containerHasDateInput container) }}
+  DateValidationError,
+  {{/ if }}
+  {{# if (containerHasDateTimeInput container) }}
+  DateTimeValidationError,
+  {{/ if }}
+  {{# if (containerHasTimeInput container) }}
+  TimeValidationError,
+  {{/ if }}
+} from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
+import {
+  {{# if (containerHasAssociationButton container) }}
+  AssociationButton,
+  {{/ if }}
+  {{# if (containerHasBinaryInput container) }}
+  BinaryInput,
+  {{/ if }}
+  {{# if (containerHasNumericInput container) }}
+  NumericInput,
+  {{/ if }}
+  {{# if (containerHasTrinaryLogicCombo container) }}
+  TrinaryLogicCombobox,
+  {{/ if }}
+} from '~/components/widgets';
+import { useConfirmationBeforeChange } from '~/hooks';
