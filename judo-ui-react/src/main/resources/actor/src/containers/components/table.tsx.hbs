@@ -43,7 +43,7 @@ import { FilterType } from '~/components-api';
 import type {
   {{ getTableAPIImports table container }}
 } from '~/services/data-api';
-{{# or (tableHasNumericColumn table) (tableHasDateColumn table) }}
+{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
 import { useL10N } from '~/l10n/l10n-context';
 {{/ or }}
 import {
@@ -153,7 +153,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
 
   const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
-  {{# or (tableHasNumericColumn table) (tableHasDateColumn table) }}
+  {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
   const { locale: l10nLocale } = useL10N();
   {{/ or }}
   {{# if (tableHasBinaryColumn table) }}
