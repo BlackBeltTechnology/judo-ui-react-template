@@ -1,23 +1,26 @@
 {{> fragment.header.hbs }}
 
-import { useCallback, useEffect, useRef, useState, lazy, Suspense } from 'react';
+import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   import { OBJECTCLASS } from '@pandino/pandino-api';
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '@judo/data-api-common';
   import { useTranslation } from 'react-i18next';
+  {{# if (pageHasSignedId page) }}
   import { useParams } from 'react-router-dom';
+  {{/ if }}
+  {{# if (containerHasTable page.container) }}
   import type { GridFilterModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
   import type { Filter, FilterOption } from '~/components-api';
+  {{/ if }}
   import { useJudoNavigation } from '~/components';
   import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
-  import { toastConfig } from '~/config';
   import { useSnacks, useCRUDDialog } from '~/hooks';
   import {
-    passesLocalValidation,
+    {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
-    uiDateToServiceDate,
-    uiTimeToServiceTime,
+    {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
+    {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
   } from '~/utilities';
   import type {

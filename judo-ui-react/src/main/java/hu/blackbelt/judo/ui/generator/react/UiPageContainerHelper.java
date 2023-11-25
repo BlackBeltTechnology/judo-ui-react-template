@@ -9,6 +9,7 @@ import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -203,5 +204,56 @@ public class UiPageContainerHelper {
         }
 
         return "{" + mask + "}";
+    }
+
+    public static boolean containerHasDateInput(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), DateInput.class).isEmpty();
+    }
+
+    public static boolean containerHasTimeInput(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), TimeInput.class).isEmpty();
+    }
+
+    public static boolean containerHasDateTimeInput(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), DateTimeInput.class).isEmpty();
+    }
+
+    public static boolean containerHasTable(PageContainer container) {
+        return !container.getTables().isEmpty();
+    }
+
+    public static boolean containerHasNumericInput(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), NumericInput.class).isEmpty();
+    }
+
+    public static boolean containerHasTrinaryLogicCombo(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), TrinaryLogicCombo.class).isEmpty();
+    }
+
+    public static boolean containerHasDivider(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), Divider.class).isEmpty();
+    }
+
+    public static boolean containerHasBinaryInput(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), BinaryTypeInput.class).isEmpty();
+    }
+
+    public static boolean containerHasTabs(PageContainer container) {
+        return !collectElementsOfType(container, new ArrayList<>(), TabController.class).isEmpty();
+    }
+
+    public static boolean containerHasCustomComponent(PageContainer container) {
+        List<VisualElement> acc = collectElementsOfType(container, new ArrayList<>(), VisualElement.class);
+        return acc.stream().anyMatch(VisualElement::isCustomImplementation);
+    }
+
+    public static boolean containerHasAssociationButton(PageContainer container) {
+        List<Button> acc = collectElementsOfType(container, new ArrayList<>(), Button.class);
+        return acc.stream().anyMatch(b -> b.getActionDefinition().getIsOpenPageAction());
+    }
+
+    public static boolean containerHasCards(PageContainer container) {
+        List<Flex> acc = collectElementsOfType(container, new ArrayList<>(), Flex.class);
+        return acc.stream().anyMatch(Flex::isCard);
     }
 }

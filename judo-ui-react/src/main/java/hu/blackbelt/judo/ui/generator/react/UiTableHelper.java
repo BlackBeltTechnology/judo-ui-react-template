@@ -154,6 +154,12 @@ public class UiTableHelper {
         return dataType instanceof DateType;
     }
 
+    public static boolean isColumnDatetime(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        return dataType instanceof TimestampType;
+    }
+
     public static boolean isColumnBinary(Column column) {
         DataType dataType = column.getAttributeType().getDataType();
 
@@ -249,5 +255,37 @@ public class UiTableHelper {
                 .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
                 .findFirst();
         return column.orElse(null);
+    }
+
+    public static boolean tableHasBooleanColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnBoolean);
+    }
+
+    public static boolean tableHasDateColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnDate);
+    }
+
+    public static boolean tableHasTimeColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnTime);
+    }
+
+    public static boolean tableHasDateTimeColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnDatetime);
+    }
+
+    public static boolean tableHasNumericColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnNumeric);
+    }
+
+    public static boolean tableHasEnumerationColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnEnumeration);
+    }
+
+    public static boolean tableHasStringColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnString);
+    }
+
+    public static boolean tableHasBinaryColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnBinary);
     }
 }

@@ -1,19 +1,33 @@
 export const convert{{ pageName page }}Payload = (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any): any => {
+  {{# if (containerHasDateInput page.container) }}
   const dateTypes: string[] = [{{# each (getWritableDateAttributesForClass classType) as |aName| }}
     '{{ aName }}',
   {{/ each }}];
+  {{/ if }}
+  {{# if (containerHasDateTimeInput page.container) }}
   const dateTimeTypes: string[] = [{{# each (getWritableDateTimeAttributesForClass classType) as |aName| }}
     '{{ aName }}',
   {{/ each }}];
+  {{/ if }}
+  {{# if (containerHasTimeInput page.container) }}
   const timeTypes: string[] = [{{# each (getWritableTimeAttributesForClass classType) as |aName| }}
     '{{ aName }}',
   {{/ each }}];
+  {{/ if }}
+  {{# if (containerHasDateInput page.container) }}
   if (dateTypes.includes(attributeName as string)) {
-      return uiDateToServiceDate(value);
-  } else if (dateTimeTypes.includes(attributeName as string)) {
-      return value;
-  } else if (timeTypes.includes(attributeName as string)) {
-      return uiTimeToServiceTime(value);
+    return uiDateToServiceDate(value);
   }
+  {{/ if }}
+  {{# if (containerHasDateTimeInput page.container) }}
+  if (dateTimeTypes.includes(attributeName as string)) {
+    return value;
+  }
+  {{/ if }}
+  {{# if (containerHasTimeInput page.container) }}
+  if (timeTypes.includes(attributeName as string)) {
+    return uiTimeToServiceTime(value);
+  }
+  {{/ if }}
   return value;
 };

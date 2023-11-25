@@ -27,12 +27,12 @@ import type {
 import { baseColumnConfig, baseTableConfig } from '~/config';
 import { MdiIcon{{# unless table.isEager }}, CustomTablePagination{{/ unless }} } from '~/components';
 import {
-  booleanColumnOperators,
-  dateColumnOperators,
-  dateTimeColumnOperators,
-  numericColumnOperators,
-  singleSelectColumnOperators,
-  stringColumnOperators,
+  {{# if (tableHasBooleanColumn table) }}booleanColumnOperators,{{/ if }}
+  {{# if (tableHasDateColumn table) }}dateColumnOperators,{{/ if }}
+  {{# if (tableHasDateTimeColumn table) }}dateTimeColumnOperators,{{/ if }}
+  {{# if (tableHasNumericColumn table) }}numericColumnOperators,{{/ if }}
+  {{# if (tableHasEnumerationColumn table) }}singleSelectColumnOperators,{{/ if }}
+  {{# if isUseInlineColumnFilters }}stringColumnOperators,{{/ if }}
   columnsActionCalculator,
   ContextMenu,
   StripedDataGrid,
@@ -43,7 +43,9 @@ import { FilterType } from '~/components-api';
 import type {
   {{ getTableAPIImports table container }}
 } from '~/services/data-api';
+{{# or (tableHasNumericColumn table) (tableHasDateColumn table) }}
 import { useL10N } from '~/l10n/l10n-context';
+{{/ or }}
 import {
   {{# if container.isSelector }}
   isRowSelectable,
@@ -53,16 +55,24 @@ import {
   {{# if table.isEager }}
   applyInMemoryFilters,
   {{/ if }}
+  {{# if (tableHasBinaryColumn table) }}
   fileHandling,
+  {{/ if }}
+  {{# or (tableHasDateTimeColumn table) (tableHasDateColumn table) }}
   serviceDateToUiDate,
+  {{/ or }}
+  {{# if (tableHasTimeColumn table) }}
   serviceTimeToUiTime,
+  {{/ if }}
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
   {{/ if }}
   mapAllFiltersToQueryCustomizerProperties,
   processQueryCustomizer,
+  {{# unless table.isEager }}
   useErrorHandler,
+  {{/ unless }}
 } from '~/utilities';
 import type { DialogResult, TableRowAction } from '~/utilities';
 import { useDataStore } from '~/hooks';
@@ -143,10 +153,16 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
 
   const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
+  {{# or (tableHasNumericColumn table) (tableHasDateColumn table) }}
   const { locale: l10nLocale } = useL10N();
+  {{/ or }}
+  {{# if (tableHasBinaryColumn table) }}
   const { downloadFile, extractFileNameFromToken } = fileHandling();
+  {{/ if }}
   const { t } = useTranslation();
+  {{# unless table.isEager }}
   const handleError = useErrorHandler();
+  {{/ unless }}
 
   {{# if (stringValueIsTrue useTableRowHighlighting) }}
   const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}}))`);

@@ -45,7 +45,6 @@ public class UiImportHelper {
             Map.entry("divider", Set.of("Divider")),
             Map.entry("enumerationcombo", Set.of("TextField", "MenuItem", "InputAdornment")),
             Map.entry("enumerationradio", Set.of("RadioGroup", "FormControlLabel", "Radio", "FormControl", "FormHelperText", "InputLabel")),
-            Map.entry("flex", Set.of("Card", "CardContent")),
             Map.entry("formatted", Set.of("Typography")),
             Map.entry("label", Set.of("Typography")),
             Map.entry("link", Set.of()),

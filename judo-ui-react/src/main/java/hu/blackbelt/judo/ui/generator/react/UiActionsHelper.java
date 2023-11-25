@@ -91,18 +91,21 @@ public class UiActionsHelper {
         return "void";
     }
 
-    public static <T extends VisualElement> void collectElementsOfType(VisualElement visualElement, List<T> acc, Class<T> elementType) {
+    public static <T extends VisualElement> List<T> collectElementsOfType(VisualElement visualElement, List<T> acc, Class<T> elementType) {
         if (elementType.isInstance(visualElement)) {
             acc.add(elementType.cast(visualElement));
-        } else if (visualElement instanceof Container) {
-            for (VisualElement element : ((Container) visualElement).getChildren()) {
+        }
+        if (visualElement instanceof Container container) {
+            for (VisualElement element : container.getChildren()) {
                 collectElementsOfType(element, acc, elementType);
             }
-        } else if (visualElement instanceof TabController) {
-            for (Tab tab : ((TabController) visualElement).getTabs()) {
+        }
+        if (visualElement instanceof TabController tabController) {
+            for (Tab tab : tabController.getTabs()) {
                 collectElementsOfType(tab.getElement(), acc, elementType);
             }
         }
+        return acc;
     }
 
     public static ActionDefinition getRefreshActionDefinitionForTable(Table table) {
