@@ -9,7 +9,7 @@
       storeDiff={storeDiff}
     >
   {{/ if }}
-  {{# if child.actionDefinition.isCallOperationAction }}
+  {{# or child.actionDefinition.isCallOperationAction child.actionDefinition.isOpenFormAction }}
     <LoadingButton
       id="{{ getXMIID child }}"
       loading={isLoading}
@@ -27,7 +27,7 @@
     >
       <span>{ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }</span>
     </LoadingButton>
-  {{/ if }}
+  {{/ or }}
 
   {{# if child.actionDefinition.isOpenPageAction }}
     <AssociationButton
