@@ -79,20 +79,10 @@ export default function {{ containerComponentName container }}(props: {{ contain
           alignItems="{{# if container.table }}stretch{{ else }}{{ alignItems rootChild }}{{/ if }}"
           justifyContent="{{ justifyContent rootChild }}"
         >
-          {{# if container.table }}
-            <Grid item xs={12} sm={12}>
-              <Card>
-                <CardContent>
-          {{/ if }}
           {{# each rootChild.children as |child| }}
             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
             {{> (getWidgetTemplate child) }}
           {{/ each }}
-          {{# if container.table }}
-                </CardContent>
-              </Card>
-            </Grid>
-          {{/ if }}
         </Grid>
       {{/ with }}
     {{ else }}
