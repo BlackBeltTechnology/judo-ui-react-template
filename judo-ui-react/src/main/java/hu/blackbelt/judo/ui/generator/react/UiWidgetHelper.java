@@ -87,7 +87,7 @@ public class UiWidgetHelper {
         CrossAxisAlignment alignment = flex.getCrossAxisAlignment();
         Stretch stretch = flex.getStretch();
 
-        if (stretch.equals(Stretch.BOTH) || stretch.equals(Stretch.HORIZONTAL)) {
+        if (stretch.equals(Stretch.BOTH) || (stretch.equals(Stretch.HORIZONTAL) && flex.getDirection().equals(Axis.VERTICAL)) || (stretch.equals(Stretch.VERTICAL) && flex.getDirection().equals(Axis.HORIZONTAL))) {
             return "stretch";
         }
 
