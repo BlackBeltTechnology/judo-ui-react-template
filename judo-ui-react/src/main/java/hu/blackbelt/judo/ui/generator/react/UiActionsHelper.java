@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.isSingleAccessPage;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.pageHasSignedId;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectElementsOfType;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToUpper;
@@ -41,15 +42,15 @@ import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHe
 @Log
 @TemplateHelper
 public class UiActionsHelper {
-    public static List<ActionDefinition> getContainerOwnActionDefinitions(PageContainer container) {
+    public static Set<ActionDefinition> getContainerOwnActionDefinitions(PageContainer container) {
         List<ButtonGroup> groups = new ArrayList<>();
         collectElementsOfType(container, groups, ButtonGroup.class);
 
-        List<ActionDefinition> actionDefinitions = groups.stream()
+        Set<ActionDefinition> actionDefinitions = groups.stream()
                 .flatMap(g -> g.getButtons().stream())
                 .map(Button::getActionDefinition)
                 .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
 
         List<Button> buttons = new ArrayList<>();
         collectElementsOfType(container, buttons, Button.class);
@@ -57,9 +58,11 @@ public class UiActionsHelper {
         actionDefinitions.addAll(buttons.stream().map(Button::getActionDefinition).toList());
         actionDefinitions.addAll(buttons.stream().map(Button::getPreFetchActionDefinition).filter(Objects::nonNull).toList());
 
-        actionDefinitions.sort(Comparator.comparing(NamedElement::getFQName));
+        SortedSet<ActionDefinition> sorted = new TreeSet<>(Comparator.comparing(NamedElement::getFQName));
 
-        return actionDefinitions;
+        sorted.addAll(actionDefinitions);
+
+        return sorted;
     }
 
     public static String getContainerOwnActionParameters(ActionDefinition actionDefinition, PageContainer container) {
@@ -89,23 +92,6 @@ public class UiActionsHelper {
             return classDataName(actionDefinition.getTargetType(), "");
         }
         return "void";
-    }
-
-    public static <T extends VisualElement> List<T> collectElementsOfType(VisualElement visualElement, List<T> acc, Class<T> elementType) {
-        if (elementType.isInstance(visualElement)) {
-            acc.add(elementType.cast(visualElement));
-        }
-        if (visualElement instanceof Container container) {
-            for (VisualElement element : container.getChildren()) {
-                collectElementsOfType(element, acc, elementType);
-            }
-        }
-        if (visualElement instanceof TabController tabController) {
-            for (Tab tab : tabController.getTabs()) {
-                collectElementsOfType(tab.getElement(), acc, elementType);
-            }
-        }
-        return acc;
     }
 
     public static ActionDefinition getRefreshActionDefinitionForTable(Table table) {

@@ -9,10 +9,7 @@ import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
@@ -185,7 +182,7 @@ public class UiPageContainerHelper {
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getEnabledBy() != null).map(i -> i.getEnabledBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getRequiredBy() != null).map(i -> i.getRequiredBy().getName()).collect(Collectors.toSet()));
 
-        mask.append(String.join(",", attributeNames));
+        mask.append(String.join(",", attributeNames.stream().sorted().toList()));
 
         for (Table table: ((List<Table>) container.getTables()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
             if (!mask.toString().endsWith(",")) {

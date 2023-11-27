@@ -266,6 +266,34 @@ public class UiWidgetHelper {
                 collectVisualElementsMatchingCondition(tab.getElement(), condition, matches);
             }
         }
+
+        if (root instanceof ButtonGroup buttonGroup) {
+            for (Button button: buttonGroup.getButtons()) {
+                collectVisualElementsMatchingCondition(button, condition, matches);
+            }
+        }
+    }
+
+    public static <T extends VisualElement> List<T> collectElementsOfType(VisualElement visualElement, List<T> acc, Class<T> elementType) {
+        if (elementType.isInstance(visualElement)) {
+            acc.add(elementType.cast(visualElement));
+        }
+        if (visualElement instanceof Container container) {
+            for (VisualElement element : container.getChildren()) {
+                collectElementsOfType(element, acc, elementType);
+            }
+        }
+        if (visualElement instanceof TabController tabController) {
+            for (Tab tab : tabController.getTabs()) {
+                collectElementsOfType(tab.getElement(), acc, elementType);
+            }
+        }
+        if (visualElement instanceof ButtonGroup buttonGroup) {
+            for (Button button: buttonGroup.getButtons()) {
+                collectElementsOfType(button, acc, elementType);
+            }
+        }
+        return acc;
     }
 
     public static List<String> getNestedDataKeysForElement(VisualElement visualElement) {
