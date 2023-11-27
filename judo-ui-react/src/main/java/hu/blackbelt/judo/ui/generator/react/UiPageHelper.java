@@ -20,90 +20,58 @@ package hu.blackbelt.judo.ui.generator.react;
  * #L%
  */
 
-import com.github.jknack.handlebars.internal.lang3.StringUtils;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
-import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
 
 import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.hasDataElementOwner;
-import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.toLower;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
 
 
 @Log
 @TemplateHelper
-public class UiPageHelper extends Helper {
-    public static final String SIGNED_ID = ":signedIdentifier";
+public class UiPageHelper {
 
-    public static String getRelationClassName(RelationType relation) {
-        return relation.getOwnerPackageNameTokens().stream().map(Helper::getCamelCaseVersion).collect(Collectors.joining())
-                .concat(getCamelCaseVersion(relation.getOwnerSimpleName())).concat(getCamelCaseVersion(relation.getName()));
+    public static boolean isPageRefreshable(PageDefinition pageDefinition) {
+        return pageDefinition.getActions().stream().anyMatch(a -> a.getIsRefreshAction() || a.getIsRefreshRelationAction());
     }
 
-    public static String getPageTypePath(PageDefinition page) {
-        String pageType = page.getPageType().toString().toLowerCase();
-        String suffix = page.getIsPageTypeDashboard() ? "" : pageType.concat("/");
-        if (page.getDataElement() instanceof RelationType) {
-            RelationType dataElement = (RelationType) page.getDataElement();
-            return getFeaturePath(dataElement).concat(suffix);
-        } else if (page.getDataElement() instanceof OperationParameterType) {
-            return String.join("/", getPagePathTokens(page)).concat("/");
-        }
-        ClassType actor = ((Application)page.eContainer()).getActor();
-        return getTypeNamePath(actor).concat(suffix);
-    }
-
-    public static List<String> getPagePathTokens(PageDefinition page) {
-        return stream(page.getName().replaceAll("#", "::")
-                .replaceAll("\\.", "::")
-                .replaceAll("/", "::")
-                .split("::"))
-                .skip(1)
-                .map(String::toLowerCase)
+    public static List<PageDefinition> getPagesForRouting(Application application) {
+        return application.getPages().stream()
+                .filter(p -> !p.isOpenInDialog())
+                .sorted(Comparator.comparing(NamedElement::getFQName))
                 .collect(Collectors.toList());
     }
 
-    private static Boolean keepPageType(PageDefinition page) {
-        PageType pageType = page.getPageType();
+    public static List<PageDefinition> getPagesForDialogs(Application application) {
+        return application.getPages().stream()
+                .filter(PageDefinition::isOpenInDialog)
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
 
-        if (page.isOpenInDialog()) {
+    public static boolean hasDashboard(Application application) {
+      return  application.getPages().stream().anyMatch(PageDefinition::isDashboard);
+    }
+
+    public static boolean pageHasSignedId(PageDefinition page) {
+        if (isSingleAccessPage(page)) {
             return false;
         }
-
-        if (pageType.equals(PageType.DASHBOARD)) {
-            return true;
-        }
-
-        if (isPageSingletonAccessCreate(page)) {
-            return true;
-        }
-
         if (page.getDataElement() != null) {
-            if (page.getDataElement() instanceof ReferenceType) {
-                if (pageType.equals(PageType.CREATE)) {
-                    return false;
+            if (page.getDataElement() instanceof RelationType dataElement) {
+                if (dataElement.getIsMemberTypeAccess()) {
+                    return page.getName().endsWith("ViewPage") && !(dataElement.getIsCreatable() && !dataElement.isIsCollection());
                 }
-                ReferenceType referenceType = (ReferenceType) page.getDataElement();
-                if (referenceType.getIsRefreshable()) {
-                    if (referenceType.isIsCollection()) {
-                        return pageType.equals(PageType.VIEW) || pageType.equals(PageType.TABLE);
-                    }
-                    // Currently there is a shady behaviour where in for single relations we would generate TABLE screens
-                    // as well. We think this is a transformation bug, therefore for now we exclude these.
-                    return pageType.equals(PageType.VIEW) || pageType.equals(PageType.OPERATION_OUTPUT);
-                }
-            }
-
-            if (page.getIsPageTypeOperationOutput()) {
+                return true;
+            } else if (page.getName().endsWith("Output::View")) {
                 return isPageRefreshable(page);
             }
         }
@@ -111,210 +79,47 @@ public class UiPageHelper extends Helper {
         return false;
     }
 
-    public static boolean isPageRefreshable(PageDefinition pageDefinition) {
-        return pageDefinition.getPageActions().stream().anyMatch(a -> a instanceof RefreshAction);
-    }
-
-    public static boolean isPageSingletonAccessCreate(PageDefinition page) {
-        if (page.getDataElement() != null && page.getDataElement() instanceof RelationType) {
-            RelationType relationType = (RelationType) page.getDataElement();
-
-            return relationType.isIsAccess() && page.getPageType().equals(PageType.CREATE) && !relationType.isIsCollection();
-        }
-
-        return false;
-    }
-
-    public static List<PageDefinition> getPagesForRouting(Application application) {
-        return application.getPages().stream()
-                .filter(UiPageHelper::keepPageType)
-                .sorted(Comparator.comparing(NamedElement::getFQName))
-                .collect(Collectors.toList());
-    }
-
-    public static List<Link> getLinksForPages(Application application) {
-        List<PageDefinition> pages = getPagesForRouting(application);
-
-        return pages.stream()
-                .flatMap(p -> ((List<Link>) p.getOriginalPageContainer().getLinks()).stream())
-                .collect(Collectors.toList());
-    }
-
-    public static List<Table> getTablesForPages(Application application) {
-        List<PageDefinition> pages = getPagesForRouting(application);
-
-        return pages.stream()
-                .flatMap(p -> ((List<Table>) p.getOriginalPageContainer().getTables()).stream())
-                .collect(Collectors.toList());
-    }
-
-    public static List<Link> getLinksForViewDialogs(Application application) {
-        List<PageDefinition> pages = getViewDialogs(application);
-
-        return pages.stream()
-                .flatMap(p -> ((List<Link>) p.getOriginalPageContainer().getLinks()).stream())
-                .collect(Collectors.toList());
-    }
-
-    public static List<Table> getTablesForViewDialogs(Application application) {
-        List<PageDefinition> pages = getViewDialogs(application);
-
-        return pages.stream()
-                .flatMap(p -> ((List<Table>) p.getOriginalPageContainer().getTables()).stream())
-                .collect(Collectors.toList());
-    }
-
-    public static boolean hasDashboard(Application application) {
-      return  application.getPages().stream().filter(UiPageHelper::keepPageType).filter(page -> page.getIsPageTypeDashboard()).findFirst().isPresent();
-    }
-
-    public static String pageIndexRelativeImportPath(PageDefinition page) {
-        return getPageTypePath(page).concat("index");
-    }
-
-    public static String pageIndexRelativePath(PageDefinition page) {
-        return pageIndexRelativeImportPath(page).concat(".tsx");
-    }
-
-    public static String pagesFolderPath(ClassType actor) {
-        return "/src/pages/";
-    }
-
-    public static String pageIndexPath(PageDefinition page) {
-        return pagesFolderPath(((Application)page.eContainer()).getActor()).concat(pageIndexRelativePath(page));
-    }
-
     public static String pagePath(PageDefinition page) {
-        return pagesFolderPath(((Application)page.eContainer()).getActor()).concat(getPageTypePath(page));
-    }
-
-    public static String pagePathForTilde(PageDefinition page) {
-        String path = "pages/".concat(getPageTypePath(page));
-
-        return path.endsWith("/") ? StringUtils.substring(path, 0, -1) : path;
+        return stream(page.getName().split("::")).map(org.springframework.util.StringUtils::capitalize).collect(Collectors.joining("/"));
     }
 
     public static String pageName(PageDefinition page) {
-        String pageType = page.getPageType().toString().toLowerCase();
-        if (page.getDataElement() != null && keepPageType(page)) {
-            if (page.getDataElement() instanceof RelationType) {
-                RelationType dataElement = (RelationType) page.getDataElement();
-                return getRelationClassName(dataElement).concat(getCamelCaseVersion(pageType));
-            } else if (page.getDataElement() instanceof OperationParameterType) {
-                return getPagePathTokens(page).stream().map(StringUtils::capitalize).collect(Collectors.joining(""));
-            }
-        }
-        ClassType actor = ((Application)page.eContainer()).getActor();
-        return getClassName(actor).concat(getCamelCaseVersion(pageType));
-    }
-
-    public static boolean pageHasSignedId(PageDefinition page) {
-        return getPageRoute(page).contains(SIGNED_ID);
+        return stream(page.getName().split("::")).map(org.springframework.util.StringUtils::capitalize).collect(Collectors.joining(""));
     }
 
     public static String getPageRoute(PageDefinition page) {
-        String route = "" + getPageTypePath(page);
-
-        if (route.endsWith("/")) {
-            route = route.substring(0, route.length() - 1);
+        if (page.isDashboard()) {
+            return "";
         }
-
-        if (page.getDataElement() != null) {
-            if (page.getDataElement() instanceof RelationType) {
-                RelationType dataElement = (RelationType) page.getDataElement();
-
-                if (dataElement.getIsMemberTypeAccess()) {
-                    if (page.getIsPageTypeView() && !(dataElement.getIsCreatable() && !dataElement.isIsCollection())) {
-                        route = route + "/:signedIdentifier";
-                    }
-                } else {
-                    route = route + "/:signedIdentifier";
-                }
-            } else if (page.getIsPageTypeOperationOutput()) {
-                if (isPageRefreshable(page)) {
-                    route = route + "/:signedIdentifier";
-                }
-            } else {
-                throw new IllegalArgumentException("Cannot process route for PageDefinition: " + page.getName());
-            }
-        }
-
-        return route;
-    }
-
-    public static List<Action> getButtonActions(PageDefinition page) {
-        List<Button> buttons = (List<Button>) page.getButtons();
-        return buttons.stream()
-                .map(b -> ((Button) b).getAction())
-                .filter(a -> !(a instanceof BackAction))
-                .map(Action::getFQName)
-                .distinct()
-                .map(fqName -> buttons.stream()
-                        .filter(b -> ((Button) b).getAction().getFQName().equals(fqName))
-                        .findFirst().orElse(null).getAction())
-                .collect(Collectors.toList());
-    }
-
-    public static Collection<Action> getUniquePageActions(PageDefinition page) {
-        Collection<Action> actions = new ArrayList<>(page.getActions());
-        return actions.stream()
-                .filter(a -> !a.getIsBackAction() && !a.getIsSaveCreateAction())
-                .collect(Collectors.toMap(UiCommonsHelper::getXMIID, p -> p, (p, q) -> p)).values();
-    }
-
-    public static Collection<Action> getOnlyPageActions(PageDefinition page) {
-        Collection<Action> actions = getUniquePageActions(page);
-        return actions.stream().filter(a -> a.getType().equals(ActionType.PAGE)).collect(Collectors.toList());
-    }
-
-    public static String getNavigationForPage(PageDefinition page, String signedId) {
-        String route = getPageRoute(page);
-
-        return signedId != null && route.contains(SIGNED_ID) ? route.replace(SIGNED_ID, "${" + signedId + "}") : route;
-    }
-
-    public static Table getTableForTablePage(PageDefinition page) {
-        PageContainer container = page.getOriginalPageContainer();
-        VisualElement visualElement = container.getChildren().get(0);
-
-        if (visualElement instanceof Flex) {
-            return (Table) ((Flex) visualElement).getChildren().stream().filter(c -> c instanceof Table).findFirst().get();
-        } else if (visualElement instanceof Table) {
-            return (Table) visualElement;
-        } else {
-            throw new RuntimeException("Error processing node, visual element type not supported: " + visualElement.getClass().getName());
-        }
-    }
-
-    public static PageDefinition getViewPageForPage(PageDefinition pageDefinition) {
-        Optional<ViewAction> pageAction = pageDefinition.getActions().stream().filter(a -> a instanceof ViewAction).map(a -> (ViewAction) a).findFirst();
-
-        return pageAction.map(PageAction::getTarget).orElse(null);
-    }
-
-    public static List<Link> getPageLinks(PageDefinition pageDefinition) {
-        return pageDefinition.getOriginalPageContainer().getLinks().stream().map(l -> (Link) l).collect(Collectors.toList());
-    }
-
-    public static List<Table> getPageTables(PageDefinition pageDefinition) {
-        return (List<Table>) pageDefinition.getOriginalPageContainer().getTables().stream().map(t -> (Table) t).collect(Collectors.toList());
+        String suffix = pageHasSignedId(page) ? "/:signedIdentifier" : "";
+        return pagePath(page) + suffix;
     }
 
     public static List<AttributeType> getEnumAttributesForPage(PageDefinition pageDefinition) {
         if (pageDefinition.getDataElement() == null) {
             return List.of();
         }
+        ClassType target;
 
-        ReferenceType dataElement = (ReferenceType) pageDefinition.getDataElement();
+        DataElement dataElement = pageDefinition.getDataElement();
+        if (dataElement instanceof RelationType) {
+            target = ((RelationType) dataElement).getTarget();
+        } else if (dataElement instanceof OperationParameterType) {
+            target = ((OperationParameterType) dataElement).getTarget();
+        } else if (dataElement instanceof ClassType) {
+            target = (ClassType) dataElement;
+        } else {
+            return List.of();
+        }
 
-        return dataElement.getTarget().getAttributes()
+        return target.getAttributes()
                 .stream()
                 .filter(a -> a.getDataType() instanceof EnumerationType)
                 .collect(Collectors.toList());
     }
 
-    public static Boolean titleComesFromAttribute(PageDefinition page) {
-        return page.getTitleFrom() != null && page.getTitleFrom() == TitleFrom.ATTRIBUTE;
+    public static Boolean titleComesFromAttribute(PageContainer pageContainer) {
+        return pageContainer.getTitleFrom() != null && pageContainer.getTitleFrom() == TitleFrom.ATTRIBUTE;
     }
 
     public static Boolean isSingleAccessPage(PageDefinition page) {
@@ -325,40 +130,14 @@ public class UiPageHelper extends Helper {
         return false;
     }
 
-    public static PageDefinition getViewPageForCreatePage(PageDefinition page, Application application) {
-        String viewPageFQName = page.getFQName().replace("#Create", "#View");
-        return application.getPages().stream()
-                .filter(p -> p.getFQName().equals(viewPageFQName))
-                .findFirst()
-                .get();
-    }
-
-    public static String getDialogSizeForViewPageOfCreatePage(PageDefinition page, Application application) {
-        return toLower(getViewPageForCreatePage(page, application).getDialogSize().getName());
-    }
-
-    public static boolean adjustDialogSize(PageDefinition pageDefinition) {
-        return pageDefinition.getDialogSize() != null;
-    }
-
-    private static void addReferenceTypesToCollection(PageDefinition pageDefinition, Set<String> res) {
-        getPageLinks(pageDefinition).forEach(l -> {
-            ReferenceType rel = (ReferenceType) l.getDataElement();
-            res.addAll(getApiImportsForReferenceType(rel));
-        });
-
-        getPageTables(pageDefinition).forEach(t -> {
-            ReferenceType rel = (ReferenceType) t.getDataElement();
-            res.addAll(getApiImportsForReferenceType(rel));
-        });
-    }
-
     public static List<String> getApiImportsForReferenceType(ReferenceType reference) {
         Set<String> res = new HashSet<>();
 
-        res.add(classDataName(reference.getTarget(), ""));
-        res.add(classDataName(reference.getTarget(), "Stored"));
-        res.add(classDataName(reference.getTarget(), "QueryCustomizer"));
+        if (reference.getTarget() != null) {
+            res.add(classDataName(reference.getTarget(), ""));
+            res.add(classDataName(reference.getTarget(), "Stored"));
+            res.add(classDataName(reference.getTarget(), "QueryCustomizer"));
+        }
 
         if (reference instanceof RelationType && !((RelationType) reference).isIsAccess()) {
             res.add(classDataName((ClassType) reference.getOwner(), ""));
@@ -368,164 +147,153 @@ public class UiPageHelper extends Helper {
         return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static List<String> getOwnerApiImportsForDataElement(DataElement dataElement) {
+    public static List<String> getApiImportsForPage(PageDefinition pageDefinition) {
         Set<String> res = new HashSet<>();
 
-        if (hasDataElementOwner(dataElement)) {
-            res.add(classDataName(((ClassType) dataElement.getOwner()), "Stored"));
-            res.add(classDataName(((ClassType) dataElement.getOwner()), ""));
+        if (pageDefinition.getDataElement() instanceof ReferenceType referenceType) {
+            res.addAll(getApiImportsForReferenceType(referenceType));
         }
 
-        return res.stream().sorted().collect(Collectors.toList());
-    }
-
-    public static List<String> getApiImportsForTablePage(PageDefinition pageDefinition) {
-        return getApiImportsForReferenceType((ReferenceType) pageDefinition.getDataElement());
-    }
-
-    public static List<String> getApiImportsForViewPage(PageDefinition pageDefinition) {
-        Set<String> res = new HashSet<>();
-
-        if (pageDefinition.getDataElement() instanceof ReferenceType) {
-            res.addAll(getApiImportsForReferenceType((ReferenceType) pageDefinition.getDataElement()));
-        }
-
-        getEnumAttributesForPage(pageDefinition).forEach(a -> {
-            res.add(restParamName(a.getDataType()));
-        });
-
-        addReferenceTypesToCollection(pageDefinition, res);
-
-        return res.stream().sorted().collect(Collectors.toList());
-    }
-
-    public static List<String> getApiImportsForCreatePage(PageDefinition pageDefinition) {
-        Set<String> res = new HashSet<>();
-
-        if (pageDefinition.getDataElement() instanceof ReferenceType) {
-            res.addAll(getApiImportsForReferenceType((ReferenceType) pageDefinition.getDataElement()));
-        }
-
-        addReferenceTypesToCollection(pageDefinition, res);
-
-        getEnumAttributesForPage(pageDefinition).forEach(a -> {
-            res.add(restParamName(a.getDataType()));
-        });
-
-        return res.stream().sorted().collect(Collectors.toList());
-    }
-
-    public static List<String> getApiImportsForCreateAction(CreateAction action) {
-        Set<String> res = new HashSet<>(getApiImportsForViewPage(action.getTarget()));
-
-        res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
-
-        return res.stream().sorted().collect(Collectors.toList());
-    }
-
-    public static List<String> getApiImportsForCallOperationAction(CallOperationAction action) {
-        PageDefinition ownerPage = ((PageDefinition) action.eContainer());
-        PageDefinition outputParameterPage = action.getOutputParameterPage();
-        Set<String> res = action.getInputParameterPage() != null ? new HashSet<>(getApiImportsForViewPage(action.getInputParameterPage())) : new HashSet<>();
-
-        res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
-        if (ownerPage != null) {
-            if (ownerPage.getDataElement() instanceof ReferenceType) {
-                res.addAll(getApiImportsForReferenceType((ReferenceType) ownerPage.getDataElement()));
+        for (Object table: pageDefinition.getContainer().getTables()) {
+            Table theTable = (Table) table;
+            // for some reason table's dataElement can be ClassType, not ReferenceType
+            if (theTable.getDataElement() instanceof ClassType) {
+                res.add(classDataName((ClassType) theTable.getDataElement(), ""));
+                res.add(classDataName((ClassType) theTable.getDataElement(), "Stored"));
+                res.add(classDataName((ClassType) theTable.getDataElement(), "QueryCustomizer"));
+            }
+            if (theTable.getDataElement() instanceof RelationType) {
+                res.addAll(getApiImportsForReferenceType((RelationType) theTable.getDataElement()));
             }
         }
 
-        if (action.getOperation().getIsMapped()) {
-            res.add(classDataName((ClassType) action.getDataElement().getOwner(), ""));
-            res.add(classDataName((ClassType) action.getDataElement().getOwner(), "Stored"));
+        for (Object link: pageDefinition.getContainer().getLinks()) {
+            Link theLink = (Link) link;
+            res.addAll(getApiImportsForReferenceType((RelationType) theLink.getDataElement()));
         }
 
-        if (outputParameterPage != null) {
-            res.addAll(getApiImportsForReferenceType((ReferenceType) outputParameterPage.getDataElement()));
+        for (ActionDefinition actionDefinition: (List<ActionDefinition>) pageDefinition.getContainer().getAllActionDefinitions()) {
+            if (actionDefinition.getTargetType() != null) {
+                res.add(classDataName(actionDefinition.getTargetType(), ""));
+                res.add(classDataName(actionDefinition.getTargetType(), "Stored"));
+                res.add(classDataName(actionDefinition.getTargetType(), "QueryCustomizer"));
+            }
+            if (actionDefinition instanceof CallOperationActionDefinition callOperationActionDefinition && callOperationActionDefinition.getOperation().getOutput() != null) {
+                res.add(classDataName(callOperationActionDefinition.getOperation().getOutput().getTarget(), ""));
+                res.add(classDataName(callOperationActionDefinition.getOperation().getOutput().getTarget(), "Stored"));
+            }
         }
 
-        for (OperationParameterType fault: action.getOperation().getFaults()) {
-            res.add(classDataName(fault.getTarget(), ""));
+        if (pageDefinition.getContainer().isIsSelector()) {
+            if (pageDefinition.getDataElement() instanceof OperationType operationType) {
+                if (operationType.getInput() != null) {
+                    res.add(classDataName(operationType.getInput().getTarget(), "Stored"));
+                }
+                if (operationType.getOutput() != null) {
+                    res.add(classDataName(operationType.getOutput().getTarget(), "Stored"));
+                }
+            } else if (pageDefinition.getDataElement() instanceof RelationType relationType) {
+                res.add(classDataName(relationType.getTarget(), "Stored"));
+            }
         }
+        if (pageDefinition.getDataElement() instanceof OperationParameterType operationParameterType) {
+            res.add(classDataName(operationParameterType.getTarget(), "Stored"));
+
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                if (operationType.getOutput() != null) {
+                    res.add(classDataName(operationType.getOutput().getTarget(), "Stored"));
+                }
+            }
+        }
+        if (pageDefinition.getDataElement() instanceof RelationType relationType) {
+            res.add(classDataName(relationType.getTarget(), "Stored"));
+        }
+
+        getEnumAttributesForPage(pageDefinition).forEach(a -> {
+            res.add(restParamName(a.getDataType()));
+        });
 
         return res.stream().sorted().collect(Collectors.toList());
     }
 
-    public static List<String> getApiImportsForFormAction(Action action) {
-        if (action.getIsCreateAction()) {
-            return getApiImportsForCreateAction((CreateAction) action);
-        } else {
-            return getApiImportsForCallOperationAction((CallOperationAction) action);
+    public static List<PageDefinition> getRelatedPages(PageDefinition pageDefinition) {
+        Set<PageDefinition> res = new HashSet<>();
+        try {
+            // a.getTargetPageDefinition() != null check is for the case where the target view is not present because it was most likely empty
+            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getIsOpenPageAction() && a.getTargetPageDefinition() != null && !a.getTargetPageDefinition().isOpenInDialog()).toList()) {
+                res.add(action.getTargetPageDefinition());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
+        return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
-    public static List<String> getApiImportsForUnmappedOperationOutputAction(PageDefinition page) {
-        Set<String> res = new HashSet<>(getApiImportsForViewPage(page));
-        res.addAll(getApiImportsForReferenceType((ReferenceType) page.getDataElement()));
-        return res.stream().sorted().collect(Collectors.toList());
-    }
-
-    public static List<String> getApiImportsForRowAction(Action action) {
-        Set<String> res = new HashSet<>();
-
-        if (action.getDataElement() instanceof ReferenceType) {
-            res.addAll(getApiImportsForReferenceType((ReferenceType) action.getDataElement()));
+    public static List<PageDefinition> getRelatedDialogs(PageDefinition pageDefinition, Boolean skipSelf) {
+        Set<PageDefinition> res = new HashSet<>();
+        try {
+            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getTargetPageDefinition() != null && a.getTargetPageDefinition().isOpenInDialog() && (!skipSelf || !a.getTargetPageDefinition().equals(pageDefinition))).toList()) {
+                res.add(action.getTargetPageDefinition());
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-
-        res.addAll(getOwnerApiImportsForDataElement(action.getDataElement()));
-
-        return res.stream().sorted().collect(Collectors.toList());
+        return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
-    public static VisualElement firstViewChildForContainer(PageContainer container) {
-        Optional<VisualElement> element = container.getChildren()
-                .stream()
-                .filter(c -> {
-                    if (c instanceof Flex) {
-                        return ((Flex) c).getDataElement() != null;
-                    }
-                    return false;
-                })
-                .findFirst();
-        return element.orElse(null);
-    }
+    public static String getServiceImplForPage(PageDefinition pageDefinition) {
+        DataElement dataElement = pageDefinition.getDataElement();
 
-    public static VisualElement getDataContainerForPage(PageDefinition pageDefinition) {
-        PageContainer defaultContainer = pageDefinition.getOriginalPageContainer();
-
-        if (defaultContainer != null) {
-            return firstViewChildForContainer(defaultContainer);
+        if (dataElement instanceof RelationType relationType) {
+            if (pageDefinition.getContainer().isView() && !isSingleAccessPage(pageDefinition)) {
+                return firstToLower(serviceClassName(relationType.getTarget()) + "Impl");
+            }
+            return firstToLower(serviceRelationName(relationType) + "Impl");
+        } else if (dataElement instanceof OperationParameterType operationParameterType) {
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                if (operationType.getOutput() != null && pageDefinition.getContainer().isView()) {
+                    return firstToLower(serviceClassName(operationType.getOutput().getTarget()) + "Impl");
+                }
+                if (operationType.eContainer() instanceof ClassType classType) {
+                    return firstToLower(serviceClassName(classType) + "Impl");
+                }
+                if (operationParameterType.eContainer() instanceof RelationType relationType) {
+                    return firstToLower(serviceRelationName(relationType) + "Impl");
+                }
+            }
+        } else if (dataElement instanceof OperationType operationType) {
+            if (operationType.getOutput() != null && pageDefinition.getContainer().isView()) {
+                return firstToLower(serviceClassName(operationType.getOutput().getTarget()) + "Impl");
+            }
+            if (operationType.eContainer() instanceof ClassType classType) {
+                return firstToLower(serviceClassName(classType) + "Impl");
+            }
+            if (operationType.getInput() != null) {
+                return firstToLower(serviceClassName(operationType.getInput().getTarget()) + "Impl");
+            }
         }
 
         return null;
     }
 
-    public static PageDefinition getPageForFormAction(Action action) {
-        if (action.getIsCreateAction()) {
-            return ((CreateAction) action).getTarget();
-        } else if (action.getIsCallOperationAction()) {
-            return ((CallOperationAction) action).getInputParameterPage();
-        }
-        throw new RuntimeException("Unsupported action type: " + action.getType());
+    public static boolean isPageUpdateable(PageDefinition pageDefinition) {
+        return getReferenceClassType(pageDefinition).getIsUpdatable();
     }
 
-    public static boolean isPageContainerTransferType(PageContainer pageContainer, String type) {
-        return pageContainer.getTransferPageType().getName().equals(type);
+    public static boolean isPageDeleteable(PageDefinition pageDefinition) {
+        return getReferenceClassType(pageDefinition).getIsDeletable();
     }
 
     public static boolean payloadDiffHasItems(ClassType classType) {
         return classType.getAttributes().size() + classType.getRelations().size() > 0;
     }
 
-    public static List<PageDefinition> getViewDialogs(Application application) {
-        return application.getPages().stream()
-                .filter(p -> (p.getIsPageTypeView() || p.getIsPageTypeOperationOutput()) && p.isOpenInDialog())
-                .sorted(Comparator.comparing(NamedElement::getFQName))
-                .collect(Collectors.toList());
-    }
-
-    public static boolean pageShouldOpenInDialog(PageDefinition pageDefinition) {
-        return pageDefinition.isOpenInDialog();
+    public static boolean pageShouldInitialize(PageDefinition pageDefinition) {
+        // tables initialize themselves
+        if (!pageDefinition.getContainer().isTable() && pageDefinition.getContainer().getOnInit() != null) {
+            return pageDefinition.getActions().stream().anyMatch(a -> a.getActionDefinition().equals(pageDefinition.getContainer().getOnInit()));
+        }
+        return false;
     }
 
     public static boolean hasPageRequiredBy(PageDefinition pageDefinition) {
@@ -534,8 +302,61 @@ public class UiPageHelper extends Helper {
 
     public static List<VisualElement> getRequiredByWidgetsForPage(PageDefinition pageDefinition) {
         Set<VisualElement> elements = new LinkedHashSet<>();
-        collectVisualElementsMatchingCondition(pageDefinition.getOriginalPageContainer(), (element) -> element.getRequiredBy() != null, elements);
+        collectVisualElementsMatchingCondition(pageDefinition.getContainer(), (element) -> element.getRequiredBy() != null, elements);
 
         return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<PageContainer> getPageContainersToGenerate(Application application) {
+        return application.getPageContainers().stream().filter(c -> !c.isForm() && !c.isIsSelector()).toList();
+    }
+
+    public static boolean isPageForOperationParameterType(PageDefinition page) {
+        return page.getDataElement() instanceof OperationParameterType;
+    }
+
+    public static boolean pageHasOutputTarget(PageDefinition page) {
+        if (page.getDataElement() instanceof OperationType operationType) {
+            return operationType.getOutput() != null;
+        }
+        if (page.getDataElement() instanceof OperationParameterType operationParameterType) {
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                return operationType.getOutput() != null;
+            }
+        }
+        return false;
+    }
+
+    public static ClassType getPageOutputTarget(PageDefinition page) {
+        if (page.getDataElement() instanceof OperationType operationType) {
+            return operationType.getOutput().getTarget();
+        }
+        if (page.getDataElement() instanceof OperationParameterType operationParameterType) {
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                return operationType.getOutput().getTarget();
+            }
+        }
+        return null;
+    }
+
+    public static boolean dialogHasResult(PageDefinition page) {
+        return !isPageForOperationParameterType(page) || pageHasOutputTarget(page);
+    }
+
+    public static String dialogDataType(PageDefinition page) {
+        if (page.getContainer().isIsSelector()) {
+            if (page.getDataElement() instanceof OperationType operationType) {
+                return classDataName(operationType.getInput().getTarget(), "Stored");
+            } else if (page.getDataElement() instanceof RelationType relationType) {
+                return classDataName(relationType.getTarget(), "Stored");
+            }
+        }
+        if (page.getDataElement() instanceof OperationParameterType operationParameterType) {
+            return classDataName(operationParameterType.getTarget(), "Stored");
+        }
+        if (page.getDataElement() instanceof RelationType relationType) {
+            return classDataName(relationType.getTarget(), "Stored");
+        }
+        return "void";
     }
 }

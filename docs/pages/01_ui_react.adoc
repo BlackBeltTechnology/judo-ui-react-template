@@ -333,87 +333,6 @@ class CustomL10NProvider implements L10NTranslationProvider {
 }
 ----
 
-=== Implementing a custom error processor
-
-Errors which may be triggered by the application can be customized. The level of customization only applies to:
-
-- response toast triggering
-- response toast message
-- validation error feedbacks
-
-Whether and what errors are triggered cannot be modified!
-
-The pattern with regards to how can this be achieved is similar to the previous.
-
-You need to register a service for the `ERROR_PROCESSOR_HOOK_INTERFACE_KEY` with variable service parameters depending
-on the error handler in question.
-
-> This is due to the fact that different types of errors may be configured in a more general or specific way, and service
-  properties help target these services.
-
-In the following example we will customize the validation error message for the `MISSING_REQUIRED_ATTRIBUTE` error code
-only for a certain `Create` operation, and everything else will behave as per default.
-
-[source,typescriptjsx]
-----
-import { useTranslation } from 'react-i18next';
-import type { BundleContext } from '@pandino/pandino-api';
-import type { ApplicationCustomizer } from './interfaces';
-import type { ErrorHandlingOption, ErrorProcessorHook, ErrorProcessResult, ServerError } from '../utilities/error-handling';
-import { ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '../utilities/error-handling';
-import { useSnackbar } from '../components';
-import { ViewGalaxy } from '../generated/data-api';
-
-export class DefaultApplicationCustomizer implements ApplicationCustomizer {
-  async customize(context: BundleContext): Promise<void> {
-    // Mind the service parameters! Without these, our registration wouldn't match.
-    context.registerService<ErrorProcessorHook<ViewGalaxy>>(ERROR_PROCESSOR_HOOK_INTERFACE_KEY, galaxiesCreateFormErrorHook, {
-      operation: 'Create',
-      component: 'PageCreateGalaxiesForm',
-    });
-  }
-}
-
-const galaxiesCreateFormErrorHook: ErrorProcessorHook<ViewGalaxy> = () => {
-  const { t } = useTranslation();
-  const [enqueueSnackbar] = useSnackbar();
-
-  /**
-   * @param {ErrorProcessResult} defaultResults Contains the pre-filled results, the usage is optional
-   * @param {any} [payload] Is present depending on the use-case, usually contains the data sent to the backend
-   */
-  return (error: any, defaultResults: ErrorProcessResult, options?: ErrorHandlingOption, payload?: ViewGalaxy) => {
-    // only modify validation results
-    if (error?.response?.status === 400) {
-      const errorList = error.response.data as ServerError[];
-      // if the host page has validation errors turned on
-      if (typeof options?.setValidation === 'function' && defaultResults.validation) {
-        // filter errors where we know the affected field's name
-        errorList.filter((e) => e.location).forEach((error) => {
-          // only modify prepared results for required errors
-          if (error.code === 'MISSING_REQUIRED_ATTRIBUTE') {
-            defaultResults.validation.set(error.location, t('you forgot to fill this') as string);
-          }
-        });
-
-        options.setValidation(defaultResults.validation);
-      }
-    }
-
-    // if by default we have a toast message, display it, but we can enforce the same by calling
-    // `enqueueSnackbar()` without any condition.
-    if (defaultResults.toastMessage) {
-      enqueueSnackbar(defaultResults.toastMessage, defaultResults.errorToastConfig);
-    }
-  };
-};
-----
-
-As explained in the comments, **the provisioning of service parameters is mandatory!**
-
-The best way to find out what services requires what parameters, you only need to search for the `useErrorHandler` hook's
-usage, and you should be able to see how does the corresponding `filter` look like.
-
 === Implementing a custom visual element
 
 Every Visual element implementation can be replaced by a custom one, given in the model the `customImplementation`
@@ -601,7 +520,7 @@ the action type, and return parameter (or lack thereof).
   * pop a success toast and
   * refresh the current page
 
-*Overriding the above logic can ge done by:*
+*Overriding the above logic can be done by:*
 
 - implementing the `PostHandlerHook` interface for an operation
 - registering this implementation in the `application-customizer.tsx` file
@@ -734,48 +653,6 @@ const customGodCreateNameOnBlurHook: GodCreateNameOnBlurHook = () => {
       storeDiff('constellation', data.name);
       storeDiff('nakedEye', true);
       await submit();
-    }
-  };
-};
-----
-
-=== Implementing filter initializers for components representing single relations
-
-There are cases when we need to provide additional filtering for Link components besides the modeled range expressions.
-Usually this occurs when we need to rely on what state our current forms/pages are in.
-
-We can achieve this by providing a FilterInitializer service for the Link component which we would like to fine tune.
-
-Just like every other hook, these have their corresponding `INTERFACE_KEY` and the interfaces for the keys.
-
-*src/custom/application-customizer.tsx:*
-[source,typescriptjsx]
-----
-import type { BundleContext } from '@pandino/pandino-api';
-import { ApplicationCustomizer } from './interfaces';
-import {
-  CITY_LINK_FILTER_INITIALIZER_INTERFACE_KEY, CityLinkFilterInitializerHook
-} from "~/pages/admin/admin/dashboardhome/view/actions/adminDashboard/AdminDashboardCreateIssueForm/components/CityLink";
-import { _StringOperation, AdminCityStored, AdminCreateIssueInput } from "~/generated/data-api";
-import { Filter, FilterType } from "~/components-api";
-import { buildFilter } from "~/utilities";
-
-export class DefaultApplicationCustomizer implements ApplicationCustomizer {
-  async customize(context: BundleContext): Promise<void> {
-    // register your implementations here
-    context.registerService(CITY_LINK_FILTER_INITIALIZER_INTERFACE_KEY, cityLinkFilterInitializer);
-  }
-}
-
-// We are building an initializer for the "City" component on the AdminDashboardCreateIssueForm
-const cityLinkFilterInitializer: CityLinkFilterInitializerHook = () => {
-  return (ownerData: AdminCreateIssueInput): Filter[] | undefined => {
-    // we are interested in another single's value on the form (county)
-    if (ownerData.county) {
-      // we are utilizing the `buildFilter` helper to create a basic `Filter` instance
-      return [
-        buildFilter<AdminCityStored>(FilterType.string, _StringOperation.equal, 'county', ownerData.county.name),
-      ];
     }
   };
 };
