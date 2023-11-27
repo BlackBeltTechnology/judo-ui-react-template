@@ -22,7 +22,7 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
-import hu.blackbelt.judo.meta.ui.data.StringType;
+import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
@@ -32,72 +32,17 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
+import static java.util.Arrays.stream;
+
 @Log
 @TemplateHelper
-public class UiWidgetHelper extends Helper {
+public class UiWidgetHelper {
+    public static final String NAME_SPLITTER = "::";
+
     public static String getWidgetTemplate(VisualElement visualElementType) {
-        String componentsLocation = "actor/src/pages/widgets/";
+        String componentsLocation = "actor/src/containers/widget-fragments/";
         return componentsLocation + visualElementType.eClass().getInstanceClass().getSimpleName().toLowerCase() + ".hbs";
-    }
-
-    private static Boolean visualElementHasSaveInputAction(VisualElement visualElementType) {
-        if (visualElementType instanceof Button) {
-            return ((Button) visualElementType).getAction() instanceof SaveInputAction;
-        }
-        return false;
-    }
-
-    private static Boolean visualElementHasBackAction(VisualElement visualElementType) {
-        if (visualElementType instanceof Button) {
-            return ((Button) visualElementType).getAction() instanceof BackAction;
-        }
-        return false;
-    }
-
-    public static Boolean excludeWidgetFromTree(VisualElement visualElementType) {
-        return visualElementHasSaveInputAction(visualElementType) || visualElementHasBackAction(visualElementType);
-    }
-
-    public static Button getSaveButtonForOperationInputPage(PageDefinition pageDefinition) {
-        PageContainer root = pageDefinition.getOriginalPageContainer();
-        VisualElement button = findSaveButton(root);
-
-        return button != null ? (Button) button : null;
-    }
-
-    public static Button getBackButtonForOperationInputPage(PageDefinition pageDefinition) {
-        PageContainer root = pageDefinition.getOriginalPageContainer();
-        VisualElement button = findBackButton(root);
-
-        return button != null ? (Button) button : null;
-    }
-
-    private static VisualElement findSaveButton(VisualElement visualElement) {
-        if (visualElementHasSaveInputAction(visualElement)) {
-            return visualElement;
-        } else if (visualElement instanceof Container) {
-            for (VisualElement child: ((Container) visualElement).getChildren()) {
-                VisualElement nested = findSaveButton(child);
-                if (nested != null) {
-                    return nested;
-                }
-            }
-        }
-        return null;
-    }
-
-    private static VisualElement findBackButton(VisualElement visualElement) {
-        if (visualElementHasBackAction(visualElement)) {
-            return visualElement;
-        } else if (visualElement instanceof Container) {
-            for (VisualElement child: ((Container) visualElement).getChildren()) {
-                VisualElement nested = findBackButton(child);
-                if (nested != null) {
-                    return nested;
-                }
-            }
-        }
-        return null;
     }
 
     public static Double calculateSize(VisualElement element) {
@@ -142,7 +87,7 @@ public class UiWidgetHelper extends Helper {
         CrossAxisAlignment alignment = flex.getCrossAxisAlignment();
         Stretch stretch = flex.getStretch();
 
-        if (stretch.equals(Stretch.BOTH) || stretch.equals(Stretch.HORIZONTAL)) {
+        if (stretch.equals(Stretch.BOTH) || (stretch.equals(Stretch.HORIZONTAL) && flex.getDirection().equals(Axis.VERTICAL)) || (stretch.equals(Stretch.VERTICAL) && flex.getDirection().equals(Axis.HORIZONTAL))) {
             return "stretch";
         }
 
@@ -179,28 +124,10 @@ public class UiWidgetHelper extends Helper {
         }
     }
 
-    public static List<Button> featuredActionsForActionGroup(ActionGroup actionGroup) {
-        return actionGroup.getActions().stream().limit(actionGroup.getFeaturedActions()).collect(Collectors.toList());
-    }
-
-    public static List<Button> nonFeaturedActionsForActionGroup(ActionGroup actionGroup) {
-        return actionGroup.getActions().stream().skip(actionGroup.getFeaturedActions()).collect(Collectors.toList());
-    }
-
-    public static Boolean displayDropdownForActionGroup(ActionGroup actionGroup) {
-        return nonFeaturedActionsForActionGroup(actionGroup).size() > 0;
-    }
-
     public static Boolean shouldElementHaveAutoFocus(VisualElement element) {
-        PageDefinition pageDefinition = element.getPageDefinition();
+        Input input = findFirstInput(element.getPageContainer());
 
-        if (pageDefinition.getIsPageTypeOperationInput() || pageDefinition.getIsPageTypeCreate()) {
-            Input input = findFirstInput(pageDefinition.getOriginalPageContainer());
-
-            return input != null && element.getFQName().equals(input.getFQName());
-        }
-
-        return false;
+        return input != null && element.getFQName().equals(input.getFQName());
     }
 
     private static Input findFirstInput(VisualElement root) {
@@ -259,40 +186,28 @@ public class UiWidgetHelper extends Helper {
         return "undefined";
     }
 
-    public static List<Action> getFilteredLinkActions (Link link) {
-        return link.getActions().stream()
-                .filter(a -> !a.getIsSetAction() && !a.getIsRemoveAction() && !a.getIsUnsetAction())
-                .collect(Collectors.toList());
-    }
-
-    public static boolean linkHasActionsToImport(Link link) {
-        return  getFilteredLinkActions(link).size() > 0;
-    }
-
-    public static List<Action> getFilteredTableActions (Table table) {
-        SortedSet<Action> actions = new TreeSet<>(Comparator.comparing((Action a) -> a.getFQName().trim()));
-        actions.addAll(table.getActions());
-        actions.addAll(table.getRowActions());
-        actions.addAll((List<? extends Action>) table.getPageDefinition().getPageActions());
-        return actions.stream()
-                .filter(a -> !a.getIsBackAction())
-                .collect(Collectors.toList());
-    }
-
-    public static boolean tableHasActionsToImport(Table table) {
-        return  getFilteredTableActions(table).size() > 0;
+    public static String componentName(VisualElement element) {
+        String containerName = containerComponentName(element.getPageContainer());
+        String[] splitted = element.getName().split(NAME_SPLITTER);
+        return containerName + stream(splitted)
+                .map(StringUtils::capitalize)
+                .collect(Collectors.joining()) + "Component";
     }
 
     public static String linkComponentName(Link link) {
-        return StringUtils.capitalize(link.getName()) + "Link";
+        String containerName = containerComponentName(link.getPageContainer());
+        String[] splitted = link.getName().split(NAME_SPLITTER);
+        return containerName + stream(splitted)
+                .map(StringUtils::capitalize)
+                .collect(Collectors.joining()) + "Component";
     }
 
     public static String tableComponentName(Table table) {
-        return StringUtils.capitalize(table.getName()) + "Table";
-    }
-
-    public static boolean isTableFilterable(Table table) {
-        return getFilteredTableActions(table).stream().anyMatch(a -> a instanceof FilterAction || a instanceof FilterRelationAction);
+        String containerName = containerComponentName(table.getPageContainer());
+        String[] splitted = table.getName().split(NAME_SPLITTER);
+        return containerName + stream(splitted)
+                .map(StringUtils::capitalize)
+                .collect(Collectors.joining()) + "Component";
     }
 
     public static Column getFirstAutocompleteColumnForLink(Link link) {
@@ -302,15 +217,8 @@ public class UiWidgetHelper extends Helper {
         return column.orElse(null);
     }
 
-    public static Column getFirstTitleColumnForTable(Table table) {
-        Optional<Column> column = table.getColumns().stream()
-                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
-                .findFirst();
-        return column.orElse(null);
-    }
-
     public static boolean isAutocompleteAvailable(Link link) {
-        if (link.getParts().size() == 0) {
+        if (link.getParts().isEmpty()) {
             return false;
         }
         Column column = getFirstAutocompleteColumnForLink(link);
@@ -318,12 +226,24 @@ public class UiWidgetHelper extends Helper {
         return column != null;
     }
 
-    public static Action getCreateActionForLink(Link link) {
-        return link.getActions().stream().filter(Action::getIsCreateAction).findAny().orElse(null);
-    }
+    public static ClassType getReferenceClassType(ReferenceTypedVisualElement ref) {
+        DataElement dataElement = ref.getDataElement();
+        if (dataElement instanceof OperationType) {
+            OperationType operationType = (OperationType) ref.getDataElement();
+            if (operationType.getOutput() != null) {
+                return operationType.getOutput().getTarget();
+            } else {
+                return operationType.getInput().getTarget();
+            }
+        } else if (dataElement instanceof RelationType) {
+            return ((RelationType) dataElement).getTarget();
+        } else if (dataElement instanceof OperationParameterType) {
+            return ((OperationParameterType) dataElement).getTarget();
+        } else if (dataElement instanceof ClassType) {
+            return (ClassType) dataElement;
+        }
 
-    public static boolean linkHasCreateAction(Link link) {
-        return getCreateActionForLink(link) != null;
+        throw new RuntimeException("Parameter's ClassType cannot be discovered: " + ref.getClass().getName());
     }
 
     public static void collectVisualElementsMatchingCondition(VisualElement root, Predicate<VisualElement> condition, Collection<VisualElement> matches) {
@@ -346,6 +266,34 @@ public class UiWidgetHelper extends Helper {
                 collectVisualElementsMatchingCondition(tab.getElement(), condition, matches);
             }
         }
+
+        if (root instanceof ButtonGroup buttonGroup) {
+            for (Button button: buttonGroup.getButtons()) {
+                collectVisualElementsMatchingCondition(button, condition, matches);
+            }
+        }
+    }
+
+    public static <T extends VisualElement> List<T> collectElementsOfType(VisualElement visualElement, List<T> acc, Class<T> elementType) {
+        if (elementType.isInstance(visualElement)) {
+            acc.add(elementType.cast(visualElement));
+        }
+        if (visualElement instanceof Container container) {
+            for (VisualElement element : container.getChildren()) {
+                collectElementsOfType(element, acc, elementType);
+            }
+        }
+        if (visualElement instanceof TabController tabController) {
+            for (Tab tab : tabController.getTabs()) {
+                collectElementsOfType(tab.getElement(), acc, elementType);
+            }
+        }
+        if (visualElement instanceof ButtonGroup buttonGroup) {
+            for (Button button: buttonGroup.getButtons()) {
+                collectElementsOfType(button, acc, elementType);
+            }
+        }
+        return acc;
     }
 
     public static List<String> getNestedDataKeysForElement(VisualElement visualElement) {
@@ -378,4 +326,74 @@ public class UiWidgetHelper extends Helper {
         return "item";
     }
 
+    public static List<Button> featuredButtonsForButtonGroup(ButtonGroup buttonGroup) {
+        return buttonGroup.getButtons().stream().limit(buttonGroup.getFeaturedActions()).collect(Collectors.toList());
+    }
+
+    public static List<Button> nonFeaturedButtonsForButtonGroup(ButtonGroup buttonGroup) {
+        return buttonGroup.getButtons().stream().skip(buttonGroup.getFeaturedActions()).collect(Collectors.toList());
+    }
+
+    public static Boolean displayDropdownForButtonGroup(ButtonGroup actionGroup) {
+        return !nonFeaturedButtonsForButtonGroup(actionGroup).isEmpty();
+    }
+
+    public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {
+        if (button.getActionDefinition().getIsClearAction()) {
+            return "data.length";
+        }
+        if (button.getActionDefinition().isIsBulk()) {
+            return "selectionModel.length > 0";
+        }
+        return "true";
+    }
+
+    public static String tableToolbarButtonDisabledConditions(Button button, Table table, PageContainer container) {
+        String result = "";
+
+        if (!container.isTable()) {
+            if (button.getActionDefinition().getIsOpenFormAction() || button.getActionDefinition().getIsBulkDeleteAction()) {
+                result += "editMode || ";
+            } else if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsClearAction()) {
+                if (container.isView()) {
+                    result += "editMode || !isFormUpdateable() || ";
+                }
+            }
+        }
+        if (button.getActionDefinition().isIsBulk() && button.getHiddenBy() != null) {
+            result += "!selectedRows.current.every(s => !s." + button.getHiddenBy().getName() + ") || ";
+        }
+        if (button.getActionDefinition().getIsBulkDeleteAction()) {
+            result += "selectedRows.current.some(s => !s.__deleteable) || ";
+        }
+
+        return result + "isLoading";
+    }
+
+    public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
+        String result = "";
+
+        if (button.getActionDefinition().getIsRemoveAction()) {
+            if (!container.isTable() && table.getEnabledBy() != null) {
+                result += "!ownerData.{{ table.enabledBy.name }} || ";
+            }
+        } else if (button.getActionDefinition().getIsDeleteAction()) {
+            if (!container.isTable()) {
+                result += "editMode || ";
+
+                if (table.getEnabledBy() != null) {
+                    result += "!ownerData.{{ table.enabledBy.name }} || ";
+                }
+            }
+            result += "!row.__deleteable || ";
+        } else if (!container.isTable()) {
+            result += "editMode || ";
+        }
+
+        if (button.getEnabledBy() != null) {
+            result += "!row." + button.getEnabledBy().getName() + " || ";
+        }
+
+        return result + "isLoading";
+    }
 }

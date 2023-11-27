@@ -1,0 +1,85 @@
+{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+<Grid item xs={12} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
+  <Grid container spacing={2}>
+    {{# if child.customImplementation }}
+      <ComponentProxy
+        filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+        data={data}
+        validation={validation}
+        editMode={editMode}
+        storeDiff={storeDiff}
+      >
+    {{/ if }}
+    {{# each (featuredButtonsForButtonGroup child) as |button| }}
+      {{# if button.hiddenBy }}{ !data.{{ button.hiddenBy.name }} && {{/ if }}
+      <Grid item>
+        <LoadingButton
+          id="{{ getXMIID button }}"
+          loading={isLoading}
+          {{# if button.icon }}
+            startIcon={<MdiIcon path="{{ button.icon.iconName }}" />}
+            loadingPosition="start"
+          {{/ if }}
+          onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
+            {{# if button.confirmation }}
+              // TODO: implement shiny MUI Dialog here
+              const result = confirm(t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+
+              if (!result) {
+                return;
+              }
+            {{/ if }}
+            await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
+          } : undefined }
+          disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
+        >
+          <span>{ t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) }</span>
+        </LoadingButton>
+      </Grid>
+      {{# if button.hiddenBy }} }{{/ if }}
+    {{/ each }}
+    {{# if (displayDropdownForButtonGroup child) }}
+      <Grid item>
+        <DropdownButton
+          id="{{ getXMIID child }}-button-group"
+          disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
+          {{# if child.icon }}
+            startIcon={ <MdiIcon path="{{ child.icon.iconName }}" /> }
+          {{/ if }}
+          menuItems={[
+            {{# each (nonFeaturedButtonsForButtonGroup child) as |button| }}
+              {
+                id: '{{ getXMIID button }}',
+                label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
+                onClick: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
+                  {{# if button.confirmation }}
+                    // TODO: implement shiny MUI Dialog here
+                    const result = confirm(t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+
+                    if (!result) {
+                      return;
+                    }
+                  {{/ if }}
+                  await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
+                } : undefined,
+                {{# if button.icon }}
+                  startIcon: <MdiIcon path="{{ button.icon.iconName }}" />,
+                {{ else }}
+                  startIcon: <MdiIcon path="arrow_right" />,
+                {{/ if }}
+                disabled: {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} isLoading || editMode,
+                {{# if button.hiddenBy }}visible: !data.{{ button.hiddenBy.name }},{{/ if }}
+              },
+            {{/ each }}
+          ]}
+        >
+          { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
+        </DropdownButton>
+      </Grid>
+    {{/ if }}
+    {{# if child.customImplementation }}
+    </ComponentProxy>
+    {{/ if }}
+  </Grid>
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}
