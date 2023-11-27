@@ -23,6 +23,7 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
+import jdk.dynalink.Operation;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
@@ -31,259 +32,256 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
+import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.isSingleAccessPage;
+import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.pageHasSignedId;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectElementsOfType;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToUpper;
 
 @Log
 @TemplateHelper
 public class UiActionsHelper {
+    public static Set<ActionDefinition> getContainerOwnActionDefinitions(PageContainer container) {
+        List<ButtonGroup> groups = new ArrayList<>();
+        collectElementsOfType(container, groups, ButtonGroup.class);
 
-    public static String actionFunctionName(Action action) {
-        String tmp = pageActionPathSuffix(action);
+        Set<ActionDefinition> actionDefinitions = groups.stream()
+                .flatMap(g -> g.getButtons().stream())
+                .map(Button::getActionDefinition)
+                .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition)
+                .collect(Collectors.toSet());
 
-        return (tmp.contains("/") ? tmp.substring(tmp.lastIndexOf("/") + 1) : tmp) + "Action";
+        List<Button> buttons = new ArrayList<>();
+        collectElementsOfType(container, buttons, Button.class);
+
+        actionDefinitions.addAll(buttons.stream().map(Button::getActionDefinition).toList());
+        actionDefinitions.addAll(buttons.stream().map(Button::getPreFetchActionDefinition).filter(Objects::nonNull).toList());
+
+        SortedSet<ActionDefinition> sorted = new TreeSet<>(Comparator.comparing(NamedElement::getFQName));
+
+        sorted.addAll(actionDefinitions);
+
+        return sorted;
     }
 
-    public static String actionFunctionTypeName(Action action) {
-        return StringUtils.capitalize(actionFunctionName(action));
-    }
-
-    public static String actionFunctionHookName(Action action) {
-        return "use".concat(actionFunctionTypeName(action));
-    }
-
-    public static String actionFunctionHandlerTypeName(Action action, String handlerType) {
-        return StringUtils.capitalize(actionFunctionName(action)) + handlerType;
-    }
-
-    public static String pageActionPathSuffix(Action action) {
-        PageDefinition page = (PageDefinition) action.eContainer();
-        String result = "";
-        String[] segments = action.getName().split("::");
-        String end = segments[segments.length - 1];
-        String first = end.split("#")[0];
-        String last = end.split("#")[1];
-
-        if (action instanceof CallOperationAction) {
-            if (!action.getDataElement().getOwner().getName().equals(page.getDataElement().getOwner().getName())) {
-                String targetClassName = getClassName((ClassType) action.getDataElement().getOwner());
-                first = targetClassName + StringUtils.capitalize(first);
-                return StringUtils.uncapitalize(targetClassName) + "/" + StringUtils.uncapitalize(first);
-            }
-            return first;
-        } else if (first.equals(page.getDataElement().getName())) {
-            result += StringUtils.uncapitalize(last);
-        } else {
-            result += first + "/" + StringUtils.uncapitalize(last);
-        }
-
-        String suffix = action.getDataElement().getName();
-
-        return result.length() > 0 ? StringUtils.uncapitalize(result) + StringUtils.capitalize(suffix) : suffix;
-    }
-
-    public static String pageActionFilePathSuffix(Action action) {
-        String actionPath = pageActionPathSuffix(action);
-        String converted = actionPath;
-
-        if (actionPath.contains("/")) {
-            int lastSlashPosition = actionPath.lastIndexOf("/");
-            String lead = actionPath.substring(0, lastSlashPosition);
-            String trail = actionPath.substring(lastSlashPosition + 1);
-            converted = lead + "/" + StringUtils.capitalize(trail);
-        } else {
-            converted = StringUtils.capitalize(converted);
-        }
-
-        return converted;
-    }
-
-    public static String pageActionFormPathSuffix(Action action) {
-        return pageActionFilePathSuffix(action) + "Form";
-    }
-
-    public static String pageActionFormComponentName(Action action) {
-        String full = pageActionFormPathSuffix(action);
-
-        return cutAtLastSlash(full);
-    }
-
-    public static List<Action> getActionsForPages(Application application) {
-        return getPagesForRouting(application).stream()
-                .flatMap(p -> getUniquePageActions(p).stream())
-                .collect(Collectors.toList());
-    }
-
-    public static List<Action> getActionsForViewDialogs(Application application) {
-        return getViewDialogs(application).stream()
-                .flatMap(p -> getUniquePageActions(p).stream())
-                .collect(Collectors.toList());
-    }
-
-    public static List<Action> getActionsForOutputPages(Application application) {
-        return getUnmappedOutputViewsForPages(application).stream().flatMap(p -> p.getActions().stream()).collect(Collectors.toList());
-    }
-
-    public static List<Action> getActionFormsForPages(Application application) {
-        List<Action> actions = getActionsForPages(application);
-        return actions.stream().filter(UiActionsHelper::actionHasInputForm).collect(Collectors.toList());
-    }
-
-    public static List<Action> getActionFormsForViewDialogs(Application application) {
-        List<Action> actions = getActionsForViewDialogs(application);
-        return actions.stream().filter(UiActionsHelper::actionHasInputForm).collect(Collectors.toList());
-    }
-
-    public static List<KeyValue<Link, Action>> getLinksForActionFormPages(Application application) {
-        List<Action> actions = getActionFormsForPages(application);
-        List<KeyValue<Link, Action>> kvs = new ArrayList<>();
-        actions.forEach(a -> {
-            PageDefinition page = getTargetFormForAction(a);
-            ((List<Link>) page.getOriginalPageContainer().getLinks()).forEach(l -> {
-                kvs.add(new KeyValue<>(l, a));
-            });
-        });
-        return kvs;
-    }
-
-    public static List<KeyValue<Table, Action>> getTablesForActionFormPages(Application application) {
-        List<Action> actions = getActionFormsForPages(application);
-        List<KeyValue<Table, Action>> kvs = new ArrayList<>();
-        actions.forEach(a -> {
-            PageDefinition page = getTargetFormForAction(a);
-            ((List<Table>) page.getOriginalPageContainer().getTables()).forEach(l -> {
-                kvs.add(new KeyValue<>(l, a));
-            });
-        });
-        return kvs;
-    }
-
-    public static List<KeyValue<Link, Action>> getLinksForActionFormViewDialogs(Application application) {
-        List<Action> actions = getActionFormsForViewDialogs(application);
-        List<KeyValue<Link, Action>> kvs = new ArrayList<>();
-        actions.forEach(a -> {
-            PageDefinition page = getTargetFormForAction(a);
-            ((List<Link>) page.getOriginalPageContainer().getLinks()).forEach(l -> {
-                kvs.add(new KeyValue<>(l, a));
-            });
-        });
-        return kvs;
-    }
-
-    public static List<KeyValue<Table, Action>> getTablesForActionFormViewDialogs(Application application) {
-        List<Action> actions = getActionFormsForViewDialogs(application);
-        List<KeyValue<Table, Action>> kvs = new ArrayList<>();
-        actions.forEach(a -> {
-            PageDefinition page = getTargetFormForAction(a);
-            ((List<Table>) page.getOriginalPageContainer().getTables()).forEach(l -> {
-                kvs.add(new KeyValue<>(l, a));
-            });
-        });
-        return kvs;
-    }
-
-    public static PageDefinition getTargetFormForAction(Action action) {
-        PageDefinition page;
-        if (action.getIsCallOperationAction()) {
-            page = ((CallOperationAction) action).getInputParameterPage();
-        } else if (action.getIsCreateAction()) {
-            page = ((CreateAction) action).getTarget();
-        } else {
-            throw new RuntimeException("Unsupported page type for action: " + action.toString());
-        }
-        return page;
-    }
-
-    public static List<PageDefinition> getUnmappedOutputViewsForPages(Application application) {
-        Set<PageDefinition> unmappedOutputForms = getActionsForPages(application)
-                .stream()
-                .filter(a -> a instanceof CallOperationAction && actionHasUnmappedOutputForm(a))
-                .map(a -> ((CallOperationAction) a).getOutputParameterPage()).collect(Collectors.toSet());
-        return unmappedOutputForms.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
-    }
-
-    public static List<Link> getLinksForUnmappedOutputViewPages(Application application) {
-        List<PageDefinition> pages = getUnmappedOutputViewsForPages(application);
-
-        return pages.stream()
-                .flatMap(p -> ((List<Link>) p.getOriginalPageContainer().getLinks()).stream())
-                .collect(Collectors.toList());
-    }
-
-    public static List<Table> getTablesForUnmappedOutputViewPages(Application application) {
-        List<PageDefinition> pages = getUnmappedOutputViewsForPages(application);
-
-        return pages.stream()
-                .flatMap(p -> ((List<Table>) p.getOriginalPageContainer().getTables()).stream())
-                .collect(Collectors.toList());
-    }
-
-    public static String actionsPath(PageDefinition page) {
-        String base = pagesFolderPath(((Application)page.eContainer()).getActor()).concat(getPageTypePath(page));
-        return base.concat(base.endsWith("/") ? "" : "/").concat("actions");
-    }
-
-    public static String actionsIndexPath(PageDefinition page) {
-        return actionsPath(page).concat("/index.tsx");
-    }
-
-    public static boolean actionHasInputForm(Action action) {
-        if (action.getIsCreateAction()) {
-            return true;
-        }
-        if (action.getIsCallOperationAction()) {
-            PageDefinition input = ((CallOperationAction) action).getInputParameterPage();
-
-            return input != null && !((ReferenceType) input.getDataElement()).getTarget().isIsMapped();
-        }
-        return false;
-    }
-
-    public static boolean actionHasUnmappedOutputForm(Action action) {
-        if (action.getIsCallOperationAction()) {
-            CallOperationAction callOperationAction = (CallOperationAction) action;
-
-            if (callOperationAction.getOutputParameterPage() != null) {
-                return !isPageRefreshable(callOperationAction.getOutputParameterPage());
-            }
-        }
-        return false;
-    }
-
-    public static boolean isActionAccess(Action action) {
-        if (action instanceof PageAction) {
-            PageDefinition target = ((PageAction) action).getTarget();
-            return target != null && target.getRelationType() != null && target.getRelationType().isIsAccess();
-        }
-        return false;
-    }
-
-    public static boolean hasConfirmation(Action action) {
-        return action.getIsConfirmationTypeConditional() || action.getIsConfirmationTypeMandatory();
-    }
-
-    public static boolean actionHasVisualElements(Action action) {
-        // At the time of writing we only wanted to use this functionality for create actions.
-        if (action instanceof CreateAction) {
-            CreateAction createAction = (CreateAction) action;
-            VisualElement dataContainer = getDataContainerForPage(createAction.getTarget());
-
-            if (dataContainer != null) {
-                return dataContainer instanceof Flex && ((Flex) dataContainer).getChildren().size() > 0;
+    public static String getContainerOwnActionParameters(ActionDefinition actionDefinition, PageContainer container) {
+        String res = "";
+        // queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}
+        if (actionDefinition.getIsRefreshAction()) {
+            res += "queryCustomizer: " + classDataName((ClassType) container.getDataElement(), "QueryCustomizer");
+        } else if (actionDefinition.getTargetType() != null) {
+            String targetName = classDataName(actionDefinition.getTargetType(), "Stored");
+            if (container.isIsRelationSelector()) {
+                res += "selected: " + targetName + "[]";
+            } else if (!actionDefinition.getIsGetTemplateAction()) {
+                res += "target?: " + targetName;
             }
         }
 
-        return false;
+        return res;
     }
 
-    public static EObject getActionContainer(Action action) {
-        return action.eContainer();
+    public static String getContainerOwnActionReturnType(ActionDefinition actionDefinition, PageContainer container) {
+        if (actionDefinition.getIsRefreshAction()) {
+            // {{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}
+            return classDataName((ClassType) container.getDataElement(), "Stored") + (container.isTable() ? "[]" : "");
+        } else if (actionDefinition.getIsPreFetchAction()) {
+            return classDataName(actionDefinition.getTargetType(), "Stored");
+        } else if (actionDefinition.getIsGetTemplateAction()) {
+            return classDataName(actionDefinition.getTargetType(), "");
+        }
+        return "void";
     }
 
-    public static boolean isLinkAction (Action action) {
-        return action.getType().equals(ActionType.LINK);
+    public static ActionDefinition getRefreshActionDefinitionForTable(Table table) {
+        if (table.getRelationType() != null && !table.getRelationType().getIsRelationKindAssociation()) {
+            return null;
+        }
+        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
     }
 
-    public static boolean hasCallOperationActionFaults(CallOperationAction action) {
-        return action.getOperation().getFaults().size() > 0;
+    public static ActionDefinition getRangeActionDefinitionForTable(Table table) {
+        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsSelectorRangeAction()).findFirst().orElse(null);
+    }
+
+    public static ActionDefinition getRefreshActionDefinitionForContainer(PageContainer container) {
+        if (container.isTable()) {
+            return getRefreshActionDefinitionForTable((Table) container.getTables().get(0));
+        }
+        return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
+    }
+
+    public static String getActionTemplate(Action action) {
+        String componentsLocation = "actor/src/pages/actions/";
+        String actionDefinitionBareName = action.getActionDefinition().eClass().getInstanceClass().getSimpleName();
+        String suffixToCut = "Definition";
+        String actionName = actionDefinitionBareName.substring(0, actionDefinitionBareName.length() - suffixToCut.length());
+        return componentsLocation + actionName + ".fragment.hbs";
+    }
+
+    public static PageContainer getPageContainerForActionDefinition(ActionDefinition actionDefinition) {
+        PageContainer pageContainer = null;
+        EObject parent = actionDefinition.eContainer();
+
+        while (parent.eContainer() != null) {
+            if (parent instanceof PageContainer) {
+                pageContainer = (PageContainer) parent;
+                break;
+            } else {
+                parent = parent.eContainer();
+            }
+        }
+
+        return pageContainer;
+    }
+
+    public static Link getLinkParentForActionDefinition(ActionDefinition actionDefinition) {
+        Link link = null;
+        EObject parent = actionDefinition.eContainer();
+
+        while (parent.eContainer() != null) {
+            if (parent instanceof Link) {
+                link = (Link) parent;
+                break;
+            } else {
+                parent = parent.eContainer();
+            }
+        }
+
+        return link;
+    }
+
+    public static Table getTableParentForActionDefinition(ActionDefinition actionDefinition) {
+        Table table = null;
+        EObject parent = actionDefinition.eContainer();
+
+        while (parent.eContainer() != null) {
+            if (parent instanceof Table) {
+                table = (Table) parent;
+                break;
+            } else {
+                parent = parent.eContainer();
+            }
+        }
+
+        return table;
+    }
+
+    public static String linkActionDefinitionParameters(Link link, ActionDefinition actionDefinition) {
+        if (link.getDataElement() instanceof ReferenceType referenceType) {
+            ClassType target = referenceType.getTarget();
+            if (actionDefinition.getIsAutocompleteRangeAction()) {
+                return "queryCustomizer: " + classDataName(target, "QueryCustomizer");
+            } else if (actionDefinition.getTargetType() != null) {
+                return "target: " + classDataName(target, target.isIsMapped() ? "Stored" : "");
+            }
+        }
+        return "";
+    }
+
+    public static String linkActionDefinitionResponseType(Link link, ActionDefinition actionDefinition) {
+        if (actionDefinition.getIsAutocompleteRangeAction()) {
+            return "Array<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + ">";
+        }
+        return "void";
+    }
+
+    public static String getServiceMethodSuffix(Action action) {
+        String suffix = "";
+        if (action.getOwnerDataElement() instanceof OperationType) {
+            suffix += "On" + firstToUpper(action.getOwnerDataElement().getName());
+        } else if (action.getOwnerDataElement() instanceof RelationType) {
+            suffix += "For" + firstToUpper(action.getOwnerDataElement().getName());
+        }
+        return suffix;
+    }
+
+    public static String getDialogOpenParameters(PageDefinition pageDefinition) {
+        List<String> result = new ArrayList<>();
+        result.add("ownerData: any");
+        if (pageDefinition.getContainer().isIsRelationSelector()) {
+            result.add("alreadySelected: " + classDataName(getReferenceClassType(pageDefinition), "Stored") + "[]");
+        }
+        return String.join(", ", result);
+    }
+
+    public static String getSelectorOpenActionParameters(Action action, PageContainer container) {
+        List<String> tokens = new ArrayList<>();
+        if (container.isTable()) {
+            if (action.getTargetPageDefinition().getContainer().isIsRelationSelector()) {
+                tokens.add("{ __signedIdentifier: signedIdentifier }");
+            } else {
+                tokens.add("[]");
+            }
+        } else {
+            tokens.add("data");
+        }
+
+        if (action.getTargetPageDefinition().getContainer().isIsRelationSelector()) {
+            if (action.getTargetDataElement() instanceof RelationType check) {
+                if (container.isTable()) {
+                    tokens.add("[]");
+                } else {
+                    String result = "data." + check.getName();
+                    boolean isCollection = check.isIsCollection();
+                    if (isCollection) {
+                        tokens.add(result + " ?? []");
+                    } else {
+                        tokens.add(result + "? [" + result + "] : []");
+                    }
+                }
+            }
+        }
+        return String.join(", ", tokens);
+    }
+
+    public static boolean isActionAddOrSet(ActionDefinition actionDefinition) {
+        return actionDefinition.getIsAddAction() || actionDefinition.getIsSetAction();
+    }
+
+    public static String operationCallSuffix(Action action) {
+        if (action.getActionDefinition() instanceof CallOperationActionDefinition actionDefinition) {
+            boolean isOnViewPage = ((PageDefinition)action.eContainer()).getContainer().isView();
+            Table table = getTableParentForActionDefinition(actionDefinition);
+            Link link = getLinkParentForActionDefinition(actionDefinition);
+            if (isOnViewPage && (table != null || link != null)) {
+                return "For" + StringUtils.capitalize(action.getOwnerDataElement().getName());
+            }
+        }
+        return "";
+    }
+
+    public static VisualElement translationElementForBulkAction(Action action) {
+        // .eContainer is not working in templates...
+        return (VisualElement) action.getActionDefinition().eContainer();
+    }
+
+    public static boolean isActionOnOperationInput(Action action) {
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        // exclude output views...
+        return pageDefinition.getDataElement() instanceof OperationParameterType && !pageDefinition.getContainer().isView();
+    }
+
+    public static String getOperationNameForActionOnInput(Action action) {
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        return ((OperationType) pageDefinition.getDataElement().eContainer()).getName();
+    }
+
+    public static String refreshActionDataParameter(Action action) {
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        if (pageHasSignedId(pageDefinition)) {
+            if (pageDefinition.isOpenInDialog()) {
+                return "ownerData";
+            }
+            return "{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>";
+        }
+        if (isSingleAccessPage(pageDefinition)) {
+            if (pageDefinition.isOpenInDialog()) {
+                return "ownerData";
+            }
+            return "singletonHost.current";
+        }
+        return "undefined";
     }
 }
