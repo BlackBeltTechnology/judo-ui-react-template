@@ -70,23 +70,11 @@ export default function {{ containerComponentName container }}(props: {{ contain
   {{/ unless }}
 
   return (
-    {{# unless (containerIsEmptyDashboard container) }}
-      {{# with container.children.[0] as |rootChild| }}
-        <Grid
-          container
-          spacing={2}
-          direction="{{# if rootChild.isDirectionHorizontal }}row{{ else }}column{{/ if }}"
-          alignItems="{{# if container.table }}stretch{{ else }}{{ alignItems rootChild }}{{/ if }}"
-          justifyContent="{{ justifyContent rootChild }}"
-        >
-          {{# each rootChild.children as |child| }}
-            {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
-            {{> (getWidgetTemplate child) }}
-          {{/ each }}
-        </Grid>
-      {{/ with }}
-    {{ else }}
-      <></>
-    {{/ unless }}
+    <Grid container>
+      {{# each container.children as |child| }}
+        {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+        {{> (getWidgetTemplate child) }}
+      {{/ each }}
+    </Grid>
   );
 }
