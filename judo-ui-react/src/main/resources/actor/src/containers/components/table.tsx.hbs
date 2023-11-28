@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import type { MouseEvent{{# if container.isSelector }}, Dispatch, SetStateAction{{/ if }} } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { JudoIdentifiable } from '@judo/data-api-common';
@@ -216,7 +216,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   };
   {{/ if }}
 
-  const columns: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
+  const columns = useMemo<GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>(() => [
     {{# each table.columns as |column| }}
     {
       ...baseColumnConfig,
@@ -227,7 +227,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
     },
     {{/ each }}
-  ];
+  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
 
   const rowActions: TableRowAction<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
     {{# each table.rowActionButtonGroup.buttons as |button| }}
@@ -255,12 +255,12 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{/ each }}
   ];
 
-  const filterOptions: FilterOption[] = [
+  const filterOptions = useMemo<FilterOption[]>(() => [
     {{# each table.filters as |filter| }}
     {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
     {{/ each }}
-  ];
+  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
 
   {{# if isUseInlineColumnFilters }}
   function handleFilterModelChange (newModel: GridFilterModel) {
@@ -352,14 +352,14 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{/ unless }}
 
   {{# if container.isSelector }}
-  const handleIsRowSelectable = (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }} & { __selected?: boolean }>) => {
+  const handleIsRowSelectable = useCallback((params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }} & { __selected?: boolean }>) => {
     {{# unless container.isRelationSelector }}
     // For operation inputs, we allow all elements to be selected.
     return true;
     {{ else }}
     return isRowSelectable(params.row, !{{ boolValue table.allowSelectMultiple }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }});
     {{/ unless }}
-  };
+  }, []);
 
   const handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
     if (!Array.isArray(selectionModel)) return;
