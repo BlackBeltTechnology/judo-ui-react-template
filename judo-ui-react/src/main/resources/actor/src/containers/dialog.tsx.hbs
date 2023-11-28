@@ -55,6 +55,7 @@ export interface {{ containerComponentName container }}DialogProps {
       storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
       validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
       setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
+      submit: () => Promise<void>;
     {{/ unless }}
   {{/ unless }}
 };
@@ -88,7 +89,8 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
           isFormDeleteable,
           storeDiff,
           validation,
-          setValidation
+          setValidation,
+          submit
         {{/ unless }}
       {{/ unless }}
     } = props;
@@ -139,6 +141,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                 isFormDeleteable={isFormDeleteable}
                 validation={validation}
                 setValidation={setValidation}
+                submit={submit}
               {{/ unless }}
             />
           </Suspense>

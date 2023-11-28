@@ -32,8 +32,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.isSingleAccessPage;
-import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.pageHasSignedId;
+import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectElementsOfType;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
@@ -283,5 +282,47 @@ public class UiActionsHelper {
             return "singletonHost.current";
         }
         return "undefined";
+    }
+
+    public static String postCallOperationActionParams(PageDefinition page, ActionDefinition actionDefinition) {
+        List<String> tokens = new ArrayList<>();
+        if (actionDefinition.getTargetType() != null) {
+            tokens.add("data: " + classDataName(actionDefinition.getTargetType(), "Stored"));
+        }
+        if (actionDefinition instanceof CallOperationActionDefinition call && call.getOperation().getOutput() != null) {
+            tokens.add("output: " + classDataName(call.getOperation().getOutput().getTarget(), "Stored"));
+        }
+        if (page.getContainer().isForm()) {
+            String result = (pageHasOutputTarget(page) ? classDataName(getPageOutputTarget(page), "Stored") : dialogDataType(page)) + (page.getContainer().isTable() ? "[]" : "");
+            tokens.add("onSubmit: (result?: " + result + ") => Promise<void>");
+        }
+        if (page.isOpenInDialog()) {
+            tokens.add("onClose: () => Promise<void>");
+        }
+        return String.join(", ", tokens);
+    }
+
+    public static String postRefreshActionParams(PageDefinition page, ActionDefinition actionDefinition) {
+        String res = "";
+        res += "data: " + classDataName(getReferenceClassType(page), "Stored") + (page.getContainer().isTable() ? "[]" : "");
+        if (!page.getContainer().isTable()) {
+            res += ", ";
+            res += "storeDiff: (attributeName: keyof " + classDataName(getReferenceClassType(page), "") + ", value: any) => void, ";
+            res += "setValidation: Dispatch<SetStateAction<Map<keyof " + classDataName(getReferenceClassType(page), "") + ", string>>>";
+        }
+        return res;
+    }
+
+    public static String onBlurActionParams(PageContainer container) {
+        List<String> tokens = new ArrayList<>();
+        if (!container.isTable()) {
+            tokens.add("data: " + classDataName((ClassType) container.getDataElement(), "Stored"));
+            tokens.add("storeDiff: (attributeName: keyof " + classDataName((ClassType) container.getDataElement(), "") + ", value: any) => void");
+            tokens.add("editMode: boolean");
+            tokens.add("setValidation: Dispatch<SetStateAction<Map<keyof " + classDataName((ClassType) container.getDataElement(), "") + ", string>>>");
+        }
+        tokens.add("submit: () => Promise<void>");
+
+        return String.join(", ", tokens);
     }
 }

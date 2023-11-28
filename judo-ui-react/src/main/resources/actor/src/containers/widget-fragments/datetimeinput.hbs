@@ -54,8 +54,10 @@
         onChange={ (newValue: Date) => {
             storeDiff('{{ child.attributeType.name }}', newValue);
             {{# if child.onBlur }}
+            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
                 const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: newValue };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, setValidation, submit);
+            }
             {{/ if }}
         } }
     />

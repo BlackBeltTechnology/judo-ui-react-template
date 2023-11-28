@@ -19,6 +19,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
           __version: result.__version,
           __entityType: result.__entityType,
       } as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
+      if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
+        await customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(result{{# unless page.container.table }}, storeDiff, setValidation{{/ unless }});
+      }
       return result;
     {{/ if }}
   } catch (error) {

@@ -2,6 +2,9 @@
 
 import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
+  {{# unless page.container.table }}
+  import type { Dispatch, SetStateAction } from 'react';
+  {{/ unless }}
   import { OBJECTCLASS } from '@pandino/pandino-api';
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '@judo/data-api-common';
@@ -46,13 +49,11 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
 {{# unless (containerIsEmptyDashboard page.container) }}
   export type {{ containerComponentName page.container }}DialogActionsExtended = {{ containerComponentName page.container }}DialogActions & {
     {{# each (getAllCallOperationActions page) as |action| }}
-      post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: (
-        {{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }},{{/ if }}
-        {{# if action.actionDefinition.operation.output }}output: {{ classDataName action.actionDefinition.operation.output.target '' }},{{/ if }}
-        {{# if page.container.form }}onSubmit: (result?: {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}{{/ if }}) => Promise<void>,{{/ if }}
-        onClose: () => Promise<void>
-      ) => Promise<void>;
+      post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: ({{{ postCallOperationActionParams page action.actionDefinition }}}) => Promise<void>;
     {{/ each }}
+    {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+      post{{ firstToUpper (simpleActionDefinitionName refreshActionDefinition) }}?: ({{{ postRefreshActionParams page refreshActionDefinition }}}) => Promise<void>;
+    {{/ with }}
   };
 
   export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
@@ -208,6 +209,19 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       const title: string = t('{{ getTranslationKeyForVisualElement page.container }}', { defaultValue: '{{ page.container.label }}' });
     {{/ if }}
 
+    // Private actions
+    const submit = async () => {
+      {{# with (getCreateActionForPage page) as |action| }}
+        await {{ simpleActionDefinitionName action.actionDefinition }}();
+      {{/ with }}
+      {{# with (getUpdateActionForPage page) as |action| }}
+        await {{ simpleActionDefinitionName action.actionDefinition }}();
+      {{/ with }}
+      {{# with (getCallOperationActionForPage page) as |action| }}
+        await {{ simpleActionDefinitionName action.actionDefinition }}();
+      {{/ with }}
+    };
+
     // Action section
     {{# each page.actions as |action| }}
       {{> (getActionTemplate action) }}
@@ -255,6 +269,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 isFormDeleteable={isFormDeleteable}
                 validation={validation}
                 setValidation={setValidation}
+                submit={submit}
               {{/ unless }}
             {{/ unless }}
           />

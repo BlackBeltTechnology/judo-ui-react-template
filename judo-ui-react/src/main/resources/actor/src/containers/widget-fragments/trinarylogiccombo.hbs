@@ -24,8 +24,10 @@
         onChange={ (value) => {
             storeDiff('{{ child.attributeType.name }}', value);
             {{# if child.onBlur }}
+            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
                 const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: value };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, setValidation, submit);
+            }
             {{/ if }}
         } }
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || isLoading }

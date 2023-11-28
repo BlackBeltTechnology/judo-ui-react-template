@@ -33,16 +33,20 @@
             deleteCallback={ async () => {
                 storeDiff('{{ child.attributeType.name }}', null);
                 {{# if child.onBlur }}
+                if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
                     const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: null };
-                    {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                    actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, setValidation, submit);
+                }
                 {{/ if }}
             } }
         {{/unless}}
         uploadCallback={ async (uploadedData: { token: string }) => {
             storeDiff('{{ child.attributeType.name }}', uploadedData.token);
             {{# if child.onBlur }}
+            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
                 const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: uploadedData.token };
-                {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
+                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, setValidation, submit);
+            }
             {{/ if }}
         } }
     />

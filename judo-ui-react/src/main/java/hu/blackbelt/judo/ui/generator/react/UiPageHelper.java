@@ -359,4 +359,28 @@ public class UiPageHelper {
         }
         return "void";
     }
+
+    public static Action getCreateActionForPage(PageDefinition page) {
+        ActionDefinition def = page.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof CreateActionDefinition).findFirst().orElse(null);
+        if (def != null) {
+            return page.getActions().stream().filter(a -> a.getActionDefinition().equals(def)).findFirst().orElse(null);
+        }
+        return null;
+    }
+
+    public static Action getUpdateActionForPage(PageDefinition page) {
+        ActionDefinition def =  page.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof UpdateActionDefinition).findFirst().orElse(null);
+        if (def != null) {
+            return page.getActions().stream().filter(a -> a.getActionDefinition().equals(def)).findFirst().orElse(null);
+        }
+        return null;
+    }
+
+    public static Action getCallOperationActionForPage(PageDefinition page) {
+        ActionDefinition def =  page.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof CallOperationActionDefinition).findFirst().orElse(null);
+        if (def != null) {
+            return page.getActions().stream().filter(a -> a.getActionDefinition().equals(def)).findFirst().orElse(null);
+        }
+        return null;
+    }
 }

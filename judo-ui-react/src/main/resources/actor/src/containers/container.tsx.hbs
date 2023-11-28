@@ -30,6 +30,9 @@ export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (co
   {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
     {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
   {{/ each }}
+  {{# each (getOnBlurAttributesForContainer container) as |attributeType| }}
+    on{{ firstToUpper attributeType.name }}BlurAction?: ({{{ onBlurActionParams container }}}) => void;
+  {{/ each }}
 }
 {{/ unless }}
 
@@ -51,6 +54,7 @@ export interface {{ containerComponentName container }}Props {
       editMode: boolean;
       validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
       setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
+      submit: () => Promise<void>;
     {{/ unless }}
   {{/ unless }}
 };
@@ -61,7 +65,7 @@ export default function {{ containerComponentName container }}(props: {{ contain
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { refreshCounter, actions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation{{/ unless }} } = props;
+    const { refreshCounter, actions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
 
     {{# unless container.table }}

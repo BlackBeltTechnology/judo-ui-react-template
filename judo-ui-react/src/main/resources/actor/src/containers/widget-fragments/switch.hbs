@@ -9,23 +9,28 @@
             storeDiff={storeDiff}
         >
     {{/ if }}
-        <FormGroup>
-            <FormControlLabel
-                className="switch"
-                sx={ { marginTop: '6px' } }
-                disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
-                control={
-                    <Checkbox checked={ data.{{ child.attributeType.name }} || false } onChange={ (event) => {
-                        storeDiff('{{ child.attributeType.name }}', event.target.checked);
-                        {{# if child.onBlur }}
-                            const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: event.target.checked };
-                            {{ child.name }}OnBlurAction && {{ child.name }}OnBlurAction(eagerCopy, storeDiff, editMode, setEditMode, setValidation, async () => {await submit();});
-                        {{/ if }}
-                    } } />
-                }
-                label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
-            />
-        </FormGroup>
+        <FormControl error={!!validation.get('{{ child.attributeType.name }}')}>
+            <FormGroup>
+                <FormControlLabel
+                    className="switch"
+                    sx={ { marginTop: '6px', color: (theme) => validation.has('{{ child.attributeType.name }}') ? theme.palette.error.main : 'primary' } }
+                    disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
+                    control={
+                        <Checkbox checked={ data.{{ child.attributeType.name }} || false } sx={ { color: (theme) => validation.has('{{ child.attributeType.name }}') ? theme.palette.error.main : 'primary' } } onChange={ (event) => {
+                            storeDiff('{{ child.attributeType.name }}', event.target.checked);
+                            {{# if child.onBlur }}
+                            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
+                                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: event.target.checked };
+                                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, setValidation, submit);
+                            }
+                            {{/ if }}
+                        } } />
+                    }
+                    label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
+                />
+            </FormGroup>
+            {validation.has('{{ child.attributeType.name }}') && <FormHelperText>{validation.get('{{ child.attributeType.name }}')}</FormHelperText>}
+        </FormControl>
     {{# if child.customImplementation }}
         </ComponentProxy>
     {{/ if }}

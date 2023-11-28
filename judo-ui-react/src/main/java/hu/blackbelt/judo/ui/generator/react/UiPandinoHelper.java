@@ -22,9 +22,11 @@ package hu.blackbelt.judo.ui.generator.react;
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
+import hu.blackbelt.judo.meta.ui.data.AttributeType;
 import lombok.extern.java.Log;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.simpleActionDefinitionName;
@@ -85,5 +87,21 @@ public class UiPandinoHelper {
                 .filter(Action::getIsCallOperationAction)
                 .sorted(Comparator.comparing(NamedElement::getFQName))
                 .toList();
+    }
+
+    public static List<AttributeType> getOnBlurAttributesForContainer(PageContainer container) {
+        Set<VisualElement> elements = new LinkedHashSet<>();
+        collectVisualElementsMatchingCondition(container, e -> e.getOnBlur() != null && e.getOnBlur(), elements);
+
+        Set<AttributeType> filtered  = new LinkedHashSet<>();
+
+        for (VisualElement e: elements) {
+            AttributeType attributeType = ((Input) e).getAttributeType();
+            if (filtered.stream().noneMatch(a -> a.getName().equals(attributeType.getName()))) {
+                filtered.add(attributeType);
+            }
+        }
+
+        return filtered.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 }

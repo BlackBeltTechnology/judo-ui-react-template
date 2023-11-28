@@ -50,6 +50,7 @@ export interface {{ containerComponentName container }}PageProps {
       storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
       validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
       setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
+      submit: () => Promise<void>;
     {{/ unless }}
   {{/ unless }}
 };
@@ -61,7 +62,7 @@ export default function {{ containerComponentName container }}Page (props: {{ co
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { title, actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation{{/ unless }} } = props;
+    const { title, actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
     {{# unless container.table }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
         _mask: '{{ getMaskForView container }}',
@@ -126,6 +127,7 @@ export default function {{ containerComponentName container }}Page (props: {{ co
                   isFormDeleteable={isFormDeleteable}
                   validation={validation}
                   setValidation={setValidation}
+                  submit={submit}
                 {{/ unless }}
               {{/ unless }}
             />
