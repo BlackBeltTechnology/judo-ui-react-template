@@ -434,7 +434,7 @@ const OptimisticImplementationForYayy: ComponentActorCreateYayy = ({ data, store
 > Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
   the use-case above.
 
-=== Overriding and extending page actions
+=== Implementing page actions
 
 Every page has a set of Actions. These are typically actions triggered by buttons, or page lifecycle actions, and are
 generated in a form of optional interface methods.
@@ -442,13 +442,16 @@ generated in a form of optional interface methods.
 These methods can be re-implemented one-by-one, and if the framework detects a "custom" version of a method, it will
 call that instead of the original (if any).
 
-Custom page actions can be implemented on a per-page basis. Every page as a designated unique `INTERFACE_KEY` string and
-a corresponding action hook `type`.
+Every page as a designated unique `INTERFACE_KEY` string and a corresponding action hook `type`.
+
+Page action APIs are always designed as React hooks in order to provide the ability of injecting / using other hooks
+inside our implementations.
 
 *Figuring out how to locate interface keys can be done via:*
 
-- observing the page route in the browsers URL bar (for non-dialogs), and looking the up in the `src/routes.tsx` file
-- Inspecting the pages / dialogs in dev-tools, and searching for the id of them in the code
+- Observing the page route in the browsers URL bar (for non-dialogs), and looking up the corresponding page in the
+  `src/routes.tsx` file.
+- Inspecting the pages / dialogs in dev-tools, and searching for the id of them in the `src` folder.
 
 *Registering implementations*
 
@@ -468,10 +471,15 @@ export class DefaultApplicationCustomizer implements ApplicationCustomizer {
   }
 }
 
-const customViewGalaxyViewActionsHook: ViewGalaxyViewActionsHook = () => {
+// Hook parameters are always page-related info, while method parameters are specific to the type of method.
+const customViewGalaxyViewActionsHook: ViewGalaxyViewActionsHook = (data, editMode, storeDiff) => {
+  // Other hooks can be called here if needed.
+
+  // The return type is always an interface containing optional methods
   return {
     onNakedEyeBlurAction: async (data, storeDiff, editMode, setValidation, submit) => {
-      // If the are toggling the `nakedEye` property and not in editMode already, then automatically save the change
+      // If we are toggling the `nakedEye` property and it is not in editMode already, then automatically save the
+      // change
       if (!editMode) {
         await submit();
       }
