@@ -333,87 +333,6 @@ class CustomL10NProvider implements L10NTranslationProvider {
 }
 ----
 
-=== Implementing a custom error processor
-
-Errors which may be triggered by the application can be customized. The level of customization only applies to:
-
-- response toast triggering
-- response toast message
-- validation error feedbacks
-
-Whether and what errors are triggered cannot be modified!
-
-The pattern with regards to how can this be achieved is similar to the previous.
-
-You need to register a service for the `ERROR_PROCESSOR_HOOK_INTERFACE_KEY` with variable service parameters depending
-on the error handler in question.
-
-> This is due to the fact that different types of errors may be configured in a more general or specific way, and service
-  properties help target these services.
-
-In the following example we will customize the validation error message for the `MISSING_REQUIRED_ATTRIBUTE` error code
-only for a certain `Create` operation, and everything else will behave as per default.
-
-[source,typescriptjsx]
-----
-import { useTranslation } from 'react-i18next';
-import type { BundleContext } from '@pandino/pandino-api';
-import type { ApplicationCustomizer } from './interfaces';
-import type { ErrorHandlingOption, ErrorProcessorHook, ErrorProcessResult, ServerError } from '../utilities/error-handling';
-import { ERROR_PROCESSOR_HOOK_INTERFACE_KEY } from '../utilities/error-handling';
-import { useSnackbar } from '../components';
-import { ViewGalaxy } from '../generated/data-api';
-
-export class DefaultApplicationCustomizer implements ApplicationCustomizer {
-  async customize(context: BundleContext): Promise<void> {
-    // Mind the service parameters! Without these, our registration wouldn't match.
-    context.registerService<ErrorProcessorHook<ViewGalaxy>>(ERROR_PROCESSOR_HOOK_INTERFACE_KEY, galaxiesCreateFormErrorHook, {
-      operation: 'Create',
-      component: 'PageCreateGalaxiesForm',
-    });
-  }
-}
-
-const galaxiesCreateFormErrorHook: ErrorProcessorHook<ViewGalaxy> = () => {
-  const { t } = useTranslation();
-  const [enqueueSnackbar] = useSnackbar();
-
-  /**
-   * @param {ErrorProcessResult} defaultResults Contains the pre-filled results, the usage is optional
-   * @param {any} [payload] Is present depending on the use-case, usually contains the data sent to the backend
-   */
-  return (error: any, defaultResults: ErrorProcessResult, options?: ErrorHandlingOption, payload?: ViewGalaxy) => {
-    // only modify validation results
-    if (error?.response?.status === 400) {
-      const errorList = error.response.data as ServerError[];
-      // if the host page has validation errors turned on
-      if (typeof options?.setValidation === 'function' && defaultResults.validation) {
-        // filter errors where we know the affected field's name
-        errorList.filter((e) => e.location).forEach((error) => {
-          // only modify prepared results for required errors
-          if (error.code === 'MISSING_REQUIRED_ATTRIBUTE') {
-            defaultResults.validation.set(error.location, t('you forgot to fill this') as string);
-          }
-        });
-
-        options.setValidation(defaultResults.validation);
-      }
-    }
-
-    // if by default we have a toast message, display it, but we can enforce the same by calling
-    // `enqueueSnackbar()` without any condition.
-    if (defaultResults.toastMessage) {
-      enqueueSnackbar(defaultResults.toastMessage, defaultResults.errorToastConfig);
-    }
-  };
-};
-----
-
-As explained in the comments, **the provisioning of service parameters is mandatory!**
-
-The best way to find out what services requires what parameters, you only need to search for the `useErrorHandler` hook's
-usage, and you should be able to see how does the corresponding `filter` look like.
-
 === Implementing a custom visual element
 
 Every Visual element implementation can be replaced by a custom one, given in the model the `customImplementation`
@@ -515,268 +434,64 @@ const OptimisticImplementationForYayy: ComponentActorCreateYayy = ({ data, store
 > Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
   the use-case above.
 
-=== Implementing custom navigation logic for components
+=== Implementing page actions
 
-Navigation actions are implemented as hooks. These hooks have names starting with "useRow..." in case of tables and
-"useLink..." in case of single relations.
+Every page has a set of Actions. These are typically actions triggered by buttons, or page lifecycle actions, and are
+generated in a form of optional interface methods.
 
-Given we have a table screen listing galaxies, we can implement a custom navigation logic in the following way:
+These methods can be re-implemented one-by-one, and if the framework detects a "custom" version of a method, it will
+call that instead of the original (if any).
 
-*Generated hook (original code):*
-[source,typescriptjsx]
-----
-import { OBJECTCLASS } from '@pandino/pandino-api';
-import { useTrackService } from '@pandino/react-hooks';
-import type { JudoIdentifiable } from '@judo/data-api-common';
-import type { ViewGalaxyQueryCustomizer, ViewGalaxy, ViewGalaxyStored } from '../../../../../../generated/data-api';
-import { useJudoNavigation } from '../../../../../../components';
+Every page as a designated unique `INTERFACE_KEY` string and a corresponding action hook `type`.
 
-export const ROW_VIEW_GALAXIES_ACTION_INTERFACE_KEY = 'RowViewGalaxiesAction';
-export type RowViewGalaxiesAction = () => (entry: ViewGalaxyStored) => Promise<void>;
+Page action APIs are always designed as React hooks in order to provide the ability of injecting / using other hooks
+inside our implementations.
 
-export const useRowViewGalaxiesAction: RowViewGalaxiesAction = () => {
-  const { navigate } = useJudoNavigation();
-  const { service: useCustomNavigation } = useTrackService<RowViewGalaxiesAction>(
-    `(${OBJECTCLASS}=${ROW_VIEW_GALAXIES_ACTION_INTERFACE_KEY})`,
-  );
+*Figuring out how to locate interface keys can be done via:*
 
-  if (useCustomNavigation) {
-    const customNavigation = useCustomNavigation();
-    return customNavigation;
-  }
+- Observing the page route in the browsers URL bar (for non-dialogs), and looking up the corresponding page in the
+  `src/routes.tsx` file.
+- Inspecting the pages / dialogs in dev-tools, and searching for the id of them in the `src` folder.
 
-  return async function (entry: ViewGalaxyStored) {
-    navigate(`god/galaxies/view/${entry.__signedIdentifier}`);
-  };
-};
-----
+*Registering implementations*
 
-Overriding the above logic can ge done by:
-
-- implementing the `RowViewGalaxiesAction` interface
-- registering this implementation in the `application-customizer.tsx` file
-
-> For brevity's sake we'll put all our code in a single file, but it's not mandatory
+Implementations can be registered in one central location: `src/custom/application-customizer.tsx`.
 
 *src/custom/application-customizer.tsx:*
 [source,typescriptjsx]
 ----
 import type { BundleContext } from '@pandino/pandino-api';
-import { useJudoNavigation } from '../components';
-import { ViewGalaxyStored } from '../generated/data-api';
-import { RowViewGalaxiesAction, ROW_VIEW_GALAXIES_ACTION_INTERFACE_KEY } from '../pages/god/galaxies/table/actions';
-import { ApplicationCustomizer } from './interfaces';
+import type { ApplicationCustomizer } from './interfaces';
+import type { ViewGalaxyViewActionsHook } from '~/pages/God/Galaxies/AccessViewPage';
+import { GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from '~/pages/God/Galaxies/AccessViewPage';
 
 export class DefaultApplicationCustomizer implements ApplicationCustomizer {
   async customize(context: BundleContext): Promise<void> {
-    context.registerService<RowViewGalaxiesAction>(ROW_VIEW_GALAXIES_ACTION_INTERFACE_KEY, customRowViewGalaxiesAction);
+    context.registerService<ViewGalaxyViewActionsHook>(GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY, customViewGalaxyViewActionsHook);
   }
 }
 
-const customRowViewGalaxiesAction: RowViewGalaxiesAction = () => {
-  const { navigate } = useJudoNavigation();
+// Hook parameters are always page-related info, while method parameters are specific to the type of method.
+const customViewGalaxyViewActionsHook: ViewGalaxyViewActionsHook = (data, editMode, storeDiff) => {
+  // Other hooks can be called here if needed.
 
-  return async (entry: ViewGalaxyStored) => {
-    // regardless of what row we select, we will always go to the same page
-    navigate('god/earth/view');
-  }
-};
-----
-
-=== Implementing custom behaviour for operation success handling
-
-Every custom operation has a "success handler" implementation by default. These handlers behave differently depending on
-the action type, and return parameter (or lack thereof).
-
-*Default behaviours explained:*
-
-- if there is a *mapped* return type:
-  * pop a success toast and
-  * navigate to the created element's view page
-- if there is an *unmapped* return type:
-  * pop a success toast and
-  * refresh the current page and
-  * show the result in a read-only modal
-- if there is no return type:
-  * pop a success toast and
-  * refresh the current page
-
-*Overriding the above logic can ge done by:*
-
-- implementing the `PostHandlerHook` interface for an operation
-- registering this implementation in the `application-customizer.tsx` file
-
-Depending on what operation we would like to override, we need to locate the action in the `src/pages` folder, and once
-we found our action file, we should be able to see an `INTERFACE_KEY` with the corresponding `PostHandlerHook` interface.
-
-> Please be aware that the interfaces for each hook have different signatures based on the operation, e.g.: for operations
-  which do not have a return type, the corresponding hook interfaces won't contain a "result" parameter!
-
-*src/custom/application-customizer.tsx:*
-[source,typescriptjsx]
-----
-import type { BundleContext } from '@pandino/pandino-api';
-import { useSnackbar } from 'notistack';
-import { ApplicationCustomizer } from './interfaces';
-import {
-  ADMIN_DASHBOARD_CREATE_ISSUE_ACTION_POST_HANDLER_HOOK_INTERFACE_KEY,
-  AdminDashboardCreateIssueActionPostHandlerHook
-} from '../pages/admin/admin/dashboardhome/actions';
-import { AdminIssueStored } from '../generated/data-api';
-import { toastConfig } from '../config';
-
-export class DefaultApplicationCustomizer implements ApplicationCustomizer {
-  async customize(context: BundleContext): Promise<void> {
-    context.registerService(ADMIN_DASHBOARD_CREATE_ISSUE_ACTION_POST_HANDLER_HOOK_INTERFACE_KEY, usePostIssueCreated);
-  }
-}
-
-const usePostIssueCreated: AdminDashboardCreateIssueActionPostHandlerHook = () => {
-  const { enqueueSnackbar } = useSnackbar();
-  // We can add any variables and use any hooks here
-
-  return async (ownerCallback: () => void, result?: AdminIssueStored) => {
-    // The default implementation in this case is to pop a generic toast, and navigate to the created element's page
-    // but we are overriding this, to only pop a custom toast message
-    if (result) {
-      enqueueSnackbar(`${result.title} created!`, {
-        variant: 'success',
-        ...toastConfig.success,
-      });
-    }
-
-    // and regardless of the output, refresh the current page
-    ownerCallback();
-  };
-};
-----
-
-Since operations are always started from modal windows the `ownerCallback` can behave differently, but most of the time
-it triggers a refresh on the actual page which we resided on.
-
-If we would like to implement a fix navigation to some page, it is recommended to *NOT CALL* the `ownerCallback()` function
-to prevent unnecessary REST calls and potential screen flow issues.
-
-=== Implementing a post refresh hook
-
-Whenever pages have a `refresh` action, we have the option to register a hook in which we can "intercept" the
-"after/post" lifecycle for them.
-
-These hooks are registered with a specific `INTERFACE_KEY`. We can locate these keys in the `src/pages` folder, and once
-we found our page/dialog file, we should be able to see an `INTERFACE_KEY` with the corresponding `PostRefreshHook` interface.
-
-*src/custom/application-customizer.tsx:*
-[source,typescriptjsx]
-----
-import type { BundleContext } from '@pandino/pandino-api';
-import type { Dispatch, SetStateAction } from 'react';
-import { ApplicationCustomizer } from './interfaces';
-import { GOD_GALAXIES_VIEW_POST_REFRESH_HOOK_INTERFACE_KEY, GodGalaxiesViewPostRefreshHook } from '~/pages/god/galaxies/view';
-import { ViewGalaxy, ViewGalaxyStored } from '~/generated/data-api';
-
-export class DefaultApplicationCustomizer implements ApplicationCustomizer {
-  async customize(context: BundleContext): Promise<void> {
-    // register your implementations here
-    context.registerService(GOD_GALAXIES_VIEW_POST_REFRESH_HOOK_INTERFACE_KEY, customGodGalaxiesViewRefreshPostHandlerHook);
-  }
-}
-
-const customGodGalaxiesViewRefreshPostHandlerHook: GodGalaxiesViewPostRefreshHook = () => {
-  return async (data: ViewGalaxyStored,
-                storeDiff: (attributeName: keyof ViewGalaxyStored, value: any) => void,
-                setEditMode: Dispatch<SetStateAction<boolean>>,
-                setValidation: Dispatch<SetStateAction<Map<keyof ViewGalaxy, string>>>,
-  ) => {
-    if (data.name === 'Acallaris') {
-      setValidation((validation) => {
-        validation.set('constellation', 'Wrong constellation, lmao');
-        return validation;
-      });
-    }
-  };
-};
-----
-
-=== Implementing an onBlur hook
-
-OnBlur hooks are available for all form elements which have the flag enabled in the model.
-
-Just like every other hook, these have their corresponding `INTERFACE_KEY` and the interfaces for the keys.
-
-*src/custom/application-customizer.tsx:*
-[source,typescriptjsx]
-----
-import type { Dispatch, SetStateAction } from 'react';
-import type { BundleContext } from '@pandino/pandino-api';
-import { ApplicationCustomizer } from './interfaces';
-import { GOD_CREATE_NAME_ON_BLUR_INTERFACE_KEY, GodCreateNameOnBlurHook } from '~/pages/god/galaxies/table/actions/PageCreateGalaxiesForm';
-import type { ViewGalaxy } from '~/generated/data-api';
-
-
-export class DefaultApplicationCustomizer implements ApplicationCustomizer {
-  async customize(context: BundleContext): Promise<void> {
-    // register your implementations here
-
-    context.registerService(GOD_CREATE_NAME_ON_BLUR_INTERFACE_KEY, customGodCreateNameOnBlurHook);
-  }
-}
-
-const customGodCreateNameOnBlurHook: GodCreateNameOnBlurHook = () => {
-  return async (
-    data: ViewGalaxy,
-    storeDiff: (attributeName: keyof ViewGalaxy, value: any) => void,
-    editMode: boolean,
-    setEditMode: Dispatch<SetStateAction<boolean>>,
-    setValidation: Dispatch<SetStateAction<Map<keyof ViewGalaxy, string>>>,
-    submit: () => Promise<void>,
-  ) => {
-    if (data.name === 'test') {
-      storeDiff('constellation', data.name);
-      storeDiff('nakedEye', true);
-      await submit();
-    }
-  };
-};
-----
-
-=== Implementing filter initializers for components representing single relations
-
-There are cases when we need to provide additional filtering for Link components besides the modeled range expressions.
-Usually this occurs when we need to rely on what state our current forms/pages are in.
-
-We can achieve this by providing a FilterInitializer service for the Link component which we would like to fine tune.
-
-Just like every other hook, these have their corresponding `INTERFACE_KEY` and the interfaces for the keys.
-
-*src/custom/application-customizer.tsx:*
-[source,typescriptjsx]
-----
-import type { BundleContext } from '@pandino/pandino-api';
-import { ApplicationCustomizer } from './interfaces';
-import {
-  CITY_LINK_FILTER_INITIALIZER_INTERFACE_KEY, CityLinkFilterInitializerHook
-} from "~/pages/admin/admin/dashboardhome/view/actions/adminDashboard/AdminDashboardCreateIssueForm/components/CityLink";
-import { _StringOperation, AdminCityStored, AdminCreateIssueInput } from "~/generated/data-api";
-import { Filter, FilterType } from "~/components-api";
-import { buildFilter } from "~/utilities";
-
-export class DefaultApplicationCustomizer implements ApplicationCustomizer {
-  async customize(context: BundleContext): Promise<void> {
-    // register your implementations here
-    context.registerService(CITY_LINK_FILTER_INITIALIZER_INTERFACE_KEY, cityLinkFilterInitializer);
-  }
-}
-
-// We are building an initializer for the "City" component on the AdminDashboardCreateIssueForm
-const cityLinkFilterInitializer: CityLinkFilterInitializerHook = () => {
-  return (ownerData: AdminCreateIssueInput): Filter[] | undefined => {
-    // we are interested in another single's value on the form (county)
-    if (ownerData.county) {
-      // we are utilizing the `buildFilter` helper to create a basic `Filter` instance
-      return [
-        buildFilter<AdminCityStored>(FilterType.string, _StringOperation.equal, 'county', ownerData.county.name),
-      ];
-    }
+  // The return type is always an interface containing optional methods
+  return {
+    onNakedEyeBlurAction: async (data, storeDiff, editMode, setValidation, submit) => {
+      // If we are toggling the `nakedEye` property and it is not in editMode already, then automatically save the
+      // change
+      if (!editMode) {
+        await submit();
+      }
+    },
+    postRefreshAction: async (data , storeDiff, setValidation) => {
+      // Check the `nakedEye` property after every refresh, and if it is not filled, then set a validation message.
+      if (!data.nakedEye) {
+        setValidation(new Map([
+          ['nakedEye', 'Naked Eye has to be checked!']
+        ]));
+      }
+    },
   };
 };
 ----

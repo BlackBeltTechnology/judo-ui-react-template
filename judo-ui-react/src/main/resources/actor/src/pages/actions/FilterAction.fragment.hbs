@@ -1,0 +1,6 @@
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
+  const newFilters = await openFilterDialog(id, filterOptions, filters);
+  return {
+    filters: newFilters,
+  };
+};
