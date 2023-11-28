@@ -2,27 +2,24 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { JudoStored } from '@judo/data-api-common';
 import { useTranslation } from 'react-i18next';
-import { LoadingButton } from '@mui/lab';
-import {
-  DialogContent,
-  Grid,
-  DialogTitle,
-  IconButton,
-  Box,
-  LinearProgress,
-  Typography,
-  List,
-  ListItem,
-  ListItemIcon,
-  ListItemText,
-  DialogActions,
-  Button,
-} from '@mui/material';
+import LoadingButton from '@mui/lab/LoadingButton';
+import DialogContent from '@mui/material/DialogContent';
+import Grid from '@mui/material/Grid';
+import DialogTitle from '@mui/material/DialogTitle';
+import IconButton from '@mui/material/IconButton';
+import Box from '@mui/material/Box';
+import LinearProgress from '@mui/material/LinearProgress';
+import Typography from '@mui/material/Typography';
+import List from '@mui/material/List';
+import ListItem from '@mui/material/ListItem';
+import ListItemIcon from '@mui/material/ListItemIcon';
+import ListItemText from '@mui/material/ListItemText';
+import DialogActions from '@mui/material/DialogActions';
+import Button from '@mui/material/Button';
 import type { LinearProgressProps } from '@mui/material';
-import { useSnackbar } from 'notistack';
+import { useSnacks } from '~/hooks';
 import { useDialog } from '~/components/dialog';
 import { MdiIcon } from '~/components';
-import { toastConfig } from '~/config';
 import { isErrorOperationFault } from '~/utilities';
 
 export type CRUDDialogOpenProps<T extends JudoStored<any>> = {
@@ -45,10 +42,10 @@ export const useCRUDDialog: UseCRUDDialog = () => {
       fullWidth: true,
       maxWidth: 'sm',
       onClose: (event: object, reason: string) => {
-        /*if (reason !== 'backdropClick') {
+        if (reason !== 'backdropClick') {
           closeDialog();
           onClose(false);
-        }*/
+        }
       },
       children: (
         <CRUDDialog
@@ -93,7 +90,7 @@ export type CRUDDialogProps = {
 
 export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSuccess, faultPrefix }: CRUDDialogProps) {
   const MAX_PROGRESS = 100;
-  const { enqueueSnackbar } = useSnackbar();
+  const { showSuccessSnack, showErrorSnack, showWarningSnack } = useSnacks();
   const { t } = useTranslation();
   const runCount = useRef<number>(0);
   const [inProgress, setInProgress] = useState<boolean>(false);
@@ -185,18 +182,12 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
     if (runCount.current > 0 && !inProgress) {
       if (queue.every(i => i.status === 'success')) {
         setProgress(MAX_PROGRESS); // in case round did not end up with full value :)
-        enqueueSnackbar(t('judo.dialogs.crud-bulk.toast.success', { defaultValue: 'Operation(s) executed successfully' }) as string, {
-          variant: 'success',
-          ...toastConfig.success,
-        });
+        showSuccessSnack(t('judo.dialogs.crud-bulk.toast.success', { defaultValue: 'Operation(s) executed successfully' }) as string);
         if (autoCloseOnSuccess) {
           close(runCount.current > 0);
         }
       } else {
-        enqueueSnackbar(t('judo.dialogs.crud-bulk.toast.warn', { defaultValue: 'Not all operations executed successfully!' }) as string, {
-          variant: 'warning',
-          ...toastConfig.warning,
-        });
+        showWarningSnack(t('judo.dialogs.crud-bulk.toast.warn', { defaultValue: 'Not all operations executed successfully!' }) as string);
       }
     }
   }, [queue, inProgress]);
