@@ -87,21 +87,21 @@ import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/tabl
 export interface {{ componentName table }}ActionDefinitions {
 {{# each table.tableActionDefinitions as |actionDefinition| }}
   {{# if actionDefinition.isFilterAction }}
-  {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
+    {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
   {{ else }}
-  {{# if actionDefinition.isRefreshAction }}
-  {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
-  {{ else }}
-  {{# if actionDefinition.isSelectorRangeAction }}
-  {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
-  {{ else }}
-  {{# if actionDefinition.isBulk }}
-  {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
-  {{ else }}
-  {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
-  {{/ if }}
-  {{/ if }}
-  {{/ if }}
+    {{# if actionDefinition.isRefreshAction }}
+      {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+    {{ else }}
+      {{# if actionDefinition.isSelectorRangeAction }}
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+      {{ else }}
+        {{# if actionDefinition.isBulk }}
+          {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+        {{ else }}
+          {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+        {{/ if }}
+      {{/ if }}
+    {{/ if }}
   {{/ if }}
 {{/ each }}
 {{# each table.rowActionDefinitions as |actionDefinition| }}
