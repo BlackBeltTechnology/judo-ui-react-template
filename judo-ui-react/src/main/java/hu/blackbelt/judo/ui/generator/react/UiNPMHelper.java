@@ -28,7 +28,7 @@ import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.pathName;
 
 @Log
 @TemplateHelper
-public class UiNPMHelper extends Helper {
+public class UiNPMHelper {
     public static String npmPackageScopedName(String scope, String name) {
         String result = scope != null ? scope + "/" : "";
         return result + name;

@@ -27,10 +27,11 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.Optional;
 
 @Slf4j
 @TemplateHelper
-public class UiTableHelper extends Helper {
+public class UiTableHelper {
 
     public static String getFilterTypeForAttribute(AttributeType attributeType) {
         DataType dataType = attributeType.getDataType();
@@ -153,6 +154,12 @@ public class UiTableHelper extends Helper {
         return dataType instanceof DateType;
     }
 
+    public static boolean isColumnDatetime(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        return dataType instanceof TimestampType;
+    }
+
     public static boolean isColumnBinary(Column column) {
         DataType dataType = column.getAttributeType().getDataType();
 
@@ -184,7 +191,7 @@ public class UiTableHelper extends Helper {
     }
 
     public static String getDefaultSortParams(Column defaultSortColumn, Collection<Column> columns) {
-        if (defaultSortColumn != null) {
+        if (defaultSortColumn != null && isSortableAttributeType(defaultSortColumn.getAttributeType())) {
             return "[{ field: '" + defaultSortColumn.getAttributeType().getName() + "', sort: " + getSortDirection(defaultSortColumn) + " }]";
         }
 
@@ -202,34 +209,10 @@ public class UiTableHelper extends Helper {
         return getDefaultSortParams(table.getDefaultSortColumn(), table.getColumns());
     }
 
-    public static String getDefaultSortParamsForLink (Link link) {
-        return getDefaultSortParams(link.getDefaultSortColumn(), link.getColumns());
-    }
-
     public static Integer calculateTablePageLimit(Table table) {
         Integer defaultValue = table.getRowsPerPage();
 
         return defaultValue != null ? defaultValue : 10;
-    }
-
-    public static Boolean tableHasActions(Table table) {
-        return table.getActions().size() > 0;
-    }
-
-    public static boolean tableHasDeleteAction(Table table) {
-        return getTableDeleteAction(table) != null;
-    }
-
-    public static Action getTableDeleteAction(Table table) {
-        return table.getRowActions().stream().filter(Action::getIsDeleteAction).findFirst().orElse(null);
-    }
-
-    public static boolean tableHasRemoveAction(Table table) {
-        return getTableRemoveAction(table) != null;
-    }
-
-    public static Action getTableRemoveAction(Table table) {
-        return table.getRowActions().stream().filter(Action::getIsRemoveAction).findFirst().orElse(null);
     }
 
     public static boolean isAttributeTypeEnumeration(AttributeType attributeType) {
@@ -249,21 +232,60 @@ public class UiTableHelper extends Helper {
         }
     }
 
-    public static java.util.List<Action> getBulkOperationActionsForTable(Table table) {
-        return table.getRowActions().stream()
-                .filter(Action::getIsCallOperationAction)
-                .filter(Action::isIsBulk)
+    public static java.util.List<ActionDefinition> getBulkOperationActionDefinitionsForTable(Table table) {
+        return table.getTableActionDefinitions().stream()
+                .filter(a -> ((ActionDefinition) a).isIsBulk())
                 .sorted(Comparator.comparing(NamedElement::getFQName))
                 .toList();
     }
 
     public static boolean tableHasBulkOperations(Table table) {
-        return !getBulkOperationActionsForTable(table).isEmpty();
+        return !getBulkOperationActionDefinitionsForTable(table).isEmpty();
     }
 
     public static boolean tableHasSelectorColumn(Table table) {
-        return getBulkOperationActionsForTable(table).size() > 0
-                || table.getRowActions().stream().filter(Action::getIsDeleteAction).count() > 0
-                || table.getRowActions().stream().filter(Action::getIsRemoveAction).count() > 0;
+        return table.isIsSelectorTable()
+                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).isIsBulkCapable())
+                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsDeleteAction())
+                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRemoveAction());
+    }
+
+    public static Column getFirstTitleColumnForTable(Table table) {
+        Optional<Column> column = table.getColumns().stream()
+                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .findFirst();
+        return column.orElse(null);
+    }
+
+    public static boolean tableHasBooleanColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnBoolean);
+    }
+
+    public static boolean tableHasDateColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnDate);
+    }
+
+    public static boolean tableHasTimeColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnTime);
+    }
+
+    public static boolean tableHasDateTimeColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnDatetime);
+    }
+
+    public static boolean tableHasNumericColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnNumeric);
+    }
+
+    public static boolean tableHasEnumerationColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnEnumeration);
+    }
+
+    public static boolean tableHasStringColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnString);
+    }
+
+    public static boolean tableHasBinaryColumn(Table table) {
+        return table.getColumns().stream().anyMatch(UiTableHelper::isColumnBinary);
     }
 }

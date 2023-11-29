@@ -23,7 +23,7 @@ type ConfigProviderProps = {
 };
 
 function ConfigProvider({ children }: ConfigProviderProps) {
-  const [config, setConfig] = useLocalStorage('{{ modelName application.name }}-config', initialState);
+  const [config, setConfig] = useLocalStorage('{{ application.modelName }}-config', initialState);
 
   const onChangeContainer = () => {
     setConfig({
