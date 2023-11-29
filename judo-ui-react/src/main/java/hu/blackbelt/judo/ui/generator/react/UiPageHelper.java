@@ -241,39 +241,44 @@ public class UiPageHelper {
         return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
-    public static String getServiceImplForPage(PageDefinition pageDefinition) {
+    public static String getServiceClassForPage(PageDefinition pageDefinition) {
         DataElement dataElement = pageDefinition.getDataElement();
 
         if (dataElement instanceof RelationType relationType) {
             if (pageDefinition.getContainer().isView() && !isSingleAccessPage(pageDefinition)) {
-                return firstToLower(serviceClassName(relationType.getTarget()) + "Impl");
+                return serviceClassName(relationType.getTarget()) + "Impl";
             }
-            return firstToLower(serviceRelationName(relationType) + "Impl");
+            return serviceRelationName(relationType) + "Impl";
         } else if (dataElement instanceof OperationParameterType operationParameterType) {
             if (operationParameterType.eContainer() instanceof OperationType operationType) {
                 if (operationType.getOutput() != null && pageDefinition.getContainer().isView()) {
-                    return firstToLower(serviceClassName(operationType.getOutput().getTarget()) + "Impl");
+                    return serviceClassName(operationType.getOutput().getTarget()) + "Impl";
                 }
                 if (operationType.eContainer() instanceof ClassType classType) {
-                    return firstToLower(serviceClassName(classType) + "Impl");
+                    return serviceClassName(classType) + "Impl";
                 }
                 if (operationParameterType.eContainer() instanceof RelationType relationType) {
-                    return firstToLower(serviceRelationName(relationType) + "Impl");
+                    return serviceRelationName(relationType) + "Impl";
                 }
             }
         } else if (dataElement instanceof OperationType operationType) {
             if (operationType.getOutput() != null && pageDefinition.getContainer().isView()) {
-                return firstToLower(serviceClassName(operationType.getOutput().getTarget()) + "Impl");
+                return serviceClassName(operationType.getOutput().getTarget()) + "Impl";
             }
             if (operationType.eContainer() instanceof ClassType classType) {
-                return firstToLower(serviceClassName(classType) + "Impl");
+                return serviceClassName(classType) + "Impl";
             }
             if (operationType.getInput() != null) {
-                return firstToLower(serviceClassName(operationType.getInput().getTarget()) + "Impl");
+                return serviceClassName(operationType.getInput().getTarget()) + "Impl";
             }
         }
 
         return null;
+    }
+
+    public static String getServiceImplForPage(PageDefinition pageDefinition) {
+        String res = getServiceClassForPage(pageDefinition);
+        return res != null ? firstToLower(res) : null;
     }
 
     public static boolean isPageUpdateable(PageDefinition pageDefinition) {

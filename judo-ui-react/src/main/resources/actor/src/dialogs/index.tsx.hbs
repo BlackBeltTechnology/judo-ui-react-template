@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, lazy, Suspense } from 'react';
+import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, useMemo, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   {{# unless page.container.table }}
   import type { Dispatch, SetStateAction } from 'react';
@@ -42,7 +42,8 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{/ each }}
   } from '~/services/data-api';
   {{# if (getServiceImplForPage page) }}
-      import { {{ getServiceImplForPage page }} } from '~/services/data-axios';
+    import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+    import { {{ getServiceClassForPage page }} } from '~/services/data-axios/{{ getServiceClassForPage page }}';
   {{/ if }}
 {{/ unless }}
 
@@ -142,6 +143,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
   const { ownerData, {{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}onClose, onSubmit } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
+    // Services
+    const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
+
     // Hooks section
     const { t } = useTranslation();
     const { showSuccessSnack, showErrorSnack } = useSnacks();
