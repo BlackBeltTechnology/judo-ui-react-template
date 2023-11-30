@@ -1,13 +1,13 @@
 {
-    id: '{{ createId filter }}',
-    attributeName: '{{ filter.attributeType.name }}',
-    label: t('{{ getTranslationKeyForVisualElement filter }}', { defaultValue: '{{ filter.label }}' }) as string,
-    filterType: FilterType.{{ getFilterTypeForFilter filter }},
-    {{# if (isAttributeTypeEnumeration filter.attributeType) }}
-        enumValues: [
-            {{# each filter.attributeType.dataType.members as |member| }}
-                '{{ member.name }}',
-            {{/ each }}
-        ],
-    {{/ if }}
+  id: '{{ createId filter }}',
+  attributeName: '{{ filter.attributeType.name }}',
+  label: t('{{ getTranslationKeyForVisualElement filter }}', { defaultValue: '{{ filter.label }}' }) as string,
+  filterType: FilterType.{{ getFilterTypeForFilter filter }},
+  {{# if (isAttributeTypeEnumeration filter.attributeType) }}
+  enumValues: [
+    {{# each filter.attributeType.dataType.members as |member| }}
+    '{{ member.name }}',
+    {{/ each }}
+  ],
+  {{/ if }}
 },

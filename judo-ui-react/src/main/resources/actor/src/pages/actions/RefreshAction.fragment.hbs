@@ -1,0 +1,35 @@
+{{# if action.targetDataElement }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{/ if }}> => {
+  return {{ getServiceImplForPage page }}.list{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer);
+}
+{{ else }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}> => {
+  try {
+    setIsLoading(true);
+    setEditMode(false);
+    {{# if page.container.table }}
+      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{{# if page.openInDialog }}data{{ else }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{/ if }}{{ else }}undefined{{/ if }}, queryCustomizer);
+    {{ else }}
+      const result = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, pageQueryCustomizer);
+      setData(result);
+      // re-set payloadDiff
+      payloadDiff.current = {
+          __identifier: result.__identifier,
+          __signedIdentifier: result.__signedIdentifier,
+          __version: result.__version,
+          __entityType: result.__entityType,
+      } as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
+      if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
+        await customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(result{{# unless page.container.table }}, storeDiff, setValidation{{/ unless }});
+      }
+      return result;
+    {{/ if }}
+  } catch (error) {
+    handleError(error);
+    return Promise.reject(error);
+  } finally {
+    setIsLoading(false);
+    setRefreshCounter((prevCounter) => prevCounter + 1);
+  }
+};
+{{/ if }}
