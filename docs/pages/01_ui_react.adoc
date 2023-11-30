@@ -460,10 +460,13 @@ Implementations can be registered in one central location: `src/custom/applicati
 *src/custom/application-customizer.tsx:*
 [source,typescriptjsx]
 ----
+import { useMemo } from 'react';
 import type { BundleContext } from '@pandino/pandino-api';
 import type { ApplicationCustomizer } from './interfaces';
 import type { ViewGalaxyViewActionsHook } from '~/pages/God/Galaxies/AccessViewPage';
 import { GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from '~/pages/God/Galaxies/AccessViewPage';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { ViewGalaxyServiceImpl } from '~/services/data-axios/ViewGalaxyServiceImpl';
 
 export class DefaultApplicationCustomizer implements ApplicationCustomizer {
   async customize(context: BundleContext): Promise<void> {
@@ -473,7 +476,8 @@ export class DefaultApplicationCustomizer implements ApplicationCustomizer {
 
 // Hook parameters are always page-related info, while method parameters are specific to the type of method.
 const customViewGalaxyViewActionsHook: ViewGalaxyViewActionsHook = (data, editMode, storeDiff) => {
-  // Other hooks can be called here if needed.
+  // Other hooks can be called here if needed, e.g. service instantiation.
+  const viewGalaxyServiceImpl = useMemo(() => new ViewGalaxyServiceImpl(judoAxiosProvider), []);
 
   // The return type is always an interface containing optional methods
   return {
