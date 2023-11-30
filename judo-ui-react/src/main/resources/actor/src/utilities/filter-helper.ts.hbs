@@ -1,5 +1,5 @@
 import { v1 as uuidv1 } from 'uuid';
-import { _NumericOperation, _StringOperation, _BooleanOperation, _EnumerationOperation } from '@judo/data-api-common';
+import { _NumericOperation, _StringOperation, _BooleanOperation, _EnumerationOperation } from '~/services/data-api/common';
 import type { GridFilterModel, GridFilterItem } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { GridLogicOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { isEqual, compareAsc } from 'date-fns';
@@ -90,7 +90,7 @@ export function filterByStringOperation<T>(filter: Filter, data: T[]): T[] {
       return data.filter((d) => d[attributeName] !== filter.filterBy.value);
     case _StringOperation.like:
       return data.filter((d) =>
-        (d[attributeName] as string).toLowerCase().includes(filter.filterBy.value.toLowerCase()),
+        (d[attributeName] as string || '').toLowerCase().includes(filter.filterBy.value.toLowerCase()),
       );
     case _StringOperation.greaterOrEqual:
       return data.filter((d) => (d[attributeName] as string).localeCompare(filter.filterBy.value) >= 0);

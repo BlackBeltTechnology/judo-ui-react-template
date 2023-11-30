@@ -1,5 +1,5 @@
 import { expect, describe, it } from 'vitest';
-import { _NumericOperation, _StringOperation, _BooleanOperation, _EnumerationOperation } from '@judo/data-api-common';
+import { _NumericOperation, _StringOperation, _BooleanOperation, _EnumerationOperation } from '~/services/data-api/common';
 import {
   applyInMemoryFilters,
   filterByStringOperation,

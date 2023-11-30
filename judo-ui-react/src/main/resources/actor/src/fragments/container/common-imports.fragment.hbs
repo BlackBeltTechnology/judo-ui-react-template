@@ -1,0 +1,49 @@
+import type { Dispatch, SetStateAction, FC } from 'react';
+import { forwardRef, useEffect, useState, useCallback, useImperativeHandle } from 'react';
+import { useTranslation } from 'react-i18next';
+import { LoadingButton } from '@mui/lab';
+import type { JudoIdentifiable } from '~/services/data-api/common';
+{{# if (containerHasCustomComponent container) }}
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy } from '@pandino/react-hooks';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+import type { CustomFormVisualElementProps } from '~/custom';
+{{/ if }}
+import { clsx } from 'clsx';
+import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+{{# each (getMaterialImportsForPageContainer container) as |imp| }}
+import {{ imp }} from '@mui/material/{{ imp }}';
+{{/ each }}
+{{# if (containerHasCards container) }}
+  import Card from '@mui/material/Card';
+  import CardContent from '@mui/material/CardContent';
+{{/ if }}
+import { useL10N } from '~/l10n/l10n-context';
+{{# or (containerHasDivider container) (containerHasSpacer container) }}
+import { DIVIDER_HEIGHT } from '~/config';
+{{/ or }}
+import {
+  MdiIcon,
+  {{# if (containerHasTabs container) }}
+  ModeledTabs,
+  {{/ if }}
+  DropdownButton,
+  useJudoNavigation,
+} from '~/components';
+import {
+    isErrorOperationFault,
+    useErrorHandler,
+    {{# if (containerHasBinaryInput container) }}
+    fileHandling,
+    {{/ if }}
+    {{# or (containerHasDateInput container) (containerHasDateTimeInput container) }}
+    uiDateToServiceDate,
+    serviceDateToUiDate,
+    {{/ or }}
+    {{# if (containerHasTimeInput container) }}
+    uiTimeToServiceTime,
+    serviceTimeToUiTime,
+    {{/ if }}
+} from '~/utilities';
