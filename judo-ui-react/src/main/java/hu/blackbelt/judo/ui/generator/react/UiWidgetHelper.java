@@ -396,4 +396,15 @@ public class UiWidgetHelper {
 
         return result + "isLoading";
     }
+
+    public static boolean dialogButtonHasDisabledConditions(Button button) {
+        return !dialogButtonDisabledConditions(button).isEmpty();
+    }
+
+    public static String dialogButtonDisabledConditions(Button button) {
+        if (button.getActionDefinition() instanceof SetActionDefinition || button.getActionDefinition() instanceof AddActionDefinition) {
+            return "!selectionDiff.length";
+        }
+        return "";
+    }
 }
