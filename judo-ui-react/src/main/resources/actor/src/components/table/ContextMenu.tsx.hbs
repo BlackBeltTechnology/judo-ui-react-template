@@ -100,7 +100,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
          },
          filterBy: {
            value: selectedValue,
-           operator: (filterType === FilterType.boolean || filterType === FilterType.enumeration
+           operator: (filterType === FilterType.boolean || filterType === FilterType.enumeration || filterType === FilterType.trinaryLogic
              ? 'equals'
              : 'equal') as Operation,
          },
@@ -130,7 +130,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
           },
           filterBy: {
             value: filterType === FilterType.boolean ? !selectedValue : selectedValue, // invert bool value because we only have "equals" operator
-            operator: (filterType === FilterType.boolean
+            operator: ((filterType === FilterType.boolean || filterType === FilterType.trinaryLogic)
               ? 'equals'
               : filterType === FilterType.enumeration
                 ? 'notEquals'

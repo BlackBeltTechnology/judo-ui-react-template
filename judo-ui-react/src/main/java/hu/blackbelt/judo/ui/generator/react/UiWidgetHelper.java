@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.isUseInlineColumnFilters;
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
 import static java.util.Arrays.stream;
 
@@ -339,6 +340,9 @@ public class UiWidgetHelper {
     }
 
     public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {
+        if ((button.getActionDefinition().getIsFilterAction() || button.getActionDefinition().getIsFilterRelationAction()) && isUseInlineColumnFilters()) {
+            return "false";
+        }
         if (button.getActionDefinition().getIsClearAction()) {
             return "data.length";
         }
