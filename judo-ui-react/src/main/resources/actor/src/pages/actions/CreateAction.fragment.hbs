@@ -1,7 +1,7 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   try {
     setIsLoading(true);
-    const res = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}data);
+    const res = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}payloadDiff.current);
     showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
     onSubmit(res);
   } catch (error) {
