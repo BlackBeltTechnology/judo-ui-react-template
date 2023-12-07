@@ -5,7 +5,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{# if operation.output }}const result = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
       {{# if page.container.form }}
         {{# unless operation.isStatic }}ownerData{{/ unless }}
-        {{# if operation.input }}{{# unless operation.isStatic }}, {{/ unless }}data{{/ if }}
+        {{# if operation.input }}{{# unless operation.isStatic }}, {{/ unless }}payloadDiff.current{{/ if }}
       {{ else }}
         {{# if page.container.isSelector }}
           {{# unless operation.isStatic }}ownerData, {{/ unless }}selectionDiff[0]
