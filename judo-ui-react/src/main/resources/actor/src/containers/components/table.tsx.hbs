@@ -327,9 +327,13 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       if (!!strippedQueryCustomizer._seek) {
         delete strippedQueryCustomizer._seek.lastItem;
       }
+      // we need to reset _seek so that previous configuration is erased
       return {
         ...strippedQueryCustomizer,
         _orderBy,
+        _seek: {
+          limit: {{ calculateTablePageLimit table }} + 1,
+        },
       };
     });
   }
@@ -536,6 +540,12 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{/ if }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
+        {{# unless table.isEager }}
+        paginationMode="server"
+        sortingMode="server"
+        filterMode="server"
+        rowCount={ {{ calculateTablePageLimit table }} }
+        {{/ unless }}
         components={ {
           Toolbar: () => (
             <GridToolbarContainer>
