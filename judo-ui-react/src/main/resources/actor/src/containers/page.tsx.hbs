@@ -87,15 +87,7 @@ export default function {{ containerComponentName container }}Page (props: {{ co
                   {{/ if }}
                   onClick={ async () => {
                     {{# if button.actionDefinition.isDeleteAction }}
-                      const confirmed = await openConfirmDialog(
-                        'page-delete-action',
-                        t('judo.modal.confirm.confirm-delete', { defaultValue: 'Are you sure you would like to delete the selected element?' }),
-                        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
-                      );
-
-                      if (confirmed) {
                         actions.{{ simpleActionDefinitionName actionDefinition }}!();
-                      }
                     {{ else }}
                       {{# if actionDefinition.isRefreshAction }}
                         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
