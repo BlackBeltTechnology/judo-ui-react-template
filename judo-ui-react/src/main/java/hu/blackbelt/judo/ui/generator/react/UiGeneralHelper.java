@@ -52,6 +52,10 @@ public class UiGeneralHelper {
                 .toLowerCase();
     }
 
+    public static String toUnderscore(String fqName) {
+        return pathName(fqName).replaceAll("-", "_");
+    }
+
     public static String createId(EObject element) {
         return getXMIID(element).replaceAll("@", "");
     }
@@ -94,6 +98,10 @@ public class UiGeneralHelper {
         return applications.stream()
                 .filter(a -> a.getAuthentication() == null && !a.getFQName().equals(application.getFQName()))
                 .collect(Collectors.toList());
+    }
+
+    public static String getFullAppName(Application application) {
+        return application.getModelName() + "#." + application.getName();
     }
 
     public static boolean otherApplicationsAvailable(Application application, Collection<Application> applications) {

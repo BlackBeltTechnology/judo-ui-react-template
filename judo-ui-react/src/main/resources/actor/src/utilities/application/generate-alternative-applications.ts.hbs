@@ -4,8 +4,9 @@ import type { AlternativeApplicationGenerator } from './interfaces';
 
 export const generateAlternativeApplications: AlternativeApplicationGenerator = (t: Function) => {
     return {
+        {{ debug applications }}
         {{# each (getAlternativeApplications application applications) as |app| }}
-            '{{ app.name }}': t('applications.{{ app.actor.simpleName }}', { defaultValue: '{{ app.actor.simpleName }}' }) as string,
+            '{{ toUnderscore (getFullAppName app) }}': t('applications.{{ app.actor.simpleName }}', { defaultValue: '{{ app.actor.simpleName }}' }) as string,
         {{/ each }}
     };
 };

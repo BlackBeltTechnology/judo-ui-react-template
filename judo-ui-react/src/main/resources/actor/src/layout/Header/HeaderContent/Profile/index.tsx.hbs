@@ -22,7 +22,7 @@ import Typography from '@mui/material/Typography';
   import { useAuth } from 'react-oidc-context';
 {{/ if }}
 import { ThemeMode } from '~/config';
-import { MdiIcon } from '~/components';
+import { MdiIcon{{# if (otherApplicationsAvailable application applications) }}, useApplicationSelector{{/ if }} } from '~/components';
 import { useHeroProps } from '~/hooks';
 import { Transitions } from '../../../Transitions';
 
@@ -38,6 +38,9 @@ export const Profile = () => {
         post_logout_redirect_uri: redirectUrl,
       });
     }, [isAuthenticated]);
+  {{/ if }}
+  {{# if (otherApplicationsAvailable application applications) }}
+  const openApplicationSelector = useApplicationSelector();
   {{/ if }}
 
   const anchorRef = useRef<any>(null);
@@ -128,6 +131,14 @@ export const Profile = () => {
                   </CardContent>
 
                   <List component="nav" sx={ { p: 0, '& .MuiListItemIcon-root': { minWidth: 32 } } }>
+                    {{# if (otherApplicationsAvailable application applications) }}
+                      <ListItemButton onClick={openApplicationSelector}>
+                        <ListItemIcon>
+                          <MdiIcon path="swap-horizontal" />
+                        </ListItemIcon>
+                        <ListItemText primary={t('judo.applications.change', { defaultValue: 'Change Application' })} />
+                      </ListItemButton>
+                    {{/ if }}
                     {{# if application.authentication }}
                       <ListItemButton onClick={doLogout}>
                         <ListItemIcon>
