@@ -1,9 +1,10 @@
 {{> fragment.header.hbs }}
 
+import { clearSecurityStorage } from '~/auth';
 import type { HandleApplicationChange } from './interfaces';
 
 export const changeApplication: HandleApplicationChange = (applicationKey: string) => {
-    const { origin } = window.location;
-
-    window.location.href = origin + '/' + applicationKey;
+  clearSecurityStorage();
+  const { origin } = window.location;
+  window.location.href = origin + '/' + applicationKey;
 };
