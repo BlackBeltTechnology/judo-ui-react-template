@@ -1,60 +1,110 @@
 {{> fragment.header.hbs }}
 
 import { useState } from 'react';
-import type { MouseEvent } from 'react';
+import type { MouseEvent, ChangeEvent } from 'react';
 import Typography from '@mui/material/Typography';
+import IconButton from '@mui/material/IconButton';
+import Grid from '@mui/material/Grid';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
 import Button from '@mui/material/Button';
-import Menu from '@mui/material/Menu';
-import MenuItem from '@mui/material/MenuItem';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon } from './MdiIcon';
-import { generateAlternativeApplications, changeApplication } from '../utilities/application';
+{{# if (otherApplicationsAvailable application applications) }}
+  import { generateAlternativeApplications, changeApplication } from '~/utilities/application';
+  import { useDialog } from '~/components/dialog';
+{{/ if }}
 
-export function ApplicationSelector() {
-    const { t } = useTranslation();
-    const alternativeApplications: Record<string, string> = generateAlternativeApplications(t);
-    const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-    const applicationSelectorOpen = Boolean(anchorEl);
+export const useApplicationSelector = () => {
+  const { t } = useTranslation();
+  {{# if (otherApplicationsAvailable application applications) }}
+  const [createDialog, closeDialog] = useDialog();
+  const alternativeApplications: Record<string, string> = generateAlternativeApplications(t);
+  const [selectedApp, setSelectedApp] = useState<string>(Object.keys(alternativeApplications)[0]);
+  {{/ if }}
 
-    const handleClickListItem = (event: MouseEvent<any>) => {
-        setAnchorEl(event.currentTarget);
-    };
-
-    const handleMenuItemClick = (
-        key: string,
-    ) => {
-        changeApplication(key);
-        setAnchorEl(null);
-    };
-
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
-
-    return (
+  {{# if (otherApplicationsAvailable application applications) }}
+  return () => {
+    createDialog({
+      fullWidth: true,
+      maxWidth: 'sm',
+      onClose: (event: object, reason: string) => {
+        if (reason !== 'backdropClick') {
+          closeDialog();
+        }
+      },
+      children: (
         <>
-            <Button id="application-selector" variant="text" sx={ { width: '100%' } } onClick={handleClickListItem} endIcon={<MdiIcon path="chevron_down" />}>
-                <Typography sx={ { fontWeight: 500 } }>{ t('applications.{{ application.actor.simpleName }}', { defaultValue: '{{ application.actor.simpleName }}' }) as string }</Typography>
-            </Button>
-            <Menu
-                id="application-selector-menu"
-                anchorEl={anchorEl}
-                open={applicationSelectorOpen}
-                onClose={handleClose}
-                MenuListProps={ {
-                    'aria-labelledby': 'lock-button',
-                    role: 'listbox',
-                } }
+          <DialogTitle>
+            {t('judo.applications.available_applications', { defaultValue: 'Available applications' })}
+            <IconButton
+              id="GodView-dialog-close"
+              aria-label="close"
+              onClick={() => {
+                closeDialog();
+              } }
+              sx={ {
+                position: 'absolute',
+                right: 8,
+                top: 8,
+                color: (theme) => theme.palette.grey[500],
+              } }
             >
-                <MenuItem disabled={true}>
-                    <Typography>{ t('judo.applications.available_applications', { defaultValue: 'Available applications' }) as string }</Typography>
-                </MenuItem>
-                {Object.keys(alternativeApplications).map(key => (
-                    <MenuItem id={key} key={key} onClick={() => handleMenuItemClick(key)}>
-                        <Typography>{alternativeApplications[key]}</Typography>
-                    </MenuItem>
-                ))}
-            </Menu>
+              <MdiIcon path="close" />
+            </IconButton>
+          </DialogTitle>
+          <DialogContent dividers>
+            <Grid container spacing={2} direction="row" alignItems="stretch" justifyContent="flex-start">
+              <Grid item>
+                <FormControl>
+                  <RadioGroup
+                    name="radio-buttons-group"
+                    value={selectedApp}
+                    onChange={(event: ChangeEvent<HTMLInputElement>) => setSelectedApp((event.target as HTMLInputElement).value)}
+                  >
+                    {Object.keys(alternativeApplications).map((key) => (
+                      <FormControlLabel key={key} value={key} control={<Radio />} label={alternativeApplications[key]} />
+                    ))}
+                  </RadioGroup>
+                </FormControl>
+              </Grid>
+            </Grid>
+          </DialogContent>
+          <DialogActions>
+            <Grid className="page-action" item>
+              <Button
+                id="application-changer-close"
+                variant="text"
+                onClick={ () => {
+                  closeDialog();
+                } }
+              >
+                {t('judo.pages.close', { defaultValue: 'Close' })}
+              </Button>
+            </Grid>
+            <Grid className="page-action" item>
+              <Button
+                id="application-changer-submit"
+                onClick={ () => {
+                  changeApplication(selectedApp);
+                  closeDialog();
+                } }
+                startIcon={<MdiIcon path="swap-horizontal" />}
+              >
+                {t('judo.applications.change', { defaultValue: 'Change Application' })}
+              </Button>
+            </Grid>
+          </DialogActions>
         </>
-    );
+      ),
+    });
+  };
+  {{ else }}
+  return () => {};
+  {{/ if }}
 }
