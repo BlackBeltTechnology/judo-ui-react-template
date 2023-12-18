@@ -34,12 +34,13 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
     <AggregationInput
       name="{{ link.dataElement.name }}"
       id="{{ getXMIID link }}"
-      label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string {{# if link.attributeType.isRequired }} + " *" {{/ if }} }
+      label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string }
       labelList={[
         {{# each link.parts as |part| }}
         ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
         {{/ each }}
       ]}
+      required={ {{# if link.requiredBy }}ownerData.{{ link.requiredBy.name }} || {{/ if }}{{# unless link.dataElement.isOptional }}true{{ else }}false{{/ unless }} }
       ownerData={ownerData}
       error={!!validationError}
       helperText={validationError}
