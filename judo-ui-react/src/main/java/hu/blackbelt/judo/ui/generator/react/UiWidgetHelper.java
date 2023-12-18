@@ -343,8 +343,18 @@ public class UiWidgetHelper {
         if ((button.getActionDefinition().getIsFilterAction() || button.getActionDefinition().getIsFilterRelationAction()) && isUseInlineColumnFilters()) {
             return "false";
         }
+        if (button.getActionDefinition().getIsOpenSelectorAction() && container.isView()) {
+            return "isFormUpdateable()";
+        }
         if (button.getActionDefinition().getIsClearAction()) {
-            return "data.length";
+            String result = "data.length";
+            if (table.getEnabledBy() != null) {
+                result += " && ownerData.{{ table.enabledBy.name }}";
+            }
+            if (container.isView()) {
+                result += " && isFormUpdateable()";
+            }
+            return result;
         }
         if (button.getActionDefinition().isIsBulk()) {
             return "selectionModel.length > 0";
@@ -380,6 +390,9 @@ public class UiWidgetHelper {
         if (button.getActionDefinition().getIsRemoveAction()) {
             if (!container.isTable() && table.getEnabledBy() != null) {
                 result += "!ownerData.{{ table.enabledBy.name }} || ";
+            }
+            if (container.isView()) {
+                result += "!isFormUpdateable() || ";
             }
         } else if (button.getActionDefinition().getIsDeleteAction()) {
             if (!container.isTable()) {
