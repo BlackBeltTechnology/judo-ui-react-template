@@ -209,6 +209,12 @@ public class UiI18NHelper {
                 if (v instanceof Link link) {
                     translations.put(getTranslationKeyForVisualElement(link), link.getLabel());
                 }
+                if (v instanceof Text text) {
+                    translations.put(getTranslationKeyForVisualElement(text), text.getText());
+                }
+                if (v instanceof Divider divider) {
+                    translations.put(getTranslationKeyForVisualElement(divider), divider.getLabel());
+                }
                 if (v instanceof ButtonGroup buttonGroup) {
                     translations.put(getTranslationKeyForVisualElement(buttonGroup), buttonGroup.getLabel());
 
