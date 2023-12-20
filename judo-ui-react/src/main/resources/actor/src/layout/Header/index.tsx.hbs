@@ -9,7 +9,7 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import IconButton from '@mui/material/IconButton';
 import type { AppBarProps } from '@mui/material';
 import { useConfig } from '~/hooks';
-import { MenuOrientation, ThemeMode } from '~/config';
+import { MenuOrientation, ThemeMode, DRAWER_WIDTH } from '~/config';
 import { MdiIcon } from '~/components';
 import { AppBarStyled } from './AppBarStyled';
 import { HeaderContent } from './HeaderContent';
@@ -47,7 +47,7 @@ export const Header = () => {
     sx: {
       borderBottom: `1px solid ${theme.palette.divider}`,
       zIndex: 1200,
-      width: isHorizontal ? '100%' : !miniDrawer ? 'calc(100% - 260px)' : { xs: '100%', lg: 'calc(100% - 60px)' }
+      width: isHorizontal ? '100%' : !miniDrawer ? `calc(100% - ${DRAWER_WIDTH}px)` : { xs: '100%', lg: 'calc(100% - 60px)' }
     }
   };
 
