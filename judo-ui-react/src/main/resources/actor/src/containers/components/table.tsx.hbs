@@ -75,7 +75,7 @@ import {
   useErrorHandler,
   {{/ unless }}
 } from '~/utilities';
-import type { DialogResult, TableRowAction, ColumnCustomizer } from '~/utilities';
+import type { DialogResult, TableRowAction, ColumnCustomizerHook } from '~/utilities';
 import { useDataStore } from '~/hooks';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 {{# if (stringValueIsTrue useTableRowHighlighting) }}
@@ -173,7 +173,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   }, [rowHighlighting]);
   {{/ if }}
   {{# each (customizableColumns table) as |column| }}
-  const { service: {{ column.name }}ColumnCustomizerHook } = useTrackService<() => ColumnCustomizer<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}})(column={{ column.name }})`);
+  const { service: {{ column.name }}ColumnCustomizerHook } = useTrackService<ColumnCustomizerHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}})(column={{ column.name }})`);
   const {{ column.name }}ColumnCustomizer = {{ column.name }}ColumnCustomizerHook && {{ column.name }}ColumnCustomizerHook();
   {{/ each }}
 

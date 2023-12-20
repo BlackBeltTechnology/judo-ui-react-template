@@ -17,7 +17,8 @@ export interface RefreshableTable {
 
 export const TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY = 'TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY';
 
-export type ColumnCustomizer<T extends JudoStored<T>> =(original: GridColDef<T>) => GridColDef<T>;
+export type ColumnCustomizerHook<T extends JudoStored<T>> = () => ColumnCustomizer<T>;
+export type ColumnCustomizer<T extends JudoStored<T>> = (original: GridColDef<T>) => GridColDef<T>;
 
 export const isRowSelectable = <T extends JudoStored<T>>(row: T & { __selected?: boolean }, single?: boolean, alreadySelectedItems?: T[]) => {
   if (Array.isArray(alreadySelectedItems) && alreadySelectedItems.length) {

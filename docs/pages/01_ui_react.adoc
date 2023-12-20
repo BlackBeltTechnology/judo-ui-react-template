@@ -450,7 +450,7 @@ to work, we need to provide the following service properties as well:
 ----
 import type { BundleContext } from '@pandino/pandino-api';
 import type { ApplicationCustomizer } from './interfaces';
-import type { ColumnCustomizer } from '~/utilities';
+import type { ColumnCustomizerHook } from '~/utilities';
 import { TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY } from '~/utilities';
 import type { ViewGalaxyStored } from '~/services/data-api';
 import type { GridRenderCellParams } from '@mui/x-data-grid';
@@ -459,14 +459,14 @@ import { MdiIcon } from '~/components/MdiIcon';
 export class DefaultApplicationCustomizer implements ApplicationCustomizer {
   async customize(context: BundleContext): Promise<void> {
     // we are registering a customizer service for the `nakedEye` column in the `ViewGalaxyTableTableComponent`
-    context.registerService(TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY, nakedEyeColumnCustomizerHook, {
+    context.registerService<ColumnCustomizerHook<ViewGalaxyStored>>(TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY, nakedEyeColumnCustomizerHook, {
       component: 'ViewGalaxyTableTableComponent',
       column: 'nakedEye',
     });
   }
 }
 
-const nakedEyeColumnCustomizerHook: () => ColumnCustomizer<ViewGalaxyStored> = () => {
+const nakedEyeColumnCustomizerHook: ColumnCustomizerHook<ViewGalaxyStored> = () => {
   // we are overriding the align, and the cell renderer
   return (original) => {
     return {
@@ -483,6 +483,7 @@ const nakedEyeColumnCustomizerHook: () => ColumnCustomizer<ViewGalaxyStored> = (
     };
   };
 };
+
 ----
 
 === Implementing page actions
