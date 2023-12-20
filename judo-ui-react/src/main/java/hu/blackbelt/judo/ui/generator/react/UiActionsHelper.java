@@ -94,9 +94,6 @@ public class UiActionsHelper {
     }
 
     public static ActionDefinition getRefreshActionDefinitionForTable(Table table) {
-        if (table.getRelationType() != null && !table.getRelationType().getIsRelationKindAssociation()) {
-            return null;
-        }
         return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
     }
 
