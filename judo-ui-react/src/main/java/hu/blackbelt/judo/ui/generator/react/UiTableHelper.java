@@ -27,6 +27,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -287,5 +288,11 @@ public class UiTableHelper {
 
     public static boolean tableHasBinaryColumn(Table table) {
         return table.getColumns().stream().anyMatch(UiTableHelper::isColumnBinary);
+    }
+
+    public static List<Column> customizableColumns(Table table) {
+        return table.getColumns().stream()
+                .filter(VisualElement::isCustomImplementation)
+                .toList();
     }
 }
