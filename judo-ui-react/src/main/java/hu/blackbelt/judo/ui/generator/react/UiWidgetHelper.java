@@ -424,4 +424,11 @@ public class UiWidgetHelper {
         }
         return "";
     }
+
+    public static String checkboxLabelPlacement(Checkbox checkbox) {
+        if (checkbox.getValueLabelPlacement() == null || checkbox.getValueLabelPlacement().equals(Placement.DEFAULT)) {
+            return null;
+        }
+        return checkbox.getValueLabelPlacement().getName().toLowerCase();
+    }
 }
