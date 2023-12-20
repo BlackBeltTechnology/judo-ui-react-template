@@ -434,6 +434,57 @@ const OptimisticImplementationForYayy: ComponentActorCreateYayy = ({ data, store
 > Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
   the use-case above.
 
+=== Implementing custom columns
+
+When the "Custom Implementation" option is checked in the Designer for a column in a table, we get access to an API where
+we can override the default column definitions.
+
+These services are registered under the `TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY` key, but in order for the registrations
+to work, we need to provide the following service properties as well:
+
+- `component`: the name of the table component (the file name should be the same)
+- `column`: the name of the column we would like to customize
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import type { ColumnCustomizer } from '~/utilities';
+import { TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY } from '~/utilities';
+import type { ViewGalaxyStored } from '~/services/data-api';
+import type { GridRenderCellParams } from '@mui/x-data-grid';
+import { MdiIcon } from '~/components/MdiIcon';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    // we are registering a customizer service for the `nakedEye` column in the `ViewGalaxyTableTableComponent`
+    context.registerService(TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY, nakedEyeColumnCustomizerHook, {
+      component: 'ViewGalaxyTableTableComponent',
+      column: 'nakedEye',
+    });
+  }
+}
+
+const nakedEyeColumnCustomizerHook: () => ColumnCustomizer<ViewGalaxyStored> = () => {
+  // we are overriding the align, and the cell renderer
+  return (original) => {
+    return {
+      ...original,
+      align: 'right',
+      renderCell: (params: GridRenderCellParams<any, ViewGalaxyStored>) => {
+        if (params.row.nakedEye === null || params.row.nakedEye === undefined) {
+          return <MdiIcon className="undefined" path="minus" color="#ddd" />;
+        } else if (params.row.nakedEye) {
+          return <MdiIcon className="true" path="check-circle" color="green" />;
+        }
+        return <MdiIcon className="false" path="alert-circle" color="red" />;
+      },
+    };
+  };
+};
+----
+
 === Implementing page actions
 
 Every page has a set of Actions. These are typically actions triggered by buttons, or page lifecycle actions, and are

@@ -47,6 +47,7 @@ import type {
 import { useL10N } from '~/l10n/l10n-context';
 {{/ or }}
 import {
+  TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   {{# if container.isSelector }}
   isRowSelectable,
   {{ else }}
@@ -74,7 +75,7 @@ import {
   useErrorHandler,
   {{/ unless }}
 } from '~/utilities';
-import type { DialogResult, TableRowAction } from '~/utilities';
+import type { DialogResult, TableRowAction, ColumnCustomizer } from '~/utilities';
 import { useDataStore } from '~/hooks';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 {{# if (stringValueIsTrue useTableRowHighlighting) }}
@@ -171,6 +172,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     return rowHighlighting ? rowHighlighting() : [];
   }, [rowHighlighting]);
   {{/ if }}
+  {{# each (customizableColumns table) as |column| }}
+  const { service: {{ column.name }}ColumnCustomizerHook } = useTrackService<() => ColumnCustomizer<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}})(column={{ column.name }})`);
+  const {{ column.name }}ColumnCustomizer = {{ column.name }}ColumnCustomizerHook && {{ column.name }}ColumnCustomizerHook();
+  {{/ each }}
 
   const [isLoading, setIsLoading] = useState<boolean>(false);
   {{# with (getReferenceClassType table) as |classType| }}
@@ -216,16 +221,24 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   };
   {{/ if }}
 
+  {{# each table.columns as |column| }}
+  const {{ column.name }}Column: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}> = {
+    ...baseColumnConfig,
+    field: '{{ column.attributeType.name }}',
+    headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
+    headerClassName: 'data-grid-column-header',
+    {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
+    {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
+  };
+  {{/ each }}
+
   const columns = useMemo<GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>(() => [
     {{# each table.columns as |column| }}
-    {
-      ...baseColumnConfig,
-      field: '{{ column.attributeType.name }}',
-      headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
-      headerClassName: 'data-grid-column-header',
-      {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
-      {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
-    },
+      {{# if column.customImplementation }}
+        {{ column.name }}ColumnCustomizer ? {{ column.name }}ColumnCustomizer({{ column.name }}Column) : {{ column.name }}Column,
+      {{ else }}
+        {{ column.name }}Column,
+      {{/ if }}
     {{/ each }}
   ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
 
