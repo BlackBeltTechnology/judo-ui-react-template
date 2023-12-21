@@ -324,4 +324,17 @@ public class UiActionsHelper {
 
         return String.join(", ", tokens);
     }
+
+    public static String inputModifierParams(PageContainer container, Boolean checkIsLoading) {
+        List<String> tokens = new ArrayList<>();
+        if (!container.isTable()) {
+            tokens.add("data: " + classDataName((ClassType) container.getDataElement(), "") + " | " + classDataName((ClassType) container.getDataElement(), "Stored"));
+            tokens.add("editMode?: boolean");
+            if (checkIsLoading != null && checkIsLoading) {
+                tokens.add("isLoading?: boolean");
+            }
+        }
+
+        return String.join(", ", tokens);
+    }
 }

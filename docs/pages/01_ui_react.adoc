@@ -486,15 +486,73 @@ const nakedEyeColumnCustomizerHook: ColumnCustomizerHook<ViewGalaxyStored> = () 
 
 ----
 
-=== Implementing page actions
+=== Implementing container actions
 
-Every page has a set of Actions. These are typically actions triggered by buttons, or page lifecycle actions, and are
+Every container has a set of Actions. These are typically actions triggered by buttons, or page lifecycle actions, and are
 generated in a form of optional interface methods.
 
 These methods can be re-implemented one-by-one, and if the framework detects a "custom" version of a method, it will
 call that instead of the original (if any).
 
-Every page as a designated unique `INTERFACE_KEY` string and a corresponding action hook `type`.
+Every container as a designated unique `CONTAINER_ACTIONS_HOOK_INTERFACE_KEY` string and a corresponding action hook `type`.
+
+Container action APIs are always designed as React hooks in order to provide the ability of injecting / using other hooks
+inside our implementations.
+
+*Figuring out how to locate interface keys can be done via:*
+
+- Inspecting the pages / dialogs in dev-tools, and searching for the id of containers in the `src/containers` folder.
+
+*Registering implementations*
+
+Implementations can be registered in one central location: `src/custom/application-customizer.tsx`.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { VIEW_GALAXY_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY, ViewGalaxyViewContainerHook } from '~/containers/View/Galaxy/View/ViewGalaxyView';
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api';
+import { GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY, ViewGalaxyViewActionsHook } from '~/pages/God/Galaxies/AccessViewPage';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    // Since we are implementing the `isAstronomerRequired` method on both levels, the page level implementation will
+    // have precedence, but only on the page GOD_GALAXIES_ACCESS_VIEW_PAGE!
+    context.registerService<ViewGalaxyViewActionsHook>(GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY, pageLevelHook);
+    context.registerService<ViewGalaxyViewContainerHook>(VIEW_GALAXY_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY, containerLevelHook);
+  }
+}
+
+const pageLevelHook: ViewGalaxyViewActionsHook = () => {
+  return {
+    isAstronomerRequired: (data: ViewGalaxy | ViewGalaxyStored, editMode?: boolean) => {
+      return data.name === 'BBB';
+    },
+  };
+};
+
+const containerLevelHook: ViewGalaxyViewContainerHook = () => {
+  return {
+    isAstronomerRequired: (data: ViewGalaxy | ViewGalaxyStored, editMode?: boolean) => {
+      return data.name === 'CCC';
+    },
+  };
+};
+----
+
+=== Implementing page actions
+
+Every page has a set of Actions. These are typically actions triggered by buttons, or page lifecycle actions, and are
+generated in a form of optional interface methods.
+
+> Action specifications on the page level take precedence over Container level actions when signatures match.
+
+These methods can be re-implemented one-by-one, and if the framework detects a "custom" version of a method, it will
+call that instead of the original (if any).
+
+Every page as a designated unique `PAGE_ACTIONS_HOOK_INTERFACE_KEY` string and a corresponding action hook `type`.
 
 Page action APIs are always designed as React hooks in order to provide the ability of injecting / using other hooks
 inside our implementations.
