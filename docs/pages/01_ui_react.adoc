@@ -488,13 +488,13 @@ const nakedEyeColumnCustomizerHook: ColumnCustomizerHook<ViewGalaxyStored> = () 
 
 === Implementing container actions
 
-Every container has a set of Actions. These are typically actions triggered by buttons, or page lifecycle actions, and are
-generated in a form of optional interface methods.
+Every container has a set of Actions. These are typically actions triggered by buttons, or visual lifecycle calculated
+properties. These actions are generated as optional methods.
 
-These methods can be re-implemented one-by-one, and if the framework detects a "custom" version of a method, it will
+These methods can be (re)implemented one-by-one, and if the framework detects a "custom" version of a method, it will
 call that instead of the original (if any).
 
-Every container as a designated unique `CONTAINER_ACTIONS_HOOK_INTERFACE_KEY` string and a corresponding action hook `type`.
+Every container has a designated unique `CONTAINER_ACTIONS_HOOK_INTERFACE_KEY` string and a corresponding action hook `type`.
 
 Container action APIs are always designed as React hooks in order to provide the ability of injecting / using other hooks
 inside our implementations.
@@ -549,7 +549,7 @@ generated in a form of optional interface methods.
 
 > Action specifications on the page level take precedence over Container level actions when signatures match.
 
-These methods can be re-implemented one-by-one, and if the framework detects a "custom" version of a method, it will
+These methods can be (re)implemented one-by-one, and if the framework detects a "custom" version of a method, it will
 call that instead of the original (if any).
 
 Every page as a designated unique `PAGE_ACTIONS_HOOK_INTERFACE_KEY` string and a corresponding action hook `type`.
