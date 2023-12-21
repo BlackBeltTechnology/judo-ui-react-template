@@ -13,12 +13,16 @@ export interface {{ componentName link }}ActionDefinitions {
   {{# each link.actionDefinitions as |actionDefinition| }}
   {{ simpleActionDefinitionName actionDefinition }}?: ({{{ linkActionDefinitionParameters link actionDefinition }}}) => Promise<{{{ linkActionDefinitionResponseType link actionDefinition }}}>;
   {{/ each }}
+  {{# if link.onBlur }}
+  on{{ firstToUpper link.relationType.name }}BlurAction?: ({{{ onBlurActionParams container }}}) => void;
+  {{/ if }}
 }
 
 export interface {{ componentName link }}Props {
   ownerData: {{ classDataName container.dataElement '' }} | {{ classDataName container.dataElement 'Stored' }};
   actions: {{ componentName link }}ActionDefinitions;
   storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
+  submit: () => Promise<void>;
   validationError?: string;
   disabled?: boolean;
   editMode?: boolean;
@@ -27,7 +31,7 @@ export interface {{ componentName link }}Props {
 // XMIID: {{ getXMIID link }}
 // Name: {{ link.name }}
 export function {{ componentName link }}(props: {{ componentName link }}Props) {
-  const { ownerData, actions, storeDiff, validationError, disabled, editMode } = props;
+  const { ownerData, actions, storeDiff, submit, validationError, disabled, editMode } = props;
   const { t } = useTranslation();
 
   return (
@@ -52,6 +56,12 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
       onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
         storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
+        {{# if link.onBlur }}
+        if (actions?.on{{ firstToUpper link.dataElement.name }}BlurAction) {
+          const eagerCopy = { ...ownerData, ['{{ link.dataElement.name }}']: {{ link.dataElement.name }} };
+          actions.on{{ firstToUpper link.dataElement.name }}BlurAction(eagerCopy as {{ classDataName container.dataElement 'Stored' }}, storeDiff, editMode!, submit);
+        }
+        {{/ if }}
       } }
 {{# if (isAutocompleteAvailable link) }}
   {{# with (getFirstAutocompleteColumnForLink link) as |column| }}
@@ -78,6 +88,11 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
     {{# if button.actionDefinition.isOpenSelectorAction }}
       onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async () => {
         await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+        {{# if link.onBlur }}
+        if (actions?.on{{ firstToUpper link.dataElement.name }}BlurAction) {
+          actions.on{{ firstToUpper link.dataElement.name }}BlurAction(ownerData as {{ classDataName container.dataElement 'Stored' }}, storeDiff, editMode!, submit);
+        }
+        {{/ if }}
       } : undefined }
     {{/ if }}
     {{# if button.actionDefinition.isUnsetAction }}
