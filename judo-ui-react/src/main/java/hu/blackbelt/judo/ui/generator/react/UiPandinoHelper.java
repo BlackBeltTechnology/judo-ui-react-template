@@ -96,9 +96,11 @@ public class UiPandinoHelper {
         Set<AttributeType> filtered  = new LinkedHashSet<>();
 
         for (VisualElement e: elements) {
-            AttributeType attributeType = ((Input) e).getAttributeType();
-            if (filtered.stream().noneMatch(a -> a.getName().equals(attributeType.getName()))) {
-                filtered.add(attributeType);
+            if (e instanceof Input input) {
+                AttributeType attributeType = input.getAttributeType();
+                if (filtered.stream().noneMatch(a -> a.getName().equals(attributeType.getName()))) {
+                    filtered.add(attributeType);
+                }
             }
         }
 

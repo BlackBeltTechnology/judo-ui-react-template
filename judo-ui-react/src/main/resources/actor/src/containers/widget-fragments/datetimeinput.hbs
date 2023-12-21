@@ -56,7 +56,7 @@
             {{# if child.onBlur }}
             if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
                 const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: newValue };
-                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, setValidation, submit);
+                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, submit);
             }
             {{/ if }}
         } }
