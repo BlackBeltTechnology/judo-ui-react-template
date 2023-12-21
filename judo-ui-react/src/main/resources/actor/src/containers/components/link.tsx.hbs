@@ -87,10 +87,11 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
   {{# each link.actionButtonGroup.buttons as |button| }}
     {{# if button.actionDefinition.isOpenSelectorAction }}
       onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async () => {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+        const {{ link.dataElement.name }} = await actions.{{ simpleActionDefinitionName actionDefinition }}!();
         {{# if link.onBlur }}
-        if (actions?.on{{ firstToUpper link.dataElement.name }}BlurAction) {
-          actions.on{{ firstToUpper link.dataElement.name }}BlurAction(ownerData as {{ classDataName container.dataElement 'Stored' }}, storeDiff, editMode!, submit);
+        if ({{ link.dataElement.name }} && actions?.on{{ firstToUpper link.dataElement.name }}BlurAction) {
+          const eagerCopy = { ...ownerData, ['{{ link.dataElement.name }}']: {{ link.dataElement.name }} };
+          actions.on{{ firstToUpper link.dataElement.name }}BlurAction(eagerCopy as {{ classDataName container.dataElement 'Stored' }}, storeDiff, editMode!, submit);
         }
         {{/ if }}
       } : undefined }

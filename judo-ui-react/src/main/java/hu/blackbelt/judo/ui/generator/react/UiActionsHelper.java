@@ -179,6 +179,8 @@ public class UiActionsHelper {
     public static String linkActionDefinitionResponseType(Link link, ActionDefinition actionDefinition) {
         if (actionDefinition.getIsAutocompleteRangeAction()) {
             return "Array<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + ">";
+        } else if (actionDefinition.getIsOpenSelectorAction()) {
+            return classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + " | undefined";
         }
         return "void";
     }
