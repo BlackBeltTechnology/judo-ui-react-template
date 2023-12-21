@@ -8,7 +8,18 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
         {{ else }}
           try {
             setIsLoading(true);
-            await {{ getServiceImplForPage page }}.add{{ firstToUpper action.targetDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}ownerData{{/ if }}, returnedData);
+            await {{ getServiceImplForPage page }}.add{{ firstToUpper action.targetDataElement.name }}(
+              {{# if (pageHasSignedId page) }}
+                { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
+              {{ else }}
+                {{# if page.openInDialog }}
+                  ownerData
+                {{ else }}
+                  data
+                {{/ if }}
+              {{/ if }},
+              returnedData
+            );
             {{# if page.container.table }}
               setRefreshCounter((prev) => prev + 1);
             {{/ if }}
