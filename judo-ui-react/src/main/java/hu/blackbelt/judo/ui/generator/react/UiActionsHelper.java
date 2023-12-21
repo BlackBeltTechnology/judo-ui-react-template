@@ -179,6 +179,8 @@ public class UiActionsHelper {
     public static String linkActionDefinitionResponseType(Link link, ActionDefinition actionDefinition) {
         if (actionDefinition.getIsAutocompleteRangeAction()) {
             return "Array<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + ">";
+        } else if (actionDefinition.getIsOpenSelectorAction()) {
+            return classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + " | undefined";
         }
         return "void";
     }
@@ -316,7 +318,7 @@ public class UiActionsHelper {
             tokens.add("data: " + classDataName((ClassType) container.getDataElement(), "Stored"));
             tokens.add("storeDiff: (attributeName: keyof " + classDataName((ClassType) container.getDataElement(), "") + ", value: any) => void");
             tokens.add("editMode: boolean");
-            tokens.add("setValidation: Dispatch<SetStateAction<Map<keyof " + classDataName((ClassType) container.getDataElement(), "") + ", string>>>");
+//            tokens.add("setValidation: Dispatch<SetStateAction<Map<keyof " + classDataName((ClassType) container.getDataElement(), "") + ", string>>>");
         }
         tokens.add("submit: () => Promise<void>");
 

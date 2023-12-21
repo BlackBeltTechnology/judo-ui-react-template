@@ -1,10 +1,12 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+{{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<{{ classDataName (getReferenceClassType link) 'Stored' }} | undefined> => {
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
   if (result === 'submit') {
     if (Array.isArray(returnedData) && returnedData.length) {
-      {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
-        storeDiff('{{ link.dataElement.name }}', returnedData[0]);
-      {{/ with }}
+      storeDiff('{{ link.dataElement.name }}', returnedData[0]);
+      return returnedData[0];
     }
   }
+  return undefined;
 };
+{{/ with }}
