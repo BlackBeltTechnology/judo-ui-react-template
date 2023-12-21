@@ -22,8 +22,11 @@
           {{/ if }}
           onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
             {{# if button.confirmation }}
-              // TODO: implement shiny MUI Dialog here
-              const result = confirm(t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+              const result = await openConfirmDialog(
+                '{{ getXMIID button }}',
+                t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
+                t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+              );
 
               if (!result) {
                 return;
@@ -53,8 +56,11 @@
                 label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
                 onClick: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
                   {{# if button.confirmation }}
-                    // TODO: implement shiny MUI Dialog here
-                    const result = confirm(t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+                    const result = await openConfirmDialog(
+                      '{{ getXMIID button }}',
+                      t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
+                      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+                    );
 
                     if (!result) {
                       return;

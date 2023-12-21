@@ -67,6 +67,7 @@ export default function {{ containerComponentName container }}(props: {{ contain
     const { navigate, back } = useJudoNavigation();
     const { refreshCounter, actions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
+    const { openConfirmDialog } = useConfirmDialog();
 
     {{# unless container.table }}
       useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));

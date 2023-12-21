@@ -37,6 +37,7 @@ import {
   ContextMenu,
   StripedDataGrid,
 } from '~/components/table';
+import { useConfirmDialog } from '~/components/dialog';
 import type { ContextMenuApi } from '~/components/table/ContextMenu';
 import type { Filter, FilterOption } from '~/components-api';
 import { FilterType } from '~/components-api';
@@ -153,6 +154,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const filterModelKey = `{{ createId table }}-${uniqueId}-filterModel`;
   const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
 
+  const { openConfirmDialog } = useConfirmDialog();
   const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
   {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
   const { locale: l10nLocale } = useL10N();
@@ -254,8 +256,11 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {{{ tableRowButtonDisabledConditions button table container }}},
       action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
         {{# if button.confirmation }}
-          // TODO: implement shiny MUI Dialog here
-          const result = confirm(t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string);
+          const result = await openConfirmDialog(
+            '{{ getXMIID button }}',
+            t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
+            t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+          );
 
           if (!result) {
             return;
