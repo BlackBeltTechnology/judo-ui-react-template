@@ -25,13 +25,14 @@ export interface {{ componentName link }}Props {
   submit: () => Promise<void>;
   validationError?: string;
   disabled?: boolean;
+  readOnly?: boolean;
   editMode?: boolean;
 }
 
 // XMIID: {{ getXMIID link }}
 // Name: {{ link.name }}
 export function {{ componentName link }}(props: {{ componentName link }}Props) {
-  const { ownerData, actions, storeDiff, submit, validationError, disabled, editMode } = props;
+  const { ownerData, actions, storeDiff, submit, validationError, disabled, readOnly, editMode } = props;
   const { t } = useTranslation();
 
   return (
@@ -52,6 +53,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
         icon={<MdiIcon path="{{ link.icon.iconName }}" />}
       {{/ if }}
       disabled={disabled}
+      readOnly={readOnly}
       editMode={editMode}
       autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
       onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
