@@ -16,6 +16,8 @@ export interface {{ componentName link }}ActionDefinitions {
   {{# if link.onBlur }}
   on{{ firstToUpper link.relationType.name }}BlurAction?: ({{{ onBlurActionParams container }}}) => void;
   {{/ if }}
+  is{{ firstToUpper link.relationType.name }}Required?: ({{{ inputModifierParams container false }}}) => boolean;
+  is{{ firstToUpper link.relationType.name }}Disabled?: ({{{ inputModifierParams container true }}}) => boolean;
 }
 
 export interface {{ componentName link }}Props {
@@ -27,12 +29,13 @@ export interface {{ componentName link }}Props {
   disabled?: boolean;
   readOnly?: boolean;
   editMode?: boolean;
+  isLoading?: boolean;
 }
 
 // XMIID: {{ getXMIID link }}
 // Name: {{ link.name }}
 export function {{ componentName link }}(props: {{ componentName link }}Props) {
-  const { ownerData, actions, storeDiff, submit, validationError, disabled, readOnly, editMode } = props;
+  const { ownerData, actions, storeDiff, submit, validationError, disabled, readOnly, editMode, isLoading } = props;
   const { t } = useTranslation();
 
   return (
@@ -45,14 +48,14 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
         ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
         {{/ each }}
       ]}
-      required={ {{# if link.requiredBy }}ownerData.{{ link.requiredBy.name }} || {{/ if }}{{# unless link.dataElement.isOptional }}true{{ else }}false{{/ unless }} }
+      required={actions?.is{{ firstToUpper link.relationType.name }}Required ? actions.is{{ firstToUpper link.relationType.name }}Required(ownerData, editMode) : ({{# if link.requiredBy }}ownerData.{{ link.requiredBy.name }} || {{/ if }}{{# unless link.dataElement.isOptional }}true{{ else }}false{{/ unless }})}
       ownerData={ownerData}
       error={!!validationError}
       helperText={validationError}
       {{# if link.icon }}
         icon={<MdiIcon path="{{ link.icon.iconName }}" />}
       {{/ if }}
-      disabled={disabled}
+      disabled={actions?.is{{ firstToUpper link.relationType.name }}Disabled ? actions.is{{ firstToUpper link.relationType.name }}Disabled(ownerData, editMode, isLoading) : disabled}
       readOnly={readOnly}
       editMode={editMode}
       autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}

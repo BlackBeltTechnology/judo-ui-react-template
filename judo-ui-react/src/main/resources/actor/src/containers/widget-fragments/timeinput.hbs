@@ -1,4 +1,4 @@
-{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+{{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     {{# if child.customImplementation }}
         <ComponentProxy
@@ -7,6 +7,7 @@
             validation={validation}
             editMode={editMode}
             storeDiff={storeDiff}
+            isLoading={isLoading}
         >
     {{/ if }}
     <TimePicker
@@ -18,7 +19,7 @@
         slotProps={ {
             textField: {
                 id: '{{ getXMIID child }}',
-                required: {{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }},
+                required: actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }}),
                 helperText: validation.get('{{ child.attributeType.name }}'),
                 error: !!validation.get('{{ child.attributeType.name }}'),
                 {{# if child.icon }}
@@ -50,7 +51,7 @@
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ serviceTimeToUiTime(data.{{ child.attributeType.name }} ?? null) }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading }
+        disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
         {{# if child.onBlur }}
         onBlur={ () => {
             if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
