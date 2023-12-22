@@ -55,6 +55,9 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
       post{{ firstToUpper (simpleActionDefinitionName refreshActionDefinition) }}?: ({{{ postRefreshActionParams page refreshActionDefinition }}}) => Promise<void>;
     {{/ with }}
+    {{# with (getGetTemplateActionDefinitionForContainer page.container) as |getTemplateActionDefinition| }}
+      post{{ firstToUpper (simpleActionDefinitionName getTemplateActionDefinition) }}?: ({{{ postGetTemplateActionParams page getTemplateActionDefinition }}}) => Promise<void>;
+    {{/ with }}
   };
 
   export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';

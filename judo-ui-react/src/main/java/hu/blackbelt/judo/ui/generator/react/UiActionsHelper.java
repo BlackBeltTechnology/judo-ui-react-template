@@ -101,6 +101,10 @@ public class UiActionsHelper {
         return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsSelectorRangeAction()).findFirst().orElse(null);
     }
 
+    public static ActionDefinition getGetTemplateActionDefinitionForContainer(PageContainer container) {
+        return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsGetTemplateAction()).findFirst().orElse(null);
+    }
+
     public static ActionDefinition getRefreshActionDefinitionForContainer(PageContainer container) {
         if (container.isTable()) {
             return getRefreshActionDefinitionForTable((Table) container.getTables().get(0));
@@ -309,6 +313,14 @@ public class UiActionsHelper {
             res += "storeDiff: (attributeName: keyof " + classDataName(getReferenceClassType(page), "") + ", value: any) => void, ";
             res += "setValidation: Dispatch<SetStateAction<Map<keyof " + classDataName(getReferenceClassType(page), "") + ", string>>>";
         }
+        return res;
+    }
+
+    public static String postGetTemplateActionParams(PageDefinition page, ActionDefinition actionDefinition) {
+        String res = "";
+        res += "ownerData: any, ";
+        res += "data: " + classDataName(getReferenceClassType(page), "") + ", ";
+        res += "storeDiff: (attributeName: keyof " + classDataName(getReferenceClassType(page), "") + ", value: any) => void, ";
         return res;
     }
 
