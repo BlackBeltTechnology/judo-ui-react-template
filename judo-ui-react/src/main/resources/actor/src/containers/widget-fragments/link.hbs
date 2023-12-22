@@ -4,7 +4,8 @@
         <ComponentProxy
             filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
             data={ data?.{{ classDataName link.dataElement.name }} }
-            disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
+            disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} }
+            readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
             editMode={editMode}
             validation={validation}
             actions={ actionsFor{{ componentName child }} }
@@ -12,7 +13,8 @@
         >
     {{/ if }}
     <{{ componentName child }}
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} || !isFormUpdateable() }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} }
+        readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() }
         ownerData={data}
         editMode={editMode}
         isLoading={isLoading}
