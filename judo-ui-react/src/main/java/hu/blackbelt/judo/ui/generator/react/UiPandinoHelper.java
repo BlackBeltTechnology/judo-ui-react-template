@@ -106,4 +106,10 @@ public class UiPandinoHelper {
 
         return filtered.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
+
+    public static List<VisualElement> getElementsWithHiddenBy(Container container) {
+        Set<VisualElement> elements = new LinkedHashSet<>();
+        collectVisualElementsMatchingCondition(container, e -> e.getHiddenBy() != null, elements);
+        return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
 }

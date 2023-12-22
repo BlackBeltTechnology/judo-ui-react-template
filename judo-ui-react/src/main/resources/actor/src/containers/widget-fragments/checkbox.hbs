@@ -1,4 +1,4 @@
-{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+{{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     {{# if child.customImplementation }}
         <ComponentProxy
@@ -7,6 +7,7 @@
             validation={validation}
             editMode={editMode}
             storeDiff={storeDiff}
+            isLoading={isLoading}
         >
     {{/ if }}
         <FormControl error={!!validation.get('{{ child.attributeType.name }}')}>
@@ -14,7 +15,7 @@
                 <FormControlLabel
                     className="checkbox"
                     sx={ { marginTop: '6px', color: (theme) => validation.has('{{ child.attributeType.name }}') ? theme.palette.error.main : 'primary' } }
-                    disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
+                    disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading)}
                     control={
                         <Checkbox checked={ data.{{ child.attributeType.name }} || false } sx={ { color: (theme) => validation.has('{{ child.attributeType.name }}') ? theme.palette.error.main : 'primary' } } onChange={ (event) => {
                             storeDiff('{{ child.attributeType.name }}', event.target.checked);

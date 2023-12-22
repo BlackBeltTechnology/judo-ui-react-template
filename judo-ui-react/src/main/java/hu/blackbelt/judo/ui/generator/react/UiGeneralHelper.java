@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.getXMIID;
+import static java.util.Arrays.stream;
 
 @Log
 @TemplateHelper
@@ -50,6 +51,10 @@ public class UiGeneralHelper {
                 .replaceAll("/", "-")
                 .replaceAll("([a-z])([A-Z]+)", "$1-$2")
                 .toLowerCase();
+    }
+
+    public static String safeName(NamedElement namedElement) {
+        return stream(namedElement.getName().split("::")).map(org.springframework.util.StringUtils::capitalize).collect(Collectors.joining(""));
     }
 
     public static String toUnderscore(String fqName) {
