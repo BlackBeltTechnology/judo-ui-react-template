@@ -182,6 +182,10 @@ public class UiPageContainerHelper {
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getEnabledBy() != null).map(i -> i.getEnabledBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getRequiredBy() != null).map(i -> i.getRequiredBy().getName()).collect(Collectors.toSet()));
 
+        if (container.getTitleFrom() != null && container.getTitleFrom().equals(TitleFrom.ATTRIBUTE)) {
+            attributeNames.add(container.getTitleAttribute().getName());
+        }
+
         mask.append(String.join(",", attributeNames.stream().sorted().toList()));
 
         for (Table table: ((List<Table>) container.getTables()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
