@@ -2,6 +2,8 @@
 
 {{# if isDebugPrint }}// include: actor/src/fragments/container/common-imports.fragment.hbs{{/ if }}
 {{> actor/src/fragments/container/common-imports.fragment.hbs }}
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
 {{# unless container.table }}
   {{# if isDebugPrint }}// include: actor/src/fragments/container/view-imports.fragment.hbs{{/ if }}
   {{> actor/src/fragments/container/view-imports.fragment.hbs }}
@@ -26,12 +28,28 @@
     export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName container.dataElement '' }}>> {}
 {{/ each }}
 
+export const {{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName container }}ContainerHook';
+export type {{ containerComponentName container }}ContainerHook = (
+  {{# unless container.table }}
+  data: {{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }},
+  editMode: boolean,
+  storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void,
+  {{/ unless }}
+) => {{ pageContainerActionDefinitionTypeName container }};
+
 export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
   {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
     {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
   {{/ each }}
   {{# each (getOnBlurAttributesForContainer container) as |attributeType| }}
     on{{ firstToUpper attributeType.name }}BlurAction?: ({{{ onBlurActionParams container }}}) => void;
+  {{/ each }}
+  {{# each (getInputsForContainer container) as |input| }}
+    is{{ firstToUpper input.attributeType.name }}Required?: ({{{ inputModifierParams container false }}}) => boolean;
+    is{{ firstToUpper input.attributeType.name }}Disabled?: ({{{ inputModifierParams container true }}}) => boolean;
+  {{/ each}}
+  {{# each (getElementsWithHiddenBy container) as |ve| }}
+    is{{ safeName ve }}Hidden?: ({{{ inputModifierParams container false }}}) => boolean;
   {{/ each }}
 }
 {{/ unless }}
@@ -63,15 +81,22 @@ export interface {{ containerComponentName container }}Props {
 // Name: {{ container.name }}
 export default function {{ containerComponentName container }}(props: {{ containerComponentName container }}Props) {
   {{# unless (containerIsEmptyDashboard container) }}
+    // Container props
+    const { refreshCounter, actions: pageActions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
+
+    // Container hooks
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { refreshCounter, actions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
     const { locale: l10nLocale } = useL10N();
     const { openConfirmDialog } = useConfirmDialog();
 
     {{# unless container.table }}
       useConfirmationBeforeChange(editMode, t('judo.form.navigation.confirmation', { defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?' }));
     {{/ unless }}
+    // Pandino Container Action overrides
+    const { service: customContainerHook } = useTrackService<{{ containerComponentName container }}ContainerHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY})`);
+    const containerActions: {{ pageContainerActionDefinitionTypeName container }} = customContainerHook?.({{# unless container.table }}data, editMode, storeDiff{{/ unless }}) || {};
+    const actions = useMemo(() => ({...containerActions, ...pageActions}), [containerActions, pageActions]);
   {{/ unless }}
 
   return (

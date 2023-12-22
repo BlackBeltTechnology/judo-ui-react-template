@@ -257,4 +257,14 @@ public class UiPageContainerHelper {
         List<Flex> acc = collectElementsOfType(container, new ArrayList<>(), Flex.class);
         return acc.stream().anyMatch(Flex::isCard);
     }
+
+    public static List<Input> getInputsForContainer(PageContainer container) {
+        Set<VisualElement> elements = new LinkedHashSet<>();
+        collectVisualElementsMatchingCondition(container, e -> e instanceof Input, elements);
+        return elements.stream().map(e -> ((Input) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<Link> getLinksForContainer(PageContainer container) {
+        return container.getLinks().stream().map(e -> ((Link) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
 }

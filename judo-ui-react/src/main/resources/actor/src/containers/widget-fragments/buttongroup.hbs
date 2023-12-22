@@ -1,4 +1,4 @@
-{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+{{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
   <Grid container spacing={2}>
     {{# if child.customImplementation }}
@@ -8,6 +8,7 @@
         validation={validation}
         editMode={editMode}
         storeDiff={storeDiff}
+        isLoading={isLoading}
       >
     {{/ if }}
     {{# each (featuredButtonsForButtonGroup child) as |button| }}

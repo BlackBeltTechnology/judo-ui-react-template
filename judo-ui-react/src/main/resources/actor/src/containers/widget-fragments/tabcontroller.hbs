@@ -1,4 +1,4 @@
-{{# if child.hiddenBy }} { !data.{{ child.hiddenBy.name }} && {{/ if }}
+{{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid container item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
     {{# if child.customImplementation }}
         <ComponentProxy
@@ -7,6 +7,7 @@
             validation={validation}
             editMode={editMode}
             storeDiff={storeDiff}
+            isLoading={isLoading}
         >
     {{/ if }}
     <ModeledTabs
@@ -21,7 +22,7 @@
                     name: '{{ getTranslationKeyForVisualElement tab.element }}',
                     label: t('{{ getTranslationKeyForVisualElement tab.element }}', { defaultValue: '{{ tab.element.label }}' }) as string,
                     disabled: {{# if tab.element.enabledBy }}!data.{{ tab.element.enabledBy.name }} ||{{/ if }} isLoading,
-                    hidden: {{# if tab.element.hiddenBy }}data.{{ tab.element.hiddenBy.name }}{{ else }}false{{/ if }},
+                    hidden: {{# if tab.element.hiddenBy }}actions?.is{{ safeName tab.element }}Hidden ? actions?.is{{ safeName tab.element }}Hidden(data, editMode) : data.{{ tab.element.hiddenBy.name }}){{ else }}false{{/ if }},
                     {{# if tab.element.icon }}
                         icon: '{{ tab.element.icon.iconName }}',
                     {{/ if }}
