@@ -22,7 +22,7 @@
                     name: '{{ getTranslationKeyForVisualElement tab.element }}',
                     label: t('{{ getTranslationKeyForVisualElement tab.element }}', { defaultValue: '{{ tab.element.label }}' }) as string,
                     disabled: {{# if tab.element.enabledBy }}!data.{{ tab.element.enabledBy.name }} ||{{/ if }} isLoading,
-                    hidden: {{# if tab.element.hiddenBy }}actions?.is{{ safeName tab.element }}Hidden ? actions?.is{{ safeName tab.element }}Hidden(data, editMode) : data.{{ tab.element.hiddenBy.name }}){{ else }}false{{/ if }},
+                    hidden: {{# if tab.element.hiddenBy }}(actions?.is{{ safeName tab.element }}Hidden ? actions?.is{{ safeName tab.element }}Hidden(data, editMode) : data.{{ tab.element.hiddenBy.name }}){{ else }}false{{/ if }},
                     {{# if tab.element.icon }}
                         icon: '{{ tab.element.icon.iconName }}',
                     {{/ if }}
