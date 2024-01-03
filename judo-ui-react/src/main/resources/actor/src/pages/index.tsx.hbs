@@ -18,7 +18,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   {{/ if }}
   import { useJudoNavigation } from '~/components';
   import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
-  import { useSnacks, useCRUDDialog } from '~/hooks';
+  import { useSnacks, useCRUDDialog, useViewData } from '~/hooks';
   import {
     {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
@@ -94,6 +94,7 @@ export default function {{ pageName page }}() {
     const { navigate, back: navigateBack } = useJudoNavigation();
     const { openFilterDialog } = useFilterDialog();
     const { openConfirmDialog } = useConfirmDialog();
+    const { setLatestViewData } = useViewData();
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();
 
