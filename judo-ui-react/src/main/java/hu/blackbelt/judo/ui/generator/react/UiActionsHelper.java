@@ -105,6 +105,10 @@ public class UiActionsHelper {
         return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsGetTemplateAction()).findFirst().orElse(null);
     }
 
+    public static ActionDefinition getCreateDefinitionForContainer(PageContainer container) {
+        return (ActionDefinition) container.getPageActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsCreateAction()).findFirst().orElse(null);
+    }
+
     public static ActionDefinition getRefreshActionDefinitionForContainer(PageContainer container) {
         if (container.isTable()) {
             return getRefreshActionDefinitionForTable((Table) container.getTables().get(0));
@@ -285,6 +289,16 @@ public class UiActionsHelper {
             return "singletonHost.current";
         }
         return "undefined";
+    }
+
+    public static String postCreateActionParams(PageDefinition page, ActionDefinition actionDefinition) {
+        List<String> tokens = new ArrayList<>();
+        String type = classDataName(getReferenceClassType(page), "Stored");
+        tokens.add("data: " + classDataName(getReferenceClassType(page), ""));
+        tokens.add("res: " + type);
+        tokens.add("onSubmit: (result?: " + type + ") => Promise<void>");
+        tokens.add("onClose: () => Promise<void>");
+        return String.join(", ", tokens);
     }
 
     public static String postCallOperationActionParams(PageDefinition page, ActionDefinition actionDefinition) {

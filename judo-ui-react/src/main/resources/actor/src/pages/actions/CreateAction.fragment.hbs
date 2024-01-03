@@ -2,8 +2,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   try {
     setIsLoading(true);
     const res = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}payloadDiff.current);
-    showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
-    onSubmit(res);
+    if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
+      await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(data, res, onSubmit, onClose);
+    } else {
+      showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
+      onSubmit(res);
+    }
   } catch (error) {
      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
   } finally {
