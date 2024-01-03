@@ -58,6 +58,9 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# with (getGetTemplateActionDefinitionForContainer page.container) as |getTemplateActionDefinition| }}
       post{{ firstToUpper (simpleActionDefinitionName getTemplateActionDefinition) }}?: ({{{ postGetTemplateActionParams page getTemplateActionDefinition }}}) => Promise<void>;
     {{/ with }}
+    {{# with (getCreateDefinitionForContainer page.container) as |createActionDefinition| }}
+      post{{ firstToUpper (simpleActionDefinitionName createActionDefinition) }}?: ({{{ postCreateActionParams page createActionDefinition }}}) => Promise<void>;
+    {{/ with }}
   };
 
   export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
