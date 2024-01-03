@@ -1,4 +1,4 @@
-{{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
+{{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
   {{# if child.customImplementation }}
     <ComponentProxy
