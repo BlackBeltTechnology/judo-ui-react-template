@@ -29,7 +29,7 @@ import { accessServiceImpl, judoAxiosProvider } from '~/services/data-axios';
 import App from './App';
 import { routes } from './routes';
 import { RootErrorBoundary } from './components/RootErrorBoundary';
-import { ConfigProvider } from './hooks';
+import { ConfigProvider, ViewDataProvider } from './hooks';
 
 {{# if isMUILicensed }}
     LicenseInfo.setLicenseKey(import.meta.env.VITE_MUI_LICENSE_KEY);
@@ -90,19 +90,21 @@ const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL
         <StrictMode>
             <ConfigProvider>
                 <ThemeCustomization>
-                    <PandinoProvider ctx={pandino.getBundleContext()}>
-                        <L10NProvider axios={axios}>
-                        {{# if application.authentication }}
-                            <AuthProvider {...oidcConfig} >
-                                <Auth>
-                        {{/ if }}
-                            <RouterProvider router={router} />
-                        {{# if application.authentication }}
-                                </Auth>
-                            </AuthProvider>
-                        {{/ if }}
-                        </L10NProvider>
-                    </PandinoProvider>
+                    <ViewDataProvider>
+                        <PandinoProvider ctx={pandino.getBundleContext()}>
+                            <L10NProvider axios={axios}>
+                            {{# if application.authentication }}
+                                <AuthProvider {...oidcConfig} >
+                                    <Auth>
+                            {{/ if }}
+                                <RouterProvider router={router} />
+                            {{# if application.authentication }}
+                                    </Auth>
+                                </AuthProvider>
+                            {{/ if }}
+                            </L10NProvider>
+                        </PandinoProvider>
+                    </ViewDataProvider>
                 </ThemeCustomization>
             </ConfigProvider>
         </StrictMode>

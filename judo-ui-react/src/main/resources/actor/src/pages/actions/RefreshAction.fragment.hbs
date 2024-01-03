@@ -12,6 +12,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{ else }}
       const result = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, pageQueryCustomizer);
       setData(result);
+      setLatestViewData(result);
       // re-set payloadDiff
       payloadDiff.current = {
           __identifier: result.__identifier,
@@ -26,6 +27,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{/ if }}
   } catch (error) {
     handleError(error);
+    setLatestViewData(null);
     return Promise.reject(error);
   } finally {
     setIsLoading(false);

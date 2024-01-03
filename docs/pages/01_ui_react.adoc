@@ -81,6 +81,22 @@ export function SomeAction() {
 > Certain routes may require a `signedIdentifier` param, but that's okay because if we miss it out, we get IDE errors,
   and compiler errors as well.
 
+== Hooks
+
+=== useViewData
+
+The `useViewData()` hook can be used to obtain the latest view page/dialog's latest data.
+
+*Available methods:*
+
+- getLatestViewData(): Returns the data for the last loaded View page/dialog.
+- setLatestViewData(): Used internally only to update the data. Should not be used in application code.
+
+[WARN]
+====
+If for whatever reason the data's owning View fails it's refresh request, the `getLatestViewData()` method return `null`
+====
+
 == Opt-in features
 
 === Generate pro+ MUI code
