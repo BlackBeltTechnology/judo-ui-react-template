@@ -1,5 +1,5 @@
 import type { FC, ReactNode } from 'react';
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useRef } from 'react';
 import type { JudoIdentifiable } from '~/services/data-api/common';
 
 interface DataContextProps {
@@ -14,13 +14,13 @@ interface ViewContextContextValue {
 const ViewDataContext = createContext<ViewContextContextValue | undefined>(undefined);
 
 export const ViewDataProvider: FC<DataContextProps> = ({ children }) => {
-  const [data, setData] = useState<JudoIdentifiable<any> | null>(null);
+  const data = useRef<JudoIdentifiable<any> | null>(null);
 
   const useData = (): ViewContextContextValue => {
     const setLatestViewData = (newData: JudoIdentifiable<any> | null): void => {
-      setData(newData);
+      data.current = newData;
     };
-    const getLatestViewData = (): JudoIdentifiable<any> | null => data;
+    const getLatestViewData = (): JudoIdentifiable<any> | null => data.current;
     return { setLatestViewData, getLatestViewData };
   };
 
