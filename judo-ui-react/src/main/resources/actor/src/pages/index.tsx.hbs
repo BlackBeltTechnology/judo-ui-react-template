@@ -58,7 +58,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{/ with }}
   };
 
-  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ containerComponentName page.container }}ActionsHook';
+  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK';
   export type {{ containerComponentName page.container }}ActionsHook = (
     data: {{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }},
     editMode: boolean,
