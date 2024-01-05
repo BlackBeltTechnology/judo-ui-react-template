@@ -37,7 +37,6 @@ import { mainContainerPadding } from '~/theme';
 {{/ unless }}
 
 export interface {{ containerComponentName container }}PageProps {
-  title: string;
   {{# unless (containerIsEmptyDashboard container) }}
     actions: {{ containerComponentName container }}PageActions;
     isLoading: boolean;
@@ -62,7 +61,7 @@ export default function {{ containerComponentName container }}Page (props: {{ co
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { title, actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
+    const { actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
     {{# unless container.table }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
         _mask: '{{ getMaskForView container }}',
@@ -73,7 +72,7 @@ export default function {{ containerComponentName container }}Page (props: {{ co
   return (
     {{# unless (containerIsEmptyDashboard container) }}
       <>
-        <PageHeader title={title}>
+        <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}>
           {{# each container.actionButtonGroup.buttons as |button| }}
             { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
               <Grid className="page-action" item>

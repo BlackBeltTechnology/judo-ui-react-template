@@ -1,0 +1,7 @@
+const getPageTitle = ({{# unless page.container.table }}data: {{ classDataName page.container.dataElement '' }}{{/ unless }}): string => {
+  {{# if (titleComesFromAttribute page.container) }}
+  return data.{{ page.container.titleAttribute.name }} as string;
+  {{ else }}
+  return t('{{ getTranslationKeyForVisualElement page.container }}', { defaultValue: '{{ page.container.label }}' });
+  {{/ if }}
+};
