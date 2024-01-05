@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import type { ElementType, MouseEvent{{# if container.isSelector }}, Dispatch, SetStateAction{{/ if }} } from 'react';
+import type { ElementType, MouseEvent, Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { JudoIdentifiable } from '~/services/data-api/common';
 import Box from '@mui/material/Box';
@@ -113,16 +113,14 @@ export interface {{ componentName table }}ActionDefinitions {
     {{# with (getReferenceClassType table) as |classType| }}
     data: {{# if classType.isMapped }}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}[],
     {{/ with }}
-    isLoading: boolean
+    isLoading: boolean,
+    selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[],
+    clearSelections: () => void
     {{# unless container.table }}
     , ownerData: {{ classDataName container.dataElement 'Stored' }}
     , editMode: boolean
     , isFormUpdateable: () => boolean
     {{/ unless }}
-    {{# if container.isSelector }}
-    , selectionDiff: {{ classDataName (getReferenceClassType table) 'Stored' }}[]
-    , setSelectionDiff: Dispatch<SetStateAction<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>
-    {{/ if }}
   ) => Record<string, ElementType>;
 }
 
@@ -288,18 +286,26 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{/ each }}
   ];
 
+  const getRowIdentifier: (row: Pick<{{ classDataName (getReferenceClassType table) 'Stored' }}, '__identifier'>) => string = (row) => row.__identifier!;
+
+  const getSelectedRows: () => {{ classDataName (getReferenceClassType table) 'Stored' }}[] = () => {
+    return {{# if (tableHasSelectorColumn table) }}{{# if container.isSelector }}selectionDiff{{ else }}selectedRows.current{{/ if }}{{ else }}[]{{/ if }};
+  };
+
+  const clearSelections = () => {
+    handleOnSelection([]);
+  };
+
   const additionalToolbarActions: Record<string, ElementType> = actions?.{{ table.relationType.name }}AdditionalToolbarButtons ? actions.{{ table.relationType.name }}AdditionalToolbarButtons(
     data,
-    isLoading
+    isLoading,
+    getSelectedRows(),
+    clearSelections
     {{# unless container.table }}
     , ownerData
     , editMode
     , isFormUpdateable
     {{/ unless }}
-    {{# if container.isSelector }}
-    , selectionDiff
-    , setSelectionDiff
-    {{/ if }}
   ) : {};
   const AdditionalToolbarActions = () => {
     return <>
@@ -460,9 +466,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{/ if }}
   };
   {{ else }}
-  useEffect(() => {
-    selectedRows.current = getUpdatedRowsSelected(selectedRows, data, selectionModel);
-  }, [selectionModel]);
+  const handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
+    selectedRows.current = getUpdatedRowsSelected(selectedRows, data, newSelectionModel);
+    setSelectionModel(selectedRows.current.map(getRowIdentifier));
+  }
   {{/ if }}
 
   {{# unless table.isEager }}
@@ -506,6 +513,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
 
   useEffect(() => {
     fetchData();
+    handleOnSelection(selectionModel);
   }, [queryCustomizer{{# unless table.isEager }}, refreshCounter{{/ unless }}]);
   {{ else }}
   useEffect(() => {
@@ -513,6 +521,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     const newData = applyInMemoryFilters<{{# if classType.isMapped}}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}>(filters, {{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }} ?? []{{ else }}data{{/ unless}});
     {{/ with }}
     setData(newData);
+    handleOnSelection(selectionModel);
   }, [{{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }}, {{/ unless }}filters]);
 
   {{# if isUseInlineColumnFilters}}
@@ -552,7 +561,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
             logicOperators: [GridLogicOperator.And],
           },
         } }
-        getRowId={(row: { __identifier: string }) => row.__identifier}
+        getRowId={getRowIdentifier}
         loading={isLoading}
         rows={data}
         getRowClassName={ (params: GridRowClassNameParams) => {
@@ -573,13 +582,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# if (tableHasSelectorColumn table) }}
         checkboxSelection
         rowSelectionModel={selectionModel}
-        {{# if table.isSelectorTable }}
         onRowSelectionModelChange={handleOnSelection}
-        {{ else }}
-        onRowSelectionModelChange={(newRowSelectionModel) => {
-          setSelectionModel(newRowSelectionModel);
-        }}
-        {{/ if }}
         {{/ if }}
         keepNonExistentRowsSelected
         {{# each table.rowActionDefinitions as |actionDefinition| }}
@@ -635,10 +638,15 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
                   {{# if actionDefinition.isBulk }}
                   const { result: bulkResult } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectedRows.current);
                   if (bulkResult === 'submit') {
-                    setSelectionModel([]); // not resetting on refreshes because refreshes would always remove selections...
+                    handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
                   }
                   {{ else }}
+                  {{# if actionDefinition.isClearAction }}
                   await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                  handleOnSelection([]);
+                  {{ else }}
+                  await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                  {{/ if }}
                   {{/ if }}
                   {{/ if }}
                   {{/ if }}
