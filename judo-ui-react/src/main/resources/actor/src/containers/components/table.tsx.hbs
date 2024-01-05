@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import type { MouseEvent{{# if container.isSelector }}, Dispatch, SetStateAction{{/ if }} } from 'react';
+import type { ElementType, MouseEvent{{# if container.isSelector }}, Dispatch, SetStateAction{{/ if }} } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { JudoIdentifiable } from '~/services/data-api/common';
 import Box from '@mui/material/Box';
@@ -109,6 +109,21 @@ export interface {{ componentName table }}ActionDefinitions {
 {{# each table.rowActionDefinitions as |actionDefinition| }}
   {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}{{# if actionDefinition.isBulkCapable }}, silentMode?: boolean{{/ if }}) => Promise<void>;
 {{/ each }}
+  {{ table.relationType.name }}AdditionalToolbarButtons?: (
+    {{# with (getReferenceClassType table) as |classType| }}
+    data: {{# if classType.isMapped }}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}[],
+    {{/ with }}
+    isLoading: boolean
+    {{# unless container.table }}
+    , ownerData: {{ classDataName container.dataElement 'Stored' }}
+    , editMode: boolean
+    , isFormUpdateable: () => boolean
+    {{/ unless }}
+    {{# if container.isSelector }}
+    , selectionDiff: {{ classDataName (getReferenceClassType table) 'Stored' }}[]
+    , setSelectionDiff: Dispatch<SetStateAction<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>
+    {{/ if }}
+  ) => Record<string, ElementType>;
 }
 
 export interface {{ componentName table }}Props {
@@ -272,6 +287,28 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{/ unless }}
     {{/ each }}
   ];
+
+  const additionalToolbarActions: Record<string, ElementType> = actions?.{{ table.relationType.name }}AdditionalToolbarButtons ? actions.{{ table.relationType.name }}AdditionalToolbarButtons(
+    data,
+    isLoading
+    {{# unless container.table }}
+    , ownerData
+    , editMode
+    , isFormUpdateable
+    {{/ unless }}
+    {{# if container.isSelector }}
+    , selectionDiff
+    , setSelectionDiff
+    {{/ if }}
+  ) : {};
+  const AdditionalToolbarActions = () => {
+    return <>
+      { Object.keys(additionalToolbarActions).map((key) => {
+        const AdditionalButton = additionalToolbarActions[key];
+        return <AdditionalButton key={key} />;
+      }) }
+    </>;
+  };
 
   const filterOptions = useMemo<FilterOption[]>(() => [
     {{# each table.filters as |filter| }}
@@ -615,6 +652,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
                 {{/ if }}
               </Button> : null}
               {{/ each }}
+              {<AdditionalToolbarActions />}
               <div>{/* Placeholder */}</div>
             </GridToolbarContainer>
           ),
