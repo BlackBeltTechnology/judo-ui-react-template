@@ -191,6 +191,11 @@ public class UiI18NHelper {
                 if (v instanceof Button button && button.getConfirmation() != null) {
                     translations.put(getTranslationKeyForVisualElement(v) + ".confirmation", button.getConfirmation().getConfirmationMessage());
                 }
+                if (v instanceof TabController tabController) {
+                    tabController.getTabs().forEach(t -> {
+                        translations.put(getTranslationKeyForVisualElement(t.getElement()), t.getElement().getLabel());
+                    });
+                }
                 if (v instanceof Table table) {
                     table.getColumns().forEach(c -> {
                         translations.put(getTranslationKeyForVisualElement(c), c.getLabel());
