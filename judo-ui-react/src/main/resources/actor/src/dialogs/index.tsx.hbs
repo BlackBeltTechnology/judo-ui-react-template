@@ -103,6 +103,9 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
             {{# if page.container.isRelationSelector}}
             alreadySelected={alreadySelected}
             {{/ if }}
+            {{# unless page.container.isSelector }}
+            templateDataOverride={templateDataOverride}
+            {{/ unless }}
             onClose={async () => {
               await closeDialog();
               resolve({
@@ -135,6 +138,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
 export interface {{ pageName page }}Props {
   ownerData: any;
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
+  {{# unless page.container.isSelector }}templateDataOverride?: {{ classDataName (getReferenceClassType page) '' }}{{/ unless }}
   onClose: () => Promise<void>;
   {{# if (pageHasOutputTarget page) }}
   onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => Promise<void>;
@@ -146,7 +150,7 @@ export interface {{ pageName page }}Props {
 // XMIID: {{ getXMIID page }}
 // Name: {{ page.name }}
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
-  const { ownerData, {{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}onClose, onSubmit } = props;
+  const { ownerData, {{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}onClose, onSubmit } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
     // Services

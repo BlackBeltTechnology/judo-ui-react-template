@@ -9,6 +9,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(ownerData, result, storeDiff);
     }
+    if (templateDataOverride) {
+      setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+      payloadDiff.current = {
+        ...(templateDataOverride as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>),
+      };
+    }
     return result;
   } catch (error) {
     handleError(error);
