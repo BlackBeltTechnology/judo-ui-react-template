@@ -38,6 +38,7 @@ export type {{ containerComponentName container }}ContainerHook = (
 ) => {{ pageContainerActionDefinitionTypeName container }};
 
 export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
+  getPageTitle?: ({{# unless container.table }}data: {{ classDataName container.dataElement '' }}{{/ unless }}) => string;
   {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
     {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
   {{/ each }}

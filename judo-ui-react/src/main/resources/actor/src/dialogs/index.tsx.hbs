@@ -213,13 +213,6 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
     {{/ each }}
 
-    // Calculated section
-    {{# if (titleComesFromAttribute page.container) }}
-      const title: string = data.{{ page.container.titleAttribute.name }} as string;
-    {{ else }}
-      const title: string = t('{{ getTranslationKeyForVisualElement page.container }}', { defaultValue: '{{ page.container.label }}' });
-    {{/ if }}
-
     // Private actions
     const submit = async () => {
       {{# with (getCreateActionForPage page) as |action| }}
@@ -234,11 +227,13 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     };
 
     // Action section
+    {{> actor/src/pages/actions/_getPageTitle.fragment.hbs }}
     {{# each page.actions as |action| }}
       {{> (getActionTemplate action) }}
     {{/ each }}
 
     const actions: {{ containerComponentName page.container }}DialogActions = {
+      getPageTitle,
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
       {{/ each }}
@@ -260,7 +255,6 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         <{{ containerComponentName page.container }}DialogContainer
           ownerData={ownerData}
           onClose={onClose}
-          title={title}
           actions={actions}
           isLoading={isLoading}
           editMode={editMode}
