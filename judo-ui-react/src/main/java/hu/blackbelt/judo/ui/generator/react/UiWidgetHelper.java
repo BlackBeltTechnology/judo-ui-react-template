@@ -385,7 +385,7 @@ public class UiWidgetHelper {
     }
 
     public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
-        String result = "";
+        String result = "getSelectedRows().length > 0 ||";
 
         if (button.getActionDefinition().getIsRemoveAction()) {
             if (!container.isTable() && table.getEnabledBy() != null) {
