@@ -207,7 +207,7 @@ public class UiActionsHelper {
         List<String> result = new ArrayList<>();
         result.add("ownerData: any");
         if (!pageDefinition.getContainer().isIsSelector()) {
-            result.add("templateDataOverride?: " + classDataName(getReferenceClassType(pageDefinition), ""));
+            result.add("templateDataOverride?: Partial<" + classDataName(getReferenceClassType(pageDefinition), ">"));
         } else if (pageDefinition.getContainer().isIsRelationSelector()) {
             result.add("alreadySelected: " + classDataName(getReferenceClassType(pageDefinition), "Stored") + "[]");
         }

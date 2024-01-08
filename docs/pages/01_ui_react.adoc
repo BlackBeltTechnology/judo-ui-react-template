@@ -423,7 +423,7 @@ If we would like to re-implement this component, we will need to use the followi
 ----
 import { useMemo } from 'react';
 import type { BundleContext } from '@pandino/pandino-api';
-import { ComponentActorCreateYayy, COMPONENT_ACTOR_CREATE_YAYY } from '../pages/component_actor/stuffz/table/actions/PageCreateStuffzForm';
+import { ComponentActorCreateYayy, COMPONENT_ACTOR_CREATE_YAYY, useComponentActorCreateViewModel } from '../pages/component_actor/stuffz/table/actions/PageCreateStuffzForm';
 import { ApplicationCustomizer } from './interfaces';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from './custom-element-types';
 
@@ -435,17 +435,24 @@ export class DefaultApplicationCustomizer implements ApplicationCustomizer {
   }
 }
 
-const OptimisticImplementationForYayy: ComponentActorCreateYayy = ({ data, storeDiff }) => {
-  const yayy = useMemo<string | undefined | null>(() => data.yayy, [data.yayy]);
+const OptimisticImplementationForYayy: ComponentActorCreateYayy = () => {
+  const { data, storeDiff } = useComponentActorCreateViewModel();
 
   return (
     <div>
       <label htmlFor="custom-yayy">Our own Yayy:</label>
-      <input type="text" id="custom-yayy" maxLength={12} value={yayy as string} onChange={(event) => storeDiff('yayy', event.target.value)} />
+      <input type="text" id="custom-yayy" maxLength={12} value={data.yayy} onChange={(event) => storeDiff('yayy', event.target.value)} />
     </div>
   );
 };
 ----
+
+Every page and dialog exposes a "ViewModel" which can be obtained by a corresponding hook in our components.
+
+In our case the `useComponentActorCreateViewModel` is used.
+
+These view models can provide data, actions on our pages / dialogs. Using these hooks outside of their page/dialog
+triggers an exception!
 
 > Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
   the use-case above.

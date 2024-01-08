@@ -1,0 +1,8 @@
+const {{ containerComponentName page.container }}ViewModelContext = createContext<{{ containerComponentName page.container }}ViewModel>({} as any);
+export const use{{ containerComponentName page.container }}ViewModel = () => {
+  const context = useContext({{ containerComponentName page.container }}ViewModelContext);
+  if (!context) {
+    throw new Error('use{{ containerComponentName page.container }}ViewModel must be used within a(n) {{ containerComponentName page.container }}ViewModelProvider');
+  }
+  return context;
+};
