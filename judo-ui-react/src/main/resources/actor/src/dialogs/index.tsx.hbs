@@ -1,10 +1,8 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, useMemo, lazy, Suspense } from 'react';
+import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, useMemo, lazy, Suspense, createContext, useContext } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
-  {{# unless page.container.table }}
-  import type { Dispatch, SetStateAction } from 'react';
-  {{/ unless }}
+  import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
   import { OBJECTCLASS } from '@pandino/pandino-api';
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common';
@@ -35,7 +33,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   {{# each (getRelatedDialogs page true) as |relatedDialog| }}
     import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}';
   {{/ each }}
-  import type { {{ containerComponentName page.container }}DialogActions } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer';
+  import type { {{ containerComponentName page.container }}DialogActions, {{ containerComponentName page.container }}DialogProps } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer';
   import type {
     {{# each (getApiImportsForPage page) as |imp| }}
       {{ imp }},
@@ -71,8 +69,26 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# unless page.container.table }}
     storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void,
     {{/ unless }}
-    {{# if page.container.isSelector }}selectionDiff: {{ dialogDataType page }}[],{{/ if }}
+    {{# if page.container.isSelector }}
+    selectionDiff: {{ dialogDataType page }}[],
+    {{/ if }}
+    {{# if (containerIsRefreshable page.container) }}
+    refresh: () => Promise<void>,
+    {{/ if }}
+    submit: () => Promise<void>,
   ) => {{ containerComponentName page.container }}DialogActionsExtended;
+
+  export interface {{ containerComponentName page.container }}ViewModel extends {{ containerComponentName page.container }}DialogProps {
+    setIsLoading: Dispatch<SetStateAction<boolean>>;
+    setEditMode: Dispatch<SetStateAction<boolean>>;
+    refresh: () => Promise<void>;
+    submit: () => Promise<void>;
+    {{# unless page.container.isSelector }}
+    templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>;
+    {{/ unless }}
+  };
+
+  {{> actor/src/fragments/page/view-model-context.fragment.hbs page=page }}
 
   export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<
     {{# if (pageHasOutputTarget page) }}
@@ -138,7 +154,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
 export interface {{ pageName page }}Props {
   ownerData: any;
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
-  {{# unless page.container.isSelector }}templateDataOverride?: {{ classDataName (getReferenceClassType page) '' }}{{/ unless }}
+  {{# unless page.container.isSelector }}templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ unless }}
   onClose: () => Promise<void>;
   {{# if (pageHasOutputTarget page) }}
   onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => Promise<void>;
@@ -208,15 +224,6 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{/ if }}
     {{/ unless }}
 
-    // Pandino Action overrides
-    const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
-    const customActions: {{ containerComponentName page.container }}DialogActionsExtended | undefined = customActionsHook?.(ownerData, data, editMode{{# unless page.container.table }}, storeDiff{{/ unless }}{{# if page.container.isSelector }}, selectionDiff{{/ if }});
-
-    // Dialog hooks
-    {{# each (getRelatedDialogs page false) as |relatedDialog| }}
-      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
-    {{/ each }}
-
     // Private actions
     const submit = async () => {
       {{# with (getCreateActionForPage page) as |action| }}
@@ -229,6 +236,39 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         await {{ simpleActionDefinitionName action.actionDefinition }}();
       {{/ with }}
     };
+    const refresh = async () => {
+      {{# if (containerIsRefreshable page.container) }}
+        {{# if page.container.table }}
+          setRefreshCounter((prev) => prev + 1);
+        {{/ if }}
+        {{# if page.container.view }}
+          {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+            if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
+              await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+            }
+          {{/ with }}
+        {{/ if }}
+      {{/ if }}
+    };
+
+    // Pandino Action overrides
+    const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
+    const customActions: {{ containerComponentName page.container }}DialogActionsExtended | undefined = customActionsHook?.(
+      ownerData,
+      data,
+      editMode
+      {{# unless page.container.table }}, storeDiff{{/ unless }}
+      {{# if page.container.isSelector }}, selectionDiff{{/ if }}
+      {{# if (containerIsRefreshable page.container) }}
+      , refresh
+      {{/ if }}
+      , submit
+    );
+
+    // Dialog hooks
+    {{# each (getRelatedDialogs page false) as |relatedDialog| }}
+      const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
+    {{/ each }}
 
     // Action section
     {{> actor/src/pages/actions/_getPageTitle.fragment.hbs }}
@@ -244,6 +284,38 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       ...(customActions ?? {}),
     };
 
+    // ViewModel setup
+    const viewModel: {{ containerComponentName page.container }}ViewModel = {
+      onClose,
+      actions,
+      ownerData,
+      isLoading,
+      setIsLoading,
+      editMode,
+      setEditMode,
+      refresh,
+      refreshCounter,
+      submit,
+      {{# if page.container.isRelationSelector }}
+      alreadySelected,
+      {{/ if }}
+      {{# unless page.container.table }}
+        data,
+        validation,
+        setValidation,
+        storeDiff,
+        isFormUpdateable,
+        isFormDeleteable,
+      {{/ unless }}
+      {{# if page.container.isSelector }}
+        selectionDiff,
+        setSelectionDiff,
+      {{/ if }}
+      {{# unless page.container.isSelector }}
+        templateDataOverride,
+      {{/ unless }}
+    };
+
     // Effect section
     {{# if (pageShouldInitialize page) }}
       useEffect(() => {
@@ -254,35 +326,37 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
   return (
     {{# unless (containerIsEmptyDashboard page.container) }}
-      <Suspense>
-        <div id="{{ getXMIID page }}" data-page-name="{{ page.name }}" />
-        <{{ containerComponentName page.container }}DialogContainer
-          ownerData={ownerData}
-          onClose={onClose}
-          actions={actions}
-          isLoading={isLoading}
-          editMode={editMode}
-          refreshCounter={refreshCounter}
-          {{# unless (containerIsEmptyDashboard page.container) }}
-            {{# if page.container.isSelector }}
-              selectionDiff={selectionDiff}
-              setSelectionDiff={setSelectionDiff}
-            {{/ if }}
-            {{# if page.container.isRelationSelector }}
-              alreadySelected={alreadySelected}
-            {{/ if }}
-            {{# unless page.container.table }}
-              data={data}
-              storeDiff={storeDiff}
-              isFormUpdateable={isFormUpdateable}
-              isFormDeleteable={isFormDeleteable}
-              validation={validation}
-              setValidation={setValidation}
-              submit={submit}
+      <{{ containerComponentName page.container }}ViewModelContext.Provider value={viewModel}>
+        <Suspense>
+          <div id="{{ getXMIID page }}" data-page-name="{{ page.name }}" />
+          <{{ containerComponentName page.container }}DialogContainer
+            ownerData={ownerData}
+            onClose={onClose}
+            actions={actions}
+            isLoading={isLoading}
+            editMode={editMode}
+            refreshCounter={refreshCounter}
+            {{# unless (containerIsEmptyDashboard page.container) }}
+              {{# if page.container.isSelector }}
+                selectionDiff={selectionDiff}
+                setSelectionDiff={setSelectionDiff}
+              {{/ if }}
+              {{# if page.container.isRelationSelector }}
+                alreadySelected={alreadySelected}
+              {{/ if }}
+              {{# unless page.container.table }}
+                data={data}
+                storeDiff={storeDiff}
+                isFormUpdateable={isFormUpdateable}
+                isFormDeleteable={isFormDeleteable}
+                validation={validation}
+                setValidation={setValidation}
+                submit={submit}
+              {{/ unless }}
             {{/ unless }}
-          {{/ unless }}
-        />
-      </Suspense>
+          />
+        </Suspense>
+      </{{ containerComponentName page.container }}ViewModelContext.Provider>
     {{ else }}
       <h1>Hello!</h1>
     {{/ unless }}
