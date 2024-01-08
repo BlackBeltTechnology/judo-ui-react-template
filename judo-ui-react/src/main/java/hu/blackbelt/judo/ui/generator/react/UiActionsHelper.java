@@ -231,7 +231,7 @@ public class UiActionsHelper {
             }
         }
 
-        return com.github.jknack.handlebars.internal.lang3.StringUtils.join(tokens, ", ");
+        return String.join(", ", tokens);
     }
 
     public static String getSelectorOpenActionParameters(Action action, PageContainer container) {
