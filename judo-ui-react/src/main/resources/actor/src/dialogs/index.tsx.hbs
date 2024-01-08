@@ -84,7 +84,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     refresh: () => Promise<void>;
     submit: () => Promise<void>;
     {{# unless page.container.isSelector }}
-    templateDataOverride?: {{ classDataName (getReferenceClassType page) '' }};
+    templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>;
     {{/ unless }}
   };
 
@@ -154,7 +154,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
 export interface {{ pageName page }}Props {
   ownerData: any;
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
-  {{# unless page.container.isSelector }}templateDataOverride?: {{ classDataName (getReferenceClassType page) '' }}{{/ unless }}
+  {{# unless page.container.isSelector }}templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ unless }}
   onClose: () => Promise<void>;
   {{# if (pageHasOutputTarget page) }}
   onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => Promise<void>;
