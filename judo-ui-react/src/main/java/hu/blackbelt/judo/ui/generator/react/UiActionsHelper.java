@@ -214,6 +214,26 @@ public class UiActionsHelper {
         return String.join(", ", result);
     }
 
+    public static String getFormOpenParameters(PageDefinition pageDefinition, Action action) {
+        List<String> tokens = new ArrayList<>();
+
+        if (action.getActionDefinition().getTargetType() != null) {
+            tokens.add("target");
+        } else {
+            if (pageDefinition.getContainer().isTable()) {
+                if (pageDefinition.getRelationType() != null && !pageDefinition.getRelationType().isIsAccess()) {
+                    tokens.add("{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>");
+                } else {
+                    tokens.add("null as any");
+                }
+            } else {
+                tokens.add("data");
+            }
+        }
+
+        return String.join(", ", tokens);
+    }
+
     public static String getSelectorOpenActionParameters(Action action, PageContainer container) {
         List<String> tokens = new ArrayList<>();
         if (container.isTable()) {
