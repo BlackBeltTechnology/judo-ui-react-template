@@ -94,7 +94,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
     } = props;
     {{# unless container.table }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
-        _mask: '{{ getMaskForView container }}',
+        _mask: {{# unless container.form }}actions.getMask ? actions.getMask!() : {{/ unless }}'{{ getMaskForView container }}',
       };
     {{/ unless }}
   {{/ unless }}
@@ -103,7 +103,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
     <>
       {{# unless (containerIsEmptyDashboard container) }}
         <DialogTitle>
-          {actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}
+          {actions.getPageTitle ? actions.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}
           <IconButton
             id="{{ getXMIID container }}-dialog-close-wrapper"
             aria-label="close"

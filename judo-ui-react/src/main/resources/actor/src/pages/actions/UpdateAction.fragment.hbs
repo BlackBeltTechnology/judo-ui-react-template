@@ -9,7 +9,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
       showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
       setValidation(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
       {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-      await actions.{{ simpleActionDefinitionName actionDefinition }}!(pageQueryCustomizer);
+      await actions.{{ simpleActionDefinitionName actionDefinition }}!(getPageQueryCustomizer());
       {{/ with }}
       setEditMode(false);
     }

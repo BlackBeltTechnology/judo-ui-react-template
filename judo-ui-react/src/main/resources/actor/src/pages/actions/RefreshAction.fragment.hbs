@@ -10,7 +10,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{# if page.container.table }}
       return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{{# if page.openInDialog }}data{{ else }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{/ if }}{{ else }}undefined{{/ if }}, queryCustomizer);
     {{ else }}
-      const result = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, pageQueryCustomizer);
+      const result = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
       setData(result);
       setLatestViewData(result);
       // re-set payloadDiff

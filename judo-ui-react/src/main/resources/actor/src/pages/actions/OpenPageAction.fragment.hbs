@@ -4,7 +4,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
     {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
       {{# if page.container.view }}
         if (!editMode) {
-          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
         }
       {{/ if }}
       {{# if page.container.table }}

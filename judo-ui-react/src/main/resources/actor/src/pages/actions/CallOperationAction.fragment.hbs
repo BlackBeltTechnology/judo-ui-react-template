@@ -52,7 +52,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{# if page.container.view }}
         if (!editMode) {
           {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-            await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+            await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
           {{/ with }}
         }
       {{/ if }}
