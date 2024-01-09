@@ -90,8 +90,8 @@ const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL
         <StrictMode>
             <ConfigProvider>
                 <ThemeCustomization>
-                    <ViewDataProvider>
-                        <PandinoProvider ctx={pandino.getBundleContext()}>
+                    <PandinoProvider ctx={pandino.getBundleContext()}>
+                        <ViewDataProvider>
                             <L10NProvider axios={axios}>
                             {{# if application.authentication }}
                                 <AuthProvider {...oidcConfig} >
@@ -103,8 +103,8 @@ const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL
                                 </AuthProvider>
                             {{/ if }}
                             </L10NProvider>
-                        </PandinoProvider>
-                    </ViewDataProvider>
+                        </ViewDataProvider>
+                    </PandinoProvider>
                 </ThemeCustomization>
             </ConfigProvider>
         </StrictMode>
