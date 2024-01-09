@@ -170,17 +170,15 @@ export default function {{ pageName page }}() {
       {{/ with }}
     };
     const refresh = async () => {
-      {{# if (containerIsRefreshable page.container) }}
-        {{# if page.container.table }}
-          setRefreshCounter((prev) => prev + 1);
-        {{/ if }}
-        {{# if page.container.view }}
-          {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
-            if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
-              await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-            }
-          {{/ with }}
-        {{/ if }}
+      {{# if page.container.table }}
+        setRefreshCounter((prev) => prev + 1);
+      {{/ if }}
+      {{# if page.container.view }}
+        {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+          if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
+            await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+          }
+        {{/ with }}
       {{/ if }}
     };
 

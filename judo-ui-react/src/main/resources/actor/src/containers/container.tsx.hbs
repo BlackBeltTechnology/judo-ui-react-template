@@ -61,6 +61,7 @@ export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (co
 export interface {{ containerComponentName container }}Props {
   {{# unless (containerIsEmptyDashboard container) }}
     refreshCounter: number;
+    isLoading: boolean;
     actions: {{ pageContainerActionDefinitionTypeName container }};
     {{# if container.isSelector }}
       selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
@@ -69,7 +70,6 @@ export interface {{ containerComponentName container }}Props {
     {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
     {{# unless container.table }}
       data: {{ classDataName container.dataElement 'Stored' }};
-      isLoading: boolean;
       isFormUpdateable: () => boolean;
       isFormDeleteable: () => boolean;
       storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
@@ -86,7 +86,7 @@ export interface {{ containerComponentName container }}Props {
 export default function {{ containerComponentName container }}(props: {{ containerComponentName container }}Props) {
   {{# unless (containerIsEmptyDashboard container) }}
     // Container props
-    const { refreshCounter, actions: pageActions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isLoading, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
+    const { refreshCounter, isLoading, actions: pageActions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
 
     // Container hooks
     const { t } = useTranslation();

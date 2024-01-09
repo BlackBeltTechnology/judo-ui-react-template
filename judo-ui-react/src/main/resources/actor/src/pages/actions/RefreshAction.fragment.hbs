@@ -31,7 +31,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     return Promise.reject(error);
   } finally {
     setIsLoading(false);
+    {{# if page.container.view }}
     setRefreshCounter((prevCounter) => prevCounter + 1);
+    {{/ if }}
   }
 };
 {{/ if }}
