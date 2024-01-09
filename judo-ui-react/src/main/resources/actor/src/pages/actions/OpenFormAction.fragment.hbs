@@ -3,7 +3,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
   {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
     {{# if page.container.view }}
       if (result === 'submit' && !editMode) {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
       }
     {{/ if }}
     {{# if page.container.table }}

@@ -218,9 +218,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       }, [data]);
 
       {{# if page.container.view }}
-        const pageQueryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = {
-          _mask: '{{ getMaskForView page.container }}',
-        };
+        const getPageQueryCustomizer: () => {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = () => ({
+          _mask: actions.getMask ? actions.getMask!() : '{{ getMaskForView page.container }}',
+        });
       {{/ if }}
     {{/ unless }}
 
@@ -244,7 +244,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{# if page.container.view }}
           {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
             if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
-              await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+              await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
             }
           {{/ with }}
         {{/ if }}
@@ -319,7 +319,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     // Effect section
     {{# if (pageShouldInitialize page) }}
       useEffect(() => {
-        actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}pageQueryCustomizer{{/ if }});
+        actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
       }, []);
     {{/ if }}
   {{/ unless }}

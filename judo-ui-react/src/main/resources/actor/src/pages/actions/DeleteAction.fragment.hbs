@@ -24,7 +24,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{ else }}
           {{# if (containerIsRefreshable page.container) }}
             {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
-              {{ simpleActionDefinitionName refreshActionDefinition }}(pageQueryCustomizer);
+              {{ simpleActionDefinitionName refreshActionDefinition }}(getPageQueryCustomizer());
             {{/ with }}
           {{/ if }}
         {{/ unless }}

@@ -36,7 +36,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
             {{# if page.container.view }}
               {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
                 if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
-                  await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(pageQueryCustomizer));
+                  await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
                 }
               {{/ with }}
             {{/ if }}
