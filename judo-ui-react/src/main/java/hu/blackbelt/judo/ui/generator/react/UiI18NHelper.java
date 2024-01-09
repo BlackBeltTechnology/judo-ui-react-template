@@ -231,7 +231,6 @@ public class UiI18NHelper {
             });
         });
 
-//        List<OperationType> operationsWithFaults =
         List<OperationType> operationsWithFaults = application.getClassTypes().stream()
                 .flatMap(c -> ((ClassType) c).getOperations().stream())
                 .filter(ot -> !((OperationType) ot).getFaults().isEmpty())
