@@ -25,6 +25,7 @@ import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
 import hu.blackbelt.judo.meta.ui.data.EnumerationMember;
 import hu.blackbelt.judo.meta.ui.data.EnumerationType;
+import hu.blackbelt.judo.meta.ui.data.OperationType;
 import lombok.extern.java.Log;
 import org.eclipse.emf.common.util.EList;
 
@@ -227,6 +228,22 @@ public class UiI18NHelper {
                         translations.put(getTranslationKeyForVisualElement(button), button.getLabel());
                     });
                 }
+            });
+        });
+
+//        List<OperationType> operationsWithFaults =
+        List<OperationType> operationsWithFaults = application.getClassTypes().stream()
+                .flatMap(c -> ((ClassType) c).getOperations().stream())
+                .filter(ot -> !((OperationType) ot).getFaults().isEmpty())
+                .toList();
+
+
+        operationsWithFaults.forEach(o -> {
+            o.getFaults().forEach(f -> {
+                ClassType faultClass = f.getTarget();
+                faultClass.getAttributes().forEach(a -> {
+                    translations.put("faults." + application.getModelName() + "." + faultClass.getName().replaceAll("::", ".") + "." + a.getName(), a.getName());
+                });
             });
         });
 
