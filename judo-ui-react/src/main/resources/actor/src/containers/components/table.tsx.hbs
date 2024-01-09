@@ -129,6 +129,7 @@ export interface {{ componentName table }}Props {
   uniqueId: string;
   actions: {{ componentName table }}ActionDefinitions;
   refreshCounter: number;
+  isOwnerLoading?: boolean;
   validationError?: string;
   {{# if container.isSelector }}
   selectionDiff: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
@@ -151,6 +152,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     uniqueId,
     actions,
     refreshCounter,
+    isOwnerLoading,
     validationError,
     {{# if container.isSelector }}
     selectionDiff,
@@ -193,7 +195,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const {{ column.name }}ColumnCustomizer = {{ column.name }}ColumnCustomizerHook && {{ column.name }}ColumnCustomizerHook();
   {{/ each }}
 
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
   {{# with (getReferenceClassType table) as |classType| }}
   const [data, setData] = useState<GridRowModel<{{# if classType.isMapped }}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}>[]>({{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }});
   {{/ with }}
@@ -225,6 +227,8 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const [firstItem, setFirstItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
   const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
   {{/ unless }}
+
+  const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
   {{# unless container.isSelector }}
   const selectedRows = useRef<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>([]);
@@ -476,7 +480,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{# unless table.isEager }}
   async function fetchData() {
     if (!isLoading{{# unless container.table }} && ownerData.__signedIdentifier{{/ unless }}) {
-      setIsLoading(true);
+      setIsInternalLoading(true);
 
       try {
         const processedQueryCustomizer = {
@@ -509,7 +513,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       } catch (error) {
         handleError(error);
       } finally {
-        setIsLoading(false);
+        setIsInternalLoading(false);
       }
     }
   }
