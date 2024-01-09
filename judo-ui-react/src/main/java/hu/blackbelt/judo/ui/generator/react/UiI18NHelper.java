@@ -34,7 +34,6 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.DEFAULT_I18N_LANGUAGE;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.translationElementForBulkAction;
