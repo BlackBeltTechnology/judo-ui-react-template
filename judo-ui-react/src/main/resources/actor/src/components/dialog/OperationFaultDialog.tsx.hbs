@@ -11,6 +11,30 @@ import ListItem from '@mui/material/ListItem';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { MdiIcon } from '../MdiIcon';
+import { useDialog } from './StackableDialogProvider';
+
+export const useFaultDialog = () => {
+  const [createDialog, closeDialog] = useDialog();
+
+  return (faultObjectKey: string, payload: any) => {
+    createDialog({
+      fullWidth: true,
+      maxWidth: 'md',
+      onClose: (event: object, reason: string) => {
+        if (reason !== 'backdropClick') {
+          closeDialog();
+        }
+      },
+      children: (
+        <OperationFaultDialog
+          faultObjectKey={faultObjectKey}
+          content={payload}
+          close={closeDialog}
+        />
+      ),
+    });
+  };
+};
 
 interface OperationFaultDialogProps {
     faultObjectKey: string;
@@ -26,7 +50,7 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
         <>
             <DialogTitle id="fault-dialog-title" sx={ { display: 'flex', alignItems: 'center' } }>
                 <MdiIcon path="alert-circle-outline" color={ palette.error.main } />
-                <Typography sx={ { color: (theme) => theme.palette.error.main } } variant="h6" component="h6">
+                <Typography sx={ { ml: 1, color: (theme) => theme.palette.error.main } } variant="h6" component="h6">
                     { t('judo.error.error', { defaultValue: 'Error' }) as string }
                 </Typography>
             </DialogTitle>
