@@ -1,6 +1,6 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
     // no need to set editMode to false, given refresh should do it implicitly
-    await {{ simpleActionDefinitionName actionDefinition }}(processQueryCustomizer(pageQueryCustomizer));
+    await {{ simpleActionDefinitionName actionDefinition }}(processQueryCustomizer(getPageQueryCustomizer()));
   {{/ with }}
 };

@@ -64,7 +64,7 @@ export default function {{ containerComponentName container }}Page (props: {{ co
     const { actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
     {{# unless container.table }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
-        _mask: '{{ getMaskForView container }}',
+        _mask: {{# unless container.form }}actions.getMask ? actions.getMask!() : {{/ unless }}'{{ getMaskForView container }}',
       };
     {{/ unless }}
   {{/ unless }}

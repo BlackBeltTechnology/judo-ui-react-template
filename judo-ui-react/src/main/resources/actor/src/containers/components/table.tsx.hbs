@@ -93,6 +93,7 @@ export interface {{ componentName table }}ActionDefinitions {
   {{ else }}
     {{# if actionDefinition.isRefreshAction }}
       {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+      get{{ firstToUpper table.relationName }}Mask?: () => string;
     {{ else }}
       {{# if actionDefinition.isSelectorRangeAction }}
         {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
@@ -478,17 +479,19 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       setIsLoading(true);
 
       try {
+        const processedQueryCustomizer = {
+          ...processQueryCustomizer(queryCustomizer),
+          {{# if (getRefreshActionDefinitionForTable table) }}
+          _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
+          {{/ if }}
+        };
         {{# if container.isSelector }}
         {{# with (getRangeActionDefinitionForTable table) as |actionDefinition| }}
-        const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
-          processQueryCustomizer(queryCustomizer),
-        );
+        const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
         {{/ with }}
         {{ else }}
         {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
-        const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(
-          processQueryCustomizer(queryCustomizer),
-        );
+        const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
         {{/ with }}
         {{/ if }}
 
@@ -629,11 +632,17 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
                   }
                   {{/ if }}
                   {{ else }}
+                  const processedQueryCustomizer = {
+                    ...processQueryCustomizer(queryCustomizer),
+                    {{# if (getRefreshActionDefinitionForTable table) }}
+                    _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
+                    {{/ if }}
+                  };
                   {{# if actionDefinition.isRefreshAction }}
-                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
                   {{ else }}
                   {{# if actionDefinition.isSelectorRangeAction }}
-                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
+                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
                   {{ else }}
                   {{# if actionDefinition.isBulk }}
                   const { result: bulkResult } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectedRows.current);
