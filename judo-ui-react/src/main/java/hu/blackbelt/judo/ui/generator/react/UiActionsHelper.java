@@ -207,7 +207,7 @@ public class UiActionsHelper {
     public static String getDialogOpenParameters(PageDefinition pageDefinition) {
         List<String> result = new ArrayList<>();
         result.add("ownerData: any");
-        if (isPageDataElementUnmappedSingle(pageDefinition)) {
+        if (pageDefinition.getContainer().isView() && isPageDataElementUnmappedSingle(pageDefinition)) {
             result.add("data: " + classDataName(getReferenceClassType(pageDefinition),  ""));
         }
         if (!pageDefinition.getContainer().isIsSelector()) {
