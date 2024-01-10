@@ -23,6 +23,7 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
+import hu.blackbelt.judo.meta.ui.data.impl.DataElementImpl;
 import jdk.dynalink.Operation;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
@@ -206,12 +207,22 @@ public class UiActionsHelper {
     public static String getDialogOpenParameters(PageDefinition pageDefinition) {
         List<String> result = new ArrayList<>();
         result.add("ownerData: any");
+        if (isPageDataElementUnmappedSingle(pageDefinition)) {
+            result.add("data: " + classDataName(getReferenceClassType(pageDefinition),  ""));
+        }
         if (!pageDefinition.getContainer().isIsSelector()) {
             result.add("templateDataOverride?: Partial<" + classDataName(getReferenceClassType(pageDefinition), ">"));
         } else if (pageDefinition.getContainer().isIsRelationSelector()) {
             result.add("alreadySelected: " + classDataName(getReferenceClassType(pageDefinition), "Stored") + "[]");
         }
         return String.join(", ", result);
+    }
+
+    public static boolean isPageDataElementUnmappedSingle(PageDefinition pageDefinition) {
+        return pageHasOutputTarget(pageDefinition)
+                && !getPageOutputTarget(pageDefinition).isIsMapped()
+                && pageDefinition.getDataElement() instanceof OperationParameterType parameterType &&
+                !parameterType.isIsCollection();
     }
 
     public static String getFormOpenParameters(PageDefinition pageDefinition, Action action) {

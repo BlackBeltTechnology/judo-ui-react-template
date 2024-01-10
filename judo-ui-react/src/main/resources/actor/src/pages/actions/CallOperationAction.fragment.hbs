@@ -48,6 +48,14 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{ else }}
           onSubmit();
         {{/ if }}
+      {{ else }}
+        {{# if operation.output }}
+          {{# unless page.container.isSelector }}
+            {{# unless action.targetDataElement.output.target.isMapped }}
+                await open{{ pageName action.targetPageDefinition }}({{# if page.container.view }}data{{ else }}null{{/ if }}, result);
+            {{/ unless }}
+          {{/ unless }}
+        {{/ if }}
       {{/ if }}
       {{# if page.container.view }}
         if (!editMode) {
