@@ -75,7 +75,7 @@ export const NavItem = ({ item, level }: NavItemProps) => {
   return (
     <>
       {menuOrientation === MenuOrientation.VERTICAL || downLG ? (
-        <Tooltip title={miniDrawer && level !== undefined && level <= 1 ? (item.title as string) : undefined} placement="right">
+        <Tooltip title={miniDrawer && level !== undefined && level <= 1 ? (t(`menuTree.${item.title}`, { defaultValue: item.title })) : undefined} placement="right">
           <ListItemButton
             component={LinkComponent}
             disabled={item.disabled}
