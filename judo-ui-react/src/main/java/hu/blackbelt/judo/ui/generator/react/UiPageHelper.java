@@ -29,6 +29,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getActionOperationOutputClassType;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
@@ -220,13 +221,26 @@ public class UiPageHelper {
         Set<PageDefinition> res = new HashSet<>();
         try {
             // a.getTargetPageDefinition() != null check is for the case where the target view is not present because it was most likely empty
-            for (Action action : pageDefinition.getActions().stream().filter(a -> a.getIsOpenPageAction() && a.getTargetPageDefinition() != null && !a.getTargetPageDefinition().isOpenInDialog()).toList()) {
+            List<Action> actions = pageDefinition.getActions()
+                    .stream()
+                    .filter(a -> a.getIsOpenPageAction() && a.getTargetPageDefinition() != null && !a.getTargetPageDefinition().isOpenInDialog())
+                    .toList();
+            for (Action action: actions) {
+                res.add(action.getTargetPageDefinition());
+            }
+            List<Action> actionsForMappedNavigation = pageDefinition.getActions()
+                    .stream()
+                    .filter(a -> a.getIsCallOperationAction() && getActionOperationOutputClassType(a) != null && getActionOperationOutputClassType(a).isIsMapped())
+                    .toList();
+            for (Action action: actionsForMappedNavigation) {
                 res.add(action.getTargetPageDefinition());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+        return res.stream()
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .toList();
     }
 
     public static List<PageDefinition> getRelatedDialogs(PageDefinition pageDefinition, Boolean skipSelf) {

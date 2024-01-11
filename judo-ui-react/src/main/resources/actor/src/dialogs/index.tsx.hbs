@@ -116,6 +116,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
         children: (
           <{{ pageName page }}
             ownerData={ownerData}
+            {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data={data}{{/ and }}
             {{# if page.container.isRelationSelector}}
             alreadySelected={alreadySelected}
             {{/ if }}
@@ -153,8 +154,9 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
 
 export interface {{ pageName page }}Props {
   ownerData: any;
-  {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[]{{/ if }}
-  {{# unless page.container.isSelector }}templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ unless }}
+  {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: {{ classDataName (getReferenceClassType page) '' }};{{/ and }}
+  {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
+  {{# unless page.container.isSelector }}templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>;{{/ unless }}
   onClose: () => Promise<void>;
   {{# if (pageHasOutputTarget page) }}
   onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => Promise<void>;
@@ -166,7 +168,7 @@ export interface {{ pageName page }}Props {
 // XMIID: {{ getXMIID page }}
 // Name: {{ page.name }}
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
-  const { ownerData, {{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}onClose, onSubmit } = props;
+  const { ownerData, {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output, {{/ and }}{{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}onClose, onSubmit } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
     // Services
@@ -187,7 +189,13 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
-    const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{} as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
+    const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>(
+      {{# if page.container.table }}
+        []
+      {{ else }}
+        {{# and (isPageDataElementUnmappedSingle page) page.container.view }}output{{ else }}{}{{/ and }} as {{ classDataName (getReferenceClassType page) 'Stored' }}
+      {{/ if }}
+    );
     {{# if page.container.isSelector }}
       const [selectionDiff, setSelectionDiff] = useState<{{ dialogDataType page }}[]>([]);
     {{/ if }}
