@@ -41,12 +41,25 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{# if page.container.form }}
         {{# if operation.output }}
           if (result) {
+            {{# if (isActionOutputMapped action) }}
+            {{# if page.openInDialog }}onClose();{{/ if }}
+            navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+            {{ else }}
             onSubmit(result);
+            {{/ if }}
           } else {
             onSubmit();
           }
         {{ else }}
           onSubmit();
+        {{/ if }}
+      {{ else }}
+        {{# if operation.output }}
+          {{# unless page.container.isSelector }}
+            {{# unless action.targetDataElement.output.target.isMapped }}
+                await open{{ pageName action.targetPageDefinition }}({{# if page.container.view }}data{{ else }}null{{/ if }}, result);
+            {{/ unless }}
+          {{/ unless }}
         {{/ if }}
       {{/ if }}
       {{# if page.container.view }}
@@ -60,7 +73,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{# if page.container.isSelector }}
           {{# if operation.output }}
             if (result) {
+              {{# if (isActionOutputMapped action) }}
+              {{# if page.openInDialog }}onClose();{{/ if }}
+              navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+              {{ else }}
               onSubmit(result);
+              {{/ if }}
             } else {
               onSubmit();
             }

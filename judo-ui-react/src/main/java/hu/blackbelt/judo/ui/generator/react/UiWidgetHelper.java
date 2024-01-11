@@ -256,14 +256,18 @@ public class UiWidgetHelper {
             matches.add(root);
         }
 
-        if (root instanceof Container) {
-            for (VisualElement child : ((Container) root).getChildren()) {
+        if (root instanceof Container container) {
+            for (VisualElement child: container.getChildren()) {
                 collectVisualElementsMatchingCondition(child, condition, matches);
+            }
+            ButtonGroup abg = container.getActionButtonGroup();
+            if (abg != null) {
+                collectVisualElementsMatchingCondition(abg, condition, matches);
             }
         }
 
-        if (root instanceof TabController) {
-            for (Tab tab : ((TabController) root).getTabs()) {
+        if (root instanceof TabController tabController) {
+            for (Tab tab: tabController.getTabs()) {
                 collectVisualElementsMatchingCondition(tab.getElement(), condition, matches);
             }
         }
