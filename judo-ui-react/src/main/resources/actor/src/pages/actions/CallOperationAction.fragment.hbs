@@ -41,7 +41,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{# if page.container.form }}
         {{# if operation.output }}
           if (result) {
+            {{# if (isActionOutputMapped action) }}
+            {{# if page.openInDialog }}onClose();{{/ if }}
+            navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+            {{ else }}
             onSubmit(result);
+            {{/ if }}
           } else {
             onSubmit();
           }
@@ -68,7 +73,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{# if page.container.isSelector }}
           {{# if operation.output }}
             if (result) {
+              {{# if (isActionOutputMapped action) }}
+              {{# if page.openInDialog }}onClose();{{/ if }}
+              navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+              {{ else }}
               onSubmit(result);
+              {{/ if }}
             } else {
               onSubmit();
             }

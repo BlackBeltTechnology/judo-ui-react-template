@@ -396,4 +396,17 @@ public class UiActionsHelper {
 
         return String.join(", ", tokens);
     }
+
+    public static ClassType getActionOperationOutputClassType(Action action) {
+        if (action.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+            if (callOperationActionDefinition.getOperation().getOutput() != null) {
+                return callOperationActionDefinition.getOperation().getOutput().getTarget();
+            }
+        }
+        return null;
+    }
+
+    public static boolean isActionOutputMapped(Action action) {
+        return getActionOperationOutputClassType(action) != null && getActionOperationOutputClassType(action).isIsMapped();
+    }
 }
