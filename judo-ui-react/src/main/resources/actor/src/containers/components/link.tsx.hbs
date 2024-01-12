@@ -82,7 +82,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
           _orderBy: [
             { attribute: '{{ column.attributeType.name }}', descending: false },
           ],
-          _seek: { limit: 10 },
+          _seek: { limit: {{ calculateLinkAutocompleteRows link }} },
         };
         return await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
       } : undefined }
