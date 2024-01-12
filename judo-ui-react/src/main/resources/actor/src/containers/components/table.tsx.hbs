@@ -262,7 +262,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{/ each }}
   ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
 
-  const rowActions: TableRowAction<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
+  const rowActions: TableRowAction<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = useMemo(() =>[
     {{# each table.rowActionButtonGroup.buttons as |button| }}
     {{# unless button.actionDefinition.isOpenPageAction }}
     {
@@ -289,7 +289,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     },
     {{/ unless }}
     {{/ each }}
-  ];
+  ], [actions]);
+
+  const effectiveTableColumns = useMemo(() => [ ...columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { shownActions: 2 }) ], [columns, rowActions]);
 
   const getRowIdentifier: (row: Pick<{{ classDataName (getReferenceClassType table) 'Stored' }}, '__identifier'>) => string = (row) => row.__identifier!;
 
@@ -580,7 +582,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
           {{/ if }}
           return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
         } }
-        columns={[ ...columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { shownActions: 2 }) ]}
+        columns={effectiveTableColumns}
         disableRowSelectionOnClick
         {{# if table.isSelectorTable }}
         isRowSelectable={handleIsRowSelectable}
