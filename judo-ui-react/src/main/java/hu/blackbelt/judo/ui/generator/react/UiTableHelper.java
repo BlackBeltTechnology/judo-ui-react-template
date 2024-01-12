@@ -211,7 +211,7 @@ public class UiTableHelper {
     }
 
     public static Integer calculateTablePageLimit(Table table) {
-        Integer defaultValue = table.getRowsPerPage();
+        Integer defaultValue = table.isIsSelectorTable() ? table.getSelectorRowsPerPage() : table.getRowsPerPage();
 
         return defaultValue != null ? defaultValue : 10;
     }
