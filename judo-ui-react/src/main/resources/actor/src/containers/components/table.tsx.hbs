@@ -24,7 +24,7 @@ import type {
   GridRowParams,
   GridValidRowModel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
-import { baseColumnConfig, baseTableConfig } from '~/config';
+import { baseColumnConfig, baseTableConfig, basePageSizeOptions } from '~/config';
 import { MdiIcon{{# unless table.isEager }}, CustomTablePagination{{/ unless }} } from '~/components';
 import {
   {{# if (tableHasBooleanColumn table) }}booleanColumnOperators,{{/ if }}
@@ -203,14 +203,15 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
   const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
+  const [rowsPerPage, setRowsPerPage] = useState<number>({{ calculateTablePageLimit table }});
   const [paginationModel, setPaginationModel] = useState({
-    pageSize: {{ calculateTablePageLimit table }},
+    pageSize: rowsPerPage,
     page: 0,
   });
   const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>({
     _mask: '{{ getMaskForTable table }}',
     _seek: {
-      limit: {{ calculateTablePageLimit table }} + 1,
+      limit: rowsPerPage + 1,
     },
     _orderBy: sortModel.length ? [
       {
@@ -289,7 +290,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     },
     {{/ unless }}
     {{/ each }}
-  ], [actions]);
+  ], [actions, isLoading]);
 
   const effectiveTableColumns = useMemo(() => [ ...columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { shownActions: 2 }) ], [columns, rowActions]);
 
@@ -322,6 +323,34 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       }) }
     </>;
   };
+
+  const pageSizeOptions = useMemo(() => {
+    const opts: Set<number> = new Set([rowsPerPage, ...basePageSizeOptions]);
+    return Array.from(opts.values()).sort((a, b) => a - b);
+  }, [rowsPerPage]);
+
+  const setPageSize = useCallback((newValue: number) => {
+    setRowsPerPage(newValue);
+    {{# unless table.isEager }}
+      setPage(0);
+    {{ else }}
+      setPaginationModel((prevState) => ({
+        ...prevState,
+        pageSize: newValue,
+        page: 0,
+      }));
+    {{/ unless }}
+
+    setQueryCustomizer((prevQueryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => {
+      // we need to reset _seek so that previous configuration is erased
+      return {
+        ...prevQueryCustomizer,
+        _seek: {
+          limit: newValue + 1,
+        },
+      };
+    });
+  }, []);
 
   const filterOptions = useMemo<FilterOption[]>(() => [
     {{# each table.filters as |filter| }}
@@ -365,7 +394,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       return {
         ...prevQueryCustomizer,
         _seek: {
-          limit: {{ calculateTablePageLimit table }} + 1,
+          limit: rowsPerPage + 1,
         },
         ...mapAllFiltersToQueryCustomizerProperties(newFilters),
       };
@@ -400,7 +429,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         ...strippedQueryCustomizer,
         _orderBy,
         _seek: {
-          limit: {{ calculateTablePageLimit table }} + 1,
+          limit: rowsPerPage + 1,
         },
       };
     });
@@ -412,7 +441,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       return {
         ...prevQueryCustomizer,
         _seek: {
-          limit: isNext ? {{ calculateTablePageLimit table }} + 1 : {{ calculateTablePageLimit table }},
+          limit: isNext ? rowsPerPage + 1 : rowsPerPage,
           reverse: !isNext,
           lastItem: isNext ? lastItem : firstItem,
         },
@@ -501,10 +530,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{/ with }}
         {{/ if }}
 
-        if (res.length > {{ calculateTablePageLimit table }}) {
+        if (res.length > rowsPerPage) {
           setIsNextButtonEnabled(true);
           res.pop();
-        } else if (queryCustomizer._seek?.limit === {{ calculateTablePageLimit table }} + 1) {
+        } else if (queryCustomizer._seek?.limit === rowsPerPage + 1) {
           setIsNextButtonEnabled(false);
         }
 
@@ -549,7 +578,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# if isMUILicensePlanPro }}
         initialState={ { pinnedColumns: { right: ['actions'] } } }
         {{/ if }}
-        pageSizeOptions={[paginationModel.pageSize]}
+        pageSizeOptions={pageSizeOptions}
         sx={ {
           // overflow: 'hidden',
           display: 'grid',
@@ -611,7 +640,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         paginationMode="server"
         sortingMode="server"
         filterMode="server"
-        rowCount={ {{ calculateTablePageLimit table }} }
+        rowCount={rowsPerPage}
         {{/ unless }}
         components={ {
           Toolbar: () => (
@@ -682,11 +711,13 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
           {{# unless table.isEager }}
           Pagination: () => (
             <CustomTablePagination
+              pageSizeOptions={pageSizeOptions}
+              setPageSize={setPageSize}
               pageChange={handlePageChange}
               isNextButtonEnabled={isNextButtonEnabled}
               page={page}
               setPage={setPage}
-              rowPerPage={ {{ calculateTablePageLimit table }} }
+              rowPerPage={rowsPerPage}
             />
           ),
           {{/ unless }}
