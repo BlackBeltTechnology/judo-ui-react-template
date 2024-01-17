@@ -126,6 +126,9 @@ public class UiWidgetHelper {
     }
 
     public static Boolean shouldElementHaveAutoFocus(VisualElement element) {
+        if (!element.getPageContainer().isForm()) {
+            return false;
+        }
         Input input = findFirstInput(element.getPageContainer());
 
         return input != null && element.getFQName().equals(input.getFQName());
