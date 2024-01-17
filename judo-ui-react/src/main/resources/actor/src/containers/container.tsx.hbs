@@ -101,6 +101,19 @@ export default function {{ containerComponentName container }}(props: {{ contain
     const { service: customContainerHook } = useTrackService<{{ containerComponentName container }}ContainerHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY})`);
     const containerActions: {{ pageContainerActionDefinitionTypeName container }} = customContainerHook?.({{# unless container.table }}data, editMode, storeDiff{{/ unless }}) || {};
     const actions = useMemo(() => ({...containerActions, ...pageActions}), [containerActions, pageActions]);
+    {{# if container.form }}
+    const autoFocusInputRef = useRef<any>(null);
+
+    useEffect(() => {
+      const timeout = setTimeout(() => {
+        if (typeof autoFocusInputRef?.current?.focus === 'function') {
+          autoFocusInputRef.current.focus();
+        }
+      }, autoFocusRefDelay);
+
+      return () => clearTimeout(timeout);
+    }, []);
+    {{/ if }}
   {{/ unless }}
 
   return (
