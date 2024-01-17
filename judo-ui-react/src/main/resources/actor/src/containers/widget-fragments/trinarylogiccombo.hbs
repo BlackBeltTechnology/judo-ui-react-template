@@ -14,9 +14,6 @@
     <TrinaryLogicCombobox
         name="{{ child.attributeType.name }}"
         id="{{ getXMIID child }}"
-        {{# if (shouldElementHaveAutoFocus child) }}
-            autoFocus={true}
-        {{/ if }}
         required={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data?.{{ child.attributeType.name }} }
