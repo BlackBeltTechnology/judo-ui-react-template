@@ -14,6 +14,7 @@
     <Grid container sx={ { height: DIVIDER_HEIGHT } } alignItems="center">
         <Grid item xs={12}>
             <Divider id="{{ getXMIID child }}">
+                {{# or child.icon child.label }}
                 <Box sx={ { display: 'flex', flexDirection: 'row', alignItems: 'center' } }>
                     {{# if child.icon }}
                     <MdiIcon path="{{ child.icon.iconName }}" {{# if child.label }}sx={ { mr: '.2rem' } }{{/ if }} />
@@ -24,6 +25,7 @@
                     </Typography>
                     {{/ if }}
                 </Box>
+                {{/ or }}
             </Divider>
         </Grid>
     </Grid>
