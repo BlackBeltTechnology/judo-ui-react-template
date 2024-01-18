@@ -29,7 +29,7 @@
             }
             {{/ if }}
         } }
-        disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} || isLoading)}
+        disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} || {{/ if }}isLoading)}
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
     />
     {{# if child.customImplementation }}
