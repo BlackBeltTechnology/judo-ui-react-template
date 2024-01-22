@@ -215,6 +215,10 @@ public class UiActionsHelper {
         } else if (pageDefinition.getContainer().isIsRelationSelector()) {
             result.add("alreadySelected: " + classDataName(getReferenceClassType(pageDefinition), "Stored") + "[]");
         }
+        result.add("isDraft?: boolean");
+        if (!pageDefinition.getContainer().isIsSelector()) {
+            result.add("ownerValidation?: (data: " + classDataName(getReferenceClassType(pageDefinition), "") + ") => Promise<void>");
+        }
         return String.join(", ", result);
     }
 
@@ -240,6 +244,13 @@ public class UiActionsHelper {
             } else {
                 tokens.add("data");
             }
+        }
+        if (isRelationOpenCreateActionOnForm(pageDefinition, action)) {
+            if (tokens.size() < 2) {
+                tokens.add("undefined");
+            }
+            tokens.add("true");
+            tokens.add("validate" + firstToUpper(action.getTargetDataElement().getName()));
         }
 
         return String.join(", ", tokens);
@@ -329,6 +340,14 @@ public class UiActionsHelper {
         tokens.add("onSubmit: (result?: " + type + ") => Promise<void>");
         tokens.add("onClose: () => Promise<void>");
         return String.join(", ", tokens);
+    }
+
+    public static boolean isRelationOpenCreateActionOnForm(PageDefinition pageDefinition, Action action) {
+        return pageDefinition.getContainer().isForm()
+                && action.getIsOpenFormAction()
+                && action.getTargetDataElement() != null
+                && action.getTargetDataElement() instanceof RelationType relationType
+                && relationType.isIsInlineCreatable();
     }
 
     public static String postCallOperationActionParams(PageDefinition page, ActionDefinition actionDefinition) {

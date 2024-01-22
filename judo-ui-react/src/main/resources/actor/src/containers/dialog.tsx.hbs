@@ -56,6 +56,7 @@ export interface {{ containerComponentName container }}DialogProps {
       setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
       submit: () => Promise<void>;
     {{/ unless }}
+    isDraft?: boolean;
   {{/ unless }}
 };
 
@@ -73,23 +74,24 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
         actions,
         isLoading,
         editMode,
-        refreshCounter
-        {{# if container.isSelector }},
+        refreshCounter,
+        {{# if container.isSelector }}
           selectionDiff,
-          setSelectionDiff
+          setSelectionDiff,
         {{/ if }}
-        {{# if container.isRelationSelector }},
-          alreadySelected
+        {{# if container.isRelationSelector }}
+          alreadySelected,
         {{/ if }}
-        {{# unless container.table }},
+        {{# unless container.table }}
           data,
           isFormUpdateable,
           isFormDeleteable,
           storeDiff,
           validation,
           setValidation,
-          submit
+          submit,
         {{/ unless }}
+        isDraft
       {{/ unless }}
     } = props;
     {{# unless container.table }}
@@ -141,6 +143,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                 setValidation={setValidation}
                 submit={submit}
               {{/ unless }}
+              isDraft={isDraft}
             />
           </Suspense>
         </DialogContent>

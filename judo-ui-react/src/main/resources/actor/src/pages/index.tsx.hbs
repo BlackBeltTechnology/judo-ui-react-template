@@ -7,6 +7,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common';
   import { useTranslation } from 'react-i18next';
+  import { v4 as uuidv4 } from 'uuid';
   {{# if (pageHasSignedId page) }}
   import { useParams } from 'react-router-dom';
   {{/ if }}
@@ -23,6 +24,9 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
+    {{# if page.container.form }}
+    cleanUpPayload,
+    {{/ if }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -204,6 +208,32 @@ export default function {{ pageName page }}() {
     // Dialog hooks
     {{# each (getRelatedDialogs page false) as |relatedDialog| }}
       const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
+    {{/ each }}
+
+    // Validation
+    {{# each page.container.links as |link| }}
+    {{# if link.relationType.isCreateValidatable }}
+    const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
+      await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}data, {{/ unless }}{
+        ...payloadDiff.current,
+        {{ link.relationType.name }}: {
+          ...linkData,
+        } as any,
+      });
+    };
+    {{/ if }}
+    {{/ each }}
+    {{# each page.container.tables as |table| }}
+      {{# if table.relationType.isCreateValidatable }}
+      const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
+        await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}data, {{/ unless }}{
+          ...payloadDiff.current,
+          {{ table.relationType.name }}: [
+            { ...tableData } as any
+          ],
+        });
+      };
+      {{/ if }}
     {{/ each }}
 
     // Action section

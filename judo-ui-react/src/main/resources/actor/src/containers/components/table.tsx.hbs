@@ -130,6 +130,7 @@ export interface {{ componentName table }}Props {
   actions: {{ componentName table }}ActionDefinitions;
   refreshCounter: number;
   isOwnerLoading?: boolean;
+  isDraft?: boolean;
   validationError?: string;
   {{# if container.isSelector }}
   selectionDiff: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
@@ -153,6 +154,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     actions,
     refreshCounter,
     isOwnerLoading,
+    isDraft,
     validationError,
     {{# if container.isSelector }}
     selectionDiff,
