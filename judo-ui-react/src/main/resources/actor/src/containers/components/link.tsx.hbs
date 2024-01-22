@@ -108,7 +108,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
     {{/ if }}
     {{# if button.actionDefinition.isOpenPageAction }}
       onView={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!);
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!, {{# if container.form }}true{{ else }}false{{/ if }});
       } : undefined }
     {{/ if }}
     {{# if button.actionDefinition.isOpenFormAction }}

@@ -1,4 +1,32 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraft?: boolean) => {
+  if (isDraft) {
+    {{# with (getOpenFormActionPairForOpenPageAction page action) as |openFormAction| }}
+      const { result, data: returnedData } = await open{{ pageName openFormAction.targetPageDefinition }}(
+        {{# if (pageHasSignedId page) }}
+          { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
+        {{ else }}
+          {{# if page.openInDialog }}
+            ownerData
+          {{ else }}
+            data
+          {{/ if }}
+        {{/ if }},
+        target,
+        true,
+        validate{{ firstToUpper openFormAction.targetDataElement.name }}
+      );
+      // we might need to differentiate result handling between operation inputs and crud relation creates
+      if (result === 'submit-draft' && returnedData) {
+        const decoratedData = {
+          ...returnedData,
+          __identifier: `draft:${uuidv4()}`,
+        };
+        const newData = {{# if action.targetDataElement.isCollection }}[...(payloadDiff.current.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
+        storeDiff('{{ action.targetDataElement.name }}', newData);
+        return;
+      }
+    {{/ with }}
+  } else {
   {{# if action.targetPageDefinition.openInDialog }}
     await open{{ pageName action.targetPageDefinition }}(target!);
     {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
@@ -24,4 +52,5 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
       // There was no .targetPageDefinition for this action. Target Page is most likely empty in the model!
     {{/ if }}
   {{/ if }}
+  }
 };

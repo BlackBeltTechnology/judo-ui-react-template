@@ -74,6 +74,8 @@ public class UiActionsHelper {
             String targetName = classDataName(actionDefinition.getTargetType(), "Stored");
             if (container.isIsRelationSelector()) {
                 res += "selected: " + targetName + "[]";
+            } else if (actionDefinition.getIsOpenPageAction()) {
+                res += "target: " + targetName + ", isDraft?: boolean";
             } else if (!actionDefinition.getIsGetTemplateAction()) {
                 res += "target?: " + targetName;
             }
@@ -179,7 +181,11 @@ public class UiActionsHelper {
             if (actionDefinition.getIsAutocompleteRangeAction()) {
                 return "queryCustomizer: " + classDataName(target, "QueryCustomizer");
             } else if (actionDefinition.getTargetType() != null) {
-                return "target: " + classDataName(target, target.isIsMapped() ? "Stored" : "");
+                String base = "target: " + classDataName(target, target.isIsMapped() ? "Stored" : "");
+                if (actionDefinition.getIsOpenPageAction()) {
+                    base += ", isDraft?: boolean";
+                }
+                return base;
             }
         }
         return "";
@@ -424,5 +430,15 @@ public class UiActionsHelper {
 
     public static boolean isActionOutputMapped(Action action) {
         return getActionOperationOutputClassType(action) != null && getActionOperationOutputClassType(action).isIsMapped();
+    }
+
+    public static Action getOpenFormActionPairForOpenPageAction(PageDefinition pageDefinition, Action action) {
+        if (action.getActionDefinition().getIsOpenPageAction()) {
+            return pageDefinition.getActions().stream()
+                    .filter(a -> a.getActionDefinition().getIsOpenFormAction() && a.getTargetDataElement() != null && action.getTargetDataElement() != null && a.getTargetDataElement().equals(action.getTargetDataElement()))
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
     }
 }
