@@ -24,6 +24,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
+    isErrorNestedValidationError,
     {{# if page.container.form }}
     cleanUpPayload,
     {{/ if }}
@@ -276,8 +277,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
         }
       } catch (error: any) {
-        const { response} = error;
-        if (isDraft && response.status === 400 && Array.isArray(response.data) && response.data.length && response.data.some((e: any) => e.location.startsWith('{{ page.dataElement.name }}.'))) {
+        if (isDraft && isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
           throw error;
         }
       }
@@ -287,11 +287,13 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{# if link.relationType.isCreateValidatable }}
       const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
         await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}{
+          {{# if page.container.view }}
           ...payloadDiff.current,
+          {{/ if }}
           {{ link.relationType.name }}: {
             ...linkData,
           } as any,
-        });
+        } as {{ dialogBareDataType page }});
       };
       {{/ if }}
     {{/ each }}
@@ -299,11 +301,13 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{# if table.relationType.isCreateValidatable }}
       const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
         await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}{
+          {{# if page.container.view }}
           ...payloadDiff.current,
+          {{/ if }}
           {{ table.relationType.name }}: [
             { ...tableData } as any
           ],
-        });
+        } as {{ dialogBareDataType page }});
       };
       {{/ if }}
     {{/ each }}
