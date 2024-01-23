@@ -8,7 +8,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     setIsLoading(true);
     setEditMode(false);
     {{# if page.container.table }}
-      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{{# if page.openInDialog }}data{{ else }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{/ if }}{{ else }}undefined{{/ if }}, queryCustomizer);
+      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer);
     {{ else }}
       const result = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
       setData(result);
