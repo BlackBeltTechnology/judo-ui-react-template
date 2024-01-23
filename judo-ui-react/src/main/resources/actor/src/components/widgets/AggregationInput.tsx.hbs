@@ -191,7 +191,7 @@ export const AggregationInput = ({
           </IconButton>
         )}
         {exists(value) && onView && (
-          <IconButton className={`${name}-view`} disabled={editMode} onClick={ (event: any) => { handleDropdownClose(event); onView(); } } title={t('judo.component.AggregationInput.navigate', { defaultValue: 'Navigate to element' }) as string}>
+          <IconButton className={`${name}-view`} disabled={editMode && !isInlineCreatable} onClick={ (event: any) => { handleDropdownClose(event); onView(); } } title={t('judo.component.AggregationInput.navigate', { defaultValue: 'Navigate to element' }) as string}>
             <MdiIcon path="eye" />
           </IconButton>
         )}

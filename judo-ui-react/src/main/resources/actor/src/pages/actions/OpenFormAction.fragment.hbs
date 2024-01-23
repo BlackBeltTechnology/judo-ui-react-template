@@ -1,4 +1,15 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}isDraft?: boolean, ownerValidation?: (data: any) => Promise<void>) => {
+  {{# if page.container.form }}
+  if (!isDraft) {
+    try {
+      await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}cleanUpPayload(payloadDiff.current));
+      setValidation(new Map());
+    } catch(error) {
+      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
+      return;
+    }
+  }
+  {{/ if }}
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getFormOpenParameters page action }}});
   {{# if (isRelationOpenCreateActionOnForm page action) }}
     // we might need to differentiate result handling between operation inputs and crud relation creates

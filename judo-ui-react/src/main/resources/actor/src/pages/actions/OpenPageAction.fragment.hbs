@@ -1,4 +1,15 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraft?: boolean) => {
+  {{# if page.container.form }}
+  if (!isDraft) {
+    try {
+      await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}cleanUpPayload(payloadDiff.current));
+      setValidation(new Map());
+    } catch(error) {
+      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
+      return;
+    }
+  }
+  {{/ if }}
   if (isDraft) {
     {{# with (getOpenFormActionPairForOpenPageAction page action) as |openFormAction| }}
       const { result, data: returnedData } = await open{{ pageName openFormAction.targetPageDefinition }}(

@@ -24,9 +24,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
-    {{# if page.container.form }}
     cleanUpPayload,
-    {{/ if }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -215,10 +213,12 @@ export default function {{ pageName page }}() {
     {{# if link.relationType.isCreateValidatable }}
     const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
       await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}data, {{/ unless }}{
-        ...payloadDiff.current,
-        {{ link.relationType.name }}: {
-          ...linkData,
-        } as any,
+        ...cleanUpPayload({
+          ...payloadDiff.current,
+          {{ link.relationType.name }}: {
+            ...linkData,
+          } as any
+        }),
       });
     };
     {{/ if }}
@@ -227,10 +227,12 @@ export default function {{ pageName page }}() {
       {{# if table.relationType.isCreateValidatable }}
       const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
         await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}data, {{/ unless }}{
-          ...payloadDiff.current,
-          {{ table.relationType.name }}: [
-            { ...tableData } as any
-          ],
+          ...cleanUpPayload({
+            ...payloadDiff.current,
+            {{ table.relationType.name }}: [
+              { ...tableData } as any
+            ],
+          }),
         });
       };
       {{/ if }}
