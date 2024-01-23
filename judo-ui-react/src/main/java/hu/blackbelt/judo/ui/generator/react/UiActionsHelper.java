@@ -309,16 +309,13 @@ public class UiActionsHelper {
 
     public static String refreshActionDataParameter(Action action) {
         PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        if (pageDefinition.isOpenInDialog()) {
+            return "ownerData";
+        }
         if (pageHasSignedId(pageDefinition)) {
-            if (pageDefinition.isOpenInDialog()) {
-                return "ownerData";
-            }
             return "{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>";
         }
         if (isSingleAccessPage(pageDefinition)) {
-            if (pageDefinition.isOpenInDialog()) {
-                return "ownerData";
-            }
             return "singletonHost.current";
         }
         return "undefined";

@@ -63,7 +63,7 @@ public class UiPageHelper {
     }
 
     public static boolean pageHasSignedId(PageDefinition page) {
-        if (isSingleAccessPage(page)) {
+        if (isSingleAccessPage(page) || page.isOpenInDialog()) {
             return false;
         }
         if (page.getDataElement() != null) {
