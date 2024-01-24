@@ -256,7 +256,6 @@ public class UiActionsHelper {
                 tokens.add("undefined");
             }
             tokens.add("true");
-            tokens.add("validate" + firstToUpper(action.getTargetDataElement().getName()));
         }
 
         return String.join(", ", tokens);
@@ -440,5 +439,9 @@ public class UiActionsHelper {
                     .orElse(null);
         }
         return null;
+    }
+
+    public static String actionTargetPageName(Action action) {
+        return pageName(action.getTargetPageDefinition());
     }
 }

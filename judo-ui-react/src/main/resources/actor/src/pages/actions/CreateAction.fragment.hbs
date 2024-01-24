@@ -4,7 +4,6 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
     if (isDraft) {
       try {
         setIsLoading(true);
-        await validate(cleanUpPayload(payloadDiff.current));
         onSubmit(payloadDiff.current, true);
       } catch (error) {
         handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, isDraft ? '{{ page.dataElement.name }}' : undefined);

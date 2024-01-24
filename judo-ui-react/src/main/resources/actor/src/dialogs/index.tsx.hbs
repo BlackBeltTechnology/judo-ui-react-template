@@ -381,6 +381,17 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       useEffect(() => {
         actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
       }, []);
+    {{ else }}
+      {{# if page.container.form }}
+        useEffect(() => {
+          if (templateDataOverride) {
+            setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+            payloadDiff.current = {
+              ...(templateDataOverride as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>),
+            };
+          }
+        }, []);
+      {{/ if}}
     {{/ if }}
   {{/ unless }}
 
