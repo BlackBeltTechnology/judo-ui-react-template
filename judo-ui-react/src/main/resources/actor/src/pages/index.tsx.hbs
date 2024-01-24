@@ -208,36 +208,6 @@ export default function {{ pageName page }}() {
       const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
     {{/ each }}
 
-    // Validation
-    {{# each page.container.links as |link| }}
-    {{# if link.relationType.isCreateValidatable }}
-    const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
-      await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}data, {{/ unless }}{
-        ...cleanUpPayload({
-          ...payloadDiff.current,
-          {{ link.relationType.name }}: {
-            ...linkData,
-          } as any
-        }),
-      });
-    };
-    {{/ if }}
-    {{/ each }}
-    {{# each page.container.tables as |table| }}
-      {{# if table.relationType.isCreateValidatable }}
-      const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
-        await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}data, {{/ unless }}{
-          ...cleanUpPayload({
-            ...payloadDiff.current,
-            {{ table.relationType.name }}: [
-              { ...tableData } as any
-            ],
-          }),
-        });
-      };
-      {{/ if }}
-    {{/ each }}
-
     // Action section
     {{> actor/src/pages/actions/_getPageTitle.fragment.hbs }}
     {{# each page.actions as |action| }}

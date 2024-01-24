@@ -46,7 +46,7 @@ export const useErrorHandler = () => {
   const { showErrorSnack } = useSnacks();
   const openFaultDialog = useFaultDialog();
 
-  return <T>(error: any, options?: ErrorHandlingOption<T>, payload?: T, relationName?: string) => {
+  return <T>(error: any, options?: ErrorHandlingOption<T>, payload?: T) => {
     console.error(error);
     const errorResults: ErrorProcessResult<T> = {
       errorToastConfig: {
@@ -117,43 +117,38 @@ export const useErrorHandler = () => {
             if (exists(errorList[0].location)) {
               errorResults.validation = new Map<keyof T, string>();
               if (typeof options?.setValidation === 'function') {
+                const errorRelations: Record<string, Array<string>> = {};
+
                 errorList.forEach((error) => {
-                  if (relationName && (error.location.startsWith(relationName + '.') || error.location.startsWith(relationName + '['))) {
-                    const idx = error.location.startsWith(relationName + '.') ? error.location.indexOf('.') + 1 : error.location.lastIndexOf(']') + 2;
-                    // in this case we are expecting to extract explicit relation related messages
+                  // in this case we would like to highlight nested errors inside owners
+                  const split = error.location.split(/\[|\./).filter((e) => e.length);
+                  const relationKey: keyof T | undefined = split.length > 1 ? (split[0] as keyof T) : undefined;
+                  if (relationKey) {
+                    if(!Array.isArray(errorRelations[relationKey as string])) {
+                      errorRelations[relationKey as string] = [];
+                    }
+                    errorRelations[relationKey as string].push(t(`judo.error.validation-failed.${error.code}`, {
+                      defaultValue: error.code,
+                      error,
+                      payload,
+                    }) as string);
+                  } else {
                     errorResults.validation!.set(
-                      error.location.substring(idx) as keyof T,
+                      error.location as keyof T,
                       t(`judo.error.validation-failed.${error.code}`, {
                         defaultValue: error.code,
-                        relation: relationName,
                         error,
                         payload,
                       }) as string,
                     );
-                  } else {
-                    // in this case we would like to highlight nested errors inside owners
-                    const split = error.location.split(/\[|\./).filter((e) => e.length);
-                    const relationKey: keyof T | undefined = split.length > 1 ? (split[0] as keyof T) : undefined;
-                    if (relationKey) {
-                      errorResults.validation!.set(
-                        relationKey,
-                        t(`judo.error.validation-relation-nested`, {
-                          defaultValue: 'Nested error in element',
-                          relation: relationKey,
-                        }) as string,
-                      );
-                    } else {
-                      errorResults.validation!.set(
-                        error.location as keyof T,
-                        t(`judo.error.validation-failed.${error.code}`, {
-                          defaultValue: error.code,
-                          error,
-                          payload,
-                        }) as string,
-                      );
-                    }
                   }
                 });
+
+                for (const key in errorRelations) {
+                  if (Array.isArray(errorRelations[key]) && errorRelations[key].length) {
+                    errorResults.validation!.set(key as keyof T, errorRelations[key].join(', '));
+                  }
+                }
               }
             }
             break;
