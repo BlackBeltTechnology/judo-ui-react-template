@@ -95,13 +95,17 @@ export interface {{ componentName table }}ActionDefinitions {
       {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
       get{{ firstToUpper table.relationName }}Mask?: () => string;
     {{ else }}
-      {{# if actionDefinition.isSelectorRangeAction }}
-        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+      {{# if actionDefinition.isExportAction }}
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<void>;
       {{ else }}
-        {{# if actionDefinition.isBulk }}
-          {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+        {{# if actionDefinition.isSelectorRangeAction }}
+          {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
         {{ else }}
-          {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+          {{# if actionDefinition.isBulk }}
+            {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+          {{ else }}
+            {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+          {{/ if }}
         {{/ if }}
       {{/ if }}
     {{/ if }}
@@ -656,46 +660,46 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
                 variant={ {{{ variantForButton button }}} }
                 onClick={ async () => {
                   {{# if button.actionDefinition.isFilterAction }}
-                  const filterResults = await actions.{{ simpleActionDefinitionName actionDefinition }}!('{{ createId button }}', filterOptions, filterModel, filters);
-                  {{# if isUseInlineColumnFilters }}
-                  if (filterResults.model) {
-                    handleFilterModelChange({
-                      ...filterResults.model!,
-                    });
-                  }
-                  {{ else }}
-                  if (Array.isArray(filterResults.filters)) {
-                    handleFiltersChange([...filterResults.filters!]);
-                  }
-                  {{/ if }}
-                  {{ else }}
-                  const processedQueryCustomizer = {
-                    ...processQueryCustomizer(queryCustomizer),
-                    {{# if (getRefreshActionDefinitionForTable table) }}
-                    _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
+                    const filterResults = await actions.{{ simpleActionDefinitionName actionDefinition }}!('{{ createId button }}', filterOptions, filterModel, filters);
+                    {{# if isUseInlineColumnFilters }}
+                      if (filterResults.model) {
+                        handleFilterModelChange({
+                          ...filterResults.model!,
+                        });
+                      }
+                    {{ else }}
+                      if (Array.isArray(filterResults.filters)) {
+                        handleFiltersChange([...filterResults.filters!]);
+                      }
                     {{/ if }}
-                  };
-                  {{# if actionDefinition.isRefreshAction }}
-                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
                   {{ else }}
-                  {{# if actionDefinition.isSelectorRangeAction }}
-                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
-                  {{ else }}
-                  {{# if actionDefinition.isBulk }}
-                  const { result: bulkResult } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectedRows.current);
-                  if (bulkResult === 'submit') {
-                    handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
-                  }
-                  {{ else }}
-                  {{# if actionDefinition.isClearAction }}
-                  await actions.{{ simpleActionDefinitionName actionDefinition }}!();
-                  handleOnSelection([]);
-                  {{ else }}
-                  await actions.{{ simpleActionDefinitionName actionDefinition }}!();
-                  {{/ if }}
-                  {{/ if }}
-                  {{/ if }}
-                  {{/ if }}
+                    const processedQueryCustomizer = {
+                      ...processQueryCustomizer(queryCustomizer),
+                      {{# if (getRefreshActionDefinitionForTable table) }}
+                      _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
+                      {{/ if }}
+                    };
+                    {{# or actionDefinition.isRefreshAction actionDefinition.isExportAction }}
+                      await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
+                    {{ else }}
+                      {{# if actionDefinition.isSelectorRangeAction }}
+                        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
+                      {{ else }}
+                        {{# if actionDefinition.isBulk }}
+                          const { result: bulkResult } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectedRows.current);
+                          if (bulkResult === 'submit') {
+                            handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                          }
+                        {{ else }}
+                          {{# if actionDefinition.isClearAction }}
+                            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                            handleOnSelection([]);
+                          {{ else }}
+                            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                          {{/ if }}
+                        {{/ if }}
+                      {{/ if }}
+                    {{/ or }}
                   {{/ if }}
                 } }
                 disabled={ {{{ tableToolbarButtonDisabledConditions button table container }}} }
