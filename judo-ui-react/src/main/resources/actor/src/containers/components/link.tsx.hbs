@@ -30,12 +30,13 @@ export interface {{ componentName link }}Props {
   readOnly?: boolean;
   editMode?: boolean;
   isLoading?: boolean;
+  isDraft?: boolean;
 }
 
 // XMIID: {{ getXMIID link }}
 // Name: {{ link.name }}
 export function {{ componentName link }}(props: {{ componentName link }}Props) {
-  const { ownerData, actions, storeDiff, submit, validationError, disabled, readOnly, editMode, isLoading } = props;
+  const { ownerData, actions, storeDiff, submit, validationError, disabled, readOnly, editMode, isLoading, isDraft } = props;
   const { t } = useTranslation();
 
   return (
@@ -58,6 +59,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       disabled={actions?.is{{ firstToUpper link.relationType.name }}Disabled ? actions.is{{ firstToUpper link.relationType.name }}Disabled(ownerData, editMode, isLoading) : disabled}
       readOnly={readOnly}
       editMode={editMode}
+      isInlineCreatable={ {{ boolValue link.dataElement.isInlineCreatable }} && !isDraft }
       autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
       onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
         storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
@@ -106,7 +108,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
     {{/ if }}
     {{# if button.actionDefinition.isOpenPageAction }}
       onView={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!);
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!, {{# if container.form }}true{{ else }}false{{/ if }});
       } : undefined }
     {{/ if }}
     {{# if button.actionDefinition.isOpenFormAction }}

@@ -1,7 +1,28 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   try {
+    {{# unless page.dataElement.isAccess }}
+    if (isDraft) {
+      try {
+        setIsLoading(true);
+        await validate(cleanUpPayload(payloadDiff.current));
+        onSubmit(payloadDiff.current, true);
+      } catch (error) {
+        if (!isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
+          // relation form has no remaining error(s), proceed with submission
+          onSubmit(payloadDiff.current, true);
+        } else {
+          handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, isDraft ? '{{ page.dataElement.name }}' : undefined);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+
+      return;
+    }
+    {{/ unless }}
     setIsLoading(true);
-    const res = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}payloadDiff.current);
+    const payload: typeof payloadDiff.current = cleanUpPayload(payloadDiff.current);
+    const res = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}payload);
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(data, res, onSubmit, onClose);
     } else {

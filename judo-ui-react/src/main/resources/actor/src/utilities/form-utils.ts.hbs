@@ -59,3 +59,28 @@ export function passesLocalValidation<T>(data: T, requiredByRecord: Record<strin
   }
   return true;
 }
+
+export function cleanUpPayload(input: any): any {
+  const prefix = 'draft:';
+  const payload: Record<string | symbol, any> = {};
+  for (const key in input) {
+    const value = input[key];
+    if (Array.isArray(value)) {
+      payload[key] = value.map((r) => {
+        if (r.__identifier && r.__identifier.startsWith(prefix)) {
+          const newRow = { ...r };
+          delete newRow.__identifier;
+          return newRow;
+        }
+        return r;
+      });
+    } else if (value && value.__identifier && value.__identifier.startsWith(prefix)) {
+      const newItem = { ...value };
+      delete newItem.__identifier;
+      payload[key] = newItem;
+    } else if (key !== '__identifier' || !value.startsWith(prefix)) {
+      payload[key] = value;
+    }
+  }
+  return payload;
+}

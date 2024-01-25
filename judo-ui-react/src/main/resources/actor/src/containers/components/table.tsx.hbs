@@ -108,7 +108,7 @@ export interface {{ componentName table }}ActionDefinitions {
   {{/ if }}
 {{/ each }}
 {{# each table.rowActionDefinitions as |actionDefinition| }}
-  {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}{{# if actionDefinition.isBulkCapable }}, silentMode?: boolean{{/ if }}) => Promise<void>;
+  {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}{{# if actionDefinition.isBulkCapable }}, silentMode?: boolean{{ else }}{{# if actionDefinition.isOpenPageAction }}, isDraft?: boolean{{/ if }}{{/ if }}) => Promise<void>;
 {{/ each }}
   {{ table.relationType.name }}AdditionalToolbarButtons?: (
     {{# with (getReferenceClassType table) as |classType| }}
@@ -130,6 +130,7 @@ export interface {{ componentName table }}Props {
   actions: {{ componentName table }}ActionDefinitions;
   refreshCounter: number;
   isOwnerLoading?: boolean;
+  isDraft?: boolean;
   validationError?: string;
   {{# if container.isSelector }}
   selectionDiff: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
@@ -153,6 +154,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     actions,
     refreshCounter,
     isOwnerLoading,
+    isDraft,
     validationError,
     {{# if container.isSelector }}
     selectionDiff,
@@ -285,7 +287,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
             return;
           }
         {{/ if }}
-        await actions.{{ simpleActionDefinitionName button.actionDefinition }}!(rowData);
+        await actions.{{ simpleActionDefinitionName button.actionDefinition }}!(rowData{{# if button.actionDefinition.isOpenPageAction }}, isDraft{{/ if }});
       } : undefined,
     },
     {{/ unless }}
@@ -562,7 +564,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     handleOnSelection(selectionModel);
   }, [{{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }}, {{/ unless }}filters]);
 
-  {{# if isUseInlineColumnFilters}}
+  {{# if isUseInlineColumnFilters }}
   useEffect(() => {
     if (filterModel.items.every((i) => i.value !== undefined)) {
       setFilters(mapFilterModelToFilters(filterModel, filterOptions));
@@ -625,7 +627,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         keepNonExistentRowsSelected
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
-        onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row) : undefined }
+        onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
         {{/ if }}
         {{/ each }}
         sortModel={sortModel}

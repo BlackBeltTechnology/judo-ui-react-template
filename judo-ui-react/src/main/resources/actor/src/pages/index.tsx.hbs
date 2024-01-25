@@ -7,6 +7,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common';
   import { useTranslation } from 'react-i18next';
+  import { v4 as uuidv4 } from 'uuid';
   {{# if (pageHasSignedId page) }}
   import { useParams } from 'react-router-dom';
   {{/ if }}
@@ -23,6 +24,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
+    cleanUpPayload,
   } from '~/utilities';
   import type {
     DialogResult,
