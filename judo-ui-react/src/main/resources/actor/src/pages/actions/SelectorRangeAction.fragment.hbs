@@ -1,9 +1,9 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.actionDefinition.targetType 'QueryCustomizer' }}): Promise<{{ classDataName action.actionDefinition.targetType 'Stored' }}[]> => {
   try {
     {{# if container.isRelationSelector }}
-      return {{ getServiceImplForPage page }}.getRange(ownerData, queryCustomizer);
+      return {{ getServiceImplForPage page }}.getRange(cleanUpPayload(ownerData), queryCustomizer);
     {{ else }}
-      return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(ownerData, queryCustomizer);
+      return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(cleanUpPayload(ownerData), queryCustomizer);
     {{/ if }}
   } catch (error) {
     handleError(error);

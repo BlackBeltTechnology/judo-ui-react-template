@@ -374,6 +374,9 @@ public class UiWidgetHelper {
 
         if (!container.isTable()) {
             if (button.getActionDefinition().getIsOpenFormAction() || button.getActionDefinition().getIsBulkDeleteAction()) {
+                if (button.getActionDefinition().getIsOpenFormAction() && table.getRelationType().isIsInlineCreatable()) {
+                    return "false";
+                }
                 result += "editMode || ";
             } else if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsClearAction()) {
                 if (container.isView()) {
@@ -392,6 +395,13 @@ public class UiWidgetHelper {
     }
 
     public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
+        if (table.getIsRelationType() && table.getRelationType().isIsInlineCreatable() && (button.getActionDefinition().getIsRemoveAction()) || button.getActionDefinition().getIsBulkRemoveAction()) {
+            if (button.getActionDefinition().getIsRemoveAction()) {
+                return "isLoading";
+            } else if (button.getActionDefinition().getIsBulkRemoveAction()) {
+                return "getSelectedRows().length > 0 || isLoading";
+            }
+        }
         String result = "getSelectedRows().length > 0 ||";
 
         if (button.getActionDefinition().getIsRemoveAction()) {

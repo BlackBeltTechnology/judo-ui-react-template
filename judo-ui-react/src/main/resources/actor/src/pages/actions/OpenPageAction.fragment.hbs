@@ -1,4 +1,41 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType '' }} | {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraft?: boolean) => {
+  if (isDraft && (!target || !(target as {{ classDataName action.actionDefinition.targetType 'Stored' }}).__signedIdentifier)) {
+    {{# with (getOpenFormActionPairForOpenPageAction page action) as |openFormAction| }}
+      const { result, data: returnedData } = await open{{ pageName openFormAction.targetPageDefinition }}(
+        {{# if (pageHasSignedId page) }}
+          { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
+        {{ else }}
+          {{# if page.openInDialog }}
+            ownerData
+          {{ else }}
+            data
+          {{/ if }}
+        {{/ if }},
+        target,
+        true,
+        {{# if page.container.form }}
+        validate{{ firstToUpper openFormAction.targetDataElement.name }}
+        {{/ if }}
+      );
+      // we might need to differentiate result handling between operation inputs and crud relation creates
+      if (result === 'submit-draft' && returnedData) {
+        {{# if action.targetDataElement.isCollection }}
+          const existingIndex = (payloadDiff.current.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
+          if (existingIndex > -1) {
+            payloadDiff.current.{{ action.targetDataElement.name }}[existingIndex] = {
+              ...returnedData,
+            };
+          }
+          storeDiff('{{ action.targetDataElement.name }}', [...(payloadDiff.current.{{ action.targetDataElement.name }} || [])]);
+        {{ else }}
+          storeDiff('{{ action.targetDataElement.name }}', {
+            ...returnedData
+          });
+        {{/ if }}
+        return;
+      }
+    {{/ with }}
+  } else if (!isDraft) {
   {{# if action.targetPageDefinition.openInDialog }}
     await open{{ pageName action.targetPageDefinition }}(target!);
     {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
@@ -16,7 +53,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
       {{# if (pageHasSignedId action.targetPageDefinition) }}
       // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
       {{/ if }}
-      navigate(routeTo{{ pageName action.targetPageDefinition }}({{# if (pageHasSignedId action.targetPageDefinition) }}(target{{# if page.container.view }} || data{{ else }}!{{/ if }}).__signedIdentifier{{/ if }}));
+      navigate(routeTo{{ pageName action.targetPageDefinition }}({{# if (pageHasSignedId action.targetPageDefinition) }}((target as {{ classDataName action.actionDefinition.targetType 'Stored' }}){{# if page.container.view }} || data{{ else }}!{{/ if }}).__signedIdentifier{{/ if }}));
       {{# if page.openInDialog }}
         onClose();
       {{/ if }}
@@ -24,4 +61,5 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
       // There was no .targetPageDefinition for this action. Target Page is most likely empty in the model!
     {{/ if }}
   {{/ if }}
+  }
 };

@@ -3,7 +3,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
   return new Promise((resolve) => {
     {{# if table.isEager }}
       const selectedIds = selectedRows.map(r => r.__identifier);
-      const newList = (data?.{{ table.dataElement.name }} ?? []).filter(c => !selectedIds.includes(c.__identifier));
+      const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
       storeDiff('{{ table.dataElement.name }}', newList);
       resolve({
         result: 'submit',

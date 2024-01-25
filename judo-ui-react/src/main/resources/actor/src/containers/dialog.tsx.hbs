@@ -56,6 +56,7 @@ export interface {{ containerComponentName container }}DialogProps {
       setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
       submit: () => Promise<void>;
     {{/ unless }}
+    isDraft?: boolean;
   {{/ unless }}
 };
 
@@ -73,23 +74,24 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
         actions,
         isLoading,
         editMode,
-        refreshCounter
-        {{# if container.isSelector }},
+        refreshCounter,
+        {{# if container.isSelector }}
           selectionDiff,
-          setSelectionDiff
+          setSelectionDiff,
         {{/ if }}
-        {{# if container.isRelationSelector }},
-          alreadySelected
+        {{# if container.isRelationSelector }}
+          alreadySelected,
         {{/ if }}
-        {{# unless container.table }},
+        {{# unless container.table }}
           data,
           isFormUpdateable,
           isFormDeleteable,
           storeDiff,
           validation,
           setValidation,
-          submit
+          submit,
         {{/ unless }}
+        isDraft
       {{/ unless }}
     } = props;
     {{# unless container.table }}
@@ -103,7 +105,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
     <>
       {{# unless (containerIsEmptyDashboard container) }}
         <DialogTitle>
-          {actions.getPageTitle ? actions.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}
+          {isDraft ? t('judo') : actions.getPageTitle ? actions.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}
           <IconButton
             id="{{ getXMIID container }}-dialog-close-wrapper"
             aria-label="close"
@@ -141,6 +143,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                 setValidation={setValidation}
                 submit={submit}
               {{/ unless }}
+              isDraft={isDraft}
             />
           </Suspense>
         </DialogContent>
@@ -157,7 +160,13 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                   disabled={ {{{ dialogButtonDisabledConditions button }}} }
                   {{/ if }}
                   {{# if button.icon }}
-                    startIcon={<MdiIcon path="{{ button.icon.iconName }}" />}
+                    startIcon={
+                      {{# if button.actionDefinition.isCreateAction }}
+                        isDraft ? <MdiIcon path="check" /> : <MdiIcon path="{{ button.icon.iconName }}" />
+                      {{ else }}
+                        <MdiIcon path="{{ button.icon.iconName }}" />
+                      {{/ if }}
+                    }
                   {{/ if }}
                   onClick={ async () => {
                     {{# if button.actionDefinition.isDeleteAction }}
@@ -175,7 +184,15 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                     {{/ if }}
                   } }
                 >
-                  <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
+                  {{# if button.actionDefinition.isCreateAction }}
+                    <span>{
+                      isDraft
+                      ? t('judo.dialogs.draft.submit', { defaultValue: 'Ok' })
+                      : t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })
+                    }</span>
+                  {{ else }}
+                    <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
+                  {{/ if }}
                 </LoadingButton>
               </Grid>
             )}

@@ -259,9 +259,9 @@ public class UiPageHelper {
         DataElement dataElement = pageDefinition.getDataElement();
 
         if (dataElement instanceof RelationType relationType) {
-            if (pageDefinition.getContainer().isView() && !isSingleAccessPage(pageDefinition)) {
-                return serviceClassName(relationType.getTarget()) + "Impl";
-            }
+//            if (pageDefinition.getContainer().isView() && !isSingleAccessPage(pageDefinition)) {
+//                return serviceClassName(relationType.getTarget()) + "Impl";
+//            }
             return serviceRelationName(relationType) + "Impl";
         } else if (dataElement instanceof OperationParameterType operationParameterType) {
             if (operationParameterType.eContainer() instanceof OperationType operationType) {
@@ -362,19 +362,27 @@ public class UiPageHelper {
         return !isPageForOperationParameterType(page) || pageHasOutputTarget(page);
     }
 
-    public static String dialogDataType(PageDefinition page) {
+    public static String dialogBareDataType(PageDefinition page) {
         if (page.getContainer().isIsSelector()) {
             if (page.getDataElement() instanceof OperationType operationType) {
-                return classDataName(operationType.getInput().getTarget(), "Stored");
+                return classDataName(operationType.getInput().getTarget(), "");
             } else if (page.getDataElement() instanceof RelationType relationType) {
-                return classDataName(relationType.getTarget(), "Stored");
+                return classDataName(relationType.getTarget(), "");
             }
         }
         if (page.getDataElement() instanceof OperationParameterType operationParameterType) {
-            return classDataName(operationParameterType.getTarget(), "Stored");
+            return classDataName(operationParameterType.getTarget(), "");
         }
         if (page.getDataElement() instanceof RelationType relationType) {
-            return classDataName(relationType.getTarget(), "Stored");
+            return classDataName(relationType.getTarget(), "");
+        }
+        return "void";
+    }
+
+    public static String dialogDataType(PageDefinition page) {
+        String bareType = dialogBareDataType(page);
+        if (bareType != "void") {
+            return bareType + "Stored";
         }
         return "void";
     }
