@@ -1,5 +1,5 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType '' }} | {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraft?: boolean) => {
-  if (isDraft) {
+  if (isDraft && (!target || !(target as {{ classDataName action.actionDefinition.targetType 'Stored' }}).__signedIdentifier)) {
     {{# with (getOpenFormActionPairForOpenPageAction page action) as |openFormAction| }}
       const { result, data: returnedData } = await open{{ pageName openFormAction.targetPageDefinition }}(
         {{# if (pageHasSignedId page) }}
@@ -35,7 +35,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
         return;
       }
     {{/ with }}
-  } else {
+  } else if (!isDraft) {
   {{# if action.targetPageDefinition.openInDialog }}
     await open{{ pageName action.targetPageDefinition }}(target!);
     {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}

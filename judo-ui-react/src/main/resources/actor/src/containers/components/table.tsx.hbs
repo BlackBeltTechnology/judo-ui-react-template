@@ -564,7 +564,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     handleOnSelection(selectionModel);
   }, [{{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }}, {{/ unless }}filters]);
 
-  {{# if isUseInlineColumnFilters}}
+  {{# if isUseInlineColumnFilters }}
   useEffect(() => {
     if (filterModel.items.every((i) => i.value !== undefined)) {
       setFilters(mapFilterModelToFilters(filterModel, filterOptions));
