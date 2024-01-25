@@ -2,7 +2,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
     if (target) {
       {{# if table.isEager }}
-        const newList = (data?.{{ table.dataElement.name }} ?? []).filter(c => c.__identifier !== target!.__identifier);
+        const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => c.__identifier !== target!.__identifier);
         storeDiff('{{ table.dataElement.name }}', newList);
       {{ else }}
         try {

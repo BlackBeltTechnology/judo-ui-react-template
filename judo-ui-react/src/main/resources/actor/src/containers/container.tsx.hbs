@@ -78,6 +78,7 @@ export interface {{ containerComponentName container }}Props {
       setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
       submit: () => Promise<void>;
     {{/ unless }}
+    isDraft?: boolean;
   {{/ unless }}
 };
 
@@ -86,7 +87,7 @@ export interface {{ containerComponentName container }}Props {
 export default function {{ containerComponentName container }}(props: {{ containerComponentName container }}Props) {
   {{# unless (containerIsEmptyDashboard container) }}
     // Container props
-    const { refreshCounter, isLoading, actions: pageActions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
+    const { refreshCounter, isLoading, isDraft, actions: pageActions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
 
     // Container hooks
     const { t } = useTranslation();

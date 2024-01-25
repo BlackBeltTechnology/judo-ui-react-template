@@ -7,6 +7,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common';
   import { useTranslation } from 'react-i18next';
+  import { v4 as uuidv4 } from 'uuid';
   {{# if (pageHasSignedId page) }}
   import { useParams } from 'react-router-dom';
   {{/ if }}
@@ -23,6 +24,8 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
+    isErrorNestedValidationError,
+    cleanUpPayload,
   } from '~/utilities';
   import type {
     DialogResult,
@@ -86,6 +89,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# unless page.container.isSelector }}
     templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>;
     {{/ unless }}
+    isDraft?: boolean;
   };
 
   {{> actor/src/fragments/page/view-model-context.fragment.hbs page=page }}
@@ -123,16 +127,20 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
             {{# unless page.container.isSelector }}
             templateDataOverride={templateDataOverride}
             {{/ unless }}
+            isDraft={isDraft}
+            {{# unless page.container.table }}
+            ownerValidation={ownerValidation}
+            {{/ unless }}
             onClose={async () => {
               await closeDialog();
               resolve({
                 result: 'close',
               });
             }}
-            onSubmit={async ({{# if (dialogHasResult page) }}result{{/ if }}) => {
+            onSubmit={async ({{# if (dialogHasResult page) }}result, {{/ if }}isDraft) => {
               await closeDialog();
               resolve({
-                result: 'submit',
+                result: isDraft ? 'submit-draft' : 'submit',
                 {{# if (dialogHasResult page) }}
                 data: result,
                 {{/ if }}
@@ -157,18 +165,20 @@ export interface {{ pageName page }}Props {
   {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: {{ classDataName (getReferenceClassType page) '' }};{{/ and }}
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
   {{# unless page.container.isSelector }}templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>;{{/ unless }}
+  isDraft?: boolean;
+  ownerValidation?: (data: {{ dialogBareDataType page }}) => Promise<void>;
   onClose: () => Promise<void>;
   {{# if (pageHasOutputTarget page) }}
-  onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}) => Promise<void>;
+  onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, isDraft?: boolean) => Promise<void>;
   {{ else }}
-  onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}) => Promise<void>;
+  onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean) => Promise<void>;
   {{/ if }}
 }
 
 // XMIID: {{ getXMIID page }}
 // Name: {{ page.name }}
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
-  const { ownerData, {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output, {{/ and }}{{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}onClose, onSubmit } = props;
+  const { ownerData, {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output, {{/ and }}{{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}onClose, onSubmit, isDraft, ownerValidation } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
     // Services
@@ -257,6 +267,59 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{/ if }}
     };
 
+    // Validation
+    const validate: (data: {{ dialogBareDataType page }}) => Promise<void> = async (data) => {
+      {{# if page.dataElement.isCreateValidatable }}
+      try {
+        if (ownerValidation) {
+          await ownerValidation(data);
+        } else {
+          await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
+        }
+      } catch (error: any) {
+        if (isDraft && isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
+          throw error;
+        }
+      }
+      {{/ if }}
+    };
+    {{# each page.container.links as |link| }}
+      {{# if (createNestedValidation link.relationType) }}
+      const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
+        {{# if link.relationType.isCreateValidatable }}
+        await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}{
+          ...cleanUpPayload({
+            ...payloadDiff.current,
+            {{ link.relationType.name }}: {
+              ...linkData,
+            } as any
+          }),
+        } as {{ dialogBareDataType page }});
+        {{ else }}
+        // not yet supported
+        {{/ if }}
+      };
+      {{/ if }}
+    {{/ each }}
+    {{# each page.container.tables as |table| }}
+      {{# if (createNestedValidation table.relationType) }}
+      const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
+        {{# if table.relationType.isCreateValidatable }}
+        await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}{
+          ...cleanUpPayload({
+            ...payloadDiff.current,
+            {{ table.relationType.name }}: [
+              { ...tableData } as any
+            ],
+          }),
+        } as {{ dialogBareDataType page }});
+        {{ else }}
+        // not yet supported
+        {{/ if }}
+      };
+      {{/ if }}
+    {{/ each }}
+
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
     const customActions: {{ containerComponentName page.container }}DialogActionsExtended | undefined = customActionsHook?.(
@@ -320,6 +383,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{# unless page.container.isSelector }}
         templateDataOverride,
       {{/ unless }}
+      isDraft,
     };
 
     // Effect section
@@ -327,6 +391,17 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       useEffect(() => {
         actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
       }, []);
+    {{ else }}
+      {{# if page.container.form }}
+        useEffect(() => {
+          if (templateDataOverride) {
+            setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+            payloadDiff.current = {
+              ...(templateDataOverride as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>),
+            };
+          }
+        }, []);
+      {{/ if}}
     {{/ if }}
   {{/ unless }}
 
@@ -359,6 +434,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 setValidation={setValidation}
                 submit={submit}
               {{/ unless }}
+              isDraft={isDraft}
             {{/ unless }}
           />
         </Suspense>
