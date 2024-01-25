@@ -1,0 +1,13 @@
+{{# if action.targetDataElement }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}) => {
+{{ else }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}) => {
+{{/ if }}
+  try {
+    setIsLoading(true);
+    console.log(queryCustomizer);
+    alert('Not yet implemented');
+  } finally {
+    setIsLoading(false);
+  }
+}
