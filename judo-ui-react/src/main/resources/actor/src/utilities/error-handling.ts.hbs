@@ -46,7 +46,7 @@ export const useErrorHandler = () => {
   const { showErrorSnack } = useSnacks();
   const openFaultDialog = useFaultDialog();
 
-  return <T>(error: any, options?: ErrorHandlingOption<T>, payload?: T) => {
+  return <T>(error: any, options?: ErrorHandlingOption<T>, payload?: T, relationName?: string) => {
     console.error(error);
     const errorResults: ErrorProcessResult<T> = {
       errorToastConfig: {
@@ -119,35 +119,10 @@ export const useErrorHandler = () => {
               if (typeof options?.setValidation === 'function') {
                 const errorRelations: Record<string, Array<string>> = {};
 
-                errorList.forEach((error) => {
-                  // in this case we would like to highlight nested errors inside owners
-                  const split = error.location.split(/\[|\./).filter((e) => e.length);
-                  const relationKey: keyof T | undefined = split.length > 1 ? (split[0] as keyof T) : undefined;
-                  if (relationKey) {
-                    if(!Array.isArray(errorRelations[relationKey as string])) {
-                      errorRelations[relationKey as string] = [];
-                    }
-                    errorRelations[relationKey as string].push(t(`judo.error.validation-failed.${error.code}`, {
-                      defaultValue: error.code,
-                      error,
-                      payload,
-                    }) as string);
-                  } else {
-                    errorResults.validation!.set(
-                      error.location as keyof T,
-                      t(`judo.error.validation-failed.${error.code}`, {
-                        defaultValue: error.code,
-                        error,
-                        payload,
-                      }) as string,
-                    );
-                  }
-                });
-
-                for (const key in errorRelations) {
-                  if (Array.isArray(errorRelations[key]) && errorRelations[key].length) {
-                    errorResults.validation!.set(key as keyof T, errorRelations[key].join(', '));
-                  }
+                if (relationName) {
+                  validateRelationErrors(errorList, relationName, errorResults.validation, t);
+                } else {
+                  validateWithNestedErrors(errorList, errorResults.validation, t);
                 }
               }
             }
@@ -169,6 +144,54 @@ export const useErrorHandler = () => {
     }
   };
 };
+
+function validateRelationErrors<T>(errorList: ServerError<T>[], relationName: string, validation: Map<keyof T, string>, t: any): void {
+  errorList.forEach((error) => {
+    if ((error.location.startsWith(relationName + '.') || error.location.startsWith(relationName + '['))) {
+      const idx = error.location.startsWith(relationName + '.') ? error.location.indexOf('.') + 1 : error.location.lastIndexOf(']') + 2;
+      validation.set(
+        error.location.substring(idx) as keyof T,
+        t(`judo.error.validation-failed.${error.code}`, {
+          defaultValue: error.code,
+          relation: relationName,
+          error,
+        }) as string,
+      );
+    }
+  });
+}
+
+function validateWithNestedErrors<T>(errorList: ServerError<T>[], validation: Map<keyof T, string>, t: any): void {
+  const errorRelations: Record<string, Array<string>> = {};
+
+  errorList.forEach((error) => {
+    const split = error.location.split(/\[|\./).filter((e) => e.length);
+    const relationKey: keyof T | undefined = split.length > 1 ? (split[0] as keyof T) : undefined;
+    if (relationKey) {
+      if(!Array.isArray(errorRelations[relationKey as string])) {
+        errorRelations[relationKey as string] = [];
+      }
+      errorRelations[relationKey as string].push(t(`judo.error.validation-failed.${error.code}`, {
+        defaultValue: error.code,
+        error,
+      }) as string);
+    } else {
+      validation!.set(
+        error.location as keyof T,
+        t(`judo.error.validation-failed.${error.code}`, {
+          defaultValue: error.code,
+          error,
+        }) as string,
+      );
+    }
+  });
+
+  for (const key in errorRelations) {
+    if (Array.isArray(errorRelations[key]) && errorRelations[key].length) {
+      validation!.set(key as keyof T, errorRelations[key].join(', '));
+    }
+  }
+}
 
 export const isErrorOperationFault = (error: any): boolean => {
   return error?.response?.status === 422;

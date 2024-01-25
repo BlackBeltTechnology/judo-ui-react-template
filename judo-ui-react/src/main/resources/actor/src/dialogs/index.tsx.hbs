@@ -267,6 +267,59 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{/ if }}
     };
 
+    // Validation
+    const validate: (data: {{ dialogBareDataType page }}) => Promise<void> = async (data) => {
+      {{# if page.dataElement.isCreateValidatable }}
+      try {
+        if (ownerValidation) {
+          await ownerValidation(data);
+        } else {
+          await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
+        }
+      } catch (error: any) {
+        if (isDraft && isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
+          throw error;
+        }
+      }
+      {{/ if }}
+    };
+    {{# each page.container.links as |link| }}
+      {{# if (createNestedValidation link.relationType) }}
+      const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
+        {{# if link.relationType.isCreateValidatable }}
+        await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}{
+          ...cleanUpPayload({
+            ...payloadDiff.current,
+            {{ link.relationType.name }}: {
+              ...linkData,
+            } as any
+          }),
+        } as {{ dialogBareDataType page }});
+        {{ else }}
+        // not yet supported
+        {{/ if }}
+      };
+      {{/ if }}
+    {{/ each }}
+    {{# each page.container.tables as |table| }}
+      {{# if (createNestedValidation table.relationType) }}
+      const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
+        {{# if table.relationType.isCreateValidatable }}
+        await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}{
+          ...cleanUpPayload({
+            ...payloadDiff.current,
+            {{ table.relationType.name }}: [
+              { ...tableData } as any
+            ],
+          }),
+        } as {{ dialogBareDataType page }});
+        {{ else }}
+        // not yet supported
+        {{/ if }}
+      };
+      {{/ if }}
+    {{/ each }}
+
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
     const customActions: {{ containerComponentName page.container }}DialogActionsExtended | undefined = customActionsHook?.(

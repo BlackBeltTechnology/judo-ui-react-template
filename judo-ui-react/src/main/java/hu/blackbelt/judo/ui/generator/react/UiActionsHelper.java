@@ -256,6 +256,7 @@ public class UiActionsHelper {
                 tokens.add("undefined");
             }
             tokens.add("true");
+            tokens.add("validate" + firstToUpper(action.getTargetDataElement().getName()));
         }
 
         return String.join(", ", tokens);
@@ -443,5 +444,13 @@ public class UiActionsHelper {
 
     public static String actionTargetPageName(Action action) {
         return pageName(action.getTargetPageDefinition());
+    }
+
+    public static boolean createNestedValidation(RelationType relationType) {
+        return relationType != null && (relationType.getIsCreateValidatable() || (relationType.getIsMemberTypeTransient() && !relationType.getTarget().isIsMapped()));
+    }
+
+    public static boolean skipNestedValidationBody(PageDefinition pageDefinition) {
+        return pageDefinition.getDataElement() instanceof OperationParameterType operationParameterType && !operationParameterType.getTarget().isIsMapped();
     }
 }
