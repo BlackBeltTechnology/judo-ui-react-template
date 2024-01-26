@@ -44,7 +44,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
             {{# if (isActionOutputMapped action) }}
             {{# if page.openInDialog }}onClose();{{/ if }}
             {{# if action.targetPageDefinition.openInDialog }}
-              await open{{ pageName action.targetPageDefinition }}(null, result);
+              await open{{ pageName action.targetPageDefinition }}(result);
             {{ else }}
               navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
             {{/ if }}
