@@ -230,7 +230,12 @@ public class UiPageHelper {
             }
             List<Action> actionsForMappedNavigation = pageDefinition.getActions()
                     .stream()
-                    .filter(a -> a.getIsCallOperationAction() && getActionOperationOutputClassType(a) != null && getActionOperationOutputClassType(a).isIsMapped())
+                    .filter(a -> a.getIsCallOperationAction()
+                            && getActionOperationOutputClassType(a) != null
+                            && getActionOperationOutputClassType(a).isIsMapped()
+                            && a.getTargetPageDefinition() != null
+                            && !a.getTargetPageDefinition().isOpenInDialog()
+                    )
                     .toList();
             for (Action action: actionsForMappedNavigation) {
                 res.add(action.getTargetPageDefinition());
