@@ -446,8 +446,8 @@ public class UiActionsHelper {
         return pageName(action.getTargetPageDefinition());
     }
 
-    public static boolean createNestedValidation(RelationType relationType) {
-        return relationType != null && (relationType.getIsCreateValidatable() || (relationType.getIsMemberTypeTransient() && !relationType.getTarget().isIsMapped()));
+    public static boolean createNestedValidation(RelationType relationType, PageDefinition pageDefinition) {
+        return pageDefinition.getContainer().isForm() && relationType != null && (relationType.getIsCreateValidatable() || (relationType.getIsMemberTypeTransient() && !relationType.getTarget().isIsMapped()));
     }
 
     public static boolean skipNestedValidationBody(PageDefinition pageDefinition) {
