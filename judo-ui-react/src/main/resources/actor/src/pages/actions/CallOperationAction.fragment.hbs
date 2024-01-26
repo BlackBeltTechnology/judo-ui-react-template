@@ -43,7 +43,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
           if (result) {
             {{# if (isActionOutputMapped action) }}
             {{# if page.openInDialog }}onClose();{{/ if }}
-            navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+            {{# if action.targetPageDefinition.openInDialog }}
+              await open{{ pageName action.targetPageDefinition }}(null, result);
+            {{ else }}
+              navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+            {{/ if }}
             {{ else }}
             onSubmit(result);
             {{/ if }}
