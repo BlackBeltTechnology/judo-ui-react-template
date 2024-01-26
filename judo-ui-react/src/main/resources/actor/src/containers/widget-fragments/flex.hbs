@@ -1,5 +1,5 @@
 {{# if this.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ this.hiddenBy.name }}) && {{/ if }}
-<Grid item xs={12} sm={12} {{# neq (calculateSize this) 12.0 }}md={ {{ calculateSize this }} }{{/ neq }}>
+<Grid item data-name="{{ this.name }}" xs={12} sm={12} {{# neq (calculateSize this) 12.0 }}md={ {{ calculateSize this }} }{{/ neq }}>
     {{# if this.customImplementation }}
         <ComponentProxy
             filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
@@ -12,9 +12,9 @@
         >
     {{/ if }}
     {{# if this.card }}
-        <Card id="{{ getXMIID this }}">
+        <Card id="{{ getXMIID this }}" data-name="{{ this.name }}">
             <CardContent>
-                <Grid container direction="column" alignItems="stretch" justifyContent="flex-start" spacing={2}>
+                <Grid container direction="row" alignItems="stretch" justifyContent="flex-start" spacing={2}>
                     {{# each this.children as |child| }}
                         {{# if child }}
                             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
@@ -25,7 +25,7 @@
             </CardContent>
         </Card>
     {{ else }}
-        <Grid id="{{ getXMIID this }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+        <Grid id="{{ getXMIID this }}" data-name="{{ this.name }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
             {{# each this.children as |child| }}
                 {{# if child }}
                     {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}

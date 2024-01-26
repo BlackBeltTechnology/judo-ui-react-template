@@ -47,22 +47,10 @@ public class UiWidgetHelper {
     }
 
     public static Double calculateSize(VisualElement element) {
-        if (isParentFrame(element)) {
-            return 12.0;
-        }
-        if ((isParentStretch(element) && isParentFrame(element)) || (isParentStretch(element.eContainer()) && isParentFrame(element.eContainer()))) {
-            return 12.0;
-        }
-        if (element.eContainer() instanceof Flex) {
-            if (isParentStretch(element) && ((Flex) element.eContainer()).getIsDirectionVertical()) {
-                return 12.0;
-            }
-
-            double parentSize = ((Flex) element.eContainer()).getCol();
-            double calculated = (12.0 / parentSize) * element.getCol();
-
-            if (calculated <= 12.0) {
-                return calculated;
+        if (element.eContainer() instanceof Flex parent) {
+            double parentSize = parent.getCol();
+            if (parentSize != 12.0) {
+                return (12.0 / parentSize) * element.getCol();
             }
         }
 
