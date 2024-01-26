@@ -284,7 +284,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{/ if }}
     };
     {{# each page.container.links as |link| }}
-      {{# if (createNestedValidation link.relationType) }}
+      {{# if (createNestedValidation link.relationType page) }}
       const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
         {{# if link.relationType.isCreateValidatable }}
         await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}{
@@ -302,7 +302,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{/ if }}
     {{/ each }}
     {{# each page.container.tables as |table| }}
-      {{# if (createNestedValidation table.relationType) }}
+      {{# if (createNestedValidation table.relationType page) }}
       const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
         {{# if table.relationType.isCreateValidatable }}
         await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}{
