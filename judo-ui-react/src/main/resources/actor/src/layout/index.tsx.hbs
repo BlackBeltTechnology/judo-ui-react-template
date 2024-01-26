@@ -6,6 +6,11 @@ import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Toolbar from '@mui/material/Toolbar';
+{{# if application.authentication }}
+import Grid from '@mui/material/Grid';
+import { useTranslation } from 'react-i18next';
+import { usePrincipal } from "~/auth";
+{{/ if }}
 import { CustomBreadcrumb } from '~/components/CustomBreadcrumb';
 import { useConfig } from '~/hooks';
 import { MenuOrientation, DRAWER_WIDTH } from '~/config';
@@ -18,6 +23,10 @@ export const Layout = () => {
   const theme = useTheme();
   const matchDownXL = useMediaQuery(theme.breakpoints.down('xl'));
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
+  {{# if application.authentication }}
+  const { t } = useTranslation();
+  const { principal } = usePrincipal();
+  {{/ if }}
 
   const { container, miniDrawer, menuOrientation, onChangeMiniDrawer } = useConfig();
 
@@ -30,7 +39,14 @@ export const Layout = () => {
   //   }
   // }, [matchDownXL]);
 
+  {{# if application.authentication }}
+  const principalLoaded = () => principal && principal.__signedIdentifier;
+  {{/ if }}
+
   return (
+    {{# if application.authentication }}
+    principalLoaded() ? (
+    {{/ if }}
     <Box sx={ { display: 'flex', width: '100%' } }>
       <Header />
       {!isHorizontal ? <Drawer /> : <HorizontalBar />}
@@ -53,5 +69,14 @@ export const Layout = () => {
         </Container>
       </Box>
     </Box>
+    {{# if application.authentication }}
+    ) : (
+      <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center" sx={ { minHeight: '100vh' } }>
+        <Grid item xs={3}>
+          {t('judo.security.loading-principal', { defaultValue: 'Loading principal data...' })}
+        </Grid>
+      </Grid>
+    )
+    {{/ if }}
   );
 };
