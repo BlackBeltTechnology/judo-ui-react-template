@@ -70,6 +70,8 @@ public class UiActionsHelper {
         // queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}
         if (actionDefinition.getIsRefreshAction()) {
             res += "queryCustomizer: " + classDataName((ClassType) container.getDataElement(), "QueryCustomizer");
+        } else if (actionDefinition.getIsCreateAction()) {
+            res += "openCreated?: boolean";
         } else if (actionDefinition.getTargetType() != null) {
             String targetName = classDataName(actionDefinition.getTargetType(), "Stored");
             if (container.isIsRelationSelector()) {
@@ -345,6 +347,7 @@ public class UiActionsHelper {
         tokens.add("res: " + type);
         tokens.add("onSubmit: (result?: " + type + ") => Promise<void>");
         tokens.add("onClose: () => Promise<void>");
+        tokens.add("openCreated?: boolean");
         return String.join(", ", tokens);
     }
 

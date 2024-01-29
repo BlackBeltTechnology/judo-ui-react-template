@@ -271,4 +271,19 @@ public class UiPageContainerHelper {
     public static List<Link> getLinksForContainer(PageContainer container) {
         return container.getLinks().stream().map(e -> ((Link) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
+
+    public static boolean containerHasCreateAction(PageContainer container) {
+        return container.getActionButtonGroup() != null && container.getActionButtonGroup().getButtons().stream()
+                .anyMatch(b -> b.getActionDefinition() instanceof CreateActionDefinition);
+    }
+
+    public static ActionDefinition getCreateActionDefinitionForCreateContainer(PageContainer container) {
+        if (container.getActionButtonGroup() != null) {
+            container.getActionButtonGroup().getButtons().stream()
+                    .map(Button::getActionDefinition)
+                    .filter(actionDefinition -> actionDefinition instanceof CreateActionDefinition)
+                    .findFirst().orElse(null);
+        }
+        return null;
+    }
 }
