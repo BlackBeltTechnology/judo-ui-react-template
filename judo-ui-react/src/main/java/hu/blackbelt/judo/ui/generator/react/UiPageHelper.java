@@ -240,6 +240,16 @@ public class UiPageHelper {
             for (Action action: actionsForMappedNavigation) {
                 res.add(action.getTargetPageDefinition());
             }
+            List<Action> actionsForCreateAndNavigate = pageDefinition.getActions()
+                    .stream()
+                    .filter(a -> a.getIsCreateAction()
+                            && a.getTargetPageDefinition() != null
+                            && !a.getTargetPageDefinition().isOpenInDialog()
+                    )
+                    .toList();
+            for (Action action: actionsForCreateAndNavigate) {
+                res.add(action.getTargetPageDefinition());
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
