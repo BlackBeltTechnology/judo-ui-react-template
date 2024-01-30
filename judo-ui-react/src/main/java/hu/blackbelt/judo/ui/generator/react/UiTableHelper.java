@@ -168,7 +168,7 @@ public class UiTableHelper {
     }
 
     private static boolean isSortableDataType (DataType dataType) {
-        return !(dataType instanceof BinaryType);
+        return !(dataType instanceof EnumerationType) && !(dataType instanceof BinaryType);
     }
 
     private static boolean isSortableAttributeType (AttributeType attributeType) {
