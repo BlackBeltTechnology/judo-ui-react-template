@@ -160,7 +160,7 @@ public class UiPageContainerHelper {
                 .map(c -> c.getAttributeType().getName())
                 .collect(Collectors.toSet());
         columnAttributeNames.addAll(table.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
-        String tableColumns = String.join(",", columnAttributeNames);
+        String tableColumns = String.join(",", columnAttributeNames.stream().sorted().toList());
 
         return "{" + tableColumns + "}";
     }
@@ -168,7 +168,7 @@ public class UiPageContainerHelper {
     public static String getMaskForLink(Link link) {
         Set<String> columnAttributeNames = ((List<Column>) link.getColumns()).stream().map(c -> c.getAttributeType().getName()).collect(Collectors.toSet());
         columnAttributeNames.addAll(link.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
-        String linkColumns = String.join(",", columnAttributeNames);
+        String linkColumns = String.join(",", columnAttributeNames.stream().sorted().toList());
 
         return "{" + linkColumns + "}";
     }
