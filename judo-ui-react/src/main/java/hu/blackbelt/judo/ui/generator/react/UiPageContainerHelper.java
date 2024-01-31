@@ -156,13 +156,19 @@ public class UiPageContainerHelper {
     }
 
     public static String getMaskForTable(Table table) {
-        String tableColumns = table.getColumns().stream().map(c -> c.getAttributeType().getName()).collect(Collectors.joining(","));
+        Set<String> columnAttributeNames = table.getColumns().stream()
+                .map(c -> c.getAttributeType().getName())
+                .collect(Collectors.toSet());
+        columnAttributeNames.addAll(table.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
+        String tableColumns = String.join(",", columnAttributeNames);
 
         return "{" + tableColumns + "}";
     }
 
     public static String getMaskForLink(Link link) {
-        String linkColumns = ((List<Column>) link.getColumns()).stream().map(c -> c.getAttributeType().getName()).collect(Collectors.joining(","));
+        Set<String> columnAttributeNames = ((List<Column>) link.getColumns()).stream().map(c -> c.getAttributeType().getName()).collect(Collectors.toSet());
+        columnAttributeNames.addAll(link.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
+        String linkColumns = String.join(",", columnAttributeNames);
 
         return "{" + linkColumns + "}";
     }
@@ -174,6 +180,7 @@ public class UiPageContainerHelper {
         collectVisualElementsMatchingCondition(container, (VisualElement element) -> element instanceof Input, inputs);
 
         Set<String> attributeNames = inputs.stream().map(i -> ((Input) i)).map(i -> i.getAttributeType().getName()).collect(Collectors.toSet());
+        attributeNames.addAll(container.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
 
         Set<VisualElement> AllVisualElements = new HashSet<>();
         collectVisualElementsMatchingCondition(container, (VisualElement element) -> true, AllVisualElements);
