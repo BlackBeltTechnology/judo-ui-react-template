@@ -240,6 +240,9 @@ public class UiActionsHelper {
     public static String getFormOpenParameters(PageDefinition pageDefinition, Action action) {
         List<String> tokens = new ArrayList<>();
 
+        if (action.getActionDefinition().getIsOpenFormAction() && pageDefinition.getContainer().isIsRelationSelector()) {
+            return "ownerData";
+        }
         if (action.getActionDefinition().getTargetType() != null) {
             tokens.add("target");
         } else {

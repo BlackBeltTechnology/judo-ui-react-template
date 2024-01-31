@@ -425,4 +425,11 @@ public class UiPageHelper {
         }
         return null;
     }
+
+    public static String calculateNavigationRoute(PageDefinition pageDefinition) {
+        if (pageDefinition.isDashboard()) {
+            return "routeToDashboard";
+        }
+        return "routeTo" + pageName(pageDefinition);
+    }
 }
