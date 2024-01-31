@@ -1,5 +1,10 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}isDraft?: boolean, ownerValidation?: (data: any) => Promise<void>) => {
   const { result, data: returnedData } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
+  {{# if page.container.isRelationSelector }}
+    if (result === 'submit' && returnedData) {
+      onSubmit([returnedData]);
+    }
+  {{/ if }}
   {{# if (isRelationOpenCreateActionOnForm page action) }}
     // we might need to differentiate result handling between operation inputs and crud relation creates
     if (result === 'submit-draft' && returnedData) {
