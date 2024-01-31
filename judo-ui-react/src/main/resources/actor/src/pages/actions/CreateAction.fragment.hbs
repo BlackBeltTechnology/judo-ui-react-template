@@ -33,7 +33,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
           {{# if action.targetPageDefinition.openInDialog }}
             await open{{ pageName action.targetPageDefinition }}(res!);
           {{ else }}
-            navigate(routeTo{{ pageName action.targetPageDefinition }}({{# if (pageHasSignedId action.targetPageDefinition) }}res!.__signedIdentifier{{/ if }}));
+            navigate({{ calculateNavigationRoute action.targetPageDefinition }}({{# if (pageHasSignedId action.targetPageDefinition) }}res!.__signedIdentifier{{/ if }}));
           {{/ if }}
         {{/ if }}
       }

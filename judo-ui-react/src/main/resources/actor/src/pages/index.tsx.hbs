@@ -31,7 +31,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   } from '~/utilities';
   import { PageContainerTransition } from '~/theme/animations';
   {{# each (getRelatedPages page) as |relatedPage| }}
-    import { routeTo{{ pageName relatedPage }} } from '~/routes';
+    import { {{ calculateNavigationRoute relatedPage }} } from '~/routes';
   {{/ each }}
   {{# each (getRelatedDialogs page false) as |relatedDialog| }}
     import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}';
