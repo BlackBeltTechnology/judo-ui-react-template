@@ -21,6 +21,17 @@
         loadingPosition="start"
       {{/ if }}
       onClick={ async () => {
+        {{# if child.confirmation }}
+          const result = await openConfirmDialog(
+            '{{ getXMIID child }}',
+            t('{{ getTranslationKeyForVisualElement child }}.confirmation', { defaultValue: '{{ child.confirmation.confirmationMessage }}' }) as string,
+            t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+          );
+
+          if (!result) {
+            return;
+          }
+        {{/ if }}
         if (actions.{{ simpleActionDefinitionName child.actionDefinition }}) {
           await actions.{{ simpleActionDefinitionName child.actionDefinition }}!();
         }

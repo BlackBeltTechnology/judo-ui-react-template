@@ -142,7 +142,14 @@ public class UiI18NHelper {
         }
 
         assert target != null;
-        String bare = tokenNeedsPrefix(target) ? root + "." + target.getName() : target.getName();
+        String bare = target.getName();
+        if (tokenNeedsPrefix(target)) {
+            if (element instanceof Column column && column.eContainer() instanceof Table table && !table.getPageContainer().isTable()) {
+                bare = root + "." + table.getDataElement().getName() + "." + target.getName();
+            } else {
+                bare = root + "." + target.getName();
+            }
+        }
         return bare.replaceAll("::", ".");
     }
 

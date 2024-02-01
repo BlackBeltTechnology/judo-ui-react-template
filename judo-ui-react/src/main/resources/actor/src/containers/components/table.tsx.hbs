@@ -640,7 +640,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
           return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
         } }
         columns={effectiveTableColumns}
+        {{# unless table.isSelectorTable }}
         disableRowSelectionOnClick
+        {{/ unless }}
         {{# if table.isSelectorTable }}
         isRowSelectable={handleIsRowSelectable}
         hideFooterSelectedRowCount={ !{{ boolValue table.allowSelectMultiple }} }

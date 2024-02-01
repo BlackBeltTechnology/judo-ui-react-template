@@ -1,4 +1,4 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCreated?: boolean) => {
   try {
     {{# unless page.dataElement.isAccess }}
     if (isDraft) {
@@ -24,10 +24,19 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
     const payload: typeof payloadDiff.current = cleanUpPayload(payloadDiff.current);
     const res = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}payload);
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
-      await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(data, res, onSubmit, onClose);
+      await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(data, res, onSubmit, onClose, openCreated);
     } else {
       showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
-      onSubmit(res);
+      await onSubmit(res);
+      if (openCreated) {
+        {{# if action.targetPageDefinition }}
+          {{# if action.targetPageDefinition.openInDialog }}
+            await open{{ pageName action.targetPageDefinition }}(res!);
+          {{ else }}
+            navigate({{ calculateNavigationRoute action.targetPageDefinition }}({{# if (pageHasSignedId action.targetPageDefinition) }}res!.__signedIdentifier{{/ if }}));
+          {{/ if }}
+        {{/ if }}
+      }
     }
   } catch (error) {
      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
