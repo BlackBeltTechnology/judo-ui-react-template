@@ -175,7 +175,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
             { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
               <Grid className="page-action" item>
                 {{# if button.actionDefinition.isCreateAction }}
-                <ButtonGroup variant={ {{{ variantForButton button }}} } ref={createDropdownRef} sx={ { borderRadius: 0, boxShadow: 0 } } aria-label="split button for create action">
+                <ButtonGroup disabled={isLoading} variant={ {{{ variantForButton button }}} } ref={createDropdownRef} sx={ { borderRadius: 0, boxShadow: 0 } } aria-label="split button for create action">
                 {{/ if }}
                 <LoadingButton
                   id="{{ getXMIID button }}"
