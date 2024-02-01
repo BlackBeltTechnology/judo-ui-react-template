@@ -227,6 +227,16 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     ] : [],
     ...mapAllFiltersToQueryCustomizerProperties(filters),
   });
+  const [exportQueryCustomizer, setExportQueryCustomizer] = useState<{{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>({
+  _mask: '{{ getMaskForTable table }}',
+  _orderBy: sortModel.length ? [
+    {
+      attribute: sortModel[0].field,
+      descending: sortModel[0].sort === 'desc',
+    },
+  ] : [],
+  ...mapAllFiltersToQueryCustomizerProperties(filters),
+  });
   {{# unless table.isEager }}
   const [page, setPage] = useState<number>(0);
   const [rowCount, setRowCount] = useState<number>(0);
@@ -402,6 +412,18 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         _seek: {
           limit: rowsPerPage + 1,
         },
+        ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+      };
+    });
+
+
+    setExportQueryCustomizer((prevQueryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => {
+      // remove previous filter values, so that we can always start with a clean slate
+      for (const name of columns.map(c => c.field)) {
+        delete (prevQueryCustomizer as any)[name];
+      }
+      return {
+        ...prevQueryCustomizer,
         ...mapAllFiltersToQueryCustomizerProperties(newFilters),
       };
     });
@@ -676,10 +698,14 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
                     {{/ if }}
                   {{ else }}
                     const processedQueryCustomizer = {
-                      ...processQueryCustomizer(queryCustomizer),
-                      {{# if (getRefreshActionDefinitionForTable table) }}
-                      _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
-                      {{/ if }}
+                      {{# unless actionDefinition.isExportAction }}
+                        ...processQueryCustomizer(queryCustomizer),
+                        {{# if (getRefreshActionDefinitionForTable table) }}
+                        _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
+                        {{/ if }}
+                      {{ else }}
+                        ...processQueryCustomizer(exportQueryCustomizer)
+                      {{/ unless }}
                     };
                     {{# or actionDefinition.isRefreshAction actionDefinition.isExportAction }}
                       await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);

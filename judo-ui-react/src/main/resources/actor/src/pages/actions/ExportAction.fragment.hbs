@@ -5,8 +5,23 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
 {{/ if }}
   try {
     setIsLoading(true);
-    console.log(queryCustomizer);
-    alert('Not yet implemented');
+{{# if container.isRelationSelector }}
+    const response = await {{ getServiceImplForPage page }}.export(undefined, queryCustomizer);
+{{ else }}
+  const response = await {{ getServiceImplForPage page }}.export{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}undefined{{/ if }}, queryCustomizer);
+{{/ if }}
+
+    if (response && response.status === 200) {
+      const fileName = response.headers['content-disposition'].match(/filename=\"(.*)\"/)[1];
+      const fileType = response.headers['content-type'];
+      const url = window.URL.createObjectURL(new Blob([response.data], { type: fileType }));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', fileName);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
   } finally {
     setIsLoading(false);
   }
