@@ -459,4 +459,8 @@ public class UiActionsHelper {
     public static boolean skipNestedValidationBody(PageDefinition pageDefinition) {
         return pageDefinition.getDataElement() instanceof OperationParameterType operationParameterType && !operationParameterType.getTarget().isIsMapped();
     }
+
+    public static boolean isRowActionCRUD(ActionDefinition actionDefinition) {
+        return actionDefinition.getIsRemoveAction() || actionDefinition.getIsDeleteAction();
+    }
 }

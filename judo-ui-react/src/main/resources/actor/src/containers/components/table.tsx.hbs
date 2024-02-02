@@ -274,9 +274,14 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{# unless button.actionDefinition.isOpenPageAction }}
     {
       id: '{{ getXMIID button }}',
+      {{# if button.label }}
       label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
+      {{/ if }}
       {{# if button.icon }}
       icon: <MdiIcon path="{{ button.icon.iconName }}" />,
+      {{/ if }}
+      {{# if (isRowActionCRUD button.actionDefinition) }}
+      isCRUD: true,
       {{/ if }}
       disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {{{ tableRowButtonDisabledConditions button table container }}},
       action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
@@ -298,7 +303,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{/ each }}
   ], [actions, isLoading]);
 
-  const effectiveTableColumns = useMemo(() => [ ...columns, ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { shownActions: 2 }) ], [columns, rowActions]);
+  const effectiveTableColumns = useMemo(() => [
+    ...columns,
+    ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { crudOperationsDisplayed: {{ table.crudOperationsDisplayed }}, transferOperationsDisplayed: {{ table.transferOperationsDisplayed }} })
+  ], [columns, rowActions]);
 
   const getRowIdentifier: (row: Pick<{{ classDataName (getReferenceClassType table) 'Stored' }}, '__identifier'>) => string = (row) => row.__identifier!;
 
