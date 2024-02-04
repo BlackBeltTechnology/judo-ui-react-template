@@ -432,4 +432,8 @@ public class UiPageHelper {
         }
         return "routeTo" + pageName(pageDefinition);
     }
+
+    public static boolean hasExportAction(PageDefinition pageDefinition) {
+        return pageDefinition.getActions().stream().anyMatch(page -> page.getIsExportAction());
+    }
 }
