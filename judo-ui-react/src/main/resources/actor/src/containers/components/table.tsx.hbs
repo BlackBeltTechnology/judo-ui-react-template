@@ -4,6 +4,10 @@ import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import type { ElementType, MouseEvent, Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { JudoIdentifiable } from '~/services/data-api/common';
+import type { JudoRestResponse } from '~/services/data-api/rest';
+{{# if table.showTotalCount }}
+import { X_JUDO_COUNT } from '~/services/data-api/rest';
+{{/ if }}
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -92,14 +96,14 @@ export interface {{ componentName table }}ActionDefinitions {
     {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
   {{ else }}
     {{# if actionDefinition.isRefreshAction }}
-      {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+      {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
       get{{ firstToUpper table.relationName }}Mask?: () => string;
     {{ else }}
       {{# if actionDefinition.isExportAction }}
         {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<void>;
       {{ else }}
         {{# if actionDefinition.isSelectorRangeAction }}
-          {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+          {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
         {{ else }}
           {{# if actionDefinition.isBulk }}
             {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
@@ -205,6 +209,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{# with (getReferenceClassType table) as |classType| }}
   const [data, setData] = useState<GridRowModel<{{# if classType.isMapped }}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}>[]>({{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }});
   {{/ with }}
+  {{# if table.showTotalCount }}
+  const [totalCount, setTotalCount] = useState<number>(0);
+  {{/ if }}
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
   const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
@@ -536,12 +543,15 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         };
         {{# if container.isSelector }}
         {{# with (getRangeActionDefinitionForTable table) as |actionDefinition| }}
-        const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
+        const { data: res, headers } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
         {{/ with }}
         {{ else }}
         {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
-        const res = await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
+        const { data: res, headers } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
         {{/ with }}
+        {{/ if }}
+        {{# if table.showTotalCount }}
+        setTotalCount(headers[X_JUDO_COUNT] ? Number(headers[X_JUDO_COUNT]) : -1);
         {{/ if }}
 
         if (res.length > rowsPerPage) {
@@ -737,6 +747,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
               page={page}
               setPage={setPage}
               rowPerPage={rowsPerPage}
+              {{# if table.showTotalCount }}
+              totalCount={totalCount}
+              {{/ if }}
             />
           ),
           {{/ unless }}

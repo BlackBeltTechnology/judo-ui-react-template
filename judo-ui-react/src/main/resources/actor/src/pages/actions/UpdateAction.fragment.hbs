@@ -4,7 +4,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   {{/ if }}
   setIsLoading(true);
   try {
-    const res = await {{ getServiceImplForPage page }}.update(payloadDiff.current);
+    const { data: res } = await {{ getServiceImplForPage page }}.update(payloadDiff.current);
     if (res) {
       showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
       setValidation(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());

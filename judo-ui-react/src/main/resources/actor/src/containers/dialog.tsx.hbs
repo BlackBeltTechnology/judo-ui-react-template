@@ -31,6 +31,7 @@ import { useConfirmDialog } from '~/components/dialog';
     {{ classDataName container.dataElement 'Stored' }},
     {{ classDataName container.dataElement 'QueryCustomizer' }}
   } from '~/services/data-api';
+  import type { JudoRestResponse } from '~/services/data-api/rest';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
@@ -38,7 +39,7 @@ import { useConfirmDialog } from '~/components/dialog';
 
   export interface {{ containerComponentName container }}DialogActions extends {{ pageContainerActionDefinitionTypeName container }} {
     {{# each container.pageActionDefinitions as |actionDefinition| }}
-      {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
+      {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{{ getContainerOwnActionReturnType actionDefinition container }}}>;
     {{/ each }}
   }
 {{/ unless }}
