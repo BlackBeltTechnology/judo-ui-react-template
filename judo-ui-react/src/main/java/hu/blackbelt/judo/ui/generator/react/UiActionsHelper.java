@@ -89,11 +89,11 @@ public class UiActionsHelper {
     public static String getContainerOwnActionReturnType(ActionDefinition actionDefinition, PageContainer container) {
         if (actionDefinition.getIsRefreshAction()) {
             // {{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}
-            return classDataName((ClassType) container.getDataElement(), "Stored") + (container.isTable() ? "[]" : "");
+            return "JudoRestResponse<" + classDataName((ClassType) container.getDataElement(), "Stored") + (container.isTable() ? "[]" : "") + ">";
         } else if (actionDefinition.getIsPreFetchAction()) {
-            return classDataName(actionDefinition.getTargetType(), "Stored");
+            return "JudoRestResponse<" + classDataName(actionDefinition.getTargetType(), "Stored") + ">";
         } else if (actionDefinition.getIsGetTemplateAction()) {
-            return classDataName(actionDefinition.getTargetType(), "");
+            return "JudoRestResponse<" + classDataName(actionDefinition.getTargetType(), "") + ">";
         }
         return "void";
     }

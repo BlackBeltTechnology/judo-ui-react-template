@@ -1,7 +1,8 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<{{ classDataName action.actionDefinition.targetType '' }}> => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<JudoRestResponse<{{ classDataName action.actionDefinition.targetType '' }}>> => {
   try {
     setIsLoading(true);
-    const result = await {{ getServiceImplForPage page }}.getTemplate{{ firstToUpper (getServiceMethodSuffix action) }}();
+    const response = await {{ getServiceImplForPage page }}.getTemplate{{ firstToUpper (getServiceMethodSuffix action) }}();
+    const { data: result } = response;
     setData(result as {{ classDataName action.actionDefinition.targetType 'Stored' }});
     payloadDiff.current = {
       ...(result as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>),
@@ -15,7 +16,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
         ...(templateDataOverride as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>),
       };
     }
-    return result;
+    return response;
   } catch (error) {
     handleError(error);
     return Promise.reject(error);

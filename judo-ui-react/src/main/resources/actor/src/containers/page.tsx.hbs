@@ -20,6 +20,7 @@ import { mainContainerPadding } from '~/theme';
     {{ classDataName container.dataElement 'Stored' }},
     {{ classDataName container.dataElement 'QueryCustomizer' }}
   } from '~/services/data-api';
+  import type { JudoRestResponse } from '~/services/data-api/rest';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
@@ -28,7 +29,7 @@ import { mainContainerPadding } from '~/theme';
   export interface {{ containerComponentName container }}PageActions extends {{ pageContainerActionDefinitionTypeName container }} {
     {{# each container.pageActionDefinitions as |actionDefinition| }}
       {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>;
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>>;
       {{ else }}
         {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
       {{/ if }}
