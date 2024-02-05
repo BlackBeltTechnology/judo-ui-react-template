@@ -29,6 +29,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
     cleanUpPayload,
+    {{# if (hasExportAction page) }}fileHandling,{{/ if }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -118,6 +119,9 @@ export default function {{ pageName page }}() {
     const { setLatestViewData } = useViewData();
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();
+    {{# if (hasExportAction page) }}
+    const { exportFile } = fileHandling();
+    {{/ if }}
 
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);

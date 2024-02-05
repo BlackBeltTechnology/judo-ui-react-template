@@ -698,6 +698,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
                       {{# if (getRefreshActionDefinitionForTable table) }}
                       _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
                       {{/ if }}
+                      {{# if actionDefinition.isExportAction }}
+                      _seek: undefined,
+                      {{/ if }}
                     };
                     {{# or actionDefinition.isRefreshAction actionDefinition.isExportAction }}
                       await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
