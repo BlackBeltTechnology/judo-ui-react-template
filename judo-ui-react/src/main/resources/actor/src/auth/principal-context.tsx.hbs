@@ -4,13 +4,13 @@
     import { createContext, useContext, useState, useEffect } from 'react';
     import type { ReactNode } from 'react';
     import { useAuth } from 'react-oidc-context';
-    import { {{ classDataName application.principal 'Stored' }} } from '~/services/data-api';
+    import { JudoRestResponse, {{ classDataName application.principal 'Stored' }} } from '~/services/data-api';
     import { accessServiceImpl } from '~/services/data-axios';
 
     export interface PrincipalContext {
         principal: {{ classDataName application.principal 'Stored' }};
         setPrincipal: (principal: {{ classDataName application.principal 'Stored' }}) => void;
-        getPrincipal: () => Promise<{{ classDataName application.principal 'Stored' }}>;
+        getPrincipal: () => Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>>;
     }
 
     const PrincipalContext = createContext<PrincipalContext>({} as unknown as PrincipalContext);
@@ -21,14 +21,14 @@
 
         const fetchData = async () => {
             try {
-                const data = await accessServiceImpl.getPrincipal();
+                const { data } = await accessServiceImpl.getPrincipal();
                 setPrincipal({ ...data });
             } catch (e) {
                 console.error(e);
             }
         };
 
-        const getPrincipal = (): Promise<{{ classDataName application.principal 'Stored' }}> => accessServiceImpl.getPrincipal();
+        const getPrincipal = (): Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>> => accessServiceImpl.getPrincipal();
 
         useEffect(() => {
             if (isAuthenticated) {

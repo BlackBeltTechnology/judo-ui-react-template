@@ -40,7 +40,7 @@ export type {{ containerComponentName container }}ContainerHook = (
 export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
   getPageTitle?: ({{# unless container.table }}data: {{ classDataName container.dataElement '' }}{{/ unless }}) => string;
   {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
-    {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{ getContainerOwnActionReturnType actionDefinition container }}>;
+    {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{{ getContainerOwnActionReturnType actionDefinition container }}}>;
   {{/ each }}
   {{# each (getOnBlurAttributesForContainer container) as |attributeType| }}
     on{{ firstToUpper attributeType.name }}BlurAction?: ({{{ onBlurActionParams container }}}) => void;

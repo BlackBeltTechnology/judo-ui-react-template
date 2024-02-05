@@ -293,4 +293,10 @@ public class UiPageContainerHelper {
         }
         return null;
     }
+
+    public static boolean containerHasTableWithTotalCount(PageContainer container) {
+        return container.getTables().stream()
+                .filter(e -> e instanceof Table)
+                .anyMatch(t -> ((Table) t).isShowTotalCount());
+    }
 }

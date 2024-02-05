@@ -6,6 +6,10 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   import { OBJECTCLASS } from '@pandino/pandino-api';
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common';
+  import type { JudoRestResponse } from '~/services/data-api/rest';
+  {{# if (containerHasTableWithTotalCount page.container) }}
+  import { X_JUDO_COUNT_RECORDS } from '~/services/data-api/rest';
+  {{/ if }}
   import { useTranslation } from 'react-i18next';
   import { v4 as uuidv4 } from 'uuid';
   {{# if (pageHasSignedId page) }}
