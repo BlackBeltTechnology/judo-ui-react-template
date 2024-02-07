@@ -35,7 +35,7 @@
             {{/ if }}
             await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
           } : undefined }
-          disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
+          disabled={ {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} editMode }
         >
           { t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) }
         </LoadingButton>
