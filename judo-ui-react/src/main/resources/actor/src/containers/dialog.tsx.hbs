@@ -176,7 +176,9 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
             { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
               <Grid className="page-action" item>
                 {{# if button.actionDefinition.isCreateAction }}
+                {{# unless button.actionDefinition.autoOpenAfterCreate }}
                 <ButtonGroup disabled={isLoading} variant={ {{{ variantForButton button }}} } ref={createDropdownRef} sx={ { borderRadius: 0, boxShadow: 0 } } aria-label="split button for create action">
+                {{/ unless }}
                 {{/ if }}
                 <LoadingButton
                   id="{{ getXMIID button }}"
@@ -205,7 +207,11 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                         {{# if (isActionAddOrSet actionDefinition) }}
                           await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff);
                         {{ else }}
-                          await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                          {{# if actionDefinition.isCreateAction }}
+                            await actions.{{ simpleActionDefinitionName actionDefinition }}!({{# if actionDefinition.autoOpenAfterCreate }}true{{/ if }});
+                          {{ else }}
+                            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+                          {{/ if }}
                         {{/ if }}
                       {{/ if }}
                     {{/ if }}
@@ -215,13 +221,18 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                     <span>{
                       isDraft
                       ? t('judo.dialogs.draft.submit', { defaultValue: 'Ok' })
-                      : t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })
+                      : {{# unless button.actionDefinition.autoOpenAfterCreate }}t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }){{ else }}t('judo.pages.create-and-navigate', { defaultValue: 'Create and open' }){{/ unless }}
                     }</span>
                   {{ else }}
-                    <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
+                    {{# and button.actionDefinition.isUpdateAction button.actionDefinition.autoCloseOnSave }}
+                      <span>{t('judo.pages.save-and-close', { defaultValue: 'Save and close' })}</span>
+                    {{ else }}
+                      <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
+                    {{/ and }}
                   {{/ if }}
                 </LoadingButton>
                 {{# if button.actionDefinition.isCreateAction }}
+                {{# unless button.actionDefinition.autoOpenAfterCreate }}
                 {!isDraft && <Button size="small" onClick={handleCreateDropdownToggle} aria-label="dropdown toggle for create dialog">
                   <MdiIcon path="menu-down" />
                 </Button>}
@@ -250,6 +261,7 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                     </Grow>
                   )}
                 </Popper>
+                {{/ unless }}
                 {{/ if }}
               </Grid>
             )}
