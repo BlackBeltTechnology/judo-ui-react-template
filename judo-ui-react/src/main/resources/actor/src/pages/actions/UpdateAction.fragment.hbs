@@ -7,11 +7,15 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
     const { data: res } = await {{ getServiceImplForPage page }}.update(payloadDiff.current);
     if (res) {
       showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
-      setValidation(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
-      {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-      await actions.{{ simpleActionDefinitionName actionDefinition }}!(getPageQueryCustomizer());
-      {{/ with }}
-      setEditMode(false);
+      {{# and page.openInDialog action.actionDefinition.autoCloseOnSave }}
+        onSubmit();
+      {{ else }}
+        setValidation(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
+        setEditMode(false);
+        {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+          await actions.{{ simpleActionDefinitionName actionDefinition }}!(getPageQueryCustomizer());
+        {{/ with }}
+      {{/ and }}
     }
   } catch (error) {
     handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
