@@ -5,13 +5,11 @@ import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-import Toolbar from '@mui/material/Toolbar';
 {{# if application.authentication }}
 import Grid from '@mui/material/Grid';
 import { useTranslation } from 'react-i18next';
 import { usePrincipal } from "~/auth";
 {{/ if }}
-import { CustomBreadcrumb } from '~/components/CustomBreadcrumb';
 import { useConfig } from '~/hooks';
 import { MenuOrientation, DRAWER_WIDTH } from '~/config';
 import { Drawer } from './Drawer';
@@ -52,7 +50,6 @@ export const Layout = () => {
       {!isHorizontal ? <Drawer /> : <HorizontalBar />}
 
       <Box component="main" sx={ { width: `calc(100% - ${DRAWER_WIDTH}px)`, flexGrow: 1, p: { xs: 2, sm: 3 } } }>
-        <Toolbar sx={ { mt: isHorizontal ? 8 : 'inherit' } } />
         <Container
           maxWidth={container ? 'xl' : false}
           sx={ {
@@ -60,10 +57,10 @@ export const Layout = () => {
             position: 'relative',
             minHeight: 'calc(100vh - 110px)',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            mt: 12,
           } }
         >
-          <CustomBreadcrumb />
           <Outlet />
           <Footer />
         </Container>
