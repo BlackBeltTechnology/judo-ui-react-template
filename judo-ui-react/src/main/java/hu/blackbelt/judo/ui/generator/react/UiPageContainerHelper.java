@@ -13,6 +13,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
+import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.safeName;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
@@ -147,12 +148,17 @@ public class UiPageContainerHelper {
     }
 
     public static String containerButtonAvailable(Button button) {
-        if (button.getPageContainer().isForm()) {
-            return "editMode";
+        List<String> tokens = new ArrayList<>();
+        if (button.getHiddenBy() != null) {
+            tokens.add("(actions?.is" + safeName(button) + "Hidden ? !actions?.is" + safeName(button) + "Hidden(data, editMode) : !data." + button.getHiddenBy().getName() + ")");
+        } else if (button.getPageContainer().isForm()) {
+            tokens.add("editMode");
         } else if (button.getActionDefinition().getIsCancelAction() || button.getActionDefinition().getIsUpdateAction()) {
-            return "editMode";
+            tokens.add("editMode");
+        } else {
+            tokens.add("!editMode");
         }
-        return "!editMode";
+        return String.join(" && ", tokens);
     }
 
     public static String getMaskForTable(Table table) {
