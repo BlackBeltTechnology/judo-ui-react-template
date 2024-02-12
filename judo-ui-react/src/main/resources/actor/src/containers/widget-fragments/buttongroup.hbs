@@ -35,7 +35,9 @@
             {{/ if }}
             await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
           } : undefined }
-          disabled={ {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} editMode }
+          {{# if (containerButtonHasDisabledConditions button container) }}
+          disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
+          {{/ if }}
         >
           { t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) }
         </LoadingButton>
@@ -72,7 +74,9 @@
               {{ else }}
                 startIcon: <MdiIcon path="arrow_right" />,
               {{/ if }}
-              disabled: {{# if button.enabledBy }}!data.{{ button.enabledBy.name }} ||{{/ if }} isLoading || editMode,
+              {{# if (containerButtonHasDisabledConditions button container) }}
+                  disabled: {{{ containerButtonGroupButtonDisabledConditions button container }}},
+              {{/ if }}
               {{# if button.hiddenBy }}visible: !data.{{ button.hiddenBy.name }},{{/ if }}
             },
           {{/ each }}

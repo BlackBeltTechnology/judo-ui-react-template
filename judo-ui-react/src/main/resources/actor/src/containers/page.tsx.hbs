@@ -85,7 +85,9 @@ export default function {{ containerComponentName container }}Page (props: {{ co
                   {{# if button.icon }}
                     startIcon={<MdiIcon path="{{ button.icon.iconName }}" />}
                   {{/ if }}
-                  disabled={ {{# if button.enabledBy }} !data.{{ button.enabledBy.name }} ||{{/ if }} editMode }
+                  {{# if (containerButtonHasDisabledConditions button container) }}
+                  disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
+                  {{/ if }}
                   onClick={ async () => {
                     {{# if button.actionDefinition.isDeleteAction }}
                       actions.{{ simpleActionDefinitionName actionDefinition }}!();
