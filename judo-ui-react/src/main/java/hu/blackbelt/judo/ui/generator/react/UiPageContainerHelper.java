@@ -305,4 +305,26 @@ public class UiPageContainerHelper {
                 .filter(e -> e instanceof Table)
                 .anyMatch(t -> ((Table) t).isShowTotalCount());
     }
+
+    public static boolean containerButtonHasDisabledConditions(Button button, PageContainer container) {
+        return !containerButtonGroupButtonDisabledConditions(button, container).isEmpty();
+    }
+
+    public static String containerButtonGroupButtonDisabledConditions(Button button, PageContainer container) {
+        Set<String> segments = new HashSet<>();
+        if (button.getEnabledBy() != null) {
+            segments.add("!data." + button.getEnabledBy().getName());
+        }
+        if (container.isView()) {
+            if (!button.getActionDefinition().getIsCancelAction() && !button.getActionDefinition().getIsUpdateAction()) {
+                segments.add("editMode");
+            }
+        }
+        if (button.getActionDefinition().getIsSetAction() || button.getActionDefinition().getIsAddAction()) {
+            return "!selectionDiff.length";
+        }
+        segments.add("isLoading");
+
+        return String.join(" || ", segments);
+    }
 }
