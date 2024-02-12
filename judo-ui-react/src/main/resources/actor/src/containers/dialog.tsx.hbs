@@ -185,8 +185,8 @@ export default function {{ containerComponentName container }}Dialog(props: {{ c
                   loading={isLoading}
                   loadingPosition="start"
                   variant={ {{{ variantForButton button }}} }
-                  {{# if (dialogButtonHasDisabledConditions button) }}
-                  disabled={ {{{ dialogButtonDisabledConditions button }}} }
+                  {{# if (containerButtonHasDisabledConditions button container) }}
+                  disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
                   {{/ if }}
                   {{# if button.icon }}
                     startIcon={
