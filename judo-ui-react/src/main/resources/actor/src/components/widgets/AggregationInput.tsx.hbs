@@ -179,8 +179,8 @@ export const AggregationInput = ({
                       })}
                     >
                       {loading ? <CircularProgress color="inherit" size='1rem' className="AggregationInputLoading" /> : null}
-                      {onSet && !exists(value) && (
-                        <IconButton className={`${name}-set`} disabled={disabled || readOnly} onClick={ (event: any) => { handleDropdownClose(event); onSet(); } } title={t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string}>
+                      {onSet && !exists(value) && !readOnly && (
+                        <IconButton className={`${name}-set`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onSet(); } } title={t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string}>
                           <MdiIcon path="magnify" />
                         </IconButton>
                       )}
@@ -189,12 +189,12 @@ export const AggregationInput = ({
                           <MdiIcon path="eye" />
                         </IconButton>
                       )}
-                      {!exists(value) && onCreate && (
-                        <IconButton className={`${name}-create`} disabled={disabled || readOnly || (editMode && !isInlineCreatable)} onClick={ (event: any) => { handleDropdownClose(event); onCreate(); } } title={t('judo.component.AggregationInput.create', { defaultValue: 'Create' }) as string}>
+                      {!exists(value) && onCreate && !readOnly && (
+                        <IconButton className={`${name}-create`} disabled={disabled || (editMode && !isInlineCreatable)} onClick={ (event: any) => { handleDropdownClose(event); onCreate(); } } title={t('judo.component.AggregationInput.create', { defaultValue: 'Create' }) as string}>
                           <MdiIcon path="file_document_plus" />
                         </IconButton>
                       )}
-                      {exists(value) && (onEdit || onDelete || onRemove || onSet || onUnset) && !readOnly && (
+                      {exists(value) && (onEdit || onDelete || onRemove || onSet || onUnset) && (
                         <IconButton className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
@@ -232,8 +232,8 @@ export const AggregationInput = ({
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
               <MenuList id={`${name}-menu`} autoFocusItem>
-                {exists(value) && onSet && (
-                  <MenuItem className={`${name}-set`} disabled={disabled || readOnly} onClick={ (event: any) => { handleDropdownClose(event); onSet(); } }>
+                {exists(value) && onSet && !readOnly && (
+                  <MenuItem className={`${name}-set`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onSet(); } }>
                     <MdiIcon path="magnify" sx={ { mr: 2 } } />
                     {t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string}
                   </MenuItem>
@@ -250,13 +250,13 @@ export const AggregationInput = ({
                     {t('judo.component.AggregationInput.delete', { defaultValue: 'Delete' }) as string}
                   </MenuItem>
                 )}
-                {exists(value) && onRemove && (
+                {exists(value) && onRemove && !readOnly && (
                   <MenuItem className={`${name}-remove`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onRemove(); } }>
                     <MdiIcon path="link_off" sx={ { mr: 2 } } />
                     {t('judo.component.AggregationInput.remove', { defaultValue: 'Remove' }) as string}
                   </MenuItem>
                 )}
-                {exists(value) && onUnset && (
+                {exists(value) && onUnset && !readOnly && (
                   <MenuItem className={`${name}-unset`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onUnset(); } }>
                     <MdiIcon path="link_off" sx={ { mr: 2 } } />
                     {t('judo.component.AggregationInput.unset', { defaultValue: 'Unset' }) as string}

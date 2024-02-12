@@ -15,7 +15,7 @@
         >
     {{/ if }}
     <{{ componentName child }}
-        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.dataElement.isReadOnly }} }
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} false }
         readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() }
         ownerData={data}
         editMode={editMode}
