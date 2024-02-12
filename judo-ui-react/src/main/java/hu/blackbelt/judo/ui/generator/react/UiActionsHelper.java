@@ -23,8 +23,6 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
-import hu.blackbelt.judo.meta.ui.data.impl.DataElementImpl;
-import jdk.dynalink.Operation;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
@@ -52,6 +50,16 @@ public class UiActionsHelper {
                 .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition)
                 .collect(Collectors.toSet());
 
+        List<Flex> allFlex = new ArrayList<>();
+        collectElementsOfType(container, allFlex, Flex.class);
+
+        Set<ActionDefinition> flexActionDefinitions = allFlex.stream()
+                .filter(f -> f.getActionButtonGroup() != null)
+                .flatMap(g -> g.getActionButtonGroup().getButtons().stream())
+                .map(Button::getActionDefinition)
+                .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition)
+                .collect(Collectors.toSet());
+
         List<Button> buttons = new ArrayList<>();
         collectElementsOfType(container, buttons, Button.class);
 
@@ -61,6 +69,7 @@ public class UiActionsHelper {
         SortedSet<ActionDefinition> sorted = new TreeSet<>(Comparator.comparing(NamedElement::getFQName));
 
         sorted.addAll(actionDefinitions);
+        sorted.addAll(flexActionDefinitions);
 
         return sorted;
     }
