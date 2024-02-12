@@ -31,7 +31,7 @@ import type {
   GridRowParams,
   GridValidRowModel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
-import { baseColumnConfig, baseTableConfig, basePageSizeOptions } from '~/config';
+import { baseColumnConfig, baseTableConfig, basePageSizeOptions{{# unless table.isEager }}, filterDebounceMs{{/ unless }} } from '~/config';
 import { MdiIcon{{# unless table.isEager }}, CustomTablePagination{{/ unless }} } from '~/components';
 import {
   {{# if (tableHasBooleanColumn table) }}booleanColumnOperators,{{/ if }}
@@ -711,6 +711,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         paginationMode="server"
         sortingMode="server"
         filterMode="server"
+        filterDebounceMs={filterDebounceMs}
         rowCount={rowsPerPage}
         {{/ unless }}
         components={ {
