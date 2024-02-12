@@ -37,7 +37,7 @@ import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHe
 @TemplateHelper
 public class UiImportHelper {
     private static final Map<String, Set<String>> muiMaterialWidgetImportPairs = Map.ofEntries(
-            Map.entry("actiongroup", Set.of("Button")),
+            Map.entry("buttongroup", Set.of("Button", "ButtonGroup", "IconButton")),
             Map.entry("binarytypeinput", Set.of("TextField", "InputAdornment", "Button", "ButtonGroup")),
             Map.entry("button", Set.of("Button")),
             Map.entry("dateinput", Set.of("InputAdornment")),
@@ -47,6 +47,7 @@ public class UiImportHelper {
             Map.entry("enumerationradio", Set.of("RadioGroup", "FormControlLabel", "Radio", "FormControl", "FormHelperText", "InputLabel")),
             Map.entry("formatted", Set.of("Typography")),
             Map.entry("label", Set.of("Typography")),
+            Map.entry("flex", Set.of("Typography")),
             Map.entry("link", Set.of()),
             Map.entry("numericinput", Set.of("TextField", "InputAdornment")),
             Map.entry("spacer", Set.of()),

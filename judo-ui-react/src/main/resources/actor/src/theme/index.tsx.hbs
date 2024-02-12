@@ -120,6 +120,9 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
         styleOverrides: {
           root: {
             fontSize: `${density.fontSize}rem`,
+            '.MuiIconButton-root': {
+              color: paletteTheme.palette.secondary.main,
+            },
           },
         },
       },
@@ -192,12 +195,6 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
         },
       },
       MuiIconButton: {
-        styleOverrides: {
-          root: {
-            color: paletteTheme.palette.secondary.main,
-            padding: paletteTheme.spacing(1),
-          },
-        },
         defaultProps: {
           size: density.buttonSize,
         },

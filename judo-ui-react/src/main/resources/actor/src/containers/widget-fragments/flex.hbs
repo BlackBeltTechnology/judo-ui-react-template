@@ -14,7 +14,47 @@
     {{# if this.card }}
         <Card id="{{ getXMIID this }}" data-name="{{ this.name }}">
             <CardContent>
-                <Grid container direction="row" alignItems="stretch" justifyContent="flex-start" spacing={2}>
+                <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                    {{# or this.icon this.label }}
+                    <Grid item>
+                        <Grid container direction="row" alignItems="center" justifyContent="flex-start">
+                        {{# if this.icon }}
+                            <MdiIcon path="{{ this.icon.iconName }}" sx={ { marginRight: 1 } } />
+                        {{/ if }}
+                        {{# if this.label }}
+                            <Typography id="{{ getXMIID this }}" variant="h5" component="h1">
+                                { t('{{ getTranslationKeyForVisualElement this }}', { defaultValue: '{{ this.label }}' }) }
+                            </Typography>
+                        {{/ if }}
+                        </Grid>
+                    </Grid>
+                    {{/ or }}
+                    {{# if this.actionButtonGroup }}
+                    <Grid item>
+                        <ButtonGroup size="small">
+                            {{# each this.actionButtonGroup.buttons as |button| }}
+                                {{# if button.hiddenBy }}{ actions.{{ simpleActionDefinitionName button.actionDefinition }} && !data.{{ button.hiddenBy.name }} && {{/ if }}
+                                    <IconButton
+                                        id="{{ getXMIID button }}"
+                                        {{# if (containerButtonHasDisabledConditions button container) }}
+                                        disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
+                                        {{/ if }}
+                                        title={ t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string }
+                                        color="primary"
+                                        onClick={ async () => {
+                                            {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button }}
+                                            await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
+                                        } }
+                                    >
+                                        <MdiIcon path="{{ button.icon.iconName }}" />
+                                    </IconButton>
+                                {{# if button.hiddenBy }} } {{/ if }}
+                            {{/ each }}
+                        </ButtonGroup>
+                    </Grid>
+                    {{/ if }}
+                </Grid>
+                <Grid container direction="{{# if this.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
                     {{# each this.children as |child| }}
                         {{# if child }}
                             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}

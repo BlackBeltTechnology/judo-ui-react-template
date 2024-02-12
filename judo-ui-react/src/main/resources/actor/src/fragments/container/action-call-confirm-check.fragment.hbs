@@ -1,0 +1,11 @@
+{{# if button.confirmation }}
+  const result = await openConfirmDialog(
+    '{{ getXMIID button }}',
+    t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
+    t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+  );
+
+  if (!result) {
+    return;
+  }
+{{/ if }}
