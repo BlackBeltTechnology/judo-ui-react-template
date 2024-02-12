@@ -327,4 +327,8 @@ public class UiPageContainerHelper {
 
         return String.join(" || ", segments);
     }
+
+    public static boolean cardHasHeaderContent(Flex flex) {
+        return flex.getIcon() != null || (flex.getLabel() != null && !flex.getLabel().trim().isEmpty()) || flex.getActionButtonGroup() != null;
+    }
 }
