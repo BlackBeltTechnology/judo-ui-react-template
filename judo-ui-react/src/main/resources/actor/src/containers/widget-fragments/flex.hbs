@@ -14,7 +14,8 @@
     {{# if this.card }}
         <Card id="{{ getXMIID this }}" data-name="{{ this.name }}">
             <CardContent>
-                <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2}>
+                {{# if (cardHasHeaderContent this) }}
+                <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2} sx={ { mb: 2 } }>
                     {{# or this.icon this.label }}
                     <Grid item>
                         <Grid container direction="row" alignItems="center" justifyContent="flex-start">
@@ -33,7 +34,7 @@
                     <Grid item>
                         <ButtonGroup size="small">
                             {{# each this.actionButtonGroup.buttons as |button| }}
-                                {{# if button.hiddenBy }}{ actions.{{ simpleActionDefinitionName button.actionDefinition }} && !data.{{ button.hiddenBy.name }} && {{/ if }}
+                                { actions.{{ simpleActionDefinitionName button.actionDefinition }}{{# if button.hiddenBy }} && !data.{{ button.hiddenBy.name }}{{/ if }} &&
                                     <IconButton
                                         id="{{ getXMIID button }}"
                                         {{# if (containerButtonHasDisabledConditions button container) }}
@@ -48,12 +49,13 @@
                                     >
                                         <MdiIcon path="{{ button.icon.iconName }}" />
                                     </IconButton>
-                                {{# if button.hiddenBy }} } {{/ if }}
+                                }
                             {{/ each }}
                         </ButtonGroup>
                     </Grid>
                     {{/ if }}
                 </Grid>
+                {{/ if }}
                 <Grid container direction="{{# if this.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
                     {{# each this.children as |child| }}
                         {{# if child }}
