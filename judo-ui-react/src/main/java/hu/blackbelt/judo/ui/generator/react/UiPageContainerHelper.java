@@ -153,8 +153,6 @@ public class UiPageContainerHelper {
             tokens.add("(actions?.is" + safeName(button) + "Hidden ? !actions?.is" + safeName(button) + "Hidden(data, editMode) : !data." + button.getHiddenBy().getName() + ")");
         } else if (button.getPageContainer().isForm()) {
             tokens.add("editMode");
-        } else if (button.getActionDefinition().getIsCancelAction() || button.getActionDefinition().getIsUpdateAction()) {
-            tokens.add("editMode");
         } else {
             tokens.add("!editMode");
         }
