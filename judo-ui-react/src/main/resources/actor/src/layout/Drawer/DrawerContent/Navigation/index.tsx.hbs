@@ -15,6 +15,7 @@ import { NavGroup } from './NavGroup';
 import { NavItem } from './NavItem';
 import { menus } from './menu-items';
 import { NavItemType } from './NavItem';
+import { ScrollableMenu } from './ScrollableMenu';
 
 export const Navigation = () => {
   const theme = useTheme();
@@ -79,9 +80,11 @@ export const Navigation = () => {
         pt: !miniDrawer ? (isHorizontal ? 0 : 2) : 0,
         '& > ul:first-of-type': { mt: 0 },
         display: isHorizontal ? { xs: 'block', lg: 'flex' } : 'block',
+        width: isHorizontal ? { xs: undefined, lg: '100%' } : undefined,
+        justifyContent: isHorizontal ? 'center' : undefined,
       } }
     >
-      {navGroups}
+      {isHorizontal ? <ScrollableMenu>{navGroups}</ScrollableMenu> : navGroups}
     </Box>
   );
 };
