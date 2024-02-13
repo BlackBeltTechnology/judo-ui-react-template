@@ -183,6 +183,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const apiRef = useGridApiRef();
   const filterModelKey = `{{ createId table }}-${uniqueId}-filterModel`;
   const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
+  const rowsPerPageKey = `{{ createId table }}-${uniqueId}-rowsPerPage`;
   {{# if isMUILicensePlanPro }}
   const columnStateKey = `{{ createId table }}-${uniqueId}-columnState`;
   {{/ if }}
@@ -226,7 +227,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{# if isMUILicensePlanPro }}
   const [columnState, setColumnState] = useState<PersistedColumnInfo[]>(getItemParsedWithDefault(columnStateKey, []));
   {{/ if }}
-  const [rowsPerPage, setRowsPerPage] = useState<number>({{ calculateTablePageLimit table }});
+  const [rowsPerPage, setRowsPerPage] = useState<number>(getItemParsedWithDefault(rowsPerPageKey, {{ calculateTablePageLimit table }}));
   const [paginationModel, setPaginationModel] = useState({
     pageSize: rowsPerPage,
     page: 0,
@@ -392,6 +393,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
 
   const setPageSize = useCallback((newValue: number) => {
     setRowsPerPage(newValue);
+    setItemStringified(rowsPerPageKey, newValue);
     {{# unless table.isEager }}
       setPage(0);
     {{ else }}
