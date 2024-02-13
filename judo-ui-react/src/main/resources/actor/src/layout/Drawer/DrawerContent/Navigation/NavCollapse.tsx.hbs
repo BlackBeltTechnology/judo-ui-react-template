@@ -17,7 +17,7 @@ import Popper from '@mui/material/Popper';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useConfig } from '~/hooks';
-import { MenuOrientation, ThemeMode } from '~/config';
+import { MenuOrientation, ThemeMode, SUBMENU_MIN_WIDTH } from '~/config';
 import { MdiIcon, SimpleBar } from '~/components';
 import { NavItem } from './NavItem';
 import { Transitions } from '../../../Transitions';
@@ -31,7 +31,7 @@ type VirtualElement = {
 const PopperStyled = styled(Popper)(({ theme }) => ({
   overflow: 'visible',
   zIndex: 1202,
-  minWidth: 180,
+  minWidth: SUBMENU_MIN_WIDTH,
   '&:before': {
     content: '""',
     display: 'block',
