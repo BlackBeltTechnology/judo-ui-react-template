@@ -64,19 +64,19 @@ public class UiWidgetHelper {
         return false;
     }
 
-    private static Boolean isParentStretch(EObject element) {
-        if (element.eContainer() instanceof VisualElement) {
-            VisualElement parent = (VisualElement) element.eContainer();
-            return parent.getStretch().equals(Stretch.HORIZONTAL) || parent.getStretch().equals(Stretch.BOTH);
-        }
-        return false;
+    public static Boolean isParentStretchVertical(VisualElement element) {
+        return element.eContainer() instanceof Flex parent && (parent.getStretch().equals(Stretch.BOTH) || parent.getDirection().equals(Axis.HORIZONTAL) && alignItems(parent).equals("stretch"));
     }
 
     public static String alignItems(Flex flex) {
         CrossAxisAlignment alignment = flex.getCrossAxisAlignment();
         Stretch stretch = flex.getStretch();
 
-        if (stretch.equals(Stretch.BOTH) || (stretch.equals(Stretch.HORIZONTAL) && flex.getDirection().equals(Axis.VERTICAL)) || (stretch.equals(Stretch.VERTICAL) && flex.getDirection().equals(Axis.HORIZONTAL))) {
+        if (stretch.equals(Stretch.BOTH) || alignment.equals(CrossAxisAlignment.STRETCH)) {
+            return "stretch";
+        } else if (flex.getDirection().equals(Axis.VERTICAL) && stretch.equals(Stretch.HORIZONTAL)) {
+            return "stretch";
+        } else if (flex.getDirection().equals(Axis.HORIZONTAL) && stretch.equals(Stretch.VERTICAL)) {
             return "stretch";
         }
 

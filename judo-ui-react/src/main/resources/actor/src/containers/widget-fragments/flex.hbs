@@ -12,7 +12,7 @@
         >
     {{/ if }}
     {{# if this.card }}
-        <Card id="{{ getXMIID this }}" data-name="{{ this.name }}">
+        <Card id="{{ getXMIID this }}" data-name="{{ this.name }}" {{# if (isParentStretchVertical this) }}sx={ { height: '100%' } }{{/ if }}>
             <CardContent>
                 {{# if (cardHasHeaderContent this) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2} sx={ { mb: 2 } }>
