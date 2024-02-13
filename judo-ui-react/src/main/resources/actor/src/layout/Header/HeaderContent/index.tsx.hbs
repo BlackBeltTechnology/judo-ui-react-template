@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 import type { Theme } from '@mui/material/styles';
-import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useConfig } from '~/hooks';
 import { MenuOrientation } from '~/config';
@@ -11,6 +11,7 @@ import { Profile } from './Profile';
 import { MobileSection } from './MobileSection';
 import { DrawerHeader } from '../../Drawer/DrawerHeader';
 import { Customization } from './Customization';
+import { HorizontalBar } from '~/layout/Drawer/HorizontalBar';
 
 export const HeaderContent = () => {
   const { /*i18n, */menuOrientation } = useConfig();
@@ -18,16 +19,27 @@ export const HeaderContent = () => {
   const downLG = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
 
   return (
-    <>
-      {menuOrientation === MenuOrientation.HORIZONTAL && !downLG && <DrawerHeader open={true} />}
-      <Box sx={ { flex: 'auto' } } />
-      {downLG && <Box sx={ { width: '100%', ml: 1 } } />}
-
-      <Customization />
-      {{# if application.authentication }}
-        {!downLG && <Profile />}
-      {{/ if }}
-      {downLG && <MobileSection />}
-    </>
+    <Grid container alignItems="center">
+      {menuOrientation === MenuOrientation.HORIZONTAL && !downLG && (
+        <Grid item xs={2}>
+          <DrawerHeader open={true} />
+        </Grid>
+      )}
+      {!downLG && menuOrientation === MenuOrientation.HORIZONTAL && (
+        <Grid item xs={8}>
+          <HorizontalBar />
+        </Grid>
+      )}
+      {(downLG || menuOrientation !== MenuOrientation.HORIZONTAL) && <Grid item xs={10} />}
+      <Grid item xs={2}>
+        <Grid container justifyContent="flex-end">
+          <Customization />
+          {{# if application.authentication }}
+            {!downLG && <Profile />}
+          {{/ if }}
+          {downLG && <MobileSection />}
+        </Grid>
+      </Grid>
+    </Grid>
   );
 };
