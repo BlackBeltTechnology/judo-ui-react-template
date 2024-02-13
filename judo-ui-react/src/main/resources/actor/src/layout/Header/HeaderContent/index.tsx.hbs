@@ -21,17 +21,17 @@ export const HeaderContent = () => {
   return (
     <Grid container alignItems="center">
       {menuOrientation === MenuOrientation.HORIZONTAL && !downLG && (
-        <Grid item xs={3}>
+        <Grid item xs={2}>
           <DrawerHeader open={true} />
         </Grid>
       )}
       {!downLG && menuOrientation === MenuOrientation.HORIZONTAL && (
-        <Grid item xs={6}>
+        <Grid item xs={8}>
           <HorizontalBar />
         </Grid>
       )}
-      {(downLG || menuOrientation !== MenuOrientation.HORIZONTAL) && <Grid item xs={9} />}
-      <Grid item xs={3}>
+      {(downLG || menuOrientation !== MenuOrientation.HORIZONTAL) && <Grid item xs={10} />}
+      <Grid item xs={2}>
         <Grid container justifyContent="flex-end">
           <Customization />
           {{# if application.authentication }}
