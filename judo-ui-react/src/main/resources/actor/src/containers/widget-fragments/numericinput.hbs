@@ -21,6 +21,7 @@
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         customInput={TextField}
         value={ data.{{ child.attributeType.name }} ?? '' }
+        formatValue={ {{ boolValue child.formatValue }} }
         {{# if child.attributeType.dataType.scale }}
             decimalScale={ {{ child.attributeType.dataType.scale }} }
         {{/if}}
