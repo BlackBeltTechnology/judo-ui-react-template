@@ -25,7 +25,14 @@ filterOperators: booleanColumnOperators,
 {{/ if }}
 {{# if (isColumnNumeric column) }}
 valueFormatter: ({ value }: GridValueFormatterParams<number>) => {
-  return value && new Intl.NumberFormat(l10nLocale).format(value);
+  if (value === null || value === undefined) {
+    return '';
+  }
+  {{# if column.formatValue }}
+  return new Intl.NumberFormat(l10nLocale).format(value);
+  {{ else }}
+  return value;
+  {{/ if }}
 },
 {{# if isUseInlineColumnFilters }}
 filterOperators: numericColumnOperators,
