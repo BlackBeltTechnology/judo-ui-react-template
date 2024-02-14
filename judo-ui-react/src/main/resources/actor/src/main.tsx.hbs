@@ -30,6 +30,7 @@ import App from './App';
 import { routes } from './routes';
 import { RootErrorBoundary } from './components/RootErrorBoundary';
 import { ConfigProvider, ViewDataProvider } from './hooks';
+import { loadProgressBar, progressGlobalStyles } from './Progress';
 
 {{# if isMUILicensed }}
     LicenseInfo.setLicenseKey(import.meta.env.VITE_MUI_LICENSE_KEY);
@@ -53,6 +54,10 @@ const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL
     await pandino.start();
 
     await applicationCustomizer.customize(pandino.getBundleContext());
+
+    loadProgressBar({
+      showSpinner: false,
+    }, axios);
 
     judoAxiosProvider.init({
         axios,
@@ -88,6 +93,7 @@ const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL
 
     root.render(
         <StrictMode>
+            {progressGlobalStyles}
             <ConfigProvider>
                 <ThemeCustomization>
                     <PandinoProvider ctx={pandino.getBundleContext()}>
