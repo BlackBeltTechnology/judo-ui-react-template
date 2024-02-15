@@ -130,6 +130,9 @@ public class UiI18NHelper {
     }
 
     public static String getTranslationKeyForVisualElement(VisualElement element) {
+        if (hasSystemTranslation(element)) {
+            return getSystemTranslationForVisualElement(element);
+        }
         if (element instanceof PageContainer) {
             return element.getName().replaceAll("::", ".");
         }
@@ -151,6 +154,60 @@ public class UiI18NHelper {
             }
         }
         return bare.replaceAll("::", ".");
+    }
+
+    private static String getSystemTranslationForVisualElement(VisualElement visualElement) {
+        if (visualElement instanceof Button button) {
+            ActionDefinition ad = button.getActionDefinition();
+            if (ad.getIsAddAction()) {
+                return "judo.action.add";
+            } else if (ad.getIsClearAction()) {
+                return "judo.action.clear";
+            } else if (ad.getIsCreateAction()) {
+                return "judo.action.create";
+            } else if (ad.getIsBackAction()) {
+                return "judo.action.back";
+            } else if (ad.getIsCancelAction()) {
+                return "judo.action.cancel";
+            } else if (ad.getIsSetAction()) {
+                return "judo.action.set";
+            } else if (ad.getIsUpdateAction()) {
+                return "judo.action.update";
+            } else if (ad.getIsDeleteAction()) {
+                return "judo.action.delete";
+            } else if (ad.getIsRemoveAction()) {
+                return "judo.action.remove";
+            } else if (ad.getIsFilterAction()) {
+                return "judo.action.filter";
+            } else if (ad.getIsFilterRelationAction()) {
+                return "judo.action.filter";
+            } else if (ad.getIsRefreshAction()) {
+                return "judo.action.refresh";
+            } else if (ad.getIsRefreshRelationAction()) {
+                return "judo.action.refresh";
+            } else if (ad.getIsSelectorRangeAction()) {
+                return "judo.action.refresh";
+            } else if (ad.getIsBulkDeleteAction()) {
+                return "judo.action.bulk-delete";
+            } else if (ad.getIsBulkRemoveAction()) {
+                return "judo.action.bulk-remove";
+            } else if (ad.getIsExportAction()) {
+                return "judo.action.export";
+            } else if (ad.getIsOpenPageAction()) {
+                return "judo.action.open-page";
+            } else if (ad.getIsOpenCreateFormAction()) {
+                return "judo.action.open-create-form";
+            } else if (ad.getIsOpenAddSelectorAction()) {
+                return "judo.action.open-add-selector";
+            } else if (ad.getIsOpenSetSelectorAction()) {
+                return "judo.action.open-set-selector";
+            } else {
+                throw new RuntimeException("Unsupported system translation for Button: " + button.getFQName());
+            }
+        } else if (visualElement instanceof ButtonGroup buttonGroup) {
+            return "judo.pages.actions";
+        }
+        throw new RuntimeException("Unsupported system visual element: " + visualElement.getFQName());
     }
 
     private static boolean tokenNeedsPrefix(VisualElement visualElement) {
@@ -195,6 +252,9 @@ public class UiI18NHelper {
             collectVisualElementsMatchingCondition(container, (v) -> !(v instanceof Flex), visualElements);
 
             visualElements.forEach(v -> {
+                if (hasSystemTranslation(v)) {
+                    return;
+                }
                 translations.put(getTranslationKeyForVisualElement(v), v.getLabel());
                 if (v instanceof Button button && button.getConfirmation() != null) {
                     translations.put(getTranslationKeyForVisualElement(v) + ".confirmation", button.getConfirmation().getConfirmationMessage());
@@ -210,11 +270,17 @@ public class UiI18NHelper {
                     });
                     if (table.getTableActionButtonGroup() != null) {
                         table.getTableActionButtonGroup().getButtons().forEach(b -> {
+                            if (hasSystemTranslation(b)) {
+                                return;
+                            }
                             translations.put(getTranslationKeyForVisualElement(b), b.getLabel());
                         });
                     }
                     if (table.getRowActionButtonGroup() != null) {
                         table.getRowActionButtonGroup().getButtons().forEach(b -> {
+                            if (hasSystemTranslation(b)) {
+                                return;
+                            }
                             translations.put(getTranslationKeyForVisualElement(b), b.getLabel());
                         });
                     }
@@ -232,6 +298,9 @@ public class UiI18NHelper {
                     translations.put(getTranslationKeyForVisualElement(buttonGroup), buttonGroup.getLabel());
 
                     buttonGroup.getButtons().forEach(button -> {
+                        if (hasSystemTranslation(button)) {
+                            return;
+                        }
                         translations.put(getTranslationKeyForVisualElement(button), button.getLabel());
                     });
                 }
@@ -267,5 +336,39 @@ public class UiI18NHelper {
 
     public static String defaultLabelForBulkAction(Action action) {
         return translationElementForBulkAction(action).getLabel();
+    }
+
+    private static boolean hasSystemTranslation(VisualElement visualElement) {
+        if (visualElement instanceof Button button) {
+            ActionDefinition ad = button.getActionDefinition();
+            if (ad.getIsCustomAction()) {
+                return false;
+            }
+            return ad.getIsAddAction()
+                    || ad.getIsClearAction()
+                    || ad.getIsCreateAction()
+                    || ad.getIsBackAction()
+                    || ad.getIsCancelAction()
+                    || ad.getIsSetAction()
+                    || ad.getIsUpdateAction()
+                    || ad.getIsDeleteAction()
+                    || ad.getIsRemoveAction()
+                    || ad.getIsFilterAction()
+                    || ad.getIsFilterRelationAction()
+                    || ad.getIsRefreshAction()
+                    || ad.getIsRefreshRelationAction()
+                    || ad.getIsSelectorRangeAction()
+                    || ad.getIsSetAction()
+                    || ad.getIsBulkRemoveAction()
+                    || ad.getIsBulkDeleteAction()
+                    || ad.getIsOpenPageAction()
+                    || ad.getIsOpenCreateFormAction()
+                    || ad.getIsOpenAddSelectorAction()
+                    || ad.getIsOpenSetSelectorAction()
+                    || ad.getIsExportAction();
+        } else if (visualElement instanceof ButtonGroup buttonGroup) {
+            return buttonGroup.getFQName().endsWith("::PageActions");
+        }
+        return false;
     }
 }
