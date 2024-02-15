@@ -38,59 +38,29 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       );
     } else {
       showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
-      {{# if page.container.form }}
-        {{# if operation.output }}
-          if (result) {
-            {{# if (isActionOutputMapped action) }}
-            {{# if page.openInDialog }}onClose();{{/ if }}
-            {{# if action.targetPageDefinition.openInDialog }}
-              await open{{ pageName action.targetPageDefinition }}(result);
-            {{ else }}
-              navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
-            {{/ if }}
-            {{ else }}
-            onSubmit(result);
-            {{/ if }}
-          } else {
-            onSubmit();
-          }
-        {{ else }}
-          onSubmit();
-        {{/ if }}
+
+      {{# if page.openInDialog }}
+        onSubmit({{# if operation.output }}result{{/ if }});
       {{ else }}
-        {{# if operation.output }}
-          {{# unless page.container.isSelector }}
-            {{# unless action.targetDataElement.output.target.isMapped }}
-                await open{{ pageName action.targetPageDefinition }}({{# if page.container.view }}data{{ else }}null{{/ if }}, result);
-            {{/ unless }}
-          {{/ unless }}
+        {{# if (allowRefreshAfterOperationCall action) }}
+          {{# if page.container.table }}
+            setRefreshCounter((prev) => prev + 1);
+          {{/ if }}
+          {{# if page.container.view }}
+            if (!editMode) {
+              {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+                await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+              {{/ with }}
+            }
+          {{/ if }}
         {{/ if }}
       {{/ if }}
-      {{# if page.container.view }}
-        if (!editMode) {
-          {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-            await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-          {{/ with }}
-        }
-      {{/ if }}
-      {{# if page.container.table }}
-        {{# if page.container.isSelector }}
-          {{# if operation.output }}
-            if (result) {
-              {{# if (isActionOutputMapped action) }}
-              {{# if page.openInDialog }}onClose();{{/ if }}
-              navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
-              {{ else }}
-              onSubmit(result);
-              {{/ if }}
-            } else {
-              onSubmit();
-            }
-          {{ else }}
-            onSubmit(selectionDiff);
-          {{/ if }}
+
+      {{# if operation.output }}
+        {{# if action.targetPageDefinition.openInDialog }}
+          await open{{ pageName action.targetPageDefinition }}({{# if page.container.view }}data{{ else }}null{{/ if }}, result);
         {{ else }}
-          setRefreshCounter((prev) => prev + 1);
+          navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
         {{/ if }}
       {{/ if }}
     }
