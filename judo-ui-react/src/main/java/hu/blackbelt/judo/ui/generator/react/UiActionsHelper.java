@@ -472,4 +472,17 @@ public class UiActionsHelper {
     public static boolean isRowActionCRUD(ActionDefinition actionDefinition) {
         return actionDefinition.getIsRemoveAction() || actionDefinition.getIsDeleteAction();
     }
+
+    public static boolean allowRefreshAfterOperationCall(Action action) {
+        if (action.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+            if (callOperationActionDefinition.getOperation().getOutput() == null) {
+                return true;
+            } else if (action.getTargetPageDefinition() == null || action.getTargetPageDefinition().isOpenInDialog()) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+        throw new RuntimeException("The allowRefreshAfterOperationCall helper received Action type which is not a CallOperationAction type: " + action.getFQName());
+    }
 }
