@@ -31,9 +31,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
   {{/ with }}
   if (openCreated && returnedData) {
     {{# with (getRowViewActionForCreateOpenAction action) as |rowViewAction| }}
-      {{# if rowViewAction.targetPageDefinition }}
-        await {{ simpleActionDefinitionName rowViewAction.actionDefinition }}(returnedData!);
-      {{/ if }}
+      await {{ simpleActionDefinitionName rowViewAction.actionDefinition }}(returnedData!);
     {{/ with }}
   }
 };

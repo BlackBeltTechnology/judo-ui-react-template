@@ -487,8 +487,12 @@ public class UiActionsHelper {
     }
 
     public static Action getRowViewActionForCreateOpenAction(Action action) {
+        PageDefinition pageDefinition = (PageDefinition) action.eContainer();
+        if (pageDefinition.getContainer().isTable() && ((RelationType) pageDefinition.getDataElement()).isIsAccess()) {
+            return ((PageDefinition) action.eContainer()).getActions().stream().filter(a -> a.getActionDefinition().getIsOpenPageAction()).findFirst().orElse(null);
+        }
         if (action.getActionDefinition().getIsOpenCreateFormAction()) {
-            return ((PageDefinition) action.eContainer()).getActions().stream()
+            return pageDefinition.getActions().stream()
                     .filter(t -> t.getActionDefinition().getIsOpenPageAction() && t.getTargetDataElement() != null && t.getTargetDataElement().equals(action.getTargetDataElement()))
                     .findFirst()
                     .orElse(null);
