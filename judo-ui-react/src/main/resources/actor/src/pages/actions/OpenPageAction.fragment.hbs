@@ -55,7 +55,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
       {{/ if }}
       navigate(routeTo{{ pageName action.targetPageDefinition }}({{# if (pageHasSignedId action.targetPageDefinition) }}((target as {{ classDataName action.actionDefinition.targetType 'Stored' }}){{# if page.container.view }} || data{{ else }}!{{/ if }}).__signedIdentifier{{/ if }}));
       {{# if page.openInDialog }}
-        onClose();
+        onSubmit();
       {{/ if }}
     {{ else }}
       // There was no .targetPageDefinition for this action. Target Page is most likely empty in the model!

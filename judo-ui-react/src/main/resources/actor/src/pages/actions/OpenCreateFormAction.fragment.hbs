@@ -1,5 +1,5 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}isDraft?: boolean, ownerValidation?: (data: any) => Promise<void>) => {
-  const { result, data: returnedData } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
+  const { result, data: returnedData, openCreated } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
   {{# if page.container.isRelationSelector }}
     if (result === 'submit' && returnedData) {
       onSubmit([returnedData]);
@@ -29,4 +29,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       }
     {{/ if }}
   {{/ with }}
+  if (openCreated && returnedData) {
+    {{# with (getRowViewActionForCreateOpenAction action) as |rowViewAction| }}
+      {{# if rowViewAction.targetPageDefinition }}
+        await {{ simpleActionDefinitionName rowViewAction.actionDefinition }}(returnedData!);
+      {{/ if }}
+    {{/ with }}
+  }
 };

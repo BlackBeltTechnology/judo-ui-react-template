@@ -485,4 +485,14 @@ public class UiActionsHelper {
         }
         throw new RuntimeException("The allowRefreshAfterOperationCall helper received Action type which is not a CallOperationAction type: " + action.getFQName());
     }
+
+    public static Action getRowViewActionForCreateOpenAction(Action action) {
+        if (action.getActionDefinition().getIsOpenCreateFormAction()) {
+            return ((PageDefinition) action.eContainer()).getActions().stream()
+                    .filter(t -> t.getActionDefinition().getIsOpenPageAction() && t.getTargetDataElement() != null && t.getTargetDataElement().equals(action.getTargetDataElement()))
+                    .findFirst()
+                    .orElse(null);
+        }
+        return null;
+    }
 }

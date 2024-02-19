@@ -141,10 +141,11 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
                 result: 'close',
               });
             }}
-            onSubmit={async ({{# if (dialogHasResult page) }}result, {{/ if }}isDraft) => {
+            onSubmit={async (result, isDraft, openCreated) => {
               await closeDialog();
               resolve({
                 result: isDraft ? 'submit-draft' : 'submit',
+                openCreated,
                 {{# if (dialogHasResult page) }}
                 data: result,
                 {{/ if }}
@@ -173,9 +174,9 @@ export interface {{ pageName page }}Props {
   ownerValidation?: (data: {{ dialogBareDataType page }}) => Promise<void>;
   onClose: () => Promise<void>;
   {{# if (pageHasOutputTarget page) }}
-  onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, isDraft?: boolean) => Promise<void>;
+  onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>;
   {{ else }}
-  onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean) => Promise<void>;
+  onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>;
   {{/ if }}
 }
 
