@@ -101,7 +101,7 @@ export default function {{ containerComponentName container }}(props: {{ contain
     // Pandino Container Action overrides
     const { service: customContainerHook } = useTrackService<{{ containerComponentName container }}ContainerHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY})`);
     const containerActions: {{ pageContainerActionDefinitionTypeName container }} = customContainerHook?.({{# unless container.table }}data, editMode, storeDiff{{/ unless }}) || {};
-    const actions = useMemo(() => ({...containerActions, ...pageActions}), [containerActions, pageActions]);
+    const actions = useMemo(() => ({ ...pageActions, ...containerActions }), [pageActions, containerActions]);
     {{# if container.form }}
     const autoFocusInputRef = useRef<any>(null);
 
