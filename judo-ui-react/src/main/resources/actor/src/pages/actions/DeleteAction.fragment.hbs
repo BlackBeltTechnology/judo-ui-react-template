@@ -43,6 +43,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         handleError(error, undefined, data);
       {{/ if }}
     {{# if action.actionDefinition.isBulkCapable }}
+    } else {
+      throw error;
     }
     {{/ if }}
   }
