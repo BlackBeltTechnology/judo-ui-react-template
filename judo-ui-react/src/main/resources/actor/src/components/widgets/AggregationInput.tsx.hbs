@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import Autocomplete from '@mui/material/Autocomplete';
+import Autocomplete, { type AutocompleteInputChangeReason } from '@mui/material/Autocomplete';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Box from '@mui/material/Box';
@@ -105,8 +105,8 @@ export const AggregationInput = ({
 
   const onInputChange = useMemo(
     () => debounce(
-    (event: any, value: string) => {
-      if (allowFetch) {
+    (event: any, value: string, reason: AutocompleteInputChangeReason) => {
+      if (allowFetch && reason !== 'reset') {
         handleSearch(value);
       }
     },
