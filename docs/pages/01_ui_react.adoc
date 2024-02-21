@@ -346,6 +346,43 @@ export const CustomGalaxies = () => {
 };
 ----
 
+=== Manipulating the generated menu structure
+
+If for whatever reason the generated menu structure needs to be adjusted, we can use the `MenuItemsCustomizerHook` to
+freely mutate it.
+
+*Example:*
+
+__src/custom/application-customizer.tsx__
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { MENU_ITEMS_CUSTOMIZER_HOOK_INTERFACE_KEY, MenuItemsCustomizerHook } from '~/layout/Drawer/DrawerContent/Navigation';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<MenuItemsCustomizerHook>(MENU_ITEMS_CUSTOMIZER_HOOK_INTERFACE_KEY, () => {
+      return (menuItems) => {
+        return [
+          ...menuItems,
+          {
+            id: 'external:wow',
+            type: 'item',
+            url: 'http://localhost:5174/#/Actors/Actor/BoxSingleRelations/AccessTablePage',
+            icon: 'pin',
+            title: 'Single',
+            children: [],
+          }
+        ];
+      };
+    });
+  }
+}
+----
+
+Please keep in mind, that `hiddenBy` rules will still be applied to menu items and groups later.
+
 === Implementing the localization loader
 
 The localization loader is responsible for loading the translations for the application.
