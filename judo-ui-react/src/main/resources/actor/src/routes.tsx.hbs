@@ -5,8 +5,15 @@ import type { ReactElement } from 'react';
 import { lazy, Suspense } from 'react';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
+import { Redirect } from './pages/Redirect';
 
 let routes: Array<{path: string, element: ReactElement, exact?: boolean}> = [];
+
+routes.push({
+    path: '_redirect',
+    exact: true,
+    element: <Redirect />,
+});
 
 {{# each (getPagesForRouting application) as |page| }}
     {{# if page.dashboard }}
