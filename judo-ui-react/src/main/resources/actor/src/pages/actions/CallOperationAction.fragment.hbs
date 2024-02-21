@@ -40,9 +40,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
 
       {{# if page.openInDialog }}
-        {{# if page.container.form }}
+        {{# or page.container.form page.container.isSelector }}
           onSubmit({{# if operation.output }}result{{/ if }});
-        {{/ if }}
+        {{/ or }}
       {{ else }}
         {{# if (allowRefreshAfterOperationCall action) }}
           {{# if page.container.table }}
