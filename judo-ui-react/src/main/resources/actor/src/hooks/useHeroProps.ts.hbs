@@ -1,8 +1,13 @@
 {{> fragment.header.hbs }}
 
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
 {{# if application.authentication }}
   import { getUser } from '../auth';
 {{/ if }}
+
+export const CUSTOM_HERO_PROPS_HOOK_INTERFACE_KEY = 'CustomHeroPropsHook';
+export type CustomHeroPropsHook = () => (defaults: UseHeroProps) => UseHeroProps;
 
 export interface UseHeroProps {
   imgSrc: string;
@@ -15,8 +20,7 @@ export function useHeroProps(): UseHeroProps {
   {{# if application.authentication }}
     const { profile } = getUser();
   {{/ if }}
-
-  return {
+  const defaults: UseHeroProps = {
     imgSrc: 'ninja.png',
     actorName: '{{ application.actor.simpleName }}',
     {{# if application.authentication }}
@@ -24,4 +28,8 @@ export function useHeroProps(): UseHeroProps {
       email: profile?.email,
     {{/ if }}
   };
+  const { service: useCustomHeroProps } = useTrackService<CustomHeroPropsHook>(`(${OBJECTCLASS}=${CUSTOM_HERO_PROPS_HOOK_INTERFACE_KEY})`);
+  const getCustomHeroProps = useCustomHeroProps && useCustomHeroProps();
+
+  return getCustomHeroProps ? getCustomHeroProps(defaults) : defaults;
 }

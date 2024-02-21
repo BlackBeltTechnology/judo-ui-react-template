@@ -529,6 +529,37 @@ triggers an exception!
 > Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
   the use-case above.
 
+=== Implementing the default Dashboard
+
+If not modelled, every application gets a fallback/default Dashboard page with a simple greeting.
+
+This page can be customized/replaced similarly how we customize other components.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import type { FC } from 'react';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from './custom-element-types';
+import { DASHBOARD_PAGE_INTERFACE_KEY } from '~/pages/God/DashboardPage';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    // notice the service property "component"
+    context.registerService<FC>(CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, CustomDashboard, {
+      'component': DASHBOARD_PAGE_INTERFACE_KEY,
+    });
+  }
+}
+
+const CustomDashboard: FC = () => {
+  return (
+    <h1>Our custom dashboard</h1>
+  );
+};
+----
+
 === Implementing custom columns
 
 When the "Custom Implementation" option is checked in the Designer for a column in a table, we get access to an API where
@@ -703,6 +734,74 @@ const customViewGalaxyViewActionsHook: ViewGalaxyViewActionsHook = (data, editMo
     },
   };
 };
+----
+
+=== Customizing the Hero Component
+
+Although the component itself does not have a hook, but the data model can be customized with a hook.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { CUSTOM_HERO_PROPS_HOOK_INTERFACE_KEY, CustomHeroPropsHook } from '~/hooks';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<CustomHeroPropsHook>(CUSTOM_HERO_PROPS_HOOK_INTERFACE_KEY, () => {
+      return (original) => ({
+        ...original,
+        imgSrc: 'custom-static-user-icon.png',
+      });
+    });
+  }
+}
+----
+
+=== Customizing the Logo Component
+
+This component also does not have a hook, but the data model can be customized with one.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { CUSTOM_LOGO_PROPS_HOOK_INTERFACE_KEY, CustomLogoPropsHook } from '~/hooks';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<CustomLogoPropsHook>(CUSTOM_LOGO_PROPS_HOOK_INTERFACE_KEY, () => {
+      return (original) => ({
+        ...original,
+        imgSrc: 'our-logo.png',
+      });
+    });
+  }
+}
+----
+
+=== Customizing the footer text
+
+We have a hook for this as per usual.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { FOOTER_TEXT_HOOK_INTERFACE_KEY, FooterTextHook } from '~/layout/Footer';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<FooterTextHook>(FOOTER_TEXT_HOOK_INTERFACE_KEY, () => {
+      return () => {
+        return 'hello - ' + new Date().getFullYear();
+      };
+    });
+  }
+}
 ----
 
 === (Global) Hotkey support
