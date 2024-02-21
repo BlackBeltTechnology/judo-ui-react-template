@@ -153,9 +153,6 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
   }, [queue, progress]);
 
   const mapErrors = (error: any): string => {
-    if (error?.response === undefined && error.message) {
-      return error.message;
-    }
     if (!error?.response?.status) {
       return t('judo.error.technical.no-status', { defaultValue: 'Could not determine the result(status) of the operation. Please contact with the system admins.' });
     }
