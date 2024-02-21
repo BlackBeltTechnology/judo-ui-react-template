@@ -137,6 +137,7 @@ export const AggregationInput = ({
           readOnly={effectiveReadOnly}
           onOpen={ () => {
             if (!readOnly) {
+              setOptions([]); // always start with a clean slate
               setAllowFetch(true);
               handleSearch('');
             }
