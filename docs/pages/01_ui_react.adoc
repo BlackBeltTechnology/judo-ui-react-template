@@ -92,6 +92,41 @@ The `useViewData()` hook can be used to obtain the latest view page/dialog's lat
 - getLatestViewData(): Returns the data for the last loaded View page/dialog.
 - setLatestViewData(): Used internally only to update the data. Should not be used in application code.
 
+=== RedirectServiceHook
+
+Generated application support a built in `Redirect` page in the router mapped to the `_redirect` route.
+
+This page expects a `RedirectServiceHook` implementation to be provided where developers have access to
+searchParams (`URLSearchParams`).
+
+__src/custom/application-customizer.tsx__
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { useJudoNavigation } from '~/components';
+import { REDIRECT_HOOK_INTERFACE_KEY, RedirectServiceHook } from '~/pages/Redirect';
+import { routeToDashboard } from '~/routes';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<RedirectServiceHook>(REDIRECT_HOOK_INTERFACE_KEY, redirectHook);
+  }
+}
+
+const redirectHook: RedirectServiceHook = () => {
+  const { navigate } = useJudoNavigation();
+
+  return async (searchParams) => {
+    console.log(searchParams);
+    // This wait is just for fun
+    window.setTimeout(() => {
+      navigate(routeToDashboard());
+    }, 2000);
+  };
+};
+----
+
 [WARN]
 ====
 If for whatever reason the data's owning View fails it's refresh request, the `getLatestViewData()` method return `null`
