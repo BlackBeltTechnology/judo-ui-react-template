@@ -1,9 +1,13 @@
 {{> fragment.header.hbs }}
 
 import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, useMemo, lazy, Suspense, createContext, useContext } from 'react';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+{{# if (containerIsEmptyDashboard page.container) }}
+  import { ComponentProxy } from '@pandino/react-hooks';
+  import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+{{/ if }}
 {{# unless (containerIsEmptyDashboard page.container) }}
   import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
-  import { OBJECTCLASS } from '@pandino/pandino-api';
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common';
   import type { JudoRestResponse } from '~/services/data-api/rest';
@@ -52,6 +56,10 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     import { {{ getServiceClassForPage page }} } from '~/services/data-axios/{{ getServiceClassForPage page }}';
   {{/ if }}
 {{/ unless }}
+
+{{# if (containerIsEmptyDashboard page.container) }}
+  export const DASHBOARD_PAGE_INTERFACE_KEY = 'DashboardPage';
+{{/ if }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
   export type {{ containerComponentName page.container }}PageActionsExtended = {{ containerComponentName page.container }}PageActions & {
@@ -311,7 +319,11 @@ export default function {{ pageName page }}() {
         </Suspense>
       </{{ containerComponentName page.container }}ViewModelContext.Provider>
     {{ else }}
-      <h1>Hello!</h1>
+      <ComponentProxy
+        filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${DASHBOARD_PAGE_INTERFACE_KEY}))`}
+      >
+        <h1>Hello!</h1>
+      </ComponentProxy>
     {{/ unless }}
   );
 }
