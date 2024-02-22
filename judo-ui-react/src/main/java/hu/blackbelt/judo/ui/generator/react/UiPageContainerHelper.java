@@ -329,6 +329,6 @@ public class UiPageContainerHelper {
     }
 
     public static boolean cardHasHeaderContent(Flex flex) {
-        return flex.getIcon() != null || (flex.getLabel() != null && !flex.getLabel().trim().isEmpty()) || flex.getActionButtonGroup() != null;
+        return (flex.getIcon() != null || (flex.getLabel() != null && !flex.getLabel().trim().isEmpty()) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
     }
 }
