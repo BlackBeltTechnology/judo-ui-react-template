@@ -612,6 +612,77 @@ const nakedEyeColumnCustomizerHook: ColumnCustomizerHook<ViewGalaxyStored> = () 
 
 ----
 
+=== Implementing a SidekickComponent for Tables
+
+Tables can have a "sidekick" component registered for them. These components will be mounted above the Table they are
+registered for and can be used for various custom functionality, such as displaying Charts, managing filters, display
+maps, etc...
+
+The interface key for these components is the unique name of the table plus "_SIDEKICK_COMPONENT_INTERFACE_KEY".
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+import { VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY } from '~/containers/View/Galaxy/Table/components/ViewGalaxyTableTableComponent';
+import { FC, useState } from 'react';
+import { SidekickComponentProps, buildFilter } from '~/utilities';
+import Grid from '@mui/material/Grid';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import { Filter, FilterType } from '~/components-api';
+import {_StringOperation } from '~/services/data-api/common';
+import { ViewGalaxyStored } from '~/services/data-api';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<FC<SidekickComponentProps<ViewGalaxyStored>>>(CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, SidekickGalaxiesComponent, {
+      component: VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY,
+    });
+  }
+}
+
+const SidekickGalaxiesComponent: FC<SidekickComponentProps<ViewGalaxyStored>> = ({ filters, onFiltersChange }) => {
+  const fallbackFilter: Filter = buildFilter(FilterType.string, _StringOperation.like, 'name', '');
+  const [nameFilter, setNameFilter] = useState<Filter>(filters?.find(f => f.filterOption.attributeName === 'name') || fallbackFilter);
+
+  const updateNameFilter = (value: string) => {
+    setNameFilter((prevNameFilter) => {
+      return {
+        ...prevNameFilter,
+        filterBy: {
+          ...prevNameFilter.filterBy,
+          value,
+        },
+      };
+    });
+  }
+
+  return (
+    <Grid container sx={{ mb: 2 }}>
+      <Grid item xs={6}>
+        <TextField
+          variant="standard"
+          value={nameFilter.filterBy.value}
+          onChange={(event) => {
+            updateNameFilter(event.target.value);
+          }}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <Button onClick={() => {
+          onFiltersChange([
+            nameFilter,
+          ]);
+        }}>Apply</Button>
+      </Grid>
+    </Grid>
+  );
+};
+----
+
 === Implementing container actions
 
 Every container has a set of Actions. These are typically actions triggered by buttons, or visual lifecycle calculated
