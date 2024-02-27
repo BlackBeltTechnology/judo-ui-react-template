@@ -52,6 +52,9 @@ export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (co
   {{# each (getElementsWithHiddenBy container) as |ve| }}
     is{{ safeName ve }}Hidden?: ({{{ inputModifierParams container false }}}) => boolean;
   {{/ each }}
+  {{# each (getDateOrDateTimeInputs container) as |ve| }}
+  get{{ firstToUpper ve.attributeType.name }}ValidationProps?: (data: {{ classDataName container.dataElement '' }}) => BaseDateValidationProps;
+  {{/ each }}
   {{# if container.view }}
     getMask?: () => string;
   {{/ if }}
