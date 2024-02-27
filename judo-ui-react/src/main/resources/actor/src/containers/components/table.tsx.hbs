@@ -84,7 +84,7 @@ import {
   useErrorHandler,
   {{/ unless }}
 } from '~/utilities';
-import type { ExternalFilterProps, DialogResult, TableRowAction, ColumnCustomizerHook{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
+import type { SidekickComponentProps, DialogResult, TableRowAction, ColumnCustomizerHook{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import { useDataStore } from '~/hooks';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackComponent, ComponentProxy } from '@pandino/react-hooks';
@@ -159,7 +159,7 @@ export interface {{ componentName table }}Props {
   {{/ unless }}
 }
 
-export const {{ camelCaseNameToInterfaceKey (componentName table) }}_EXTERNAL_FILTER_INTERFACE_KEY = '{{ componentName table }}ExternalFilter';
+export const {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY = '{{ componentName table }}SidekickComponent';
 
 // XMIID: {{ getXMIID table }}
 // Name: {{ table.name }}
@@ -185,7 +185,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{/ unless }}
   } = props;
   const apiRef = useGridApiRef();
-  const externalFilterFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{ camelCaseNameToInterfaceKey (componentName table) }}_EXTERNAL_FILTER_INTERFACE_KEY }))`;
+  const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY }))`;
   const filterModelKey = `{{ createId table }}-${uniqueId}-filterModel`;
   const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
   const rowsPerPageKey = `{{ createId table }}-${uniqueId}-rowsPerPage`;
@@ -257,7 +257,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const [firstItem, setFirstItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
   const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
   {{/ unless }}
-  const ExternalFilter = useTrackComponent<FC<ExternalFilterProps>>(externalFilterFilter);
+  const SidekickComponent = useTrackComponent<FC<SidekickComponentProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>>(sidekickComponentFilter);
 
   const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
@@ -646,13 +646,14 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   return (
     <div id="{{ getXMIID table }}" data-table-name="{{ table.name }}">
       <ComponentProxy
-        filter={externalFilterFilter}
+        filter={sidekickComponentFilter}
         {{# unless container.table }}
         editMode={editMode}
         {{/ unless }}
         isLoading={isLoading}
         filters={filters}
         onFiltersChange={handleFiltersChange}
+        data={data}
       />
       <StripedDataGrid
         apiRef={apiRef}
@@ -731,7 +732,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         filterDebounceMs={filterDebounceMs}
         rowCount={rowsPerPage}
         {{/ unless }}
-        disableColumnFilter={!!ExternalFilter}
         components={ {
           Toolbar: () => (
             <GridToolbarContainer>
