@@ -331,4 +331,18 @@ public class UiPageContainerHelper {
     public static boolean cardHasHeaderContent(Flex flex) {
         return (flex.getIcon() != null || (flex.getLabel() != null && !flex.getLabel().trim().isEmpty()) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
     }
+
+    public static boolean containerHasDateOrDateTimeInput(PageContainer container) {
+        return !getDateOrDateTimeInputs(container).isEmpty();
+    }
+
+    public static List<VisualElement> getDateOrDateTimeInputs(PageContainer container) {
+        List<Input> inputs = new ArrayList<>();
+        inputs.addAll(collectElementsOfType(container, new ArrayList<>(), DateInput.class));
+        inputs.addAll(collectElementsOfType(container, new ArrayList<>(), DateTimeInput.class));
+        return inputs.stream()
+                .filter(i -> !i.isIsReadOnly())
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
 }

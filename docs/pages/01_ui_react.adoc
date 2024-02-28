@@ -807,6 +807,45 @@ const customViewGalaxyViewActionsHook: ViewGalaxyViewActionsHook = (data, editMo
 };
 ----
 
+=== Implementing Date / DateTime validation rules
+
+In case we need to prevent users from providing unreasonable or invalid dates we can utilize the "getXYZValidationProps"
+action in our custom hooks.
+
+It supports all MUI validations:
+
+- minDate
+- maxDate
+- disableFuture
+- disablePast
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { VIEW_ASTRONOMER_TRANSFER_OBJECT_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from '~/containers/View/Astronomer/TransferObject_Form/ViewAstronomerTransferObject_Form';
+import type { ViewAstronomerTransferObject_FormContainerHook } from '~/containers/View/Astronomer/TransferObject_Form/ViewAstronomerTransferObject_Form';
+import { subDays } from 'date-fns';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<ViewAstronomerTransferObject_FormContainerHook>(VIEW_ASTRONOMER_TRANSFER_OBJECT_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY, astronomerFormHook);
+  }
+}
+
+const astronomerFormHook: ViewAstronomerTransferObject_FormContainerHook = () => {
+  return {
+    getBornValidationProps: (data) => {
+      return {
+        // disableFuture: data.name === 'hello',
+        maxDate: data.name === 'hello' ? subDays(new Date(), 3) : undefined,
+      };
+    },
+  };
+};
+----
+
 === Customizing the Hero Component
 
 Although the component itself does not have a hook, but the data model can be customized with a hook.
