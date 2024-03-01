@@ -4,6 +4,7 @@ import { useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useTheme } from '@mui/material/styles';
 import Avatar from '@mui/material/Avatar';
+import Divider from '@mui/material/Divider';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
 import Card from '@mui/material/Card';
@@ -20,9 +21,18 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 {{# if application.authentication }}
   import { useAuth } from 'react-oidc-context';
+  {{# if application.profilePage }}
+    import type { JudoIdentifiable } from '~/services/data-api/common';
+    import { {{ getServiceImplForPage application.profilePage }} } from '~/services/data-axios';
+    {{# if application.profilePage.openInDialog }}
+      import { use{{ pageName application.profilePage }} } from '~/dialogs/{{ pagePath application.profilePage }}';
+    {{ else }}
+      import { {{ calculateNavigationRoute application.profilePage }} } from '~/routes';
+    {{/ if }}
+  {{/ if }}
 {{/ if }}
 import { ThemeMode } from '~/config';
-import { MdiIcon{{# if (otherApplicationsAvailable application applications) }}, useApplicationSelector{{/ if }} } from '~/components';
+import { MdiIcon{{# if (otherApplicationsAvailable application applications) }}, useApplicationSelector{{/ if }}{{# if application.profilePage }}, useJudoNavigation{{/ if }} } from '~/components';
 import { useHeroProps } from '~/hooks';
 import { Transitions } from '../../../Transitions';
 
@@ -30,7 +40,29 @@ export const Profile = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const heroProps = useHeroProps();
+  const { navigate } = useJudoNavigation();
   {{# if application.authentication }}
+    {{# if application.profilePage }}
+      {{# if application.profilePage.openInDialog }}
+        const getSingletonPayload = async (): Promise<JudoIdentifiable<any>> => {
+          const { data: sp } = await {{ getServiceImplForPage application.profilePage }}.refreshFor{{ firstToUpper application.profilePage.dataElement.name }}({
+            _mask: '{}',
+          });
+          return sp;
+        }
+        const open{{ pageName application.profilePage }} = use{{ pageName application.profilePage }}();
+        const openProfilePage = async () => {
+          const profileData = await getSingletonPayload();
+          setOpen(false);
+          await open{{ pageName application.profilePage }}(profileData);
+        };
+      {{ else }}
+        const openProfilePage = async () => {
+          setOpen(false);
+          navigate(routeTo{{ pageName application.profilePage }}());
+        };
+      {{/ if }}
+    {{/ if }}
     const { signoutRedirect, isAuthenticated } = useAuth();
     const doLogout = useCallback(() => {
       const redirectUrl = window.location.href.split('#')[0];
@@ -140,6 +172,15 @@ export const Profile = () => {
                       </ListItemButton>
                     {{/ if }}
                     {{# if application.authentication }}
+                      {{# if application.profilePage }}
+                      <ListItemButton onClick={openProfilePage}>
+                        <ListItemIcon>
+                          <MdiIcon path="cog-outline" />
+                        </ListItemIcon>
+                        <ListItemText primary={t('judo.profile.profile', { defaultValue: 'Profile' })} />
+                      </ListItemButton>
+                      <Divider />
+                      {{/ if }}
                       <ListItemButton onClick={doLogout}>
                         <ListItemIcon>
                           <MdiIcon path="logout" />
