@@ -651,8 +651,12 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         editMode={editMode}
         {{/ unless }}
         isLoading={isLoading}
+        {{# if isUseInlineColumnFilters }}
         filterModel={filterModel}
         onFilterModelChange={handleFilterModelChange}
+        {{/ if }}
+        filters={filters}
+        onFiltersChange={handleFiltersChange}
         data={data}
       />
       <StripedDataGrid
