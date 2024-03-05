@@ -183,9 +183,9 @@ public class UiPageContainerHelper {
         StringBuilder mask = new StringBuilder();
 
         Set<VisualElement> inputs = new HashSet<>();
-        collectVisualElementsMatchingCondition(container, (VisualElement element) -> element instanceof Input, inputs);
+        collectVisualElementsMatchingCondition(container, (VisualElement element) -> element instanceof AttributeBased, inputs);
 
-        Set<String> attributeNames = inputs.stream().map(i -> ((Input) i)).map(i -> i.getAttributeType().getName()).collect(Collectors.toSet());
+        Set<String> attributeNames = inputs.stream().map(i -> ((AttributeBased) i)).map(i -> i.getAttributeType().getName()).collect(Collectors.toSet());
         attributeNames.addAll(container.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
 
         Set<VisualElement> AllVisualElements = new HashSet<>();
