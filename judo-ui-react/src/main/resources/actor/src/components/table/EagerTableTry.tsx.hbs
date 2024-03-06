@@ -1,0 +1,174 @@
+{{> fragment.header.hbs }}
+
+import { ComponentProxy } from '@pandino/react-hooks';
+import {
+columnsActionCalculator,
+ContextMenu,
+ContextMenuApi,
+StripedDataGrid,
+} from '~/components/table';
+import { DataGrid, GridFilterModel, GridLogicOperator, GridRowClassNameParams, GridRowSelectionModel, GridSortModel, GridToolbarContainer, useGridApiRef, GridValidRowModel, GridValidRowModel } from '@mui/x-data-grid';
+import { baseColumnConfig, basePageSizeOptions, baseTableConfig } from '~/config';
+import { RowHighlightLegend } from '~/components/table';
+import { useMemo, useRef, useState, MouseEvent } from 'react';
+import { useDataStore } from '~/hooks';
+import { useConfirmDialog } from '../dialog';
+import { useTranslation } from 'react-i18next';
+import { Filter } from '~/components-api';
+import { transformRowStylings } from '~/theme/table-row-highlighting';
+import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+
+interface EagerTableProps<T> {
+  uniqueId: string;
+  rowsPerPage: number;
+  gridSortModel: GridSortModel;
+  filterModelProp: GridFilterModel;
+  isOwnerLoading?: boolean;
+  validationError?: string;
+  filterProp: Filter[];
+  rowStylings: RowStylerConfigured<T extends GridValidRowModel>[];
+  rowActions: TableRowAction<T>[];
+  effectiveTableColumns: any;
+
+  GridToolbarContainer: () => JSX.Element
+}
+
+
+export function EagerTable<T,S>(props: EagerTableProps, dataGridProps: typeof DataGrid) {
+
+  const apiRef = useGridApiRef();
+  const rowsPerPageKey = `God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceFieldTargetDefinedTable-${props.uniqueId}-rowsPerPage`;
+
+  const { openConfirmDialog } = useConfirmDialog();
+  const { t } = useTranslation();
+  const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
+
+
+  const [rowsPerPage, setRowsPerPage] = useState<number>(getItemParsedWithDefault(rowsPerPageKey, 10));
+
+  const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
+  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+  const [sortModel, setSortModel] = useState<GridSortModel>(props.gridSortModel);
+  const [filterModel, setFilterModel] = useState<GridFilterModel>(props.filterModelProp);
+  const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
+  {{# if isMUILicensePlanPro }}
+    const [columnState, setColumnState] = useState<PersistedColumnInfo[]>(getItemParsedWithDefault(columnStateKey, []));
+  {{/ if }}
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: rowsPerPage,
+    page: 0,
+  });
+
+  const isLoading = useMemo(() => isInternalLoading || !!props.isOwnerLoading, [isInternalLoading, props.isOwnerLoading]);
+
+  {{# if (stringValueIsTrue useTableContextMenus) }}
+    const contextMenuRef = useRef<ContextMenuApi>(null);
+
+    const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+    contextMenuRef.current?.handleContextMenu(event);
+    };
+  {{/ if }}
+
+    {{# if isMUILicensePlanPro }}
+      const onColumnsChanged = () => {
+      // Handles column resizing and re-ordering
+      // skip selector column
+      const newOrder: PersistedColumnInfo[] = gridColumnDefinitionsSelector(apiRef)
+      .filter((c) => c.field !== '__check__')
+      .map((current, idx) => ({ field: current.field, index: idx, width: current.computedWidth }));
+      setItemStringified(columnStateKey, newOrder);
+      setColumnState(newOrder);
+      };
+    {{/ if }}
+
+    const clearSelections = () => {
+      handleOnSelection([]);
+    };
+
+    const pageSizeOptions = useMemo(() => {
+      const opts: Set<number> = new Set([rowsPerPage, ...basePageSizeOptions]);
+      return Array.from(opts.values()).sort((a, b) => a - b);
+    }, [rowsPerPage]);
+
+    {{# if isUseInlineColumnFilters }}
+      function handleFilterModelChange (newModel: GridFilterModel) {
+        setFilterModel(newModel);
+        setItemStringified(filterModelKey, newModel);
+
+        if (newModel.items.every(i => i.value !== undefined)) {
+          const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
+
+          if (Array.isArray(newFilters)) {
+            handleFiltersChange(newFilters);
+          }
+        }
+      }
+    {{/ if }}
+
+  return (
+    <StripedDataGrid
+    apiRef={apiRef}
+    { ...baseTableConfig }
+    {{# if isMUILicensePlanPro }}
+    initialState={ { pinnedColumns: { right: ['actions'] } } }
+    {{/ if }}
+    pageSizeOptions={pageSizeOptions}
+    sx={ {
+    // overflow: 'hidden',
+    display: 'grid',
+    border: (theme) => props.validationError ? `2px solid ${theme.palette.error.main}` : undefined,
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+      ...transformRowStylings(rowStylings),
+    {{/ if }}
+    } }
+    slotProps={ {
+    {{# if (stringValueIsTrue useTableContextMenus) }}
+      cell: {
+      onContextMenu: handleContextMenu,
+      },
+    {{/ if }}
+    filterPanel: {
+    logicOperators: [GridLogicOperator.And],
+    },
+    } }
+    getRowId={getRowIdentifier}
+    loading={isLoading}
+    rows={data}
+    getRowClassName={ (params: GridRowClassNameParams) => {
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+      const customStyle = rowStylings.find(r => r.condition(params));
+      if (customStyle) {
+      return customStyle.name;
+      }
+    {{/ if }}
+    return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+    } }
+    columns={effectiveTableColumns}
+    {{# if isMUILicensePlanPro }}
+      onColumnOrderChange={onColumnsChanged}
+      onColumnWidthChange={onColumnsChanged}
+    {{/ if }}
+     ? disableRowSelectionOnClick
+     ? isRowSelectable={handleIsRowSelectable}
+     ? hideFooterSelectedRowCount={ !allowSelectMultiple }
+      ? checkboxSelection
+      ? rowSelectionModel={selectionModel}
+      ? onRowSelectionModelChange={handleOnSelection}
+    keepNonExistentRowsSelected
+    onRowClick={ rowAction() }
+    sortModel={sortModel}
+    onSortModelChange={handleSortModelChange}
+    {{# if isUseInlineColumnFilters }}
+      filterModel={filterModel}
+      onFilterModelChange={handleFilterModelChange}
+    {{/ if }}
+    paginationModel={paginationModel}
+    onPaginationModelChange={setPaginationModel}
+    components={ {
+    Toolbar: () => (
+      <props.GridToolbarContainer/>
+    ),
+    } }
+    />
+  );
+}
