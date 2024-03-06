@@ -43,6 +43,7 @@ import {
   columnsActionCalculator,
   ContextMenu,
   StripedDataGrid,
+  EagerTable,
 } from '~/components/table';
 import { useConfirmDialog } from '~/components/dialog';
 import type { ContextMenuApi } from '~/components/table/ContextMenu';
@@ -272,17 +273,19 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   };
   {{/ if }}
 
+  const columns: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
   {{# each table.columns as |column| }}
-  const {{ column.name }}Column: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}> = {
+  {
     ...baseColumnConfig,
     field: '{{ column.attributeType.name }}',
     headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
     headerClassName: 'data-grid-column-header',
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
-  };
+  },
   {{/ each }}
-
+  ]
+/*
   const columns = useMemo<GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>(() => [
     {{# each table.columns as |column| }}
       {{# if column.customImplementation }}
@@ -292,6 +295,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{/ if }}
     {{/ each }}
   ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
+*/
 
   const rowActions: TableRowAction<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = useMemo(() =>[
     {{# each table.rowActionButtonGroup.buttons as |button| }}
@@ -397,6 +401,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     return Array.from(opts.values()).sort((a, b) => a - b);
   }, [rowsPerPage]);
 
+  // really need this in case of eager table
   const setPageSize = useCallback((newValue: number) => {
     setRowsPerPage(newValue);
     setItemStringified(rowsPerPageKey, newValue);
@@ -421,12 +426,12 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     });
   }, []);
 
-  const filterOptions = useMemo<FilterOption[]>(() => [
+  const filterOptions: FilterOption[] = [
     {{# each table.filters as |filter| }}
     {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
     {{/ each }}
-  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
+  ];
 
   {{# if isUseInlineColumnFilters }}
   function handleFilterModelChange (newModel: GridFilterModel) {
@@ -851,6 +856,46 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
           {{/ if }}
         } }
       />
+      {{/ if }}
+      {{# if table.isEager }}
+        <EagerTable<{{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
+        uniqueId={`{{ createId table }}-${uniqueId}`}
+        {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
+        l10nLocale={l10nLocale}
+        {{/ or }}
+        {{# if (tableHasBinaryColumn table) }}
+        downloadFile={downloadFile}
+        extractFileNameFromToken={extractFileNameFromToken}
+        {{/ if }}
+        {{# if (stringValueIsTrue useTableRowHighlighting) }}
+        rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}}))`}
+        {{/ if }}
+        {{# with (getReferenceClassType table) as |classType| }}
+        dataProp={ {{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }} }
+        {{/ with }}
+        defaultSortParamsForTable={ {{{ getDefaultSortParamsForTable table }}} }
+        tablePageLimit={ {{ calculateTablePageLimit table }} }
+        tableColumns={columns}
+        tableRowActions={rowActions}
+        tableFilterOptions={filterOptions}
+        mask={ '{{ getMaskForTable table }}' }
+        isOwnerLoading={isOwnerLoading}
+        validationError={validationError}
+        actions={actions}
+        allowSelectMultiple={ {{ boolValue table.allowSelectMultiple }} }
+        GridToolbarContainer={GridToolbarContainer}
+        dataElementId={ '{{ createId table.dataElement }}' }
+        crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
+        transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
+        containerIsSelector={ {{ boolValue container.isSelector }} }
+        containerIsRelationSelector={ {{ boolValue container.isRelationSelector }} }
+        {{# if actionDefinition.isOpenPageAction }}
+        onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
+        {{/ if }}
+        sidekickComponentFilter={sidekickComponentFilter}
+        >
+        </EagerTable>
+      {{ else }}
       {{/ if }}
     </div>
   );

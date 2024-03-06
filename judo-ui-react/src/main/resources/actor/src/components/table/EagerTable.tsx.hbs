@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 
-import { DataGrid, GridColDef, GridFilterModel, GridLogicOperator, GridRowClassNameParams, GridRowModel, GridRowSelectionModel, GridSortModel, GridValidRowModel, useGridApiRef } from '@mui/x-data-grid';
+import { DataGrid, GridColDef, GridFilterModel, GridLogicOperator, GridRowClassNameParams, GridRowModel, GridRowSelectionModel, GridSortModel, GridValidRowModel, useGridApiRef, GridRowId, GridRowParams } from '@mui/x-data-grid';
 import { ComponentProxy, useTrackComponent, useTrackService } from '@pandino/react-hooks';
 import { FC, MouseEvent, useCallback, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -18,44 +18,42 @@ import { useDataStore } from '~/hooks';
 import { transformRowStylings } from '~/theme/table-row-highlighting';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 import { useConfirmDialog } from '../dialog';
-import { SidekickComponentProps, TableRowAction, mapAllFiltersToQueryCustomizerProperties } from '~/utilities';
+import { SidekickComponentProps, TableRowAction, getUpdatedRowsSelected, isRowSelectable, mapAllFiltersToQueryCustomizerProperties } from '~/utilities';
 import { QueryCustomizer } from '~/services/data-api/common';
 
 interface EEagerTableProps<T extends GridValidRowModel> {
-  sidekickComponentFilterProp: string;
+  sidekickComponentFilter: string;
   uniqueId: string;
-  downloadFile: any;
-  extractFileNameFromToken: any;
+  downloadFile?: any;
+  extractFileNameFromToken?: any;
   rowHighlightingHookInterfaceKey: string;
   dataProp: T[];
   defaultSortParamsForTable: any;
   tablePageLimit: number;
-  columnsProp: GridColDef<T>[];
-  rowActionsProp: TableRowAction<T>[];
-  effectiveTableColumnsProp: any;
-  getSelectedRows: () => T[];
-  clearSelections: () => void;
-  AdditionalToolbarActions: () => JSX.Element;
-  filterOptionsProp: FilterOption[];
-  handleIsRowSelectable: any;
+  tableColumns: GridColDef<T>[];
+  tableRowActions: TableRowAction<T>[];
+  tableFilterOptions: FilterOption[];
   mask: string;
-  l10nLocale: string;
+  l10nLocale?: string;
   isOwnerLoading?: boolean;
   validationError?: string;
-  actions: TableRowAction<T>[];
-  GridToolbarContainer: () => JSX.Element;
+  actions: any;
+  GridToolbarContainer: any;
   allowSelectMultiple: boolean;
-  handleOnSelection: any;
-  rowAction: any;
   dataElementId: string;
-  crudOperationDisplayed: number;
+  crudOperationsDisplayed: number;
   transferOperationsDisplayed: number;
+  containerIsSelector: boolean;
+  containerIsRelationSelector: boolean;
+  onRowClick?: any;
+  setSelectionDiff?: any;
+  alreadySelected?: T[];
 }
 
 
-export function EEagerTable<T extends GridValidRowModel, S extends QueryCustomizer<T>>(props: EEagerTableProps<T>, dataGridProps: typeof DataGrid) {
+export function EagerTable<T extends GridValidRowModel, S extends QueryCustomizer<T>>(props: EEagerTableProps<T>, dataGridProps: typeof DataGrid) {
       const {
-        sidekickComponentFilterProp,
+        sidekickComponentFilter,
         uniqueId,
         l10nLocale,
         downloadFile,
@@ -64,29 +62,26 @@ export function EEagerTable<T extends GridValidRowModel, S extends QueryCustomiz
         dataProp,
         defaultSortParamsForTable,
         tablePageLimit,
-        columnsProp,
-        rowActionsProp,
-        effectiveTableColumnsProp,
-        getSelectedRows,
-        clearSelections,
-        AdditionalToolbarActions,
-        filterOptionsProp,
-        handleIsRowSelectable,
+        tableColumns,
+        tableRowActions,
+        tableFilterOptions,
         mask,
         isOwnerLoading,
         validationError,
         actions,
         allowSelectMultiple,
-        handleOnSelection,
-        rowAction,
         GridToolbarContainer,
         dataElementId,
-        crudOperationDisplayed,
+        crudOperationsDisplayed,
         transferOperationsDisplayed,
+        containerIsSelector,
+        containerIsRelationSelector,
+        onRowClick,
+        setSelectionDiff,
+        alreadySelected,
       } = props;
 
       const apiRef = useGridApiRef();
-      const sidekickComponentFilter = sidekickComponentFilterProp;
       const filterModelKey = `${uniqueId}-filterModel`;
       const filtersKey = `${uniqueId}-filters`;
       const rowsPerPageKey = `${uniqueId}-rowsPerPage`;
@@ -149,14 +144,14 @@ export function EEagerTable<T extends GridValidRowModel, S extends QueryCustomiz
         };
       {{/ if }}
 
-      const columns = useMemo<GridColDef<T>[]>(() => columnsProp, [l10nLocale]);
+      const columns = useMemo<GridColDef<T>[]>(() => tableColumns, [l10nLocale]);
 
-      const rowActions: TableRowAction<T>[] = useMemo(() => rowActionsProp, [actions, isLoading]);
+      const rowActions: TableRowAction<T>[] = useMemo(() => tableRowActions, [actions, isLoading]);
 
       const effectiveTableColumns = useMemo(() => {
         const cols = [
           ...columns,
-          ...columnsActionCalculator(dataElementId, rowActions, t, { crudOperationsDisplayed: crudOperationDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
+          ...columnsActionCalculator(dataElementId, rowActions, t, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
         ];
         {{# if isMUILicensePlanPro }}
           if (columnState.length) {
@@ -216,7 +211,7 @@ export function EEagerTable<T extends GridValidRowModel, S extends QueryCustomiz
         });
       }, []);
 
-      const filterOptions = useMemo<FilterOption[]>(() => filterOptionsProp, [l10nLocale]);
+      const filterOptions = useMemo<FilterOption[]>(() => tableFilterOptions, [l10nLocale ?? l10nLocale]);
 
       {{# if isUseInlineColumnFilters }}
         function handleFilterModelChange (newModel: GridFilterModel) {
@@ -269,7 +264,7 @@ export function EEagerTable<T extends GridValidRowModel, S extends QueryCustomiz
         }));
 
         setQueryCustomizer((prevQueryCustomizer) => {
-          const strippedQueryCustomizer: S = {
+          const strippedQueryCustomizer: S | QueryCustomizer<T> = {
             ...prevQueryCustomizer
           };
           if (!!strippedQueryCustomizer._seek) {
@@ -284,6 +279,61 @@ export function EEagerTable<T extends GridValidRowModel, S extends QueryCustomiz
             },
           };
         });
+      }
+
+      let handleIsRowSelectable;
+      let handleOnSelection;
+      if (containerIsSelector) {
+        handleIsRowSelectable = useCallback((params: GridRowParams<T & { __selected?: boolean }>) => {
+          if (!containerIsRelationSelector) {
+            // For operation inputs, we allow all elements to be selected.
+            return true;
+          } else {
+            //return isRowSelectable(params.row, !allowSelectMultiple, containerIsRelationSelector ?? alreadySelected);
+            return false;
+          }
+        }, []);
+
+        handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
+          if (!Array.isArray(selectionModel)) return;
+          if (allowSelectMultiple) {
+            // added new items
+            if (newSelectionModel.length > selectionModel.length) {
+              const diff = newSelectionModel.length - selectionModel.length;
+              const newItemsId = [...newSelectionModel].slice(diff * -1);
+              const newItems = data.filter((value) => newItemsId.indexOf(value.__identifier as GridRowId) !== -1);
+                setSelectionDiff ?? setSelectionDiff((prevSelectedItems: T[]) => {
+                if (!Array.isArray(prevSelectedItems)) return [];
+                return [...prevSelectedItems, ...newItems];
+              });
+            }
+           // removed items
+            if (newSelectionModel.length < selectionModel.length) {
+              const removedItemsId = selectionModel.filter((value) => newSelectionModel.indexOf(value) === -1);
+                setSelectionDiff ?? setSelectionDiff((prevSelectedItems: T[]) => {
+                if (!Array.isArray(prevSelectedItems)) return [];
+                return [...prevSelectedItems.filter((value) => removedItemsId.indexOf(value.__identifier as GridRowId) === -1)];
+              });
+            }
+            setSelectionModel(newSelectionModel);
+          } else {
+            if (newSelectionModel.length === 0) {
+              setSelectionModel([]);
+              setSelectionDiff ?? setSelectionDiff([]);
+              return;
+            }
+
+            const lastId = newSelectionModel[newSelectionModel.length - 1];
+
+            setSelectionModel([lastId]);
+            setSelectionDiff ?? setSelectionDiff([data.find((value) => value.__identifier === lastId)!]);
+          }
+        };
+      } else {
+        handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
+          selectedRows.current = getUpdatedRowsSelected(selectedRows, data, newSelectionModel);
+          //setSelectionModel(selectedRows.current.map(getRowIdentifier));
+        }
       }
 
   return (
@@ -336,7 +386,7 @@ export function EEagerTable<T extends GridValidRowModel, S extends QueryCustomiz
      rowSelectionModel={selectionModel}
      onRowSelectionModelChange={handleOnSelection}
     keepNonExistentRowsSelected
-    onRowClick={rowAction}
+    onRowClick={onRowClick}
     sortModel={sortModel}
     onSortModelChange={handleSortModelChange}
     {{# if isUseInlineColumnFilters }}

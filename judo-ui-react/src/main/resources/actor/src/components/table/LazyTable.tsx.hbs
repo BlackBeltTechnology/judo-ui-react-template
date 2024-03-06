@@ -1,0 +1,121 @@
+{{> fragment.header.hbs }}
+
+import { ComponentProxy } from '@pandino/react-hooks';
+import {
+columnsActionCalculator,
+ContextMenu,
+StripedDataGrid,
+} from '~/components/table';
+import { GridToolbarContainer, GridLogicOperator, useGridApiRef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { MdiIcon, CustomTablePagination } from '~/components';
+import Button from '@mui/material/Button';
+import { RowHighlightLegend } from '~/components/table';
+import { useMemo, useState } from 'react';
+import { useDataStore } from '~/hooks';
+
+
+interface LazyTableProps {
+  GridToolbarContainer: () => JSX.Element
+}
+
+
+export function LazyTable(props: LazyTableProps, dataGridProps: typeof DataGrid) {
+
+  const apiRef = useGridApiRef();
+  const rowsPerPageKey = `God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceFieldTargetDefinedTable-${uniqueId}-rowsPerPage`;
+
+  const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
+
+  const [rowsPerPage, setRowsPerPage] = useState<number>(getItemParsedWithDefault(rowsPerPageKey, 10));
+
+  const pageSizeOptions = useMemo(() => {
+    const opts: Set<number> = new Set([rowsPerPage, ...basePageSizeOptions]);
+    return Array.from(opts.values()).sort((a, b) => a - b);
+  }, [rowsPerPage]);
+
+  return (
+    <StripedDataGrid
+    apiRef={apiRef}
+    { ...baseTableConfig }
+    {{# if isMUILicensePlanPro }}
+    initialState={ { pinnedColumns: { right: ['actions'] } } }
+    {{/ if }}
+    pageSizeOptions={pageSizeOptions}
+    sx={ {
+    // overflow: 'hidden',
+    display: 'grid',
+      border: (theme) => validationError ? `2px solid ${theme.palette.error.main}` : undefined,
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+      ...transformRowStylings(rowStylings),
+    {{/ if }}
+    } }
+    slotProps={ {
+    {{# if (stringValueIsTrue useTableContextMenus) }}
+      cell: {
+      onContextMenu: handleContextMenu,
+      },
+    {{/ if }}
+    filterPanel: {
+    logicOperators: [GridLogicOperator.And],
+    },
+    } }
+    getRowId={getRowIdentifier}
+    loading={isLoading}
+    rows={data}
+    getRowClassName={ (params: GridRowClassNameParams) => {
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+      const customStyle = rowStylings.find(r => r.condition(params));
+      if (customStyle) {
+      return customStyle.name;
+      }
+    {{/ if }}
+    return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+    } }
+    columns={effectiveTableColumns}
+    {{# if isMUILicensePlanPro }}
+      onColumnOrderChange={onColumnsChanged}
+      onColumnWidthChange={onColumnsChanged}
+    {{/ if }}
+    ?  disableRowSelectionOnClick
+    ?  isRowSelectable={handleIsRowSelectable}
+    ?  hideFooterSelectedRowCount={ !allowSelectMultiple }
+    ?  checkboxSelection
+    ?  rowSelectionModel={selectionModel}
+    ?  onRowSelectionModelChange={handleOnSelection}
+    keepNonExistentRowsSelected
+    onRowClick={ rowAction() }
+    sortModel={sortModel}
+    onSortModelChange={handleSortModelChange}
+    {{# if isUseInlineColumnFilters }}
+      filterModel={filterModel}
+      onFilterModelChange={handleFilterModelChange}
+    {{/ if }}
+    paginationModel={paginationModel}
+    onPaginationModelChange={setPaginationModel}
+    paginationMode="server"
+    sortingMode="server"
+    filterMode="server"
+    filterDebounceMs={filterDebounceMs}
+    rowCount={rowsPerPage}
+    components={ {
+    Toolbar: () => (
+      <props.GridToolbarContainer/>
+    ),
+    Pagination: () => (
+    <CustomTablePagination
+      pageSizeOptions={pageSizeOptions}
+      setPageSize={setPageSize}
+      pageChange={handlePageChange}
+      isNextButtonEnabled={isNextButtonEnabled}
+      page={page}
+      setPage={setPage}
+      rowPerPage={rowsPerPage}
+      {{# if table.showTotalCount }}
+      totalCount={totalCount}
+      {{/ if }}
+    />
+    ),
+    } }
+    />
+  );
+}
