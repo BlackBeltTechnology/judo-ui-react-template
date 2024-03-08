@@ -1,9 +1,22 @@
 {{> fragment.header.hbs }}
 
 
-import { DataGrid, GridColDef, GridFilterModel, GridLogicOperator, GridRowClassNameParams, GridRowModel, GridRowSelectionModel, GridSortModel, GridValidRowModel, useGridApiRef, GridRowId, GridRowParams } from '@mui/x-data-grid';
+import {
+  DataGrid,
+  GridColDef,
+  GridFilterModel,
+  GridLogicOperator,
+  GridRowClassNameParams,
+  GridRowModel,
+  GridRowSelectionModel,
+  GridSortModel,
+  GridValidRowModel,
+  useGridApiRef,
+  GridRowId,
+  GridRowParams
+} from '@mui/x-data-grid';
 import { ComponentProxy, useTrackComponent, useTrackService } from '@pandino/react-hooks';
-import { FC, MouseEvent, useCallback, useMemo, useRef, useState } from 'react';
+import { FC, MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Filter, FilterOption } from '~/components-api';
 import {
@@ -18,14 +31,25 @@ import { useDataStore } from '~/hooks';
 import { transformRowStylings } from '~/theme/table-row-highlighting';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 import { useConfirmDialog } from '../dialog';
-import { SidekickComponentProps, TableRowAction, getUpdatedRowsSelected, isRowSelectable, mapAllFiltersToQueryCustomizerProperties } from '~/utilities';
-import { QueryCustomizer } from '~/services/data-api/common';
+import {
+  SidekickComponentProps,
+  TableRowAction,
+  getUpdatedRowsSelected,
+  isRowSelectable,
+  mapAllFiltersToQueryCustomizerProperties,
+  applyInMemoryFilters,
+  processQueryCustomizer,
+  fileHandling,
+}
+from '~/utilities';
+import { JudoStored, QueryCustomizer } from '~/services/data-api/common';
+import { MdiIcon } from '../MdiIcon';
+import { Box, Button, Typography } from '@mui/material';
+import { useL10N } from '~/l10n/l10n-context';
 
-interface EEagerTableProps<T extends GridValidRowModel> {
+interface EagerTableProps<T extends GridValidRowModel> {
   sidekickComponentFilter: string;
   uniqueId: string;
-  downloadFile?: any;
-  extractFileNameFromToken?: any;
   rowHighlightingHookInterfaceKey: string;
   dataProp: T[];
   defaultSortParamsForTable: any;
@@ -34,7 +58,6 @@ interface EEagerTableProps<T extends GridValidRowModel> {
   tableRowActions: TableRowAction<T>[];
   tableFilterOptions: FilterOption[];
   mask: string;
-  l10nLocale?: string;
   isOwnerLoading?: boolean;
   validationError?: string;
   actions: any;
@@ -47,17 +70,34 @@ interface EEagerTableProps<T extends GridValidRowModel> {
   containerIsRelationSelector: boolean;
   onRowClick?: any;
   setSelectionDiff?: any;
-  alreadySelected?: T[];
+  alreadySelected?: JudoStored<T>[];
+  dataElement?: any;
+  isSelectorTable: boolean;
+  editMode?: boolean;
+  containerHasTable: boolean;
+  toolBarActions: any;
+  tableHasSelectorColumn: boolean;
+  maskAction: any;
+  ownerData?: T;
+  selectionDiff?: any;
+  isFormUpdateable?: () => boolean;
+  enabledByName?: string;
+  AdditionalToolbarButtons?: (
+    data: T[],
+    isLoading: boolean,
+    selectedRows: T[],
+    clearSelections: () => void,
+    ownerData?: T,
+    editMode?: boolean,
+    isFormUpdateable?: () => boolean,
+  ) => Record<string, ElementType>;
 }
 
 
-export function EagerTable<T extends GridValidRowModel, S extends QueryCustomizer<T>>(props: EEagerTableProps<T>, dataGridProps: typeof DataGrid) {
+export function EagerTable<T extends GridValidRowModel, S extends QueryCustomizer<T>>(props: EagerTableProps<T>, dataGridProps: typeof DataGrid) {
       const {
         sidekickComponentFilter,
         uniqueId,
-        l10nLocale,
-        downloadFile,
-        extractFileNameFromToken,
         rowHighlightingHookInterfaceKey,
         dataProp,
         defaultSortParamsForTable,
@@ -79,6 +119,18 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         onRowClick,
         setSelectionDiff,
         alreadySelected,
+        dataElement,
+        isSelectorTable,
+        editMode,
+        containerHasTable,
+        toolBarActions,
+        AdditionalToolbarButtons,
+        tableHasSelectorColumn,
+        maskAction,
+        ownerData,
+        selectionDiff,
+        isFormUpdateable,
+        enabledByName,
       } = props;
 
       const apiRef = useGridApiRef();
@@ -89,6 +141,9 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         const columnStateKey = `${uniqueId}-columnState`;
       {{/ if }}
 
+      const { locale: l10nLocale } = useL10N();
+      const { downloadFile, extractFileNameFromToken } = fileHandling();
+
       const { openConfirmDialog } = useConfirmDialog();
       const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
       const { t } = useTranslation();
@@ -97,7 +152,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<T>>(rowHighlightingHookInterfaceKey);
         const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
         const rowStylings: RowStylerConfigured<T>[] = useMemo(() => {
-        return rowHighlighting ? rowHighlighting() : [];
+          return rowHighlighting ? rowHighlighting() : [];
         }, [rowHighlighting]);
       {{/ if }}
 
@@ -119,7 +174,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
       });
 
       const [queryCustomizer, setQueryCustomizer] = useState<S | QueryCustomizer<T>>({
-        _mask: 'mask',
+        _mask: mask,
         _seek: {
         limit: rowsPerPage + 1,
         },
@@ -147,6 +202,15 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
       const columns = useMemo<GridColDef<T>[]>(() => tableColumns, [l10nLocale]);
 
       const rowActions: TableRowAction<T>[] = useMemo(() => tableRowActions, [actions, isLoading]);
+
+      useEffect(() => {
+        rowActions.forEach(row => {
+          row = {
+            ...row,
+            disabled: (row: T) => getTableRowButtonDisabledConditions(row.disabledExpression, row),
+          };
+        });
+      }, []);
 
       const effectiveTableColumns = useMemo(() => {
         const cols = [
@@ -183,7 +247,23 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         };
       {{/ if }}
 
-      const getRowIdentifier: (row: Pick<T, '__identifier'>) => string = (row) => row.__identifier!;
+      const getRowIdentifier: (row: T) => string = (row) => row.__identifier!;
+
+      const getSelectedRows: () => T[] = () => {
+        if (tableHasSelectorColumn) {
+            if (containerIsSelector) {
+                return selectionDiff;
+            } else {
+                return selectedRows.current;
+            }
+        } else {
+            return [];
+        }
+      };
+
+      const clearSelections = () => {
+        handleOnSelection([]);
+      };
 
       const pageSizeOptions = useMemo(() => {
         const opts: Set<number> = new Set([rowsPerPage, ...basePageSizeOptions]);
@@ -211,7 +291,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         });
       }, []);
 
-      const filterOptions = useMemo<FilterOption[]>(() => tableFilterOptions, [l10nLocale ?? l10nLocale]);
+      const filterOptions = useMemo<FilterOption[]>(() => tableFilterOptions, [l10nLocale]);
 
       {{# if isUseInlineColumnFilters }}
         function handleFilterModelChange (newModel: GridFilterModel) {
@@ -281,16 +361,19 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         });
       }
 
-      let handleIsRowSelectable;
-      let handleOnSelection;
+      let handleIsRowSelectable: any;
+      let handleOnSelection: any;
       if (containerIsSelector) {
-        handleIsRowSelectable = useCallback((params: GridRowParams<T & { __selected?: boolean }>) => {
+        handleIsRowSelectable = useCallback((params: GridRowParams<JudoStored<T> & { __selected?: boolean }>) => {
           if (!containerIsRelationSelector) {
             // For operation inputs, we allow all elements to be selected.
             return true;
           } else {
-            //return isRowSelectable(params.row, !allowSelectMultiple, containerIsRelationSelector ?? alreadySelected);
-            return false;
+            if (containerIsRelationSelector) {
+              return isRowSelectable(params.row, !allowSelectMultiple, alreadySelected);
+            } else {
+              return isRowSelectable(params.row, !allowSelectMultiple);
+            }
           }
         }, []);
 
@@ -332,11 +415,152 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
       } else {
         handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
           selectedRows.current = getUpdatedRowsSelected(selectedRows, data, newSelectionModel);
-          //setSelectionModel(selectedRows.current.map(getRowIdentifier));
+          setSelectionModel(selectedRows.current.map(getRowIdentifier));
         }
       }
 
+
+  useEffect(() => {
+    if (isSelectorTable) {
+      const newData = applyInMemoryFilters<T>(filters, data);
+      setData(newData);
+      handleOnSelection(selectionModel);
+    } else {
+      const newData = applyInMemoryFilters<T>(filters, dataElement ?? []);
+      setData(newData);
+      handleOnSelection(selectionModel);
+    }
+  }, [ isSelectorTable ?? dataElement, filters]);
+
+  let additionalToolbarActions: Record<string, ElementType>;
+
+  if (actions.AdditionalToolbarButtons) {
+    if (containerHasTable) {
+      additionalToolbarActions = actions.AdditionalToolbarButtons(
+        data,
+        isLoading,
+        getSelectedRows(),
+        clearSelections,
+      )
+    } else {
+      additionalToolbarActions = actions.AdditionalToolbarButtons(
+        data,
+        isLoading,
+        getSelectedRows(),
+        clearSelections,
+        ownerData,
+        editMode,
+        isFormUpdateable,
+      )
+    }
+  } else {
+    additionalToolbarActions = {};
+  }
+
+  const AdditionalToolbarActions = () => {
+    return <>
+      { Object.keys(additionalToolbarActions).map((key) => {
+        const AdditionalButton = additionalToolbarActions[key];
+        return <AdditionalButton key={key} />;
+      }) }
+    </>;
+  };
+
+  {{# if isUseInlineColumnFilters }}
+  useEffect(() => {
+    if (filterModel.items.every((i) => i.value !== undefined)) {
+      setFilters(mapFilterModelToFilters(filterModel, filterOptions));
+    }
+  }, [ isSelectorTable ?? dataElement, filterModel]);
+  {{/ if }}
+
+  async function filterAction(id: string) {
+    const filterResults = await actions.filterAction!(id, filterOptions, filterModel, filters);
+  {{# if isUseInlineColumnFilters }}
+    if (filterResults.model) {
+      handleFilterModelChange({
+        ...filterResults.model!,
+      });
+    }
+  {{ else }}
+    if (Array.isArray(filterResults.filters)) {
+      handleFiltersChange([...filterResults.filters!]);
+    }
+  {{/ if }}
+  }
+
+  const getTableButtonVisibility = (expression: string): boolean => {
+    if (expression === "false") {
+      return false;
+    }
+  
+    if (expression === "isFormUpdateable()") {
+      return isFormUpdateable ? isFormUpdateable() : false;
+    }
+  
+    let result = true;
+    if (expression.includes(`ownerData.${enabledByName}`)) {
+      result = result && ownerData && ownerData["enabledByName"]
+    };
+  
+    if (expression.includes("isFormUpdateable()")) {
+      return result && data.length !== undefined;
+    }
+  
+    if (expression === "data.length && isFormUpdateable()") {
+      return selectionModel.length > 0;
+    }
+  
+    if (expression === "selectionModel.length > 0") {
+      return selectionModel.length > 0;
+    }
+
+    return true;
+  }
+
+  const getTableRowButtonDisabledConditions = (expression: string, row: T): boolean => {
+    if (expression === "isLoading") {
+      return isLoading;
+    }
+  
+    if (expression === "getSelectedRows().length > 0 || isLoading") {
+      return getSelectedRows().length > 0 || isLoading;
+    }
+  
+    let result: boolean | undefined = getSelectedRows().length > 0;
+    if (expression.includes("isFormUpdateable() || ")) {
+      result = result || isFormUpdateable && isFormUpdateable();
+    }
+  
+    if (expression === "editMode || ") {
+      result = result || editMode;
+    }
+
+    if (expression.includes(`!ownerData.${enabledByName} || `)) {
+      result = result || (ownerData && !ownerData["enabledByName"]);
+    }
+  
+    if (expression.includes("!row.__deleteable || ")) {
+      result = result || !row.__deleteable
+    }
+
+    if (expression.includes(`!row.${enabledByName} || `)) {
+      return data.length || row["enabledByName"];
+    }
+  
+    return result || isLoading;
+  }
+
   return (
+    <>
+    <ComponentProxy
+      filter={sidekickComponentFilter}
+      editMode={containerHasTable ? editMode : undefined}
+      isLoading={isLoading}
+      filters={filters}
+      onFiltersChange={handleFiltersChange}
+      data={data}
+    />
     <StripedDataGrid
     apiRef={apiRef}
     { ...baseTableConfig }
@@ -397,9 +621,95 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
     onPaginationModelChange={setPaginationModel}
     components={ {
     Toolbar: () => (
-      <GridToolbarContainer/>
+      <GridToolbarContainer>
+        {
+          toolBarActions.map( (toolBarAction: any) => actions[toolBarAction.name] && toolBarAction.tableButtonVisibilityConditions ? (
+            <Button
+              id={toolBarAction.id}
+              startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
+              variant={toolBarAction.variant}
+              onClick={async () => {
+                if (toolBarAction.name === 'filterAction') {
+                  return await filterAction(toolBarAction.id);
+                } else {
+                  let processedQueryCustomizer = {
+                    ...processQueryCustomizer(queryCustomizer),
+                  };
+                  if (toolBarActions.find((tbAction: any) => tbAction.name === 'filterAction')) {
+                    processedQueryCustomizer = {
+                      ...processedQueryCustomizer,
+                      _mask: maskAction ? maskAction() : queryCustomizer._mask,
+                    }
+                  }
+
+                  if (toolBarAction.name === 'exportAction') {
+                    processedQueryCustomizer = {
+                      ...processedQueryCustomizer,
+                      _seek: undefined,
+                    }
+                  }
+
+                  if (toolBarAction.name === 'refreshAction'
+                      || toolBarAction.name === 'exportAction'
+                      || toolBarAction.name === 'selectorRangeAction'
+                    ) {
+                    actions[toolBarAction.name]!(processedQueryCustomizer);
+                  } else {
+                    if (toolBarAction.isBulk) {
+                      const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
+                      if (bulkResult === 'submit') {
+                        handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                      }
+                    } else {
+                      if (toolBarAction.name === 'clearAction') {
+                        await actions.clearAction!();
+                        handleOnSelection([]);
+                      } else {
+                        await actions[toolBarAction.name]!();
+                      }
+                    }
+                  }
+                }
+              } }
+              disabled={isLoading}
+            >
+              {t(`${toolBarAction.label["translationKey"]}`, { defaultValue: `${toolBarAction.label["defaultValue"]}` })}
+              {toolBarAction.name === 'filterAction' && filters.length ? ` (${filters.length})` : ''}
+            </Button>
+          ) : null)}
+          {<AdditionalToolbarActions />}
+          <div>{/* Placeholder */}</div>
+      </GridToolbarContainer>
     ),
     } }
     />
+    <ContextMenu
+      ref={contextMenuRef}
+      data={data}
+      filters={filters}
+      filterOptions={filterOptions}
+      columns={columns}
+      onFilterByCell={ (filter: Filter) => {
+      {{# if isUseInlineColumnFilters }}
+        handleFilterModelChange({
+        ...filterModel,
+        items: [...filterModel.items, mapFilterToFilterModel(filter)],
+        });
+      {{ else }}
+        handleFiltersChange([...filters, filter]);
+      {{/ if }}
+      } }
+      onExcludeByCell={ (filter: Filter) => {
+      {{# if isUseInlineColumnFilters }}
+        handleFilterModelChange({
+        ...filterModel,
+        items: [...filterModel.items, mapFilterToFilterModel(filter)],
+        });
+      {{ else }}
+        handleFiltersChange([...filters, filter]);
+      {{/ if }}
+      } }
+    />
+    </>
   );
 }
