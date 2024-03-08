@@ -692,11 +692,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         getRowClassName={ (params: GridRowClassNameParams) => {
           {{# if (stringValueIsTrue useTableRowHighlighting) }}
           const customStyle = rowStylings.find(r => r.condition(params));
-          if (customStyle) {
-            return customStyle.name;
-          }
-          {{/ if }}
+          return (customStyle?.name ? `${customStyle.name} ` : '') + (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd');
+          {{ else }}
           return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+          {{/ if }}
         } }
         columns={effectiveTableColumns}
         {{# if isMUILicensePlanPro }}
