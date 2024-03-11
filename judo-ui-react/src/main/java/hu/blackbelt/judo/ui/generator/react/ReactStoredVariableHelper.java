@@ -27,6 +27,7 @@ import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import org.springframework.util.StringUtils;
 
 import java.util.Map;
+import java.util.UUID;
 
 /**
  * The handlebars context inaccessible in helpers / value resolvers
@@ -47,6 +48,10 @@ public class ReactStoredVariableHelper extends StaticMethodValueResolver {
 
     public static synchronized Boolean isDebugPrint() {
         return Boolean.parseBoolean((String) ThreadLocalContextHolder.getVariable("debugPrint"));
+    }
+
+    public static synchronized String getUUIDv4() {
+        return UUID.randomUUID().toString();
     }
 
     public static synchronized Boolean isMUILicensed() {
