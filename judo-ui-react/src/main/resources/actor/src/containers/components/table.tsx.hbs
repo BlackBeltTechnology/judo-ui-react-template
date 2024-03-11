@@ -57,6 +57,7 @@ import { useL10N } from '~/l10n/l10n-context';
 {{/ or }}
 import {
   TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
+  randomUtils,
   {{# if container.isSelector }}
   isRowSelectable,
   {{ else }}
@@ -185,12 +186,13 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {{/ unless }}
   } = props;
   const apiRef = useGridApiRef();
+  const generatorUUIDv4 = randomUtils.getGeneratorUUIDv4();
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY }))`;
-  const filterModelKey = `{{ createId table }}-${uniqueId}-filterModel`;
-  const filtersKey = `{{ createId table }}-${uniqueId}-filters`;
-  const rowsPerPageKey = `{{ createId table }}-${uniqueId}-rowsPerPage`;
+  const filterModelKey = `{{ createId table }}-${uniqueId}-${generatorUUIDv4}-filterModel`;
+  const filtersKey = `{{ createId table }}-${uniqueId}-${generatorUUIDv4}-filters`;
+  const rowsPerPageKey = `{{ createId table }}-${uniqueId}-${generatorUUIDv4}-rowsPerPage`;
   {{# if isMUILicensePlanPro }}
-  const columnStateKey = `{{ createId table }}-${uniqueId}-columnState`;
+  const columnStateKey = `{{ createId table }}-${uniqueId}-${generatorUUIDv4}-columnState`;
   {{/ if }}
 
   const { openConfirmDialog } = useConfirmDialog();
