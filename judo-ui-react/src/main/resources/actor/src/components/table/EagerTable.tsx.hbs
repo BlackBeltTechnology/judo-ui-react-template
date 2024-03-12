@@ -56,7 +56,7 @@ import { useL10N } from '~/l10n/l10n-context';
 import { gridColumnDefinitionsSelector } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 {{/ if }}
 
-interface EagerTableProps<T extends GridValidRowModel> {
+interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
   uniqueId: string;
   {{# if (stringValueIsTrue useTableRowHighlighting) }}
@@ -65,8 +65,8 @@ interface EagerTableProps<T extends GridValidRowModel> {
   dataProp: T[];
   defaultSortParamsForTable: any;
   tablePageLimit: number;
-  tableColumns: GridColDef<T>[];
-  tableRowActions: TableRowAction<T>[];
+  tableColumns: GridColDef<TStored>[];
+  tableRowActions: TableRowAction<TStored>[];
   tableFilterOptions: FilterOption[];
   mask: string;
   isOwnerLoading?: boolean;
@@ -79,8 +79,8 @@ interface EagerTableProps<T extends GridValidRowModel> {
   containerIsSelector: boolean;
   containerIsRelationSelector: boolean;
   onRowClick?: GridEventListener<"rowClick"> | undefined;
-  setSelectionDiff?: Dispatch<SetStateAction<T[]>>
-  alreadySelected?: JudoStored<T>[];
+  setSelectionDiff?: Dispatch<SetStateAction<TStored[]>>
+  alreadySelected?: JudoStored<TStored>[];
   dataElement?: any;
   isSelectorTable: boolean;
   editMode?: boolean;
@@ -88,7 +88,7 @@ interface EagerTableProps<T extends GridValidRowModel> {
   toolBarActions: ToolBarActionProps[];
   tableHasSelectorColumn: boolean;
   maskAction?: () => string;
-  ownerData?: T;
+  ownerData?: TStored;
   selectionDiff?: any;
   isFormUpdateable?: () => boolean;
   enabledByName?: string;
@@ -98,14 +98,14 @@ interface EagerTableProps<T extends GridValidRowModel> {
     isLoading: boolean,
     selectedRows: T[],
     clearSelections: () => void,
-    ownerData?: T,
+    ownerData?: TStored,
     editMode?: boolean,
     isFormUpdateable?: () => boolean,
   ) => Record<string, ElementType>;
 }
 
 
-export function EagerTable<T extends GridValidRowModel, S extends QueryCustomizer<T>>(props: EagerTableProps<T>, dataGridProps: typeof DataGrid) {
+export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: EagerTableProps<T, TStored>) {
       const {
         sidekickComponentFilter,
         uniqueId,
@@ -160,9 +160,9 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
       const { t } = useTranslation();
 
       {{# if (stringValueIsTrue useTableRowHighlighting) }}
-        const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<T>>(rowHighlightingHookInterfaceKey);
+        const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<TStored>>(rowHighlightingHookInterfaceKey);
         const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
-        const rowStylings: RowStylerConfigured<T>[] = useMemo(() => {
+        const rowStylings: RowStylerConfigured<TStored>[] = useMemo(() => {
           return rowHighlighting ? rowHighlighting() : [];
         }, [rowHighlighting]);
       {{/ if }}
@@ -198,7 +198,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
 
       const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
-      const selectedRows = useRef<T[]>([]);
+      const selectedRows = useRef<TStored[]>([]);
       {{# if (stringValueIsTrue useTableContextMenus) }}
         const contextMenuRef = useRef<ContextMenuApi>(null);
 
@@ -207,11 +207,11 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         };
       {{/ if }}
 
-      const columns = useMemo<GridColDef<T>[]>(() => tableColumns, [l10nLocale]);
+      const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [l10nLocale]);
 
-      const rowActions: TableRowAction<T>[] = useMemo(() => {
+      const rowActions: TableRowAction<TStored>[] = useMemo(() => {
         tableRowActions.forEach((row) => {
-          row.disabled = (row: T) => getTableRowButtonDisabledConditions(row);
+          row.disabled = (row: TStored) => getTableRowButtonDisabledConditions(row);
         });
 
         return tableRowActions;
@@ -369,7 +369,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
       let handleIsRowSelectable: any;
       let handleOnSelection: any;
       if (containerIsSelector) {
-        handleIsRowSelectable = useCallback((params: GridRowParams<JudoStored<T> & { __selected?: boolean }>) => {
+        handleIsRowSelectable = useCallback((params: GridRowParams<JudoStored<TStored> & { __selected?: boolean }>) => {
           if (!containerIsRelationSelector) {
             // For operation inputs, we allow all elements to be selected.
             return true;
@@ -389,9 +389,9 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
             if (newSelectionModel.length > selectionModel.length) {
               const diff = newSelectionModel.length - selectionModel.length;
               const newItemsId = [...newSelectionModel].slice(diff * -1);
-              const newItems = data.filter((value) => newItemsId.indexOf(value.__identifier as GridRowId) !== -1);
+              const newItems: TStored[] = data.filter((value) => newItemsId.indexOf(value.__identifier as GridRowId) !== -1) as TStored[];
                 if (setSelectionDiff !== undefined) {
-                  setSelectionDiff((prevSelectedItems: T[]) => {
+                  setSelectionDiff((prevSelectedItems: TStored[]) => {
                     if (!Array.isArray(prevSelectedItems)) return [];
                       return [...prevSelectedItems, ...newItems];
                     }
@@ -402,7 +402,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
             if (newSelectionModel.length < selectionModel.length) {
               const removedItemsId = selectionModel.filter((value) => newSelectionModel.indexOf(value) === -1);
                 if (setSelectionDiff !== undefined) {
-                  setSelectionDiff((prevSelectedItems: T[]) => {
+                  setSelectionDiff((prevSelectedItems: TStored[]) => {
                     if (!Array.isArray(prevSelectedItems)) return [];
                       return [...prevSelectedItems.filter((value) => removedItemsId.indexOf(value.__identifier as GridRowId) === -1)];
                     }
@@ -423,7 +423,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
 
             setSelectionModel([lastId]);
             if (setSelectionDiff !== undefined) {
-              setSelectionDiff([data.find((value) => value.__identifier === lastId)!]);
+              setSelectionDiff([(data as TStored[]).find((value) => value.__identifier === lastId)!]);
             }
           }
         };
@@ -445,7 +445,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
       setData(newData);
       handleOnSelection(selectionModel);
     }
-  }, [ dataElement, filters]);
+  }, [ dataElement, filters ]);
 
   let additionalToolbarActions: Record<string, ElementType>;
 
