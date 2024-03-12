@@ -105,7 +105,9 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
       const {
         sidekickComponentFilter,
         uniqueId,
+        {{# if (stringValueIsTrue useTableRowHighlighting) }}
         rowHighlightingHookInterfaceKey,
+        {{/ if }}
         dataProp,
         defaultSortParamsForTable,
         tablePageLimit,
