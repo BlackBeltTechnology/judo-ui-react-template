@@ -13,10 +13,12 @@ import {
   GridValidRowModel,
   useGridApiRef,
   GridRowId,
-  GridRowParams
+  GridRowParams,
+  GridToolbarContainer,
+  GridEventListener,
 } from '@mui/x-data-grid';
 import { ComponentProxy, useTrackComponent, useTrackService } from '@pandino/react-hooks';
-import { FC, MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType } from 'react';
+import { FC, MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Filter, FilterOption } from '~/components-api';
 import {
@@ -40,8 +42,10 @@ import {
   useErrorHandler,
   isRowSelectable,
   fileHandling,
+  ToolBarActionProps,
 } from '~/utilities';
 import { JudoStored, QueryCustomizer } from '~/services/data-api/common';
+import type { JudoRestResponse } from '~/services/data-api/rest';
 import { CustomTablePagination } from '~/components';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
@@ -61,28 +65,28 @@ interface LazyTableProps<T extends GridValidRowModel> {
   isOwnerLoading?: boolean;
   validationError?: string;
   actions: any;
-  GridToolbarContainer: any;
   allowSelectMultiple: boolean;
   dataElementId: string;
   crudOperationsDisplayed: number;
   transferOperationsDisplayed: number;
   containerIsSelector: boolean;
   containerIsRelationSelector: boolean;
-  onRowClick?: any;
-  setSelectionDiff?: any;
+  onRowClick?: GridEventListener<"rowClick"> | undefined;
+  setSelectionDiff?: Dispatch<SetStateAction<T[]>>
   alreadySelected?: JudoStored<T>[];
   containerHasTable: boolean;
-  hasRefreshAction: any;
-  maskAction?: any;
+  hasRefreshAction: boolean;
+  maskAction?: () => string;
   fetch: any;
   refreshCounter: number;
   ownerData?: T;
   editMode?: boolean;
-  toolBarActions: any;
+  toolBarActions: ToolBarActionProps[];
   tableHasSelectorColumn: boolean;
   selectionDiff?: any;
   isFormUpdateable?: () => boolean;
   enabledByName?: string;
+  relationName: string;
   AdditionalToolbarButtons?: (
     data: T[],
     isLoading: boolean,
@@ -111,7 +115,6 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
         validationError,
         actions,
         allowSelectMultiple,
-        GridToolbarContainer,
         dataElementId,
         crudOperationsDisplayed,
         transferOperationsDisplayed,
@@ -133,6 +136,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
         selectionDiff,
         isFormUpdateable,
         enabledByName,
+        relationName,
       } = props;
 
       const apiRef = useGridApiRef();
@@ -145,8 +149,6 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
 
       const { locale: l10nLocale } = useL10N();
       const { downloadFile, extractFileNameFromToken } = fileHandling();
-
-      const { openConfirmDialog } = useConfirmDialog();
       const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
       const { t } = useTranslation();
         const handleError = useErrorHandler();
@@ -196,7 +198,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
       const [firstItem, setFirstItem] = useState<T>();
       const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
 
-      const SidekickComponent = useTrackComponent<FC<SidekickComponentProps<T>>>(sidekickComponentFilter);
+      //const SidekickComponent = useTrackComponent<FC<SidekickComponentProps<T>>>(sidekickComponentFilter);
 
       const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
@@ -211,16 +213,13 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
 
       const columns = useMemo<GridColDef<T>[]>(() => tableColumns, [l10nLocale]);
 
-      const rowActions: TableRowAction<T>[] = useMemo(() => tableRowActions, [actions, isLoading]);
-
-      useEffect(() => {
-        rowActions.forEach(row => {
-          row = {
-            ...row,
-            disabled: (row: T) => getTableRowButtonDisabledConditions(row.disabledExpression, row),
-          };
+      const rowActions: TableRowAction<T>[] = useMemo(() => {
+        tableRowActions.forEach((row) => {
+          row.disabled = (row: T) => getTableRowButtonDisabledConditions(row);
         });
-      }, []);
+      
+        return tableRowActions;
+      }, [actions, isLoading]);
 
       const effectiveTableColumns = useMemo(() => {
         const cols = [
@@ -400,31 +399,41 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
               const diff = newSelectionModel.length - selectionModel.length;
               const newItemsId = [...newSelectionModel].slice(diff * -1);
               const newItems = data.filter((value) => newItemsId.indexOf(value.__identifier as GridRowId) !== -1);
-                setSelectionDiff ?? setSelectionDiff((prevSelectedItems: T[]) => {
-                if (!Array.isArray(prevSelectedItems)) return [];
-                return [...prevSelectedItems, ...newItems];
-              });
+                if (setSelectionDiff !== undefined) {
+                  setSelectionDiff((prevSelectedItems: T[]) => {
+                    if (!Array.isArray(prevSelectedItems)) return [];
+                      return [...prevSelectedItems, ...newItems];
+                    }
+                  );
+                }
             }
            // removed items
             if (newSelectionModel.length < selectionModel.length) {
               const removedItemsId = selectionModel.filter((value) => newSelectionModel.indexOf(value) === -1);
-                setSelectionDiff ?? setSelectionDiff((prevSelectedItems: T[]) => {
-                if (!Array.isArray(prevSelectedItems)) return [];
-                return [...prevSelectedItems.filter((value) => removedItemsId.indexOf(value.__identifier as GridRowId) === -1)];
-              });
+                if (setSelectionDiff !== undefined) {
+                  setSelectionDiff((prevSelectedItems: T[]) => {
+                    if (!Array.isArray(prevSelectedItems)) return [];
+                      return [...prevSelectedItems.filter((value) => removedItemsId.indexOf(value.__identifier as GridRowId) === -1)];
+                    }
+                  );
+                }
             }
             setSelectionModel(newSelectionModel);
           } else {
             if (newSelectionModel.length === 0) {
               setSelectionModel([]);
-              setSelectionDiff ?? setSelectionDiff([]);
-              return;
+              if (setSelectionDiff !== undefined) {
+                setSelectionDiff([]);
+                return;
+              }
             }
 
             const lastId = newSelectionModel[newSelectionModel.length - 1];
 
             setSelectionModel([lastId]);
-            setSelectionDiff ?? setSelectionDiff([data.find((value) => value.__identifier === lastId)!]);
+            if (setSelectionDiff !== undefined) {
+                setSelectionDiff([data.find((value) => value.__identifier === lastId)!]);
+            }
           }
         };
       } else {
@@ -440,7 +449,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
     try {
       const processedQueryCustomizer = hasRefreshAction ? {
         ...processQueryCustomizer(queryCustomizer),
-        _mask: maskAction() ? maskAction() : queryCustomizer._mask,
+        _mask: maskAction ? maskAction() : queryCustomizer._mask,
       } :
       {
         ...processQueryCustomizer(queryCustomizer),
@@ -516,7 +525,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
   };
 
   async function filterAction(id: string) {
-    const filterResults = await actions.filterAction!(id, filterOptions, filterModel, filters);
+    const filterResults = await actions[calculateActionName(relationName, 'filterAction')]!(id, filterOptions, filterModel, filters);
   {{# if isUseInlineColumnFilters }}
     if (filterResults.model) {
       handleFilterModelChange({
@@ -530,66 +539,83 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
   {{/ if }}
   }
 
-  const getTableButtonVisibility = (expression: string): boolean => {
-    if (expression === "false") {
+  const getTableButtonVisibility = (expression: string, actionName: string): boolean => {
+    if (expression === undefined) {
       return false;
     }
-  
-    if (expression === "isFormUpdateable()") {
+
+    if (expression === 'false') {
+      return false;
+    }
+
+    if (expression === 'isFormUpdateable()') {
       return isFormUpdateable ? isFormUpdateable() : false;
     }
-  
-    let result = true;
+
+    let result: boolean = data.length !== undefined && data.length > 0;
     if (expression.includes(`ownerData.${enabledByName}`)) {
-      result = result && ownerData && ownerData["enabledByName"]
-    };
-  
-    if (expression.includes("isFormUpdateable()")) {
-      return result && data.length !== undefined;
+      result = result && ownerData && ownerData['enabledByName'];
     }
-  
-    if (expression === "data.length && isFormUpdateable()") {
-      return selectionModel.length > 0;
+
+    if (expression.includes('isFormUpdateable()')) {
+      return result && (isFormUpdateable ? isFormUpdateable(): false);
     }
-  
-    if (expression === "selectionModel.length > 0") {
+
+    if (actionName.includes('clearAction')) {
+      return result;
+    }
+
+    if (expression === 'selectionModel.length > 0') {
       return selectionModel.length > 0;
     }
 
     return true;
-  }
+  };
 
-  const getTableRowButtonDisabledConditions = (expression: string, row: T): boolean => {
-    if (expression === "isLoading") {
+  const getTableRowButtonDisabledConditions = (row: T): boolean => {
+    let expression = data.find((r) => r.__identifier === row.__identifier )?.__identifier;
+    if (expression === undefined) {
+      return false;
+    }
+
+    if (expression === 'isLoading') {
       return isLoading;
     }
-  
-    if (expression === "getSelectedRows().length > 0 || isLoading") {
+
+    if (expression === 'getSelectedRows().length > 0 || isLoading') {
       return getSelectedRows().length > 0 || isLoading;
     }
-  
-    let result: boolean | undefined = getSelectedRows().length > 0;
-    if (expression.includes("isFormUpdateable() || ")) {
-      result = result || isFormUpdateable && isFormUpdateable();
+
+    let result: boolean = getSelectedRows().length > 0;
+    if (expression.includes('isFormUpdateable() || ')) {
+      result = result || (isFormUpdateable ? isFormUpdateable() : false);
     }
-  
-    if (expression === "editMode || ") {
-      result = result || editMode;
+
+    if (expression === 'editMode || ') {
+      result = result || (editMode ? editMode : false);
     }
 
     if (expression.includes(`!ownerData.${enabledByName} || `)) {
-      result = result || (ownerData && !ownerData["enabledByName"]);
+      result = result || (ownerData ? !ownerData['enabledByName'] : false);
     }
-  
-    if (expression.includes("!row.__deleteable || ")) {
-      result = result || !row.__deleteable
+
+    if (expression.includes('!row.__deleteable || ')) {
+      result = result || !row.__deleteable;
     }
 
     if (expression.includes(`!row.${enabledByName} || `)) {
-      return data.length || row["enabledByName"];
+      return data.length || row['enabledByName'];
     }
-  
+
     return result || isLoading;
+  };
+
+  function calculateActionName(relationName: string, actionName: string) {
+    if (relationName === '') {
+      return actionName;
+    } else {
+      return relationName + actionName.charAt(0).toUpperCase() + actionName.slice(1);
+    }
   }
 
   return (
@@ -664,35 +690,35 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
     Toolbar: () => (
       <GridToolbarContainer>
         {
-          toolBarActions.map( (toolBarAction: any) => actions[toolBarAction.name] && toolBarAction.tableButtonVisibilityConditions ? (
+          toolBarActions.map( (toolBarAction: any) => actions[toolBarAction.name] && getTableButtonVisibility(toolBarAction.tableButtonVisibilityConditions, toolBarAction.name) ? (
             <Button
               id={toolBarAction.id}
               startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
               variant={toolBarAction.variant}
               onClick={async () => {
-                if (toolBarAction.name === 'filterAction') {
-                  return await filterAction(toolBarAction.id);
+                if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
+                  await filterAction(toolBarAction.id);
                 } else {
                   let processedQueryCustomizer = {
                     ...processQueryCustomizer(queryCustomizer),
                   };
-                  if (toolBarActions.find((tbAction: any) => tbAction.name === 'filterAction')) {
+                  if (toolBarActions.find((tbAction: any) => tbAction.name === calculateActionName(relationName, 'refreshAction'))) {
                     processedQueryCustomizer = {
                       ...processedQueryCustomizer,
                       _mask: maskAction ? maskAction() : queryCustomizer._mask,
                     }
                   }
 
-                  if (toolBarAction.name === 'exportAction') {
+                  if (toolBarAction.name === calculateActionName(relationName, 'exportAction')) {
                     processedQueryCustomizer = {
                       ...processedQueryCustomizer,
                       _seek: undefined,
                     }
                   }
 
-                  if (toolBarAction.name === 'refreshAction'
-                      || toolBarAction.name === 'exportAction'
-                      || toolBarAction.name === 'selectorRangeAction'
+                  if (toolBarAction.name === calculateActionName(relationName, 'refreshAction')
+                      || toolBarAction.name === calculateActionName(relationName, 'exportAction')
+                      || toolBarAction.name === calculateActionName(relationName, 'selectorRangeAction')
                     ) {
                     actions[toolBarAction.name]!(processedQueryCustomizer);
                   } else {
@@ -702,8 +728,8 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
                         handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
                       }
                     } else {
-                      if (toolBarAction.name === 'clearAction') {
-                        await actions.clearAction!();
+                      if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
+                        await actions[toolBarAction.name]!();
                         handleOnSelection([]);
                       } else {
                         await actions[toolBarAction.name]!();
@@ -715,7 +741,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
               disabled={isLoading}
             >
               {t(`${toolBarAction.label["translationKey"]}`, { defaultValue: `${toolBarAction.label["defaultValue"]}` })}
-              {toolBarAction.name === 'filterAction' && filters.length ? ` (${filters.length})` : ''}
+              {toolBarAction.name === calculateActionName(relationName, 'filterAction') && filters.length ? ` (${filters.length})` : ''}
             </Button>
           ) : null)}
           {<AdditionalToolbarActions />}
