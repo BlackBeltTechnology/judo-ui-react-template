@@ -54,7 +54,7 @@ import { useL10N } from '~/l10n/l10n-context';
 interface LazyTableProps<T extends GridValidRowModel> {
   sidekickComponentFilter: string;
   uniqueId: string;
-  rowHighlightingHookInterfaceKey: string;
+  rowHighlightingHookInterfaceKey?: string;
   dataProp: T[];
   defaultSortParamsForTable: any;
   tablePageLimit: number;
@@ -557,7 +557,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
       return result && (isFormUpdateable ? isFormUpdateable(): false);
     }
 
-    if (actionName.includes('clearAction')) {
+    if (actionName.includes('clearAction') || actionName.includes('ClearAction')) {
       return result;
     }
 

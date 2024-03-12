@@ -53,7 +53,7 @@ import { useL10N } from '~/l10n/l10n-context';
 interface EagerTableProps<T extends GridValidRowModel> {
   sidekickComponentFilter: string;
   uniqueId: string;
-  rowHighlightingHookInterfaceKey: string;
+  rowHighlightingHookInterfaceKey?: string;
   dataProp: T[];
   defaultSortParamsForTable: any;
   tablePageLimit: number;
@@ -516,7 +516,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
       return result && (isFormUpdateable ? isFormUpdateable(): false);
     }
 
-    if (actionName.includes('clearAction')) {
+    if (actionName.includes('clearAction') || actionName.includes('ClearAction')) {
       return result;
     }
 
