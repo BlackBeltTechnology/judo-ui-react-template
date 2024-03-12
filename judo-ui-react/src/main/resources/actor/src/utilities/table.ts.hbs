@@ -24,6 +24,10 @@ export interface RefreshableTable {
 export interface SidekickComponentProps<T> {
   editMode?: boolean;
   isLoading?: boolean;
+  {{# if isUseInlineColumnFilters }}
+  filterModel: GridFilterModel;
+  onFilterModelChange: (newModel: GridFilterModel) => void;
+  {{/ if }}
   filters: Filter[];
   onFiltersChange: (newFilters: Filter[]) => void;
   data: T[];

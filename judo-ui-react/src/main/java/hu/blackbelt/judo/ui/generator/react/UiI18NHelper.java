@@ -305,6 +305,12 @@ public class UiI18NHelper {
                     });
                 }
             });
+
+            List<VisualElement> flexElements = new ArrayList<>();
+            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Flex flex && flex.isCard() && !(v instanceof PageContainer) && v.getLabel() != null && !v.getLabel().isBlank(), flexElements);
+            flexElements.forEach(f -> {
+                translations.put(getTranslationKeyForVisualElement(f), f.getLabel());
+            });
         });
 
         List<OperationType> operationsWithFaults = application.getClassTypes().stream()

@@ -213,7 +213,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
         tableRowActions.forEach((row) => {
           row.disabled = (row: T) => getTableRowButtonDisabledConditions(row);
         });
-      
+
         return tableRowActions;
       }, [actions, isLoading]);
 
@@ -654,12 +654,11 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
     rows={data}
     getRowClassName={ (params: GridRowClassNameParams) => {
     {{# if (stringValueIsTrue useTableRowHighlighting) }}
-      const customStyle = rowStylings.find(r => r.condition(params));
-      if (customStyle) {
-      return customStyle.name;
-      }
-    {{/ if }}
+    const customStyle = rowStylings.find(r => r.condition(params));
+    return (customStyle?.name ? `${customStyle.name} ` : '') + (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd');
+    {{ else }}
     return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+    {{/ if }}
     } }
     columns={effectiveTableColumns}
     {{# if isMUILicensePlanPro }}

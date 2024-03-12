@@ -613,12 +613,11 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
     rows={data}
     getRowClassName={ (params: GridRowClassNameParams) => {
     {{# if (stringValueIsTrue useTableRowHighlighting) }}
-      const customStyle = rowStylings.find(r => r.condition(params));
-      if (customStyle) {
-      return customStyle.name;
-      }
-    {{/ if }}
+    const customStyle = rowStylings.find(r => r.condition(params));
+    return (customStyle?.name ? `${customStyle.name} ` : '') + (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd');
+    {{ else }}
     return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+    {{/ if }}
     } }
     columns={effectiveTableColumns}
     {{# if isMUILicensePlanPro }}
