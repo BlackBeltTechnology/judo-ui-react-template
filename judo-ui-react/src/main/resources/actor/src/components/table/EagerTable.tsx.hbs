@@ -53,7 +53,9 @@ import { useL10N } from '~/l10n/l10n-context';
 interface EagerTableProps<T extends GridValidRowModel> {
   sidekickComponentFilter: string;
   uniqueId: string;
-  rowHighlightingHookInterfaceKey?: string;
+  {{# if (stringValueIsTrue useTableRowHighlighting) }}
+  rowHighlightingHookInterfaceKey: string;
+  {{/ if }}
   dataProp: T[];
   defaultSortParamsForTable: any;
   tablePageLimit: number;
