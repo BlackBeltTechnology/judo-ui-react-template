@@ -16,7 +16,7 @@ import {
   GridRowParams,
   GridToolbarContainer,
   GridEventListener,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { ComponentProxy, useTrackComponent, useTrackService } from '@pandino/react-hooks';
 import { FC, MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,8 +34,6 @@ import { transformRowStylings } from '~/theme/table-row-highlighting';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 import { useConfirmDialog } from '../dialog';
 import {
-  SidekickComponentProps,
-  TableRowAction,
   getUpdatedRowsSelected,
   isRowSelectable,
   mapAllFiltersToQueryCustomizerProperties,
@@ -43,12 +41,20 @@ import {
   processQueryCustomizer,
   fileHandling,
   ToolBarActionProps,
+  {{# if isUseInlineColumnFilters }}
+  mapFilterModelToFilters,
+  mapFilterToFilterModel,
+  {{/ if }}
 }
 from '~/utilities';
+import type { SidekickComponentProps, DialogResult, TableRowAction, ColumnCustomizerHook{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import { JudoStored, QueryCustomizer } from '~/services/data-api/common';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
 import { useL10N } from '~/l10n/l10n-context';
+{{# if isMUILicensePlanPro }}
+import { gridColumnDefinitionsSelector } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+{{/ if }}
 
 interface EagerTableProps<T extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -297,7 +303,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
           setFilterModel(newModel);
           setItemStringified(filterModelKey, newModel);
 
-        if (newModel.items.every(i => i.value !== undefined)) {
+        if (newModel.items.every((i: any) => i.value !== undefined)) {
           const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
 
           if (Array.isArray(newFilters)) {
@@ -337,7 +343,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         }));
         setSortModel(newModel);
 
-        const _orderBy = newModel.filter(m => m.sort).map(m => ({
+        const _orderBy = newModel.filter((m: any) => m.sort).map((m: any) => ({
           attribute: m.field,
           descending: m.sort === 'desc',
         }));
@@ -477,7 +483,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
 
   {{# if isUseInlineColumnFilters }}
   useEffect(() => {
-    if (filterModel.items.every((i) => i.value !== undefined)) {
+    if (filterModel.items.every((i: any) => i.value !== undefined)) {
       setFilters(mapFilterModelToFilters(filterModel, filterOptions));
     }
   }, [ dataElement, filterModel]);
@@ -648,7 +654,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
     Toolbar: () => (
       <GridToolbarContainer>
         {
-          toolBarActions.map( (toolBarAction: any) => actions[toolBarAction.name] && getTableButtonVisibility(toolBarAction.tableButtonVisibilityConditions, toolBarAction.name) ? (
+          toolBarActions.map( (toolBarAction: ToolBarActionProps) => actions[toolBarAction.name] && getTableButtonVisibility(toolBarAction.tableButtonVisibilityConditions, toolBarAction.name) ? (
             <Button
               id={toolBarAction.id}
               startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
@@ -660,7 +666,7 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
                   let processedQueryCustomizer = {
                     ...processQueryCustomizer(queryCustomizer),
                   };
-                  if (toolBarActions.find((tbAction: any) => tbAction.name === calculateActionName(relationName, 'refreshAction'))) {
+                  if (toolBarActions.find((tbAction: ToolBarActionProps) => tbAction.name === calculateActionName(relationName, 'refreshAction'))) {
                     processedQueryCustomizer = {
                       ...processedQueryCustomizer,
                       _mask: maskAction ? maskAction() : queryCustomizer._mask,

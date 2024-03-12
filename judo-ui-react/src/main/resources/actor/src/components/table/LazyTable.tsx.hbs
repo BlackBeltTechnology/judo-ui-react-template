@@ -16,7 +16,7 @@ import {
   GridRowParams,
   GridToolbarContainer,
   GridEventListener,
-} from '@mui/x-data-grid';
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { ComponentProxy, useTrackComponent, useTrackService } from '@pandino/react-hooks';
 import { FC, MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -34,8 +34,6 @@ import { transformRowStylings } from '~/theme/table-row-highlighting';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 import { useConfirmDialog } from '../dialog';
 import {
-  SidekickComponentProps,
-  TableRowAction,
   getUpdatedRowsSelected,
   mapAllFiltersToQueryCustomizerProperties,
   processQueryCustomizer,
@@ -43,13 +41,21 @@ import {
   isRowSelectable,
   fileHandling,
   ToolBarActionProps,
+  {{# if isUseInlineColumnFilters }}
+  mapFilterModelToFilters,
+  mapFilterToFilterModel,
+  {{/ if }}
 } from '~/utilities';
+import type { SidekickComponentProps, DialogResult, TableRowAction, ColumnCustomizerHook{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import { JudoStored, QueryCustomizer } from '~/services/data-api/common';
 import type { JudoRestResponse } from '~/services/data-api/rest';
 import { CustomTablePagination } from '~/components';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
 import { useL10N } from '~/l10n/l10n-context';
+{{# if isMUILicensePlanPro }}
+import { gridColumnDefinitionsSelector } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+{{/ if }}
 
 interface LazyTableProps<T extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -303,7 +309,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
           setFilterModel(newModel);
           setItemStringified(filterModelKey, newModel);
 
-        if (newModel.items.every(i => i.value !== undefined)) {
+        if (newModel.items.every((i: any) => i.value !== undefined)) {
           const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
 
           if (Array.isArray(newFilters)) {
@@ -337,7 +343,7 @@ export function LazyTable<T extends GridValidRowModel, S extends QueryCustomizer
         setPage(0);
         setSortModel(newModel);
 
-        const _orderBy = newModel.filter(m => m.sort).map(m => ({
+        const _orderBy = newModel.filter((m: any) => m.sort).map((m: any) => ({
           attribute: m.field,
           descending: m.sort === 'desc',
         }));
