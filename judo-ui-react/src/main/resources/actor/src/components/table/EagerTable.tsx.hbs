@@ -157,8 +157,6 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         }, [rowHighlighting]);
       {{/ if }}
 
-      // TODO: create a variable for this #each (customizableColumns table) as |column|
-
       const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
       const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
       const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
@@ -187,7 +185,6 @@ export function EagerTable<T extends GridValidRowModel, S extends QueryCustomize
         ] : [],
         ...mapAllFiltersToQueryCustomizerProperties(filters),
       });
-      //const SidekickComponent = useTrackComponent<FC<SidekickComponentProps<T>>>(sidekickComponentFilter);
 
       const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
