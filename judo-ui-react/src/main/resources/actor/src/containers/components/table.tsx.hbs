@@ -694,7 +694,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         getRowClassName={ (params: GridRowClassNameParams) => {
           {{# if (stringValueIsTrue useTableRowHighlighting) }}
           const customStyle = rowStylings.find(r => r.condition(params));
-          return (customStyle?.name ? `${customStyle.name} ` : '') + (params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd');
+          if (customStyle) {
+            return customStyle.name;
+          }
           {{ else }}
           return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
           {{/ if }}
