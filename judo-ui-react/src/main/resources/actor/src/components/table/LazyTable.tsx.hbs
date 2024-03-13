@@ -87,7 +87,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   maskAction?: () => string;
   fetch: any;
   refreshCounter: number;
-  ownerData?: TStored;
+  ownerData?: any;
   editMode?: boolean;
   toolBarActions: ToolBarActionProps[];
   tableHasSelectorColumn: boolean;
@@ -100,7 +100,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
     isLoading: boolean,
     selectedRows: T[],
     clearSelections: () => void,
-    ownerData?: TStored,
+    ownerData?: any,
     editMode?: boolean,
     isFormUpdateable?: () => boolean,
   ) => Record<string, ElementType>;
@@ -225,7 +225,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         });
 
         return tableRowActions;
-      }, [actions, isLoading]);
+      }, [actions, isLoading, data]);
 
       const effectiveTableColumns = useMemo(() => {
         const cols = [
@@ -545,7 +545,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   {{/ if }}
   }
 
-  const getTableButtonVisibility = (expression: string, actionName: string): boolean => {
+  const getTableButtonVisibility = useCallback((expression: string, actionName: string): boolean => {
     if (expression === undefined) {
       return false;
     }
@@ -576,9 +576,9 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     }
 
     return true;
-  };
+  }, [selectionModel, ownerData, isFormUpdateable, data]);
 
-  const getTableRowButtonDisabledConditions = (row: T): boolean => {
+  const getTableRowButtonDisabledConditions = useCallback((row: T): boolean => {
     let expression = data.find((r) => r.__identifier === row.__identifier )?.__identifier;
     if (expression === undefined) {
       return false;
@@ -614,7 +614,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     }
 
     return result || isLoading;
-  };
+  }, [data, editMode, ownerData, isLoading]);
 
   function calculateActionName(relationName: string, actionName: string) {
     if (relationName === '') {

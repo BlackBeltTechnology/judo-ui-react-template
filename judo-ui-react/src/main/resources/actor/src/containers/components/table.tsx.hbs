@@ -317,6 +317,8 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         tableHasSelectorColumn={ {{ boolValue (tableHasSelectorColumn table) }} }
         {{# unless container.table }}
         isFormUpdateable={isFormUpdateable}
+        ownerData={ownerData}
+        editMode={editMode}
         {{/ unless }}
         {{# if (getRefreshActionDefinitionForTable table) }}
         maskAction={actions.get{{ firstToUpper table.relationName }}Mask}
@@ -379,6 +381,8 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         tableHasSelectorColumn={ {{ boolValue (tableHasSelectorColumn table) }} }
         {{# unless container.table }}
         isFormUpdateable={isFormUpdateable}
+        ownerData={ownerData}
+        editMode={editMode}
         {{/ unless }}
         enabledByName='{{ table.enabledBy.name }}'
         relationName='{{ table.relationName }}'
