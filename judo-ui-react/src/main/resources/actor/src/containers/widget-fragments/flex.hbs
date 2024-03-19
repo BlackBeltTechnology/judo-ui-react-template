@@ -16,20 +16,20 @@
             <CardContent>
                 {{# if (cardHasHeaderContent this) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2} sx={ { mb: 2 } }>
-                    {{# or this.icon this.label }}
+                    {{# if (flexHasIconOrLabel this) }}
                     <Grid item>
                         <Grid container direction="row" alignItems="center" justifyContent="flex-start">
                         {{# if this.icon }}
                             <MdiIcon path="{{ this.icon.iconName }}" sx={ { marginRight: 1 } } />
                         {{/ if }}
                         {{# if this.label }}
-                            <Typography id="{{ getXMIID this }}" variant="h5" component="h1">
+                            <Typography variant="h5" component="h1">
                                 { t('{{ getTranslationKeyForVisualElement this }}', { defaultValue: '{{ this.label }}' }) }
                             </Typography>
                         {{/ if }}
                         </Grid>
                     </Grid>
-                    {{/ or }}
+                    {{/ if }}
                     {{# if this.actionButtonGroup }}
                     <Grid item>
                         <ButtonGroup size="small">
@@ -67,13 +67,33 @@
             </CardContent>
         </Card>
     {{ else }}
-        <Grid id="{{ getXMIID this }}" data-name="{{ this.name }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
-            {{# each this.children as |child| }}
-                {{# if child }}
-                    {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
-                    {{> (getWidgetTemplate child) }}
-                {{/ if }}
-            {{/ each }}
+        <Grid container direction="row" spacing={2}>
+            {{# if (flexHasIconOrLabel this) }}
+                <Grid item xs={12} sm={12}>
+                    {/* HELLO */}
+                    <Grid container direction="row" alignItems="center" justifyContent="flex-start">
+                    {{# if this.icon }}
+                        <MdiIcon path="{{ this.icon.iconName }}" sx={ { marginRight: 1 } } />
+                    {{/ if }}
+                    {{# if this.label }}
+                        <Typography variant="h5" component="h1">
+                            { t('{{ getTranslationKeyForVisualElement this }}', { defaultValue: '{{ this.label }}' }) }
+                        </Typography>
+                    {{/ if }}
+                    </Grid>
+                </Grid>
+            {{/ if }}
+            <Grid item xs={12} sm={12}>
+                {/* XXX */}
+                <Grid id="{{ getXMIID this }}" data-name="{{ this.name }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                    {{# each this.children as |child| }}
+                        {{# if child }}
+                            {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
+                            {{> (getWidgetTemplate child) }}
+                        {{/ if }}
+                    {{/ each }}
+                </Grid>
+            </Grid>
         </Grid>
     {{/ if }}
     {{# if this.customImplementation }}
