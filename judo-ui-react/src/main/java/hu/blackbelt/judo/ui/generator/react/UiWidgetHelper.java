@@ -431,4 +431,12 @@ public class UiWidgetHelper {
 
         return defaultValue != null ? defaultValue : 10;
     }
+
+    public static boolean flexHasIconOrLabel(Flex flex) {
+        return flex.getIcon() != null || flexHasLabel(flex);
+    }
+
+    public static boolean flexHasLabel(Flex flex) {
+        return flex.getLabel() != null && !flex.getLabel().trim().isBlank();
+    }
 }

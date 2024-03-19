@@ -329,7 +329,7 @@ public class UiPageContainerHelper {
     }
 
     public static boolean cardHasHeaderContent(Flex flex) {
-        return (flex.getIcon() != null || (flex.getLabel() != null && !flex.getLabel().trim().isEmpty()) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
+        return (flexHasIconOrLabel(flex) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
     }
 
     public static boolean containerHasDateOrDateTimeInput(PageContainer container) {
