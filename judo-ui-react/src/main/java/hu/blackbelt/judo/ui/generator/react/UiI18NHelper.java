@@ -38,6 +38,7 @@ import java.util.stream.Collectors;
 import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.DEFAULT_I18N_LANGUAGE;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.translationElementForBulkAction;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.flexHasLabel;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.restParamName;
 import static java.util.Arrays.stream;
 
@@ -307,7 +308,7 @@ public class UiI18NHelper {
             });
 
             List<VisualElement> flexElements = new ArrayList<>();
-            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Flex flex && flex.isCard() && !(v instanceof PageContainer) && v.getLabel() != null && !v.getLabel().isBlank(), flexElements);
+            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Flex flex && flexHasLabel(flex) && !(v instanceof PageContainer), flexElements);
             flexElements.forEach(f -> {
                 translations.put(getTranslationKeyForVisualElement(f), f.getLabel());
             });
