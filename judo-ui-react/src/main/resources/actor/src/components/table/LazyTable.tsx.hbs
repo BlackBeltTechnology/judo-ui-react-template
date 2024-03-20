@@ -41,6 +41,7 @@ import {
   isRowSelectable,
   fileHandling,
   ToolBarActionProps,
+  calculateActionName,
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -67,43 +68,34 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   defaultSortParamsForTable: any;
   tablePageLimit: number;
   tableColumns: GridColDef<TStored>[];
-  tableRowActions: TableRowAction<TStored>[];
+  tableRowActions: TableRowAction<T, TStored>[];
   tableFilterOptions: FilterOption[];
   mask: string;
   isOwnerLoading?: boolean;
   validationError?: string;
   actions: any;
-  allowSelectMultiple: boolean;
+  allowSelectMultiple?: boolean;
   dataElementId: string;
   crudOperationsDisplayed: number;
   transferOperationsDisplayed: number;
-  containerIsSelector: boolean;
-  containerIsRelationSelector: boolean;
-  onRowClick?: GridEventListener<"rowClick"> | undefined;
+  containerIsSelector?: boolean;
+  containerIsRelationSelector?: boolean;
+  onRowClick?: GridEventListener<"rowClick">;
   setSelectionDiff?: Dispatch<SetStateAction<TStored[]>>
   alreadySelected?: JudoStored<TStored>[];
-  containerHasTable: boolean;
-  hasRefreshAction: boolean;
+  containerHasTable?: boolean;
+  hasRefreshAction?: boolean;
   maskAction?: () => string;
   fetch: any;
   refreshCounter: number;
   ownerData?: any;
   editMode?: boolean;
-  toolBarActions: ToolBarActionProps[];
-  tableHasSelectorColumn: boolean;
+  toolBarActions: ToolBarActionProps<T, TStored>[];
+  tableHasSelectorColumn?: boolean;
   selectionDiff?: any;
   isFormUpdateable?: () => boolean;
   enabledByName?: string;
   relationName: string;
-  AdditionalToolbarButtons?: (
-    data: T[],
-    isLoading: boolean,
-    selectedRows: T[],
-    clearSelections: () => void,
-    ownerData?: any,
-    editMode?: boolean,
-    isFormUpdateable?: () => boolean,
-  ) => Record<string, ElementType>;
 }
 
 
@@ -141,7 +133,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         ownerData,
         editMode,
         toolBarActions,
-        AdditionalToolbarButtons,
         tableHasSelectorColumn,
         selectionDiff,
         isFormUpdateable,
@@ -219,36 +210,42 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
       const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [l10nLocale]);
 
-      const rowActions: TableRowAction<TStored>[] = useMemo(() => {
-        tableRowActions.forEach((row) => {
-          row.disabled = (row: TStored) => getTableRowButtonDisabledConditions(row);
-        });
+      const rowActions: TableRowAction<T, TStored>[] = useMemo(() => tableRowActions, [actions, isLoading]);
 
-        return tableRowActions;
-      }, [actions, isLoading, data]);
+      const getSelectedRows: () => T[] = useCallback(() => {
+        if (tableHasSelectorColumn) {
+            if (containerIsSelector) {
+                return selectionDiff;
+            } else {
+                return selectedRows.current;
+            }
+        } else {
+            return [];
+        }
+      }, [selectionDiff, selectedRows.current]);
 
       const effectiveTableColumns = useMemo(() => {
         const cols = [
           ...columns,
-          ...columnsActionCalculator(dataElementId, rowActions, t, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
+          ...columnsActionCalculator(dataElementId, rowActions, t, isLoading, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
         ];
         {{# if isMUILicensePlanPro }}
-          if (columnState.length) {
+        if (columnState.length) {
           const adjusted = columnState
-          .sort((a, b) => a.index - b.index)
-          .map((c) => cols.find((t) => t.field === c.field)!);
+            .sort((a, b) => a.index - b.index)
+            .map((c) => cols.find((t) => t.field === c.field)!);
           for (const c of adjusted) {
-          const colWithWidth = columnState.find(x => x.field === c.field && x.width !== undefined)
-          if (colWithWidth) {
-          // mutate in place
-          c.width = colWithWidth.width;
-          }
+            const colWithWidth = columnState.find(x => x.field === c.field && x.width !== undefined)
+            if (colWithWidth) {
+              // mutate in place
+              c.width = colWithWidth.width;
+            }
           }
           return adjusted;
-          }
+        }
         {{/ if }}
         return cols;
-      }, [columns, rowActions{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
+      }, [columns, rowActions, getSelectedRows, ownerData, isLoading{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
       {{# if isMUILicensePlanPro }}
         const onColumnsChanged = () => {
@@ -263,18 +260,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       {{/ if }}
 
       const getRowIdentifier: (row: T) => string = (row) => row.__identifier!;
-
-      const getSelectedRows: () => T[] = () => {
-        if (tableHasSelectorColumn) {
-            if (containerIsSelector) {
-                return selectionDiff;
-            } else {
-                return selectedRows.current;
-            }
-        } else {
-            return [];
-        }
-      };
 
       const clearSelections = () => {
         handleOnSelection([]);
@@ -545,85 +530,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   {{/ if }}
   }
 
-  const getTableButtonVisibility = useCallback((expression: string, actionName: string): boolean => {
-    if (expression === undefined) {
-      return false;
-    }
-
-    if (expression === 'false') {
-      return false;
-    }
-
-    if (expression === 'isFormUpdateable()') {
-      return isFormUpdateable ? isFormUpdateable() : false;
-    }
-
-    let result: boolean = data.length !== undefined && data.length > 0;
-    if (expression.includes(`ownerData.${enabledByName}`)) {
-      result = result && ownerData && ownerData['enabledByName'];
-    }
-
-    if (expression.includes('isFormUpdateable()')) {
-      return result && (isFormUpdateable ? isFormUpdateable(): false);
-    }
-
-    if (actionName.includes('clearAction') || actionName.includes('ClearAction')) {
-      return result;
-    }
-
-    if (expression === 'selectionModel.length > 0') {
-      return selectionModel.length > 0;
-    }
-
-    return true;
-  }, [selectionModel, ownerData, isFormUpdateable, data]);
-
-  const getTableRowButtonDisabledConditions = useCallback((row: T): boolean => {
-    let expression = data.find((r) => r.__identifier === row.__identifier )?.__identifier;
-    if (expression === undefined) {
-      return false;
-    }
-
-    if (expression === 'isLoading') {
-      return isLoading;
-    }
-
-    if (expression === 'getSelectedRows().length > 0 || isLoading') {
-      return getSelectedRows().length > 0 || isLoading;
-    }
-
-    let result: boolean = getSelectedRows().length > 0;
-    if (expression.includes('isFormUpdateable() || ')) {
-      result = result || (isFormUpdateable ? isFormUpdateable() : false);
-    }
-
-    if (expression === 'editMode || ') {
-      result = result || (editMode ? editMode : false);
-    }
-
-    if (expression.includes(`!ownerData.${enabledByName} || `)) {
-      result = result || (ownerData ? !ownerData['enabledByName'] : false);
-    }
-
-    if (expression.includes('!row.__deleteable || ')) {
-      result = result || !row.__deleteable;
-    }
-
-    if (expression.includes(`!row.${enabledByName} || `)) {
-      return data.length || row['enabledByName'];
-    }
-
-    return result || isLoading;
-  }, [data, editMode, ownerData, isLoading]);
-
-  function calculateActionName(relationName: string, actionName: string) {
-    if (relationName === '') {
-      return actionName;
-    } else {
-      return relationName + actionName.charAt(0).toUpperCase() + actionName.slice(1);
-    }
-  }
-
   return (
     <>
     <ComponentProxy
@@ -676,12 +582,12 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       onColumnOrderChange={onColumnsChanged}
       onColumnWidthChange={onColumnsChanged}
     {{/ if }}
-     disableRowSelectionOnClick
-     isRowSelectable={handleIsRowSelectable}
-     hideFooterSelectedRowCount={ !allowSelectMultiple }
-     checkboxSelection
-     rowSelectionModel={selectionModel}
-     onRowSelectionModelChange={handleOnSelection}
+    disableRowSelectionOnClick
+    isRowSelectable={handleIsRowSelectable}
+    hideFooterSelectedRowCount={ !allowSelectMultiple }
+    checkboxSelection
+    rowSelectionModel={selectionModel}
+    onRowSelectionModelChange={handleOnSelection}
     keepNonExistentRowsSelected
     onRowClick={onRowClick}
     sortModel={sortModel}
@@ -701,7 +607,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     Toolbar: () => (
       <GridToolbarContainer>
         {
-          toolBarActions.map( (toolBarAction: any) => actions[toolBarAction.name] && getTableButtonVisibility(toolBarAction.tableButtonVisibilityConditions, toolBarAction.name) ? (
+          toolBarActions.map( (toolBarAction: any) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (
             <Button
               id={toolBarAction.id}
               startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}

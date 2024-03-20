@@ -4,7 +4,14 @@ import type { GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}'
 import type { TFunction } from 'i18next';
 import { ColumnsActionsOptions, TableRowAction } from './table-row-actions';
 
-export type ColumnActionsProvider<R> = (id: string, actions: TableRowAction<R>[], t: TFunction<string, any>, options?: ColumnsActionsOptions) => GridColDef[];
+export type ColumnActionsProvider<R, RStored> = (
+  id: string,
+  actions: TableRowAction<R, RStored>[], t: TFunction<string, any>,
+  isLoading: boolean,
+  getSelectedRows: () => RStored[],
+  ownerdata?: RStored,
+  options?: ColumnsActionsOptions,
+) => GridColDef[];
 
 export interface DialogResult<T> {
   result: 'close' | 'submit' | 'submit-draft';

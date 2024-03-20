@@ -2,12 +2,17 @@
 
 import type { ReactNode } from 'react';
 
-export interface TableRowAction<R> {
+export interface TableRowAction<R, RStored> {
   id: string;
   label?: string;
-  action?: (row: R) => Promise<void>;
+  action?: (row: RStored) => Promise<void>;
   icon?: ReactNode;
-  disabled?: (row: R) => boolean;
+  disabled: (
+    row: RStored,
+    isLoading: boolean,
+    getSelectedRows: () => R[],
+    ownerdata?: any,
+  ) => boolean,
   disabledExpression?: string;
   isCRUD?: boolean;
 }

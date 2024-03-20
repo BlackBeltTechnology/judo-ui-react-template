@@ -220,7 +220,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{/ each }}
   ]
 
-  const toolBarActions: ToolBarActionProps[]  = [
+  const toolBarActions: ToolBarActionProps<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[]  = [
     {{# each table.tableActionButtonGroup.buttons as |button| }}
     {
       name:"{{ simpleActionDefinitionName actionDefinition }}",
@@ -231,14 +231,14 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       variant:{{{ variantForButton button }}},
       hiddenBy:{{# if button.hiddenBy }}true{{ else }}false{{/ if }},
       label:{ 'translationKey': '{{ getTranslationKeyForVisualElement button }}', 'defaultValue': '{{ button.label }}' },
-      tableButtonVisibilityConditions: '{{{ tableButtonVisibilityConditions button table container }}}',
+      enabled: (data: {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, selectionModel: GridRowSelectionModel, ownerData?: any, isFormUpdateable?: () => boolean): boolean => {{{ tableButtonVisibilityConditions button table container }}},
       isBulk: {{ boolValue actionDefinition.isBulk }},
     },
     {{/ each }}
 
   ];
 
-  const rowActions: TableRowAction<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
+  const rowActions: TableRowAction<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
     {{# each table.rowActionButtonGroup.buttons as |button| }}
     {{# unless button.actionDefinition.isOpenPageAction }}
     {
@@ -252,7 +252,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{# if (isRowActionCRUD button.actionDefinition) }}
       isCRUD: true,
       {{/ if }}
-      disabledExpression: '{{{ tableRowButtonDisabledConditions button table container }}}',
+      disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}, isLoading: boolean, getSelectedRows: () => {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, ownerdata?: any): boolean => {{{ tableRowButtonDisabledConditions button table container }}},
       action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
         {{# if button.confirmation }}
           const result = await openConfirmDialog(
@@ -299,22 +299,34 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
-        allowSelectMultiple={ {{ boolValue table.allowSelectMultiple }} }
+        {{# if table.allowSelectMultiple }}
+        allowSelectMultiple={ true }
+        {{/ if }}
         dataElementId={ '{{ createId table.dataElement }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
-        containerIsSelector={ {{ boolValue container.isSelector }} }
-        containerIsRelationSelector={ {{ boolValue container.isRelationSelector }} }
+        {{# if container.isSelector }}
+        containerIsSelector={ true }
+        {{/if}}
+        {{# if container.isRelationSelector }}
+        containerIsRelationSelector={ true }
+        {{/if}}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
         onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
         {{/ if }}
         {{/ each }}
         sidekickComponentFilter={sidekickComponentFilter}
-        isSelectorTable={ {{table.isSelectorTable}} }
-        containerHasTable={ {{ boolValue container.table }} }
+        {{# if table.isSelectorTable }}
+        isSelectorTable={ true }
+        {{/ if }}
+        {{# if container.table }}
+        containerHasTable={ true }
+        {{/if}}
         toolBarActions={toolBarActions}
-        tableHasSelectorColumn={ {{ boolValue (tableHasSelectorColumn table) }} }
+        {{# if (tableHasSelectorColumn table) }}
+        tableHasSelectorColumn={ true }
+        {{/if}}
         {{# unless container.table }}
         isFormUpdateable={isFormUpdateable}
         ownerData={ownerData}
@@ -350,19 +362,27 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
-        allowSelectMultiple={ {{ boolValue table.allowSelectMultiple }} }
+        {{# if table.allowSelectMultiple }}
+        allowSelectMultiple={ true }
+        {{/ if }}
         dataElementId={ '{{ createId table.dataElement }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
-        containerIsSelector={ {{ boolValue container.isSelector }} }
-        containerIsRelationSelector={ {{ boolValue container.isRelationSelector }} }
+        {{# if container.isSelector }}
+        containerIsSelector={ true }
+        {{/if}}
+        {{# if container.isRelationSelector }}
+        containerIsRelationSelector={ true }
+        {{/if}}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
         onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
         {{/ if }}
         {{/ each }}
         sidekickComponentFilter={sidekickComponentFilter}
-        containerHasTable={ {{ boolValue container.table }} }
+        {{# if container.table }}
+        containerHasTable={ true }
+        {{/if}}
         hasRefreshAction={ {{ boolValue getRefreshActionDefinitionForTable table }} }
         {{# if (getRefreshActionDefinitionForTable table) }}
         maskAction={actions.get{{ firstToUpper table.relationName }}Mask}
@@ -378,7 +398,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{/ if }}
         refreshCounter={refreshCounter}
         toolBarActions={toolBarActions}
-        tableHasSelectorColumn={ {{ boolValue (tableHasSelectorColumn table) }} }
+        {{# if (tableHasSelectorColumn table) }}
+        tableHasSelectorColumn={ true }
+        {{/if}}
         {{# unless container.table }}
         isFormUpdateable={isFormUpdateable}
         ownerData={ownerData}
