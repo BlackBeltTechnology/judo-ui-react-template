@@ -339,7 +339,7 @@ public class UiWidgetHelper {
             return "false";
         }
         if (button.getActionDefinition().getIsOpenSelectorAction() && container.isView()) {
-            return "(isFormUpdateable && isFormUpdateable())";
+            return "(isFormUpdateable ? isFormUpdateable() : false)";
         }
         if (button.getActionDefinition().getIsClearAction()) {
             String result = "data.length > 0";
@@ -397,7 +397,7 @@ public class UiWidgetHelper {
                 result += "(ownerData ? !ownerData.{{ table.enabledBy.name }} : false) || ";
             }
             if (container.isView()) {
-                result += "isFormUpdateable && !isFormUpdateable() || ";
+                result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
             }
         } else if (button.getActionDefinition().getIsDeleteAction()) {
             if (!container.isTable()) {
