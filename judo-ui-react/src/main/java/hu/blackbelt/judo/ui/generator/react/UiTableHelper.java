@@ -233,6 +233,10 @@ public class UiTableHelper {
         }
     }
 
+    public static Boolean isSortDirectionDescending(Column column) {
+        return column.getSort() != null && column.getSort().equals(Sort.DESC);
+    }
+
     public static java.util.List<ActionDefinition> getBulkOperationActionDefinitionsForTable(Table table) {
         return table.getTableActionDefinitions().stream()
                 .filter(a -> ((ActionDefinition) a).isIsBulk())
