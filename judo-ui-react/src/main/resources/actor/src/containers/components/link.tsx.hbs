@@ -82,7 +82,9 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
           } : {}),
           _mask: '{ {{~ column.attributeType.name ~}} }',
           _orderBy: [
-            { attribute: '{{ column.attributeType.name }}', descending: false },
+            {{# with (getSortColumnForLink link) as |sortColumn| }}
+            { attribute: '{{ sortColumn.attributeType.name }}', descending: {{ isSortDirectionDescending sortColumn }} },
+            {{/ with }}
           ],
           _seek: { limit: {{ calculateLinkAutocompleteRows link }} },
         };
