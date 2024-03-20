@@ -339,15 +339,15 @@ public class UiWidgetHelper {
             return "false";
         }
         if (button.getActionDefinition().getIsOpenSelectorAction() && container.isView()) {
-            return "isFormUpdateable()";
+            return "(isFormUpdateable ? isFormUpdateable() : false)";
         }
         if (button.getActionDefinition().getIsClearAction()) {
-            String result = "data.length";
+            String result = "data.length > 0";
             if (table.getEnabledBy() != null) {
-                result += " && ownerData.{{ table.enabledBy.name }}";
+                result += " && (ownerData ? ownerData.{{ table.enabledBy.name }} : false)";
             }
             if (container.isView()) {
-                result += " && isFormUpdateable()";
+                result += " && (isFormUpdateable ? isFormUpdateable() : false)";
             }
             return result;
         }
@@ -387,24 +387,24 @@ public class UiWidgetHelper {
             if (button.getActionDefinition().getIsRemoveAction()) {
                 return "isLoading";
             } else if (button.getActionDefinition().getIsBulkRemoveAction()) {
-                return "getSelectedRows().length > 0 || isLoading";
+                return "getSelectedRows && getSelectedRows().length > 0 || isLoading";
             }
         }
-        String result = "getSelectedRows().length > 0 ||";
+        String result = "getSelectedRows && getSelectedRows().length > 0 ||";
 
         if (button.getActionDefinition().getIsRemoveAction()) {
             if (!container.isTable() && table.getEnabledBy() != null) {
-                result += "!ownerData.{{ table.enabledBy.name }} || ";
+                result += "(ownerData ? !ownerData.{{ table.enabledBy.name }} : false) || ";
             }
             if (container.isView()) {
-                result += "!isFormUpdateable() || ";
+                result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
             }
         } else if (button.getActionDefinition().getIsDeleteAction()) {
             if (!container.isTable()) {
                 result += "editMode || ";
 
                 if (table.getEnabledBy() != null) {
-                    result += "!ownerData.{{ table.enabledBy.name }} || ";
+                    result += "(ownerData ? !ownerData.{{ table.enabledBy.name }} : false) || ";
                 }
             }
             result += "!row.__deleteable || ";

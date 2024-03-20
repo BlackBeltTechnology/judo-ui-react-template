@@ -1,0 +1,660 @@
+{{> fragment.header.hbs }}
+
+
+import {
+  DataGrid,
+  GridColDef,
+  GridFilterModel,
+  GridLogicOperator,
+  GridRowClassNameParams,
+  GridRowModel,
+  GridRowSelectionModel,
+  GridSortModel,
+  GridValidRowModel,
+  useGridApiRef,
+  GridRowId,
+  GridRowParams,
+  GridToolbarContainer,
+  GridEventListener,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { ComponentProxy, useTrackComponent, useTrackService } from '@pandino/react-hooks';
+import { FC, MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Filter, FilterOption } from '~/components-api';
+import {
+ContextMenu,
+ContextMenuApi,
+StripedDataGrid,
+columnsActionCalculator,
+} from '~/components/table';
+import { RowHighlightLegend } from '~/components/table';
+import { baseColumnConfig, basePageSizeOptions, baseTableConfig } from '~/config';
+import { useDataStore } from '~/hooks';
+import { transformRowStylings } from '~/theme/table-row-highlighting';
+import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+import { useConfirmDialog } from '../dialog';
+import {
+  getUpdatedRowsSelected,
+  isRowSelectable,
+  mapAllFiltersToQueryCustomizerProperties,
+  applyInMemoryFilters,
+  processQueryCustomizer,
+  fileHandling,
+  ToolBarActionProps,
+  calculateActionName,
+  {{# if isUseInlineColumnFilters }}
+  mapFilterModelToFilters,
+  mapFilterToFilterModel,
+  {{/ if }}
+}
+from '~/utilities';
+import type { SidekickComponentProps, DialogResult, TableRowAction, ColumnCustomizerHook{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
+import { JudoStored, QueryCustomizer } from '~/services/data-api/common';
+import { MdiIcon } from '../MdiIcon';
+import { Box, Button, Typography } from '@mui/material';
+import { useL10N } from '~/l10n/l10n-context';
+{{# if isMUILicensePlanPro }}
+import { gridColumnDefinitionsSelector } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+{{/ if }}
+
+interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
+  sidekickComponentFilter: string;
+  uniqueId: string;
+  {{# if (stringValueIsTrue useTableRowHighlighting) }}
+  rowHighlightingHookInterfaceKey: string;
+  {{/ if }}
+  dataProp: T[];
+  defaultSortParamsForTable: any;
+  tablePageLimit: number;
+  tableColumns: GridColDef<TStored>[];
+  tableRowActions: TableRowAction<T, TStored>[];
+  tableFilterOptions: FilterOption[];
+  mask: string;
+  isOwnerLoading?: boolean;
+  validationError?: string;
+  actions: any;
+  allowSelectMultiple?: boolean;
+  dataElementId: string;
+  crudOperationsDisplayed: number;
+  transferOperationsDisplayed: number;
+  containerIsSelector?: boolean;
+  containerIsRelationSelector?: boolean;
+  onRowClick?: GridEventListener<"rowClick"> | undefined;
+  setSelectionDiff?: Dispatch<SetStateAction<TStored[]>>
+  alreadySelected?: JudoStored<TStored>[];
+  dataElement?: any;
+  isSelectorTable?: boolean;
+  editMode?: boolean;
+  containerHasTable?: boolean;
+  toolBarActions: ToolBarActionProps<T>[];
+  tableHasSelectorColumn?: boolean;
+  maskAction?: () => string;
+  ownerData?: any;
+  selectionDiff?: any;
+  isFormUpdateable?: () => boolean;
+  enabledByName?: string;
+  relationName: string;
+}
+
+
+export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: EagerTableProps<T, TStored>) {
+      const {
+        sidekickComponentFilter,
+        uniqueId,
+        {{# if (stringValueIsTrue useTableRowHighlighting) }}
+        rowHighlightingHookInterfaceKey,
+        {{/ if }}
+        dataProp,
+        defaultSortParamsForTable,
+        tablePageLimit,
+        tableColumns,
+        tableRowActions,
+        tableFilterOptions,
+        mask,
+        isOwnerLoading,
+        validationError,
+        actions,
+        allowSelectMultiple,
+        dataElementId,
+        crudOperationsDisplayed,
+        transferOperationsDisplayed,
+        containerIsSelector,
+        containerIsRelationSelector,
+        onRowClick,
+        setSelectionDiff,
+        alreadySelected,
+        dataElement,
+        isSelectorTable,
+        editMode,
+        containerHasTable,
+        toolBarActions,
+        tableHasSelectorColumn,
+        maskAction,
+        ownerData,
+        selectionDiff,
+        isFormUpdateable,
+        enabledByName,
+        relationName,
+      } = props;
+
+      const apiRef = useGridApiRef();
+      const filterModelKey = `${uniqueId}-filterModel`;
+      const filtersKey = `${uniqueId}-filters`;
+      const rowsPerPageKey = `${uniqueId}-rowsPerPage`;
+      {{# if isMUILicensePlanPro }}
+        const columnStateKey = `${uniqueId}-columnState`;
+      {{/ if }}
+
+      const { locale: l10nLocale } = useL10N();
+      const { downloadFile, extractFileNameFromToken } = fileHandling();
+      const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
+      const { t } = useTranslation();
+
+      {{# if (stringValueIsTrue useTableRowHighlighting) }}
+        const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<TStored>>(rowHighlightingHookInterfaceKey);
+        const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
+        const rowStylings: RowStylerConfigured<TStored>[] = useMemo(() => {
+          return rowHighlighting ? rowHighlighting() : [];
+        }, [rowHighlighting]);
+      {{/ if }}
+
+      const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
+      const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
+      const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+      const [sortModel, setSortModel] = useState<GridSortModel>(defaultSortParamsForTable);
+      const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
+      const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
+      {{# if isMUILicensePlanPro }}
+        const [columnState, setColumnState] = useState<PersistedColumnInfo[]>(getItemParsedWithDefault(columnStateKey, []));
+      {{/ if }}
+      const [rowsPerPage, setRowsPerPage] = useState<number>(getItemParsedWithDefault(rowsPerPageKey, tablePageLimit));
+      const [paginationModel, setPaginationModel] = useState({
+        pageSize: rowsPerPage,
+        page: 0,
+      });
+
+      const [queryCustomizer, setQueryCustomizer] = useState<S | QueryCustomizer<T>>({
+        _mask: mask,
+        _seek: {
+        limit: rowsPerPage + 1,
+        },
+        _orderBy: sortModel.length ? [
+        {
+        attribute: sortModel[0].field,
+        descending: sortModel[0].sort === 'desc',
+        },
+        ] : [],
+        ...mapAllFiltersToQueryCustomizerProperties(filters),
+      });
+
+      const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
+
+      const selectedRows = useRef<TStored[]>([]);
+      {{# if (stringValueIsTrue useTableContextMenus) }}
+        const contextMenuRef = useRef<ContextMenuApi>(null);
+
+        const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
+        contextMenuRef.current?.handleContextMenu(event);
+        };
+      {{/ if }}
+
+      const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [l10nLocale]);
+
+      const rowActions: TableRowAction<T, TStored>[] = useMemo(() => tableRowActions, [actions, isLoading]);
+
+      const getSelectedRows: () => T[] = useCallback(() => {
+        if (tableHasSelectorColumn) {
+            if (containerIsSelector) {
+                return selectionDiff;
+            } else {
+                return selectedRows.current;
+            }
+        } else {
+            return [];
+        }
+      }, [selectionDiff, selectedRows.current]);
+
+      const effectiveTableColumns = useMemo(() => {
+        const cols = [
+          ...columns,
+          ...columnsActionCalculator(dataElementId, rowActions, t, isLoading, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
+        ];
+        {{# if isMUILicensePlanPro }}
+          if (columnState.length) {
+            const adjusted = columnState
+              .sort((a, b) => a.index - b.index)
+              .map((c) => cols.find((t) => t.field === c.field)!);
+
+            for (const c of adjusted) {
+              const colWithWidth = columnState.find(x => x.field === c.field && x.width !== undefined)
+              if (colWithWidth) {
+                // mutate in place
+                c.width = colWithWidth.width;
+              }
+            }
+            return adjusted;
+          }
+        {{/ if }}
+        return cols;
+      }, [columns, rowActions, getSelectedRows, ownerData, isLoading{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
+
+      {{# if isMUILicensePlanPro }}
+        const onColumnsChanged = () => {
+        // Handles column resizing and re-ordering
+        // skip selector column
+        const newOrder: PersistedColumnInfo[] = gridColumnDefinitionsSelector(apiRef)
+        .filter((c) => c.field !== '__check__')
+        .map((current, idx) => ({ field: current.field, index: idx, width: current.computedWidth }));
+        setItemStringified(columnStateKey, newOrder);
+        setColumnState(newOrder);
+        };
+      {{/ if }}
+
+      const getRowIdentifier: (row: T) => string = (row) => row.__identifier!;
+
+      const clearSelections = () => {
+        handleOnSelection([]);
+      };
+
+      const pageSizeOptions = useMemo(() => {
+        const opts: Set<number> = new Set([rowsPerPage, ...basePageSizeOptions]);
+          return Array.from(opts.values()).sort((a, b) => a - b);
+        }, [rowsPerPage]);
+
+        // really need this in case of eager table
+        const setPageSize = useCallback((newValue: number) => {
+        setRowsPerPage(newValue);
+        setItemStringified(rowsPerPageKey, newValue);
+        setPaginationModel((prevState) => ({
+          ...prevState,
+          pageSize: newValue,
+          page: 0,
+        }));
+
+        setQueryCustomizer((prevQueryCustomizer: S | QueryCustomizer<T>) => {
+         // we need to reset _seek so that previous configuration is erased
+         return {
+           ...prevQueryCustomizer,
+           _seek: {
+             limit: newValue + 1,
+           },
+         };
+        });
+      }, []);
+
+      const filterOptions = useMemo<FilterOption[]>(() => tableFilterOptions, [l10nLocale]);
+
+      {{# if isUseInlineColumnFilters }}
+        function handleFilterModelChange (newModel: GridFilterModel) {
+          setFilterModel(newModel);
+          setItemStringified(filterModelKey, newModel);
+
+        if (newModel.items.every((i: any) => i.value !== undefined)) {
+          const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
+
+          if (Array.isArray(newFilters)) {
+            handleFiltersChange(newFilters);
+          }
+        }
+      }
+      {{/ if }}
+
+      const handleFiltersChange = (newFilters: Filter[]) => {
+        setPaginationModel((prevState) => ({
+          ...prevState,
+          page: 0,
+        }));
+        setFilters(newFilters);
+        setItemStringified(filtersKey, newFilters);
+
+        setQueryCustomizer((prevQueryCustomizer: S | QueryCustomizer<T>) => {
+          // remove previous filter values, so that we can always start with a clean slate
+          for (const name of columns.map(c => c.field)) {
+            delete (prevQueryCustomizer as any)[name];
+          }
+          return {
+            ...prevQueryCustomizer,
+            _seek: {
+              limit: rowsPerPage + 1,
+            },
+            ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+          };
+        });
+      };
+
+      function handleSortModelChange (newModel: GridSortModel) {
+        setPaginationModel((prevState) => ({
+          ...prevState,
+          page: 0,
+        }));
+        setSortModel(newModel);
+
+        const _orderBy = newModel.filter((m: any) => m.sort).map((m: any) => ({
+          attribute: m.field,
+          descending: m.sort === 'desc',
+        }));
+
+        setQueryCustomizer((prevQueryCustomizer) => {
+          const strippedQueryCustomizer: S | QueryCustomizer<T> = {
+            ...prevQueryCustomizer
+          };
+          if (!!strippedQueryCustomizer._seek) {
+            delete strippedQueryCustomizer._seek.lastItem;
+          }
+          // we need to reset _seek so that previous configuration is erased
+          return {
+            ...strippedQueryCustomizer,
+            _orderBy,
+            _seek: {
+              limit: rowsPerPage + 1,
+            },
+          };
+        });
+      }
+
+      let handleIsRowSelectable: any;
+      let handleOnSelection: any;
+      if (containerIsSelector) {
+        handleIsRowSelectable = useCallback((params: GridRowParams<JudoStored<TStored> & { __selected?: boolean }>) => {
+          if (!containerIsRelationSelector) {
+            // For operation inputs, we allow all elements to be selected.
+            return true;
+          } else {
+            if (containerIsRelationSelector) {
+              return isRowSelectable(params.row, !allowSelectMultiple, alreadySelected);
+            } else {
+              return isRowSelectable(params.row, !allowSelectMultiple);
+            }
+          }
+        }, []);
+
+        handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
+          if (!Array.isArray(selectionModel)) return;
+          if (allowSelectMultiple) {
+            // added new items
+            if (newSelectionModel.length > selectionModel.length) {
+              const diff = newSelectionModel.length - selectionModel.length;
+              const newItemsId = [...newSelectionModel].slice(diff * -1);
+              const newItems: TStored[] = data.filter((value) => newItemsId.indexOf(value.__identifier as GridRowId) !== -1) as TStored[];
+                if (setSelectionDiff !== undefined) {
+                  setSelectionDiff((prevSelectedItems: TStored[]) => {
+                    if (!Array.isArray(prevSelectedItems)) return [];
+                      return [...prevSelectedItems, ...newItems];
+                    }
+                  );
+                }
+            }
+           // removed items
+            if (newSelectionModel.length < selectionModel.length) {
+              const removedItemsId = selectionModel.filter((value) => newSelectionModel.indexOf(value) === -1);
+                if (setSelectionDiff !== undefined) {
+                  setSelectionDiff((prevSelectedItems: TStored[]) => {
+                    if (!Array.isArray(prevSelectedItems)) return [];
+                      return [...prevSelectedItems.filter((value) => removedItemsId.indexOf(value.__identifier as GridRowId) === -1)];
+                    }
+                  )
+                };
+            }
+            setSelectionModel(newSelectionModel);
+          } else {
+            if (newSelectionModel.length === 0) {
+              setSelectionModel([]);
+              if (setSelectionDiff !== undefined) {
+                setSelectionDiff([]);
+              }
+              return;
+            }
+
+            const lastId = newSelectionModel[newSelectionModel.length - 1];
+
+            setSelectionModel([lastId]);
+            if (setSelectionDiff !== undefined) {
+              setSelectionDiff([(data as TStored[]).find((value) => value.__identifier === lastId)!]);
+            }
+          }
+        };
+      } else {
+        handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
+          selectedRows.current = getUpdatedRowsSelected(selectedRows, data, newSelectionModel);
+          setSelectionModel(selectedRows.current.map(getRowIdentifier));
+        }
+      }
+
+
+  useEffect(() => {
+    if (isSelectorTable) {
+      const newData = applyInMemoryFilters<T>(filters, data);
+      setData(newData);
+      handleOnSelection(selectionModel);
+    } else {
+      const newData = applyInMemoryFilters<T>(filters, dataElement ?? []);
+      setData(newData);
+      handleOnSelection(selectionModel);
+    }
+  }, [ dataElement, filters ]);
+
+  let additionalToolbarActions: Record<string, ElementType>;
+
+  if (actions.AdditionalToolbarButtons) {
+    if (containerHasTable) {
+      additionalToolbarActions = actions.AdditionalToolbarButtons(
+        data,
+        isLoading,
+        getSelectedRows(),
+        clearSelections,
+      )
+    } else {
+      additionalToolbarActions = actions.AdditionalToolbarButtons(
+        data,
+        isLoading,
+        getSelectedRows(),
+        clearSelections,
+        ownerData,
+        editMode,
+        isFormUpdateable,
+      )
+    }
+  } else {
+    additionalToolbarActions = {};
+  }
+
+  const AdditionalToolbarActions = () => {
+    return <>
+      { Object.keys(additionalToolbarActions).map((key) => {
+        const AdditionalButton = additionalToolbarActions[key];
+        return <AdditionalButton key={key} />;
+      }) }
+    </>;
+  };
+
+  {{# if isUseInlineColumnFilters }}
+  useEffect(() => {
+    if (filterModel.items.every((i: any) => i.value !== undefined)) {
+      setFilters(mapFilterModelToFilters(filterModel, filterOptions));
+    }
+  }, [ dataElement, filterModel]);
+  {{/ if }}
+
+  async function filterAction(id: string) {
+    const filterResults = await actions[calculateActionName(relationName, 'filterAction')]!(id, filterOptions, filterModel, filters);
+  {{# if isUseInlineColumnFilters }}
+    if (filterResults.model) {
+      handleFilterModelChange({
+        ...filterResults.model!,
+      });
+    }
+  {{ else }}
+    if (Array.isArray(filterResults.filters)) {
+      handleFiltersChange([...filterResults.filters!]);
+    }
+  {{/ if }}
+  }
+
+  return (
+    <>
+    <ComponentProxy
+      filter={sidekickComponentFilter}
+      editMode={containerHasTable ? editMode : undefined}
+      isLoading={isLoading}
+      filters={filters}
+      onFiltersChange={handleFiltersChange}
+      data={data}
+    />
+    <StripedDataGrid
+    apiRef={apiRef}
+    { ...baseTableConfig }
+    {{# if isMUILicensePlanPro }}
+    initialState={ { pinnedColumns: { right: ['actions'] } } }
+    {{/ if }}
+    pageSizeOptions={pageSizeOptions}
+    sx={ {
+    // overflow: 'hidden',
+    display: 'grid',
+    border: (theme) => props.validationError ? `2px solid ${theme.palette.error.main}` : undefined,
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+      ...transformRowStylings(rowStylings),
+    {{/ if }}
+    } }
+    slotProps={ {
+    {{# if (stringValueIsTrue useTableContextMenus) }}
+      cell: {
+      onContextMenu: handleContextMenu,
+      },
+    {{/ if }}
+    filterPanel: {
+    logicOperators: [GridLogicOperator.And],
+    },
+    } }
+    getRowId={getRowIdentifier}
+    loading={isLoading}
+    rows={data}
+    getRowClassName={ (params: GridRowClassNameParams) => {
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+      const customStyle = rowStylings.find(r => r.condition(params));
+      if (customStyle) {
+        return customStyle.name;
+      }
+    {{/ if }}
+      return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+    } }
+    columns={effectiveTableColumns}
+    {{# if isMUILicensePlanPro }}
+      onColumnOrderChange={onColumnsChanged}
+      onColumnWidthChange={onColumnsChanged}
+    {{/ if }}
+    disableRowSelectionOnClick
+    isRowSelectable={handleIsRowSelectable}
+    hideFooterSelectedRowCount={ !allowSelectMultiple }
+    checkboxSelection
+    rowSelectionModel={selectionModel}
+    onRowSelectionModelChange={handleOnSelection}
+    keepNonExistentRowsSelected
+    onRowClick={onRowClick}
+    sortModel={sortModel}
+    onSortModelChange={handleSortModelChange}
+    {{# if isUseInlineColumnFilters }}
+      filterModel={filterModel}
+      onFilterModelChange={handleFilterModelChange}
+    {{/ if }}
+    paginationModel={paginationModel}
+    onPaginationModelChange={setPaginationModel}
+    components={ {
+    Toolbar: () => (
+      <GridToolbarContainer>
+        {
+          toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (
+            <Button
+              id={toolBarAction.id}
+              startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
+              variant={toolBarAction.variant}
+              onClick={async () => {
+                if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
+                  await filterAction(toolBarAction.id);
+                } else {
+                  let processedQueryCustomizer = {
+                    ...processQueryCustomizer(queryCustomizer),
+                  };
+                  if (toolBarActions.find((tbAction: ToolBarActionProps<T>) => tbAction.name === calculateActionName(relationName, 'refreshAction'))) {
+                    processedQueryCustomizer = {
+                      ...processedQueryCustomizer,
+                      _mask: maskAction ? maskAction() : queryCustomizer._mask,
+                    }
+                  }
+
+                  if (toolBarAction.name === calculateActionName(relationName, 'exportAction')) {
+                    processedQueryCustomizer = {
+                      ...processedQueryCustomizer,
+                      _seek: undefined,
+                    }
+                  }
+
+                  if (toolBarAction.name === calculateActionName(relationName, 'refreshAction')
+                      || toolBarAction.name === calculateActionName(relationName, 'exportAction')
+                      || toolBarAction.name === calculateActionName(relationName, 'selectorRangeAction')
+                    ) {
+                    actions[toolBarAction.name]!(processedQueryCustomizer);
+                  } else {
+                    if (toolBarAction.isBulk) {
+                      const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
+                      if (bulkResult === 'submit') {
+                        handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                      }
+                    } else {
+                      if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
+                        await actions[toolBarAction.name]!();
+                        handleOnSelection([]);
+                      } else {
+                        await actions[toolBarAction.name]!();
+                      }
+                    }
+                  }
+                }
+              } }
+              disabled={isLoading}
+            >
+              {t(`${toolBarAction.label["translationKey"]}`, { defaultValue: `${toolBarAction.label["defaultValue"]}` })}
+              {toolBarAction.name === calculateActionName(relationName, 'filterAction') && filters.length ? ` (${filters.length})` : ''}
+            </Button>
+          ) : null)}
+          {<AdditionalToolbarActions />}
+          <div>{/* Placeholder */}</div>
+      </GridToolbarContainer>
+    ),
+    } }
+    />
+    {{> actor/src/fragments/table/error-feedback.fragment.hbs }}
+    {{# if (stringValueIsTrue useTableRowHighlighting) }}
+    <RowHighlightLegend rowStylings={rowStylings} />
+    {{/ if }}
+    {{# if (stringValueIsTrue useTableContextMenus) }}
+    <ContextMenu
+      ref={contextMenuRef}
+      data={data}
+      filters={filters}
+      filterOptions={filterOptions}
+      columns={columns}
+      onFilterByCell={ (filter: Filter) => {
+      {{# if isUseInlineColumnFilters }}
+        handleFilterModelChange({
+          ...filterModel,
+          items: [...filterModel.items, mapFilterToFilterModel(filter)],
+        });
+      {{ else }}
+        handleFiltersChange([...filters, filter]);
+      {{/ if }}
+      } }
+      onExcludeByCell={ (filter: Filter) => {
+      {{# if isUseInlineColumnFilters }}
+        handleFilterModelChange({
+          ...filterModel,
+          items: [...filterModel.items, mapFilterToFilterModel(filter)],
+        });
+      {{ else }}
+        handleFiltersChange([...filters, filter]);
+      {{/ if }}
+      } }
+    />
+    {{/ if }}
+    </>
+  );
+}
