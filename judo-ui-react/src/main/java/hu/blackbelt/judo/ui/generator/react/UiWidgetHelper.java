@@ -339,7 +339,7 @@ public class UiWidgetHelper {
             return "false";
         }
         if (button.getActionDefinition().getIsOpenSelectorAction() && container.isView()) {
-            return "(isFormUpdateable ? isFormUpdateable() : false)";
+            return "(isFormUpdateable && isFormUpdateable())";
         }
         if (button.getActionDefinition().getIsClearAction()) {
             String result = "data.length > 0";
