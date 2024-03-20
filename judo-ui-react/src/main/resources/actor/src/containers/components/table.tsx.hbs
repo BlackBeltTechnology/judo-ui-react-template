@@ -220,7 +220,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{/ each }}
   ]
 
-  const toolBarActions: ToolBarActionProps<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[]  = [
+  const toolBarActions: ToolBarActionProps<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}>[]  = [
     {{# each table.tableActionButtonGroup.buttons as |button| }}
     {
       name:"{{ simpleActionDefinitionName actionDefinition }}",
