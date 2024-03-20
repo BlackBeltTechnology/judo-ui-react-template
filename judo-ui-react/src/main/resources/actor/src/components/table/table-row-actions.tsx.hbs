@@ -9,12 +9,15 @@ import type { ColumnActionsProvider, ColumnsActionsOptions, TableRowAction } fro
 import { DropdownButton } from '../DropdownButton';
 import { MdiIcon } from '../MdiIcon';
 
-export const calculateMinWidth = (entry: TableRowAction<any>[]) => entry.length ? ((entry.map(a => (a.label ?? '').length).reduce((p, c) => p + c, 0) * characterMultiplier) + iconAndDropdownIconExtra) : onlyDropdownWidth;
+export const calculateMinWidth = (entry: TableRowAction<any, any>[]) => entry.length ? ((entry.map(a => (a.label ?? '').length).reduce((p, c) => p + c, 0) * characterMultiplier) + iconAndDropdownIconExtra) : onlyDropdownWidth;
 
-export const columnsActionCalculator: ColumnActionsProvider<any> = (
+export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   id: string,
-  actions: TableRowAction<any>[],
+  actions: TableRowAction<any, any>[],
   t: TFunction<string, any>,
+  isLoading: boolean,
+  getSelectedRows: () => any[],
+  ownerdata?: any,
   options?: ColumnsActionsOptions,
 ): GridActionsColDef[] => {
   const safeOptions: ColumnsActionsOptions = {
@@ -48,7 +51,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any> = (
               key={a.id}
               variant="text"
               startIcon={a.icon}
-              disabled={a.disabled ? a.disabled(params.row) : false}
+              disabled={a.disabled ? a.disabled(params.row, isLoading, getSelectedRows, ownerdata) : false}
               onClick={() => a.action!(params.row)}
             >
               {a.label ?? ''}
@@ -63,7 +66,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any> = (
               label: action.label,
               startIcon: action.icon,
               onClick: () => action.action!(params.row),
-              disabled: action.disabled ? action.disabled(params.row) : false,
+              disabled: action.disabled ? action.disabled(params.row, isLoading, getSelectedRows, ownerdata) : false,
             }))}
           >
             <MdiIcon path="menu-down" />

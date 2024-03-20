@@ -13,7 +13,7 @@ import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Typography from '@mui/material/Typography';
-import { GridToolbarContainer, GridLogicOperator, useGridApiRef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { GridLogicOperator, useGridApiRef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 {{# if isMUILicensePlanPro }}
 import { gridColumnDefinitionsSelector } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 {{/ if }}
@@ -43,6 +43,8 @@ import {
   columnsActionCalculator,
   ContextMenu,
   StripedDataGrid,
+  EagerTable,
+  LazyTable,
 } from '~/components/table';
 import { useConfirmDialog } from '~/components/dialog';
 import type { ContextMenuApi } from '~/components/table/ContextMenu';
@@ -85,7 +87,7 @@ import {
   useErrorHandler,
   {{/ unless }}
 } from '~/utilities';
-import type { SidekickComponentProps, DialogResult, TableRowAction, ColumnCustomizerHook{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
+import type { SidekickComponentProps, DialogResult, TableRowAction, ToolBarActionProps, ColumnCustomizerHook{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import { useDataStore } from '~/hooks';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackComponent, ComponentProxy } from '@pandino/react-hooks';
@@ -185,117 +187,58 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     isFormUpdateable,
     {{/ unless }}
   } = props;
-  const apiRef = useGridApiRef();
-  const generatorUUIDv4 = randomUtils.getGeneratorUUIDv4();
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY }))`;
-  const filterModelKey = `{{ createId table }}-${uniqueId}-${generatorUUIDv4}-filterModel`;
-  const filtersKey = `{{ createId table }}-${uniqueId}-${generatorUUIDv4}-filters`;
-  const rowsPerPageKey = `{{ createId table }}-${uniqueId}-${generatorUUIDv4}-rowsPerPage`;
-  {{# if isMUILicensePlanPro }}
-  const columnStateKey = `{{ createId table }}-${uniqueId}-${generatorUUIDv4}-columnState`;
-  {{/ if }}
 
   const { openConfirmDialog } = useConfirmDialog();
   const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
+  const { t } = useTranslation();
+  {{# unless table.isEager }}
+  const handleError = useErrorHandler();
+  {{/ unless }}
   {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
   const { locale: l10nLocale } = useL10N();
   {{/ or }}
   {{# if (tableHasBinaryColumn table) }}
   const { downloadFile, extractFileNameFromToken } = fileHandling();
   {{/ if }}
-  const { t } = useTranslation();
-  {{# unless table.isEager }}
-  const handleError = useErrorHandler();
-  {{/ unless }}
 
-  {{# if (stringValueIsTrue useTableRowHighlighting) }}
-  const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}}))`);
-  const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
-  const rowStylings: RowStylerConfigured<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = useMemo(() => {
-    return rowHighlighting ? rowHighlighting() : [];
-  }, [rowHighlighting]);
-  {{/ if }}
   {{# each (customizableColumns table) as |column| }}
   const { service: {{ column.name }}ColumnCustomizerHook } = useTrackService<ColumnCustomizerHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}})(column={{ column.name }})`);
   const {{ column.name }}ColumnCustomizer = {{ column.name }}ColumnCustomizerHook && {{ column.name }}ColumnCustomizerHook();
   {{/ each }}
 
-  const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
-  {{# with (getReferenceClassType table) as |classType| }}
-  const [data, setData] = useState<GridRowModel<{{# if classType.isMapped }}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}>[]>({{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }});
-  {{/ with }}
-  {{# if table.showTotalCount }}
-  const [totalCount, setTotalCount] = useState<number>(0);
-  {{/ if }}
-  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
-  const [sortModel, setSortModel] = useState<GridSortModel>({{{ getDefaultSortParamsForTable table }}});
-  const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
-  const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
-  {{# if isMUILicensePlanPro }}
-  const [columnState, setColumnState] = useState<PersistedColumnInfo[]>(getItemParsedWithDefault(columnStateKey, []));
-  {{/ if }}
-  const [rowsPerPage, setRowsPerPage] = useState<number>(getItemParsedWithDefault(rowsPerPageKey, {{ calculateTablePageLimit table }}));
-  const [paginationModel, setPaginationModel] = useState({
-    pageSize: rowsPerPage,
-    page: 0,
-  });
-  const [queryCustomizer, setQueryCustomizer] = useState<{{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>({
-    _mask: '{{ getMaskForTable table }}',
-    _seek: {
-      limit: rowsPerPage + 1,
-    },
-    _orderBy: sortModel.length ? [
-      {
-        attribute: sortModel[0].field,
-        descending: sortModel[0].sort === 'desc',
-      },
-    ] : [],
-    ...mapAllFiltersToQueryCustomizerProperties(filters),
-  });
-  {{# unless table.isEager }}
-  const [page, setPage] = useState<number>(0);
-  const [rowCount, setRowCount] = useState<number>(0);
-  const [lastItem, setLastItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
-  const [firstItem, setFirstItem] = useState<{{ classDataName (getReferenceClassType table) 'Stored' }}>();
-  const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
-  {{/ unless }}
-  const SidekickComponent = useTrackComponent<FC<SidekickComponentProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>>(sidekickComponentFilter);
-
-  const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
-
-  {{# unless container.isSelector }}
-  const selectedRows = useRef<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>([]);
-  {{/ unless }}
-  {{# if (stringValueIsTrue useTableContextMenus) }}
-  const contextMenuRef = useRef<ContextMenuApi>(null);
-
-  const handleContextMenu = (event: MouseEvent<HTMLElement>) => {
-    contextMenuRef.current?.handleContextMenu(event);
-  };
-  {{/ if }}
-
+  const columns: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
   {{# each table.columns as |column| }}
-  const {{ column.name }}Column: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}> = {
+  {
     ...baseColumnConfig,
     field: '{{ column.attributeType.name }}',
     headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
     headerClassName: 'data-grid-column-header',
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
-  };
+  },
   {{/ each }}
+  ]
 
-  const columns = useMemo<GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>(() => [
-    {{# each table.columns as |column| }}
-      {{# if column.customImplementation }}
-        {{ column.name }}ColumnCustomizer ? {{ column.name }}ColumnCustomizer({{ column.name }}Column) : {{ column.name }}Column,
-      {{ else }}
-        {{ column.name }}Column,
+  const toolBarActions: ToolBarActionProps<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[]  = [
+    {{# each table.tableActionButtonGroup.buttons as |button| }}
+    {
+      name:"{{ simpleActionDefinitionName actionDefinition }}",
+      id:"{{ getXMIID button }}",
+      {{# if button.icon }}
+      startIcon:"{{ button.icon.iconName }}",
       {{/ if }}
+      variant:{{{ variantForButton button }}},
+      hiddenBy:{{# if button.hiddenBy }}true{{ else }}false{{/ if }},
+      label:{ 'translationKey': '{{ getTranslationKeyForVisualElement button }}', 'defaultValue': '{{ button.label }}' },
+      enabled: (data: {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, selectionModel: GridRowSelectionModel, ownerData?: any, isFormUpdateable?: () => boolean): boolean => {{{ tableButtonVisibilityConditions button table container }}},
+      isBulk: {{ boolValue actionDefinition.isBulk }},
+    },
     {{/ each }}
-  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
 
-  const rowActions: TableRowAction<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = useMemo(() =>[
+  ];
+
+  const rowActions: TableRowAction<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
     {{# each table.rowActionButtonGroup.buttons as |button| }}
     {{# unless button.actionDefinition.isOpenPageAction }}
     {
@@ -309,7 +252,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{# if (isRowActionCRUD button.actionDefinition) }}
       isCRUD: true,
       {{/ if }}
-      disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {{{ tableRowButtonDisabledConditions button table container }}},
+      disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}, isLoading: boolean, getSelectedRows: () => {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, ownerdata?: any): boolean => {{{ tableRowButtonDisabledConditions button table container }}},
       action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
         {{# if button.confirmation }}
           const result = await openConfirmDialog(
@@ -327,536 +270,150 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     },
     {{/ unless }}
     {{/ each }}
-  ], [actions, isLoading]);
+  ];
 
-  const effectiveTableColumns = useMemo(() => {
-    const cols = [
-      ...columns,
-      ...columnsActionCalculator('{{ createId table.dataElement }}', rowActions, t, { crudOperationsDisplayed: {{ table.crudOperationsDisplayed }}, transferOperationsDisplayed: {{ table.transferOperationsDisplayed }} })
-    ];
-    {{# if isMUILicensePlanPro }}
-    if (columnState.length) {
-      const adjusted = columnState
-        .sort((a, b) => a.index - b.index)
-        .map((c) => cols.find((t) => t.field === c.field)!);
-      for (const c of adjusted) {
-        const colWithWidth = columnState.find(x => x.field === c.field && x.width !== undefined)
-        if (colWithWidth) {
-          // mutate in place
-          c.width = colWithWidth.width;
-        }
-      }
-      return adjusted;
-    }
-    {{/ if }}
-    return cols;
-  }, [columns, rowActions{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
-
-  {{# if isMUILicensePlanPro }}
-  const onColumnsChanged = () => {
-    // Handles column resizing and re-ordering
-    // skip selector column
-    const newOrder: PersistedColumnInfo[] = gridColumnDefinitionsSelector(apiRef)
-      .filter((c) => c.field !== '__check__')
-      .map((current, idx) => ({ field: current.field, index: idx, width: current.computedWidth }));
-    setItemStringified(columnStateKey, newOrder);
-    setColumnState(newOrder);
-  };
-  {{/ if }}
-
-  const getRowIdentifier: (row: Pick<{{ classDataName (getReferenceClassType table) 'Stored' }}, '__identifier'>) => string = (row) => row.__identifier!;
-
-  const getSelectedRows: () => {{ classDataName (getReferenceClassType table) 'Stored' }}[] = () => {
-    return {{# if (tableHasSelectorColumn table) }}{{# if container.isSelector }}selectionDiff{{ else }}selectedRows.current{{/ if }}{{ else }}[]{{/ if }};
-  };
-
-  const clearSelections = () => {
-    handleOnSelection([]);
-  };
-
-  const additionalToolbarActions: Record<string, ElementType> = actions?.{{ table.relationType.name }}AdditionalToolbarButtons ? actions.{{ table.relationType.name }}AdditionalToolbarButtons(
-    data,
-    isLoading,
-    getSelectedRows(),
-    clearSelections
-    {{# unless container.table }}
-    , ownerData
-    , editMode
-    , isFormUpdateable
-    {{/ unless }}
-  ) : {};
-  const AdditionalToolbarActions = () => {
-    return <>
-      { Object.keys(additionalToolbarActions).map((key) => {
-        const AdditionalButton = additionalToolbarActions[key];
-        return <AdditionalButton key={key} />;
-      }) }
-    </>;
-  };
-
-  const pageSizeOptions = useMemo(() => {
-    const opts: Set<number> = new Set([rowsPerPage, ...basePageSizeOptions]);
-    return Array.from(opts.values()).sort((a, b) => a - b);
-  }, [rowsPerPage]);
-
-  const setPageSize = useCallback((newValue: number) => {
-    setRowsPerPage(newValue);
-    setItemStringified(rowsPerPageKey, newValue);
-    {{# unless table.isEager }}
-      setPage(0);
-    {{ else }}
-      setPaginationModel((prevState) => ({
-        ...prevState,
-        pageSize: newValue,
-        page: 0,
-      }));
-    {{/ unless }}
-
-    setQueryCustomizer((prevQueryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => {
-      // we need to reset _seek so that previous configuration is erased
-      return {
-        ...prevQueryCustomizer,
-        _seek: {
-          limit: newValue + 1,
-        },
-      };
-    });
-  }, []);
-
-  const filterOptions = useMemo<FilterOption[]>(() => [
+  const filterOptions: FilterOption[] = [
     {{# each table.filters as |filter| }}
     {{# if isDebugPrint }}// include: actor/src/fragments/table/filter-option.fragment.hbs{{/ if }}
     {{> actor/src/fragments/table/filter-option.fragment.hbs filter=filter application=application }}
     {{/ each }}
-  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
-
-  {{# if isUseInlineColumnFilters }}
-  function handleFilterModelChange (newModel: GridFilterModel) {
-    setFilterModel(newModel);
-    setItemStringified(filterModelKey, newModel);
-
-    if (newModel.items.every(i => i.value !== undefined)) {
-      const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
-
-      if (Array.isArray(newFilters)) {
-        handleFiltersChange(newFilters);
-      }
-    }
-  }
-  {{/ if }}
-
-  const handleFiltersChange = (newFilters: Filter[]) => {
-    {{# unless table.isEager }}
-    setPage(0);
-    {{ else }}
-    setPaginationModel((prevState) => ({
-      ...prevState,
-      page: 0,
-    }));
-    {{/ unless }}
-    setFilters(newFilters);
-    setItemStringified(filtersKey, newFilters);
-
-    setQueryCustomizer((prevQueryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => {
-      // remove previous filter values, so that we can always start with a clean slate
-      for (const name of columns.map(c => c.field)) {
-        delete (prevQueryCustomizer as any)[name];
-      }
-      return {
-        ...prevQueryCustomizer,
-        _seek: {
-          limit: rowsPerPage + 1,
-        },
-        ...mapAllFiltersToQueryCustomizerProperties(newFilters),
-      };
-    });
-  };
-
-  function handleSortModelChange (newModel: GridSortModel) {
-    {{# unless table.isEager }}
-    setPage(0);
-    {{ else }}
-    setPaginationModel((prevState) => ({
-      ...prevState,
-      page: 0,
-    }));
-    {{/ unless }}
-    setSortModel(newModel);
-
-    const _orderBy = newModel.filter(m => m.sort).map(m => ({
-      attribute: m.field,
-      descending: m.sort === 'desc',
-    }));
-
-    setQueryCustomizer((prevQueryCustomizer) => {
-      const strippedQueryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }} = {
-        ...prevQueryCustomizer
-      };
-      if (!!strippedQueryCustomizer._seek) {
-        delete strippedQueryCustomizer._seek.lastItem;
-      }
-      // we need to reset _seek so that previous configuration is erased
-      return {
-        ...strippedQueryCustomizer,
-        _orderBy,
-        _seek: {
-          limit: rowsPerPage + 1,
-        },
-      };
-    });
-  }
-
-  {{# unless table.isEager }}
-  async function handlePageChange (isNext: boolean) {
-    setQueryCustomizer((prevQueryCustomizer) => {
-      return {
-        ...prevQueryCustomizer,
-        _seek: {
-          limit: isNext ? rowsPerPage + 1 : rowsPerPage,
-          reverse: !isNext,
-          lastItem: isNext ? lastItem : firstItem,
-        },
-      };
-    });
-
-    setIsNextButtonEnabled(!isNext);
-  }
-  {{/ unless }}
-
-  {{# if container.isSelector }}
-  const handleIsRowSelectable = useCallback((params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }} & { __selected?: boolean }>) => {
-    {{# unless container.isRelationSelector }}
-    // For operation inputs, we allow all elements to be selected.
-    return true;
-    {{ else }}
-    return isRowSelectable(params.row, !{{ boolValue table.allowSelectMultiple }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }});
-    {{/ unless }}
-  }, []);
-
-  const handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
-    if (!Array.isArray(selectionModel)) return;
-    {{# if table.allowSelectMultiple }}
-    // added new items
-    if (newSelectionModel.length > selectionModel.length) {
-      const diff = newSelectionModel.length - selectionModel.length;
-      const newItemsId = [...newSelectionModel].slice(diff * -1);
-      const newItems = data.filter((value) => newItemsId.indexOf(value.__identifier as GridRowId) !== -1);
-      setSelectionDiff((prevSelectedItems: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => {
-        if (!Array.isArray(prevSelectedItems)) return [];
-
-        return [...prevSelectedItems, ...newItems];
-      });
-    }
-
-    // removed items
-    if (newSelectionModel.length < selectionModel.length) {
-      const removedItemsId = selectionModel.filter((value) => newSelectionModel.indexOf(value) === -1);
-      setSelectionDiff((prevSelectedItems: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => {
-        if (!Array.isArray(prevSelectedItems)) return [];
-
-        return [...prevSelectedItems.filter((value) => removedItemsId.indexOf(value.__identifier as GridRowId) === -1)];
-      });
-    }
-
-    setSelectionModel(newSelectionModel);
-    {{ else }}
-    if (newSelectionModel.length === 0) {
-      setSelectionModel([]);
-      setSelectionDiff([]);
-      return;
-    }
-
-    const lastId = newSelectionModel[newSelectionModel.length - 1];
-
-    setSelectionModel([lastId]);
-    setSelectionDiff([data.find((value) => value.__identifier === lastId)!]);
-    {{/ if }}
-  };
-  {{ else }}
-  const handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
-    selectedRows.current = getUpdatedRowsSelected(selectedRows, data, newSelectionModel);
-    setSelectionModel(selectedRows.current.map(getRowIdentifier));
-  }
-  {{/ if }}
-
-  {{# unless table.isEager }}
-  async function fetchData() {
-    {{# unless container.table }}if (ownerData.__signedIdentifier) { {{/ unless }}
-      setIsInternalLoading(true);
-
-      try {
-        const processedQueryCustomizer = {
-          ...processQueryCustomizer(queryCustomizer),
-          {{# if (getRefreshActionDefinitionForTable table) }}
-          _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
-          {{/ if }}
-        };
-        {{# if container.isSelector }}
-        {{# with (getRangeActionDefinitionForTable table) as |actionDefinition| }}
-        const { data: res, headers } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
-        {{/ with }}
-        {{ else }}
-        {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
-        const { data: res, headers } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
-        {{/ with }}
-        {{/ if }}
-        {{# if table.showTotalCount }}
-        setTotalCount(headers[X_JUDO_COUNT] ? Number(headers[X_JUDO_COUNT]) : -1);
-        {{/ if }}
-
-        if (res.length > rowsPerPage) {
-          setIsNextButtonEnabled(true);
-          res.pop();
-        } else if (queryCustomizer._seek?.limit === rowsPerPage + 1) {
-          setIsNextButtonEnabled(false);
-        }
-
-        setData(res);
-        setFirstItem(res[0]);
-        setLastItem(res[res.length - 1]);
-        setRowCount(res.length || 0);
-      } catch (error) {
-        handleError(error);
-      } finally {
-        setIsInternalLoading(false);
-      }
-    {{# unless container.table }} } {{/ unless }}
-  }
-
-  useEffect(() => {
-    fetchData();
-    handleOnSelection(selectionModel);
-  }, [queryCustomizer{{# unless table.isEager }}, refreshCounter{{/ unless }}]);
-  {{ else }}
-  useEffect(() => {
-    {{# with (getReferenceClassType table) as |classType| }}
-    const newData = applyInMemoryFilters<{{# if classType.isMapped}}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}>(filters, {{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }} ?? []{{ else }}data{{/ unless}});
-    {{/ with }}
-    setData(newData);
-    handleOnSelection(selectionModel);
-  }, [{{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }}, {{/ unless }}filters]);
-
-  {{# if isUseInlineColumnFilters }}
-  useEffect(() => {
-    if (filterModel.items.every((i) => i.value !== undefined)) {
-      setFilters(mapFilterModelToFilters(filterModel, filterOptions));
-    }
-  }, [{{# unless table.isSelectorTable }}ownerData?.{{ table.dataElement.name }}, {{/ unless }}filterModel]);
-  {{/ if }}
-  {{/ unless }}
+  ];
 
   return (
     <div id="{{ getXMIID table }}" data-table-name="{{ table.name }}">
-      <ComponentProxy
-        filter={sidekickComponentFilter}
-        {{# unless container.table }}
-        editMode={editMode}
-        {{/ unless }}
-        isLoading={isLoading}
-        {{# if isUseInlineColumnFilters }}
-        filterModel={filterModel}
-        onFilterModelChange={handleFilterModelChange}
+      {{# if table.isEager }}
+        <EagerTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
+        uniqueId={`{{ createId table }}-${uniqueId}`}
+        {{# if (stringValueIsTrue useTableRowHighlighting) }}
+        rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}}))`}
         {{/ if }}
-        filters={filters}
-        onFiltersChange={handleFiltersChange}
-        data={data}
-      />
-      <StripedDataGrid
-        apiRef={apiRef}
-        { ...baseTableConfig }
-        {{# if isMUILicensePlanPro }}
-        initialState={ { pinnedColumns: { right: ['actions'] } } }
+        {{# with (getReferenceClassType table) as |classType| }}
+        dataProp={ {{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }} }
+        {{/ with }}
+        defaultSortParamsForTable={ {{{ getDefaultSortParamsForTable table }}} }
+        tablePageLimit={ {{ calculateTablePageLimit table }} }
+        tableColumns={columns}
+        tableRowActions={rowActions}
+        tableFilterOptions={filterOptions}
+        mask={ '{{ getMaskForTable table }}' }
+        isOwnerLoading={isOwnerLoading}
+        validationError={validationError}
+        actions={actions}
+        {{# if table.allowSelectMultiple }}
+        allowSelectMultiple={ true }
         {{/ if }}
-        pageSizeOptions={pageSizeOptions}
-        sx={ {
-          // overflow: 'hidden',
-          display: 'grid',
-          {{# unless container.table }}
-          border: (theme) => validationError ? `2px solid ${theme.palette.error.main}` : undefined,
-          {{/ unless }}
-          {{# if (stringValueIsTrue useTableRowHighlighting) }}
-          ...transformRowStylings(rowStylings),
-          {{/ if }}
-        } }
-        slotProps={ {
-        {{# if (stringValueIsTrue useTableContextMenus) }}
-          cell: {
-            onContextMenu: handleContextMenu,
-          },
-        {{/ if }}
-          filterPanel: {
-            logicOperators: [GridLogicOperator.And],
-          },
-        } }
-        getRowId={getRowIdentifier}
-        loading={isLoading}
-        rows={data}
-        getRowClassName={ (params: GridRowClassNameParams) => {
-          {{# if (stringValueIsTrue useTableRowHighlighting) }}
-          const customStyle = rowStylings.find(r => r.condition(params));
-          if (customStyle) {
-            return customStyle.name;
-          }
-          {{/ if }}
-          return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
-        } }
-        columns={effectiveTableColumns}
-        {{# if isMUILicensePlanPro }}
-        onColumnOrderChange={onColumnsChanged}
-        onColumnWidthChange={onColumnsChanged}
-        {{/ if }}
-        {{# unless table.isSelectorTable }}
-        disableRowSelectionOnClick
-        {{/ unless }}
-        {{# if table.isSelectorTable }}
-        isRowSelectable={handleIsRowSelectable}
-        hideFooterSelectedRowCount={ !{{ boolValue table.allowSelectMultiple }} }
-        {{/ if }}
-        {{# if (tableHasSelectorColumn table) }}
-        checkboxSelection
-        rowSelectionModel={selectionModel}
-        onRowSelectionModelChange={handleOnSelection}
-        {{/ if }}
-        keepNonExistentRowsSelected
+        dataElementId={ '{{ createId table.dataElement }}' }
+        crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
+        transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
+        {{# if container.isSelector }}
+        containerIsSelector={ true }
+        {{/if}}
+        {{# if container.isRelationSelector }}
+        containerIsRelationSelector={ true }
+        {{/if}}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
         onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
         {{/ if }}
         {{/ each }}
-        sortModel={sortModel}
-        onSortModelChange={handleSortModelChange}
-        {{# if isUseInlineColumnFilters }}
-        filterModel={filterModel}
-        onFilterModelChange={handleFilterModelChange}
+        sidekickComponentFilter={sidekickComponentFilter}
+        {{# if table.isSelectorTable }}
+        isSelectorTable={ true }
         {{/ if }}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        {{# unless table.isEager }}
-        paginationMode="server"
-        sortingMode="server"
-        filterMode="server"
-        filterDebounceMs={filterDebounceMs}
-        rowCount={rowsPerPage}
+        {{# if container.table }}
+        containerHasTable={ true }
+        {{/if}}
+        toolBarActions={toolBarActions}
+        {{# if (tableHasSelectorColumn table) }}
+        tableHasSelectorColumn={ true }
+        {{/if}}
+        {{# unless container.table }}
+        isFormUpdateable={isFormUpdateable}
+        ownerData={ownerData}
+        editMode={editMode}
         {{/ unless }}
-        components={ {
-          Toolbar: () => (
-            <GridToolbarContainer>
-              {{# each table.tableActionButtonGroup.buttons as |button| }}
-              {actions.{{ simpleActionDefinitionName button.actionDefinition }} && ({{{ tableButtonVisibilityConditions button table container }}}) ? <Button
-                id="{{ getXMIID button }}"
-                {{# if button.icon }}
-                startIcon={<MdiIcon path="{{ button.icon.iconName }}" />}
-                {{/ if }}
-                variant={ {{{ variantForButton button }}} }
-                onClick={ async () => {
-                  {{# if button.actionDefinition.isFilterAction }}
-                    const filterResults = await actions.{{ simpleActionDefinitionName actionDefinition }}!('{{ createId button }}', filterOptions, filterModel, filters);
-                    {{# if isUseInlineColumnFilters }}
-                      if (filterResults.model) {
-                        handleFilterModelChange({
-                          ...filterResults.model!,
-                        });
-                      }
-                    {{ else }}
-                      if (Array.isArray(filterResults.filters)) {
-                        handleFiltersChange([...filterResults.filters!]);
-                      }
-                    {{/ if }}
-                  {{ else }}
-                    const processedQueryCustomizer = {
-                      ...processQueryCustomizer(queryCustomizer),
-                      {{# if (getRefreshActionDefinitionForTable table) }}
-                      _mask: actions.get{{ firstToUpper table.relationName }}Mask ? actions.get{{ firstToUpper table.relationName }}Mask() : queryCustomizer._mask,
-                      {{/ if }}
-                      {{# if actionDefinition.isExportAction }}
-                      _seek: undefined,
-                      {{/ if }}
-                    };
-                    {{# or actionDefinition.isRefreshAction actionDefinition.isExportAction }}
-                      await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
-                    {{ else }}
-                      {{# if actionDefinition.isSelectorRangeAction }}
-                        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processedQueryCustomizer);
-                      {{ else }}
-                        {{# if actionDefinition.isBulk }}
-                          const { result: bulkResult } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectedRows.current);
-                          if (bulkResult === 'submit') {
-                            handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
-                          }
-                        {{ else }}
-                          {{# if actionDefinition.isClearAction }}
-                            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
-                            handleOnSelection([]);
-                          {{ else }}
-                            await actions.{{ simpleActionDefinitionName actionDefinition }}!();
-                          {{/ if }}
-                        {{/ if }}
-                      {{/ if }}
-                    {{/ or }}
-                  {{/ if }}
-                } }
-                disabled={ {{{ tableToolbarButtonDisabledConditions button table container }}} }
-              >
-                {t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}
-                {{# if button.actionDefinition.isFilterAction }}
-                {filters.length ? ` (${filters.length})` : ''}
-                {{/ if }}
-              </Button> : null}
-              {{/ each }}
-              {<AdditionalToolbarActions />}
-              <div>{/* Placeholder */}</div>
-            </GridToolbarContainer>
-          ),
-          {{# unless table.isEager }}
-          Pagination: () => (
-            <CustomTablePagination
-              pageSizeOptions={pageSizeOptions}
-              setPageSize={setPageSize}
-              pageChange={handlePageChange}
-              isNextButtonEnabled={isNextButtonEnabled}
-              page={page}
-              setPage={setPage}
-              rowPerPage={rowsPerPage}
-              {{# if table.showTotalCount }}
-              totalCount={totalCount}
-              {{/ if }}
-            />
-          ),
-          {{/ unless }}
-        } }
-      />
-      {{> actor/src/fragments/table/error-feedback.fragment.hbs }}
-      {{# if (stringValueIsTrue useTableRowHighlighting) }}
-      <RowHighlightLegend rowStylings={rowStylings} />
-      {{/ if }}
-      {{# if (stringValueIsTrue useTableContextMenus) }}
-      <ContextMenu
-        ref={contextMenuRef}
-        data={data}
-        filters={filters}
-        filterOptions={filterOptions}
-        columns={columns}
-        onFilterByCell={ (filter: Filter) => {
-          {{# if isUseInlineColumnFilters }}
-          handleFilterModelChange({
-            ...filterModel,
-            items: [...filterModel.items, mapFilterToFilterModel(filter)],
-          });
-          {{ else }}
-          handleFiltersChange([...filters, filter]);
-          {{/ if }}
-        } }
-        onExcludeByCell={ (filter: Filter) => {
-          {{# if isUseInlineColumnFilters }}
-          handleFilterModelChange({
-            ...filterModel,
-            items: [...filterModel.items, mapFilterToFilterModel(filter)],
-          });
-          {{ else }}
-          handleFiltersChange([...filters, filter]);
-          {{/ if }}
-        } }
-      />
+        {{# if (getRefreshActionDefinitionForTable table) }}
+        maskAction={actions.get{{ firstToUpper table.relationName }}Mask}
+        {{/ if }}
+        enabledByName='{{ table.enabledBy.name }}'
+        dataElement={ ownerData?.{{ table.dataElement.name }} }
+        relationName='{{ table.relationName }}'
+        {{# if container.isSelector }}
+        selectionDiff={selectionDiff}
+        setSelectionDiff={setSelectionDiff}
+        {{/ if }}
+        >
+        </EagerTable>
+      {{ else }}
+        <LazyTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
+        uniqueId={`{{ createId table }}-${uniqueId}`}
+        {{# if (stringValueIsTrue useTableRowHighlighting) }}
+        rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}}))`}
+        {{/ if }}
+        {{# with (getReferenceClassType table) as |classType| }}
+        dataProp={ {{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }} }
+        {{/ with }}
+        defaultSortParamsForTable={ {{{ getDefaultSortParamsForTable table }}} }
+        tablePageLimit={ {{ calculateTablePageLimit table }} }
+        tableColumns={columns}
+        tableRowActions={rowActions}
+        tableFilterOptions={filterOptions}
+        mask={ '{{ getMaskForTable table }}' }
+        isOwnerLoading={isOwnerLoading}
+        validationError={validationError}
+        actions={actions}
+        {{# if table.allowSelectMultiple }}
+        allowSelectMultiple={ true }
+        {{/ if }}
+        dataElementId={ '{{ createId table.dataElement }}' }
+        crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
+        transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
+        {{# if container.isSelector }}
+        containerIsSelector={ true }
+        {{/if}}
+        {{# if container.isRelationSelector }}
+        containerIsRelationSelector={ true }
+        {{/if}}
+        {{# each table.rowActionDefinitions as |actionDefinition| }}
+        {{# if actionDefinition.isOpenPageAction }}
+        onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
+        {{/ if }}
+        {{/ each }}
+        sidekickComponentFilter={sidekickComponentFilter}
+        {{# if container.table }}
+        containerHasTable={ true }
+        {{/if}}
+        hasRefreshAction={ {{ boolValue getRefreshActionDefinitionForTable table }} }
+        {{# if (getRefreshActionDefinitionForTable table) }}
+        maskAction={actions.get{{ firstToUpper table.relationName }}Mask}
+        {{/ if }}
+        {{# if container.isSelector }}
+        {{# with (getRangeActionDefinitionForTable table) as |actionDefinition| }}
+        fetch={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        {{/ with }}
+        {{ else }}
+        {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
+        fetch={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        {{/ with }}
+        {{/ if }}
+        refreshCounter={refreshCounter}
+        toolBarActions={toolBarActions}
+        {{# if (tableHasSelectorColumn table) }}
+        tableHasSelectorColumn={ true }
+        {{/if}}
+        {{# unless container.table }}
+        isFormUpdateable={isFormUpdateable}
+        ownerData={ownerData}
+        editMode={editMode}
+        {{/ unless }}
+        enabledByName='{{ table.enabledBy.name }}'
+        relationName='{{ table.relationName }}'
+        {{# if container.isSelector }}
+        selectionDiff={selectionDiff}
+        setSelectionDiff={setSelectionDiff}
+        {{/ if }}
+        >
+        </LazyTable>
       {{/ if }}
     </div>
   );
