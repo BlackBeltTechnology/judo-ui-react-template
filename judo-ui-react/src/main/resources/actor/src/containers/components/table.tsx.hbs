@@ -383,7 +383,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# if container.table }}
         containerHasTable={ true }
         {{/if}}
-        hasRefreshAction={ {{ boolValue getRefreshActionDefinitionForTable table }} }
+        {{# if getRefreshActionDefinitionForTable table }}
+        hasRefreshAction={ true }
+        {{/if}}
         {{# if (getRefreshActionDefinitionForTable table) }}
         maskAction={actions.get{{ firstToUpper table.relationName }}Mask}
         {{/ if }}
