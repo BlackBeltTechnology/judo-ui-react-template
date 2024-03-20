@@ -439,4 +439,11 @@ public class UiWidgetHelper {
     public static boolean flexHasLabel(Flex flex) {
         return flex.getLabel() != null && !flex.getLabel().trim().isBlank();
     }
+
+    public static Column getSortColumnForLink(Link link) {
+        if (link.getDefaultSortColumn() != null) {
+            return link.getDefaultSortColumn();
+        }
+        return getFirstAutocompleteColumnForLink(link);
+    }
 }
