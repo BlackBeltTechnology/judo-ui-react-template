@@ -5,9 +5,6 @@ import type { ElementType, MouseEvent, Dispatch, SetStateAction, FC } from 'reac
 import { useTranslation } from 'react-i18next';
 import type { JudoIdentifiable } from '~/services/data-api/common';
 import type { JudoRestResponse } from '~/services/data-api/rest';
-{{# if table.showTotalCount }}
-import { X_JUDO_COUNT } from '~/services/data-api/rest';
-{{/ if }}
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -307,10 +304,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
         {{# if container.isSelector }}
         containerIsSelector={ true }
-        {{/if}}
+        {{/ if }}
         {{# if container.isRelationSelector }}
         containerIsRelationSelector={ true }
-        {{/if}}
+        {{/ if }}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
         onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
@@ -322,11 +319,11 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{/ if }}
         {{# if container.table }}
         containerHasTable={ true }
-        {{/if}}
+        {{/ if }}
         toolBarActions={toolBarActions}
         {{# if (tableHasSelectorColumn table) }}
         tableHasSelectorColumn={ true }
-        {{/if}}
+        {{/ if }}
         {{# unless container.table }}
         isFormUpdateable={isFormUpdateable}
         ownerData={ownerData}
@@ -342,8 +339,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
         {{/ if }}
-        >
-        </EagerTable>
+        />
       {{ else }}
         <LazyTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
         uniqueId={`{{ createId table }}-${uniqueId}`}
@@ -370,10 +366,13 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
         {{# if container.isSelector }}
         containerIsSelector={ true }
-        {{/if}}
+        {{/ if }}
         {{# if container.isRelationSelector }}
         containerIsRelationSelector={ true }
-        {{/if}}
+        {{/ if }}
+        {{# if table.showTotalCount }}
+        showTotalCount={ true }
+        {{/ if }}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
         onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
@@ -382,10 +381,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         sidekickComponentFilter={sidekickComponentFilter}
         {{# if container.table }}
         containerHasTable={ true }
-        {{/if}}
+        {{/ if }}
         {{# if getRefreshActionDefinitionForTable table }}
         hasRefreshAction={ true }
-        {{/if}}
+        {{/ if }}
         {{# if (getRefreshActionDefinitionForTable table) }}
         maskAction={actions.get{{ firstToUpper table.relationName }}Mask}
         {{/ if }}
@@ -402,7 +401,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         toolBarActions={toolBarActions}
         {{# if (tableHasSelectorColumn table) }}
         tableHasSelectorColumn={ true }
-        {{/if}}
+        {{/ if }}
         {{# unless container.table }}
         isFormUpdateable={isFormUpdateable}
         ownerData={ownerData}
@@ -414,8 +413,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
         {{/ if }}
-        >
-        </LazyTable>
+        />
       {{/ if }}
     </div>
   );
