@@ -1,6 +1,5 @@
 {{> fragment.header.hbs }}
 
-
 import {
   GridColDef,
   GridFilterModel,
@@ -19,6 +18,7 @@ import {
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
 import { useTranslation } from 'react-i18next';
+import { X_JUDO_COUNT } from '~/services/data-api/rest';
 import { Filter, FilterOption } from '~/components-api';
 import {
 ContextMenu,
@@ -87,6 +87,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   refreshCounter: number;
   ownerData?: any;
   editMode?: boolean;
+  showTotalCount?: boolean;
   toolBarActions: ToolBarActionProps<T>[];
   tableHasSelectorColumn?: boolean;
   selectionDiff?: T[];
@@ -128,6 +129,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     refreshCounter,
     ownerData,
     editMode,
+    showTotalCount,
     toolBarActions,
     tableHasSelectorColumn,
     selectionDiff,
@@ -160,6 +162,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   {{/ if }}
 
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
+  const [totalCount, setTotalCount] = useState<number>(-1);
   const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
   const [sortModel, setSortModel] = useState<GridSortModel>(getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable));
@@ -445,6 +448,10 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       };
       const { data: res, headers } = await fetch!(processedQueryCustomizer);
 
+      if (showTotalCount) {
+        setTotalCount(headers[X_JUDO_COUNT] ? Number(headers[X_JUDO_COUNT]) : -1);
+      }
+
       if (res.length > rowsPerPage) {
         setIsNextButtonEnabled(true);
         res.pop();
@@ -671,9 +678,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
               page={page}
               setPage={setPage}
               rowPerPage={rowsPerPage}
-              {{# if table.showTotalCount }}
-              totalCount={totalCount}
-              {{/ if }}
+              totalCount={showTotalCount ? totalCount : undefined}
             />
           ),
         } }
