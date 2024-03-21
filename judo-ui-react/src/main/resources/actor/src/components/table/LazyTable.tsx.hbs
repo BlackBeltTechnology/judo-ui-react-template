@@ -62,7 +62,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   rowHighlightingHookInterfaceKey: string;
   {{/ if }}
   dataProp: T[];
-  defaultSortParamsForTable: any;
+  defaultSortParamsForTable: GridSortModel;
   tablePageLimit: number;
   tableColumns: GridColDef<TStored>[];
   tableRowActions: TableRowAction<T, TStored>[];
@@ -89,7 +89,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   editMode?: boolean;
   toolBarActions: ToolBarActionProps<T>[];
   tableHasSelectorColumn?: boolean;
-  selectionDiff?: any;
+  selectionDiff?: T[];
   isFormUpdateable?: () => boolean;
   enabledByName?: string;
   relationName: string;
@@ -140,6 +140,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const filterModelKey = `${uniqueId}-filterModel`;
   const filtersKey = `${uniqueId}-filters`;
   const rowsPerPageKey = `${uniqueId}-rowsPerPage`;
+  const sortModelKey = `${uniqueId}-sortModel`;
   {{# if isMUILicensePlanPro }}
     const columnStateKey = `${uniqueId}-columnState`;
   {{/ if }}
@@ -161,7 +162,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
   const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
-  const [sortModel, setSortModel] = useState<GridSortModel>(defaultSortParamsForTable);
+  const [sortModel, setSortModel] = useState<GridSortModel>(getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable));
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
   const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
   {{# if isMUILicensePlanPro }}
@@ -211,7 +212,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const getSelectedRows: () => T[] = useCallback(() => {
     if (tableHasSelectorColumn) {
       if (containerIsSelector) {
-        return selectionDiff;
+        return selectionDiff ?? [];
       } else {
         return selectedRows.current;
       }
@@ -323,6 +324,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   function handleSortModelChange (newModel: GridSortModel) {
     setPage(0);
     setSortModel(newModel);
+    setItemStringified(sortModelKey, newModel);
 
     const _orderBy = newModel.filter((m: any) => m.sort).map((m: any) => ({
       attribute: m.field,
