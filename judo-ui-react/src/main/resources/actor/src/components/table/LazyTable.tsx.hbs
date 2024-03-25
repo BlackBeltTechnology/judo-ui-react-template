@@ -89,6 +89,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   editMode?: boolean;
   showTotalCount?: boolean;
   toolBarActions: ToolBarActionProps<T>[];
+  additionalToolbarButtons?: (...args: any[]) => Record<string, ElementType>;
   tableHasSelectorColumn?: boolean;
   selectionDiff?: T[];
   isFormUpdateable?: () => boolean;
@@ -131,6 +132,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     editMode,
     showTotalCount,
     toolBarActions,
+    additionalToolbarButtons,
     tableHasSelectorColumn,
     selectionDiff,
     isFormUpdateable,
@@ -487,16 +489,16 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
   let additionalToolbarActions: Record<string, ElementType>;
 
-  if (actions.AdditionalToolbarButtons) {
+  if (additionalToolbarButtons) {
     if (containerHasTable) {
-      additionalToolbarActions = actions.AdditionalToolbarButtons(
+      additionalToolbarActions = additionalToolbarButtons(
         data,
         isLoading,
         getSelectedRows(),
         clearSelections,
       )
     } else {
-      additionalToolbarActions = actions.AdditionalToolbarButtons(
+      additionalToolbarActions = additionalToolbarButtons(
         data,
         isLoading,
         getSelectedRows(),
@@ -611,8 +613,9 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           Toolbar: () => (
             <GridToolbarContainer>
               {
-                toolBarActions.map( (toolBarAction: any) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (
+                toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (
                   <Button
+                    key={toolBarAction.id}
                     id={toolBarAction.id}
                     startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                     variant={toolBarAction.variant}
