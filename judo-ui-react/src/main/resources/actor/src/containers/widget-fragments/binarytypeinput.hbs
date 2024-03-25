@@ -18,10 +18,11 @@
         {{# if child.icon }}
             icon="{{ child.icon.iconName }}"
             {{# neq child.attributeType.dataType.mimeTypes.size 0 }}
-                mimeType={ {
-                    type: '{{ child.attributeType.dataType.mimeTypes.[0].type }}',
-                    subType: '{{ child.attributeType.dataType.mimeTypes.[0].subType }}',
-                } }
+                mimeTypes={[
+                    {{# each child.attributeType.dataType.mimeTypes as |mimeType| }}
+                        { type: '{{ mimeType.type }}', subType: '{{ mimeType.subType }}' },
+                    {{/ each }}
+                ]}
             {{/ neq }}
         {{/ if }}
         editMode={editMode}
