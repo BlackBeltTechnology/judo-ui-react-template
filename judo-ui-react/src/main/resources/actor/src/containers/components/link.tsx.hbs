@@ -8,6 +8,7 @@ import { StringOperation } from '~/services/data-api';
 import type {
   {{ getLinkAPIImports link container }}
 } from '~/services/data-api';
+import { AggregationInputButtonProps } from '~/utilities/application/interfaces';
 
 export interface {{ componentName link }}ActionDefinitions {
   {{# each link.actionDefinitions as |actionDefinition| }}
@@ -39,16 +40,70 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
   const { ownerData, actions, storeDiff, submit, validationError, disabled, readOnly, editMode, isLoading, isDraft } = props;
   const { t } = useTranslation();
 
+
+  const aggregationInputButtonProps: Map<string, AggregationInputButtonProps> = new Map<string, AggregationInputButtonProps>([
+  {{# each link.actionButtonGroup.buttons as |button| }}
+  [ "{{ firstToLower button.label }}", 
+    {
+      //disabled: {{{ getVisibilityForAggregationInputButton button }}},
+      className: "{{ link.dataElement.name }}-{{ firstToLower button.label }}",
+    {{# if button.actionDefinition.isOpenSelectorAction }}
+      disabled: disabled,
+      onClick: actions.{{ simpleActionDefinitionName actionDefinition }} ? async (event: Event, handleDropdown: (event: Event) => void) => {
+        handleDropdown(event);
+        const {{ link.dataElement.name }} = await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+        {{# if link.onBlur }}
+        if ({{ link.dataElement.name }} && actions?.on{{ firstToUpper link.dataElement.name }}BlurAction) {
+          const eagerCopy = { ...ownerData, ['{{ link.dataElement.name }}']: {{ link.dataElement.name }} };
+          actions.on{{ firstToUpper link.dataElement.name }}BlurAction(eagerCopy as {{ classDataName container.dataElement 'Stored' }}, storeDiff, editMode!, submit);
+        }
+        {{/ if }}
+      } : undefined,
+      title: t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string,
+    {{/ if }}
+    {{# if button.actionDefinition.isUnsetAction }}
+      disabled: disabled,
+      onClick: (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async (event: Event, handleDropdown: (event: Event) => void) => {
+        handleDropdown(event);
+        actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) 
+      } : undefined,
+      title: t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string,
+    {{/ if }}
+    {{# if button.actionDefinition.isOpenPageAction }}
+      disabled: editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft),
+      onClick: (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async (event: Event, handleDropdown: (event: Event) => void) => {
+        handleDropdown(event);
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!, {{# if container.form }}true{{ else }}false{{/ if }});
+      } : undefined,
+      title: t('judo.component.AggregationInput.navigate', { defaultValue: 'Navigate to element' }) as string,
+    {{/ if }}
+    {{# if button.actionDefinition.isOpenFormAction }}
+      disabled: disabled || (editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft)),
+      onClick: actions.{{ simpleActionDefinitionName actionDefinition }} ? async (event: Event, handleDropdown: (event: Event) => void) => {
+        handleDropdown(event);
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+      } : undefined,
+      title: t('judo.component.AggregationInput.create', { defaultValue: 'Create' }) as string,
+    {{/ if }}
+    {{# if button.actionDefinition.isDeleteAction }}
+      disabled: disabled || editMode,
+      onClick: (ownerData.{{ link.dataElement.name }} && ownerData.{{ link.dataElement.name }}.__deleteable && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async (event: Event, handleDropdown: (event: Event) => void) => { 
+        handleDropdown(event);
+        actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) 
+      } 
+      : undefined,
+      title: t('judo.component.AggregationInput.delete', { defaultValue: 'Delete' }) as string,
+    {{/ if }}
+      iconName: '{{ button.icon.iconName }}',
+    }],
+  {{/ each }}
+  ]);
+
   return (
     <AggregationInput
       name="{{ link.dataElement.name }}"
       id="{{ getXMIID link }}"
       label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string }
-      labelList={[
-        {{# each link.parts as |part| }}
-        ownerData.{{ link.dataElement.name }}?.{{ part.attributeType.name }}?.toString() ?? '',
-        {{/ each }}
-      ]}
       required={actions?.is{{ firstToUpper link.relationType.name }}Required ? actions.is{{ firstToUpper link.relationType.name }}Required(ownerData, editMode) : ({{# if link.requiredBy }}ownerData.{{ link.requiredBy.name }} || {{/ if }}{{# unless link.dataElement.isOptional }}true{{ else }}false{{/ unless }})}
       ownerData={ownerData}
       error={!!validationError}
@@ -61,6 +116,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       editMode={editMode}
       isInlineCreatable={ {{ boolValue link.dataElement.isInlineCreatable }} && !isDraft }
       autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
+      aggregationInputButtonProps={aggregationInputButtonProps}
       onAutoCompleteSelect={ ({{ link.dataElement.name }}) => {
         storeDiff('{{ link.dataElement.name }}', {{ link.dataElement.name }});
         {{# if link.onBlur }}
@@ -93,35 +149,6 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
     {{/ with }}
   {{/ with }}
 {{/ if }}
-  {{# each link.actionButtonGroup.buttons as |button| }}
-    {{# if button.actionDefinition.isOpenSelectorAction }}
-      onSet={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async () => {
-        const {{ link.dataElement.name }} = await actions.{{ simpleActionDefinitionName actionDefinition }}!();
-        {{# if link.onBlur }}
-        if ({{ link.dataElement.name }} && actions?.on{{ firstToUpper link.dataElement.name }}BlurAction) {
-          const eagerCopy = { ...ownerData, ['{{ link.dataElement.name }}']: {{ link.dataElement.name }} };
-          actions.on{{ firstToUpper link.dataElement.name }}BlurAction(eagerCopy as {{ classDataName container.dataElement 'Stored' }}, storeDiff, editMode!, submit);
-        }
-        {{/ if }}
-      } : undefined }
-    {{/ if }}
-    {{# if button.actionDefinition.isUnsetAction }}
-      onUnset={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
-    {{/ if }}
-    {{# if button.actionDefinition.isOpenPageAction }}
-      onView={ (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!, {{# if container.form }}true{{ else }}false{{/ if }});
-      } : undefined }
-    {{/ if }}
-    {{# if button.actionDefinition.isOpenFormAction }}
-      onCreate={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async () => {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
-      } : undefined }
-    {{/ if }}
-    {{# if button.actionDefinition.isDeleteAction }}
-      onDelete={ (ownerData.{{ link.dataElement.name }} && ownerData.{{ link.dataElement.name }}.__deleteable && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) : undefined }
-    {{/ if }}
-  {{/ each }}
     />
   );
 }
