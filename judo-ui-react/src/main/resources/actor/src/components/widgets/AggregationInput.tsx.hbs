@@ -23,6 +23,7 @@ import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
 import { debounceInputs } from '~/config';
 import { exists } from '../../utilities';
+import { AggregationInputButtonProps } from '../../utilities/application';
 import { MdiIcon } from '../MdiIcon';
 
 interface AggregationInputProps {
@@ -36,19 +37,12 @@ interface AggregationInputProps {
   readOnly?: boolean;
   disabled?: boolean;
   editMode?: boolean;
-  labelList: string[];
   icon?: ReactNode;
-  onCreate?: () => Promise<void> | undefined;
-  onDelete?: () => Promise<void> | undefined;
-  onEdit?: () => Promise<void> | undefined;
-  onRemove?: () => Promise<void> | undefined;
-  onSet?: () => Promise<void> | undefined;
-  onUnset?: () => Promise<void> | undefined;
-  onView?: () => Promise<void> | undefined;
   autoCompleteAttribute: string;
   onAutoCompleteSearch?: (searchText: string) => Promise<JudoStored<any>[]>,
   onAutoCompleteSelect: (target?: JudoStored<any> | null) => void;
   isInlineCreatable?: boolean;
+  aggregationInputButtonProps: Map<string, AggregationInputButtonProps>;
 }
 
 export const AggregationInput = ({
@@ -62,19 +56,12 @@ export const AggregationInput = ({
   readOnly = false,
   disabled = false,
   editMode = true,
-  labelList,
   icon,
-  onCreate,
-  onDelete,
-  onEdit,
-  onRemove,
-  onSet,
-  onUnset,
-  onView,
   autoCompleteAttribute,
   onAutoCompleteSearch,
   onAutoCompleteSelect,
   isInlineCreatable,
+  aggregationInputButtonProps,
 }: AggregationInputProps) => {
   const [options, setOptions] = useState<JudoStored<any>[]>([]);
   const [loading, setLoading] = useState(false);
@@ -124,7 +111,7 @@ export const AggregationInput = ({
 
     setDropdownOpen(false);
   };
-  const effectiveReadOnly = readOnly || !onAutoCompleteSearch || !onSet;
+  const effectiveReadOnly = readOnly || !onAutoCompleteSearch || !aggregationInputButtonProps.get('set')?.onClick;
 
   return (
     <Grid container item direction="row" justifyContent="stretch" alignContent="stretch">
@@ -167,7 +154,7 @@ export const AggregationInput = ({
               }}
               InputProps={ {
                 ...params.InputProps,
-                readOnly: readOnly || !onSet,
+                readOnly: readOnly || !aggregationInputButtonProps.get('set')?.onClick,
                 startAdornment: icon && <InputAdornment position="start" style={ { marginTop: 0 } }>{icon}</InputAdornment>,
                 endAdornment: (
                   <InputAdornment position="end">
@@ -180,22 +167,22 @@ export const AggregationInput = ({
                       })}
                     >
                       {loading ? <CircularProgress color="inherit" size='1rem' className="AggregationInputLoading" /> : null}
-                      {onSet && !exists(value) && !readOnly && (
-                        <IconButton className={`${name}-set`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onSet(); } } title={t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string}>
-                          <MdiIcon path="magnify" />
+                      {aggregationInputButtonProps.get('set')?.onClick && !exists(value) && !readOnly && (
+                        <IconButton className={aggregationInputButtonProps.get('set')!.className} disabled={aggregationInputButtonProps.get('set')!.disabled} onClick={ (event: any) => { aggregationInputButtonProps.get('set')!.onClick!(event, handleDropdownClose) } } title={ aggregationInputButtonProps.get('set')!.title }>
+                          <MdiIcon path={ aggregationInputButtonProps.get('set')!.iconName } />
                         </IconButton>
                       )}
-                      {exists(value) && onView && (
-                        <IconButton className={`${name}-view`} disabled={editMode && !isInlineCreatable} onClick={ (event: any) => { handleDropdownClose(event); onView(); } } title={t('judo.component.AggregationInput.navigate', { defaultValue: 'Navigate to element' }) as string}>
-                          <MdiIcon path="eye" />
+                      {exists(value) && aggregationInputButtonProps.get('view') && (
+                        <IconButton className={aggregationInputButtonProps.get('view')!.className} disabled={aggregationInputButtonProps.get('view')!.disabled} onClick={ (event: any) => { aggregationInputButtonProps.get('view')!.onClick!(event, handleDropdownClose) } } title={ aggregationInputButtonProps.get('view')!.title }>
+                          <MdiIcon path={ aggregationInputButtonProps.get('view')!.iconName } />
                         </IconButton>
                       )}
-                      {!exists(value) && onCreate && !readOnly && (
-                        <IconButton className={`${name}-create`} disabled={disabled || (editMode && !isInlineCreatable)} onClick={ (event: any) => { handleDropdownClose(event); onCreate(); } } title={t('judo.component.AggregationInput.create', { defaultValue: 'Create' }) as string}>
-                          <MdiIcon path="file_document_plus" />
+                      {!exists(value) && aggregationInputButtonProps.get('create') && !readOnly && (
+                        <IconButton className={aggregationInputButtonProps.get('create')!.className} disabled={aggregationInputButtonProps.get('create')!.disabled} onClick={ (event: any) => { aggregationInputButtonProps.get('create')!.onClick!(event, handleDropdownClose) } } title={ aggregationInputButtonProps.get('create')!.title }>
+                          <MdiIcon path={ aggregationInputButtonProps.get('create')!.iconName } />
                         </IconButton>
                       )}
-                      {exists(value) && (onEdit || onDelete || onRemove || onSet || onUnset) && (
+                      {exists(value) && (aggregationInputButtonProps.get('delete')?.onClick || aggregationInputButtonProps.get('remove')?.onClick || aggregationInputButtonProps.get('set')?.onClick || aggregationInputButtonProps.get('unset')?.onClick) && (
                         <IconButton className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
@@ -233,34 +220,36 @@ export const AggregationInput = ({
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
               <MenuList id={`${name}-menu`} autoFocusItem>
-                {exists(value) && onSet && !readOnly && (
-                  <MenuItem className={`${name}-set`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onSet(); } }>
-                    <MdiIcon path="magnify" sx={ { mr: 2 } } />
-                    {t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string}
+                {exists(value) && aggregationInputButtonProps.get('set')?.onClick && !readOnly && (
+                  <MenuItem className={aggregationInputButtonProps.get('set')!.className} disabled={aggregationInputButtonProps.get('set')!.disabled} onClick={ (event: any) => { aggregationInputButtonProps.get('set')!.onClick!(event, handleDropdownClose) } }>
+                    <MdiIcon path={aggregationInputButtonProps.get('set')!.iconName} sx={ { mr: 2 } } />
+                    {aggregationInputButtonProps.get('set')!.title}
                   </MenuItem>
                 )}
-                {exists(value) && onEdit && (
-                  <MenuItem className={`${name}-edit`} disabled={disabled || editMode} onClick={ (event: any) => { handleDropdownClose(event); onEdit(); } }>
+                /*
+                {exists(value) && aggregationInputButtonProps.get('edit')?.onClick && (
+                  <MenuItem className={`${name}-edit`} disabled={disabled || editMode} onClick={ (event: any) => { aggregationInputButtonProps.get('edit')!.onClick!(event, handleDropdownClose) } }>
                     <MdiIcon path="pencil" sx={ { mr: 2 } } />
                     {t('judo.component.AggregationInput.open-editor', { defaultValue: 'Edit' }) as string}
                   </MenuItem>
                 )}
-                {exists(value) && onDelete && (
-                  <MenuItem className={`${name}-delete`} disabled={disabled || editMode} onClick={ (event: any) => { handleDropdownClose(event); onDelete(); } }>
-                    <MdiIcon path="delete" sx={ { mr: 2 } } />
-                    {t('judo.component.AggregationInput.delete', { defaultValue: 'Delete' }) as string}
+                */
+                {exists(value) && aggregationInputButtonProps.get('delete')?.onClick && (
+                  <MenuItem className={aggregationInputButtonProps.get('delete')!.className} disabled={aggregationInputButtonProps.get('delete')!.disabled} onClick={ (event: any) => { aggregationInputButtonProps.get('delete')!.onClick!(event, handleDropdownClose) } }>
+                    <MdiIcon path={aggregationInputButtonProps.get('delete')!.iconName} sx={ { mr: 2 } } />
+                    {aggregationInputButtonProps.get('delete')!.title}
                   </MenuItem>
                 )}
-                {exists(value) && onRemove && !readOnly && (
-                  <MenuItem className={`${name}-remove`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onRemove(); } }>
-                    <MdiIcon path="link_off" sx={ { mr: 2 } } />
-                    {t('judo.component.AggregationInput.remove', { defaultValue: 'Remove' }) as string}
+                {exists(value) && aggregationInputButtonProps.get('remove')?.onClick && !readOnly && (
+                  <MenuItem className={aggregationInputButtonProps.get('remove')!.className} disabled={aggregationInputButtonProps.get('remove')!.disabled} onClick={ (event: any) => { aggregationInputButtonProps.get('remove')!.onClick!(event, handleDropdownClose) } }>
+                    <MdiIcon path={aggregationInputButtonProps.get('remove')!.iconName} sx={ { mr: 2 } } />
+                    {aggregationInputButtonProps.get('remove')!.title}
                   </MenuItem>
                 )}
-                {exists(value) && onUnset && !readOnly && (
-                  <MenuItem className={`${name}-unset`} disabled={disabled} onClick={ (event: any) => { handleDropdownClose(event); onUnset(); } }>
-                    <MdiIcon path="link_off" sx={ { mr: 2 } } />
-                    {t('judo.component.AggregationInput.unset', { defaultValue: 'Unset' }) as string}
+                {exists(value) && aggregationInputButtonProps.get('unset')?.onClick && !readOnly && (
+                  <MenuItem className={aggregationInputButtonProps.get('unset')!.className} disabled={aggregationInputButtonProps.get('unset')!.disabled} onClick={ (event: any) => { aggregationInputButtonProps.get('unset')!.onClick!(event, handleDropdownClose) } }>
+                    <MdiIcon path={aggregationInputButtonProps.get('unset')!.iconName} sx={ { mr: 2 } } />
+                    {aggregationInputButtonProps.get('unset')!.title}
                   </MenuItem>
                 )}
               </MenuList>
