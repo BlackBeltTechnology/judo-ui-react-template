@@ -45,7 +45,6 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
   {{# each link.actionButtonGroup.buttons as |button| }}
   [ "{{ firstToLower button.label }}", 
     {
-      //disabled: {{{ getVisibilityForAggregationInputButton button }}},
       className: "{{ link.dataElement.name }}-{{ firstToLower button.label }}",
     {{# if button.actionDefinition.isOpenSelectorAction }}
       disabled: disabled,
@@ -67,7 +66,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
         handleDropdown(event);
         actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) 
       } : undefined,
-      title: t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string,
+      title: t('judo.component.AggregationInput.unset', { defaultValue: 'Unset' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isOpenPageAction }}
       disabled: editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft),

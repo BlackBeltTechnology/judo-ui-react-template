@@ -38,13 +38,6 @@ interface AggregationInputProps {
   disabled?: boolean;
   editMode?: boolean;
   icon?: ReactNode;
-  onCreate?: () => Promise<void> | undefined;
-  onDelete?: () => Promise<void> | undefined;
-  onEdit?: () => Promise<void> | undefined;
-  onRemove?: () => Promise<void> | undefined;
-  onSet?: () => Promise<void> | undefined;
-  onUnset?: () => Promise<void> | undefined;
-  onView?: () => Promise<void> | undefined;
   autoCompleteAttribute: string;
   onAutoCompleteSearch?: (searchText: string) => Promise<JudoStored<any>[]>,
   onAutoCompleteSelect: (target?: JudoStored<any> | null) => void;
@@ -64,13 +57,6 @@ export const AggregationInput = ({
   disabled = false,
   editMode = true,
   icon,
-  onCreate,
-  onDelete,
-  onEdit,
-  onRemove,
-  onSet,
-  onUnset,
-  onView,
   autoCompleteAttribute,
   onAutoCompleteSearch,
   onAutoCompleteSelect,
@@ -241,8 +227,8 @@ export const AggregationInput = ({
                   </MenuItem>
                 )}
                 /*
-                {exists(value) && onEdit && (
-                  <MenuItem className={`${name}-edit`} disabled={disabled || editMode} onClick={ (event: any) => { handleDropdownClose(event); onEdit(); } }>
+                {exists(value) && aggregationInputButtonProps.get('edit')?.onClick && (
+                  <MenuItem className={`${name}-edit`} disabled={disabled || editMode} onClick={ (event: any) => { aggregationInputButtonProps.get('edit')!.onClick!(event, handleDropdownClose) } }>
                     <MdiIcon path="pencil" sx={ { mr: 2 } } />
                     {t('judo.component.AggregationInput.open-editor', { defaultValue: 'Edit' }) as string}
                   </MenuItem>
@@ -262,7 +248,7 @@ export const AggregationInput = ({
                 )}
                 {exists(value) && aggregationInputButtonProps.get('unset')?.onClick && !readOnly && (
                   <MenuItem className={aggregationInputButtonProps.get('unset')!.className} disabled={aggregationInputButtonProps.get('unset')!.disabled} onClick={ (event: any) => { aggregationInputButtonProps.get('unset')!.onClick!(event, handleDropdownClose) } }>
-                    <MdiIcon path={aggregationInputButtonProps.get('remove')!.iconName} sx={ { mr: 2 } } />
+                    <MdiIcon path={aggregationInputButtonProps.get('unset')!.iconName} sx={ { mr: 2 } } />
                     {aggregationInputButtonProps.get('unset')!.title}
                   </MenuItem>
                 )}
