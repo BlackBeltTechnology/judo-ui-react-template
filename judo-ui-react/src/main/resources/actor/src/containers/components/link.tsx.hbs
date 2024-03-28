@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 import { useTranslation } from 'react-i18next';
-import { processQueryCustomizer } from '~/utilities';
+import { exists, processQueryCustomizer } from '~/utilities';
 import { MdiIcon } from '~/components';
 import { AggregationInput } from '~/components/widgets';
 import { StringOperation } from '~/services/data-api';
@@ -41,12 +41,14 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
   const { t } = useTranslation();
 
 
-  const aggregationInputButtonProps: Map<string, AggregationInputButtonProps> = new Map<string, AggregationInputButtonProps>([
-  {{# each link.actionButtonGroup.buttons as |button| }}
-  [ "{{ firstToLower button.label }}", 
+  const aggregationInputButtonProps: AggregationInputButtonProps[] = [
+    {{# each link.actionButtonGroup.buttons as |button| }}
     {
+      name: "{{ firstToLower button.label }}",
       className: "{{ link.dataElement.name }}-{{ firstToLower button.label }}",
     {{# if button.actionDefinition.isOpenSelectorAction }}
+      visible: (value: any, onClick?: (event: Event, handleDropdown: (event: Event) => void) => void) => !exists(value) && onClick !== undefined && !readOnly,
+      dropDownButtonIsVisible: (value: any, onClick?: (event: Event, handleDropdown: (event: Event) => void) => void) => exists(value) && onClick !== undefined && !readOnly,
       disabled: disabled,
       onClick: actions.{{ simpleActionDefinitionName actionDefinition }} ? async (event: Event, handleDropdown: (event: Event) => void) => {
         handleDropdown(event);
@@ -61,6 +63,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       title: t('judo.component.AggregationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isUnsetAction }}
+      dropDownButtonIsVisible: (value: any, onClick?: (event: Event, handleDropdown: (event: Event) => void) => void) => exists(value) && onClick !== undefined && !readOnly,
       disabled: disabled,
       onClick: (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async (event: Event, handleDropdown: (event: Event) => void) => {
         handleDropdown(event);
@@ -69,6 +72,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       title: t('judo.component.AggregationInput.unset', { defaultValue: 'Unset' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isOpenPageAction }}
+      visible: (value: any, onClick?: (event: Event, handleDropdown: (event: Event) => void) => void) => exists(value) && onClick !== undefined,
       disabled: editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft),
       onClick: (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async (event: Event, handleDropdown: (event: Event) => void) => {
         handleDropdown(event);
@@ -77,6 +81,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       title: t('judo.component.AggregationInput.navigate', { defaultValue: 'Navigate to element' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isOpenFormAction }}
+      visible: (value: any, onClick?: (event: Event, handleDropdown: (event: Event) => void) => void) => !exists(value) && onClick !== undefined && !readOnly,
       disabled: disabled || (editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft)),
       onClick: actions.{{ simpleActionDefinitionName actionDefinition }} ? async (event: Event, handleDropdown: (event: Event) => void) => {
         handleDropdown(event);
@@ -85,6 +90,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       title: t('judo.component.AggregationInput.create', { defaultValue: 'Create' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isDeleteAction }}
+      dropDownButtonIsVisible: (value: any, onClick?: (event: Event, handleDropdown: (event: Event) => void) => void) => exists(value) && onClick !== undefined,
       disabled: disabled || editMode,
       onClick: (ownerData.{{ link.dataElement.name }} && ownerData.{{ link.dataElement.name }}.__deleteable && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async (event: Event, handleDropdown: (event: Event) => void) => { 
         handleDropdown(event);
@@ -94,9 +100,9 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       title: t('judo.component.AggregationInput.delete', { defaultValue: 'Delete' }) as string,
     {{/ if }}
       iconName: '{{ button.icon.iconName }}',
-    }],
+    },
   {{/ each }}
-  ]);
+  ];
 
   return (
     <AggregationInput

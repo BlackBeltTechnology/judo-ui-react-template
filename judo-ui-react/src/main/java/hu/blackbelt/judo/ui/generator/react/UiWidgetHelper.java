@@ -446,24 +446,4 @@ public class UiWidgetHelper {
         }
         return getFirstAutocompleteColumnForLink(link);
     }
-
-    public static String getVisibilityForAggregationInputButton(Button button) {
-        if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsUnsetAction()) {
-            return "disabled";
-        }
-
-        if (button.getActionDefinition().getIsOpenPageAction()) {
-            return "editMode && !isInlineCreatable";
-        }
-
-        if (button.getActionDefinition().getIsOpenFormAction()) {
-            return "disabled || (editMode && !isInlineCreatable)";
-        }
-
-        if (button.getActionDefinition().getIsDeleteAction()) {
-            return "disabled || editMode";
-        }
-
-        return "false";
-    }
 }
