@@ -76,6 +76,12 @@ export const AggregationInput = ({
     setValue(ownerData[name] || null);
   }, [ownerData[name]]);
 
+  const onSet = useMemo(() => aggregationInputButtonProps.find(a => a.name === 'set'), [aggregationInputButtonProps]);
+
+  const onDelete = useMemo(() => aggregationInputButtonProps.find(a => a.name === 'delete'), [aggregationInputButtonProps]);
+
+  const onUnSet = useMemo(() => aggregationInputButtonProps.find(a => a.name === 'unset'), [aggregationInputButtonProps]);
+
   const handleSearch = async (searchText: string) => {
     try {
       if (onAutoCompleteSearch) {
@@ -111,7 +117,7 @@ export const AggregationInput = ({
 
     setDropdownOpen(false);
   };
-  const effectiveReadOnly = readOnly || !onAutoCompleteSearch || !aggregationInputButtonProps.find(a => a.name === 'set')?.onClick;
+  const effectiveReadOnly = readOnly || !onAutoCompleteSearch || !onSet?.onClick;
 
   return (
     <Grid container item direction="row" justifyContent="stretch" alignContent="stretch">
@@ -154,7 +160,7 @@ export const AggregationInput = ({
               }}
               InputProps={ {
                 ...params.InputProps,
-                readOnly: readOnly || !aggregationInputButtonProps.find(a => a.name === 'set')?.onClick,
+                readOnly: readOnly || !onSet?.onClick,
                 startAdornment: icon && <InputAdornment position="start" style={ { marginTop: 0 } }>{icon}</InputAdornment>,
                 endAdornment: (
                   <InputAdornment position="end">
@@ -173,7 +179,8 @@ export const AggregationInput = ({
                               className={aggregationInputButtonProp.className}
                               disabled={aggregationInputButtonProp.disabled}
                               onClick={(event: any) => {
-                                aggregationInputButtonProp.onClick!(event, handleDropdownClose);
+                                handleDropdownClose(event);
+                                aggregationInputButtonProp.onClick!();
                               }}
                               title={aggregationInputButtonProp.title}
                             >
@@ -182,7 +189,7 @@ export const AggregationInput = ({
                           )
                         )
                       }
-                      {exists(value) && (aggregationInputButtonProps.find(a => a.name === 'delete')?.onClick || aggregationInputButtonProps.find(a => a.name === 'set')?.onClick || aggregationInputButtonProps.find(a => a.name === 'unset')?.onClick) && (
+                      {exists(value) && (onDelete?.onClick || onSet?.onClick || onUnSet?.onClick) && (
                         <IconButton className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
@@ -226,7 +233,8 @@ export const AggregationInput = ({
                         className={aggregationInputButtonProp.className}
                         disabled={aggregationInputButtonProp.disabled}
                         onClick={(event: any) => {
-                          aggregationInputButtonProp.onClick!(event, handleDropdownClose);
+                          handleDropdownClose(event);
+                          aggregationInputButtonProp.onClick!();
                         }}
                       >
                         <MdiIcon path={aggregationInputButtonProp.iconName} sx={ { mr: 2 } } />

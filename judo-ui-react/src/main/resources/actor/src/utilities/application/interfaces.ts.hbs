@@ -1,5 +1,7 @@
 {{> fragment.header.hbs }}
 
+import { TFunction } from "i18next";
+
 export type AlternativeApplicationGenerator = (translateFn: Function) => Record<string, string>;
 
 export type HandleApplicationChange = (applicationKey: string) => void;
@@ -8,9 +10,9 @@ export interface AggregationInputButtonProps {
   name: string;
   className: string;
   disabled?: boolean;
-  onClick?: (event: Event, handleDropdown: (event: Event) => void) => void;
-  title: any;
+  onClick?: () => void;
+  title: string;
   iconName: string;
-  visible?: (value: any, onClick?: (event: Event, handleDropdown: (event: Event) => void) => void) => boolean;
-  dropDownButtonIsVisible?: (value: any, onClick?: (event: Event, handleDropdown: (event: Event) => void) => void) => boolean;
+  visible?: (value: any, onClick?: () => void) => boolean;
+  dropDownButtonIsVisible?: (value: any, onClick?: () => void) => boolean;
 }
