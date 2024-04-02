@@ -846,6 +846,44 @@ const astronomerFormHook: ViewAstronomerTransferObject_FormContainerHook = () =>
 };
 ----
 
+=== Extending AppBar components with additional ones
+
+The AppBar contains several components by default based on the model e.g. profile dropdown, etc...
+
+Whatever components we render by default can be extended via the `AppBarExtraComponentsHook`.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from './custom-element-types';
+import Button from '@mui/material/Button';
+import { AppBarExtraComponentsHook } from '~/layout/Header/HeaderContent';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<AppBarExtraComponentsHook>(CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, myExtraComponentsHook, {
+      component: 'AppBarExtraComponents'
+    })
+  }
+}
+
+const myExtraComponentsHook: AppBarExtraComponentsHook = () => {
+  return {
+    // spaceRequired: 2, // optional param if we need more space, defaults to 1
+    Component: () => {
+      return (
+        <>
+          <Button variant="text" onClick={() => alert('yo!')}>Hello bello</Button>
+        </>
+      );
+    }
+  };
+};
+----
+
+
 === Customizing the Hero Component
 
 Although the component itself does not have a hook, but the data model can be customized with a hook.
