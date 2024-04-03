@@ -204,18 +204,26 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const {{ column.name }}ColumnCustomizer = {{ column.name }}ColumnCustomizerHook && {{ column.name }}ColumnCustomizerHook();
   {{/ each }}
 
-  const columns: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
   {{# each table.columns as |column| }}
-  {
+  const {{ column.name }}Column: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}> = {
     ...baseColumnConfig,
     field: '{{ column.attributeType.name }}',
     headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
     headerClassName: 'data-grid-column-header',
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
-  },
+  };
   {{/ each }}
-  ]
+
+  const columns = useMemo<GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>(() => [
+    {{# each table.columns as |column| }}
+      {{# if column.customImplementation }}
+        {{ column.name }}ColumnCustomizer ? {{ column.name }}ColumnCustomizer({{ column.name }}Column) : {{ column.name }}Column,
+      {{ else }}
+        {{ column.name }}Column,
+      {{/ if }}
+    {{/ each }}
+  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
 
   const toolBarActions: ToolBarActionProps<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}>[]  = [
     {{# each table.tableActionButtonGroup.buttons as |button| }}
