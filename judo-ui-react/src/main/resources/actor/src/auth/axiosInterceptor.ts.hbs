@@ -11,7 +11,7 @@ export function storeMeta(meta: any): void {
   securityStore.name = meta.name;
 }
 
-export const storageKey = () => `oidc.user:${securityStore.name!}`;
+export const storageKey = () => `oidc.user:${securityStore.name!}:${securityStore.clientId!}`;
 
 // We need to store the user per realm, not per actor.
 const store: Storage = {
