@@ -50,6 +50,11 @@
         } }
         select
     >
+        {!(actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})) && (
+          <MenuItem id="{{ getXMIID child }}-null" value={null as any}>
+              <em>{t('enumerations.{{ restParamName child.attributeType.dataType }}._null', { defaultValue: 'None' })}</em>
+          </MenuItem>
+        )}
         {{# each child.attributeType.dataType.members as |member| }}
             <MenuItem id="{{ getXMIID member }}" value={ '{{ member.name }}' }>
                 { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }
