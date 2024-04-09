@@ -239,6 +239,7 @@ public class UiI18NHelper {
         translations.putAll(i18nMenuTreeLabels(application));
 
         for (EnumerationType it : i18nEnumerationTypes(application)) {
+            translations.put("enumerations." + restParamName(it) + "._null", "None");
             for (EnumerationMember em : it.getMembers()) {
                 translations.put("enumerations." + restParamName(it) + "." + em.getName(), em.getName());
             }

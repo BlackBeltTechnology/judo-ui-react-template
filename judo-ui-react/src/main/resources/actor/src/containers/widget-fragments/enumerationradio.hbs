@@ -39,15 +39,16 @@
                 {{/ if }}
             } }
         >
-        {{# each child.attributeType.dataType.members as |member| }}
-            <FormControlLabel
-                id="{{ getXMIID member }}"
-                value={ '{{ member.name }}' }
-                control={<Radio size='small' />}
-                label= { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }
-                disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable())}
-            />
-        {{/ each }}
+            {effective{{ firstToUpper child.attributeType.name }}Options.map((o) => (
+                <FormControlLabel
+                    key={o.id}
+                    id={o.id}
+                    value={o.value}
+                    control={<Radio size='small' />}
+                    label={t(o.i18nKey, { defaultValue: o.i18nDefaultValue })}
+                    disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable())}
+                />
+            ))}
         </RadioGroup>
         { (validation.has('{{ child.attributeType.name }}'){{# if child.attributeType.isRequired }} && !data.{{ child.attributeType.name }}{{/ if }}) && <FormHelperText>{validation.get('{{ child.attributeType.name }}')}</FormHelperText> }
     </FormControl>

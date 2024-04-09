@@ -560,6 +560,39 @@ const CustomDashboard: FC = () => {
 };
 ----
 
+=== Filtering Enumeration options
+
+Enumeration options can be filtered based on current view/form data if needed. Filtering actions are available on
+a Container level.
+
+**Warning:**
+
+If a field changes which the enumeration component's option list depends on, it is possible that we also need to re-set
+an already selected enum value. The filter hook does not take care of this!
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { VIEW_MATTER_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY, ViewMatterFormContainerHook } from '~/containers/View/Matter/Form/ViewMatterForm';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<ViewMatterFormContainerHook>(VIEW_MATTER_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY, () => {
+      return {
+        filterTypeOptions: (data, options) => {
+          if (data.mass && data.mass > 2) {
+            return options.filter(o => o.value !== 'dark');
+          }
+          return options;
+        },
+      };
+    });
+  }
+}
+----
+
 === Implementing custom columns
 
 When the "Custom Implementation" option is checked in the Designer for a column in a table, we get access to an API where
