@@ -55,11 +55,11 @@
               <em>{t('enumerations.{{ restParamName child.attributeType.dataType }}._null', { defaultValue: 'None' })}</em>
           </MenuItem>
         )}
-        {{# each child.attributeType.dataType.members as |member| }}
-            <MenuItem id="{{ getXMIID member }}" value={ '{{ member.name }}' }>
-                { t('enumerations.{{ restParamName child.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) }
+        {effective{{ firstToUpper child.attributeType.name }}Options.map((o) => (
+            <MenuItem key={o.id} id={o.id} value={o.value as any}>
+                {t(o.i18nKey, { defaultValue: o.i18nDefaultValue })}
             </MenuItem>
-        {{/ each }}
+        ))}
     </TextField>
     {{# if child.customImplementation }}
         </ComponentProxy>

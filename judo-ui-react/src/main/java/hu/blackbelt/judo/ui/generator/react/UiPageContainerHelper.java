@@ -275,9 +275,19 @@ public class UiPageContainerHelper {
         return acc.stream().anyMatch(Flex::isCard);
     }
 
+    public static boolean containerHasEnums(PageContainer container) {
+        return !getEnumsForContainer(container).isEmpty();
+    }
+
     public static List<Input> getInputsForContainer(PageContainer container) {
         Set<VisualElement> elements = new LinkedHashSet<>();
         collectVisualElementsMatchingCondition(container, e -> e instanceof Input, elements);
+        return elements.stream().map(e -> ((Input) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<Input> getEnumsForContainer(PageContainer container) {
+        Set<VisualElement> elements = new LinkedHashSet<>();
+        collectVisualElementsMatchingCondition(container, e -> e instanceof EnumerationCombo || e instanceof EnumerationRadio, elements);
         return elements.stream().map(e -> ((Input) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
