@@ -56,7 +56,7 @@ export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (co
     get{{ firstToUpper ve.attributeType.name }}ValidationProps?: (data: {{ classDataName container.dataElement '' }}) => BaseDateValidationProps;
   {{/ each }}
   {{# each (getEnumsForContainer container) as |ve| }}
-    filter{{ firstToUpper ve.attributeType.name }}Options?: (data: {{ classDataName container.dataElement '' }}, options: EnumOption[]) => EnumOption[];
+    filter{{ firstToUpper ve.attributeType.name }}Options?: (data: {{ classDataName container.dataElement '' }}, options: EnumOption<keyof typeof {{ restParamName ve.attributeType.dataType }}>[]) => EnumOption<keyof typeof {{ restParamName ve.attributeType.dataType }}>[];
   {{/ each }}
   {{# if container.view }}
     getMask?: () => string;
@@ -109,7 +109,7 @@ export default function {{ containerComponentName container }}(props: {{ contain
     const containerActions: {{ pageContainerActionDefinitionTypeName container }} = customContainerHook?.({{# unless container.table }}data, editMode, storeDiff{{/ unless }}) || {};
     const actions = useMemo(() => ({ ...pageActions, ...containerActions }), [pageActions, containerActions]);
     {{# each (getEnumsForContainer container) as |ve| }}
-      const {{ ve.attributeType.name }}Options = useMemo<EnumOption<>[]>(() => ([
+      const {{ ve.attributeType.name }}Options = useMemo<EnumOption<keyof typeof {{ restParamName ve.attributeType.dataType }}>[]>(() => ([
         {{# each ve.attributeType.dataType.members as |member| }}
           {
             id: '{{ getXMIID member }}',
@@ -119,7 +119,7 @@ export default function {{ containerComponentName container }}(props: {{ contain
           },
         {{/ each }}
       ]), []);
-      const effective{{ firstToUpper ve.attributeType.name }}Options = useMemo<EnumOption[]>(() => {
+      const effective{{ firstToUpper ve.attributeType.name }}Options = useMemo<EnumOption<keyof typeof {{ restParamName ve.attributeType.dataType }}>[]>(() => {
         if (actions.filter{{ firstToUpper ve.attributeType.name }}Options) {
           return actions.filter{{ firstToUpper ve.attributeType.name }}Options(data, {{ ve.attributeType.name }}Options);
         }

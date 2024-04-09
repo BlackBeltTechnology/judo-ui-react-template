@@ -123,6 +123,10 @@ public class UiPageContainerHelper {
                     imports.add(classDataName(actionDefinition.getTargetType(), "Stored"));
                 }
             }
+
+            for (Input enumInput: getEnumsForContainer(container)) {
+                imports.add(restParamName(enumInput.getAttributeType().getDataType()));
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
