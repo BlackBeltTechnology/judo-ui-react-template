@@ -68,7 +68,7 @@
         </Card>
     {{ else }}
         <Grid container direction="row" spacing={2}>
-            {{# if (flexHasIconOrLabel this) }}
+            {{# and (flexHasIconOrLabel this) (flexParentIsNotTab this) }}
                 <Grid item xs={12} sm={12}>
                     <Grid container direction="row" alignItems="center" justifyContent="flex-start">
                     {{# if this.icon }}
@@ -81,7 +81,7 @@
                     {{/ if }}
                     </Grid>
                 </Grid>
-            {{/ if }}
+            {{/ and }}
             <Grid item xs={12} sm={12}>
                 <Grid id="{{ getXMIID this }}" data-name="{{ this.name }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
                     {{# each this.children as |child| }}
