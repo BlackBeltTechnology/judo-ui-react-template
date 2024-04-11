@@ -56,15 +56,3 @@ export const axiosRequestInterceptor = (config: AxiosRequestConfig) => {
 
   return config;
 }
-
-export const axiosResponseInterceptor = (response: AxiosResponse) => {
-  return response;
-};
-
-export const axiosResponseErrorHandler = (error: AxiosError) => {
-  if (error.response && error.response.status === 401) {
-    clearSecurityStorage();
-    window.location.reload();
-  }
-  return Promise.reject(error);
-};
