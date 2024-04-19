@@ -20,7 +20,7 @@ import { PandinoProvider } from '@pandino/react-hooks';
     import { AuthProvider } from 'react-oidc-context';
     import type { AuthProviderProps } from 'react-oidc-context';
     import { WebStorageStateStore } from 'oidc-client-ts';
-    import { axiosRequestInterceptor, Auth, storeMeta, userStore } from './auth';
+    import { axiosRequestInterceptor, axiosResponseInterceptor, axiosResponseErrorHandler, Auth, storeMeta, userStore } from './auth';
 {{/ if }}
 import { ThemeCustomization } from './theme';
 import { applicationCustomizer } from './custom';
@@ -38,6 +38,7 @@ import { loadProgressBar, progressGlobalStyles } from './Progress';
 
 {{# if application.authentication }}
   axios.interceptors.request.use(axiosRequestInterceptor);
+  axios.interceptors.response.use(axiosResponseInterceptor, axiosResponseErrorHandler);
 {{/ if }}
 
 const API_DEFAULT_BASE_URL: string = import.meta.env.VITE_API_DEFAULT_BASE_URL || window.location.origin;
