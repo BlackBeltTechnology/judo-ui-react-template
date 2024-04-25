@@ -394,7 +394,7 @@ public class UiWidgetHelper {
 
         if (button.getActionDefinition().getIsRemoveAction()) {
             if (!container.isTable() && table.getEnabledBy() != null) {
-                result += "(ownerData ? !ownerData.{{ table.enabledBy.name }} : false) || ";
+                result += "(ownerData ? !ownerData." + table.getEnabledBy().getName() + " : false) || ";
             }
             if (container.isView()) {
                 result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
@@ -404,7 +404,7 @@ public class UiWidgetHelper {
                 result += "editMode || ";
 
                 if (table.getEnabledBy() != null) {
-                    result += "(ownerData ? !ownerData.{{ table.enabledBy.name }} : false) || ";
+                    result += "(ownerData ? !ownerData." + table.getEnabledBy().getName() + " : false) || ";
                 }
             }
             result += "!row.__deleteable || ";
