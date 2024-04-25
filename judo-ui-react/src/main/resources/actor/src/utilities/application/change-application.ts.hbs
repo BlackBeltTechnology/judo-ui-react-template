@@ -1,10 +1,12 @@
 {{> fragment.header.hbs }}
 
-import { clearSecurityStorage } from '~/auth';
+import { clearSecurityStorage, getUser } from '~/auth';
 import type { HandleApplicationChange } from './interfaces';
 
 export const changeApplication: HandleApplicationChange = (applicationKey: string) => {
+  const { profile } = getUser();
+  const tokenUser = profile?.preferred_username;
   clearSecurityStorage();
   const { origin } = window.location;
-  window.location.href = origin + '/' + applicationKey;
+  window.location.href = origin + '/' + applicationKey + "?user=" + tokenUser ;
 };
