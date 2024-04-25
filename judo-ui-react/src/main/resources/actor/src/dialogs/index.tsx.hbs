@@ -83,6 +83,11 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     refresh: () => Promise<void>,
     {{/ if }}
     submit: () => Promise<void>,
+    onSubmit: (
+      result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }},
+      isDraft?: boolean,
+      openCreated?: boolean,
+    ) => Promise<void>,
   ) => {{ containerComponentName page.container }}DialogActionsExtended;
 
   export interface {{ containerComponentName page.container }}ViewModel extends {{ containerComponentName page.container }}DialogProps {
@@ -337,6 +342,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       , refresh
       {{/ if }}
       , submit
+      , onSubmit
     );
 
     // Dialog hooks
