@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import jwt_decode from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
@@ -122,7 +122,7 @@ export const fileHandling: FileHandlingHook = () => {
         }
 
         try {
-            const decoded: { fileName: string } = jwt_decode(token);
+            const decoded: { fileName: string } = jwtDecode(token);
             return decoded.fileName;
         } catch(error) {
             console.error(`Decoding of jwt token failed for: ${token}`);

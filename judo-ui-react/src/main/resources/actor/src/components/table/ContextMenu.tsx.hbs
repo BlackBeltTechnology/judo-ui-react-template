@@ -54,7 +54,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
       const field: keyof P = event.currentTarget.dataset.field! as keyof P;
       const value: any = rowData ? rowData[field] : undefined;
       const column = columns.find(c => c.field === field)!;
-      if (column && column.type !== 'action') {
+      if (column && column.type !== 'actions') {
         event.preventDefault();
         setTextContent(event.currentTarget.textContent);
         setSelectedRow(row);

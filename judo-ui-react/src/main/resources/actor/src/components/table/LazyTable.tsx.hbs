@@ -609,8 +609,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         filterMode="server"
         filterDebounceMs={filterDebounceMs}
         rowCount={rowsPerPage}
-        components={ {
-          Toolbar: () => (
+        slots={ {
+          toolbar: () => (
             <GridToolbarContainer>
               {
                 toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (
@@ -672,7 +672,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                 <div>{/* Placeholder */}</div>
             </GridToolbarContainer>
           ),
-          Pagination: () => (
+          pagination: () => (
             <CustomTablePagination
               pageSizeOptions={pageSizeOptions}
               setPageSize={setPageSize}
