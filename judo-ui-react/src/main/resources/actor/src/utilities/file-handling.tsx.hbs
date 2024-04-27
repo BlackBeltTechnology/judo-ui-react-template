@@ -10,7 +10,8 @@ import IconButton from '@mui/material/IconButton';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon } from '~/components';
 import { useDialog } from '~/components/dialog';
-import { accessServiceImpl } from '~/services/data-axios';
+import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 
 export type FileHandlingHook = () => {
     downloadFile: (data: any, attributeName: string, disposition: 'inline' | 'attachment') => Promise<void>,
@@ -22,6 +23,7 @@ export type FileHandlingHook = () => {
 export const fileHandling: FileHandlingHook = () => {
     const { t } = useTranslation();
     const [createDialog, closeDialog] = useDialog();
+    const accessServiceImpl = new AccessServiceImpl(judoAxiosProvider);
 
     const exportFile = (response: any) => {
       if (response && response.status === 200) {

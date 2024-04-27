@@ -21,11 +21,12 @@ import { PandinoProvider } from '@pandino/react-hooks';
     import type { AuthProviderProps } from 'react-oidc-context';
     import { WebStorageStateStore } from 'oidc-client-ts';
     import { axiosRequestInterceptor, axiosResponseInterceptor, axiosResponseErrorHandler, Auth, storeMeta, userStore } from './auth';
+    import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
 {{/ if }}
 import { ThemeCustomization } from './theme';
 import { applicationCustomizer } from './custom';
 import { L10NProvider } from './l10n/l10n-context';
-import { accessServiceImpl, judoAxiosProvider } from '~/services/data-axios';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import App from './App';
 import { routes } from './routes';
 import { RootErrorBoundary } from './components/RootErrorBoundary';
@@ -80,6 +81,7 @@ const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL
     ]);
 
     {{# if application.authentication }}
+        const accessServiceImpl = new AccessServiceImpl(judoAxiosProvider);
         const { data: meta } = await accessServiceImpl.getMetaData();
         const { clientId, name, issuer } = meta.security[0];
         storeMeta({ issuer, clientId, name });
