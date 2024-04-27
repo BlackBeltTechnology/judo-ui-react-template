@@ -449,8 +449,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         {{/ if }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
-        components={ {
-          Toolbar: () => (
+        slots={ {
+          toolbar: () => (
             <GridToolbarContainer>
               {
                 toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (

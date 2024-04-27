@@ -10,12 +10,8 @@ import { ThemeProvider } from '@mui/material/styles';
 import type { Theme } from '@mui/material/styles';
 import type {} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}/themeAugmentation';
 import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForMaterial' }} } from '@mui/material/locale';
-import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForGrids' }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
-{{# eq (muiTranslationToken (getDefaultLanguage application) '') 'huHU' }}
-    import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }} } from '../l10n/@mui/x-date-pickers';
-{{ else }}
-    import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
-{{/ eq }}
+import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForGrids' }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}/locales';
+import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}/locales';
 import { useConfig } from '../hooks';
 import { mainContainerPadding } from './extras';
 import { paletteThemeLight, paletteThemeDark } from './palette';
@@ -31,6 +27,11 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
       button: {
         fontSize: `${density.fontSize}rem`,
         textTransform: 'none',
+      },
+    },
+    mixins: {
+      MuiDataGrid: {
+        containerBackground: 'rgba(0, 0, 0, 0)',
       },
     },
     components: {
@@ -192,6 +193,11 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
             border: 'none',
             boxShadow: '0px 0px 8px 1px rgba(0,0,0,0.05)',
           },
+        },
+      },
+      MuiButtonGroup: {
+        defaultProps: {
+          size: density.buttonSize,
         },
       },
       MuiIconButton: {
