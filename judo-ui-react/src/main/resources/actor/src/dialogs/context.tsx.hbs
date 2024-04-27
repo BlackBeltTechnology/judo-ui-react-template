@@ -1,0 +1,19 @@
+import { createContext, useContext } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import type { {{ containerComponentName page.container }}DialogProps } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer';
+{{# unless page.container.isSelector }}
+import { type {{ classDataName (getReferenceClassType page) '' }} } from '~/services/data-api/model/{{ classDataName (getReferenceClassType page) '' }}';
+{{/ unless }}
+
+export interface {{ containerComponentName page.container }}ViewModel extends {{ containerComponentName page.container }}DialogProps {
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  setEditMode: Dispatch<SetStateAction<boolean>>;
+  refresh: () => Promise<void>;
+  submit: () => Promise<void>;
+  {{# unless page.container.isSelector }}
+  templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>;
+  {{/ unless }}
+  isDraft?: boolean;
+};
+
+{{> actor/src/fragments/page/view-model-context.fragment.hbs page=page }}

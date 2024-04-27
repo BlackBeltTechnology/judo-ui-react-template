@@ -17,7 +17,7 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import { debounce } from '@mui/material/utils';
 import { useTranslation } from 'react-i18next';
-import type { JudoStored } from '~/services/data-api/common';
+import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 import { clsx } from 'clsx';
@@ -173,7 +173,7 @@ export const AggregationInput = ({
                       })}
                     >
                       {loading ? <CircularProgress color="inherit" size='1rem' className="AggregationInputLoading" /> : null}
-                      { aggregationInputButtonProps.filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create').map( (aggregationInputButtonProp: AggregationInputButtonProps) => 
+                      { aggregationInputButtonProps.filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create').map( (aggregationInputButtonProp: AggregationInputButtonProps) =>
                           aggregationInputButtonProp.visible && aggregationInputButtonProp.visible(value, aggregationInputButtonProp.onClick) && (
                             <IconButton
                               className={aggregationInputButtonProp.className}
@@ -228,7 +228,7 @@ export const AggregationInput = ({
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
               <MenuList id={`${name}-menu`} autoFocusItem>
-                { aggregationInputButtonProps.filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset').map( (aggregationInputButtonProp: AggregationInputButtonProps) => 
+                { aggregationInputButtonProps.filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset').map( (aggregationInputButtonProp: AggregationInputButtonProps) =>
                     aggregationInputButtonProp.dropDownButtonIsVisible && aggregationInputButtonProp.dropDownButtonIsVisible(value, aggregationInputButtonProp.onClick) && (
                       <MenuItem
                         className={aggregationInputButtonProp.className}

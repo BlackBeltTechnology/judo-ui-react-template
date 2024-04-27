@@ -1,14 +1,14 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, useMemo, lazy, Suspense, createContext, useContext } from 'react';
+import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, useMemo, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
   import { OBJECTCLASS } from '@pandino/pandino-api';
   import { useTrackService } from '@pandino/react-hooks';
-  import type { JudoIdentifiable } from '~/services/data-api/common';
-  import type { JudoRestResponse } from '~/services/data-api/rest';
+  import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+  import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
   {{# if (containerHasTableWithTotalCount page.container) }}
-  import { X_JUDO_COUNT_RECORDS } from '~/services/data-api/rest';
+  import { X_JUDO_COUNT_RECORDS } from '~/services/data-api/rest/headers';
   {{/ if }}
   import { useTranslation } from 'react-i18next';
   import { v4 as uuidv4 } from 'uuid';
@@ -37,19 +37,22 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   {{# each (getRelatedPages page) as |relatedPage| }}
     import { {{ calculateNavigationRoute relatedPage }} } from '~/routes';
   {{/ each }}
-  {{# each (getRelatedDialogs page true) as |relatedDialog| }}
-    import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}';
+  {{# each (getRelatedDialogs page false) as |relatedDialog| }}
+    import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
   {{/ each }}
   import type { {{ containerComponentName page.container }}DialogActions, {{ containerComponentName page.container }}DialogProps } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer';
-  import type {
-    {{# each (getApiImportsForPage page) as |imp| }}
-      {{ imp }},
-    {{/ each }}
-  } from '~/services/data-api';
+  {{# each (getApiImportsForPage page) as |imp| }}
+    import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/services/data-api/model/{{ classDataName imp '' }}';
+    import type { {{ classDataName imp 'QueryCustomizer' }} } from '~/services/data-api/rest/{{ classDataName imp 'QueryCustomizer' }}';
+  {{/ each }}
+  {{# each (getEnumAttributesForPage page) as |imp| }}
+    import { {{ restParamName imp.dataType }} } from '~/services/data-api/model/{{ restParamName imp.dataType }}';
+  {{/ each }}
   {{# if (getServiceImplForPage page) }}
     import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
     import { {{ getServiceClassForPage page }} } from '~/services/data-axios/{{ getServiceClassForPage page }}';
   {{/ if }}
+  import { {{ containerComponentName page.container }}ViewModelContext, type {{ containerComponentName page.container }}ViewModel } from './context';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
@@ -89,78 +92,6 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
     onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>,
     {{/ if }}
   ) => {{ containerComponentName page.container }}DialogActionsExtended;
-
-  export interface {{ containerComponentName page.container }}ViewModel extends {{ containerComponentName page.container }}DialogProps {
-    setIsLoading: Dispatch<SetStateAction<boolean>>;
-    setEditMode: Dispatch<SetStateAction<boolean>>;
-    refresh: () => Promise<void>;
-    submit: () => Promise<void>;
-    {{# unless page.container.isSelector }}
-    templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>;
-    {{/ unless }}
-    isDraft?: boolean;
-  };
-
-  {{> actor/src/fragments/page/view-model-context.fragment.hbs page=page }}
-
-  export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}}) => Promise<DialogResult<
-    {{# if (pageHasOutputTarget page) }}
-      {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}void{{/ if }}
-    {{ else }}
-      {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}
-    {{/ if }}
-  >> => {
-    const [createDialog, closeDialog] = useDialog();
-
-    return ({{{ getDialogOpenParameters page }}}) => new Promise((resolve) => {
-      createDialog({
-        {{# if page.dialogSize }}
-            fullWidth: true,
-            maxWidth: '{{ toLower page.dialogSize.name }}',
-        {{/ if }}
-        onClose: async (event: object, reason: string) => {
-          if (reason !== 'backdropClick') {
-            await closeDialog();
-            resolve({
-              result: 'close',
-            });
-          }
-        },
-        children: (
-          <{{ pageName page }}
-            ownerData={ownerData}
-            {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data={data}{{/ and }}
-            {{# if page.container.isRelationSelector}}
-            alreadySelected={alreadySelected}
-            {{/ if }}
-            {{# unless page.container.isSelector }}
-            templateDataOverride={templateDataOverride}
-            {{/ unless }}
-            isDraft={isDraft}
-            {{# unless page.container.table }}
-            ownerValidation={ownerValidation}
-            {{/ unless }}
-            onClose={async () => {
-              await closeDialog();
-              resolve({
-                result: 'close',
-              });
-            }}
-            onSubmit={async (result, isDraft, openCreated) => {
-              await closeDialog();
-              resolve({
-                result: isDraft ? 'submit-draft' : 'submit',
-                openCreated,
-                {{# if (dialogHasResult page) }}
-                data: result,
-                {{/ if }}
-              });
-            }}
-          />
-        ),
-      });
-    });
-  }
 
   {{# unless page.container.table }}
     {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}

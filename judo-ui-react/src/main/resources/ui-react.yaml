@@ -681,8 +681,16 @@ templates:
 
   - name: actor/src/pages/index.tsx
     factoryExpression: "#getPagesForRouting(#application)"
-    pathExpression: "'src/pages/' + #pagePath(#self) + '.tsx'"
+    pathExpression: "'src/pages/' + #pagePath(#self) + '/index.tsx'"
     templateName: actor/src/pages/index.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/pages/context.tsx
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "'src/pages/' + #pagePath(#self) + '/context.tsx'"
+    templateName: actor/src/pages/context.tsx.hbs
     templateContext:
       - name: page
         expression: "#self"
@@ -691,8 +699,24 @@ templates:
 
   - name: actor/src/dialogs/index.tsx
     factoryExpression: "#getPagesForDialogs(#application)"
-    pathExpression: "'src/dialogs/' + #pagePath(#self) + '.tsx'"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/index.tsx'"
     templateName: actor/src/dialogs/index.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/dialogs/hooks.tsx
+    factoryExpression: "#getPagesForDialogs(#application)"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/hooks.tsx'"
+    templateName: actor/src/dialogs/hooks.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/dialogs/context.tsx
+    factoryExpression: "#getPagesForDialogs(#application)"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/context.tsx'"
+    templateName: actor/src/dialogs/context.tsx.hbs
     templateContext:
       - name: page
         expression: "#self"

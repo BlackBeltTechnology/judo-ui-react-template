@@ -1,0 +1,14 @@
+import { createContext, useContext } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import type { {{ containerComponentName page.container }}PageProps } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer';
+
+export interface {{ containerComponentName page.container }}ViewModel extends {{ containerComponentName page.container }}PageProps {
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  setEditMode: Dispatch<SetStateAction<boolean>>;
+  refresh: () => Promise<void>;
+  {{# if page.container.isSelector }}
+  selectionDiff: {{ classDataName (getReferenceClassType page) 'Stored' }}[];
+  {{/ if }}
+};
+
+{{> actor/src/fragments/page/view-model-context.fragment.hbs page=page }}
