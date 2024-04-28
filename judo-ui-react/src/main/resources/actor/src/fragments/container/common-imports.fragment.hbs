@@ -2,8 +2,6 @@ import type { Dispatch, SetStateAction, FC } from 'react';
 import { forwardRef, useEffect, useState, useCallback, useImperativeHandle, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import LoadingButton from '@mui/lab/LoadingButton';
-import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
 {{# if (containerHasCustomComponent container) }}
 import { ComponentProxy } from '@pandino/react-hooks';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
@@ -34,9 +32,6 @@ import {
   useJudoNavigation,
 } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-{{# if (containerHasDateOrDateTimeInput container) }}
-import type { BaseDateValidationProps } from '~/utilities';
-{{/ if }}
 {{# if (containerHasEnums container) }}
 import type { EnumOption } from '~/utilities';
 {{/ if }}

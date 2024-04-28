@@ -1,0 +1,21 @@
+{{# unless (containerIsEmptyDashboard page.container) }}
+  import type { Dispatch, SetStateAction } from 'react';
+  {{# each (getApiImportsForPage page) as |imp| }}
+    import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/services/data-api/model/{{ classDataName imp '' }}';
+  {{/ each }}
+  {{# each (getEnumDataTypesForPage page) as |imp| }}
+    import { {{ restParamName imp }} } from '~/services/data-api/model/{{ restParamName imp }}';
+  {{/ each }}
+  import type { {{ containerComponentName page.container }}PageActions } from '~/containers/{{ containerPath page.container }}/types';
+
+  export type {{ containerComponentName page.container }}PageActionsExtended = {{ containerComponentName page.container }}PageActions & {
+    {{# each (getAllCallOperationActions page) as |action| }}
+      post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: ({{{ postCallOperationActionParams page action.actionDefinition }}}) => Promise<void>;
+    {{/ each }}
+    {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+      post{{ firstToUpper (simpleActionDefinitionName refreshActionDefinition) }}?: ({{{ postRefreshActionParams page refreshActionDefinition }}}) => Promise<void>;
+    {{/ with }}
+  };
+{{ else }}
+  export const _ = 'placeholder';
+{{/ unless }}

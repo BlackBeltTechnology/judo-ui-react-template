@@ -1,8 +1,8 @@
 import { createContext, useContext } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-import type { {{ containerComponentName page.container }}DialogProps } from '~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer';
+import type { {{ containerComponentName page.container }}DialogProps } from '~/containers/{{ containerPath page.container }}/types';
 {{# unless page.container.isSelector }}
-import { type {{ classDataName (getReferenceClassType page) '' }} } from '~/services/data-api/model/{{ classDataName (getReferenceClassType page) '' }}';
+import type { {{ classDataName (getReferenceClassType page) '' }} } from '~/services/data-api/model/{{ classDataName (getReferenceClassType page) '' }}';
 {{/ unless }}
 
 export interface {{ containerComponentName page.container }}ViewModel extends {{ containerComponentName page.container }}DialogProps {

@@ -1,0 +1,74 @@
+import type { ElementType, Dispatch, SetStateAction } from 'react';
+import type {
+  GridFilterModel,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type {
+  {{ getTableAPIImports table container }}
+} from '~/services/data-api';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import type { Filter, FilterOption } from '~/components-api';
+import type { DialogResult } from '~/utilities';
+
+export interface {{ componentName table }}ActionDefinitions {
+{{# each table.tableActionDefinitions as |actionDefinition| }}
+  {{# if actionDefinition.isFilterAction }}
+    {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
+  {{ else }}
+    {{# if actionDefinition.isRefreshAction }}
+      {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+      get{{ firstToUpper table.relationName }}Mask?: () => string;
+    {{ else }}
+      {{# if actionDefinition.isExportAction }}
+        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<void>;
+      {{ else }}
+        {{# if actionDefinition.isSelectorRangeAction }}
+          {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+        {{ else }}
+          {{# if actionDefinition.isBulk }}
+            {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+          {{ else }}
+            {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+          {{/ if }}
+        {{/ if }}
+      {{/ if }}
+    {{/ if }}
+  {{/ if }}
+{{/ each }}
+{{# each table.rowActionDefinitions as |actionDefinition| }}
+  {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}{{# if actionDefinition.isBulkCapable }}, silentMode?: boolean{{ else }}{{# if actionDefinition.isOpenPageAction }}, isDraft?: boolean{{/ if }}{{/ if }}) => Promise<void>;
+{{/ each }}
+  {{ table.relationType.name }}AdditionalToolbarButtons?: (
+    {{# with (getReferenceClassType table) as |classType| }}
+    data: {{# if classType.isMapped }}{{ classDataName classType 'Stored' }}{{ else }}{{ classDataName classType '' }}{{/ if }}[],
+    {{/ with }}
+    isLoading: boolean,
+    selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[],
+    clearSelections: () => void
+    {{# unless container.table }}
+    , ownerData: {{ classDataName container.dataElement 'Stored' }}
+    , editMode: boolean
+    , isFormUpdateable: () => boolean
+    {{/ unless }}
+  ) => Record<string, ElementType>;
+}
+
+export interface {{ componentName table }}Props {
+  uniqueId: string;
+  actions: {{ componentName table }}ActionDefinitions;
+  refreshCounter: number;
+  isOwnerLoading?: boolean;
+  isDraft?: boolean;
+  validationError?: string;
+  {{# if container.isSelector }}
+  selectionDiff: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
+  setSelectionDiff: Dispatch<SetStateAction<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+  {{/ if }}
+  {{# if container.isRelationSelector }}
+  alreadySelected: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
+  {{/ if }}
+  {{# unless container.table }}
+  ownerData: {{ classDataName container.dataElement 'Stored' }};
+  editMode: boolean;
+  isFormUpdateable: () => boolean;
+  {{/ unless }}
+}

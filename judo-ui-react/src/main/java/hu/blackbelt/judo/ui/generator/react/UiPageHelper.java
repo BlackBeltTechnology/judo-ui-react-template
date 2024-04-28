@@ -96,7 +96,7 @@ public class UiPageHelper {
         return pagePath(page) + suffix;
     }
 
-    public static List<AttributeType> getEnumAttributesForPage(PageDefinition pageDefinition) {
+    public static List<EnumerationType> getEnumDataTypesForPage(PageDefinition pageDefinition) {
         if (pageDefinition.getDataElement() == null) {
             return List.of();
         }
@@ -115,8 +115,11 @@ public class UiPageHelper {
 
         return target.getAttributes()
                 .stream()
-                .sorted(Comparator.comparing(NamedElement::getFQName))
                 .filter(a -> a.getDataType() instanceof EnumerationType)
+                .map(a -> (EnumerationType) a.getDataType())
+                .collect(Collectors.toSet())
+                .stream()
+                .sorted(Comparator.comparing(NamedElement::getFQName))
                 .collect(Collectors.toList());
     }
 
@@ -144,11 +147,6 @@ public class UiPageHelper {
         }
 
         return res;
-    }
-
-    public static String pageClassDataName(ClassType classType, String suffix) {
-        // Java could not load the original classDataName in the templates, so we worked around it...
-        return classDataName(classType, suffix);
     }
 
     public static List<ClassType> getApiImportsForPage(PageDefinition pageDefinition) {

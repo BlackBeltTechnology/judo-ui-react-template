@@ -3,6 +3,7 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
+import hu.blackbelt.judo.meta.ui.data.EnumerationType;
 import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
 
@@ -281,7 +282,19 @@ public class UiPageContainerHelper {
     public static List<Input> getEnumsForContainer(PageContainer container) {
         Set<VisualElement> elements = new LinkedHashSet<>();
         collectVisualElementsMatchingCondition(container, e -> e instanceof EnumerationCombo || e instanceof EnumerationRadio, elements);
-        return elements.stream().map(e -> ((Input) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+        return elements.stream()
+                .map(e -> ((Input) e))
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
+
+    public static List<EnumerationType> getEnumDataTypesForContainer(PageContainer container) {
+        return getEnumsForContainer(container).stream()
+                .map(e -> (EnumerationType) e.getAttributeType().getDataType())
+                .collect(Collectors.toSet())
+                .stream()
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
     }
 
     public static List<Link> getLinksForContainer(PageContainer container) {

@@ -10,30 +10,7 @@ import type {
   {{ getLinkAPIImports link container }}
 } from '~/services/data-api';
 import { AggregationInputButtonProps } from '~/utilities/application/interfaces';
-
-export interface {{ componentName link }}ActionDefinitions {
-  {{# each link.actionDefinitions as |actionDefinition| }}
-  {{ simpleActionDefinitionName actionDefinition }}?: ({{{ linkActionDefinitionParameters link actionDefinition }}}) => Promise<{{{ linkActionDefinitionResponseType link actionDefinition }}}>;
-  {{/ each }}
-  {{# if link.onBlur }}
-  on{{ firstToUpper link.relationType.name }}BlurAction?: ({{{ onBlurActionParams container }}}) => void;
-  {{/ if }}
-  is{{ firstToUpper link.relationType.name }}Required?: ({{{ inputModifierParams container false }}}) => boolean;
-  is{{ firstToUpper link.relationType.name }}Disabled?: ({{{ inputModifierParams container true }}}) => boolean;
-}
-
-export interface {{ componentName link }}Props {
-  ownerData: {{ classDataName container.dataElement '' }} | {{ classDataName container.dataElement 'Stored' }};
-  actions: {{ componentName link }}ActionDefinitions;
-  storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
-  submit: () => Promise<void>;
-  validationError?: string;
-  disabled?: boolean;
-  readOnly?: boolean;
-  editMode?: boolean;
-  isLoading?: boolean;
-  isDraft?: boolean;
-}
+import type { {{ componentName link }}ActionDefinitions, {{ componentName link }}Props } from './types';
 
 // XMIID: {{ getXMIID link }}
 // Name: {{ link.name }}
