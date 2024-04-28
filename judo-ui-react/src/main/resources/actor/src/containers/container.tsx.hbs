@@ -9,18 +9,20 @@ import { useTrackService } from '@pandino/react-hooks';
   {{> actor/src/fragments/container/view-imports.fragment.hbs }}
 {{/ unless }}
 {{# unless (containerIsEmptyDashboard container) }}
-  import { {{# each (getContainerApiImports container) as |imp| }}
-    {{ imp }},
-  {{/ each }} } from '~/services/data-api';
+  {{# each (getContainerApiImports container) as |imp| }}
+    import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/services/data-api/model/{{ classDataName imp '' }}';
+  {{/ each }}
+  {{# each (getEnumDataTypesForContainer container) as |imp| }}
+    import type { {{ restParamName imp }} } from '~/services/data-api/model/{{ restParamName imp }}';
+  {{/ each }}
 {{/ unless }}
 {{# each container.tables as |table| }}
-  import type { {{ componentName table }}ActionDefinitions } from './components/{{ componentName table }}';
   import { {{ componentName table }} } from './components/{{ componentName table }}';
 {{/ each }}
 {{# each container.links as |link| }}
-  import type { {{ componentName link }}ActionDefinitions } from './components/{{ componentName link }}';
   import { {{ componentName link }} } from './components/{{ componentName link }}';
 {{/ each }}
+import type { {{# unless (containerIsEmptyDashboard container) }}{{ pageContainerActionDefinitionTypeName container }}, {{/ unless }}{{ containerComponentName container }}Props } from './types';
 
 {{# unless (containerIsEmptyDashboard container) }}
 {{# each (getVisualElementsWithCustomImplementation container) as |ve| }}
@@ -37,56 +39,7 @@ export type {{ containerComponentName container }}ContainerHook = (
   {{/ unless }}
 ) => {{ pageContainerActionDefinitionTypeName container }};
 
-export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
-  getPageTitle?: ({{# unless container.table }}data: {{ classDataName container.dataElement '' }}{{/ unless }}) => string;
-  {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
-    {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{{ getContainerOwnActionReturnType actionDefinition container }}}>;
-  {{/ each }}
-  {{# each (getOnBlurAttributesForContainer container) as |attributeType| }}
-    on{{ firstToUpper attributeType.name }}BlurAction?: ({{{ onBlurActionParams container }}}) => void;
-  {{/ each }}
-  {{# each (getInputsForContainer container) as |input| }}
-    is{{ firstToUpper input.attributeType.name }}Required?: ({{{ inputModifierParams container false }}}) => boolean;
-    is{{ firstToUpper input.attributeType.name }}Disabled?: ({{{ inputModifierParams container true }}}) => boolean;
-  {{/ each}}
-  {{# each (getElementsWithHiddenBy container) as |ve| }}
-    is{{ safeName ve }}Hidden?: ({{{ inputModifierParams container false }}}) => boolean;
-  {{/ each }}
-  {{# each (getDateOrDateTimeInputs container) as |ve| }}
-    get{{ firstToUpper ve.attributeType.name }}ValidationProps?: (data: {{ classDataName container.dataElement '' }}) => BaseDateValidationProps;
-  {{/ each }}
-  {{# each (getEnumsForContainer container) as |ve| }}
-    filter{{ firstToUpper ve.attributeType.name }}Options?: (data: {{ classDataName container.dataElement '' }}, options: EnumOption<keyof typeof {{ restParamName ve.attributeType.dataType }}>[]) => EnumOption<keyof typeof {{ restParamName ve.attributeType.dataType }}>[];
-  {{/ each }}
-  {{# if container.view }}
-    getMask?: () => string;
-  {{/ if }}
-}
 {{/ unless }}
-
-export interface {{ containerComponentName container }}Props {
-  {{# unless (containerIsEmptyDashboard container) }}
-    refreshCounter: number;
-    isLoading: boolean;
-    actions: {{ pageContainerActionDefinitionTypeName container }};
-    {{# if container.isSelector }}
-      selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
-      setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
-    {{/ if }}
-    {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
-    {{# unless container.table }}
-      data: {{ classDataName container.dataElement 'Stored' }};
-      isFormUpdateable: () => boolean;
-      isFormDeleteable: () => boolean;
-      storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
-      editMode: boolean;
-      validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
-      setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
-      submit: () => Promise<void>;
-    {{/ unless }}
-    isDraft?: boolean;
-  {{/ unless }}
-};
 
 // XMIID: {{ getXMIID container }}
 // Name: {{ container.name }}

@@ -44,7 +44,7 @@ import {
 }
 from '~/utilities';
 import type { TableRowAction{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
-import { QueryCustomizer } from '~/services/data-api/common';
+import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
 import { useL10N } from '~/l10n/l10n-context';
@@ -449,8 +449,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         {{/ if }}
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
-        components={ {
-          Toolbar: () => (
+        slots={ {
+          toolbar: () => (
             <GridToolbarContainer>
               {
                 toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (

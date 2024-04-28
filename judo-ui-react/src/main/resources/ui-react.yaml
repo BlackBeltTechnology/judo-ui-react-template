@@ -619,14 +619,6 @@ templates:
 
   # Actor - src - l10n
 
-  - name: actor/src/l10n/@mui/x-date-pickers/index.ts
-    pathExpression: "'src/l10n/@mui/x-date-pickers/index.ts'"
-    templateName: actor/src/l10n/@mui/x-date-pickers/index.ts.hbs
-
-  - name: actor/src/l10n/@mui/x-date-pickers/huHU.ts
-    pathExpression: "'src/l10n/@mui/x-date-pickers/huHU.ts'"
-    templateName: actor/src/l10n/@mui/x-date-pickers/huHU.ts.hbs
-
   - name: actor/src/l10n/separators.ts
     pathExpression: "'src/l10n/separators.ts'"
     templateName: actor/src/l10n/separators.ts.hbs
@@ -641,6 +633,14 @@ templates:
     factoryExpression: "#application.pageContainers"
     pathExpression: "'src/containers/' + #containerPath(#self) + '/' + #containerComponentName(#self) + '.tsx'"
     templateName: actor/src/containers/container.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
+  - name: actor/src/containers/types.ts
+    factoryExpression: "#application.pageContainers"
+    pathExpression: "'src/containers/' + #containerPath(#self) + '/types.ts'"
+    templateName: actor/src/containers/types.ts.hbs
     templateContext:
       - name: container
         expression: "#self"
@@ -661,20 +661,40 @@ templates:
       - name: container
         expression: "#self"
 
-  - name: actor/src/containers/components/link.tsx
+  - name: actor/src/containers/components/link/index.tsx
     factoryExpression: "#getLinksForPageContainers(#application)"
-    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #linkComponentName(#self) + '.tsx'"
-    templateName: actor/src/containers/components/link.tsx.hbs
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #linkComponentName(#self) + '/index.tsx'"
+    templateName: actor/src/containers/components/link/index.tsx.hbs
     templateContext:
       - name: container
         expression: "#self.pageContainer"
       - name: link
         expression: "#self"
 
-  - name: actor/src/containers/components/table.tsx
+  - name: actor/src/containers/components/link/types.ts
+    factoryExpression: "#getLinksForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #linkComponentName(#self) + '/types.ts'"
+    templateName: actor/src/containers/components/link/types.ts.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: link
+        expression: "#self"
+
+  - name: actor/src/containers/components/table/index.tsx
     factoryExpression: "#getTablesForPageContainers(#application)"
-    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #tableComponentName(#self) + '.tsx'"
-    templateName: actor/src/containers/components/table.tsx.hbs
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #tableComponentName(#self) + '/index.tsx'"
+    templateName: actor/src/containers/components/table/index.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
+  - name: actor/src/containers/components/table/types.ts
+    factoryExpression: "#getTablesForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #tableComponentName(#self) + '/types.ts'"
+    templateName: actor/src/containers/components/table/types.ts.hbs
     templateContext:
       - name: container
         expression: "#self.pageContainer"
@@ -689,8 +709,24 @@ templates:
 
   - name: actor/src/pages/index.tsx
     factoryExpression: "#getPagesForRouting(#application)"
-    pathExpression: "'src/pages/' + #pagePath(#self) + '.tsx'"
+    pathExpression: "'src/pages/' + #pagePath(#self) + '/index.tsx'"
     templateName: actor/src/pages/index.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/pages/context.tsx
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "'src/pages/' + #pagePath(#self) + '/context.tsx'"
+    templateName: actor/src/pages/context.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/pages/types.ts
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "'src/pages/' + #pagePath(#self) + '/types.ts'"
+    templateName: actor/src/pages/types.ts.hbs
     templateContext:
       - name: page
         expression: "#self"
@@ -699,8 +735,32 @@ templates:
 
   - name: actor/src/dialogs/index.tsx
     factoryExpression: "#getPagesForDialogs(#application)"
-    pathExpression: "'src/dialogs/' + #pagePath(#self) + '.tsx'"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/index.tsx'"
     templateName: actor/src/dialogs/index.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/dialogs/hooks.tsx
+    factoryExpression: "#getPagesForDialogs(#application)"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/hooks.tsx'"
+    templateName: actor/src/dialogs/hooks.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/dialogs/context.tsx
+    factoryExpression: "#getPagesForDialogs(#application)"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/context.tsx'"
+    templateName: actor/src/dialogs/context.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/dialogs/types.ts
+    factoryExpression: "#getPagesForDialogs(#application)"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/types.ts'"
+    templateName: actor/src/dialogs/types.ts.hbs
     templateContext:
       - name: page
         expression: "#self"

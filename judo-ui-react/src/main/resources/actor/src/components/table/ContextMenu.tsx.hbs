@@ -1,4 +1,4 @@
-import type { JudoStored } from '~/services/data-api/common';
+import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { ForwardedRef, MouseEvent } from 'react';
 import type { Filter, Operation, FilterOption } from '~/components-api';
 import type { GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
@@ -54,7 +54,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
       const field: keyof P = event.currentTarget.dataset.field! as keyof P;
       const value: any = rowData ? rowData[field] : undefined;
       const column = columns.find(c => c.field === field)!;
-      if (column && column.type !== 'action') {
+      if (column && column.type !== 'actions') {
         event.preventDefault();
         setTextContent(event.currentTarget.textContent);
         setSelectedRow(row);

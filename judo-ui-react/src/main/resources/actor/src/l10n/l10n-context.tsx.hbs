@@ -55,9 +55,9 @@ export const L10NProvider = ({ axios, children }: { axios?: AxiosInstance, child
                 axios.interceptors.request.eject(interceptorId);
             }
             const newInterceptorId = axios.interceptors.request.use(
-                (config: AxiosRequestConfig): AxiosRequestConfig => {
+                (config) => {
                     if (!config.headers) {
-                        config.headers = {};
+                        config.headers = {} as any;
                     }
                     const shortLocale = locale.indexOf('-') > -1 ? locale.substring(0, locale.indexOf('-')) : locale;
                     config.headers['Accept-Language'] = `${locale}, ${shortLocale};q=0.9, *;q=0.5`;
