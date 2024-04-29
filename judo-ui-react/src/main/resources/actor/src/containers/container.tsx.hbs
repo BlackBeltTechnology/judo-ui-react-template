@@ -23,22 +23,19 @@ import { useTrackService } from '@pandino/react-hooks';
   import { {{ componentName link }} } from './components/{{ componentName link }}';
 {{/ each }}
 import type { {{# unless (containerIsEmptyDashboard container) }}{{ pageContainerActionDefinitionTypeName container }}, {{/ unless }}{{ containerComponentName container }}Props } from './types';
-
 {{# unless (containerIsEmptyDashboard container) }}
-{{# each (getVisualElementsWithCustomImplementation container) as |ve| }}
-    export const {{ getCustomizationComponentInterfaceKey ve }} = '{{ getCustomizationComponentInterface ve }}';
-    export interface {{ getCustomizationComponentInterface ve }} extends FC<CustomFormVisualElementProps<{{ classDataName container.dataElement '' }}>> {}
-{{/ each }}
-
-export const {{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY = '{{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_ACTIONS_HOOK';
-export type {{ containerComponentName container }}ContainerHook = (
-  {{# unless container.table }}
-  data: {{ classDataName container.dataElement 'Stored' }},
-  editMode: boolean,
-  storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void,
-  {{/ unless }}
-) => {{ pageContainerActionDefinitionTypeName container }};
-
+  import {
+    {{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY,
+    {{# each (getVisualElementsWithCustomImplementation container) as |ve| }}
+      {{ getCustomizationComponentInterfaceKey ve }}
+    {{/ each }}
+  } from './customization';
+  import type {
+    {{ containerComponentName container }}ContainerHook,
+    {{# each (getVisualElementsWithCustomImplementation container) as |ve| }}
+      {{ getCustomizationComponentInterface ve }}
+    {{/ each }}
+  } from './customization';
 {{/ unless }}
 
 // XMIID: {{ getXMIID container }}

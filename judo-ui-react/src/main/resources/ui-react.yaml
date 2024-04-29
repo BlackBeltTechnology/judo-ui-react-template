@@ -637,6 +637,14 @@ templates:
       - name: container
         expression: "#self"
 
+  - name: actor/src/containers/customization.ts
+    factoryExpression: "#application.pageContainers"
+    pathExpression: "'src/containers/' + #containerPath(#self) + '/customization.ts'"
+    templateName: actor/src/containers/customization.ts.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
   - name: actor/src/containers/types.ts
     factoryExpression: "#application.pageContainers"
     pathExpression: "'src/containers/' + #containerPath(#self) + '/types.ts'"
@@ -715,6 +723,14 @@ templates:
       - name: page
         expression: "#self"
 
+  - name: actor/src/pages/customization.ts
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "'src/pages/' + #pagePath(#self) + '/customization.ts'"
+    templateName: actor/src/pages/customization.ts.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
   - name: actor/src/pages/context.tsx
     factoryExpression: "#getPagesForRouting(#application)"
     pathExpression: "'src/pages/' + #pagePath(#self) + '/context.tsx'"
@@ -745,6 +761,14 @@ templates:
     factoryExpression: "#getPagesForDialogs(#application)"
     pathExpression: "'src/dialogs/' + #pagePath(#self) + '/hooks.tsx'"
     templateName: actor/src/dialogs/hooks.tsx.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/dialogs/customization.ts
+    factoryExpression: "#getPagesForDialogs(#application)"
+    pathExpression: "'src/dialogs/' + #pagePath(#self) + '/customization.ts'"
+    templateName: actor/src/dialogs/customization.ts.hbs
     templateContext:
       - name: page
         expression: "#self"

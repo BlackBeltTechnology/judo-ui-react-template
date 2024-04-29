@@ -54,32 +54,11 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   {{/ if }}
   import { {{ containerComponentName page.container }}ViewModelContext, type {{ containerComponentName page.container }}ViewModel } from './context';
   import type { {{ containerComponentName page.container }}DialogActionsExtended, {{ pageName page }}Props } from './types';
+  import type { {{ containerComponentName page.container }}ActionsHook } from './customization';
+  import { {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-
-  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK';
-  export type {{ containerComponentName page.container }}ActionsHook = (
-    ownerData: any,
-    data: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }},
-    editMode: boolean,
-    {{# unless page.container.table }}
-    storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void,
-    {{/ unless }}
-    {{# if page.container.isSelector }}
-    selectionDiff: {{ dialogDataType page }}[],
-    {{/ if }}
-    {{# if (containerIsRefreshable page.container) }}
-    refresh: () => Promise<void>,
-    {{/ if }}
-    submit: () => Promise<void>,
-    {{# if (pageHasOutputTarget page) }}
-    onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>,
-    {{ else }}
-    onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>,
-    {{/ if }}
-  ) => {{ containerComponentName page.container }}DialogActionsExtended;
-
   {{# unless page.container.table }}
     {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
     {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}

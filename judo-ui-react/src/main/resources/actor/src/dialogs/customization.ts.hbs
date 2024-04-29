@@ -1,0 +1,34 @@
+{{# unless (containerIsEmptyDashboard page.container) }}
+  {{# each (getApiImportsForPage page) as |imp| }}
+    import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/services/data-api/model/{{ classDataName imp '' }}';
+    import type { {{ classDataName imp 'QueryCustomizer' }} } from '~/services/data-api/rest/{{ classDataName imp 'QueryCustomizer' }}';
+  {{/ each }}
+  {{# each (getEnumDataTypesForPage page) as |imp| }}
+    import { {{ restParamName imp }} } from '~/services/data-api/model/{{ restParamName imp }}';
+  {{/ each }}
+  import type { {{ containerComponentName page.container }}DialogActionsExtended, {{ pageName page }}Props } from './types';
+
+  export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK';
+  export type {{ containerComponentName page.container }}ActionsHook = (
+    ownerData: any,
+    data: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }},
+    editMode: boolean,
+    {{# unless page.container.table }}
+    storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void,
+    {{/ unless }}
+    {{# if page.container.isSelector }}
+    selectionDiff: {{ dialogDataType page }}[],
+    {{/ if }}
+    {{# if (containerIsRefreshable page.container) }}
+    refresh: () => Promise<void>,
+    {{/ if }}
+    submit: () => Promise<void>,
+    {{# if (pageHasOutputTarget page) }}
+    onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>,
+    {{ else }}
+    onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>,
+    {{/ if }}
+  ) => {{ containerComponentName page.container }}DialogActionsExtended;
+{{ else }}
+  export const _ = 'placeholder';
+{{/ unless }}
