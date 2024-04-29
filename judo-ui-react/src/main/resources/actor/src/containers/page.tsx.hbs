@@ -14,49 +14,24 @@ import { mainContainerPadding } from '~/theme';
   {{# unless container.table }}
     import { processQueryCustomizer } from '~/utilities';
   {{/ unless }}
-  import type { {{ containerComponentName container }}ActionDefinitions } from './{{ containerComponentName container }}';
   import type {
     {{ classDataName container.dataElement '' }},
     {{ classDataName container.dataElement 'Stored' }},
     {{ classDataName container.dataElement 'QueryCustomizer' }}
   } from '~/services/data-api';
-  import type { JudoRestResponse } from '~/services/data-api/rest';
+  import type {
+    {{ containerComponentName container }}ActionDefinitions,
+    {{ containerComponentName container }}PageActions,
+    {{ containerComponentName container }}PageProps,
+  } from './types';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
   const {{ containerComponentName container }} = lazy(() => import('~/containers/{{ containerPath container }}/{{ containerComponentName container }}'));
-
-  export interface {{ containerComponentName container }}PageActions extends {{ pageContainerActionDefinitionTypeName container }} {
-    {{# each container.pageActionDefinitions as |actionDefinition| }}
-      {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>>;
-      {{ else }}
-        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
-      {{/ if }}
-    {{/ each }}
-  }
 {{/ unless }}
 
-export interface {{ containerComponentName container }}PageProps {
-  {{# unless (containerIsEmptyDashboard container) }}
-    actions: {{ containerComponentName container }}PageActions;
-    isLoading: boolean;
-    editMode: boolean;
-    refreshCounter: number;
-    {{# unless container.table }}
-      data: {{ classDataName container.dataElement 'Stored' }};
-      isFormUpdateable: () => boolean;
-      isFormDeleteable: () => boolean;
-      storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
-      validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
-      setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
-      submit: () => Promise<void>;
-    {{/ unless }}
-  {{/ unless }}
-};
-
 // Name: {{ container.name }}
-export default function {{ containerComponentName container }}Page (props: {{ containerComponentName container }}PageProps) {
+export default function {{ containerComponentName container }}Page ({{# unless (containerIsEmptyDashboard container) }}props: {{ containerComponentName container }}PageProps{{/ unless }}) {
   const { openConfirmDialog } = useConfirmDialog();
 
   {{# unless (containerIsEmptyDashboard container) }}

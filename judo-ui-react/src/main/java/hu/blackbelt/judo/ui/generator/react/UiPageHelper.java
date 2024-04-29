@@ -96,7 +96,7 @@ public class UiPageHelper {
         return pagePath(page) + suffix;
     }
 
-    public static List<AttributeType> getEnumAttributesForPage(PageDefinition pageDefinition) {
+    public static List<EnumerationType> getEnumDataTypesForPage(PageDefinition pageDefinition) {
         if (pageDefinition.getDataElement() == null) {
             return List.of();
         }
@@ -116,6 +116,10 @@ public class UiPageHelper {
         return target.getAttributes()
                 .stream()
                 .filter(a -> a.getDataType() instanceof EnumerationType)
+                .map(a -> (EnumerationType) a.getDataType())
+                .collect(Collectors.toSet())
+                .stream()
+                .sorted(Comparator.comparing(NamedElement::getFQName))
                 .collect(Collectors.toList());
     }
 
@@ -131,25 +135,22 @@ public class UiPageHelper {
         return false;
     }
 
-    public static List<String> getApiImportsForReferenceType(ReferenceType reference) {
-        Set<String> res = new HashSet<>();
+    public static Set<ClassType> getApiImportsForReferenceType(ReferenceType reference) {
+        Set<ClassType> res = new HashSet<>();
 
         if (reference.getTarget() != null) {
-            res.add(classDataName(reference.getTarget(), ""));
-            res.add(classDataName(reference.getTarget(), "Stored"));
-            res.add(classDataName(reference.getTarget(), "QueryCustomizer"));
+            res.add(reference.getTarget());
         }
 
         if (reference instanceof RelationType && !((RelationType) reference).isIsAccess()) {
-            res.add(classDataName((ClassType) reference.getOwner(), ""));
-            res.add(classDataName((ClassType) reference.getOwner(), "Stored"));
+            res.add((ClassType) reference.getOwner());
         }
 
-        return res.stream().sorted().collect(Collectors.toList());
+        return res;
     }
 
-    public static List<String> getApiImportsForPage(PageDefinition pageDefinition) {
-        Set<String> res = new HashSet<>();
+    public static List<ClassType> getApiImportsForPage(PageDefinition pageDefinition) {
+        Set<ClassType> res = new HashSet<>();
 
         if (pageDefinition.getDataElement() instanceof ReferenceType referenceType) {
             res.addAll(getApiImportsForReferenceType(referenceType));
@@ -159,9 +160,7 @@ public class UiPageHelper {
             Table theTable = (Table) table;
             // for some reason table's dataElement can be ClassType, not ReferenceType
             if (theTable.getDataElement() instanceof ClassType) {
-                res.add(classDataName((ClassType) theTable.getDataElement(), ""));
-                res.add(classDataName((ClassType) theTable.getDataElement(), "Stored"));
-                res.add(classDataName((ClassType) theTable.getDataElement(), "QueryCustomizer"));
+                res.add((ClassType) theTable.getDataElement());
             }
             if (theTable.getDataElement() instanceof RelationType) {
                 res.addAll(getApiImportsForReferenceType((RelationType) theTable.getDataElement()));
@@ -175,46 +174,39 @@ public class UiPageHelper {
 
         for (ActionDefinition actionDefinition: (List<ActionDefinition>) pageDefinition.getContainer().getAllActionDefinitions()) {
             if (actionDefinition.getTargetType() != null) {
-                res.add(classDataName(actionDefinition.getTargetType(), ""));
-                res.add(classDataName(actionDefinition.getTargetType(), "Stored"));
-                res.add(classDataName(actionDefinition.getTargetType(), "QueryCustomizer"));
+                res.add(actionDefinition.getTargetType());
             }
             if (actionDefinition instanceof CallOperationActionDefinition callOperationActionDefinition && callOperationActionDefinition.getOperation().getOutput() != null) {
-                res.add(classDataName(callOperationActionDefinition.getOperation().getOutput().getTarget(), ""));
-                res.add(classDataName(callOperationActionDefinition.getOperation().getOutput().getTarget(), "Stored"));
+                res.add(callOperationActionDefinition.getOperation().getOutput().getTarget());
             }
         }
 
         if (pageDefinition.getContainer().isIsSelector()) {
             if (pageDefinition.getDataElement() instanceof OperationType operationType) {
                 if (operationType.getInput() != null) {
-                    res.add(classDataName(operationType.getInput().getTarget(), "Stored"));
+                    res.add(operationType.getInput().getTarget());
                 }
                 if (operationType.getOutput() != null) {
-                    res.add(classDataName(operationType.getOutput().getTarget(), "Stored"));
+                    res.add(operationType.getOutput().getTarget());
                 }
             } else if (pageDefinition.getDataElement() instanceof RelationType relationType) {
-                res.add(classDataName(relationType.getTarget(), "Stored"));
+                res.add(relationType.getTarget());
             }
         }
         if (pageDefinition.getDataElement() instanceof OperationParameterType operationParameterType) {
-            res.add(classDataName(operationParameterType.getTarget(), "Stored"));
+            res.add(operationParameterType.getTarget());
 
             if (operationParameterType.eContainer() instanceof OperationType operationType) {
                 if (operationType.getOutput() != null) {
-                    res.add(classDataName(operationType.getOutput().getTarget(), "Stored"));
+                    res.add(operationType.getOutput().getTarget());
                 }
             }
         }
         if (pageDefinition.getDataElement() instanceof RelationType relationType) {
-            res.add(classDataName(relationType.getTarget(), "Stored"));
+            res.add(relationType.getTarget());
         }
 
-        getEnumAttributesForPage(pageDefinition).forEach(a -> {
-            res.add(restParamName(a.getDataType()));
-        });
-
-        return res.stream().sorted().collect(Collectors.toList());
+        return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
     public static List<PageDefinition> getRelatedPages(PageDefinition pageDefinition) {

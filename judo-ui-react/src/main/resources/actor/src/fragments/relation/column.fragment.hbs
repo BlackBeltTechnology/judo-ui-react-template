@@ -24,7 +24,7 @@ filterOperators: booleanColumnOperators,
 {{/ if }}
 {{/ if }}
 {{# if (isColumnNumeric column) }}
-valueFormatter: ({ value }: GridValueFormatterParams<number>) => {
+valueFormatter: (value?: number) => {
   if (value === null || value === undefined) {
     return '';
   }
@@ -39,7 +39,7 @@ filterOperators: numericColumnOperators,
 {{/ if }}
 {{/ if }}
 {{# if (isColumnEnumeration column) }}
-valueFormatter: ({ value }: GridValueFormatterParams<string>) => {
+valueFormatter: (value?: string) => {
   if (value !== undefined && value !== null) {
     return t(`enumerations.{{ restParamName column.attributeType.dataType }}.${value}`, { defaultValue: value });
   }
@@ -54,8 +54,8 @@ valueFormatter: ({ value }: GridValueFormatterParams<string>) => {
 {{/ if }}
 {{/ if }}
 {{# if (isColumnTimestamp column) }}
-valueGetter: ({ value }) => value && serviceDateToUiDate(value),
-valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+valueGetter: (value?: Date) => value && serviceDateToUiDate(value),
+valueFormatter: (value?: Date) => {
   return value && new Intl.DateTimeFormat(l10nLocale, {
     year: 'numeric',
     month: '2-digit',
@@ -71,8 +71,8 @@ filterOperators: dateTimeColumnOperators,
 {{/ if }}
 {{/ if }}
 {{# if (isColumnTime column) }}
-valueGetter: ({ value }) => value && serviceTimeToUiTime(value),
-valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+valueGetter: (value?: Date) => value && serviceTimeToUiTime(value),
+valueFormatter: (value?: Date) => {
   return value && new Intl.DateTimeFormat(l10nLocale, {
     hour: '2-digit',
     minute: '2-digit',
@@ -81,8 +81,8 @@ valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
 },
 {{/ if }}
 {{# if (isColumnDate column) }}
-valueGetter: ({ value }) => value && new Date(value),
-valueFormatter: ({ value }: GridValueFormatterParams<Date>) => {
+valueGetter: (value?: Date) => value && new Date(value),
+valueFormatter: (value?: Date) => {
   return value && new Intl.DateTimeFormat(l10nLocale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(value);
 },
 {{# if isUseInlineColumnFilters}}

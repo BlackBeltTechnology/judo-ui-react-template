@@ -3,6 +3,7 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
+import hu.blackbelt.judo.meta.ui.data.EnumerationType;
 import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
 
@@ -102,36 +103,25 @@ public class UiPageContainerHelper {
         return relationName + (!relationName.isEmpty() ? firstToUpper(suffix) : suffix) + "Action";
     }
 
-    public static List<String> getContainerApiImports(PageContainer container) {
-        Set<String> imports = new HashSet<>();
+    public static List<ClassType> getContainerApiImports(PageContainer container) {
+        Set<ClassType> imports = new HashSet<>();
 
         try {
-            imports.add(classDataName((ClassType) container.getDataElement(), ""));
-            imports.add(classDataName((ClassType) container.getDataElement(), "Stored"));
-            imports.add(classDataName((ClassType) container.getDataElement(), "QueryCustomizer"));
-            imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "")).toList());
-            imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "Stored")).toList());
-            imports.addAll(container.getTables().stream().map(t -> classDataName(getReferenceClassType(((Table) t)), "QueryCustomizer")).toList());
+            imports.add((ClassType) container.getDataElement());
+            imports.addAll(container.getTables().stream().map(t -> getReferenceClassType(((Table) t))).toList());
 
-            imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "")).toList());
-            imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "Stored")).toList());
-            imports.addAll(container.getLinks().stream().map(l -> classDataName(getReferenceClassType(((Link) l)), "QueryCustomizer")).toList());
+            imports.addAll(container.getLinks().stream().map(l -> getReferenceClassType(((Link) l))).toList());
 
             for (ActionDefinition actionDefinition : (List<ActionDefinition>) container.getAllActionDefinitions()) {
                 if (actionDefinition.getTargetType() != null) {
-                    imports.add(classDataName(actionDefinition.getTargetType(), ""));
-                    imports.add(classDataName(actionDefinition.getTargetType(), "Stored"));
+                    imports.add(actionDefinition.getTargetType());
                 }
-            }
-
-            for (Input enumInput: getEnumsForContainer(container)) {
-                imports.add(restParamName(enumInput.getAttributeType().getDataType()));
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
-        return imports.stream().sorted().collect(Collectors.toList());
+        return imports.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
     public static boolean containerHasRelationComponents(PageContainer container) {
@@ -292,7 +282,19 @@ public class UiPageContainerHelper {
     public static List<Input> getEnumsForContainer(PageContainer container) {
         Set<VisualElement> elements = new LinkedHashSet<>();
         collectVisualElementsMatchingCondition(container, e -> e instanceof EnumerationCombo || e instanceof EnumerationRadio, elements);
-        return elements.stream().map(e -> ((Input) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+        return elements.stream()
+                .map(e -> ((Input) e))
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
+
+    public static List<EnumerationType> getEnumDataTypesForContainer(PageContainer container) {
+        return getEnumsForContainer(container).stream()
+                .map(e -> (EnumerationType) e.getAttributeType().getDataType())
+                .collect(Collectors.toSet())
+                .stream()
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
     }
 
     public static List<Link> getLinksForContainer(PageContainer container) {

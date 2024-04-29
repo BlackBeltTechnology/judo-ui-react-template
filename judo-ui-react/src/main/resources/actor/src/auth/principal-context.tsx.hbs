@@ -1,11 +1,13 @@
 {{> fragment.header.hbs }}
 
 {{# if application.authentication }}
-    import { createContext, useContext, useState, useEffect } from 'react';
+    import { createContext, useContext, useState, useEffect, useMemo } from 'react';
     import type { ReactNode } from 'react';
     import { useAuth } from 'react-oidc-context';
-    import { JudoRestResponse, {{ classDataName application.principal 'Stored' }} } from '~/services/data-api';
-    import { accessServiceImpl } from '~/services/data-axios';
+    import { type JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+    import { type {{ classDataName application.principal 'Stored' }} } from '~/services/data-api/model/{{ classDataName application.principal '' }}';
+    import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
+    import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 
     export interface PrincipalContext {
         principal: {{ classDataName application.principal 'Stored' }};
@@ -16,6 +18,7 @@
     const PrincipalContext = createContext<PrincipalContext>({} as unknown as PrincipalContext);
 
     export const PrincipalProvider = ({ children }: { children: ReactNode }) => {
+        const accessServiceImpl = useMemo(() => new AccessServiceImpl(judoAxiosProvider), []);
         const [principal, setPrincipal] = useState<{{ classDataName application.principal 'Stored' }}>({} as unknown as {{ classDataName application.principal 'Stored' }});
         const { isAuthenticated } = useAuth();
 

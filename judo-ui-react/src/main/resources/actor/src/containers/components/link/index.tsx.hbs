@@ -5,35 +5,12 @@ import { useTranslation } from 'react-i18next';
 import { exists, processQueryCustomizer } from '~/utilities';
 import { MdiIcon } from '~/components';
 import { AggregationInput } from '~/components/widgets';
-import { StringOperation } from '~/services/data-api';
+import { StringOperation } from '~/services/data-api/model/StringOperation';
 import type {
   {{ getLinkAPIImports link container }}
 } from '~/services/data-api';
 import { AggregationInputButtonProps } from '~/utilities/application/interfaces';
-
-export interface {{ componentName link }}ActionDefinitions {
-  {{# each link.actionDefinitions as |actionDefinition| }}
-  {{ simpleActionDefinitionName actionDefinition }}?: ({{{ linkActionDefinitionParameters link actionDefinition }}}) => Promise<{{{ linkActionDefinitionResponseType link actionDefinition }}}>;
-  {{/ each }}
-  {{# if link.onBlur }}
-  on{{ firstToUpper link.relationType.name }}BlurAction?: ({{{ onBlurActionParams container }}}) => void;
-  {{/ if }}
-  is{{ firstToUpper link.relationType.name }}Required?: ({{{ inputModifierParams container false }}}) => boolean;
-  is{{ firstToUpper link.relationType.name }}Disabled?: ({{{ inputModifierParams container true }}}) => boolean;
-}
-
-export interface {{ componentName link }}Props {
-  ownerData: {{ classDataName container.dataElement '' }} | {{ classDataName container.dataElement 'Stored' }};
-  actions: {{ componentName link }}ActionDefinitions;
-  storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
-  submit: () => Promise<void>;
-  validationError?: string;
-  disabled?: boolean;
-  readOnly?: boolean;
-  editMode?: boolean;
-  isLoading?: boolean;
-  isDraft?: boolean;
-}
+import type { {{ componentName link }}ActionDefinitions, {{ componentName link }}Props } from './types';
 
 // XMIID: {{ getXMIID link }}
 // Name: {{ link.name }}
@@ -66,7 +43,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       dropDownButtonIsVisible: (value: any, onClick?: () => void) => exists(value) && onClick !== undefined && !readOnly,
       disabled: disabled,
       onClick: (ownerData.{{ link.dataElement.name }} && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => {
-        actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) 
+        actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!)
       } : undefined,
       title: t('judo.component.AggregationInput.unset', { defaultValue: 'Unset' }) as string,
     {{/ if }}
@@ -89,9 +66,9 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
     {{# if button.actionDefinition.isDeleteAction }}
       dropDownButtonIsVisible: (value: any, onClick?: () => void) => exists(value) && onClick !== undefined,
       disabled: disabled || editMode,
-      onClick: (ownerData.{{ link.dataElement.name }} && ownerData.{{ link.dataElement.name }}.__deleteable && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => { 
-        actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!) 
-      } 
+      onClick: (ownerData.{{ link.dataElement.name }} && ownerData.{{ link.dataElement.name }}.__deleteable && actions.{{ simpleActionDefinitionName actionDefinition }}) ? async () => {
+        actions.{{ simpleActionDefinitionName actionDefinition }}!(ownerData.{{ link.dataElement.name }}!)
+      }
       : undefined,
       title: t('judo.component.AggregationInput.delete', { defaultValue: 'Delete' }) as string,
     {{/ if }}

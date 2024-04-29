@@ -18,7 +18,7 @@ import {
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
 import { useTranslation } from 'react-i18next';
-import { X_JUDO_COUNT } from '~/services/data-api/rest';
+import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
 import { Filter, FilterOption } from '~/components-api';
 import {
 ContextMenu,
@@ -46,7 +46,8 @@ import {
   {{/ if }}
 } from '~/utilities';
 import type { TableRowAction{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
-import { JudoStored, QueryCustomizer } from '~/services/data-api/common';
+import type { JudoStored } from '~/services/data-api/common/JudoStored';
+import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { CustomTablePagination } from '~/components';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
@@ -609,8 +610,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         filterMode="server"
         filterDebounceMs={filterDebounceMs}
         rowCount={rowsPerPage}
-        components={ {
-          Toolbar: () => (
+        slots={ {
+          toolbar: () => (
             <GridToolbarContainer>
               {
                 toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (
@@ -672,7 +673,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                 <div>{/* Placeholder */}</div>
             </GridToolbarContainer>
           ),
-          Pagination: () => (
+          pagination: () => (
             <CustomTablePagination
               pageSizeOptions={pageSizeOptions}
               setPageSize={setPageSize}

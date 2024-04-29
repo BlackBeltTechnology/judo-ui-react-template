@@ -25,53 +25,24 @@ import { useConfirmDialog } from '~/components/dialog';
   {{# unless container.table }}
     import { processQueryCustomizer } from '~/utilities';
   {{/ unless }}
-  import type { {{ containerComponentName container }}ActionDefinitions } from './{{ containerComponentName container }}';
   import type {
     {{ classDataName container.dataElement '' }},
     {{ classDataName container.dataElement 'Stored' }},
     {{ classDataName container.dataElement 'QueryCustomizer' }}
   } from '~/services/data-api';
-  import type { JudoRestResponse } from '~/services/data-api/rest';
+  import type {
+    {{ containerComponentName container }}ActionDefinitions,
+    {{ containerComponentName container }}DialogActions,
+    {{ containerComponentName container }}DialogProps,
+  } from './types';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
   const {{ containerComponentName container }} = lazy(() => import('~/containers/{{ containerPath container }}/{{ containerComponentName container }}'));
-
-  export interface {{ containerComponentName container }}DialogActions extends {{ pageContainerActionDefinitionTypeName container }} {
-    {{# each container.pageActionDefinitions as |actionDefinition| }}
-      {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{{ getContainerOwnActionReturnType actionDefinition container }}}>;
-    {{/ each }}
-  }
 {{/ unless }}
 
-export interface {{ containerComponentName container }}DialogProps {
-  ownerData: any;
-  onClose: () => Promise<void>;
-  {{# unless (containerIsEmptyDashboard container) }}
-    actions: {{ containerComponentName container }}DialogActions;
-    isLoading: boolean;
-    editMode: boolean;
-    refreshCounter: number;
-    {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
-    {{# if container.isSelector }}
-      selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
-      setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
-    {{/ if }}
-    {{# unless container.table }}
-      data: {{ classDataName container.dataElement 'Stored' }};
-      isFormUpdateable: () => boolean;
-      isFormDeleteable: () => boolean;
-      storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void;
-      validation: Map<keyof {{ classDataName container.dataElement '' }}, string>;
-      setValidation: Dispatch<SetStateAction<Map<keyof {{ classDataName container.dataElement '' }}, string>>>;
-      submit: () => Promise<void>;
-    {{/ unless }}
-    isDraft?: boolean;
-  {{/ unless }}
-};
-
 // Name: {{ container.name }}
-export default function {{ containerComponentName container }}Dialog(props: {{ containerComponentName container }}DialogProps) {
+export default function {{ containerComponentName container }}Dialog({{# unless (containerIsEmptyDashboard container) }}props: {{ containerComponentName container }}DialogProps{{/ unless }}) {
   const { openConfirmDialog } = useConfirmDialog();
 
   {{# unless (containerIsEmptyDashboard container) }}
