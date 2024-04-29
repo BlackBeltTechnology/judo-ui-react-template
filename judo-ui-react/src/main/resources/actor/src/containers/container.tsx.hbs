@@ -27,13 +27,13 @@ import type { {{# unless (containerIsEmptyDashboard container) }}{{ pageContaine
   import {
     {{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY,
     {{# each (getVisualElementsWithCustomImplementation container) as |ve| }}
-      {{ getCustomizationComponentInterfaceKey ve }}
+      {{ getCustomizationComponentInterfaceKey ve }},
     {{/ each }}
   } from './customization';
   import type {
     {{ containerComponentName container }}ContainerHook,
     {{# each (getVisualElementsWithCustomImplementation container) as |ve| }}
-      {{ getCustomizationComponentInterface ve }}
+      {{ getCustomizationComponentInterface ve }},
     {{/ each }}
   } from './customization';
 {{/ unless }}
