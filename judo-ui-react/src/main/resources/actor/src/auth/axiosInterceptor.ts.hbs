@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import type { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import type { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { User, WebStorageStateStore } from 'oidc-client-ts';
 
 const securityStore: { authority?: string, clientId?: string, name?: string } = {};
@@ -42,7 +42,7 @@ export function getUser(): any {
   return User.fromStorageString(oidcStorage);
 }
 
-export const axiosRequestInterceptor = (config: AxiosRequestConfig) => {
+export const axiosRequestInterceptor = (config: InternalAxiosRequestConfig) => {
   try {
     if (!config.url?.endsWith('~meta')) {
       const user = getUser();
