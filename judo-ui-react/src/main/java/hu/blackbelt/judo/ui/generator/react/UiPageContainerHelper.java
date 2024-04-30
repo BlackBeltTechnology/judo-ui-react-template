@@ -238,6 +238,11 @@ public class UiPageContainerHelper {
         return !collectElementsOfType(container, new ArrayList<>(), TrinaryLogicCombo.class).isEmpty();
     }
 
+    public static boolean containerHasTypeAhead(PageContainer container) {
+        var elements = collectElementsOfType(container, new ArrayList<>(), TextInput.class);
+        return elements.stream().anyMatch(TextInput::isIsTypeAheadField);
+    }
+
     public static boolean containerHasDivider(PageContainer container) {
         return !collectElementsOfType(container, new ArrayList<>(), Divider.class).isEmpty();
     }
@@ -283,6 +288,16 @@ public class UiPageContainerHelper {
         Set<VisualElement> elements = new LinkedHashSet<>();
         collectVisualElementsMatchingCondition(container, e -> e instanceof EnumerationCombo || e instanceof EnumerationRadio, elements);
         return elements.stream()
+                .map(e -> ((Input) e))
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Input> getTextInputsWithTypeAhead(PageContainer container) {
+        Set<VisualElement> elements = new LinkedHashSet<>();
+        collectVisualElementsMatchingCondition(container, e -> e instanceof TextInput, elements);
+        return elements.stream()
+                .filter(e -> ((TextInput) e).isIsTypeAheadField())
                 .map(e -> ((Input) e))
                 .sorted(Comparator.comparing(NamedElement::getFQName))
                 .collect(Collectors.toList());

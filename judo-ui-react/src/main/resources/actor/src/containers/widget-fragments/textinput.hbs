@@ -11,6 +11,43 @@
             actions={actions}
         >
     {{/ if }}
+    {{# if child.isTypeAheadField }}
+    <TextWithTypeAhead
+        required={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})}
+        name="{{ child.attributeType.name }}"
+        id="{{ getXMIID child }}"
+        label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
+        ownerData={data}
+        disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
+        error={ !!validation.get('{{ child.attributeType.name }}') }
+        helperText={ validation.get('{{ child.attributeType.name }}') }
+        {{# if child.icon }}
+          icon={<MdiIcon path="{{ child.icon.iconName }}" />}
+        {{/ if }}
+        readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        editMode={editMode}
+        {{# if child.onBlur }}
+        onBlur={ () => {
+            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
+                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(data, storeDiff, editMode, submit);
+            }
+        } }
+        {{/ if }}
+        onChange={ (value: any) => {
+            const realValue = value?.length === 0 ? null : value;
+            storeDiff('{{ child.attributeType.name }}', realValue);
+        } }
+        {{# if child.attributeType.dataType.maxLength }}
+        maxLength={ {{ child.attributeType.dataType.maxLength }} }
+        {{/ if }}
+        onAutoCompleteSearch={ async (searchText: string) => {
+            if (actions?.get{{ firstToUpper child.attributeType.name }}Options) {
+                return await actions.get{{ firstToUpper child.attributeType.name }}Options(searchText, data, editMode, validation);
+            }
+            return Promise.resolve([]);
+        } }
+    />
+    {{ else }}
     <TextField
         required={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})}
         name="{{ child.attributeType.name }}"
@@ -55,6 +92,7 @@
         } }
         {{/ if }}
     />
+    {{/ if }}
     {{# if child.customImplementation }}
         </ComponentProxy>
     {{/ if }}
