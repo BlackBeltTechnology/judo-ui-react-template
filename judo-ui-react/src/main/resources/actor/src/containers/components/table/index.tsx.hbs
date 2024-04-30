@@ -249,6 +249,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# if container.isSelector }}
         containerIsSelector={ true }
         {{/ if }}
+        {{# unless (checkboxSelectionEnabled table) }}
+        checkboxSelection={ false }
+        {{/ unless }}
         {{# if container.isRelationSelector }}
         containerIsRelationSelector={ true }
         {{/ if }}
@@ -306,6 +309,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# if table.allowSelectMultiple }}
         allowSelectMultiple={ true }
         {{/ if }}
+        {{# unless (checkboxSelectionEnabled table) }}
+        checkboxSelection={ false }
+        {{/ unless }}
         dataElementId={ '{{ createId table.dataElement }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }

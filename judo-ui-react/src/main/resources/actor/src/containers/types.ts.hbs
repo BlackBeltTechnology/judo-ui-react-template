@@ -40,6 +40,9 @@
     {{# each (getEnumsForContainer container) as |ve| }}
       filter{{ firstToUpper ve.attributeType.name }}Options?: (data: {{ classDataName container.dataElement '' }}, options: EnumOption<keyof typeof {{ restParamName ve.attributeType.dataType }}>[]) => EnumOption<keyof typeof {{ restParamName ve.attributeType.dataType }}>[];
     {{/ each }}
+    {{# each (getTextInputsWithTypeAhead container) as |ve| }}
+      get{{ firstToUpper ve.attributeType.name }}Options?: (searchText: string, data: {{ classDataName container.dataElement '' }}, editMode: boolean, validation: Map<keyof {{ classDataName container.dataElement '' }}, string>) => Promise<string[]>;
+    {{/ each }}
     {{# if container.view }}
       getMask?: () => string;
     {{/ if }}

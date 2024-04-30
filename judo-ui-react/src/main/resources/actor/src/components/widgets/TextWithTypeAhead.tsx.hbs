@@ -1,0 +1,146 @@
+{{> fragment.header.hbs }}
+
+import Autocomplete from '@mui/material/Autocomplete';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
+import { debounce } from '@mui/material/utils';
+import { clsx } from 'clsx';
+import { useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
+import { debounceInputs } from '~/config';
+
+interface TextWithTypeAheadProps {
+  name: string;
+  id: string;
+  required?: boolean;
+  label?: string;
+  ownerData: any;
+  error?: boolean;
+  helperText?: string;
+  readOnly?: boolean;
+  disabled?: boolean;
+  editMode?: boolean;
+  icon?: ReactNode;
+  onAutoCompleteSearch?: (searchText: string) => Promise<string[]>;
+  onChange: (target?: string | null) => void;
+  onBlur?: (event: any) => void;
+  maxLength?: number;
+}
+
+export const TextWithTypeAhead = ({
+  name,
+  id,
+  required,
+  label,
+  ownerData,
+  error = false,
+  helperText,
+  readOnly = false,
+  disabled = false,
+  editMode = true,
+  icon,
+  onAutoCompleteSearch,
+  onChange,
+  onBlur,
+  maxLength,
+}: TextWithTypeAheadProps) => {
+  const [options, setOptions] = useState<string[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [value, setValue] = useState<any>(ownerData[name] || null);
+
+  useEffect(() => {
+    setValue(ownerData[name] || null);
+  }, [ownerData[name]]);
+
+  const handleSearch = async (searchText: string) => {
+    try {
+      if (onAutoCompleteSearch) {
+        setLoading(true);
+        const data = await onAutoCompleteSearch(searchText);
+        setOptions(data);
+      }
+    } catch (error) {
+      // Handle error
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const propagateChange = useMemo(
+    () =>
+      debounce((val: string) => {
+        handleSearch(val);
+      }, debounceInputs),
+    [],
+  );
+
+  const onInputChange = useMemo(
+    () => (event: any, val: string, reason: string) => {
+      if (value !== val && reason !== 'reset') {
+        onChange(val);
+        propagateChange(val);
+      }
+    },
+    [ownerData],
+  );
+
+  const effectiveReadOnly = readOnly || !onAutoCompleteSearch;
+
+  return (
+    <Autocomplete
+      freeSolo={true}
+      id={id}
+      disabled={!effectiveReadOnly && disabled}
+      readOnly={effectiveReadOnly}
+      onOpen={ () => {
+        if (!readOnly) {
+          setOptions([]); // always start with a clean slate
+          handleSearch(ownerData[name] || '');
+        }
+      } }
+      isOptionEqualToValue={(option: any, value: any) => option === value}
+      getOptionLabel={(option) => option || ''}
+      options={options}
+      value={ownerData[name] || null}
+      clearOnBlur={false}
+      disableClearable={true}
+      renderInput={(params) => (
+        <TextField
+          {...params}
+          name={name}
+          id={id}
+          required={required}
+          label={label}
+          error={error}
+          helperText={helperText}
+          className={clsx({
+            'JUDO-viewMode': !editMode,
+            'JUDO-required': required,
+          })}
+          onFocus={ (event) => {
+            event.target.select();
+          } }
+          onBlur={onBlur}
+          InputProps={ {
+            ...params.InputProps,
+            readOnly: readOnly,
+            startAdornment: icon && (
+              <InputAdornment position="start" style={ { marginTop: 0 } }>
+                {icon}
+              </InputAdornment>
+            ),
+          } }
+          inputProps={ {
+            ...params.inputProps,
+            maxLength: maxLength,
+          } }
+        />
+      )}
+      onInputChange={onInputChange}
+      onChange={ (event, target) => {
+        setValue(target);
+        handleSearch(target);
+      } }
+    />
+  );
+};

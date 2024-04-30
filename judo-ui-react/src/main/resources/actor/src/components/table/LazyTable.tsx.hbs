@@ -95,6 +95,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   selectionDiff?: T[];
   isFormUpdateable?: () => boolean;
   enabledByName?: string;
+  checkboxSelection?: boolean;
   relationName: string;
 }
 
@@ -139,6 +140,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     isFormUpdateable,
     enabledByName,
     relationName,
+    checkboxSelection,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -592,7 +594,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         disableRowSelectionOnClick={!containerIsSelector}
         isRowSelectable={handleIsRowSelectable}
         hideFooterSelectedRowCount={ !allowSelectMultiple }
-        checkboxSelection
+        checkboxSelection={checkboxSelection !== false}
         rowSelectionModel={selectionModel}
         onRowSelectionModelChange={handleOnSelection}
         keepNonExistentRowsSelected
