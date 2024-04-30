@@ -82,6 +82,7 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   tableHasSelectorColumn?: boolean;
   maskAction?: () => string;
   ownerData?: any;
+  checkboxSelection?: boolean;
   isFormUpdateable?: () => boolean;
   enabledByName?: string;
   relationName: string;
@@ -120,6 +121,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     isFormUpdateable,
     enabledByName,
     relationName,
+    checkboxSelection,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -436,7 +438,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         {{/ if }}
         disableRowSelectionOnClick
         hideFooterSelectedRowCount={ !allowSelectMultiple }
-        checkboxSelection
+        checkboxSelection={checkboxSelection !== false}
         rowSelectionModel={selectionModel}
         onRowSelectionModelChange={handleOnSelection}
         keepNonExistentRowsSelected
