@@ -299,4 +299,8 @@ public class UiTableHelper {
                 .filter(VisualElement::isCustomImplementation)
                 .toList();
     }
+
+    public static boolean checkboxSelectionEnabled(Table table) {
+        return table.getCheckboxSelection() == null || table.getCheckboxSelection() != CheckboxSelection.DISABLED;
+    }
 }

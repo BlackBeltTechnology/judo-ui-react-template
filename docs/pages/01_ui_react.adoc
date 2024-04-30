@@ -593,6 +593,32 @@ export class DefaultApplicationCustomizer implements ApplicationCustomizer {
 }
 ----
 
+=== Implementing typeahead queries for text inputs
+
+If a text input is modeled with typeahead turned on, an API is generated which we can inplement to return results.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { GOD_GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY, ViewGalaxyViewActionsHook } from '~/pages/God/God/Galaxies/AccessViewPage/customization';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<ViewGalaxyViewActionsHook>(GOD_GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY, () => {
+      return {
+        getNameOptions: async (text) => {
+          console.log(text);
+          return [text + '__a', text + '__b'];
+        },
+      };
+    });
+  }
+}
+----
+
+
 === Implementing custom columns
 
 When the "Custom Implementation" option is checked in the Designer for a column in a table, we get access to an API where
