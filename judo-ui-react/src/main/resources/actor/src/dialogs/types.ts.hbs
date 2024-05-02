@@ -36,6 +36,9 @@
     {{ else }}
     onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>;
     {{/ if }}
+    {{# unless page.container.table}}
+    maskRequest?: string;
+    {{/ unless }}
   }
 {{ else }}
   export const _ = 'placeholder';

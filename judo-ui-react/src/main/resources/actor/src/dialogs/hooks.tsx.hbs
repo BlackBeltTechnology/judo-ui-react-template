@@ -45,6 +45,9 @@ export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}})
             {{# unless page.container.table }}
             ownerValidation={ownerValidation}
             {{/ unless }}
+            {{# if page.container.form }}
+            maskRequest={maskRequest}
+            {{/ if }}
             onClose={async () => {
               await closeDialog();
               resolve({
