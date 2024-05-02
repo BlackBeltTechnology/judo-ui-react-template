@@ -4,6 +4,7 @@
         {{# each (getAlternativeApplications application applications) as |app| }}
         "applications.{{ app.actor.simpleName }}": "{{ app.actor.simpleName }}",
         {{/ each }}
+        {{> actor/public/i18n/application_default_extra.fragment.hbs }}
         {{# each (getApplicationTranslations application) as |translation| }}
         "{{ @key }}": "{{ this }}"{{# unless @last }},{{/ unless }}
         {{/ each }}
