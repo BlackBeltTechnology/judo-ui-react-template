@@ -31,9 +31,10 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.getMaskForLink;
+import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.getMaskForTable;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
-import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectElementsOfType;
-import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
+import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToUpper;
 
@@ -236,6 +237,9 @@ public class UiActionsHelper {
         if (!pageDefinition.getContainer().isIsSelector()) {
             result.add("ownerValidation?: (data: " + classDataName(getReferenceClassType(pageDefinition), "") + ") => Promise<void>");
         }
+        if (pageDefinition.getContainer().isForm()) {
+            result.add("maskRequest?: string");
+        }
         return String.join(", ", result);
     }
 
@@ -271,6 +275,13 @@ public class UiActionsHelper {
             }
             tokens.add("true");
             tokens.add("validate" + firstToUpper(action.getTargetDataElement().getName()));
+
+            Link link = getLinkParentForActionDefinition(action.getActionDefinition());
+
+            if (link != null) {
+                var col = getFirstAutocompleteColumnForLink(link);
+                tokens.add("'{" + (col != null ? col.getAttributeType().getName() : "") + "}'");
+            }
         }
 
         return String.join(", ", tokens);

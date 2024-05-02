@@ -70,7 +70,7 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
 // XMIID: {{ getXMIID page }}
 // Name: {{ page.name }}
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
-  const { ownerData, {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output, {{/ and }}{{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}onClose, onSubmit, isDraft, ownerValidation } = props;
+  const { ownerData, {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output, {{/ and }}{{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}{{# unless page.container.table }}maskRequest, {{/ unless }}onClose, onSubmit, isDraft, ownerValidation } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
     // Services
