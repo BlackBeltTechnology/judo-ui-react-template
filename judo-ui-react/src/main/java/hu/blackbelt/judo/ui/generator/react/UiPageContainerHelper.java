@@ -81,8 +81,12 @@ public class UiPageContainerHelper {
             // We need to append a discriminator for actions because for unmapped operation input forms, caller
             // CallOperation actions are rolled on the form container, which could lead to method name collisions.
             suffix = firstToLower(callOperationActionDefinition.getOperation().getName()) + "For" + firstToUpper(callOperationActionDefinition.getOperation().getOwnerSimpleName());
-        } else if (actionDefinition instanceof BulkCallOperationActionDefinition bulkCallOperationActionDefinition) {
-            suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getBulkOf().getOperation().getName());
+        } else if (actionDefinition instanceof BulkCallOperationActionDefinition op) {
+            suffix = "bulk" + firstToUpper(op.getBulkOf().getOperation().getName());
+        } else if (actionDefinition instanceof BulkOpenOperationInputFormActionDefinition op) {
+            suffix = "bulk" + firstToUpper(((CallOperationActionDefinition) op.getBulkOf().getFormFor()).getOperation().getName());
+        } else if (actionDefinition instanceof BulkOpenOperationInputSelectorActionDefinition op) {
+            suffix = "bulk" + firstToUpper(((CallOperationActionDefinition) op.getBulkOf().getSelectorFor()).getOperation().getName());
         } else if (actionDefinition instanceof OpenOperationInputSelectorActionDefinition openOperationInputSelectorActionDefinition) {
             if (openOperationInputSelectorActionDefinition.getSelectorFor() != null) {
                 if (openOperationInputSelectorActionDefinition.getSelectorFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
