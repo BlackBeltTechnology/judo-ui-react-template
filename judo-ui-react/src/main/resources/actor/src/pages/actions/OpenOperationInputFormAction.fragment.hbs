@@ -1,15 +1,24 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}isDraft?: boolean, ownerValidation?: (data: any) => Promise<void>) => {
-  const { result, data: returnedData } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
-  {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-    {{# if page.container.view }}
-      if (result === 'submit' && !editMode) {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-      }
-    {{/ if }}
-    {{# if page.container.table }}
-      if (result === 'submit') {
-        setRefreshCounter((prev) => prev + 1);
-      }
-    {{/ if }}
-  {{/ with }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{# if action.actionDefinition.isBulkCapable }}, {{/ if }}{{/ if }}{{# if action.actionDefinition.isBulkCapable }}silentMode?: boolean, param?: {{ classDataName action.actionDefinition.formFor.operation.input.target '' }}{{/ if }}) => {
+{{# if action.actionDefinition.isBulkCapable }}
+  if (!silentMode) {
+{{/ if }}
+    const { result, data: returnedData } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
+    {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+      {{# if page.container.view }}
+        if (result === 'submit' && !editMode) {
+          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+        }
+      {{/ if }}
+      {{# if page.container.table }}
+        if (result === 'submit') {
+          setRefreshCounter((prev) => prev + 1);
+        }
+      {{/ if }}
+    {{/ with }}
+{{# if action.actionDefinition.isBulkCapable }}
+  } else {
+    // XMIID: {{ getXMIID action }}
+    const callResult = await {{ getServiceImplForPage page }}.{{ action.actionDefinition.formFor.operation.name }}({{# if action.actionDefinition.targetType }}target, {{/ if }}param!);
+  }
+{{/ if }}
 };
