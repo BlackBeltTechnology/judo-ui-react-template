@@ -195,17 +195,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{/ if }}
       disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}, isLoading: boolean, getSelectedRows: () => {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, ownerdata?: any): boolean => {{{ tableRowButtonDisabledConditions button table container }}},
       action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
-        {{# if button.confirmation }}
-          const result = await openConfirmDialog(
-            '{{ getXMIID button }}',
-            t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
-            t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
-          );
-
-          if (!result) {
-            return;
-          }
-        {{/ if }}
+        {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button }}
         await actions.{{ simpleActionDefinitionName button.actionDefinition }}!(rowData{{# if button.actionDefinition.isOpenPageAction }}, isDraft{{/ if }});
       } : undefined,
     },
