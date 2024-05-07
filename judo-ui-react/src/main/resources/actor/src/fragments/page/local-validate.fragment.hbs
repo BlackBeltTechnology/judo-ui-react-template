@@ -1,7 +1,11 @@
 // Record of attribute names to check with the actual value of the referenced requiredBy field's value
 const requiredByRecord: Record<string, boolean> = {
   {{# each (getRequiredByWidgetsForPage page) as |child| }}
-    {{ child.attributeType.name }}: !!data.{{ child.requiredBy.name }},
+    {{# if child.attributeType }}
+      {{ child.attributeType.name }}: !!data.{{ child.requiredBy.name }},
+    {{ else }}
+      {{ child.relationType.name }}: !!data.{{ child.requiredBy.name }},
+    {{/ if }}
   {{/ each }}
 };
 
