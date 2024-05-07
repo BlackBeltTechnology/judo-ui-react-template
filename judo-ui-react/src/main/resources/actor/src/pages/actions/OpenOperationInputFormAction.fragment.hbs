@@ -1,5 +1,7 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, {{/ if }}silentMode?: boolean) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{# if action.actionDefinition.isBulkCapable }}, {{/ if }}{{/ if }}{{# if action.actionDefinition.isBulkCapable }}silentMode?: boolean, param?: {{ classDataName action.actionDefinition.formFor.operation.input.target '' }}{{/ if }}) => {
+{{# if action.actionDefinition.isBulkCapable }}
   if (!silentMode) {
+{{/ if }}
     const { result, data: returnedData } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
     {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
       {{# if page.container.view }}
@@ -13,7 +15,10 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         }
       {{/ if }}
     {{/ with }}
+{{# if action.actionDefinition.isBulkCapable }}
   } else {
     // XMIID: {{ getXMIID action }}
+    const callResult = await {{ getServiceImplForPage page }}.{{ action.actionDefinition.formFor.operation.name }}({{# if action.actionDefinition.targetType }}target, {{/ if }}param!);
   }
+{{/ if }}
 };
