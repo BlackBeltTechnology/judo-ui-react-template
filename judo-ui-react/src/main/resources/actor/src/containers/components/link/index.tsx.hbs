@@ -114,7 +114,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
               { operator: StringOperation.like, value: searchText }
             ],
           } : {}),
-          _mask: '{ {{~ column.attributeType.name ~}} }',
+          _mask: '{{ getMaskForLink link }}',
           _orderBy: [
             {{# with (getSortColumnForLink link) as |sortColumn| }}
             { attribute: '{{ sortColumn.attributeType.name }}', descending: {{ isSortDirectionDescending sortColumn }} },
