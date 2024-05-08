@@ -31,8 +31,6 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.getMaskForLink;
-import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.getMaskForTable;
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
