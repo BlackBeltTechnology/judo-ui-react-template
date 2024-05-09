@@ -392,6 +392,10 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         isLoading={isLoading}
         filters={filters}
         onFiltersChange={handleFiltersChange}
+        {{# if isUseInlineColumnFilters }}
+          filterModel={filterModel}
+          onFilterModelChange={handleFilterModelChange}
+        {{/ if }}
         data={data}
       />
       <StripedDataGrid
