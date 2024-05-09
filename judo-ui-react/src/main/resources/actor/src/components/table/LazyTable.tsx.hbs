@@ -547,6 +547,10 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         isLoading={isLoading}
         filters={filters}
         onFiltersChange={handleFiltersChange}
+        {{# if isUseInlineColumnFilters }}
+          filterModel={filterModel}
+          onFilterModelChange={handleFilterModelChange}
+        {{/ if }}
         data={data}
       />
       <StripedDataGrid
