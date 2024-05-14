@@ -179,6 +179,9 @@ public class UiPageHelper {
             if (actionDefinition instanceof CallOperationActionDefinition callOperationActionDefinition && callOperationActionDefinition.getOperation().getOutput() != null) {
                 res.add(callOperationActionDefinition.getOperation().getOutput().getTarget());
             }
+            if (actionDefinition instanceof OpenOperationInputFormActionDefinition input && input.getFormFor() instanceof  CallOperationActionDefinition call && call.getOperation().getInput() != null) {
+                res.add(call.getOperation().getInput().getTarget());
+            }
         }
 
         if (pageDefinition.getContainer().isIsSelector()) {
