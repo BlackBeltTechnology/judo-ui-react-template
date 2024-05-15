@@ -4,13 +4,13 @@ export type AlternativeApplicationGenerator = (translateFn: Function) => Record<
 
 export type HandleApplicationChange = (applicationKey: string) => void;
 
-export interface AggregationInputButtonProps {
+export interface SingleRelationInputButtonProps<T> {
   name: string;
   className: string;
   disabled?: boolean;
-  onClick?: () => void;
+  onClick: (value: T | null) => void;
   title: string;
   iconName: string;
-  visible?: (value: any, onClick?: () => void) => boolean;
-  dropDownButtonIsVisible?: (value: any, onClick?: () => void) => boolean;
+  visible?: (value: T | null) => boolean;
+  dropDownButtonIsVisible?: (value: T | null) => boolean;
 }

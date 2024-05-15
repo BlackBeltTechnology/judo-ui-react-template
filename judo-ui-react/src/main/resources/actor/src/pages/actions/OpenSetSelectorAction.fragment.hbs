@@ -3,8 +3,24 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
   if (result === 'submit') {
     if (Array.isArray(returnedData) && returnedData.length) {
-      storeDiff('{{ link.dataElement.name }}', returnedData[0]);
-      return returnedData[0];
+      try {
+        {{# if link.isEager }}
+          storeDiff('{{ link.dataElement.name }}', returnedData[0]);
+        {{ else }}
+          await {{ getServiceImplForPage page }}.set{{ firstToUpper link.dataElement.name }}(data, returnedData[0]);
+          {{# if page.container.view }}
+            if (!editMode) {
+              {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+                await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+              {{/ with }}
+            }
+          {{/ if }}
+        {{/ if }}
+        return returnedData[0];
+      } catch(error) {
+        console.error(error);
+        return undefined;
+      }
     }
   }
   return undefined;

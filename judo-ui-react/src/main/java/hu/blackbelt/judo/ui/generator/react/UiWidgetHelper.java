@@ -450,4 +450,8 @@ public class UiWidgetHelper {
         }
         return getFirstAutocompleteColumnForLink(link);
     }
+
+    public static boolean isLinkAssociation(Link link) {
+        return link.getRelationType().getIsRelationKindAssociation();
+    }
 }

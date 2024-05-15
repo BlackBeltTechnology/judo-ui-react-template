@@ -22,6 +22,9 @@
         isLoading={isLoading}
         isDraft={isDraft}
         storeDiff={storeDiff}
+        {{# unless child.isEager }}
+        refreshCounter={refreshCounter}
+        {{/ unless }}
         validationError={validation.get('{{ child.dataElement.name }}')}
         actions={actions}
         submit={submit}

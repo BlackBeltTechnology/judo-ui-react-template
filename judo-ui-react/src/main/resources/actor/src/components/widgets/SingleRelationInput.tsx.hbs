@@ -17,16 +17,15 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import { debounce } from '@mui/material/utils';
 import { useTranslation } from 'react-i18next';
-import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import { useState, useEffect, useMemo, useRef } from 'react';
-import type { ReactNode } from 'react';
+import type { ReactNode, FC } from 'react';
 import { clsx } from 'clsx';
 import { debounceInputs } from '~/config';
 import { exists } from '../../utilities';
-import { AggregationInputButtonProps } from '../../utilities/application';
+import { SingleRelationInputButtonProps } from '../../utilities/application';
 import { MdiIcon } from '../MdiIcon';
 
-interface AggregationInputProps {
+interface SingleRelationInputProps<T> {
   name: string;
   id: string;
   required?: boolean;
@@ -39,13 +38,16 @@ interface AggregationInputProps {
   editMode?: boolean;
   icon?: ReactNode;
   autoCompleteAttribute: string;
-  onAutoCompleteSearch?: (searchText: string) => Promise<JudoStored<any>[]>,
-  onAutoCompleteSelect: (target?: JudoStored<any> | null) => void;
+  onAutoCompleteSearch?: (searchText: string) => Promise<T[]>,
+  onAutoCompleteSelect: (target?: T | null) => Promise<void>;
   isInlineCreatable?: boolean;
-  aggregationInputButtonProps: AggregationInputButtonProps[];
+  buttonProps: SingleRelationInputButtonProps<T>[];
+  refreshCounter?: number;
+  isEager?: boolean;
+  refreshAction?: () => Promise<T | null>;
 }
 
-export const AggregationInput = ({
+export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   name,
   id,
   required,
@@ -56,31 +58,36 @@ export const AggregationInput = ({
   readOnly = false,
   disabled = false,
   editMode = true,
+  isEager = true,
   icon,
   autoCompleteAttribute,
   onAutoCompleteSearch,
   onAutoCompleteSelect,
   isInlineCreatable,
-  aggregationInputButtonProps,
-}: AggregationInputProps) => {
-  const [options, setOptions] = useState<JudoStored<any>[]>([]);
+  buttonProps,
+  refreshAction,
+  refreshCounter,
+}: SingleRelationInputProps<T>) => {
+  const [options, setOptions] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);
   const [allowFetch, setAllowFetch] = useState(false);
-  const [value, setValue] = useState<any>(ownerData[name] || null);
+  const [value, setValue] = useState<any>(isEager ? (ownerData[name] || null) : null);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
 
   const { t } = useTranslation();
 
   useEffect(() => {
-    setValue(ownerData[name] || null);
-  }, [ownerData[name]]);
+    if (isEager) {
+      setValue(ownerData[name] || null);
+    }
+  }, [isEager, ownerData[name]]);
 
-  const onSet = useMemo(() => aggregationInputButtonProps.find(a => a.name === 'set'), [aggregationInputButtonProps]);
+  const onSet = useMemo(() => buttonProps.find(a => a.name === 'set'), [buttonProps]);
 
-  const onDelete = useMemo(() => aggregationInputButtonProps.find(a => a.name === 'delete'), [aggregationInputButtonProps]);
+  const onDelete = useMemo(() => buttonProps.find(a => a.name === 'delete'), [buttonProps]);
 
-  const onUnSet = useMemo(() => aggregationInputButtonProps.find(a => a.name === 'unset'), [aggregationInputButtonProps]);
+  const onUnSet = useMemo(() => buttonProps.find(a => a.name === 'unset'), [buttonProps]);
 
   const handleSearch = async (searchText: string) => {
     try {
@@ -117,7 +124,43 @@ export const AggregationInput = ({
 
     setDropdownOpen(false);
   };
-  const effectiveReadOnly = readOnly || !onAutoCompleteSearch || !onSet?.onClick;
+  const effectiveReadOnly = readOnly || !onAutoCompleteSearch || !onSet;
+
+  // initial load
+  useEffect(() => {
+    if (!isEager) {
+      (async () => {
+        try {
+          setLoading(true);
+          // lazy components must have a refresh action
+          const result = await refreshAction!();
+          setValue(result);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, []);
+
+  // refresh value if parent is refreshed
+  useEffect(() => {
+    if (!isEager && Number.isInteger(refreshCounter)) {
+      (async () => {
+        try {
+          setLoading(true);
+          // lazy components must have a refresh action
+          const result = await refreshAction!();
+          setValue(result);
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
+        }
+      })();
+    }
+  }, [refreshCounter]);
 
   return (
     <Grid container item direction="row" justifyContent="stretch" alignContent="stretch">
@@ -136,9 +179,9 @@ export const AggregationInput = ({
             }
           } }
           isOptionEqualToValue={ (option: any, value: any) => option[autoCompleteAttribute] === value[autoCompleteAttribute] }
-          getOptionLabel={ (option) => option[autoCompleteAttribute as keyof JudoStored<any>] as string || '' }
+          getOptionLabel={ (option) => option[autoCompleteAttribute as keyof T] as string || '' }
           options={options}
-          value={ownerData[name] || null}
+          value={isEager ? (ownerData[name] || null) : value}
           clearOnBlur={true}
           loading={loading}
           disableClearable={true}
@@ -160,7 +203,7 @@ export const AggregationInput = ({
               }}
               InputProps={ {
                 ...params.InputProps,
-                readOnly: readOnly || !onSet?.onClick,
+                readOnly: readOnly || !onSet,
                 startAdornment: icon && <InputAdornment position="start" style={ { marginTop: 0 } }>{icon}</InputAdornment>,
                 endAdornment: (
                   <InputAdornment position="end">
@@ -173,24 +216,25 @@ export const AggregationInput = ({
                       })}
                     >
                       {loading ? <CircularProgress color="inherit" size='1rem' className="AggregationInputLoading" /> : null}
-                      { aggregationInputButtonProps.filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create').map( (aggregationInputButtonProp: AggregationInputButtonProps) =>
-                          aggregationInputButtonProp.visible && aggregationInputButtonProp.visible(value, aggregationInputButtonProp.onClick) && (
-                            <IconButton
-                              className={aggregationInputButtonProp.className}
-                              disabled={aggregationInputButtonProp.disabled}
-                              onClick={(event: any) => {
-                                handleDropdownClose(event);
-                                aggregationInputButtonProp.onClick!();
-                              }}
-                              title={aggregationInputButtonProp.title}
-                              key={aggregationInputButtonProp.name}
-                            >
-                              <MdiIcon path={aggregationInputButtonProp.iconName} />
-                            </IconButton>
-                          )
-                        )
+                      { buttonProps
+                        .filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create')
+                        .filter(a => !a.visible || a.visible(value))
+                        .map((buttonProp) => (
+                          <IconButton
+                            className={buttonProp.className}
+                            disabled={buttonProp.disabled}
+                            onClick={(event: any) => {
+                              handleDropdownClose(event);
+                              buttonProp.onClick(value);
+                            }}
+                            title={buttonProp.title}
+                            key={buttonProp.name}
+                          >
+                            <MdiIcon path={buttonProp.iconName} />
+                          </IconButton>
+                        ))
                       }
-                      {exists(value) && (onDelete?.onClick || onSet?.onClick || onUnSet?.onClick) && (
+                      {exists(value) && (onDelete || onSet || onUnSet) && (
                         <IconButton className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
@@ -228,22 +272,23 @@ export const AggregationInput = ({
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
               <MenuList id={`${name}-menu`} autoFocusItem>
-                { aggregationInputButtonProps.filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset').map( (aggregationInputButtonProp: AggregationInputButtonProps) =>
-                    aggregationInputButtonProp.dropDownButtonIsVisible && aggregationInputButtonProp.dropDownButtonIsVisible(value, aggregationInputButtonProp.onClick) && (
-                      <MenuItem
-                        className={aggregationInputButtonProp.className}
-                        disabled={aggregationInputButtonProp.disabled}
-                        onClick={(event: any) => {
-                          handleDropdownClose(event);
-                          aggregationInputButtonProp.onClick!();
-                        }}
-                        key={aggregationInputButtonProp.name}
-                      >
-                        <MdiIcon path={aggregationInputButtonProp.iconName} sx={ { mr: 2 } } />
-                        {aggregationInputButtonProp.title}
-                      </MenuItem>
-                    )
-                  )
+                { buttonProps
+                  .filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset')
+                  .filter(a => !a.dropDownButtonIsVisible || a.dropDownButtonIsVisible(value))
+                  .map((buttonProp) => (
+                    <MenuItem
+                      className={buttonProp.className}
+                      disabled={buttonProp.disabled}
+                      onClick={(event: any) => {
+                        handleDropdownClose(event);
+                        buttonProp.onClick(value);
+                      }}
+                      key={buttonProp.name}
+                    >
+                      <MdiIcon path={buttonProp.iconName} sx={ { mr: 2 } } />
+                      {buttonProp.title}
+                    </MenuItem>
+                  ))
                 }
               </MenuList>
             </ClickAwayListener>
