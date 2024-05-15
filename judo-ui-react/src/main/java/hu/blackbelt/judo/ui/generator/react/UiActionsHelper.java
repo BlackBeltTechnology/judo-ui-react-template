@@ -188,7 +188,7 @@ public class UiActionsHelper {
     public static String linkActionDefinitionParameters(Link link, ActionDefinition actionDefinition) {
         if (link.getDataElement() instanceof ReferenceType referenceType) {
             ClassType target = referenceType.getTarget();
-            if (actionDefinition.getIsAutocompleteRangeAction()) {
+            if (actionDefinition.getIsAutocompleteRangeAction() || actionDefinition.getIsRefreshAction()) {
                 return "queryCustomizer: " + classDataName(target, "QueryCustomizer");
             } else if (actionDefinition.getTargetType() != null) {
                 String base = "target: " + classDataName(target, target.isIsMapped() ? "Stored" : "");
@@ -206,6 +206,8 @@ public class UiActionsHelper {
             return "Array<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + ">";
         } else if (actionDefinition.getIsOpenSelectorAction()) {
             return classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + " | undefined";
+        } else if (actionDefinition.getIsRefreshAction()) {
+            return "JudoRestResponse<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + ">";
         }
         return "void";
     }
