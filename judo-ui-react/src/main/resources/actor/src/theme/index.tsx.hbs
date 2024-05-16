@@ -31,7 +31,8 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
     },
     mixins: {
       MuiDataGrid: {
-        containerBackground: 'rgba(0, 0, 0, 0)',
+        // workaround for mui pro grid issue, otherwise this should not be required
+        containerBackground: paletteTheme.palette.background.paper,
       },
     },
     components: {
