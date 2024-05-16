@@ -164,6 +164,10 @@ public class UiImportHelper {
             }
         }
 
+        if (link.getRefreshActionDefinition() != null) {
+            res.add("JudoRestResponse");
+        }
+
         return res.stream().sorted().collect(Collectors.joining(", "));
     }
 }

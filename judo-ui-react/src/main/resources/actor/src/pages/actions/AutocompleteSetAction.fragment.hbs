@@ -1,9 +1,10 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.targetDataElement }}target: {{ classDataName action.targetDataElement.target '' }} | {{ classDataName action.targetDataElement.target 'Stored' }}{{/ if }}) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
   {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+  try {
     {{# if link.isEager }}
-      storeDiff('{{ link.dataElement.name }}', null);
+      storeDiff('{{ link.dataElement.name }}', selected);
     {{ else }}
-      await {{ getServiceImplForPage page }}.unset{{ firstToUpper link.dataElement.name }}(data);
+      await {{ getServiceImplForPage page }}.set{{ firstToUpper link.dataElement.name }}(data, selected);
       {{# if page.container.view }}
         if (!editMode) {
           {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
@@ -12,5 +13,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         }
       {{/ if }}
     {{/ if }}
+  } catch (error) {
+    handleError(error);
+    return Promise.reject(error);
+  }
   {{/ with }}
 };
