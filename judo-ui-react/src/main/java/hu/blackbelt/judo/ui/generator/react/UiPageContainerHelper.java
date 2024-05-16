@@ -174,7 +174,7 @@ public class UiPageContainerHelper {
     }
 
     public static String getMaskForView(PageContainer container) {
-        StringBuilder mask = new StringBuilder();
+        Set<String> mask = new LinkedHashSet<>();
 
         Set<VisualElement> inputs = new HashSet<>();
         collectVisualElementsMatchingCondition(container, (VisualElement element) -> element instanceof AttributeBased, inputs);
@@ -193,25 +193,17 @@ public class UiPageContainerHelper {
             attributeNames.add(container.getTitleAttribute().getName());
         }
 
-        mask.append(String.join(",", attributeNames.stream().sorted().toList()));
+        mask.addAll(attributeNames.stream().sorted().toList());
 
         for (Table table: ((List<Table>) container.getTables()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
-            if (!mask.toString().endsWith(",")) {
-                mask.append(",");
-            }
-            mask.append(table.getDataElement().getName());
-            mask.append(getMaskForTable(table));
+            mask.add(table.getDataElement().getName() + getMaskForTable(table));
         }
 
         for (Link link: ((List<Link>) container.getLinks()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
-            if (!mask.toString().endsWith(",")) {
-                mask.append(",");
-            }
-            mask.append(link.getDataElement().getName());
-            mask.append(getMaskForLink(link));
+            mask.add(link.getDataElement().getName() + getMaskForLink(link));
         }
 
-        return "{" + mask + "}";
+        return "{" + String.join(",", mask) + "}";
     }
 
     public static boolean containerHasDateInput(PageContainer container) {

@@ -338,6 +338,9 @@ public class UiWidgetHelper {
         if ((button.getActionDefinition().getIsFilterAction() || button.getActionDefinition().getIsFilterRelationAction()) && isUseInlineColumnFilters()) {
             return "false";
         }
+        if (button.getActionDefinition().getIsOpenCreateFormAction() && !table.isIsEager() && container.isView()) {
+            return "!editMode";
+        }
         if (button.getActionDefinition().getIsOpenSelectorAction() && container.isView()) {
             return "(isFormUpdateable ? isFormUpdateable() : false)";
         }
