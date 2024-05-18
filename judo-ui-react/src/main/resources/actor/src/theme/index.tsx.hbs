@@ -54,6 +54,13 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
           },
         },
       },
+      MuiChip: {
+        styleOverrides: {
+          root: {
+            height: '28px',
+          },
+        },
+      },
       MuiLoadingButton: {
         defaultProps: {
           variant: 'contained',
@@ -142,6 +149,14 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
               right: 8,
             },
             '.AggregationInputButtonGroup .AggregationInputLoading': {
+              margin: 'auto 0',
+            },
+            '.TagsButtonGroup': {
+              position: 'absolute',
+              top: 'calc(50% - 14px)', // MUI internals have the same burned in values...
+              right: 8,
+            },
+            '.TagsButtonGroup .TagsLoading': {
               margin: 'auto 0',
             },
             '.MuiInputBase-root.MuiInputBase-formControl.MuiAutocomplete-inputRoot': {
