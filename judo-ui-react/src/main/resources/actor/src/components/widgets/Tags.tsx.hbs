@@ -37,6 +37,9 @@ export interface TagsProps<P, T> {
   onCreateDialogsClick?: () => void;
   createDialogTitle?: string;
   createDialogIcon?: string;
+  onClearDialogsClick?: () => void;
+  clearTitle?: string;
+  clearIcon?: string;
 }
 
 /**
@@ -63,6 +66,9 @@ export function Tags<P, T> (props: TagsProps<P, T>) {
     onCreateDialogsClick,
     createDialogTitle,
     createDialogIcon = 'file-document-plus',
+    onClearDialogsClick,
+    clearTitle= 'Clear',
+    clearIcon = 'close',
     additionalMaskAttributes = [],
     limitOptions = 10,
   } = props;
@@ -171,6 +177,11 @@ export function Tags<P, T> (props: TagsProps<P, T>) {
                 >
                   {loading ? (
                     <CircularProgress color="inherit" size="1rem" className="TagsLoading" />
+                  ) : null}
+                  {!readOnly && onClearDialogsClick ? (
+                    <IconButton disabled={disabled} onClick={onClearDialogsClick} title={clearTitle}>
+                      <MdiIcon path={clearIcon} />
+                    </IconButton>
                   ) : null}
                   {(!readOnly && onCreateDialogsClick) ? <IconButton
                     disabled={disabled}
