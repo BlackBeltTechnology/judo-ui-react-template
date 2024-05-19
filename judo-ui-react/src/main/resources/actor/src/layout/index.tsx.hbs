@@ -12,6 +12,7 @@ import { usePrincipal } from "~/auth";
 {{/ if }}
 import { useConfig } from '~/hooks';
 import { MenuOrientation, DRAWER_WIDTH } from '~/config';
+import { density } from '~/theme';
 import { Drawer } from './Drawer';
 import { Header } from './Header';
 import { Footer } from './Footer';
@@ -50,7 +51,7 @@ export const Layout = () => {
             minHeight: 'calc(100vh - 110px)',
             display: 'flex',
             flexDirection: 'column',
-            mt: 12,
+            mt: density.mainMarginTop ?? 12,
           } }
         >
           <Outlet />
