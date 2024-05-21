@@ -18,65 +18,59 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
   const { ownerData, actions, storeDiff, submit, validationError, disabled, readOnly, editMode, isLoading, isDraft{{# unless link.isEager }}, refreshCounter{{/ unless }} } = props;
   const { t } = useTranslation();
 
+  const isRequired = useMemo(() => {
+    return actions?.is{{ firstToUpper link.relationType.name }}Required ? actions.is{{ firstToUpper link.relationType.name }}Required(ownerData, editMode) : ({{# if link.requiredBy }}ownerData.{{ link.requiredBy.name }} || {{/ if }}{{# unless link.dataElement.isOptional }}true{{ else }}false{{/ unless }});
+  }, [actions, ownerData, editMode]);
+
   const buttonProps: SingleRelationInputButtonProps<{{ classDataName link.dataElement.target 'Stored' }}>[] = useMemo( () => [
     {{# each link.actionButtonGroup.buttons as |button| }}
     {
       name: "{{ firstToLower button.label }}",
       className: "{{ link.dataElement.name }}-{{ firstToLower button.label }}",
     {{# if button.actionDefinition.isOpenSelectorAction }}
-      visible: (value: any) => !exists(value) && !readOnly,
-      dropDownButtonIsVisible: (value: any) => exists(value) && !readOnly,
+      visible: (value: any) => !exists(value) && !readOnly && !!actions.{{ simpleActionDefinitionName actionDefinition }},
+      dropDownButtonIsVisible: (value: any) => exists(value) && !readOnly && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: disabled,
       onClick: async (value: {{ classDataName link.dataElement.target 'Stored' }} | null) => {
-        if (actions.{{ simpleActionDefinitionName actionDefinition }}) {
-          const {{ link.dataElement.name }} = await actions.{{ simpleActionDefinitionName actionDefinition }}!();
-          {{# if link.onBlur }}
-            if ({{ link.dataElement.name }} && actions?.on{{ firstToUpper link.dataElement.name }}BlurAction) {
-              const eagerCopy = { ...ownerData, ['{{ link.dataElement.name }}']: {{ link.dataElement.name }} };
-              actions.on{{ firstToUpper link.dataElement.name }}BlurAction(eagerCopy as {{ classDataName container.dataElement 'Stored' }}, storeDiff, editMode!, submit);
-            }
-          {{/ if }}
-        }
+        const {{ link.dataElement.name }} = await actions.{{ simpleActionDefinitionName actionDefinition }}!();
+        {{# if link.onBlur }}
+          if ({{ link.dataElement.name }} && actions?.on{{ firstToUpper link.dataElement.name }}BlurAction) {
+            const eagerCopy = { ...ownerData, ['{{ link.dataElement.name }}']: {{ link.dataElement.name }} };
+            actions.on{{ firstToUpper link.dataElement.name }}BlurAction(eagerCopy as {{ classDataName container.dataElement 'Stored' }}, storeDiff, editMode!, submit);
+          }
+        {{/ if }}
       },
       title: t('judo.component.SingleRelationInput.open-filter', { defaultValue: 'Open selector dialog' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isUnsetAction }}
-      dropDownButtonIsVisible: (value: any) => exists(value) && !readOnly,
+      dropDownButtonIsVisible: (value: any) => exists(value) && !readOnly && !isRequired && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: disabled,
       onClick: async (value: {{ classDataName link.dataElement.target 'Stored' }} | null) => {
-        if (value && actions.{{ simpleActionDefinitionName actionDefinition }}) {
-          actions.{{ simpleActionDefinitionName actionDefinition }}!(value!)
-        }
+        actions.{{ simpleActionDefinitionName actionDefinition }}!(value!)
       },
       title: t('judo.component.SingleRelationInput.unset', { defaultValue: 'Unset' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isOpenPageAction }}
-      visible: (value: any) => exists(value),
+      visible: (value: any) => exists(value) && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft),
       onClick: async (value: {{ classDataName link.dataElement.target 'Stored' }} | null) => {
-        if (value && actions.{{ simpleActionDefinitionName actionDefinition }}) {
-          await actions.{{ simpleActionDefinitionName actionDefinition }}!(value!, {{# if container.form }}true{{ else }}false{{/ if }});
-        }
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(value!, {{# if container.form }}true{{ else }}false{{/ if }});
       },
       title: t('judo.component.SingleRelationInput.navigate', { defaultValue: 'Navigate to element' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isOpenFormAction }}
-      visible: (value: any) => !exists(value) && !readOnly,
+      visible: (value: any) => !exists(value) && !readOnly && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: disabled || (editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft)),
       onClick: async () => {
-        if (actions.{{ simpleActionDefinitionName actionDefinition }}) {
-          await actions.{{ simpleActionDefinitionName actionDefinition }}!();
-        }
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!();
       },
       title: t('judo.component.SingleRelationInput.create', { defaultValue: 'Create' }) as string,
     {{/ if }}
     {{# if button.actionDefinition.isDeleteAction }}
-      dropDownButtonIsVisible: (value: any) => exists(value),
+      dropDownButtonIsVisible: (value: any) => exists(value) && !readOnly && !isRequired && value.__deleteable && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: disabled || editMode,
       onClick: async (value: {{ classDataName link.dataElement.target 'Stored' }} | null) => {
-        if (value && value.__deleteable && actions.{{ simpleActionDefinitionName actionDefinition }}) {
-          actions.{{ simpleActionDefinitionName actionDefinition }}!(value!)
-        }
+        actions.{{ simpleActionDefinitionName actionDefinition }}!(value!);
       },
       title: t('judo.component.SingleRelationInput.delete', { defaultValue: 'Delete' }) as string,
     {{/ if }}
@@ -90,7 +84,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       name="{{ link.dataElement.name }}"
       id="{{ getXMIID link }}"
       label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string }
-      required={actions?.is{{ firstToUpper link.relationType.name }}Required ? actions.is{{ firstToUpper link.relationType.name }}Required(ownerData, editMode) : ({{# if link.requiredBy }}ownerData.{{ link.requiredBy.name }} || {{/ if }}{{# unless link.dataElement.isOptional }}true{{ else }}false{{/ unless }})}
+      required={isRequired}
       ownerData={ownerData}
       error={!!validationError}
       helperText={validationError}
