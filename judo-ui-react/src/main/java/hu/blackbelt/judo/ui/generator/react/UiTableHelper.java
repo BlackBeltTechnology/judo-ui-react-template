@@ -25,10 +25,10 @@ import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
+
+import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.isMUILicensePlanPro;
 
 @Slf4j
 @TemplateHelper
@@ -191,23 +191,25 @@ public class UiTableHelper {
         return isFilterableAttributeType(column.getAttributeType());
     }
 
-    public static String getDefaultSortParams(Column defaultSortColumn, Collection<Column> columns) {
-        if (defaultSortColumn != null && isSortableAttributeType(defaultSortColumn.getAttributeType())) {
-            return "[{ field: '" + defaultSortColumn.getAttributeType().getName() + "', sort: " + getSortDirection(defaultSortColumn) + " }]";
-        }
-
-        for (Column column : columns) {
+    public static String getDefaultSortParamsForTable (Table table) {
+        List<String> defs = new ArrayList<>();
+        List<Column> cols = table.getColumns().stream()
+                .filter(c -> c.getSort().equals(Sort.ASC) || c.getSort().equals(Sort.DESC))
+                .sorted(Comparator.comparingInt(Column::getSortPrecedence))
+                .toList();
+        for (Column column : cols) {
             AttributeType type = column.getAttributeType();
             if (isSortableAttributeType(type)) {
-                return "[{ field: '" + type.getName() + "', sort: " + getSortDirection(column) + " }]";
+                defs.add("{ field: '" + type.getName() + "', sort: " + getSortDirection(column) + " }");
+                if (!isMUILicensePlanPro()) {
+                    break;
+                }
             }
         }
-
-        return "[]";
-    }
-
-    public static String getDefaultSortParamsForTable (Table table) {
-        return getDefaultSortParams(table.getDefaultSortColumn(), table.getColumns());
+        if (defs.isEmpty()) {
+            return "[]";
+        }
+        return "[" + String.join(", ", defs) + "]";
     }
 
     public static Integer calculateTablePageLimit(Table table) {

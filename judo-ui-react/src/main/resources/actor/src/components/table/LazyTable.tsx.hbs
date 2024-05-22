@@ -187,12 +187,10 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     _seek: {
       limit: rowsPerPage + 1,
     },
-    _orderBy: sortModel.length ? [
-      {
-        attribute: sortModel[0].field,
-        descending: sortModel[0].sort === 'desc',
-      },
-    ] : [],
+    _orderBy: sortModel.length ? sortModel.map(s => ({
+      attribute: s.field,
+      descending: s.sort === 'desc',
+    })) : [],
     ...mapAllFiltersToQueryCustomizerProperties(filters),
   });
 

@@ -58,11 +58,26 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{/ if }}
       {{/ if }}
 
-      {{# if operation.output }}
-        {{# if action.targetPageDefinition.openInDialog }}
-          await open{{ pageName action.targetPageDefinition }}({{# if page.container.view }}data{{ else }}null{{/ if }}, result);
-        {{ else }}
-          navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+      {{# if operation.postCallAccessNavigation }}
+        try {
+          const { data: pcan } = await {{ firstToLower (serviceRelationName operation.postCallAccessNavigation.accessRelation) }}Impl.list(undefined, {
+            _identifier: result.__identifier,
+          });
+          {{# if action.targetPageDefinition.openInDialog }}
+            await open{{ pageName operation.postCallAccessNavigation.pageDefinition }}(pcan[0]);
+          {{ else }}
+            navigate(routeTo{{ pageName operation.postCallAccessNavigation.pageDefinition }}(pcan[0].__signedIdentifier));
+          {{/ if }}
+        } catch(error) {
+          console.error('Could not proceed with post call access navigation', error);
+        }
+      {{ else }}
+        {{# if operation.output }}
+          {{# if action.targetPageDefinition.openInDialog }}
+            await open{{ pageName action.targetPageDefinition }}({{# if page.container.view }}data{{ else }}null{{/ if }}, result);
+          {{ else }}
+            navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+          {{/ if }}
         {{/ if }}
       {{/ if }}
     }
