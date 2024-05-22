@@ -51,6 +51,9 @@ import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ u
   {{# if (getServiceImplForPage page) }}
     import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
     import { {{ getServiceClassForPage page }} } from '~/services/data-axios/{{ getServiceClassForPage page }}';
+    {{# each (getRelatedServicesForPage page) as |rel| }}
+    import { {{ serviceRelationName rel }}Impl } from '~/services/data-axios/{{ serviceRelationName rel }}Impl';
+    {{/ each }}
   {{/ if }}
   import { {{ containerComponentName page.container }}ViewModelContext, type {{ containerComponentName page.container }}ViewModel } from './context';
   import type { {{ containerComponentName page.container }}DialogActionsExtended, {{ pageName page }}Props } from './types';
@@ -75,6 +78,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
   {{# unless (containerIsEmptyDashboard page.container) }}
     // Services
     const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
+    {{# each (getRelatedServicesForPage page) as |rel| }}
+    const {{ firstToLower (serviceRelationName rel) }}Impl = useMemo(() => new {{ serviceRelationName rel }}Impl(judoAxiosProvider), []);
+    {{/ each }}
 
     // Hooks section
     const { t } = useTranslation();

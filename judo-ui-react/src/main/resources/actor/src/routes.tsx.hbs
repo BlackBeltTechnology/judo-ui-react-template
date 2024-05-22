@@ -18,7 +18,7 @@ routes.push({
 {{# each (getPagesForRouting application) as |page| }}
     {{# if page.dashboard }}
         export const ROUTE_DASHBOARD_INTERFACE_KEY = 'DashboardRoute';
-        export const routeToDashboard = (): string => '';
+        export const routeToDashboard = (): string => '/';
         const DashboardRoute = lazy(() => import('./pages/{{ pagePath page }}'));
 
         routes.push({
