@@ -56,6 +56,9 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   {{# if (getServiceImplForPage page) }}
     import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
     import { {{ getServiceClassForPage page }} } from '~/services/data-axios/{{ getServiceClassForPage page }}';
+    {{# each (getRelatedServicesForPage page) as |rel| }}
+    import { {{ serviceRelationName rel }}Impl } from '~/services/data-axios/{{ serviceRelationName rel }}Impl';
+    {{/ each }}
   {{/ if }}
   import { {{ containerComponentName page.container }}ViewModelContext, type {{ containerComponentName page.container }}ViewModel } from './context';
   import type { {{ containerComponentName page.container }}PageActionsExtended } from './types';
@@ -87,6 +90,9 @@ export default function {{ pageName page }}() {
 
     // Services
     const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
+    {{# each (getRelatedServicesForPage page) as |rel| }}
+    const {{ firstToLower (serviceRelationName rel) }}Impl = useMemo(() => new {{ serviceRelationName rel }}Impl(judoAxiosProvider), []);
+    {{/ each }}
 
     // Hooks section
     const { t } = useTranslation();
