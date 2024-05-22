@@ -242,6 +242,12 @@ public class UiPageHelper {
             for (Action action: actionsForCreateAndNavigate) {
                 res.add(action.getTargetPageDefinition());
             }
+
+            for (AccessBasedNavigation a: getAccessBasedNavigationsForOperations(pageDefinition)) {
+                if (!a.getPageDefinition().isOpenInDialog()) {
+                    res.add(a.getPageDefinition());
+                }
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -255,6 +261,11 @@ public class UiPageHelper {
         try {
             for (Action action : pageDefinition.getActions().stream().filter(a -> a.getTargetPageDefinition() != null && a.getTargetPageDefinition().isOpenInDialog() && (!skipSelf || !a.getTargetPageDefinition().equals(pageDefinition))).toList()) {
                 res.add(action.getTargetPageDefinition());
+            }
+            for (AccessBasedNavigation a: getAccessBasedNavigationsForOperations(pageDefinition)) {
+                if (a.getPageDefinition().isOpenInDialog()) {
+                    res.add(a.getPageDefinition());
+                }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -300,6 +311,24 @@ public class UiPageHelper {
     public static String getServiceImplForPage(PageDefinition pageDefinition) {
         String res = getServiceClassForPage(pageDefinition);
         return res != null ? firstToLower(res) : null;
+    }
+
+    public static List<AccessBasedNavigation> getAccessBasedNavigationsForOperations(PageDefinition pageDefinition) {
+        return pageDefinition.getActions().stream()
+                .map(Action::getActionDefinition)
+                .filter(ActionDefinition::getIsCallOperationAction)
+                .map(a -> (CallOperationActionDefinition) a)
+                .map(CallOperationActionDefinition::getOperation)
+                .filter(o -> o != null && o.getPostCallAccessNavigation() != null)
+                .map(OperationType::getPostCallAccessNavigation)
+                .toList();
+    }
+
+    public static List<RelationType> getRelatedServicesForPage(PageDefinition pageDefinition) {
+        Set<RelationType> relations = getAccessBasedNavigationsForOperations(pageDefinition).stream()
+                .map(AccessBasedNavigation::getAccessRelation)
+                .collect(Collectors.toSet());
+        return relations.stream().sorted(Comparator.comparing(NamedElement::getName)).toList();
     }
 
     public static boolean isPageUpdateable(PageDefinition pageDefinition) {
