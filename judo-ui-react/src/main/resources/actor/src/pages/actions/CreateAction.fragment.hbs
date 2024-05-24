@@ -7,11 +7,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
         await validate(cleanUpPayload(payloadDiff.current));
         onSubmit(payloadDiff.current, true);
       } catch (error) {
-        if (!isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
+        if (ownerValidation && !isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
           // relation form has no remaining error(s), proceed with submission
           onSubmit(payloadDiff.current, true);
         } else {
-          handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, isDraft ? '{{ page.dataElement.name }}' : undefined);
+          let relationName: string | undefined = (isDraft && ownerValidation) ? '{{ page.dataElement.name }}' : undefined;
+          handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, relationName);
         }
       } finally {
         setIsLoading(false);

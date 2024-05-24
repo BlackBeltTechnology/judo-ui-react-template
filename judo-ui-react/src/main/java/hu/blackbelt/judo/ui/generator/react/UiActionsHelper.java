@@ -185,6 +185,14 @@ public class UiActionsHelper {
         return table;
     }
 
+    public static boolean isActionDefinitionOnEagerTable(ActionDefinition actionDefinition) {
+        Table table = getTableParentForActionDefinition(actionDefinition);
+        if (table == null) {
+            return false;
+        }
+        return table.isIsEager();
+    }
+
     public static String linkActionDefinitionParameters(Link link, ActionDefinition actionDefinition) {
         if (link.getDataElement() instanceof ReferenceType referenceType) {
             ClassType target = referenceType.getTarget();
@@ -267,6 +275,12 @@ public class UiActionsHelper {
                 }
             } else {
                 tokens.add("data");
+                if (isRelationOpenCreateActionOnEagerView(pageDefinition, action)) {
+                    if (tokens.size() < 2) {
+                        tokens.add("undefined");
+                    }
+                    tokens.add("true");
+                }
             }
         }
         if (isRelationOpenCreateActionOnForm(pageDefinition, action)) {
@@ -378,6 +392,13 @@ public class UiActionsHelper {
         return pageDefinition.getContainer().isForm()
                 && action.getIsOpenFormAction()
                 && action.getTargetDataElement() != null
+                && action.getTargetDataElement() instanceof RelationType relationType
+                && relationType.isIsInlineCreatable();
+    }
+
+    public static boolean isRelationOpenCreateActionOnEagerView(PageDefinition pageDefinition, Action action) {
+        return pageDefinition.getContainer().isView()
+                && action.getIsOpenFormAction()
                 && action.getTargetDataElement() instanceof RelationType relationType
                 && relationType.isIsInlineCreatable();
     }

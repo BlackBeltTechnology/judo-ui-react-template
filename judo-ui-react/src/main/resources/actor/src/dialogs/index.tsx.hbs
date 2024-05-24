@@ -175,7 +175,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           await {{ getServiceImplForPage page }}.validateCreate({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
         }
       } catch (error: any) {
-        if (isDraft && isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
+        if (isDraft && (!ownerValidation || isErrorNestedValidationError(error, '{{ page.dataElement.name }}'))) {
           throw error;
         }
       }
