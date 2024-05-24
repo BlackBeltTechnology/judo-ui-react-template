@@ -404,7 +404,9 @@ public class UiWidgetHelper {
             }
         } else if (button.getActionDefinition().getIsDeleteAction()) {
             if (!container.isTable()) {
-                result += "editMode || ";
+                if (!table.isIsEager()) {
+                    result += "editMode || ";
+                }
 
                 if (table.getEnabledBy() != null) {
                     result += "(ownerData ? !ownerData." + table.getEnabledBy().getName() + " : false) || ";

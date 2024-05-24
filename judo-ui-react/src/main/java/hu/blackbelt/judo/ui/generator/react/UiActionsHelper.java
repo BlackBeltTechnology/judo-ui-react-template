@@ -267,6 +267,12 @@ public class UiActionsHelper {
                 }
             } else {
                 tokens.add("data");
+                if (isRelationOpenCreateActionOnEagerView(pageDefinition, action)) {
+                    if (tokens.size() < 2) {
+                        tokens.add("undefined");
+                    }
+                    tokens.add("true");
+                }
             }
         }
         if (isRelationOpenCreateActionOnForm(pageDefinition, action)) {
@@ -378,6 +384,13 @@ public class UiActionsHelper {
         return pageDefinition.getContainer().isForm()
                 && action.getIsOpenFormAction()
                 && action.getTargetDataElement() != null
+                && action.getTargetDataElement() instanceof RelationType relationType
+                && relationType.isIsInlineCreatable();
+    }
+
+    public static boolean isRelationOpenCreateActionOnEagerView(PageDefinition pageDefinition, Action action) {
+        return pageDefinition.getContainer().isView()
+                && action.getIsOpenFormAction()
                 && action.getTargetDataElement() instanceof RelationType relationType
                 && relationType.isIsInlineCreatable();
     }
@@ -509,5 +522,17 @@ public class UiActionsHelper {
                     .orElse(null);
         }
         return null;
+    }
+
+    public static boolean isActionParentEagerElement(Action action) {
+        Table table = getTableParentForActionDefinition(action.getActionDefinition());
+        Link link = getLinkParentForActionDefinition(action.getActionDefinition());
+        if (table != null) {
+            return table.isIsEager();
+        }
+        if (link != null) {
+            return link.isIsEager();
+        }
+        return  false;
     }
 }

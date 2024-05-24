@@ -6,31 +6,41 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
     ){{# if action.actionDefinition.isBulkCapable }} : true{{/ if }};
     if (confirmed) {
-      await {{ getServiceImplForPage page }}.delete{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if action.actionDefinition.targetType }}target{{ else }}data{{/ if }});
-      {{# if action.actionDefinition.isBulkCapable }}
-      if (!silentMode) {
-      {{/ if }}
-      showSuccessSnack(t('judo.action.delete.success', { defaultValue: 'Delete successful' }));
-      {{# if page.container.table }}
-        setRefreshCounter((prev) => prev + 1);
-      {{/ if }}
-      {{# if page.container.view }}
-        {{# unless action.actionDefinition.isContainedRelationAction }}
-          {{# if page.openInDialog }}
-            onSubmit();
+      {{# if (isActionParentEagerElement action) }}
+        {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+          const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+          storeDiff('{{ table.dataElement.name }}', newList);
+        {{/ with }}
+        {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+          storeDiff('{{ link.dataElement.name }}', null);
+        {{/ with }}
+      {{ else }}
+        await {{ getServiceImplForPage page }}.delete{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if action.actionDefinition.targetType }}target{{ else }}data{{/ if }});
+        {{# if action.actionDefinition.isBulkCapable }}
+        if (!silentMode) {
+        {{/ if }}
+        showSuccessSnack(t('judo.action.delete.success', { defaultValue: 'Delete successful' }));
+        {{# if page.container.table }}
+          setRefreshCounter((prev) => prev + 1);
+        {{/ if }}
+        {{# if page.container.view }}
+          {{# unless action.actionDefinition.isContainedRelationAction }}
+            {{# if page.openInDialog }}
+              onSubmit();
+            {{ else }}
+              navigateBack();
+            {{/ if }}
           {{ else }}
-            navigateBack();
-          {{/ if }}
-        {{ else }}
-          {{# if (containerIsRefreshable page.container) }}
-            {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
-              {{ simpleActionDefinitionName refreshActionDefinition }}(getPageQueryCustomizer());
-            {{/ with }}
-          {{/ if }}
-        {{/ unless }}
-      {{/ if }}
-      {{# if action.actionDefinition.isBulkCapable }}
-      }
+            {{# if (containerIsRefreshable page.container) }}
+              {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+                {{ simpleActionDefinitionName refreshActionDefinition }}(getPageQueryCustomizer());
+              {{/ with }}
+            {{/ if }}
+          {{/ unless }}
+        {{/ if }}
+        {{# if action.actionDefinition.isBulkCapable }}
+        }
+        {{/ if }}
       {{/ if }}
     }
   } catch(error) {
