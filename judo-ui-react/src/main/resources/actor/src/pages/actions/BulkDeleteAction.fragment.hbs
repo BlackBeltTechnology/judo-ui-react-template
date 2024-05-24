@@ -1,50 +1,59 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (selectedRows: {{ classDataName action.actionDefinition.bulkOf.targetType 'Stored' }}[]): Promise<DialogResult<Array<{{ classDataName action.actionDefinition.bulkOf.targetType 'Stored' }}>>> => {
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   return new Promise((resolve) => {
-    openCRUDDialog<{{ classDataName (getReferenceClassType table) 'Stored' }}>({
-      dialogTitle: t('{{ getTranslationKeyForVisualElement (translationElementForBulkAction action) }}', { defaultValue: '{{ defaultLabelForBulkAction action }}' }),
-      {{# with (getFirstTitleColumnForTable table) as |column| }}
-        itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
-      {{ else }}
-        itemTitleFn: (item) => t('judo.placeholder', { defaultValue: 'placeholder' }) as string,
-      {{/ with }}
-      selectedItems: selectedRows,
-      action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
-        try {
-          if (actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}) {
-            await actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}!(item, true);
+    {{# if table.isEager }}
+      const selectedIds = selectedRows.map(r => r.__identifier);
+      const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      storeDiff('{{ table.dataElement.name }}', newList);
+      resolve({
+        result: 'submit',
+        data: [],
+      });
+    {{ else }}
+      openCRUDDialog<{{ classDataName (getReferenceClassType table) 'Stored' }}>({
+        dialogTitle: t('{{ getTranslationKeyForVisualElement (translationElementForBulkAction action) }}', { defaultValue: '{{ defaultLabelForBulkAction action }}' }),
+        {{# with (getFirstTitleColumnForTable table) as |column| }}
+          itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
+        {{ else }}
+          itemTitleFn: (item) => t('judo.placeholder', { defaultValue: 'placeholder' }) as string,
+        {{/ with }}
+        selectedItems: selectedRows,
+        action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
+          try {
+            if (actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}) {
+              await actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}!(item, true);
+            }
+            successHandler();
+          } catch (error) {
+            errorHandler(error);
           }
-          successHandler();
-        } catch (error) {
-          errorHandler(error);
-        }
-      },
-      autoCloseOnSuccess: true
-      ,
-      onClose: async (needsRefresh) => {
-        if (needsRefresh) {
-          {{# if page.container.table }}
-            setRefreshCounter((prev) => prev + 1);
-          {{/ if }}
-          {{# if page.container.view }}
-            {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
-              if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
-                await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-              }
-            {{/ with }}
-          {{/ if }}
-          resolve({
-            result: 'submit',
-            data: [],
-          });
-        } else {
-          resolve({
-            result: 'close',
-            data: [],
-          });
-        }
-      },
-    });
+        },
+        autoCloseOnSuccess: true,
+        onClose: async (needsRefresh) => {
+          if (needsRefresh) {
+            {{# if page.container.table }}
+              setRefreshCounter((prev) => prev + 1);
+            {{/ if }}
+            {{# if page.container.view }}
+              {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+                if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
+                  await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+                }
+              {{/ with }}
+            {{/ if }}
+            resolve({
+              result: 'submit',
+              data: [],
+            });
+          } else {
+            resolve({
+              result: 'close',
+              data: [],
+            });
+          }
+        },
+      });
+    {{/ if }}
   });
   {{/ with }}
 };

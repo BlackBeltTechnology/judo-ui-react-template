@@ -531,4 +531,16 @@ public class UiActionsHelper {
         }
         return null;
     }
+
+    public static boolean isActionParentEagerElement(Action action) {
+        Table table = getTableParentForActionDefinition(action.getActionDefinition());
+        Link link = getLinkParentForActionDefinition(action.getActionDefinition());
+        if (table != null) {
+            return table.isIsEager();
+        }
+        if (link != null) {
+            return link.isIsEager();
+        }
+        return  false;
+    }
 }
