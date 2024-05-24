@@ -185,14 +185,6 @@ public class UiActionsHelper {
         return table;
     }
 
-    public static boolean isActionDefinitionOnEagerTable(ActionDefinition actionDefinition) {
-        Table table = getTableParentForActionDefinition(actionDefinition);
-        if (table == null) {
-            return false;
-        }
-        return table.isIsEager();
-    }
-
     public static String linkActionDefinitionParameters(Link link, ActionDefinition actionDefinition) {
         if (link.getDataElement() instanceof ReferenceType referenceType) {
             ClassType target = referenceType.getTarget();
