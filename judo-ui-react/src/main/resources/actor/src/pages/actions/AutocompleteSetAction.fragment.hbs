@@ -5,13 +5,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
       storeDiff('{{ link.dataElement.name }}', selected);
     {{ else }}
       await {{ getServiceImplForPage page }}.set{{ firstToUpper link.dataElement.name }}(data, selected);
-      {{# if page.container.view }}
-        if (!editMode) {
-          {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-            await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-          {{/ with }}
-        }
-      {{/ if }}
+      await refresh();
     {{/ if }}
   } catch (error) {
     handleError(error);

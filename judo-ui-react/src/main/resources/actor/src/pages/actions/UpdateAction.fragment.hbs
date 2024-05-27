@@ -2,6 +2,27 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   {{# if (hasPageRequiredBy page) }}
     {{> actor/src/fragments/page/local-validate.fragment.hbs }}
   {{/ if }}
+  {{# if page.openInDialog }}
+    if (isDraft) {
+      try {
+        setIsLoading(true);
+        await validate(cleanUpPayload(payloadDiff.current));
+        onSubmit(payloadDiff.current, true);
+      } catch (error) {
+        if (ownerValidation && !isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
+          // relation form has no remaining error(s), proceed with submission
+          onSubmit(payloadDiff.current, true);
+        } else {
+          let relationName: string | undefined = (isDraft && ownerValidation) ? '{{ page.dataElement.name }}' : undefined;
+          handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, relationName);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+
+      return;
+    }
+  {{/ if }}
   setIsLoading(true);
   try {
     const { data: res } = await {{ getServiceImplForPage page }}.update(cleanUpPayload(payloadDiff.current));

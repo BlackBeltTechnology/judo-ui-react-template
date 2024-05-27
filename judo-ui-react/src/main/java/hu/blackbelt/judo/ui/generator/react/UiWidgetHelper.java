@@ -412,7 +412,7 @@ public class UiWidgetHelper {
                     result += "(ownerData ? !ownerData." + table.getEnabledBy().getName() + " : false) || ";
                 }
             }
-            result += "!row.__deleteable || ";
+            result += "(typeof row.__deleteable === 'boolean' && !row.__deleteable) || ";
         } else if (!container.isTable()) {
             result += "editMode || ";
         }

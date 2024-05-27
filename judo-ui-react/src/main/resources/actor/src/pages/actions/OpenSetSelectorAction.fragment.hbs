@@ -8,13 +8,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
           storeDiff('{{ link.dataElement.name }}', returnedData[0]);
         {{ else }}
           await {{ getServiceImplForPage page }}.set{{ firstToUpper link.dataElement.name }}(data, returnedData[0]);
-          {{# if page.container.view }}
-            if (!editMode) {
-              {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-                await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-              {{/ with }}
-            }
-          {{/ if }}
+          await refresh();
         {{/ if }}
         return returnedData[0];
       } catch(error) {
