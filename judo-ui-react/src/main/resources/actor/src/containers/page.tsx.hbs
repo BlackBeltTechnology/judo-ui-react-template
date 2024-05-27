@@ -38,6 +38,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
     const { actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
+    const isDraft = false; // currently no page can be opened as draft, but we need this variable anyway
     {{# unless container.table }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
         _mask: {{# unless container.form }}actions.getMask ? actions.getMask!() : {{/ unless }}'{{ getMaskForView container }}',

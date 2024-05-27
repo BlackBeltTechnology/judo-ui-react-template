@@ -149,6 +149,11 @@ public class UiPageContainerHelper {
             tokens.add("editMode");
         } else if (button.getActionDefinition().getIsCancelAction() || button.getActionDefinition().getIsUpdateAction()) {
             tokens.add("editMode");
+        } else if (button.getActionDefinition().getIsRefreshAction()) {
+            // In case of dialogs that are open in draft mode, we should consider checking actions
+            // because it could be possible that there are no valid use cases where these actions
+            // should be generated in the first place.
+            tokens.add("!isDraft");
         } else {
             tokens.add("!editMode");
         }
