@@ -27,11 +27,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
           {{/ unless }}
           const existingIndex = (payloadDiff.current.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
           if (existingIndex > -1) {
-            payloadDiff.current.{{ action.targetDataElement.name }}[existingIndex] = {
+            const updatedList = [...payloadDiff.current.{{ action.targetDataElement.name }}];
+            updatedList[existingIndex] = {
               ...returnedData,
             };
+            storeDiff('{{ action.targetDataElement.name }}', updatedList);
           }
-          storeDiff('{{ action.targetDataElement.name }}', [...(payloadDiff.current.{{ action.targetDataElement.name }} || [])]);
         {{ else }}
           storeDiff('{{ action.targetDataElement.name }}', {
             ...returnedData

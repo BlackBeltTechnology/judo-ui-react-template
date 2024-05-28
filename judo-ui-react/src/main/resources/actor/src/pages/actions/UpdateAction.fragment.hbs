@@ -7,7 +7,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
       try {
         setIsLoading(true);
         await validate(cleanUpPayload(payloadDiff.current));
-        onSubmit(payloadDiff.current, true);
+        // we send data back in draft mode, because the owner is responsible to handle it in-memory
+        onSubmit(data, true);
       } catch (error) {
         if (ownerValidation && !isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
           // relation form has no remaining error(s), proceed with submission
