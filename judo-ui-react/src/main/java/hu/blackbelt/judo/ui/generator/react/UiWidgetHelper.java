@@ -404,13 +404,15 @@ public class UiWidgetHelper {
             }
         } else if (button.getActionDefinition().getIsDeleteAction()) {
             if (!container.isTable()) {
-                result += "editMode || ";
+                if (!table.isIsEager()) {
+                    result += "editMode || ";
+                }
 
                 if (table.getEnabledBy() != null) {
                     result += "(ownerData ? !ownerData." + table.getEnabledBy().getName() + " : false) || ";
                 }
             }
-            result += "!row.__deleteable || ";
+            result += "(typeof row.__deleteable === 'boolean' && !row.__deleteable) || ";
         } else if (!container.isTable()) {
             result += "editMode || ";
         }
@@ -456,5 +458,9 @@ public class UiWidgetHelper {
 
     public static boolean isLinkAssociation(Link link) {
         return link.getRelationType().getIsRelationKindAssociation();
+    }
+
+    public static boolean isButtonTableRowButton(Button button) {
+        return button.eContainer() instanceof Table table && table.getRowActionButtonGroup().getButtons().contains(button);
     }
 }

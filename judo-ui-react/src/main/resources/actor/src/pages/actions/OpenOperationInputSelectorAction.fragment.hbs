@@ -1,12 +1,6 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
   if (result === 'submit') {
-    {{# if page.container.view }}
-      if (!editMode) {
-        {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-        {{/ with }}
-      }
-    {{/ if }}
+    await refresh();
   }
 };

@@ -267,6 +267,12 @@ public class UiActionsHelper {
                 }
             } else {
                 tokens.add("data");
+                if (isRelationOpenCreateActionOnEagerView(pageDefinition, action)) {
+                    if (tokens.size() < 2) {
+                        tokens.add("undefined");
+                    }
+                    tokens.add("true");
+                }
             }
         }
         if (isRelationOpenCreateActionOnForm(pageDefinition, action)) {
@@ -382,6 +388,13 @@ public class UiActionsHelper {
                 && relationType.isIsInlineCreatable();
     }
 
+    public static boolean isRelationOpenCreateActionOnEagerView(PageDefinition pageDefinition, Action action) {
+        return pageDefinition.getContainer().isView()
+                && action.getIsOpenFormAction()
+                && action.getTargetDataElement() instanceof RelationType relationType
+                && relationType.isIsInlineCreatable();
+    }
+
     public static String postCallOperationActionParams(PageDefinition page, ActionDefinition actionDefinition) {
         List<String> tokens = new ArrayList<>();
         if (actionDefinition.getTargetType() != null) {
@@ -473,7 +486,7 @@ public class UiActionsHelper {
     }
 
     public static boolean createNestedValidation(RelationType relationType, PageDefinition pageDefinition) {
-        return pageDefinition.getContainer().isForm() && relationType != null && (relationType.isIsInlineCreatable() || relationType.getIsCreateValidatable() || (relationType.getIsMemberTypeTransient() && !relationType.getTarget().isIsMapped()));
+        return relationType != null && !pageDefinition.getContainer().isTable() && (relationType.getIsCreateValidatable() || relationType.getIsUpdateValidatable());
     }
 
     public static boolean skipNestedValidationBody(PageDefinition pageDefinition) {
@@ -509,5 +522,17 @@ public class UiActionsHelper {
                     .orElse(null);
         }
         return null;
+    }
+
+    public static boolean isActionParentEagerElement(Action action) {
+        Table table = getTableParentForActionDefinition(action.getActionDefinition());
+        Link link = getLinkParentForActionDefinition(action.getActionDefinition());
+        if (table != null) {
+            return table.isIsEager();
+        }
+        if (link != null) {
+            return link.isIsEager();
+        }
+        return  false;
     }
 }
