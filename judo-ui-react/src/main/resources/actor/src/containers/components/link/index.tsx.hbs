@@ -54,7 +54,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       visible: (value: any) => exists(value) && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft),
       onClick: async (value: {{ classDataName link.dataElement.target 'Stored' }} | null) => {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!(value!, {{# if container.form }}true{{ else }}false{{/ if }});
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(value!, {{# if link.isEager }}true{{ else }}false{{/ if }});
       },
       title: t('judo.component.SingleRelationInput.navigate', { defaultValue: 'Navigate to element' }) as string,
     {{/ if }}

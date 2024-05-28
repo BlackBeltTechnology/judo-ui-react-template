@@ -6,20 +6,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
       try {
         setIsLoading(true);
         await {{ getServiceImplForPage page }}.set{{ firstToUpper action.targetDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}ownerData{{/ if }}, []);
-        {{# if page.container.table }}
-          setRefreshCounter((prev) => prev + 1);
-        {{/ if }}
-        {{# if page.container.view }}
-          if (!editMode) {
-            {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-              await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-            {{/ with }}
-          }
-        {{/ if }}
+        await refresh();
       } catch(e) {
         console.error(e);
       } finally {
-          setIsLoading(false);
+        setIsLoading(false);
       }
     {{/ if }}
   {{/ with }}

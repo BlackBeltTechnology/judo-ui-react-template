@@ -168,13 +168,47 @@ export default function {{ pageName page }}() {
         setRefreshCounter((prev) => prev + 1);
       {{/ if }}
       {{# if page.container.view }}
-        {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
-          if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
-            await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-          }
-        {{/ with }}
+        if (!editMode) {
+          {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+            if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
+              await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+            }
+          {{/ with }}
+        }
       {{/ if }}
     };
+
+    // Validation
+    {{# unless page.container.table }}
+      {{# each page.container.links as |link| }}
+        {{# and page.dataElement.isUpdateValidatable link.relationType.isUpdateValidatable link.isEager }}
+          const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
+            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
+              ...cleanUpPayload({
+                ...payloadDiff.current,
+                {{ link.relationType.name }}: {
+                  ...linkData,
+                } as any
+              }),
+            } as {{ classDataName (getReferenceClassType page) 'Stored' }});
+          };
+        {{/ and }}
+      {{/ each }}
+      {{# each page.container.tables as |table| }}
+        {{# and page.dataElement.isUpdateValidatable table.relationType.isUpdateValidatable table.isEager }}
+          const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
+            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
+              ...cleanUpPayload({
+                ...payloadDiff.current,
+                {{ table.relationType.name }}: [
+                  { ...tableData } as any
+                ],
+              }),
+            } as {{ classDataName (getReferenceClassType page) 'Stored' }});
+          };
+        {{/ and }}
+      {{/ each }}
+    {{/ unless }}
 
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
