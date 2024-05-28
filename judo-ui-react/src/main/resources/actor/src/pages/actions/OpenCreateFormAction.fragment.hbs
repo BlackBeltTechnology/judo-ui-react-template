@@ -26,7 +26,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
           ...returnedData,
           __identifier: `draft:${uuidv4()}`,
         };
-        const newData = {{# if action.targetDataElement.isCollection }}[...(payloadDiff.current.{{ action.targetDataElement.name }} || data.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
+        const newData = {{# if action.targetDataElement.isCollection }}[...(data.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
         storeDiff('{{ action.targetDataElement.name }}', newData);
         return;
       }

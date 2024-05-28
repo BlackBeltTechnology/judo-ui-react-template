@@ -20,14 +20,10 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
       // we might need to differentiate result handling between operation inputs and crud relation creates
       if (result === 'submit-draft' && returnedData) {
         {{# if action.targetDataElement.isCollection }}
-          {{# unless page.container.table}}
-            if (!payloadDiff.current.{{ action.targetDataElement.name }}) {
-              payloadDiff.current.{{ action.targetDataElement.name }} = data.{{ action.targetDataElement.name }} || [];
-            }
-          {{/ unless }}
-          const existingIndex = (payloadDiff.current.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
+          const existingIndex = (data.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
           if (existingIndex > -1) {
-            const updatedList = [...payloadDiff.current.{{ action.targetDataElement.name }}];
+            // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+            const updatedList = [...(data.{{ action.targetDataElement.name }} || [])];
             updatedList[existingIndex] = {
               ...returnedData,
             };
