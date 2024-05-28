@@ -181,9 +181,9 @@ export default function {{ pageName page }}() {
     // Validation
     {{# unless page.container.table }}
       {{# each page.container.links as |link| }}
-        {{# if link.relationType.isUpdateValidatable }}
+        {{# and page.dataElement.isUpdateValidatable link.relationType.isUpdateValidatable link.isEager }}
           const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
-            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}data, {{/ unless }}{
+            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
               ...cleanUpPayload({
                 ...payloadDiff.current,
                 {{ link.relationType.name }}: {
@@ -192,12 +192,12 @@ export default function {{ pageName page }}() {
               }),
             } as {{ classDataName (getReferenceClassType page) 'Stored' }});
           };
-        {{/ if }}
+        {{/ and }}
       {{/ each }}
       {{# each page.container.tables as |table| }}
-        {{# if table.relationType.isUpdateValidatable }}
+        {{# and page.dataElement.isUpdateValidatable table.relationType.isUpdateValidatable table.isEager }}
           const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
-            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}data, {{/ unless }}{
+            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
               ...cleanUpPayload({
                 ...payloadDiff.current,
                 {{ table.relationType.name }}: [
@@ -206,7 +206,7 @@ export default function {{ pageName page }}() {
               }),
             } as {{ classDataName (getReferenceClassType page) 'Stored' }});
           };
-        {{/ if }}
+        {{/ and }}
       {{/ each }}
     {{/ unless }}
 

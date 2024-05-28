@@ -459,4 +459,8 @@ public class UiWidgetHelper {
     public static boolean isLinkAssociation(Link link) {
         return link.getRelationType().getIsRelationKindAssociation();
     }
+
+    public static boolean isButtonTableRowButton(Button button) {
+        return button.eContainer() instanceof Table table && table.getRowActionButtonGroup().getButtons().contains(button);
+    }
 }

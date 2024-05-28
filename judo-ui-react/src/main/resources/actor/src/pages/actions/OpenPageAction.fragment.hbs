@@ -13,9 +13,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
         {{/ if }},
         target,
         true,
-        {{# unless page.container.table }}
+        {{# if action.targetDataElement.isUpdateValidatable }}
         validate{{ firstToUpper action.targetDataElement.name }}
-        {{/ unless }}
+        {{/ if }}
       );
       // we might need to differentiate result handling between operation inputs and crud relation creates
       if (result === 'submit-draft' && returnedData) {
