@@ -385,6 +385,11 @@ public class UiWidgetHelper {
                     result += "(ownerData ? !ownerData." + table.getEnabledBy().getName() + " : false) || ";
                 }
             }
+
+            if (container.isView()) {
+                result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
+            }
+
             result += "!row.__deleteable || ";
         } else if (!container.isTable()) {
             result += "editMode || ";
