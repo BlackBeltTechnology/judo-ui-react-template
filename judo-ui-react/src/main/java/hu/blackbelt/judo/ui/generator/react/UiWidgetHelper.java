@@ -339,7 +339,7 @@ public class UiWidgetHelper {
             return "false";
         }
         if (button.getActionDefinition().getIsOpenCreateFormAction() && !table.isIsEager() && container.isView()) {
-            return "!editMode";
+            return "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";
         }
         if (button.getActionDefinition().getIsOpenSelectorAction() && container.isView()) {
             return "(isFormUpdateable ? isFormUpdateable() : false)";
@@ -347,7 +347,7 @@ public class UiWidgetHelper {
         if (button.getActionDefinition().getIsClearAction()) {
             String result = "data.length > 0";
             if (table.getEnabledBy() != null) {
-                result += " && (ownerData ? ownerData.{{ table.enabledBy.name }} : false)";
+                result += " && (ownerData ? ownerData." + table.getEnabledBy().getName() +" : false)";
             }
             if (container.isView()) {
                 result += " && (isFormUpdateable ? isFormUpdateable() : false)";
@@ -358,31 +358,6 @@ public class UiWidgetHelper {
             return "selectionModel.length > 0";
         }
         return "true";
-    }
-
-    public static String tableToolbarButtonDisabledConditions(Button button, Table table, PageContainer container) {
-        String result = "";
-
-        if (!container.isTable()) {
-            if (button.getActionDefinition().getIsOpenFormAction() || button.getActionDefinition().getIsBulkDeleteAction()) {
-                if (button.getActionDefinition().getIsOpenFormAction() && table.getRelationType().isIsInlineCreatable()) {
-                    return "false";
-                }
-                result += "editMode || ";
-            } else if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsClearAction()) {
-                if (container.isView()) {
-                    result += "editMode || !isFormUpdateable() || ";
-                }
-            }
-        }
-        if (button.getActionDefinition().isIsBulk() && button.getHiddenBy() != null) {
-            result += "!selectedRows.current.every(s => !s." + button.getHiddenBy().getName() + ") || ";
-        }
-        if (button.getActionDefinition().getIsBulkDeleteAction()) {
-            result += "selectedRows.current.some(s => !s.__deleteable) || ";
-        }
-
-        return result + "isLoading";
     }
 
     public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
