@@ -226,7 +226,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         tableColumns={columns}
         tableRowActions={rowActions}
         tableFilterOptions={filterOptions}
-        mask={ '{{ getMaskForTable table }}' }
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
@@ -267,9 +266,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         ownerData={ownerData}
         editMode={editMode}
         {{/ unless }}
-        {{# if (getRefreshActionDefinitionForTable table) }}
-        maskAction={actions.get{{ firstToUpper table.relationName }}Mask}
-        {{/ if }}
+        maskAction={actions.get{{ firstToUpper table.relationName }}Mask!}
         enabledByName='{{ table.enabledBy.name }}'
         dataElement={ ownerData?.{{ table.dataElement.name }} }
         relationName='{{ table.relationName }}'
@@ -292,7 +289,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         tableColumns={columns}
         tableRowActions={rowActions}
         tableFilterOptions={filterOptions}
-        mask={ '{{ getMaskForTable table }}' }
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
@@ -326,9 +322,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# if getRefreshActionDefinitionForTable table }}
         hasRefreshAction={ true }
         {{/ if }}
-        {{# if (getRefreshActionDefinitionForTable table) }}
-        maskAction={actions.get{{ firstToUpper table.relationName }}Mask}
-        {{/ if }}
+        maskAction={actions.get{{ firstToUpper table.relationName }}Mask!}
         {{# if container.isSelector }}
         {{# with (getRangeActionDefinitionForTable table) as |actionDefinition| }}
         fetch={ actions.{{ simpleActionDefinitionName actionDefinition }} }

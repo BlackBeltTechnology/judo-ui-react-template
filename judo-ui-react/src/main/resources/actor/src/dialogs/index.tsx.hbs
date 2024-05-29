@@ -135,9 +135,29 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
       {{# if page.container.view }}
         const getPageQueryCustomizer: () => {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = () => ({
-          _mask: actions.getMask ? actions.getMask!() : '{{ getMaskForView page.container }}',
+          _mask: actions.getMask ? actions.getMask!() : '{{ serializeMaskForView page }}',
         });
       {{/ if }}
+    {{/ unless }}
+
+    // Masks
+    {{# if page.container.table }}
+      {{# with (getFirstTableForContainer page.container) as |table| }}
+        const getMask: () => string = () => {
+          return '{{ serializeMaskForTable table page }}';
+        };
+      {{/ with }}
+    {{/ if }}
+    {{# if page.container.view }}
+      const getMask = () => '{{ serializeMaskForView page }}';
+    {{/ if }}
+    {{# unless page.container.table }}
+      {{# each page.container.links as |link| }}
+        const get{{ firstToUpper link.relationType.name }}Mask = () => '{{ serializeMaskForLink link page }}';
+      {{/ each }}
+      {{# each page.container.tables as |table| }}
+        const get{{ firstToUpper table.relationName }}Mask = () => '{{ serializeMaskForTable table page }}';
+      {{/ each }}
     {{/ unless }}
 
     // Private actions
@@ -245,6 +265,17 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
       {{/ each }}
+      {{# unless page.container.form }}
+        getMask,
+      {{/ unless }}
+      {{# unless page.container.table }}
+        {{# each page.container.links as |link| }}
+          get{{ firstToUpper link.relationType.name }}Mask,
+        {{/ each }}
+        {{# each page.container.tables as |table| }}
+          get{{ firstToUpper table.relationName }}Mask,
+        {{/ each }}
+      {{/ unless }}
       ...(customActions ?? {}),
     };
 

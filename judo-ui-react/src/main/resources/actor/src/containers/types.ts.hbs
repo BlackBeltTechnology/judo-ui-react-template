@@ -43,9 +43,9 @@
     {{# each (getTextInputsWithTypeAhead container) as |ve| }}
       get{{ firstToUpper ve.attributeType.name }}Options?: (searchText: string, data: {{ classDataName container.dataElement '' }}, editMode: boolean, validation: Map<keyof {{ classDataName container.dataElement '' }}, string>) => Promise<string[]>;
     {{/ each }}
-    {{# if container.view }}
+    {{# unless container.form }}
       getMask?: () => string;
-    {{/ if }}
+    {{/ unless }}
   }
 
   export interface {{ containerComponentName container }}PageActions extends {{ pageContainerActionDefinitionTypeName container }} {

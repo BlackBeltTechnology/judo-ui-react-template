@@ -79,11 +79,11 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         isDraft
       {{/ unless }}
     } = props;
-    {{# unless container.table }}
+    {{# if container.view }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
-        _mask: {{# unless container.form }}actions.getMask ? actions.getMask!() : {{/ unless }}'{{ getMaskForView container }}',
+        _mask: actions.getMask!(),
       };
-    {{/ unless }}
+    {{/ if }}
 
     {{# if (containerHasCreateAction container) }}
     const handleCreateDropdownToggle = useCallback(() => {
