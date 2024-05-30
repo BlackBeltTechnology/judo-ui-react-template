@@ -27,7 +27,7 @@
     ownerData: any;
     {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: {{ classDataName (getReferenceClassType page) '' }};{{/ and }}
     {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
-    {{# unless page.container.isSelector }}templateDataOverride?: Partial<{{ classDataName (getReferenceClassType page) '' }}>;{{/ unless }}
+    {{# unless page.container.isSelector }}templateDataOverride?: {{# if page.container.view }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{ else }}Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ if }};{{/ unless }}
     isDraft?: boolean;
     ownerValidation?: (data: {{ dialogBareDataType page }}) => Promise<void>;
     onClose: () => Promise<void>;

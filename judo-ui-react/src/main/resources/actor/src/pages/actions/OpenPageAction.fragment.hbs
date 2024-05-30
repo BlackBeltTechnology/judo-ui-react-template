@@ -11,7 +11,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
             data
           {{/ if }}
         {{/ if }},
-        target,
+        target as {{ classDataName action.actionDefinition.targetType 'Stored' }},
         true,
         {{# if action.targetDataElement.isUpdateValidatable }}
         validate{{ firstToUpper action.targetDataElement.name }}

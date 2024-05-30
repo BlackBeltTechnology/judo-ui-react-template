@@ -229,7 +229,11 @@ public class UiActionsHelper {
             result.add("data: " + classDataName(getReferenceClassType(pageDefinition),  ""));
         }
         if (!pageDefinition.getContainer().isIsSelector()) {
-            result.add("templateDataOverride?: Partial<" + classDataName(getReferenceClassType(pageDefinition), ">"));
+            if (pageDefinition.getContainer().isView()) {
+                result.add("templateDataOverride?: " + classDataName(getReferenceClassType(pageDefinition), "Stored"));
+            } else {
+                result.add("templateDataOverride?: Partial<" + classDataName(getReferenceClassType(pageDefinition), ">"));
+            }
         } else if (pageDefinition.getContainer().isIsRelationSelector()) {
             result.add("alreadySelected: " + classDataName(getReferenceClassType(pageDefinition), "Stored") + "[]");
         }

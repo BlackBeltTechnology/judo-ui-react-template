@@ -30,6 +30,7 @@ import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}use
     useErrorHandler,
     isErrorNestedValidationError,
     cleanUpPayload,
+    decoratePayloadWithMetaFromData,
   } from '~/utilities';
   import type {
     DialogResult,
@@ -322,9 +323,10 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{# unless page.container.table }}
         if (templateDataOverride) {
           setData((prevData) => ({ ...prevData, ...templateDataOverride }));
-          // payloadDiff.current = {
-          //   ...(templateDataOverride as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>),
-          // };
+          {{# if page.container.view }}
+            // re-set payloadDiff
+            decoratePayloadWithMetaFromData(payloadDiff.current, templateDataOverride);
+          {{/ if }}
         }
       {{/ unless }}
     }, []);
