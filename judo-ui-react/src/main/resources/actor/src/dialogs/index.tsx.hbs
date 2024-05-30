@@ -96,7 +96,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}isDraft || false{{/ if }});
+    const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>(
       {{# if page.container.table }}

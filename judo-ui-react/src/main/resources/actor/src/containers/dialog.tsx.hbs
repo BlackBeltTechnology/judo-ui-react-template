@@ -196,11 +196,19 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                       : {{# unless button.actionDefinition.autoOpenAfterCreate }}t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }){{ else }}t('judo.pages.create-and-navigate', { defaultValue: 'Create and open' }){{/ unless }}
                     }</span>
                   {{ else }}
-                    {{# and button.actionDefinition.isUpdateAction button.actionDefinition.autoCloseOnSave }}
-                      <span>{t('judo.pages.save-and-close', { defaultValue: 'Save and close' })}</span>
+                    {{# if button.actionDefinition.isUpdateAction }}
+                      <span>{
+                        isDraft
+                        ? t('judo.dialogs.draft.submit', { defaultValue: 'Ok' })
+                        : t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })
+                      }</span>
                     {{ else }}
-                      <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
-                    {{/ and }}
+                      {{# and button.actionDefinition.isUpdateAction button.actionDefinition.autoCloseOnSave }}
+                        <span>{t('judo.pages.save-and-close', { defaultValue: 'Save and close' })}</span>
+                      {{ else }}
+                        <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
+                      {{/ and }}
+                    {{/ if }}
                   {{/ if }}
                 </LoadingButton>
                 {{# if button.actionDefinition.isCreateAction }}
