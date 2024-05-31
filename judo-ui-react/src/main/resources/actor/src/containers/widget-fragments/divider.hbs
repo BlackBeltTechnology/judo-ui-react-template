@@ -14,18 +14,18 @@
     <Grid container sx={ { height: DIVIDER_HEIGHT } } alignItems="center">
         <Grid item xs={12}>
             <Divider id="{{ getXMIID child }}">
-                {{# or child.icon child.label }}
+                {{# if (elementHasIconOrLabel child) }}
                 <Box sx={ { display: 'flex', flexDirection: 'row', alignItems: 'center' } }>
-                    {{# if child.icon }}
+                    {{# if (elementHasIcon child) }}
                     <MdiIcon path="{{ child.icon.iconName }}" {{# if child.label }}sx={ { mr: '.2rem' } }{{/ if }} />
                     {{/ if }}
-                    {{# if child.label }}
+                    {{# if (elementHasLabel child) }}
                     <Typography id="{{ getXMIID child }}">
                         { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
                     </Typography>
                     {{/ if }}
                 </Box>
-                {{/ or }}
+                {{/ if }}
             </Divider>
         </Grid>
     </Grid>
