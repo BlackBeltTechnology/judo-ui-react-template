@@ -424,7 +424,7 @@ public class UiWidgetHelper {
     }
 
     public static boolean elementHasIcon(VisualElement element) {
-        return element.getIcon() != null && element.getIcon().getIconName() != null && element.getIcon().getIconName().trim().isBlank();
+        return element.getIcon() != null && element.getIcon().getIconName() != null && !element.getIcon().getIconName().trim().isBlank();
     }
 
     public static boolean elementHasLabel(VisualElement element) {
