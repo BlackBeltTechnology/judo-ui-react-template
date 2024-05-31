@@ -8,11 +8,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
         setIsLoading(true);
         await validate(cleanUpPayload(payloadDiff.current));
         // we send data back in draft mode, because the owner is responsible to handle it in-memory
-        onSubmit(data, true);
+        onSubmit(data, 'submit-draft');
       } catch (error) {
         if (ownerValidation && !isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
           // relation form has no remaining error(s), proceed with submission
-          onSubmit(payloadDiff.current, true);
+          onSubmit(payloadDiff.current, 'submit-draft');
         } else {
           let relationName: string | undefined = (isDraft && ownerValidation) ? '{{ page.dataElement.name }}' : undefined;
           handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, relationName);

@@ -13,8 +13,10 @@ export type ColumnActionsProvider<R, RStored> = (
   options?: ColumnsActionsOptions,
 ) => GridColDef[];
 
+export type DialogResultReason = 'close' | 'submit' | 'submit-draft' | 'delete';
+
 export interface DialogResult<T> {
-  result: 'close' | 'submit' | 'submit-draft';
+  result: DialogResultReason;
   data?: T;
   openCreated?: boolean;
 }

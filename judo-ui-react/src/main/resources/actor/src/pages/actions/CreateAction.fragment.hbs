@@ -5,11 +5,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
       try {
         setIsLoading(true);
         await validate(cleanUpPayload(payloadDiff.current));
-        onSubmit(payloadDiff.current, true);
+        onSubmit(payloadDiff.current, 'submit-draft');
       } catch (error) {
         if (ownerValidation && !isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
           // relation form has no remaining error(s), proceed with submission
-          onSubmit(payloadDiff.current, true);
+          onSubmit(payloadDiff.current, 'submit-draft');
         } else {
           let relationName: string | undefined = (isDraft && ownerValidation) ? '{{ page.dataElement.name }}' : undefined;
           handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, relationName);
@@ -31,7 +31,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(data, res, onSubmit, onClose, openCreated);
     } else {
       showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
-      await onSubmit(res, isDraft, openCreated);
+      await onSubmit(res, isDraft ? 'submit-draft' : 'submit', openCreated);
     }
   } catch (error) {
      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);

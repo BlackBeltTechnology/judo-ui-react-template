@@ -498,7 +498,7 @@ public class UiActionsHelper {
     }
 
     public static boolean isRowActionCRUD(ActionDefinition actionDefinition) {
-        return actionDefinition.getIsRemoveAction() || actionDefinition.getIsDeleteAction();
+        return actionDefinition.getIsRemoveAction() || actionDefinition.getIsRowDeleteAction();
     }
 
     public static boolean allowRefreshAfterOperationCall(Action action) {

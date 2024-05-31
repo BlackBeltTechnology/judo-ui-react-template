@@ -402,7 +402,7 @@ public class UiWidgetHelper {
             if (container.isView()) {
                 result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
             }
-        } else if (button.getActionDefinition().getIsDeleteAction()) {
+        } else if (button.getActionDefinition().getIsRowDeleteAction()) {
             if (!container.isTable()) {
                 if (!table.isIsEager()) {
                     result += "editMode || ";

@@ -31,6 +31,9 @@ import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}use
     isErrorNestedValidationError,
     cleanUpPayload,
     decoratePayloadWithMetaFromData,
+    {{# if page.container.view }}
+      cloneDeep,
+    {{/ if }}
   } from '~/utilities';
   import type {
     DialogResult,

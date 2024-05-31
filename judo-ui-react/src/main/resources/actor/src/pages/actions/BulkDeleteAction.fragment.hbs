@@ -6,7 +6,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
       const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
       storeDiff('{{ table.dataElement.name }}', newList);
       resolve({
-        result: 'submit',
+        result: 'delete',
         data: [],
       });
     {{ else }}
@@ -42,7 +42,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
               {{/ with }}
             {{/ if }}
             resolve({
-              result: 'submit',
+              result: 'delete',
               data: [],
             });
           } else {

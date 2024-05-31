@@ -36,6 +36,23 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
         {{/ if }}
         return;
       }
+      if (result === 'delete' && returnedData) {
+        {{# if action.targetDataElement.isCollection }}
+          const existingIndex = (data.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
+          if (existingIndex > -1) {
+            // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+            const updatedList = [...(data.{{ action.targetDataElement.name }} || [])];
+            updatedList.splice(existingIndex, 1);
+            storeDiff('{{ action.targetDataElement.name }}', updatedList);
+          }
+        {{ else }}
+          storeDiff('{{ action.targetDataElement.name }}', null);
+        {{/ if }}
+        return;
+      }
+      if (result === 'close') {
+        return;
+      }
     } else {
   {{/ and }}
   {{# if action.targetPageDefinition.openInDialog }}

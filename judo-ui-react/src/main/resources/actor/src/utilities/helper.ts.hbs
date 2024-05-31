@@ -70,3 +70,8 @@ export const decoratePayloadWithMetaFromData: (payload: any, data: JudoStored<an
   }
   return payload;
 }
+
+export const cloneDeep = (obj: object): object => {
+  // We know that this is slow, if becomes a bottleneck, we can replace this with a dep, or write it manually
+  return JSON.parse(JSON.stringify(obj));
+}

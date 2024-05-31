@@ -7,6 +7,7 @@
     import { {{ restParamName imp }} } from '~/services/data-api/model/{{ restParamName imp }}';
   {{/ each }}
   import type { {{ containerComponentName page.container }}DialogActions } from '~/containers/{{ containerPath page.container }}/types';
+  import type { DialogResultReason } from '~/utilities';
 
   export type {{ containerComponentName page.container }}DialogActionsExtended = {{ containerComponentName page.container }}DialogActions & {
     {{# each (getAllCallOperationActions page) as |action| }}
@@ -32,9 +33,9 @@
     ownerValidation?: (data: {{ dialogBareDataType page }}) => Promise<void>;
     onClose: () => Promise<void>;
     {{# if (pageHasOutputTarget page) }}
-    onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>;
+    onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, reason?: DialogResultReason, openCreated?: boolean) => Promise<void>;
     {{ else }}
-    onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>;
+    onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, reason?: DialogResultReason, openCreated?: boolean) => Promise<void>;
     {{/ if }}
     {{# unless page.container.table}}
     maskRequest?: string;
