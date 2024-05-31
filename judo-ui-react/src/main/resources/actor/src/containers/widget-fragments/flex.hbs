@@ -16,13 +16,13 @@
             <CardContent>
                 {{# if (cardHasHeaderContent this) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2} sx={ { mb: 2 } }>
-                    {{# if (flexHasIconOrLabel this) }}
+                    {{# if (elementHasIconOrLabel this) }}
                     <Grid item>
                         <Grid container direction="row" alignItems="center" justifyContent="flex-start">
-                        {{# if this.icon }}
+                        {{# if (elementHasIcon this) }}
                             <MdiIcon path="{{ this.icon.iconName }}" sx={ { marginRight: 1 } } />
                         {{/ if }}
-                        {{# if this.label }}
+                        {{# if (elementHasLabel this) }}
                             <Typography variant="h5" component="h1">
                                 { t('{{ getTranslationKeyForVisualElement this }}', { defaultValue: '{{ this.label }}' }) }
                             </Typography>
@@ -68,13 +68,13 @@
         </Card>
     {{ else }}
         <Grid container direction="row" spacing={2}>
-            {{# and (flexHasIconOrLabel this) (flexParentIsNotTab this) }}
+            {{# and (elementHasIconOrLabel this) (flexParentIsNotTab this) }}
                 <Grid item xs={12} sm={12}>
                     <Grid container direction="row" alignItems="center" justifyContent="flex-start">
-                    {{# if this.icon }}
+                    {{# if (elementHasIcon this) }}
                         <MdiIcon path="{{ this.icon.iconName }}" sx={ { marginRight: 1 } } />
                     {{/ if }}
-                    {{# if this.label }}
+                    {{# if (elementHasLabel this) }}
                         <Typography variant="h5" component="h1">
                             { t('{{ getTranslationKeyForVisualElement this }}', { defaultValue: '{{ this.label }}' }) }
                         </Typography>

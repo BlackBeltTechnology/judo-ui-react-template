@@ -419,12 +419,16 @@ public class UiWidgetHelper {
         return !(flex.eContainer() instanceof Tab);
     }
 
-    public static boolean flexHasIconOrLabel(Flex flex) {
-        return flex.getIcon() != null || flexHasLabel(flex);
+    public static boolean elementHasIconOrLabel(VisualElement element) {
+        return elementHasIcon(element) || elementHasLabel(element);
     }
 
-    public static boolean flexHasLabel(Flex flex) {
-        return flex.getLabel() != null && !flex.getLabel().trim().isBlank();
+    public static boolean elementHasIcon(VisualElement element) {
+        return element.getIcon() != null && element.getIcon().getIconName() != null && element.getIcon().getIconName().trim().isBlank();
+    }
+
+    public static boolean elementHasLabel(VisualElement element) {
+        return element.getLabel() != null && !element.getLabel().trim().isBlank();
     }
 
     public static Column getSortColumnForLink(Link link) {
@@ -436,5 +440,9 @@ public class UiWidgetHelper {
 
     public static boolean isLinkAssociation(Link link) {
         return link.getRelationType().getIsRelationKindAssociation();
+    }
+
+    public static boolean displayTableHeading(Table table, PageContainer container) {
+        return elementHasIconOrLabel(table) && !container.isIsSelector() && !container.isTable();
     }
 }
