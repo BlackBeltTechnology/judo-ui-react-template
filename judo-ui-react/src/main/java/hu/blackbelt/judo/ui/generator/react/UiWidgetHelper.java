@@ -443,10 +443,6 @@ public class UiWidgetHelper {
         return link.getRelationType().getIsRelationKindAssociation();
     }
 
-    public static boolean isButtonTableRowButton(Button button) {
-        return button.eContainer() instanceof Table table && table.getRowActionButtonGroup().getButtons().contains(button);
-    }
-
     public static boolean displayTableHeading(Table table, PageContainer container) {
         return elementHasIconOrLabel(table) && !container.isIsSelector() && !container.isTable();
 
