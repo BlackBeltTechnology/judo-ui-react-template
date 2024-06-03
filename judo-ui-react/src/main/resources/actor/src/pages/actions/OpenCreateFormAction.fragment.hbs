@@ -21,6 +21,14 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{# if page.container.view }}
       if (result === 'submit' && !editMode) {
         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+      } else if (result === 'submit-draft' && returnedData) {
+        const decoratedData = {
+          ...returnedData,
+          __identifier: `draft:${uuidv4()}`,
+        };
+        const newData = {{# if action.targetDataElement.isCollection }}[...(data.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
+        storeDiff('{{ action.targetDataElement.name }}', newData);
+        return;
       }
     {{/ if }}
     {{# if page.container.table }}
