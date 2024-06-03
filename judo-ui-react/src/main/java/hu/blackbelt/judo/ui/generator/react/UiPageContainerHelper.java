@@ -263,7 +263,8 @@ public class UiPageContainerHelper {
         try {
             return "{" + getMaskForView(pageDefinition, 0).serialize() + "}";
         } catch (StackOverflowError e) {
-            return "aaa";
+            // keeping this for debugging purposes
+            throw e;
         }
     }
 
