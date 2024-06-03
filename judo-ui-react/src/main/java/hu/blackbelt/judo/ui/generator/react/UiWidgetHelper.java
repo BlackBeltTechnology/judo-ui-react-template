@@ -339,7 +339,7 @@ public class UiWidgetHelper {
             return "false";
         }
         if (button.getActionDefinition().getIsOpenCreateFormAction() && !table.isIsEager() && container.isView()) {
-            return "!editMode";
+            return "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";
         }
         if (button.getActionDefinition().getIsOpenSelectorAction() && container.isView()) {
             return "(isFormUpdateable ? isFormUpdateable() : false)";
@@ -347,7 +347,7 @@ public class UiWidgetHelper {
         if (button.getActionDefinition().getIsClearAction()) {
             String result = "data.length > 0";
             if (table.getEnabledBy() != null) {
-                result += " && (ownerData ? ownerData.{{ table.enabledBy.name }} : false)";
+                result += " && (ownerData ? ownerData." + table.getEnabledBy().getName() +" : false)";
             }
             if (container.isView()) {
                 result += " && (isFormUpdateable ? isFormUpdateable() : false)";
@@ -358,31 +358,6 @@ public class UiWidgetHelper {
             return "selectionModel.length > 0";
         }
         return "true";
-    }
-
-    public static String tableToolbarButtonDisabledConditions(Button button, Table table, PageContainer container) {
-        String result = "";
-
-        if (!container.isTable()) {
-            if (button.getActionDefinition().getIsOpenFormAction() || button.getActionDefinition().getIsBulkDeleteAction()) {
-                if (button.getActionDefinition().getIsOpenFormAction() && table.getRelationType().isIsInlineCreatable()) {
-                    return "false";
-                }
-                result += "editMode || ";
-            } else if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsClearAction()) {
-                if (container.isView()) {
-                    result += "editMode || !isFormUpdateable() || ";
-                }
-            }
-        }
-        if (button.getActionDefinition().isIsBulk() && button.getHiddenBy() != null) {
-            result += "!selectedRows.current.every(s => !s." + button.getHiddenBy().getName() + ") || ";
-        }
-        if (button.getActionDefinition().getIsBulkDeleteAction()) {
-            result += "selectedRows.current.some(s => !s.__deleteable) || ";
-        }
-
-        return result + "isLoading";
     }
 
     public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
@@ -413,6 +388,10 @@ public class UiWidgetHelper {
                 }
             }
             result += "(typeof row.__deleteable === 'boolean' && !row.__deleteable) || ";
+
+            if (container.isView()) {
+                result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
+            }
         } else if (!container.isTable()) {
             result += "editMode || ";
         }
@@ -441,12 +420,16 @@ public class UiWidgetHelper {
         return !(flex.eContainer() instanceof Tab);
     }
 
-    public static boolean flexHasIconOrLabel(Flex flex) {
-        return flex.getIcon() != null || flexHasLabel(flex);
+    public static boolean elementHasIconOrLabel(VisualElement element) {
+        return elementHasIcon(element) || elementHasLabel(element);
     }
 
-    public static boolean flexHasLabel(Flex flex) {
-        return flex.getLabel() != null && !flex.getLabel().trim().isBlank();
+    public static boolean elementHasIcon(VisualElement element) {
+        return element.getIcon() != null && element.getIcon().getIconName() != null && !element.getIcon().getIconName().trim().isBlank();
+    }
+
+    public static boolean elementHasLabel(VisualElement element) {
+        return element.getLabel() != null && !element.getLabel().trim().isBlank();
     }
 
     public static Column getSortColumnForLink(Link link) {
@@ -462,5 +445,10 @@ public class UiWidgetHelper {
 
     public static boolean isButtonTableRowButton(Button button) {
         return button.eContainer() instanceof Table table && table.getRowActionButtonGroup().getButtons().contains(button);
+    }
+
+    public static boolean displayTableHeading(Table table, PageContainer container) {
+        return elementHasIconOrLabel(table) && !container.isIsSelector() && !container.isTable();
+
     }
 }

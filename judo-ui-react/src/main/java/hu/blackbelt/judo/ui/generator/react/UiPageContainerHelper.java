@@ -417,7 +417,7 @@ public class UiPageContainerHelper {
     }
 
     public static boolean cardHasHeaderContent(Flex flex) {
-        return (flexHasIconOrLabel(flex) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
+        return (elementHasIconOrLabel(flex) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
     }
 
     public static boolean containerHasDateOrDateTimeInput(PageContainer container) {

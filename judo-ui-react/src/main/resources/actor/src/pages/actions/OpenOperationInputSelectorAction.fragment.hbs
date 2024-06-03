@@ -1,4 +1,4 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
   if (result === 'submit') {
     await refresh();

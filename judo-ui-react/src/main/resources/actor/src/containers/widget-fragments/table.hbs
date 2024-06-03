@@ -13,28 +13,46 @@
             {{/ unless }}
         >
     {{/ if }}
-    <Grid id="{{ getXMIID child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
-        <{{ componentName child }}
-            uniqueId={'{{ getXMIID child }}'}
-            actions={actions}
-            {{# if container.isSelector }}
-              selectionDiff={selectionDiff}
-              setSelectionDiff={setSelectionDiff}
-            {{/ if }}
-            {{# if container.isRelationSelector }}
-              alreadySelected={alreadySelected}
-            {{/ if }}
-            {{# unless container.table }}
-                ownerData={data}
-                editMode={editMode}
-                isFormUpdateable={isFormUpdateable}
-                {{# unless child.isSelectorTable }}
-                    validationError={validation.get('{{ child.dataElement.name }}')}
-                {{/ unless }}
-            {{/ unless }}
-            refreshCounter={refreshCounter}
-            isOwnerLoading={isLoading}
-        />
+    <Grid container direction="row" spacing={2}>
+        {{# if (displayTableHeading child container) }}
+            <Grid item xs={12} sm={12}>
+                <Grid container direction="row" alignItems="center" justifyContent="flex-start">
+                {{# if (elementHasIcon child) }}
+                    <MdiIcon path="{{ child.icon.iconName }}" sx={ { marginRight: 1 } } />
+                {{/ if }}
+                {{# if (elementHasLabel child) }}
+                    <Typography variant="h5" component="h1">
+                        { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
+                    </Typography>
+                {{/ if }}
+                </Grid>
+            </Grid>
+        {{/ if }}
+        <Grid item xs={12} sm={12}>
+            <Grid id="{{ getXMIID child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
+                <{{ componentName child }}
+                    uniqueId={'{{ getXMIID child }}'}
+                    actions={actions}
+                    {{# if container.isSelector }}
+                      selectionDiff={selectionDiff}
+                      setSelectionDiff={setSelectionDiff}
+                    {{/ if }}
+                    {{# if container.isRelationSelector }}
+                      alreadySelected={alreadySelected}
+                    {{/ if }}
+                    {{# unless container.table }}
+                        ownerData={data}
+                        editMode={editMode}
+                        isFormUpdateable={isFormUpdateable}
+                        {{# unless child.isSelectorTable }}
+                            validationError={validation.get('{{ child.dataElement.name }}')}
+                        {{/ unless }}
+                    {{/ unless }}
+                    refreshCounter={refreshCounter}
+                    isOwnerLoading={isLoading}
+                />
+            </Grid>
+        </Grid>
     </Grid>
     {{# if child.customImplementation }}
         </ComponentProxy>

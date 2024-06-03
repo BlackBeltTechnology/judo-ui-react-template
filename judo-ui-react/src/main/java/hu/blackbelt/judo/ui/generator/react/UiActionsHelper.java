@@ -306,7 +306,11 @@ public class UiActionsHelper {
                 tokens.add("[]");
             }
         } else {
-            tokens.add("data");
+            if (action.getActionDefinition().getTargetType() != null) {
+                tokens.add("target!");
+            } else {
+                tokens.add("data");
+            }
         }
 
         if (action.getTargetPageDefinition().getContainer().isIsRelationSelector()) {
