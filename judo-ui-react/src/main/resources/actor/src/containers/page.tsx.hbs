@@ -41,7 +41,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
     const isDraft = false; // currently no page can be opened as draft, but we need this variable anyway
     {{# if container.view }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
-        _mask: actions.getMask!(),
+        _mask: actions.getMask?.(),
       };
     {{/ if }}
   {{/ unless }}
