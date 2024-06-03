@@ -184,12 +184,12 @@ export default function {{ pageName page }}() {
         await {{ simpleActionDefinitionName action.actionDefinition }}();
       {{/ with }}
     };
-    const refresh = async () => {
+    const refresh = async (forced = false) => {
       {{# if page.container.table }}
         setRefreshCounter((prev) => prev + 1);
       {{/ if }}
       {{# if page.container.view }}
-        if (!editMode) {
+        if (!editMode || forced) {
           {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
             if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
               await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));

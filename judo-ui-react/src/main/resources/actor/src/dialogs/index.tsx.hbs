@@ -187,13 +187,13 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         await {{ simpleActionDefinitionName action.actionDefinition }}();
       {{/ with }}
     };
-    const refresh = async () => {
+    const refresh = async (forced = false) => {
       if (!isDraft) {
         {{# if page.container.table }}
           setRefreshCounter((prev) => prev + 1);
         {{/ if }}
         {{# if page.container.view }}
-          if (!editMode) {
+          if (!editMode || forced) {
             {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
               if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
                 await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
@@ -207,44 +207,50 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     // Validation
     const validate: (data: {{ dialogBareDataType page }}) => Promise<void> = async (data) => {
       {{# if (isDialogValidationSupported page) }}
-        try {
-          if (ownerValidation) {
-            await ownerValidation(data);
-          } else {
-            await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
-          }
-        } catch (error: any) {
-          if (isDraft && (!ownerValidation || isErrorNestedValidationError(error, '{{ page.dataElement.name }}'))) {
-            throw error;
-          }
+        if (ownerValidation) {
+          await ownerValidation(data);
+        } else {
+          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
         }
       {{/ if }}
     };
     {{# each page.container.links as |link| }}
       {{# and (createNestedValidation link.relationType page) link.isEager }}
         const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
-          await validate({
-            ...cleanUpPayload({
-              ...payloadDiff.current,
-              {{ link.relationType.name }}: {
-                ...linkData,
-              } as any
-            }),
-          } as {{ dialogBareDataType page }});
+          try {
+            await validate({
+              ...cleanUpPayload({
+                ...payloadDiff.current,
+                {{ link.relationType.name }}: {
+                  ...linkData,
+                } as any
+              }),
+            } as {{ dialogBareDataType page }});
+          } catch (error: any) {
+            if (isErrorNestedValidationError(error, '{{ link.relationType.name }}')) {
+              throw error;
+            }
+          }
         };
       {{/ and }}
     {{/ each }}
     {{# each page.container.tables as |table| }}
       {{# and (createNestedValidation table.relationType page) table.isEager }}
         const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
-          await validate({
-            ...cleanUpPayload({
-              ...payloadDiff.current,
-              {{ table.relationType.name }}: [
-                { ...tableData } as any
-              ],
-            }),
-          } as {{ dialogBareDataType page }});
+          try {
+            await validate({
+              ...cleanUpPayload({
+                ...payloadDiff.current,
+                {{ table.relationType.name }}: [
+                  { ...tableData } as any
+                ],
+              }),
+            } as {{ dialogBareDataType page }});
+          } catch (error: any) {
+            if (isErrorNestedValidationError(error, '{{ table.relationType.name }}')) {
+              throw error;
+            }
+          }
         };
       {{/ and }}
     {{/ each }}
