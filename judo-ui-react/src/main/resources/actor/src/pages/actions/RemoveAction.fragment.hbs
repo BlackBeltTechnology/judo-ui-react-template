@@ -11,16 +11,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
           }
           await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.targetDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
           if (!silentMode) {
-            {{# if page.container.table }}
-              setRefreshCounter((prev) => prev + 1);
-            {{/ if }}
-            {{# if page.container.view }}
-              if (!editMode) {
-                {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-                {{/ with }}
-              }
-            {{/ if }}
+            await refresh();
           }
         } catch(error) {
           if (!silentMode) {

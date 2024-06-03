@@ -457,4 +457,15 @@ public class UiPageHelper {
     public static boolean hasExportAction(PageDefinition pageDefinition) {
         return pageDefinition.getActions().stream().anyMatch(page -> page.getIsExportAction());
     }
+
+    public static boolean isDialogValidationSupported(PageDefinition pageDefinition) {
+        if (pageDefinition.getRelationType() != null) {
+            if (pageDefinition.getContainer().isView() && pageDefinition.getRelationType().getIsUpdateValidatable()) {
+                return true;
+            } else if (pageDefinition.getContainer().isForm() && pageDefinition.getRelationType().getIsCreateValidatable()) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

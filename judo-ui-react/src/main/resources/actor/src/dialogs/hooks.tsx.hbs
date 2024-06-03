@@ -54,13 +54,13 @@ export const use{{ pageName page }} = (): ({{{ getDialogOpenParameters page }}})
                 result: 'close',
               });
             }}
-            onSubmit={async (result, isDraft, openCreated) => {
+            onSubmit={async (dataParam, variant = 'submit', openCreated = false) => {
               await closeDialog();
               resolve({
-                result: isDraft ? 'submit-draft' : 'submit',
+                result: variant,
                 openCreated,
                 {{# if (dialogHasResult page) }}
-                data: result,
+                data: dataParam,
                 {{/ if }}
               });
             }}

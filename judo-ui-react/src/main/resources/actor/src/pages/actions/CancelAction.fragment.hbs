@@ -1,6 +1,12 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
+  {{# and page.openInDialog page.container.view }}
+  if (isDraft) {
+    rollbackData();
+  } else {
+  {{/ and }}
     // no need to set editMode to false, given refresh should do it implicitly
-    await {{ simpleActionDefinitionName actionDefinition }}(processQueryCustomizer(getPageQueryCustomizer()));
-  {{/ with }}
+    await refresh(true);
+  {{# and page.openInDialog page.container.view }}
+  }
+  {{/ and }}
 };

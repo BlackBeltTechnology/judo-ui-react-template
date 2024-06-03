@@ -68,7 +68,6 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   tableColumns: GridColDef<TStored>[];
   tableRowActions: TableRowAction<T, TStored>[];
   tableFilterOptions: FilterOption[];
-  mask: string;
   isOwnerLoading?: boolean;
   validationError?: string;
   actions: any;
@@ -83,7 +82,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   alreadySelected?: JudoStored<TStored>[];
   containerHasTable?: boolean;
   hasRefreshAction?: boolean;
-  maskAction?: () => string;
+  maskAction: () => string;
   fetch: any;
   refreshCounter: number;
   ownerData?: any;
@@ -112,7 +111,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     tableColumns,
     tableRowActions,
     tableFilterOptions,
-    mask,
     isOwnerLoading,
     validationError,
     actions,
@@ -183,7 +181,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   });
 
   const [queryCustomizer, setQueryCustomizer] = useState<S | QueryCustomizer<T>>({
-    _mask: mask,
+    _mask: maskAction(),
     _seek: {
       limit: rowsPerPage + 1,
     },

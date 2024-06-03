@@ -33,6 +33,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
     cleanUpPayload,
+    decoratePayloadWithMetaFromData,
     {{# if (hasExportAction page) }}fileHandling,{{/ if }}
   } from '~/utilities';
   import type {
@@ -146,9 +147,29 @@ export default function {{ pageName page }}() {
 
       {{# if page.container.view }}
         const getPageQueryCustomizer: () => {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = () => ({
-          _mask: actions.getMask ? actions.getMask!() : '{{ getMaskForView page.container }}',
+          _mask: actions.getMask ? actions.getMask!() : '{{ serializeMaskForView page }}',
         });
       {{/ if }}
+    {{/ unless }}
+
+    // Masks
+    {{# if page.container.table }}
+      {{# with (getFirstTableForContainer page.container) as |table| }}
+        const getMask: () => string = () => {
+          return '{{ serializeMaskForTable table page }}';
+        };
+      {{/ with }}
+    {{/ if }}
+    {{# if page.container.view }}
+      const getMask = () => '{{ serializeMaskForView page }}';
+    {{/ if }}
+    {{# unless page.container.table }}
+      {{# each page.container.links as |link| }}
+        const get{{ firstToUpper link.relationType.name }}Mask = () => '{{ serializeMaskForLink link page }}';
+      {{/ each }}
+      {{# each page.container.tables as |table| }}
+        const get{{ firstToUpper table.relationName }}Mask = () => '{{ serializeMaskForTable table page }}';
+      {{/ each }}
     {{/ unless }}
 
     // Private actions
@@ -163,18 +184,52 @@ export default function {{ pageName page }}() {
         await {{ simpleActionDefinitionName action.actionDefinition }}();
       {{/ with }}
     };
-    const refresh = async () => {
+    const refresh = async (forced = false) => {
       {{# if page.container.table }}
         setRefreshCounter((prev) => prev + 1);
       {{/ if }}
       {{# if page.container.view }}
-        {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
-          if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
-            await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-          }
-        {{/ with }}
+        if (!editMode || forced) {
+          {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+            if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
+              await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+            }
+          {{/ with }}
+        }
       {{/ if }}
     };
+
+    // Validation
+    {{# unless page.container.table }}
+      {{# each page.container.links as |link| }}
+        {{# and page.dataElement.isUpdateValidatable link.relationType.isUpdateValidatable link.isEager }}
+          const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
+            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
+              ...cleanUpPayload({
+                ...payloadDiff.current,
+                {{ link.relationType.name }}: {
+                  ...linkData,
+                } as any
+              }),
+            } as {{ classDataName (getReferenceClassType page) 'Stored' }});
+          };
+        {{/ and }}
+      {{/ each }}
+      {{# each page.container.tables as |table| }}
+        {{# and page.dataElement.isUpdateValidatable table.relationType.isUpdateValidatable table.isEager }}
+          const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
+            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
+              ...cleanUpPayload({
+                ...payloadDiff.current,
+                {{ table.relationType.name }}: [
+                  { ...tableData } as any
+                ],
+              }),
+            } as {{ classDataName (getReferenceClassType page) 'Stored' }});
+          };
+        {{/ and }}
+      {{/ each }}
+    {{/ unless }}
 
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
@@ -219,6 +274,17 @@ export default function {{ pageName page }}() {
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
       {{/ each }}
+      {{# unless page.container.form }}
+        getMask,
+      {{/ unless }}
+      {{# unless page.container.table }}
+        {{# each page.container.links as |link| }}
+          get{{ firstToUpper link.relationType.name }}Mask,
+        {{/ each }}
+        {{# each page.container.tables as |table| }}
+          get{{ firstToUpper table.relationName }}Mask,
+        {{/ each }}
+      {{/ unless }}
       ...(customActions ?? {}),
     };
 
