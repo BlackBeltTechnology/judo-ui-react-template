@@ -114,19 +114,22 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# unless page.container.table }}
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
+      // Ref section
+      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
+
       {{# if page.container.view}}
       // Rollback handling
       const rollbackPoint = useRef<{{ dialogDataType page }} | null>((isDraft && templateDataOverride) ? cloneDeep<{{ dialogDataType page }}>(templateDataOverride) : null);
       const rollbackData = useCallback(() => {
         if (rollbackPoint.current) {
           setData(rollbackPoint.current);
+          // re-set payloadDiff
+          payloadDiff.current = {} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
+          decoratePayloadWithMetaFromData(payloadDiff.current, rollbackPoint.current);
           setEditMode(false);
         }
-      }, [data, isDraft, templateDataOverride]);
+      }, [data, editMode, payloadDiff, rollbackPoint]);
       {{/ if }}
-
-      // Ref section
-      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
 
       // Callback section
       const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {
