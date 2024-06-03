@@ -20,16 +20,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
               {{/ if }},
               returnedData
             );
-            {{# if page.container.table }}
-              setRefreshCounter((prev) => prev + 1);
-            {{/ if }}
-            {{# if page.container.view }}
-              if (!editMode) {
-                {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-                  await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-                {{/ with }}
-              }
-            {{/ if }}
+            await refresh();
           } catch(e) {
             console.error(e);
           } finally {

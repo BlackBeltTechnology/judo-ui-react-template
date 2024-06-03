@@ -377,20 +377,21 @@ public class UiWidgetHelper {
             if (container.isView()) {
                 result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
             }
-        } else if (button.getActionDefinition().getIsDeleteAction()) {
+        } else if (button.getActionDefinition().getIsRowDeleteAction()) {
             if (!container.isTable()) {
-                result += "editMode || ";
+                if (!table.isIsEager()) {
+                    result += "editMode || ";
+                }
 
                 if (table.getEnabledBy() != null) {
                     result += "(ownerData ? !ownerData." + table.getEnabledBy().getName() + " : false) || ";
                 }
             }
+            result += "(typeof row.__deleteable === 'boolean' && !row.__deleteable) || ";
 
             if (container.isView()) {
                 result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
             }
-
-            result += "!row.__deleteable || ";
         } else if (!container.isTable()) {
             result += "editMode || ";
         }
@@ -444,5 +445,6 @@ public class UiWidgetHelper {
 
     public static boolean displayTableHeading(Table table, PageContainer container) {
         return elementHasIconOrLabel(table) && !container.isIsSelector() && !container.isTable();
+
     }
 }
