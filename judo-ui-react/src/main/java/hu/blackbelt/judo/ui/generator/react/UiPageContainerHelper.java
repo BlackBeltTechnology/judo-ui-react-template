@@ -4,6 +4,7 @@ import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
 import hu.blackbelt.judo.meta.ui.data.EnumerationType;
+import hu.blackbelt.judo.ui.generator.react.mask.MaskEntry;
 import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
 
@@ -149,32 +150,80 @@ public class UiPageContainerHelper {
             tokens.add("editMode");
         } else if (button.getActionDefinition().getIsCancelAction() || button.getActionDefinition().getIsUpdateAction()) {
             tokens.add("editMode");
+        } else if (button.getActionDefinition().getIsRefreshAction()) {
+            // In case of dialogs that are open in draft mode, we should consider checking actions
+            // because it could be possible that there are no valid use cases where these actions
+            // should be generated in the first place.
+            tokens.add("!isDraft");
         } else {
             tokens.add("!editMode");
         }
         return String.join(" && ", tokens);
     }
 
-    public static String getMaskForTable(Table table) {
+    public static MaskEntry getMaskForTable(Table table, PageDefinition pageDefinition, Integer counter) {
+        MaskEntry mask = new MaskEntry(Set.of(), null);
         Set<String> columnAttributeNames = table.getColumns().stream()
                 .map(c -> c.getAttributeType().getName())
                 .collect(Collectors.toSet());
         columnAttributeNames.addAll(table.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
-        String tableColumns = String.join(",", columnAttributeNames.stream().sorted().toList());
+        mask.addPrimitives(columnAttributeNames);
+        if (table.isIsEager() && counter < 5) {
+            // table items can be potentially opened, therefore we need the target's attributes as well
+            Button openPageButton = table.getRowActionButtonGroup().getButtons().stream()
+                    .filter(b -> b.getActionDefinition().getIsOpenPageAction())
+                    .findFirst().orElse(null);
+            if (openPageButton != null) {
+                OpenPageActionDefinition def = (OpenPageActionDefinition) openPageButton.getActionDefinition();
+                Action openAction = pageDefinition.getActions().stream().filter(a -> a.getActionDefinition().equals(def)).findFirst().orElse(null);
+                if (openAction != null && openAction.getTargetPageDefinition() != null) {
+                    MaskEntry viewMask = getMaskForView(openAction.getTargetPageDefinition(), counter + 1);
+                    mask.addPrimitives(viewMask.getPrimitives());
+                    mask.addRelations(viewMask.getRelations());
+                }
+            }
+        }
 
-        return "{" + tableColumns + "}";
+        return mask;
     }
 
-    public static String getMaskForLink(Link link) {
+    public static String serializeMaskForTable(Table table, PageDefinition pageDefinition) {
+        return "{" + getMaskForTable(table, pageDefinition, 0).serialize() + "}";
+    }
+
+    public static MaskEntry getMaskForLink(Link link, PageDefinition pageDefinition, Integer counter) {
+        MaskEntry mask = new MaskEntry(Set.of(), null);
         Set<String> columnAttributeNames = ((List<Column>) link.getColumns()).stream().map(c -> c.getAttributeType().getName()).collect(Collectors.toSet());
         columnAttributeNames.addAll(link.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
-        String linkColumns = String.join(",", columnAttributeNames.stream().sorted().toList());
+        mask.addPrimitives(columnAttributeNames);
 
-        return "{" + linkColumns + "}";
+        if (link.isIsEager() && counter < 5) {
+            // link items can be potentially opened, therefore we need the target's attributes as well
+            Button openPageButton = link.getActionButtonGroup().getButtons().stream()
+                    .filter(b -> b.getActionDefinition().getIsOpenPageAction())
+                    .findFirst().orElse(null);
+            if (openPageButton != null) {
+                OpenPageActionDefinition def = (OpenPageActionDefinition) openPageButton.getActionDefinition();
+                Action openAction = pageDefinition.getActions().stream().filter(a -> a.getActionDefinition().equals(def)).findFirst().orElse(null);
+                if (openAction != null && openAction.getTargetPageDefinition() != null) {
+                    MaskEntry viewMask = getMaskForView(openAction.getTargetPageDefinition(), counter + 1);
+                    mask.addPrimitives(viewMask.getPrimitives());
+                    mask.addRelations(viewMask.getRelations());
+                }
+            }
+        }
+
+        return mask;
     }
 
-    public static String getMaskForView(PageContainer container) {
-        Set<String> mask = new LinkedHashSet<>();
+    public static String serializeMaskForLink(Link link, PageDefinition pageDefinition) {
+        return "{" + getMaskForLink(link, pageDefinition, 0).serialize() + "}";
+    }
+
+    public static MaskEntry getMaskForView(PageDefinition pageDefinition, Integer counter) {
+        MaskEntry mask = new MaskEntry(Set.of(), null);
+        PageContainer container = pageDefinition.getContainer();
+        Set<String> tokens = new LinkedHashSet<>();
 
         Set<VisualElement> inputs = new HashSet<>();
         collectVisualElementsMatchingCondition(container, (VisualElement element) -> element instanceof AttributeBased, inputs);
@@ -193,17 +242,29 @@ public class UiPageContainerHelper {
             attributeNames.add(container.getTitleAttribute().getName());
         }
 
-        mask.addAll(attributeNames.stream().sorted().toList());
+        mask.addPrimitives(attributeNames);
 
         for (Table table: ((List<Table>) container.getTables()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
-            mask.add(table.getDataElement().getName() + getMaskForTable(table));
+            MaskEntry tableMask = getMaskForTable(table, pageDefinition, counter + 1);
+            tableMask.setRelationName(table.getDataElement().getName());
+            mask.addRelations(tableMask);
         }
 
         for (Link link: ((List<Link>) container.getLinks()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
-            mask.add(link.getDataElement().getName() + getMaskForLink(link));
+            MaskEntry linkMask = getMaskForLink(link, pageDefinition, counter + 1);
+            linkMask.setRelationName(link.getDataElement().getName());
+            mask.addRelations(linkMask);
         }
 
-        return "{" + String.join(",", mask) + "}";
+        return mask;
+    }
+
+    public static String serializeMaskForView(PageDefinition pageDefinition) {
+        try {
+            return "{" + getMaskForView(pageDefinition, 0).serialize() + "}";
+        } catch (StackOverflowError e) {
+            return "aaa";
+        }
     }
 
     public static boolean containerHasDateInput(PageContainer container) {
@@ -220,6 +281,10 @@ public class UiPageContainerHelper {
 
     public static boolean containerHasTable(PageContainer container) {
         return !container.getTables().isEmpty();
+    }
+
+    public static Table getFirstTableForContainer(PageContainer container) {
+        return (Table) container.getTables().stream().findFirst().orElse(null);
     }
 
     public static boolean containerHasNumericInput(PageContainer container) {

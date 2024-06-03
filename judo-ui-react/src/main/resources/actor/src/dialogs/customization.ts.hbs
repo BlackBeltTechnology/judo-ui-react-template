@@ -7,6 +7,7 @@
     import { {{ restParamName imp }} } from '~/services/data-api/model/{{ restParamName imp }}';
   {{/ each }}
   import type { {{ containerComponentName page.container }}DialogActionsExtended, {{ pageName page }}Props } from './types';
+  import type { DialogResultReason } from '~/utilities';
 
   export const {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY = '{{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK';
   export type {{ containerComponentName page.container }}ActionsHook = (
@@ -24,9 +25,9 @@
     {{/ if }}
     submit: () => Promise<void>,
     {{# if (pageHasOutputTarget page) }}
-    onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>,
+    onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, reason?: DialogResultReason, openCreated?: boolean) => Promise<void>,
     {{ else }}
-    onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, isDraft?: boolean, openCreated?: boolean) => Promise<void>,
+    onSubmit: (result?: {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}, reason?: DialogResultReason, openCreated?: boolean) => Promise<void>,
     {{/ if }}
   ) => {{ containerComponentName page.container }}DialogActionsExtended;
 {{ else }}

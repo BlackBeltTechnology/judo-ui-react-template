@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 
 import type { RandomUtils } from './interfaces';
+import type { JudoStored } from '../services/data-api/common/JudoStored';
 
 export const exists = (element: any) => element !== undefined && element !== null;
 
@@ -52,4 +53,25 @@ export const GENERATOR_UUID_V4 = '{{ getUUIDv4 }}';
 
 export const randomUtils: RandomUtils = {
   getGeneratorUUIDv4: () => GENERATOR_UUID_V4,
+};
+
+export const decoratePayloadWithMetaFromData: (payload: any, data: JudoStored<any>) => any = (payload, data) => {
+  if (data.__identifier) {
+    payload.__identifier = data.__identifier;
+  }
+  if (data.__signedIdentifier) {
+    payload.__signedIdentifier = data.__signedIdentifier;
+  }
+  if (data.__version) {
+    payload.__version = data.__version;
+  }
+  if (data.__entityType) {
+    payload.__entityType = data.__entityType;
+  }
+  return payload;
+}
+
+export const cloneDeep = <T>(obj: object): T => {
+  // We know that this is slow, if becomes a bottleneck, we can replace this with a dep, or write it manually
+  return JSON.parse(JSON.stringify(obj)) as T;
 };

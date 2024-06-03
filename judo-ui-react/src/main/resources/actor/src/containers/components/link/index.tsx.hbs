@@ -54,7 +54,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       visible: (value: any) => exists(value) && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft),
       onClick: async (value: {{ classDataName link.dataElement.target 'Stored' }} | null) => {
-        await actions.{{ simpleActionDefinitionName actionDefinition }}!(value!, {{# if container.form }}true{{ else }}false{{/ if }});
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(value!, {{# if link.isEager }}true{{ else }}false{{/ if }});
       },
       title: t('judo.component.SingleRelationInput.navigate', { defaultValue: 'Navigate to element' }) as string,
     {{/ if }}
@@ -66,7 +66,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       },
       title: t('judo.component.SingleRelationInput.create', { defaultValue: 'Create' }) as string,
     {{/ if }}
-    {{# if button.actionDefinition.isDeleteAction }}
+    {{# if button.actionDefinition.isRowDeleteAction }}
       dropDownButtonIsVisible: (value: any) => exists(value) && !readOnly && !isRequired && value.__deleteable && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: disabled || editMode,
       onClick: async (value: {{ classDataName link.dataElement.target 'Stored' }} | null) => {
@@ -101,7 +101,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
         if (actions.{{ link.dataElement.name }}RefreshAction) {
           try {
             const queryCustomizer: {{ classDataName link.dataElement.target 'QueryCustomizer' }} = {
-              _mask: '{{ getMaskForLink link }}',
+              _mask: actions.get{{ firstToUpper link.relationType.name }}Mask!(),
             };
             const { data: result } = await actions.{{ link.dataElement.name }}RefreshAction!(queryCustomizer);
             return result || null; // result can be empty string for no data...
@@ -138,7 +138,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
               { operator: StringOperation.like, value: searchText }
             ],
           } : {}),
-          _mask: '{{ getMaskForLink link }}',
+          _mask: actions.get{{ firstToUpper link.relationType.name }}Mask!(),
           _orderBy: [
             {{# with (getSortColumnForLink link) as |sortColumn| }}
             { attribute: '{{ sortColumn.attributeType.name }}', descending: {{ isSortDirectionDescending sortColumn }} },
