@@ -114,6 +114,17 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# unless page.container.table }}
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
+      {{# if page.container.view}}
+      // Rollback handling
+      const rollbackPoint = useRef<{{ dialogDataType page }} | null>((isDraft && templateDataOverride) ? cloneDeep<{{ dialogDataType page }}>(templateDataOverride) : null);
+      const rollbackData = useCallback(() => {
+        if (rollbackPoint.current) {
+          setData(rollbackPoint.current);
+          setEditMode(false);
+        }
+      }, [data, isDraft, templateDataOverride]);
+      {{/ if }}
+
       // Ref section
       const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
 
