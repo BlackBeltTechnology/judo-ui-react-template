@@ -17,12 +17,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
       setData(result);
       setLatestViewData(result);
       // re-set payloadDiff
-      payloadDiff.current = {
-          __identifier: result.__identifier,
-          __signedIdentifier: result.__signedIdentifier,
-          __version: result.__version,
-          __entityType: result.__entityType,
-      } as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
+      payloadDiff.current = {} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
+      decoratePayloadWithMetaFromData(payloadDiff.current, result);
       if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
         await customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(result{{# unless page.container.table }}, storeDiff, setValidation{{/ unless }});
       }

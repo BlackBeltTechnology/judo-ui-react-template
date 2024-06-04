@@ -10,13 +10,13 @@ import type { Filter, FilterOption } from '~/components-api';
 import type { DialogResult } from '~/utilities';
 
 export interface {{ componentName table }}ActionDefinitions {
+  get{{ firstToUpper table.relationName }}Mask?: () => string;
 {{# each table.tableActionDefinitions as |actionDefinition| }}
   {{# if actionDefinition.isFilterAction }}
     {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
   {{ else }}
     {{# if actionDefinition.isRefreshAction }}
       {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
-      get{{ firstToUpper table.relationName }}Mask?: () => string;
     {{ else }}
       {{# if actionDefinition.isExportAction }}
         {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<void>;

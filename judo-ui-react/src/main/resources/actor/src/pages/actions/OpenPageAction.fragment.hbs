@@ -1,7 +1,7 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType '' }} | {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraft?: boolean) => {
-  if (isDraft && (!target || !(target as {{ classDataName action.actionDefinition.targetType 'Stored' }}).__signedIdentifier)) {
-    {{# with (getOpenFormActionPairForOpenPageAction page action) as |openFormAction| }}
-      const { result, data: returnedData } = await open{{ pageName openFormAction.targetPageDefinition }}(
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType '' }} | {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraftParam?: boolean) => {
+  {{# and (isActionParentEagerElement action) action.targetPageDefinition.openInDialog }}
+    if (isDraftParam) {
+      const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}(
         {{# if (pageHasSignedId page) }}
           { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
         {{ else }}
@@ -11,22 +11,24 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
             data
           {{/ if }}
         {{/ if }},
-        target,
+        target as {{ classDataName action.actionDefinition.targetType 'Stored' }},
         true,
-        {{# if page.container.form }}
-        validate{{ firstToUpper openFormAction.targetDataElement.name }}
+        {{# if action.targetDataElement.isUpdateValidatable }}
+        validate{{ firstToUpper action.targetDataElement.name }}
         {{/ if }}
       );
       // we might need to differentiate result handling between operation inputs and crud relation creates
       if (result === 'submit-draft' && returnedData) {
         {{# if action.targetDataElement.isCollection }}
-          const existingIndex = (payloadDiff.current.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
+          const existingIndex = (data.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
           if (existingIndex > -1) {
-            payloadDiff.current.{{ action.targetDataElement.name }}[existingIndex] = {
+            // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+            const updatedList = [...(data.{{ action.targetDataElement.name }} || [])];
+            updatedList[existingIndex] = {
               ...returnedData,
             };
+            storeDiff('{{ action.targetDataElement.name }}', updatedList);
           }
-          storeDiff('{{ action.targetDataElement.name }}', [...(payloadDiff.current.{{ action.targetDataElement.name }} || [])]);
         {{ else }}
           storeDiff('{{ action.targetDataElement.name }}', {
             ...returnedData
@@ -34,20 +36,28 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
         {{/ if }}
         return;
       }
-    {{/ with }}
-  } else if (!isDraft) {
+      if (result === 'delete' && returnedData) {
+        {{# if action.targetDataElement.isCollection }}
+          const existingIndex = (data.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
+          if (existingIndex > -1) {
+            // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+            const updatedList = [...(data.{{ action.targetDataElement.name }} || [])];
+            updatedList.splice(existingIndex, 1);
+            storeDiff('{{ action.targetDataElement.name }}', updatedList);
+          }
+        {{ else }}
+          storeDiff('{{ action.targetDataElement.name }}', null);
+        {{/ if }}
+        return;
+      }
+      if (result === 'close') {
+        return;
+      }
+    } else {
+  {{/ and }}
   {{# if action.targetPageDefinition.openInDialog }}
     await open{{ pageName action.targetPageDefinition }}(target!);
-    {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
-      {{# if page.container.view }}
-        if (!editMode) {
-          await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-        }
-      {{/ if }}
-      {{# if page.container.table }}
-        setRefreshCounter((prev) => prev + 1);
-      {{/ if }}
-    {{/ with }}
+    await refresh();
   {{ else }}
     {{# if action.targetPageDefinition }}
       {{# if (pageHasSignedId action.targetPageDefinition) }}
@@ -61,5 +71,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
       // There was no .targetPageDefinition for this action. Target Page is most likely empty in the model!
     {{/ if }}
   {{/ if }}
-  }
+  {{# and (isActionParentEagerElement action) action.targetPageDefinition.openInDialog }}
+    }
+  {{/ and }}
 };
