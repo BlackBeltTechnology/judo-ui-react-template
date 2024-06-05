@@ -5,11 +5,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
       try {
         setIsLoading(true);
         await validate(cleanUpPayload(payloadDiff.current));
-        onSubmit(payloadDiff.current, 'submit-draft');
+        onSubmit(data, 'submit-draft');
       } catch (error) {
         if (ownerValidation && !isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
           // relation form has no remaining error(s), proceed with submission
-          onSubmit(payloadDiff.current, 'submit-draft');
+          onSubmit(data, 'submit-draft');
         } else {
           let relationName: string | undefined = (isDraft && ownerValidation) ? '{{ page.dataElement.name }}' : undefined;
           handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, relationName);
@@ -22,7 +22,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
     }
     {{/ unless }}
     setIsLoading(true);
-    const payload: typeof payloadDiff.current = cleanUpPayload(payloadDiff.current);
+    const payload = dataSerializer.serialize(data, true) as typeof data;
     const queryCustomizer: { _mask?: string } | undefined = maskRequest ? {
       _mask: maskRequest,
     } : undefined;

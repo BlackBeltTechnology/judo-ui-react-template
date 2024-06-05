@@ -3,6 +3,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { format, parse } from 'date-fns';
 import type { TFunction } from 'i18next';
+import type { SerializerUtil } from '../services/data-api/common/Serializer';
 
 export const uiDateToServiceDate = (date?: any | null): string | null => {
   if (date === undefined || date === null) {
@@ -60,27 +61,11 @@ export function passesLocalValidation<T>(data: T, requiredByRecord: Record<strin
   return true;
 }
 
-export function cleanUpPayload(input: any): any {
-  const prefix = 'draft:';
-  const payload: Record<string | symbol, any> = {};
-  for (const key in input) {
-    const value = input[key];
-    if (Array.isArray(value)) {
-      payload[key] = value.map((r) => {
-        if (r.__identifier && r.__identifier.startsWith(prefix)) {
-          const newRow = { ...r };
-          delete newRow.__identifier;
-          return newRow;
-        }
-        return r;
-      });
-    } else if (value && value.__identifier && value.__identifier.startsWith(prefix)) {
-      const newItem = { ...value };
-      delete newItem.__identifier;
-      payload[key] = newItem;
-    } else if (key !== '__identifier' || !value.startsWith(prefix)) {
-      payload[key] = value;
-    }
-  }
-  return payload;
-}
+export const serializerUtil: SerializerUtil = {
+  serializeDate: (date) => uiDateToServiceDate(date)!,
+  serializeTime: (time) => uiTimeToServiceTime(time)!,
+  serializeTimestamp: (timestamp) => timestamp.toISOString(),
+  deserializeDate: (date) => serviceDateToUiDate(date),
+  deserializeTime: (time) => serviceTimeToUiTime(time),
+  deserializeTimestamp: (timestamp) => serviceDateToUiDate(timestamp),
+};

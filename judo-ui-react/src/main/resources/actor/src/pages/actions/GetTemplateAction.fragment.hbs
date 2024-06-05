@@ -4,17 +4,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
     const response = await {{ getServiceImplForPage page }}.getTemplate{{ firstToUpper (getServiceMethodSuffix action) }}();
     const { data: result } = response;
     setData(result as {{ classDataName action.actionDefinition.targetType 'Stored' }});
-    payloadDiff.current = {
-      ...(result as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>),
-    };
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(ownerData, result, storeDiff);
     }
     if (templateDataOverride) {
       setData((prevData) => ({ ...prevData, ...templateDataOverride }));
-      payloadDiff.current = {
-        ...(templateDataOverride as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>),
-      };
     }
     return response;
   } catch (error) {

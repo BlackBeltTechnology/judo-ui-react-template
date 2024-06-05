@@ -32,9 +32,9 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
     {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
-    cleanUpPayload,
     decoratePayloadWithMetaFromData,
     {{# if (hasExportAction page) }}fileHandling,{{/ if }}
+    {{# unless page.container.table }}serializerUtil,{{/ unless }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -65,6 +65,9 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   import type { {{ containerComponentName page.container }}PageActionsExtended } from './types';
   import type { {{ containerComponentName page.container }}ActionsHook } from './customization';
   import { {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+  {{# unless page.container.table }}
+    import { {{ classDataName (getReferenceClassType page) 'Serializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType page) 'Serializer' }}';
+  {{/ unless }}
 {{/ unless }}
 
 {{# if (containerIsEmptyDashboard page.container) }}
@@ -72,11 +75,6 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 {{/ if }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  {{# unless page.container.table }}
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
-    {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
-  {{/ unless }}
-
   const {{ containerComponentName page.container }}PageContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer'));
 {{/ unless }}
 
@@ -93,6 +91,9 @@ export default function {{ pageName page }}() {
     const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
     {{# each (getRelatedServicesForPage page) as |rel| }}
     const {{ firstToLower (serviceRelationName rel) }}Impl = useMemo(() => new {{ serviceRelationName rel }}Impl(judoAxiosProvider), []);
+    {{# unless page.container.table }}
+      const dataSerializer: {{ classDataName (getReferenceClassType page) 'Serializer' }} = useMemo(() => new {{ classDataName (getReferenceClassType page) 'Serializer' }}(serializerUtil), []);
+    {{/ unless }}
     {{/ each }}
 
     // Hooks section
@@ -123,7 +124,6 @@ export default function {{ pageName page }}() {
       {{# if (isSingleAccessPage page) }}
         const singletonHost = useRef<{ __signedIdentifier: string }>({} as unknown as { __signedIdentifier: string });
       {{/ if }}
-      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
 
       // Callback section
       const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {

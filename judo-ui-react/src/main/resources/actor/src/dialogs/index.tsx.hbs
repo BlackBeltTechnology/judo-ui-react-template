@@ -29,11 +29,10 @@ import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}use
     {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
     isErrorNestedValidationError,
-    cleanUpPayload,
-    decoratePayloadWithMetaFromData,
     {{# if page.container.view }}
       cloneDeep,
     {{/ if }}
+    {{# unless page.container.table }}serializerUtil,{{/ unless }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -63,14 +62,12 @@ import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}use
   import type { {{ containerComponentName page.container }}DialogActionsExtended, {{ pageName page }}Props } from './types';
   import type { {{ containerComponentName page.container }}ActionsHook } from './customization';
   import { {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+  {{# unless page.container.table }}
+    import { {{ dialogDataType page }}Serializer } from '~/services/data-api/rest/{{ dialogBareDataType page }}Serializer';
+  {{/ unless }}
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  {{# unless page.container.table }}
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
-    {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
-  {{/ unless }}
-
   const {{ containerComponentName page.container }}DialogContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer'));
 {{/ unless }}
 
@@ -85,6 +82,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# each (getRelatedServicesForPage page) as |rel| }}
     const {{ firstToLower (serviceRelationName rel) }}Impl = useMemo(() => new {{ serviceRelationName rel }}Impl(judoAxiosProvider), []);
     {{/ each }}
+    {{# unless page.container.table }}
+    const dataSerializer: {{ dialogDataType page }}Serializer = useMemo(() => new {{ dialogDataType page }}Serializer(serializerUtil), []);
+    {{/ unless }}
 
     // Hooks section
     const { t } = useTranslation();
@@ -114,21 +114,15 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# unless page.container.table }}
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
-      // Ref section
-      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
-
       {{# if page.container.view}}
       // Rollback handling
       const rollbackPoint = useRef<{{ dialogDataType page }} | null>((isDraft && templateDataOverride) ? cloneDeep<{{ dialogDataType page }}>(templateDataOverride) : null);
       const rollbackData = useCallback(() => {
         if (rollbackPoint.current) {
           setData(rollbackPoint.current);
-          // re-set payloadDiff
-          payloadDiff.current = {} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
-          decoratePayloadWithMetaFromData(payloadDiff.current, rollbackPoint.current);
           setEditMode(false);
         }
-      }, [data, editMode, payloadDiff, rollbackPoint]);
+      }, [data, editMode, rollbackPoint]);
       {{/ if }}
 
       // Callback section
@@ -213,7 +207,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         if (ownerValidation) {
           await ownerValidation(data);
         } else {
-          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
+          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}dataSerializer.serialize(data, true));
         }
       {{/ if }}
     };
@@ -346,10 +340,6 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{# unless page.container.table }}
         if (templateDataOverride) {
           setData((prevData) => ({ ...prevData, ...templateDataOverride }));
-          {{# if page.container.view }}
-            // re-set payloadDiff
-            decoratePayloadWithMetaFromData(payloadDiff.current, templateDataOverride);
-          {{/ if }}
         }
       {{/ unless }}
     }, []);
