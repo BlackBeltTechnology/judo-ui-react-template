@@ -47,9 +47,15 @@ import type { ContextMenuApi } from '~/components/table/ContextMenu';
 import type { Filter, FilterOption } from '~/components-api';
 import { FilterType } from '~/components-api';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
-import type {
-  {{ getTableAPIImports table container }}
-} from '~/services/data-api';
+{{# each (getTableAPIImports table container) as |imp| }}
+  import type {
+    {{ imp }},
+    {{ imp }}Stored,
+  } from '~/services/data-api/model/{{ imp }}';
+  import type {
+    {{ imp }}QueryCustomizer,
+  } from '~/services/data-api/rest/{{ imp }}QueryCustomizer';
+{{/ each }}
 {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
 import { useL10N } from '~/l10n/l10n-context';
 {{/ or }}

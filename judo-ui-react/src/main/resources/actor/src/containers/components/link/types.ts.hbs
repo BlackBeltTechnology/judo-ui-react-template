@@ -1,6 +1,13 @@
-import type {
-  {{ getLinkAPIImports link container }}
-} from '~/services/data-api';
+{{# each (getLinkAPIImports link container) as |imp| }}
+  import type {
+    {{ imp }},
+    {{ imp }}Stored,
+  } from '~/services/data-api/model/{{ imp }}';
+  import type {
+    {{ imp }}QueryCustomizer,
+  } from '~/services/data-api/rest/{{ imp }}QueryCustomizer';
+{{/ each }}
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
 
 export interface {{ componentName link }}ActionDefinitions {
   {{# each link.actionDefinitions as |actionDefinition| }}
