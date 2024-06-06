@@ -5,8 +5,6 @@ import { GridLogicOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }
 import { isEqual, compareAsc } from 'date-fns';
 import type { Filter, FilterOption, Operation } from '../components-api';
 import { FilterType } from '../components-api';
-import { dateToJudoDateString } from './helper';
-import { serviceDateToUiDate } from './form-utils';
 
 type FilterBy = {
   value: any;
@@ -16,20 +14,11 @@ type FilterBy = {
 export const mapFiltersToQueryCustomizerProperty = (filters: Filter[], property: string): FilterBy[] | undefined => {
   if (!filters.some((filter) => filter.filterOption.attributeName === property)) return undefined;
 
-  const convertFilterValue = (filter: Filter): any => {
-    if (filter.filterOption.filterType === FilterType.dateTime && filter.filterBy.value instanceof Date) {
-      return filter.filterBy.value.toISOString();
-    } else if (filter.filterOption.filterType === FilterType.date && filter.filterBy.value instanceof Date) {
-      return dateToJudoDateString(filter.filterBy.value);
-    }
-    return filter.filterBy.value;
-  };
-
   return filters
     .filter((filter) => filter.filterOption.attributeName === property && filter.filterBy.value !== undefined && filter.filterBy.value !== null)
     .map((filter) => {
       return {
-        value: convertFilterValue(filter),
+        value: filter.filterBy.value,
         operator: filter.filterBy.operator,
       };
     });
@@ -129,17 +118,17 @@ export function filterByDateOperation<T>(filter: Filter, data: T[]): T[] {
   const attributeName = filter.filterOption.attributeName as keyof T;
   switch (filter.filterBy.operator) {
     case _NumericOperation.equal:
-      return data.filter((d) => isEqual(serviceDateToUiDate(d[attributeName]), filter.filterBy.value));
+      return data.filter((d) => isEqual(d[attributeName] as Date, filter.filterBy.value));
     case _NumericOperation.notEqual:
-      return data.filter((d) => !isEqual(serviceDateToUiDate(d[attributeName]), filter.filterBy.value));
+      return data.filter((d) => !isEqual(d[attributeName] as Date, filter.filterBy.value));
     case _NumericOperation.lessThan:
-      return data.filter((d) => compareAsc(serviceDateToUiDate(d[attributeName]), filter.filterBy.value) < 0);
+      return data.filter((d) => compareAsc(d[attributeName] as Date, filter.filterBy.value) < 0);
     case _NumericOperation.lessOrEqual:
-      return data.filter((d) => compareAsc(serviceDateToUiDate(d[attributeName]), filter.filterBy.value) <= 0);
+      return data.filter((d) => compareAsc(d[attributeName] as Date, filter.filterBy.value) <= 0);
     case _NumericOperation.greaterThan:
-      return data.filter((d) => compareAsc(serviceDateToUiDate(d[attributeName]), filter.filterBy.value) > 0);
+      return data.filter((d) => compareAsc(d[attributeName] as Date, filter.filterBy.value) > 0);
     case _NumericOperation.greaterOrEqual:
-      return data.filter((d) => compareAsc(serviceDateToUiDate(d[attributeName]), filter.filterBy.value) >= 0);
+      return data.filter((d) => compareAsc(d[attributeName] as Date, filter.filterBy.value) >= 0);
     default:
       return [...data];
   }

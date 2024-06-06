@@ -239,7 +239,7 @@ public class UiActionsHelper {
         }
         result.add("isDraft?: boolean");
         if (!pageDefinition.getContainer().isIsSelector()) {
-            result.add("ownerValidation?: (data: " + classDataName(getReferenceClassType(pageDefinition), "") + ") => Promise<void>");
+            result.add("ownerValidation?: () => Promise<void>");
         }
         if (pageDefinition.getContainer().isForm()) {
             result.add("maskRequest?: string");
@@ -265,7 +265,7 @@ public class UiActionsHelper {
         } else {
             if (pageDefinition.getContainer().isTable()) {
                 if (pageDefinition.getRelationType() != null && !pageDefinition.getRelationType().isIsAccess()) {
-                    tokens.add("{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>");
+                    tokens.add("{ __signedIdentifier: signedIdentifier } as any");
                 } else {
                     tokens.add("null as any");
                 }
@@ -284,7 +284,7 @@ public class UiActionsHelper {
                 tokens.add("undefined");
             }
             tokens.add("true");
-            tokens.add("validate" + firstToUpper(action.getTargetDataElement().getName()));
+            tokens.add("validate");
 
             Link link = getLinkParentForActionDefinition(action.getActionDefinition());
 
@@ -369,7 +369,7 @@ public class UiActionsHelper {
             return "ownerData";
         }
         if (pageHasSignedId(pageDefinition)) {
-            return "{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>";
+            return "{ __signedIdentifier: signedIdentifier } as any";
         }
         if (isSingleAccessPage(pageDefinition)) {
             return "singletonHost.current";

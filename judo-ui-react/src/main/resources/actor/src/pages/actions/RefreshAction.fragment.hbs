@@ -9,7 +9,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     setEditMode(false);
     {{# if page.container.table }}
       {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
-      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
       {{/ with }}
     {{ else }}
       const response = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());

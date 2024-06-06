@@ -3,7 +3,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
     if (isDraftParam) {
       const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}(
         {{# if (pageHasSignedId page) }}
-          { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
+          { __signedIdentifier: signedIdentifier } as any
         {{ else }}
           {{# if page.openInDialog }}
             ownerData
@@ -14,7 +14,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
         target as {{ classDataName action.actionDefinition.targetType 'Stored' }},
         true,
         {{# if action.targetDataElement.isUpdateValidatable }}
-        validate{{ firstToUpper action.targetDataElement.name }}
+        validate
         {{/ if }}
       );
       // we might need to differentiate result handling between operation inputs and crud relation creates

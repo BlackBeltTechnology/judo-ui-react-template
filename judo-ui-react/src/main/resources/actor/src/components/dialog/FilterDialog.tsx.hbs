@@ -30,7 +30,7 @@ import type {
   Operation,
 } from '../../components-api';
 import { FilterType } from '../../components-api';
-import { dateToJudoDateString, exists, uiDateToServiceDate, serviceDateToUiDate } from '../../utilities';
+import { exists } from '../../utilities';
 import { mainContainerPadding } from '../../theme';
 import { _BooleanOperation, _EnumerationOperation, _NumericOperation, _StringOperation } from '~/services/data-api/common/operations';
 import { DropdownButton } from '../DropdownButton';
@@ -154,9 +154,9 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
               <DatePicker
                 className={valueId}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
-                value={serviceDateToUiDate(filter.filterBy.value ?? null)}
+                value={filter.filterBy.value ?? null}
                 views={['year', 'month', 'day']}
-                onChange={(newValue) => setFilterValue(filter, uiDateToServiceDate(newValue))}
+                onChange={(newValue) => setFilterValue(filter, newValue)}
                 slotProps={ {
                     textField: {
                         InputProps: {
@@ -175,7 +175,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
               <DateTimePicker
                 className={valueId}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
-                value={serviceDateToUiDate(filter.filterBy.value ?? null)}
+                value={filter.filterBy.value ?? null}
                 ampm={false}
                 ampmInClock={false}
                 views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}

@@ -10,7 +10,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
             setIsLoading(true);
             await {{ getServiceImplForPage page }}.add{{ firstToUpper action.targetDataElement.name }}(
               {{# if (pageHasSignedId page) }}
-                { __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>
+                { __signedIdentifier: signedIdentifier } as any
               {{ else }}
                 {{# if page.openInDialog }}
                   ownerData

@@ -29,12 +29,8 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   import {
     {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
-    {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
-    {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
-    decoratePayloadWithMetaFromData,
     {{# if (hasExportAction page) }}fileHandling,{{/ if }}
-    {{# unless page.container.table }}serializerUtil,{{/ unless }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -65,9 +61,6 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   import type { {{ containerComponentName page.container }}PageActionsExtended } from './types';
   import type { {{ containerComponentName page.container }}ActionsHook } from './customization';
   import { {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
-  {{# unless page.container.table }}
-    import { {{ classDataName (getReferenceClassType page) 'Serializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType page) 'Serializer' }}';
-  {{/ unless }}
 {{/ unless }}
 
 {{# if (containerIsEmptyDashboard page.container) }}
@@ -91,9 +84,6 @@ export default function {{ pageName page }}() {
     const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
     {{# each (getRelatedServicesForPage page) as |rel| }}
     const {{ firstToLower (serviceRelationName rel) }}Impl = useMemo(() => new {{ serviceRelationName rel }}Impl(judoAxiosProvider), []);
-    {{# unless page.container.table }}
-      const dataSerializer: {{ classDataName (getReferenceClassType page) 'Serializer' }} = useMemo(() => new {{ classDataName (getReferenceClassType page) 'Serializer' }}(serializerUtil), []);
-    {{/ unless }}
     {{/ each }}
 
     // Hooks section
@@ -201,34 +191,11 @@ export default function {{ pageName page }}() {
 
     // Validation
     {{# unless page.container.table }}
-      {{# each page.container.links as |link| }}
-        {{# and page.dataElement.isUpdateValidatable link.relationType.isUpdateValidatable link.isEager }}
-          const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
-            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
-              ...cleanUpPayload({
-                ...payloadDiff.current,
-                {{ link.relationType.name }}: {
-                  ...linkData,
-                } as any
-              }),
-            } as {{ classDataName (getReferenceClassType page) 'Stored' }});
-          };
-        {{/ and }}
-      {{/ each }}
-      {{# each page.container.tables as |table| }}
-        {{# and page.dataElement.isUpdateValidatable table.relationType.isUpdateValidatable table.isEager }}
-          const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
-            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
-              ...cleanUpPayload({
-                ...payloadDiff.current,
-                {{ table.relationType.name }}: [
-                  { ...tableData } as any
-                ],
-              }),
-            } as {{ classDataName (getReferenceClassType page) 'Stored' }});
-          };
-        {{/ and }}
-      {{/ each }}
+    const validate: () => Promise<void> = useCallback(async () => {
+      {{# if (isValidationSupported page) }}
+        await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}data);
+      {{/ if }}
+    }, [{{# if (isValidationSupported page) }}data, {{ getServiceImplForPage page }}{{/ if }}]);
     {{/ unless }}
 
     // Pandino Action overrides

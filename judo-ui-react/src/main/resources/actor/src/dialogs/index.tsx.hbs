@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}useEffect, useState, useMemo, lazy, Suspense } from 'react';
+import { {{# unless page.container.table }}useRef, {{/ unless }}useCallback, useEffect, useState, useMemo, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
   import { OBJECTCLASS } from '@pandino/pandino-api';
@@ -25,14 +25,11 @@ import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}use
   import {
     {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
-    {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
-    {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
     isErrorNestedValidationError,
     {{# if page.container.view }}
       cloneDeep,
     {{/ if }}
-    {{# unless page.container.table }}serializerUtil,{{/ unless }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -62,9 +59,6 @@ import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}use
   import type { {{ containerComponentName page.container }}DialogActionsExtended, {{ pageName page }}Props } from './types';
   import type { {{ containerComponentName page.container }}ActionsHook } from './customization';
   import { {{ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
-  {{# unless page.container.table }}
-    import { {{ dialogDataType page }}Serializer } from '~/services/data-api/rest/{{ dialogBareDataType page }}Serializer';
-  {{/ unless }}
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
@@ -82,9 +76,6 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# each (getRelatedServicesForPage page) as |rel| }}
     const {{ firstToLower (serviceRelationName rel) }}Impl = useMemo(() => new {{ serviceRelationName rel }}Impl(judoAxiosProvider), []);
     {{/ each }}
-    {{# unless page.container.table }}
-    const dataSerializer: {{ dialogDataType page }}Serializer = useMemo(() => new {{ dialogDataType page }}Serializer(serializerUtil), []);
-    {{/ unless }}
 
     // Hooks section
     const { t } = useTranslation();
@@ -202,55 +193,15 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     };
 
     // Validation
-    const validate: (data: {{ dialogBareDataType page }}) => Promise<void> = async (data) => {
-      {{# if (isDialogValidationSupported page) }}
+    const validate: () => Promise<void> = useCallback(async () => {
+      {{# if (isValidationSupported page) }}
         if (ownerValidation) {
-          await ownerValidation(data);
+          await ownerValidation();
         } else {
-          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}dataSerializer.serialize(data, true));
+          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
         }
       {{/ if }}
-    };
-    {{# each page.container.links as |link| }}
-      {{# and (createNestedValidation link.relationType page) link.isEager }}
-        const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
-          try {
-            await validate({
-              ...cleanUpPayload({
-                ...payloadDiff.current,
-                {{ link.relationType.name }}: {
-                  ...linkData,
-                } as any
-              }),
-            } as {{ dialogBareDataType page }});
-          } catch (error: any) {
-            if (isErrorNestedValidationError(error, '{{ link.relationType.name }}')) {
-              throw error;
-            }
-          }
-        };
-      {{/ and }}
-    {{/ each }}
-    {{# each page.container.tables as |table| }}
-      {{# and (createNestedValidation table.relationType page) table.isEager }}
-        const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
-          try {
-            await validate({
-              ...cleanUpPayload({
-                ...payloadDiff.current,
-                {{ table.relationType.name }}: [
-                  { ...tableData } as any
-                ],
-              }),
-            } as {{ dialogBareDataType page }});
-          } catch (error: any) {
-            if (isErrorNestedValidationError(error, '{{ table.relationType.name }}')) {
-              throw error;
-            }
-          }
-        };
-      {{/ and }}
-    {{/ each }}
+    }, [{{# if (isValidationSupported page) }}ownerValidation, {{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data, {{ getServiceImplForPage page }}{{/ if }}]);
 
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);

@@ -458,7 +458,7 @@ public class UiPageHelper {
         return pageDefinition.getActions().stream().anyMatch(page -> page.getIsExportAction());
     }
 
-    public static boolean isDialogValidationSupported(PageDefinition pageDefinition) {
+    public static boolean isValidationSupported(PageDefinition pageDefinition) {
         if (pageDefinition.getRelationType() != null) {
             if (pageDefinition.getContainer().isView() && pageDefinition.getRelationType().getIsUpdateValidatable()) {
                 return true;

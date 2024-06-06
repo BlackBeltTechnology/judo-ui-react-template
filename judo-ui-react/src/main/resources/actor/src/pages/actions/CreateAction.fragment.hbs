@@ -4,7 +4,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
     if (isDraft) {
       try {
         setIsLoading(true);
-        await validate(cleanUpPayload(payloadDiff.current));
+        await validate();
         onSubmit(data, 'submit-draft');
       } catch (error) {
         if (ownerValidation && !isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
@@ -22,11 +22,10 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
     }
     {{/ unless }}
     setIsLoading(true);
-    const payload = dataSerializer.serialize(data, true) as typeof data;
     const queryCustomizer: { _mask?: string } | undefined = maskRequest ? {
       _mask: maskRequest,
     } : undefined;
-    const { data: res } = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}payload, queryCustomizer);
+    const { data: res } = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}data, queryCustomizer);
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(data, res, onSubmit, onClose, openCreated);
     } else {

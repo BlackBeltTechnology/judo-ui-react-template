@@ -1,4 +1,4 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}isDraft?: boolean, ownerValidation?: (data: any) => Promise<void>) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}isDraft?: boolean, ownerValidation?: () => Promise<void>) => {
   const { result, data: returnedData, openCreated } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
   {{# if page.container.isRelationSelector }}
     if (result === 'submit' && returnedData) {
