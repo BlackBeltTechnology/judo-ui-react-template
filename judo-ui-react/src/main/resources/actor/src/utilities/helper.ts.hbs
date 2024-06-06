@@ -5,38 +5,41 @@ import type { JudoStored } from '../services/data-api/common/JudoStored';
 
 export const exists = (element: any) => element !== undefined && element !== null;
 
-export const simpleCloneDeep = (input: any): any => {
-    if (input === null || input === undefined) {
-        return input;
-    } else if (Array.isArray(input)) {
-        return input.map(simpleCloneDeep);
-    } else if (typeof input === 'object') {
-        let payload: Record<string, any> = {};
-        for (const key in input) {
-            payload[key] = simpleCloneDeep(input[key]);
-        }
-        return payload;
-    }
+export const simpleCloneDeep = <T>(input: T): T => {
+  if (input === null || input === undefined) {
     return input;
+  } else if (Array.isArray(input)) {
+    return input.map(simpleCloneDeep) as T;
+  } else if (input instanceof Date) {
+    return input;
+  } else if (input instanceof Set) {
+    return new Set(Array.from(input).map(simpleCloneDeep)) as T;
+  } else if (typeof input === 'object') {
+    let payload: Record<string, any> = {};
+    for (const key in input) {
+      payload[key] = simpleCloneDeep(input[key]);
+    }
+    return payload as T;
+  }
+  return input;
 };
 
 export const stringToBooleanSelect = (booleanString ?: string | null) : boolean | null => {
-    if(!booleanString || !booleanString.trim()) {
-        return null;
-    } else {
-        return booleanString === 'true';
-    }
+  if(!booleanString || !booleanString.trim()) {
+    return null;
+  } else {
+    return booleanString === 'true';
+  }
 }
 
 export const booleanToStringSelect = (booleanParam ?: boolean | null ) : string | null => {
-    if (booleanParam === null || booleanParam === undefined ) {
-        return ' ';
-    }
-    else if (booleanParam) {
-        return 'true';
-    } else {
-        return 'false';
-    }
+  if (booleanParam === null || booleanParam === undefined ) {
+    return ' ';
+  } else if (booleanParam) {
+    return 'true';
+  } else {
+    return 'false';
+  }
 }
 
 export const endWithSlash = (input: string): string => input.endsWith('/') ? input : input + '/';
@@ -48,9 +51,4 @@ export const GENERATOR_UUID_V4 = '{{ getUUIDv4 }}';
 
 export const randomUtils: RandomUtils = {
   getGeneratorUUIDv4: () => GENERATOR_UUID_V4,
-};
-
-export const cloneDeep = <T>(obj: object): T => {
-  // We know that this is slow, if becomes a bottleneck, we can replace this with a dep, or write it manually
-  return JSON.parse(JSON.stringify(obj)) as T;
 };

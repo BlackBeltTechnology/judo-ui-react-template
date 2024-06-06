@@ -5,6 +5,8 @@ import { GridLogicOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }
 import { isEqual, compareAsc } from 'date-fns';
 import type { Filter, FilterOption, Operation } from '../components-api';
 import { FilterType } from '../components-api';
+import type { Serializer } from '~/services/data-api/common/Serializer';
+import { simpleCloneDeep } from './helper';
 
 type FilterBy = {
   value: any;
@@ -383,4 +385,33 @@ export const buildFilter: FilterBuilder = (filterType, operator, attributeName, 
       filterType,
     },
   };
+};
+
+export interface FiltersSerializer {
+  serialize: (filters: Filter[]) => Filter[];
+  deserialize: (filters: Filter[]) => Filter[];
+}
+
+export const serializeFilters = <T,>(filters: Filter[], serializer: Serializer<any>): Filter[] => {
+  return simpleCloneDeep(filters).map(a => ({
+    ...a,
+    filterBy: {
+      ...a.filterBy,
+      value: serializer.serialize({
+        [a.filterOption.attributeName]: a.filterBy.value,
+      } as T)[a.filterOption.attributeName],
+    },
+  }));
+}
+
+export const deserializeFilters = <T,>(filters: Filter[], serializer: Serializer<any>): Filter[] => {
+  return filters.map(a => ({
+    ...a,
+    filterBy: {
+      ...a.filterBy,
+      value: serializer.deserialize({
+        [a.filterOption.attributeName as keyof T]: a.filterBy.value,
+      })[a.filterOption.attributeName as keyof T],
+    },
+  }));
 };

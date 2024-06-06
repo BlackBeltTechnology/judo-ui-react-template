@@ -28,7 +28,7 @@ import { {{# unless page.container.table }}useRef, {{/ unless }}useCallback, use
     useErrorHandler,
     isErrorNestedValidationError,
     {{# if page.container.view }}
-      cloneDeep,
+      simpleCloneDeep,
     {{/ if }}
   } from '~/utilities';
   import type {
@@ -107,7 +107,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
       {{# if page.container.view}}
       // Rollback handling
-      const rollbackPoint = useRef<{{ dialogDataType page }} | null>((isDraft && templateDataOverride) ? cloneDeep<{{ dialogDataType page }}>(templateDataOverride) : null);
+      const rollbackPoint = useRef<{{ dialogDataType page }} | null>((isDraft && templateDataOverride) ? simpleCloneDeep<{{ dialogDataType page }}>(templateDataOverride) : null);
       const rollbackData = useCallback(() => {
         if (rollbackPoint.current) {
           setData(rollbackPoint.current);
