@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useRef, {{/ unless }}useCallback, useEffect, useState, useMemo, lazy, Suspense } from 'react';
+import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
   import { OBJECTCLASS } from '@pandino/pandino-api';
@@ -68,9 +68,22 @@ import { {{# unless page.container.table }}useRef, {{/ unless }}useCallback, use
 // XMIID: {{ getXMIID page }}
 // Name: {{ page.name }}
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
-  const { ownerData, {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output, {{/ and }}{{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}{{# unless page.container.table }}maskRequest, {{/ unless }}onClose, onSubmit, isDraft, ownerValidation } = props;
+  const {
+    ownerData,
+    {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output,{{/ and }}
+    {{# if page.container.isRelationSelector }}alreadySelected,{{/ if }}
+    {{# unless page.container.isSelector }}templateDataOverride,{{/ unless }}
+    ownerValidation,
+    isDraft,
+    {{# unless page.container.table}}maskRequest,{{/ unless }}
+    dataPath,
+    onClose,
+    onSubmit,
+  } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
+    const owner = useRef<any>(isDraft ? ownerData : null);
+
     // Services
     const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
     {{# each (getRelatedServicesForPage page) as |rel| }}

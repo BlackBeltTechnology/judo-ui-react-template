@@ -1,6 +1,12 @@
 {{# if action.targetDataElement }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{/ if }}>> => {
-  return {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
+  const result = await {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
+  {{# if page.container.view }}
+    if (!isDraft) {
+      owner.current = result.data;
+    }
+  {{/ if }}
+  return result;
 }
 {{ else }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>> => {
@@ -14,6 +20,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{ else }}
       const response = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
       const { data: result } = response;
+      if (!isDraft) {
+        owner.current = result;
+      }
       setData(result);
       setLatestViewData(result);
       if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {

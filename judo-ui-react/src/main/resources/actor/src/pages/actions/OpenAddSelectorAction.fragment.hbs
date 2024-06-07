@@ -1,5 +1,24 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
-  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
+  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
+    {{# if page.container.table }}
+      {{# if action.targetPageDefinition.container.isRelationSelector }}
+        ownerData: { __signedIdentifier: signedIdentifier } as any,
+      {{ else }}
+        ownerData: [],
+      {{/ if }}
+    {{ else }}
+      ownerData: data,
+    {{/ if }}
+    alreadySelected: {{# with (getRelationTypeForActionTarget action) as |rel| }}
+                        {{# if page.container.table }}
+                          []
+                        {{ else }}
+                          data.{{ rel.name }}{{# if rel.isCollection }} ?? []{{ else }} ? [data.{{ rel.name }}] : []{{/ if }}
+                        {{/ if }}
+                     {{ else }}
+                       undefined
+                     {{/ with }}
+  });
   if (result === 'submit') {
     if (Array.isArray(returnedData) && returnedData.length) {
       {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}

@@ -55,7 +55,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
             _identifier: result.__identifier,
           });
           {{# if action.targetPageDefinition.openInDialog }}
-            await open{{ pageName operation.postCallAccessNavigation.pageDefinition }}(pcan[0]);
+            await open{{ pageName operation.postCallAccessNavigation.pageDefinition }}({
+              ownerData: pcan[0]
+            });
           {{ else }}
             navigate(routeTo{{ pageName operation.postCallAccessNavigation.pageDefinition }}(pcan[0].__signedIdentifier));
           {{/ if }}
@@ -65,7 +67,10 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{ else }}
         {{# if operation.output }}
           {{# if action.targetPageDefinition.openInDialog }}
-            await open{{ pageName action.targetPageDefinition }}({{# if page.container.view }}data{{ else }}null{{/ if }}, result);
+            await open{{ pageName action.targetPageDefinition }}({
+              ownerData: {{# if page.container.view }}data{{ else }}null{{/ if }},
+              data: result,
+            });
           {{ else }}
             navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
           {{/ if }}

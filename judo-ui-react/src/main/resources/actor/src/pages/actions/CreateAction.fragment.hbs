@@ -25,7 +25,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
     const queryCustomizer: { _mask?: string } | undefined = maskRequest ? {
       _mask: maskRequest,
     } : undefined;
-    const { data: res } = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}ownerData, {{/ unless }}data, queryCustomizer);
+    const { data: res } = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}owner.current, {{/ unless }}data, queryCustomizer);
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(data, res, onSubmit, onClose, openCreated);
     } else {

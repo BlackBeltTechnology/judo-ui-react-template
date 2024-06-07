@@ -1,22 +1,26 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType '' }} | {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraftParam?: boolean) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraftParam?: boolean) => {
+  {{# if (isActionParentEagerTable action) }}
+    const itemIndex = {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}(data.{{ table.relationName }} || []).findIndex(r => r.__identifier === target.__identifier)!{{/ with }};
+  {{/ if }}
   {{# and (isActionParentEagerElement action) action.targetPageDefinition.openInDialog }}
     if (isDraftParam) {
-      const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}(
-        {{# if (pageHasSignedId page) }}
-          { __signedIdentifier: signedIdentifier } as any
-        {{ else }}
-          {{# if page.openInDialog }}
-            ownerData
-          {{ else }}
-            data
-          {{/ if }}
-        {{/ if }},
-        target as {{ classDataName action.actionDefinition.targetType 'Stored' }},
-        true,
-        {{# if action.targetDataElement.isUpdateValidatable }}
-        validate
+      const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
+        ownerData: {{# if (pageHasSignedId page) }}
+                     { __signedIdentifier: signedIdentifier } as any
+                   {{ else }}
+                     {{# if page.openInDialog }}
+                       ownerData
+                     {{ else }}
+                       data
+                     {{/ if }}
+                   {{/ if }},
+        templateDataOverride: target,
+        {{# if (isActionParentEagerElement action) }}
+        isDraft: true,
+        ownerValidation: validate,
+        dataPath: `${dataPath ? (dataPath + '.') : ''}{{ action.targetPageDefinition.dataElement.name }}{{# if (isActionParentEagerTable action) }}[${itemIndex!}]{{/ if }}`
         {{/ if }}
-      );
+      });
       // we might need to differentiate result handling between operation inputs and crud relation creates
       if (result === 'submit-draft' && returnedData) {
         {{# if action.targetDataElement.isCollection }}
@@ -56,7 +60,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
     } else {
   {{/ and }}
   {{# if action.targetPageDefinition.openInDialog }}
-    await open{{ pageName action.targetPageDefinition }}(target!);
+    await open{{ pageName action.targetPageDefinition }}({
+      ownerData: target!,
+    });
     await refresh();
   {{ else }}
     {{# if action.targetPageDefinition }}

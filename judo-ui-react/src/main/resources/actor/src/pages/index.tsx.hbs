@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, useMemo, lazy, Suspense } from 'react';
+import { {{# unless page.container.table }}useCallback, useEffect, {{/ unless }}useRef, useState, useMemo, lazy, Suspense } from 'react';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 {{# if (containerIsEmptyDashboard page.container) }}
   import { ComponentProxy } from '@pandino/react-hooks';
@@ -75,9 +75,16 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 // Name: {{ page.name }}
 export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
+    const dataPath = '';
+    const isDraft = false;
+    const owner = useRef<any>(null);
+
     {{# if (pageHasSignedId page) }}
       // Router params section
       const { signedIdentifier } = useParams();
+      {{# if page.container.table }}
+        owner.current = { __signedIdentifier: signedIdentifier };
+      {{/ if }}
     {{/ if }}
 
     // Services
@@ -286,6 +293,7 @@ export default function {{ pageName page }}() {
             const res = await getSingletonPayload();
             if (res?.__signedIdentifier) {
               singletonHost.current = res;
+              owner.current = res;
             } else {
               navigate('*');
               return;

@@ -1,5 +1,27 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}isDraft?: boolean, ownerValidation?: () => Promise<void>) => {
-  const { result, data: returnedData, openCreated } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}) => {
+  const { result, data: returnedData, openCreated } = await open{{ actionTargetPageName action }}({
+    {{# if page.container.table }}
+      {{# if (pageHasSignedId page) }}
+        ownerData: { __signedIdentifier: signedIdentifier } as any,
+      {{ else }}
+        ownerData: null,
+      {{/ if }}
+    {{ else }}
+      ownerData: data,
+    {{/ if }}
+    {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}
+      ownerValidation: validate,
+    {{/ or }}
+    {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+      {{# with (getFirstAutocompleteColumnForLink link) as |col| }}
+        {{# unless link.isEager }}
+          maskRequest: '{ {{~ col.attributeType.name ~}} }',
+        {{/ unless }}
+      {{/ with }}
+    {{/ with }}
+    isDraft: {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}true{{ else }}false{{/ or }},
+    dataPath: `${dataPath ? (dataPath + '.') : ''}{{ action.targetPageDefinition.dataElement.name }}{{# if (isActionParentEagerTable action) }}[0]{{/ if }}`
+  });
   {{# if page.container.isRelationSelector }}
     if (result === 'submit' && returnedData) {
       onSubmit([returnedData]);
