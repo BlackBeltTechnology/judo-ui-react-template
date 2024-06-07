@@ -60,6 +60,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
       onClose
       {{# unless (containerIsEmptyDashboard container) }},
         actions,
+        dataPath,
         isLoading,
         editMode,
         refreshCounter,
@@ -122,6 +123,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
           <Suspense>
             <{{ containerComponentName container }}
               actions={actions}
+              dataPath={dataPath}
               refreshCounter={refreshCounter}
               isLoading={isLoading}
               {{# if container.isSelector }}

@@ -18,6 +18,7 @@
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} false }
         readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() }
         ownerData={data}
+        dataPath={dataPath ? (dataPath + '.{{ child.dataElement.name }}') : '{{ child.dataElement.name }}'}
         editMode={editMode}
         isLoading={isLoading}
         isDraft={isDraft}
