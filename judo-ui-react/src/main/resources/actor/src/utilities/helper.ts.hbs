@@ -64,14 +64,17 @@ export const isPlainObj = (value: any) => !!value && Object.getPrototypeOf(value
 
 const pathCache: Map<string, string[]> = new Map();
 
-export function getValue<T>(input: any, path: string, defaultValue?: any): T | null {
+export function getValue<T>(input: any, path?: string, defaultValue?: any): T | null {
   if (input === undefined) {
     return defaultValue!;
   } else if (input === null) {
     return input;
   }
-  if (!path?.length) {
-    return input as any;
+  if (path === null || path === undefined) {
+    return defaultValue ?? null;
+  }
+  if (!path.length) {
+    return input;
   }
 
   let pathArray: string[];

@@ -39,6 +39,11 @@ describe('getValue function', () => {
     expect(getValue(input, '', null)).toBe(input);
   });
 
+  it('handling missing path', () => {
+    expect(getValue(input, undefined, 'default')).toBe('default');
+    expect(getValue(input)).toBe(null);
+  });
+
   it('arrays as values', () => {
     const inputWithArray = { a: { b: [1, 2, 3] } };
     expect(getValue(inputWithArray, 'a.b[0]')).toBe(1);
