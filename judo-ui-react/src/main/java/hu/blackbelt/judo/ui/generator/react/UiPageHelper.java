@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getActionOperationOutputClassType;
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.isPageDataElementUnmappedSingle;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
@@ -467,5 +468,21 @@ public class UiPageHelper {
             }
         }
         return false;
+    }
+
+    public static String dialogDataInitialValue(PageDefinition pageDefinition) {
+        if (pageDefinition.getContainer().isTable()) {
+            return "[]";
+        } else {
+            if (pageDefinition.getContainer().isView()) {
+                if (isPageDataElementUnmappedSingle(pageDefinition)) {
+                    return "output";
+                } else {
+                    return "(isDraft ? simpleCloneDeep(getValue(ownerData, dataPath!, {})) : {})";
+                }
+            } else {
+                return "(templateDataOverride ?? {})";
+            }
+        }
     }
 }

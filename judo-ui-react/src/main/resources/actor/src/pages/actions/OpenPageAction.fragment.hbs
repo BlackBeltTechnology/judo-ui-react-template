@@ -5,21 +5,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
   {{# and (isActionParentEagerElement action) action.targetPageDefinition.openInDialog }}
     if (isDraftParam) {
       const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
-        ownerData: {{# if (pageHasSignedId page) }}
-                     { __signedIdentifier: signedIdentifier } as any
-                   {{ else }}
-                     {{# if page.openInDialog }}
-                       ownerData
-                     {{ else }}
-                       data
-                     {{/ if }}
-                   {{/ if }},
+        ownerData: owner,
         templateDataOverride: target,
-        {{# if (isActionParentEagerElement action) }}
         isDraft: true,
         ownerValidation: validate,
         dataPath: `${dataPath ? (dataPath + '.') : ''}{{ action.targetPageDefinition.dataElement.name }}{{# if (isActionParentEagerTable action) }}[${itemIndex!}]{{/ if }}`
-        {{/ if }}
       });
       // we might need to differentiate result handling between operation inputs and crud relation creates
       if (result === 'submit-draft' && returnedData) {

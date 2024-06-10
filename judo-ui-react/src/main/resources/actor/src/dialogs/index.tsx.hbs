@@ -27,9 +27,8 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
     processQueryCustomizer,
     useErrorHandler,
     isErrorNestedValidationError,
-    {{# if page.container.view }}
-      simpleCloneDeep,
-    {{/ if }}
+    simpleCloneDeep,
+    getValue,
   } from '~/utilities';
   import type {
     DialogResult,
@@ -105,13 +104,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
-    const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>(
-      {{# if page.container.table }}
-        []
-      {{ else }}
-        {{# and (isPageDataElementUnmappedSingle page) page.container.view }}output{{ else }}{}{{/ and }} as {{ classDataName (getReferenceClassType page) 'Stored' }}
-      {{/ if }}
-    );
+    const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>({{ dialogDataInitialValue page }} as {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }});
     {{# if page.container.isSelector }}
       const [selectionDiff, setSelectionDiff] = useState<{{ dialogDataType page }}[]>([]);
     {{/ if }}
@@ -120,13 +113,13 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
       {{# if page.container.view}}
       // Rollback handling
-      const rollbackPoint = useRef<{{ dialogDataType page }} | null>((isDraft && templateDataOverride) ? simpleCloneDeep<{{ dialogDataType page }}>(templateDataOverride) : null);
+      const rollbackPoint = useRef<{{ dialogDataType page }} | null>(isDraft ? simpleCloneDeep(getValue<{{ dialogDataType page }}>(ownerData, dataPath!, {})) : null);
       const rollbackData = useCallback(() => {
         if (rollbackPoint.current) {
           setData(rollbackPoint.current);
           setEditMode(false);
         }
-      }, [data, editMode, rollbackPoint]);
+      }, [data, editMode, dataPath, ownerData, isDraft]);
       {{/ if }}
 
       // Callback section
