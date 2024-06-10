@@ -12,7 +12,7 @@ import { MdiIcon } from '~/components/MdiIcon';
 import { debounce } from '@mui/material/utils';
 import { debounceInputs } from '~/config/general';
 import { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
-import { FilterBytypesString } from '~/services/data-api/rest/FilterBytypesString';
+import { FilterByTypesString } from '~/services/data-api/rest/FilterByTypesString';
 import { StringOperation } from '~/services/data-api/model/StringOperation';
 
 export interface TagsProps<P, T> {
@@ -78,7 +78,7 @@ export function Tags<P, T> (props: TagsProps<P, T>) {
   const handleSearch = async (searchText: string) => {
     try {
       setLoading(true);
-      const filter: FilterBytypesString[] = (ownerData[name] as T[] ?? []).map((c: any) => ({
+      const filter: FilterByTypesString[] = (ownerData[name] as T[] ?? []).map((c: any) => ({
         value: c[autoCompleteAttribute]!,
         operator: StringOperation.notEqual,
       }));

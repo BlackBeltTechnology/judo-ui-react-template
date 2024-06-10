@@ -2,13 +2,13 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   try {
     {{# if container.isRelationSelector }}
-      return {{ getServiceImplForPage page }}.getRange(cleanUpPayload(ownerData), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+      return {{ getServiceImplForPage page }}.getRange(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
     {{ else }}
-      return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(cleanUpPayload(ownerData), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+      return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
     {{/ if }}
   } catch (error: any) {
     handleError(error);
-    return Promise.resolve({ data: [], headers: error.response?.headers, status: error.response?.status });
+    return Promise.resolve({ data: [], headers: error.response?.headers, status: error.response?.status, statusText: 'fallback', config: { headers: error.response?.headers } });
   }
   {{/ with }}
 };

@@ -32,7 +32,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
             {{/ if }}
           {{ else }}
             {{# if (containerIsRefreshable page.container) }}
-              await refresh();
+              {{# unless (isActionParentEagerElement action) }}
+                await refresh();
+              {{/ unless }}
             {{/ if }}
           {{/ unless }}
         {{/ if }}

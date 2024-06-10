@@ -1,15 +1,20 @@
-import { expect, describe, it } from 'vitest';
-import { _NumericOperation, _StringOperation, _BooleanOperation, _EnumerationOperation } from '~/services/data-api/common';
+import { describe, expect, it } from 'vitest';
+import type { Filter } from '~/components-api';
+import { FilterType } from '~/components-api';
+import {
+  _BooleanOperation,
+  _EnumerationOperation,
+  _NumericOperation,
+  _StringOperation,
+} from '~/services/data-api/common';
 import {
   applyInMemoryFilters,
-  filterByStringOperation,
-  filterByNumericOperation,
-  filterByDateOperation,
   filterByBooleanOperation,
+  filterByDateOperation,
   filterByEnumerationOperation,
+  filterByNumericOperation,
+  filterByStringOperation,
 } from '~/utilities/filter-helper';
-import type { Filter, Operation, FilterOption } from '~/components-api';
-import { FilterType } from '~/components-api';
 
 enum TestEnum {
   yayy = 'YAYY',
@@ -20,16 +25,43 @@ interface TestType {
   name: string;
   age: number;
   isOkay?: boolean;
-  registered: string;
-  left: string;
+  registered: Date;
+  left: Date;
   happy: TestEnum;
 }
 
 const data: TestType[] = [
-  { name: 'Jake', age: 31, isOkay: true, registered: '2023-06-19', left: '2023-06-20T13:20:00.000Z', happy: TestEnum.yayy },
-  { name: 'Andrea', age: 14, isOkay: true, registered: '2023-02-19', left: '2023-02-20T13:20:00.000Z', happy: TestEnum.nay },
-  { name: 'Julia', age: 55, registered: '2023-04-19', left: '2023-04-20T13:18:00.000Z', happy: TestEnum.nay },
-  { name: 'Henry', age: 41, isOkay: false, registered: '2023-04-18', left: '2023-04-20T13:20:00.000Z', happy: TestEnum.yayy },
+  {
+    name: 'Jake',
+    age: 31,
+    isOkay: true,
+    registered: new Date('2023-06-19'),
+    left: new Date('2023-06-20T13:20:00.000Z'),
+    happy: TestEnum.yayy,
+  },
+  {
+    name: 'Andrea',
+    age: 14,
+    isOkay: true,
+    registered: new Date('2023-02-19'),
+    left: new Date('2023-02-20T13:20:00.000Z'),
+    happy: TestEnum.nay,
+  },
+  {
+    name: 'Julia',
+    age: 55,
+    registered: new Date('2023-04-19'),
+    left: new Date('2023-04-20T13:18:00.000Z'),
+    happy: TestEnum.nay,
+  },
+  {
+    name: 'Henry',
+    age: 41,
+    isOkay: false,
+    registered: new Date('2023-04-18'),
+    left: new Date('2023-04-20T13:20:00.000Z'),
+    happy: TestEnum.yayy,
+  },
 ];
 
 describe('filterByStringOperation', () => {
@@ -47,7 +79,7 @@ describe('filterByStringOperation', () => {
 
     expect(result.length).toBe(3);
     expect(result[0].name).toBe('Andrea');
-    expect(result.map(r => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
   });
 
   it('like', () => {
@@ -55,7 +87,7 @@ describe('filterByStringOperation', () => {
     const result = filterByStringOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Henry']);
   });
 
   it('greaterOrEqual', () => {
@@ -63,7 +95,7 @@ describe('filterByStringOperation', () => {
     const result = filterByStringOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Julia']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Julia']);
   });
 
   it('greaterThan', () => {
@@ -71,7 +103,7 @@ describe('filterByStringOperation', () => {
     const result = filterByStringOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Julia']);
+    expect(result.map((r) => r.name)).toEqual(['Julia']);
   });
 
   it('lessOrEqual', () => {
@@ -79,7 +111,7 @@ describe('filterByStringOperation', () => {
     const result = filterByStringOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Andrea', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Andrea', 'Henry']);
   });
 
   it('lessThan', () => {
@@ -87,7 +119,7 @@ describe('filterByStringOperation', () => {
     const result = filterByStringOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Andrea', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea', 'Henry']);
   });
 });
 
@@ -97,7 +129,7 @@ describe('filterByNumericOperation', () => {
     const result = filterByNumericOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Jake']);
+    expect(result.map((r) => r.name)).toEqual(['Jake']);
   });
 
   it('notEqual', () => {
@@ -105,7 +137,7 @@ describe('filterByNumericOperation', () => {
     const result = filterByNumericOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
   });
 
   it('lessThan', () => {
@@ -113,7 +145,7 @@ describe('filterByNumericOperation', () => {
     const result = filterByNumericOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Andrea']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea']);
   });
 
   it('lessOrEqual', () => {
@@ -121,7 +153,7 @@ describe('filterByNumericOperation', () => {
     const result = filterByNumericOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Andrea']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Andrea']);
   });
 
   it('greaterThan', () => {
@@ -129,7 +161,7 @@ describe('filterByNumericOperation', () => {
     const result = filterByNumericOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Julia', 'Henry']);
   });
 
   it('greaterOrEqual', () => {
@@ -137,7 +169,7 @@ describe('filterByNumericOperation', () => {
     const result = filterByNumericOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Julia', 'Henry']);
   });
 });
 
@@ -147,7 +179,7 @@ describe('filterByDateOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Jake']);
+    expect(result.map((r) => r.name)).toEqual(['Jake']);
   });
 
   it('notEqual', () => {
@@ -155,7 +187,7 @@ describe('filterByDateOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
   });
 
   it('lessThan', () => {
@@ -163,7 +195,7 @@ describe('filterByDateOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Andrea']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea']);
   });
 
   it('lessOrEqual', () => {
@@ -171,7 +203,7 @@ describe('filterByDateOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
   });
 
   it('greaterThan', () => {
@@ -179,7 +211,7 @@ describe('filterByDateOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Julia']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Julia']);
   });
 
   it('greaterOrEqual', () => {
@@ -187,7 +219,7 @@ describe('filterByDateOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Julia', 'Henry']);
   });
 });
 
@@ -197,7 +229,7 @@ describe('filterByDateTimeOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Jake']);
+    expect(result.map((r) => r.name)).toEqual(['Jake']);
   });
 
   it('notEqual', () => {
@@ -205,7 +237,7 @@ describe('filterByDateTimeOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
   });
 
   it('lessThan', () => {
@@ -213,7 +245,7 @@ describe('filterByDateTimeOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Andrea']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea']);
   });
 
   it('lessOrEqual', () => {
@@ -221,7 +253,7 @@ describe('filterByDateTimeOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea', 'Julia', 'Henry']);
   });
 
   it('greaterThan', () => {
@@ -229,7 +261,7 @@ describe('filterByDateTimeOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Henry']);
   });
 
   it('greaterOrEqual', () => {
@@ -237,7 +269,7 @@ describe('filterByDateTimeOperation', () => {
     const result = filterByDateOperation(filter, data);
 
     expect(result.length).toBe(3);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Julia', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Julia', 'Henry']);
   });
 });
 
@@ -247,7 +279,7 @@ describe('filterByBooleanOperation', () => {
     const result = filterByBooleanOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Andrea']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Andrea']);
   });
 
   it('equals - false', () => {
@@ -255,7 +287,7 @@ describe('filterByBooleanOperation', () => {
     const result = filterByBooleanOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Henry']);
   });
 });
 
@@ -265,7 +297,7 @@ describe('filterByTrinaryLogicOperation', () => {
     const result = filterByBooleanOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Andrea']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Andrea']);
   });
 
   it('equals - false', () => {
@@ -273,7 +305,7 @@ describe('filterByTrinaryLogicOperation', () => {
     const result = filterByBooleanOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Henry']);
   });
 
   it('equals - undefined', () => {
@@ -281,7 +313,7 @@ describe('filterByTrinaryLogicOperation', () => {
     const result = filterByBooleanOperation(filter, data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Julia']);
+    expect(result.map((r) => r.name)).toEqual(['Julia']);
   });
 });
 
@@ -291,7 +323,7 @@ describe('filterByEnumerationOperation', () => {
     const result = filterByEnumerationOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Henry']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Henry']);
   });
 
   it('notEquals', () => {
@@ -299,7 +331,7 @@ describe('filterByEnumerationOperation', () => {
     const result = filterByEnumerationOperation(filter, data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Andrea', 'Julia']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea', 'Julia']);
   });
 });
 
@@ -310,7 +342,7 @@ describe('filter combinations', () => {
     const result = applyInMemoryFilters([happyIsYayy, registeredBefore], data);
 
     expect(result.length).toBe(1);
-    expect(result.map(r => r.name)).toEqual(['Andrea']);
+    expect(result.map((r) => r.name)).toEqual(['Andrea']);
   });
 
   it('string with numeric', () => {
@@ -320,7 +352,7 @@ describe('filter combinations', () => {
     const result = applyInMemoryFilters([nameLessOrEqual, ageLessOrEqual], data);
 
     expect(result.length).toBe(2);
-    expect(result.map(r => r.name)).toEqual(['Jake', 'Andrea']);
+    expect(result.map((r) => r.name)).toEqual(['Jake', 'Andrea']);
   });
 });
 
@@ -426,7 +458,11 @@ function createTrinaryLogicFilter(attributeName: keyof TestType, operator: _Bool
   };
 }
 
-function createEnumerationFilter<T extends {[key: string]: string}>(attributeName: keyof TestType, operator: _EnumerationOperation, value: keyof T): Filter {
+function createEnumerationFilter<T extends { [key: string]: string }>(
+  attributeName: keyof TestType,
+  operator: _EnumerationOperation,
+  value: keyof T,
+): Filter {
   return {
     id: 'filterByEnumerationOperation',
     operationId: 'filterByEnumerationOperation',

@@ -33,6 +33,7 @@
                 <{{ componentName child }}
                     uniqueId={'{{ getXMIID child }}'}
                     actions={actions}
+                    dataPath={dataPath ? (dataPath + '.{{ child.dataElement.name }}') : '{{ child.dataElement.name }}'}
                     {{# if container.isSelector }}
                       selectionDiff={selectionDiff}
                       setSelectionDiff={setSelectionDiff}

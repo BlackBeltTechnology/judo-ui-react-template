@@ -8,7 +8,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
 {{# if container.isRelationSelector }}
     const response = await {{ getServiceImplForPage page }}.export(undefined, queryCustomizer);
 {{ else }}
-  const response = await {{ getServiceImplForPage page }}.export{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}undefined{{/ if }}, queryCustomizer);
+  const response = await {{ getServiceImplForPage page }}.export{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}undefined{{/ if }}, queryCustomizer);
 {{/ if }}
 
     exportFile(response);
