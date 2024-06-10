@@ -30,7 +30,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
         ...returnedData,
-        __identifier: `draft:${uuidv4()}`,
+        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
       };
       const newData = {{# if action.targetDataElement.isCollection }}[...(data.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
       storeDiff('{{ action.targetDataElement.name }}', newData);
@@ -44,7 +44,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       } else if (result === 'submit-draft' && returnedData) {
         const decoratedData = {
           ...returnedData,
-          __identifier: `draft:${uuidv4()}`,
+          __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
         };
         const newData = {{# if action.targetDataElement.isCollection }}[...(data.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
         storeDiff('{{ action.targetDataElement.name }}', newData);
