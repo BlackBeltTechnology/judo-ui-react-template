@@ -1,77 +1,138 @@
-{{> fragment.header.hbs }}
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: <actor>
+// Path expression: 'src/utilities/helper.ts'
+// Template name: actor/src/utilities/helper.ts
+// Base URL: mvn:hu.blackbelt.judo.generator:judo-ui-react:1.0.0-SNAPSHOT
+// Template file: actor/src/utilities/helper.ts.hbs
 
-import type { RandomUtils } from './interfaces';
 import type { JudoStored } from '../services/data-api/common/JudoStored';
+import type { RandomUtils } from './interfaces';
 
 export const exists = (element: any) => element !== undefined && element !== null;
 
-export const dateToJudoDateString = (date: Date | null | undefined) => {
-  // TODO: consider l10n
-  return date ? date.toISOString().substring(0, 10) : date;
-};
-
-export const simpleCloneDeep = (input: any): any => {
-    if (input === null || input === undefined) {
-        return input;
-    } else if (Array.isArray(input)) {
-        return input.map(simpleCloneDeep);
-    } else if (typeof input === 'object') {
-        let payload: Record<string, any> = {};
-        for (const key in input) {
-            payload[key] = simpleCloneDeep(input[key]);
-        }
-        return payload;
-    }
+export const simpleCloneDeep = <T>(input: T): T => {
+  if (input === null || input === undefined) {
     return input;
+  } else if (Array.isArray(input)) {
+    return input.map(simpleCloneDeep) as T;
+  } else if (input instanceof Date) {
+    return input;
+  } else if (input instanceof Set) {
+    return new Set(Array.from(input).map(simpleCloneDeep)) as T;
+  } else if (typeof input === 'object') {
+    let payload: Record<string, any> = {};
+    for (const key in input) {
+      payload[key] = simpleCloneDeep(input[key]);
+    }
+    return payload as T;
+  }
+  return input;
 };
 
-export const stringToBooleanSelect = (booleanString ?: string | null) : boolean | null => {
-    if(!booleanString || !booleanString.trim()) {
-        return null;
-    } else {
-        return booleanString === 'true';
-    }
-}
+export const stringToBooleanSelect = (booleanString?: string | null): boolean | null => {
+  if (!booleanString || !booleanString.trim()) {
+    return null;
+  } else {
+    return booleanString === 'true';
+  }
+};
 
-export const booleanToStringSelect = (booleanParam ?: boolean | null ) : string | null => {
-    if (booleanParam === null || booleanParam === undefined ) {
-        return ' ';
-    }
-    else if (booleanParam) {
-        return 'true';
-    } else {
-        return 'false';
-    }
-}
+export const booleanToStringSelect = (booleanParam?: boolean | null): string | null => {
+  if (booleanParam === null || booleanParam === undefined) {
+    return ' ';
+  } else if (booleanParam) {
+    return 'true';
+  } else {
+    return 'false';
+  }
+};
 
-export const endWithSlash = (input: string): string => input.endsWith('/') ? input : input + '/';
+export const endWithSlash = (input: string): string => (input.endsWith('/') ? input : input + '/');
 
 // only for testing purposes
-export const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+export const delay = (ms: number) => new Promise((res) => setTimeout(res, ms));
 
-export const GENERATOR_UUID_V4 = '{{ getUUIDv4 }}';
+export const GENERATOR_UUID_V4 = 'c8376ca5-6435-47e8-a8a0-18fba3a17807';
 
 export const randomUtils: RandomUtils = {
   getGeneratorUUIDv4: () => GENERATOR_UUID_V4,
 };
 
-export const decoratePayloadWithMetaFromData: (payload: any, data: JudoStored<any>) => any = (payload, data) => {
-  if (data.__identifier) {
-    payload.__identifier = data.__identifier;
+export const isPlainObj = (value: any) => !!value && Object.getPrototypeOf(value) === Object.prototype;
+
+const pathCache: Map<string, string[]> = new Map();
+
+export function getValue<T>(input: any, path?: string, defaultValue?: any): T | null {
+  if (input === undefined) {
+    return defaultValue!;
+  } else if (input === null) {
+    return input;
   }
-  if (data.__signedIdentifier) {
-    payload.__signedIdentifier = data.__signedIdentifier;
+  if (path === null || path === undefined) {
+    return defaultValue ?? null;
   }
-  if (data.__version) {
-    payload.__version = data.__version;
+  if (!path.length) {
+    return input;
   }
-  if (data.__entityType) {
-    payload.__entityType = data.__entityType;
+
+  let pathArray: string[];
+  if (!pathCache.has(path)) {
+    pathCache.set(path, path.replace(/\[(\w+)\]/g, '.$1').split('.'));
   }
-  return payload;
+  pathArray = pathCache.get(path)!;
+
+  let result: any = input;
+
+  for (let i = 0; i < pathArray.length; i++) {
+    result = result[pathArray[i]];
+    if (result === undefined || result === null) {
+      break;
+    }
+  }
+
+  return result === undefined ? defaultValue : result;
 }
 
-export const cloneDeep = <T>(obj: object): T => {
-  // We know that this is slow, if becomes a bottleneck, we can replace this with a dep, or write it manually
-  return JSON.parse(JSON.stringify(obj)) as T;
-};
+export function setValue(target: any, path: string, value: any): void {
+  if (path === null || path === undefined) {
+    return
+  }
+  if (path.length === 0) {
+    if (isPlainObj(target) && isPlainObj(value)) {
+      for (let key in target) {
+        target[key] = value[key];
+      }
+    }
+    return;
+  }
+  if (path.includes('..') || path.includes('[]')) {
+    throw new Error(`Invalid path syntax: ${path}!`);
+  }
+
+  let pathArray: string[];
+  if (!pathCache.has(path)) {
+    pathCache.set(path, path.replace(/\[(\w+)\]/g, '.$1').split('.').filter(s => s.trim().length));
+  }
+  pathArray = pathCache.get(path)!;
+
+  let current = target;
+
+  for (let i = 0; i < pathArray.length; i++) {
+    const key = pathArray[i];
+    const isLastKey = i === pathArray.length - 1;
+
+    if (isLastKey) {
+      current[key] = value;
+    } else {
+      if (current[key] === null || current[key] === undefined) {
+        // Determine if the next key is a number to create an array or an object
+        const nextKey = pathArray[i + 1];
+        current[key] = isNaN(Number(nextKey)) ? {} : [];
+      }
+      current = current[key];
+    }
+  }
+}
+

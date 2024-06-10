@@ -222,31 +222,6 @@ public class UiActionsHelper {
         return suffix;
     }
 
-    public static String getDialogOpenParameters(PageDefinition pageDefinition) {
-        List<String> result = new ArrayList<>();
-        result.add("ownerData: any");
-        if (pageDefinition.getContainer().isView() && isPageDataElementUnmappedSingle(pageDefinition)) {
-            result.add("data: " + classDataName(getReferenceClassType(pageDefinition),  ""));
-        }
-        if (!pageDefinition.getContainer().isIsSelector()) {
-            if (pageDefinition.getContainer().isView()) {
-                result.add("templateDataOverride?: " + classDataName(getReferenceClassType(pageDefinition), "Stored"));
-            } else {
-                result.add("templateDataOverride?: Partial<" + classDataName(getReferenceClassType(pageDefinition), ">"));
-            }
-        } else if (pageDefinition.getContainer().isIsRelationSelector()) {
-            result.add("alreadySelected: " + classDataName(getReferenceClassType(pageDefinition), "Stored") + "[]");
-        }
-        result.add("isDraft?: boolean");
-        if (!pageDefinition.getContainer().isIsSelector()) {
-            result.add("ownerValidation?: (data: " + classDataName(getReferenceClassType(pageDefinition), "") + ") => Promise<void>");
-        }
-        if (pageDefinition.getContainer().isForm()) {
-            result.add("maskRequest?: string");
-        }
-        return String.join(", ", result);
-    }
-
     public static boolean isPageDataElementUnmappedSingle(PageDefinition pageDefinition) {
         return pageHasOutputTarget(pageDefinition)
                 && !getPageOutputTarget(pageDefinition).isIsMapped()
@@ -254,81 +229,11 @@ public class UiActionsHelper {
                 !parameterType.isIsCollection();
     }
 
-    public static String getFormOpenParameters(PageDefinition pageDefinition, Action action) {
-        List<String> tokens = new ArrayList<>();
-
-        if (action.getActionDefinition().getIsOpenFormAction() && pageDefinition.getContainer().isIsRelationSelector()) {
-            return "ownerData";
+    public static RelationType getRelationTypeForActionTarget(Action action) {
+        if (action.getTargetDataElement() instanceof RelationType check) {
+            return check;
         }
-        if (action.getActionDefinition().getTargetType() != null) {
-            tokens.add("target");
-        } else {
-            if (pageDefinition.getContainer().isTable()) {
-                if (pageDefinition.getRelationType() != null && !pageDefinition.getRelationType().isIsAccess()) {
-                    tokens.add("{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>");
-                } else {
-                    tokens.add("null as any");
-                }
-            } else {
-                tokens.add("data");
-                if (isRelationOpenCreateActionOnEagerView(pageDefinition, action)) {
-                    if (tokens.size() < 2) {
-                        tokens.add("undefined");
-                    }
-                    tokens.add("true");
-                }
-            }
-        }
-        if (isRelationOpenCreateActionOnForm(pageDefinition, action)) {
-            if (tokens.size() < 2) {
-                tokens.add("undefined");
-            }
-            tokens.add("true");
-            tokens.add("validate" + firstToUpper(action.getTargetDataElement().getName()));
-
-            Link link = getLinkParentForActionDefinition(action.getActionDefinition());
-
-            if (link != null) {
-                var col = getFirstAutocompleteColumnForLink(link);
-                tokens.add("'{" + (col != null ? col.getAttributeType().getName() : "") + "}'");
-            }
-        }
-
-        return String.join(", ", tokens);
-    }
-
-    public static String getSelectorOpenActionParameters(Action action, PageContainer container) {
-        List<String> tokens = new ArrayList<>();
-        if (container.isTable()) {
-            if (action.getTargetPageDefinition().getContainer().isIsRelationSelector()) {
-                tokens.add("{ __signedIdentifier: signedIdentifier }");
-            } else {
-                tokens.add("[]");
-            }
-        } else {
-            if (action.getActionDefinition().getTargetType() != null) {
-                tokens.add("target!");
-            } else {
-                tokens.add("data");
-            }
-        }
-
-        if (action.getTargetPageDefinition().getContainer().isIsRelationSelector()) {
-            if (action.getTargetDataElement() instanceof RelationType check) {
-                if (container.isTable()) {
-                    tokens.add("[]");
-                } else {
-                    String result = "data." + check.getName();
-                    boolean isCollection = check.isIsCollection();
-                    if (isCollection) {
-                        tokens.add(result + " ?? []");
-                    } else {
-                        tokens.add(result + "? [" + result + "] : []");
-                    }
-                }
-            }
-        }
-        return String.join(", ", tokens);
+        return null;
     }
 
     public static boolean isActionAddOrSet(ActionDefinition actionDefinition) {
@@ -369,7 +274,7 @@ public class UiActionsHelper {
             return "ownerData";
         }
         if (pageHasSignedId(pageDefinition)) {
-            return "{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>";
+            return "{ __signedIdentifier: signedIdentifier } as any";
         }
         if (isSingleAccessPage(pageDefinition)) {
             return "singletonHost.current";
@@ -542,5 +447,10 @@ public class UiActionsHelper {
             return link.isIsEager();
         }
         return  false;
+    }
+
+    public static boolean isActionParentEagerTable(Action action) {
+        Table table = getTableParentForActionDefinition(action.getActionDefinition());
+        return table != null && table.isIsEager();
     }
 }

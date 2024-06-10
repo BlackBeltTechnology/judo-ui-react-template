@@ -28,8 +28,11 @@ import { useConfirmDialog } from '~/components/dialog';
   import type {
     {{ classDataName container.dataElement '' }},
     {{ classDataName container.dataElement 'Stored' }},
-    {{ classDataName container.dataElement 'QueryCustomizer' }}
-  } from '~/services/data-api';
+  } from '~/services/data-api/model/{{ classDataName container.dataElement '' }}';
+  import type {
+    {{ classDataName container.dataElement 'QueryCustomizer' }},
+  } from '~/services/data-api/rest/{{ classDataName container.dataElement 'QueryCustomizer' }}';
+
   import type {
     {{ containerComponentName container }}ActionDefinitions,
     {{ containerComponentName container }}DialogActions,
@@ -57,6 +60,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
       onClose
       {{# unless (containerIsEmptyDashboard container) }},
         actions,
+        dataPath,
         isLoading,
         editMode,
         refreshCounter,
@@ -119,6 +123,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
           <Suspense>
             <{{ containerComponentName container }}
               actions={actions}
+              dataPath={dataPath}
               refreshCounter={refreshCounter}
               isLoading={isLoading}
               {{# if container.isSelector }}

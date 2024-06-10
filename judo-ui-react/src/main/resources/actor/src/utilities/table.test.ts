@@ -59,12 +59,12 @@ describe('isRowSelectable', () => {
                 expect(isRowSelectable(rangeResultRow, true)).toBe(true);
             });
 
-            it('selectable, event though backend says it is already selected', () => {
+            it('not selectable, respects __selected flag', () => {
                 const rangeResultRowSelected: ResponseTestType = {
                     ...rangeResultRow,
                     __selected: true,
                 };
-                expect(isRowSelectable(rangeResultRowSelected, true)).toBe(true);
+                expect(isRowSelectable(rangeResultRowSelected, true)).toBe(false);
             });
 
             it('not selectable, present in memory', () => {

@@ -1,7 +1,7 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.actionDefinition.targetType 'QueryCustomizer' }}): Promise<{{ classDataName action.actionDefinition.targetType 'Stored' }}[]> => {
   {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
   try {
-    const { data: result } = await {{ getServiceImplForPage page }}.getRange{{# if (isActionOnOperationInput action) }}On{{ firstToUpper (getOperationNameForActionOnInput action) }}{{/ if }}For{{ firstToUpper link.dataElement.name }}(cleanUpPayload(data), queryCustomizer);
+    const { data: result } = await {{ getServiceImplForPage page }}.getRange{{# if (isActionOnOperationInput action) }}On{{ firstToUpper (getOperationNameForActionOnInput action) }}{{/ if }}For{{ firstToUpper link.dataElement.name }}(data, queryCustomizer);
     return result;
   } catch (error: any) {
     handleError(error);

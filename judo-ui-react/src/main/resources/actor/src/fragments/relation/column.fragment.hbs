@@ -54,7 +54,6 @@ valueFormatter: (value?: string) => {
 {{/ if }}
 {{/ if }}
 {{# if (isColumnTimestamp column) }}
-valueGetter: (value?: Date) => value && serviceDateToUiDate(value),
 valueFormatter: (value?: Date) => {
   return value && new Intl.DateTimeFormat(l10nLocale, {
     year: 'numeric',
@@ -71,7 +70,6 @@ filterOperators: dateTimeColumnOperators,
 {{/ if }}
 {{/ if }}
 {{# if (isColumnTime column) }}
-valueGetter: (value?: Date) => value && serviceTimeToUiTime(value),
 valueFormatter: (value?: Date) => {
   return value && new Intl.DateTimeFormat(l10nLocale, {
     hour: '2-digit',
@@ -81,7 +79,6 @@ valueFormatter: (value?: Date) => {
 },
 {{/ if }}
 {{# if (isColumnDate column) }}
-valueGetter: (value?: Date) => value && new Date(value),
 valueFormatter: (value?: Date) => {
   return value && new Intl.DateTimeFormat(l10nLocale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(value);
 },

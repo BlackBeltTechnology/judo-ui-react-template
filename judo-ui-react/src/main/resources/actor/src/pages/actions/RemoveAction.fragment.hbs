@@ -9,7 +9,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?:
           if (!silentMode) {
             setIsLoading(true);
           }
-          await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.targetDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}data{{/ if }}, [target!]);
+          await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.targetDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as any{{ else }}data{{/ if }}, [target!]);
           if (!silentMode) {
             await refresh();
           }
