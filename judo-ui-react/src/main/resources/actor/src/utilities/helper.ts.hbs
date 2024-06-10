@@ -60,6 +60,8 @@ export const randomUtils: RandomUtils = {
   getGeneratorUUIDv4: () => GENERATOR_UUID_V4,
 };
 
+export const isPlainObj = (value: any) => !!value && Object.getPrototypeOf(value) === Object.prototype;
+
 const pathCache: Map<string, string[]> = new Map();
 
 export function getValue<T>(input: any, path: string, defaultValue?: any): T | null {
@@ -68,7 +70,7 @@ export function getValue<T>(input: any, path: string, defaultValue?: any): T | n
   } else if (input === null) {
     return input;
   }
-  if (!path.length) {
+  if (!path?.length) {
     return input as any;
   }
 
@@ -91,7 +93,15 @@ export function getValue<T>(input: any, path: string, defaultValue?: any): T | n
 }
 
 export function setValue(target: any, path: string, value: any): void {
-  if (!path) {
+  if (path === null || path === undefined) {
+    return
+  }
+  if (path.length === 0) {
+    if (isPlainObj(target) && isPlainObj(value)) {
+      for (let key in target) {
+        target[key] = value[key];
+      }
+    }
     return;
   }
   if (path.includes('..') || path.includes('[]')) {

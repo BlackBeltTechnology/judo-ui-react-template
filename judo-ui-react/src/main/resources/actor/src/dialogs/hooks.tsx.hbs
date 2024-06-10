@@ -10,7 +10,7 @@ interface {{ pageName page }}HookProps {
   {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: {{ classDataName (getReferenceClassType page) '' }};{{/ and }}
   {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
   {{# unless page.container.isSelector }}templateDataOverride?: {{# if page.container.view }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{ else }}Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ if }};{{/ unless }}
-  ownerValidation?: () => Promise<void>;
+  ownerValidation?: (target: any) => Promise<void>;
   isDraft?: boolean;
   {{# unless page.container.table}}
   maskRequest?: string;

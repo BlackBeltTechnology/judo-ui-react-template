@@ -4,11 +4,17 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
     const response = await {{ getServiceImplForPage page }}.getTemplate{{ firstToUpper (getServiceMethodSuffix action) }}();
     const { data: result } = response;
     setData(result as {{ classDataName action.actionDefinition.targetType 'Stored' }});
+    if (!ownerData) {
+      owner.current = simpleCloneDeep(data);
+    }
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
-      await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(ownerData, result, storeDiff);
+      await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(produceDataAdjustedOwner(), result, storeDiff);
     }
     if (templateDataOverride) {
       setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+      if (!ownerData) {
+        owner.current = simpleCloneDeep(templateDataOverride);
+      }
     }
     return response;
   } catch (error) {

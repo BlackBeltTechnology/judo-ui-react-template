@@ -5,7 +5,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
     {{ else }}
       try {
         setIsLoading(true);
-        await {{ getServiceImplForPage page }}.set{{ firstToUpper action.targetDataElement.name }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}ownerData{{/ if }}, []);
+        await {{ getServiceImplForPage page }}.set{{ firstToUpper action.targetDataElement.name }}(owner.current, []);
         await refresh();
       } catch(e) {
         console.error(e);

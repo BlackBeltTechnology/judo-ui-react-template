@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useCallback, useEffect, {{/ unless }}useRef, useState, useMemo, lazy, Suspense } from 'react';
+import { {{# unless page.container.table }}useEffect, {{/ unless }}useCallback, useRef, useState, useMemo, lazy, Suspense } from 'react';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 {{# if (containerIsEmptyDashboard page.container) }}
   import { ComponentProxy } from '@pandino/react-hooks';
@@ -32,6 +32,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
     useErrorHandler,
     simpleCloneDeep,
     getValue,
+    setValue,
     {{# if (hasExportAction page) }}fileHandling,{{/ if }}
   } from '~/utilities';
   import type {
@@ -197,12 +198,17 @@ export default function {{ pageName page }}() {
         }
       {{/ if }}
     };
+    const produceDataAdjustedOwner = useCallback(() => {
+      const copy = simpleCloneDeep(owner.current);
+      setValue(copy, dataPath, simpleCloneDeep(data));
+      return copy;
+    }, [data, owner]);
 
     // Validation
     {{# unless page.container.table }}
-    const validate: () => Promise<void> = useCallback(async () => {
+    const validate: (target: any) => Promise<void> = useCallback(async (target) => {
       {{# if (isValidationSupported page) }}
-        await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}data);
+        await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}target);
       {{/ if }}
     }, [{{# if (isValidationSupported page) }}data, {{ getServiceImplForPage page }}{{/ if }}]);
     {{/ unless }}

@@ -1,14 +1,6 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
-    {{# if page.container.table }}
-      {{# if action.targetPageDefinition.container.isRelationSelector }}
-        ownerData: { __signedIdentifier: signedIdentifier } as any,
-      {{ else }}
-        ownerData: [],
-      {{/ if }}
-    {{ else }}
-      ownerData: data,
-    {{/ if }}
+    ownerData: getValue(owner.current, dataPath!, data),
     alreadySelected: {{# with (getRelationTypeForActionTarget action) as |rel| }}
                         {{# if page.container.table }}
                           []
@@ -28,15 +20,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
           try {
             setIsLoading(true);
             await {{ getServiceImplForPage page }}.add{{ firstToUpper action.targetDataElement.name }}(
-              {{# if (pageHasSignedId page) }}
-                { __signedIdentifier: signedIdentifier } as any
-              {{ else }}
-                {{# if page.openInDialog }}
-                  ownerData
-                {{ else }}
-                  data
-                {{/ if }}
-              {{/ if }},
+              owner.current,
               returnedData
             );
             await refresh();

@@ -4,7 +4,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     setIsLoading(true);
     {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
       {{# if page.container.form }}
-        {{# unless operation.isStatic }}ownerData{{/ unless }}
+        {{# unless operation.isStatic }}produceDataAdjustedOwner(){{/ unless }}
         {{# if operation.input }}{{# unless operation.isStatic }}, {{/ unless }}data{{/ if }}
       {{ else }}
         {{# if page.container.isSelector }}
@@ -68,7 +68,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{# if operation.output }}
           {{# if action.targetPageDefinition.openInDialog }}
             await open{{ pageName action.targetPageDefinition }}({
-              ownerData: {{# if page.container.view }}data{{ else }}null{{/ if }},
+              ownerData: produceDataAdjustedOwner(),
               data: result,
             });
           {{ else }}
@@ -79,7 +79,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     }
   } catch (error) {
     {{# unless page.container.table }}
-      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
+      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, owner.current, dataPath);
     {{ else }}
       handleError(error);
     {{/ unless }}

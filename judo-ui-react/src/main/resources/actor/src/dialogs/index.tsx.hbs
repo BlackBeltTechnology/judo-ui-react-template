@@ -29,6 +29,7 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
     isErrorNestedValidationError,
     simpleCloneDeep,
     getValue,
+    setValue,
   } from '~/utilities';
   import type {
     DialogResult,
@@ -81,7 +82,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
   } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
-    const owner = useRef<any>(isDraft ? ownerData : null);
+    const owner = useRef<any>(ownerData ?? null);
 
     // Services
     const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
@@ -197,14 +198,19 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{/ if }}
       }
     };
+    const produceDataAdjustedOwner = useCallback(() => {
+      const copy = simpleCloneDeep(owner.current);
+      setValue(copy, dataPath!, simpleCloneDeep(data));
+      return copy;
+    }, [data, owner]);
 
     // Validation
-    const validate: () => Promise<void> = useCallback(async () => {
+    const validate: (target: any) => Promise<void> = useCallback(async (target) => {
       {{# if (isValidationSupported page) }}
         if (ownerValidation) {
-          await ownerValidation();
+          await ownerValidation(target);
         } else {
-          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
+          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}target);
         }
       {{/ if }}
     }, [{{# if (isValidationSupported page) }}ownerValidation, {{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data, {{ getServiceImplForPage page }}{{/ if }}]);
@@ -290,9 +296,13 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     // Effect section
     useEffect(() => {
       {{# if (pageShouldInitialize page) }}
-        if (!isDraft) {
+        {{# if page.container.view }}
+          if (!isDraft) {
+            actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
+          }
+        {{ else }}
           actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
-        }
+        {{/ if }}
       {{/ if }}
       {{# unless page.container.table }}
         if (templateDataOverride) {

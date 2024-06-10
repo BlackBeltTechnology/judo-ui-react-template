@@ -5,8 +5,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
   {{# and (isActionParentEagerElement action) action.targetPageDefinition.openInDialog }}
     if (isDraftParam) {
       const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
-        ownerData: owner,
-        templateDataOverride: target,
+        ownerData: produceDataAdjustedOwner(),
         isDraft: true,
         ownerValidation: validate,
         dataPath: `${dataPath ? (dataPath + '.') : ''}{{ action.targetPageDefinition.dataElement.name }}{{# if (isActionParentEagerTable action) }}[${itemIndex!}]{{/ if }}`

@@ -1,16 +1,9 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, {{/ if}}isDraft?: boolean, ownerValidation?: () => Promise<void>) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, {{/ if}}isDraft?: boolean, ownerValidation?: (target: any) => Promise<void>) => {
   const { result, data: returnedData } = await open{{ actionTargetPageName action }}({
     {{# if action.actionDefinition.targetType }}
       ownerData: target,
     {{ else }}
-      {{# if page.container.table }}
-        {{# if (pageHasSignedId page) }}
-          ownerData: { __signedIdentifier: signedIdentifier } as any
-        {{/ if }}
-      {{/ if }}
-      {{# if page.container.view }}
-        ownerData: data,
-      {{/ if }}
+      ownerData: produceDataAdjustedOwner(),
     {{/ if }}
   });
   if (result === 'submit'{{# if page.container.view }} && !editMode{{/ if }}) {

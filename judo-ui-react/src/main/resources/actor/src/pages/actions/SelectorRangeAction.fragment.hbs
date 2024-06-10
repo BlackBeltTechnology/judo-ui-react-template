@@ -2,9 +2,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   try {
     {{# if container.isRelationSelector }}
-      return {{ getServiceImplForPage page }}.getRange(ownerData, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+      return {{ getServiceImplForPage page }}.getRange(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
     {{ else }}
-      return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(ownerData, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+      return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
     {{/ if }}
   } catch (error: any) {
     handleError(error);

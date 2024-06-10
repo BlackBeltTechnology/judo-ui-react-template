@@ -30,7 +30,7 @@
     {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
     {{# unless page.container.isSelector }}templateDataOverride?: {{# if page.container.view }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{ else }}Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ if }};{{/ unless }}
     isDraft?: boolean;
-    ownerValidation?: () => Promise<void>;
+    ownerValidation?: (target: any) => Promise<void>;
     onClose: () => Promise<void>;
     {{# if (pageHasOutputTarget page) }}
     onSubmit: (result?: {{ classDataName (getPageOutputTarget page) 'Stored' }}, reason?: DialogResultReason, openCreated?: boolean) => Promise<void>;

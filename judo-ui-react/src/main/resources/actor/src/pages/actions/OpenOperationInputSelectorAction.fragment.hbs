@@ -1,17 +1,9 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
-    {{# if page.container.table }}
-      {{# if action.targetPageDefinition.container.isRelationSelector }}
-        ownerData: { __signedIdentifier: signedIdentifier } as any,
-      {{ else }}
-        ownerData: [],
-      {{/ if }}
+    {{# if action.actionDefinition.targetType }}
+      ownerData: target!,
     {{ else }}
-      {{# if action.actionDefinition.targetType }}
-        ownerData: target!,
-      {{ else }}
-        ownerData: data,
-      {{/ if }}
+      ownerData: produceDataAdjustedOwner(),
     {{/ if }}
   });
   if (result === 'submit') {

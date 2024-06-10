@@ -1,14 +1,9 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}) => {
+  {{# if (isActionParentEagerTable action) }}
+  const itemIndex = (data.{{ action.targetDataElement.name }} || []).length; // length gives next without -1-ing it
+  {{/ if }}
   const { result, data: returnedData, openCreated } = await open{{ actionTargetPageName action }}({
-    {{# if page.container.table }}
-      {{# if (pageHasSignedId page) }}
-        ownerData: { __signedIdentifier: signedIdentifier } as any,
-      {{ else }}
-        ownerData: null,
-      {{/ if }}
-    {{ else }}
-      ownerData: data,
-    {{/ if }}
+    ownerData: produceDataAdjustedOwner(),
     {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}
       ownerValidation: validate,
     {{/ or }}
@@ -20,7 +15,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{/ with }}
     {{/ with }}
     isDraft: {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}true{{ else }}false{{/ or }},
-    dataPath: `${dataPath ? (dataPath + '.') : ''}{{ action.targetPageDefinition.dataElement.name }}{{# if (isActionParentEagerTable action) }}[0]{{/ if }}`
+    dataPath: `${dataPath ? (dataPath + '.') : ''}{{# if (isActionParentEagerElement action) }}{{ action.targetPageDefinition.dataElement.name }}{{/ if }}{{# if (isActionParentEagerTable action) }}[${itemIndex}]{{/ if }}`
   });
   {{# if page.container.isRelationSelector }}
     if (result === 'submit' && returnedData) {

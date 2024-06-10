@@ -6,16 +6,17 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
     if (isDraft) {
       try {
         setIsLoading(true);
-        await validate();
+        const validationData = simpleCloneDeep(owner.current);
+        setValue(validationData, dataPath!, data);
+        await validate(validationData);
         // we send data back in draft mode, because the owner is responsible to handle it in-memory
         onSubmit(data, 'submit-draft');
       } catch (error) {
-        if (ownerValidation && !isErrorNestedValidationError(error, '{{ page.dataElement.name }}')) {
+        if (ownerValidation && !isErrorNestedValidationError(error, dataPath!)) {
           // relation form has no remaining error(s), proceed with submission
           onSubmit(data, 'submit-draft');
         } else {
-          let relationName: string | undefined = (isDraft && ownerValidation) ? '{{ page.dataElement.name }}' : undefined;
-          handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data, relationName);
+          handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, owner.current, dataPath!);
         }
       } finally {
         setIsLoading(false);
