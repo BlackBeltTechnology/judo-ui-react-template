@@ -14,6 +14,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{/ unless }}
       {{/ with }}
     {{/ with }}
+    {{# if page.container.isRelationSelector }}
+      maskRequest: getMask(),
+    {{/ if }}
     isDraft: {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}true{{ else }}false{{/ or }},
     dataPath: `${dataPath ? (dataPath + '.') : ''}{{# if (isActionParentEagerElement action) }}{{ action.targetPageDefinition.dataElement.name }}{{/ if }}{{# if (isActionParentEagerTable action) }}[${itemIndex}]{{/ if }}`
   });

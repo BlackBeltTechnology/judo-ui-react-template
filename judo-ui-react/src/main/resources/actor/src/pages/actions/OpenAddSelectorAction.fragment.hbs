@@ -1,6 +1,10 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
+    {{# unless page.container.table }}
+    ownerData: data,
+    {{ else }}
     ownerData: getValue(owner.current, dataPath!, data),
+    {{/ unless }}
     alreadySelected: {{# with (getRelationTypeForActionTarget action) as |rel| }}
                         {{# if page.container.table }}
                           []
