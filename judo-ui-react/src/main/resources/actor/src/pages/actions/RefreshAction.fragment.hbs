@@ -2,9 +2,11 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{/ if }}>> => {
   const result = await {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
   {{# if page.container.view }}
+    {{# if (isRefreshPageInitializer action page) }}
     if (!isDraft) {
       owner.current = result.data;
     }
+    {{/ if }}
   {{/ if }}
   return result;
 }
@@ -20,9 +22,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     {{ else }}
       const response = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
       const { data: result } = response;
+      {{# if (isRefreshPageInitializer action page) }}
       if (!isDraft) {
         owner.current = result;
       }
+      {{/ if }}
       setData(result);
       setLatestViewData(result);
       if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {

@@ -295,10 +295,7 @@ public class UiActionsHelper {
 
     public static boolean isRelationOpenCreateActionOnForm(PageDefinition pageDefinition, Action action) {
         return pageDefinition.getContainer().isForm()
-                && action.getIsOpenFormAction()
-                && action.getTargetDataElement() != null
-                && action.getTargetDataElement() instanceof RelationType relationType
-                && relationType.isIsInlineCreatable();
+                && action.getIsOpenFormAction();
     }
 
     public static boolean isRelationOpenCreateActionOnEagerView(PageDefinition pageDefinition, Action action) {
@@ -452,5 +449,12 @@ public class UiActionsHelper {
     public static boolean isActionParentEagerTable(Action action) {
         Table table = getTableParentForActionDefinition(action.getActionDefinition());
         return table != null && table.isIsEager();
+    }
+
+    public static boolean isRefreshPageInitializer(Action action, PageDefinition page) {
+        if (action.getIsRefreshAction()) {
+            return page.getContainer().getOnInit() != null && page.getContainer().getOnInit().equals(action.getActionDefinition());
+        }
+        return false;
     }
 }
