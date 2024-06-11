@@ -40,7 +40,7 @@ import type { {{# unless (containerIsEmptyDashboard container) }}{{ pageContaine
 export default function {{ containerComponentName container }}(props: {{ containerComponentName container }}Props) {
   {{# unless (containerIsEmptyDashboard container) }}
     // Container props
-    const { refreshCounter, isLoading, isDraft, actions: pageActions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
+    const { refreshCounter, isLoading, isDraft, dataPath, actions: pageActions{{# if container.isSelector }}, selectionDiff, setSelectionDiff{{/ if }}{{# if container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, editMode, validation, setValidation, submit{{/ unless }} } = props;
 
     // Container hooks
     const { t } = useTranslation();

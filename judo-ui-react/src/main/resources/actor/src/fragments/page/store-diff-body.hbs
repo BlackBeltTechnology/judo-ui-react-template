@@ -1,10 +1,7 @@
-{{# if (payloadDiffHasItems classType) }}
-    payloadDiff.current![attributeName] = convert{{ pageName page }}Payload(attributeName, value);
-    setData((prevData) => ({
-        ...prevData,
-        [attributeName]: value,
-    }));
-    if (!editMode) {
-        setEditMode(true);
-    }
-{{/ if }}
+setData((prevData) => ({
+    ...prevData,
+    [attributeName]: value,
+}));
+if (!editMode) {
+    setEditMode(true);
+}

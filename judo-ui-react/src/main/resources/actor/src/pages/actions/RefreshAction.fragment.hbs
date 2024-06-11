@@ -1,6 +1,14 @@
 {{# if action.targetDataElement }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{/ if }}>> => {
-  return {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
+  const result = await {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
+  {{# if page.container.view }}
+    {{# if (isRefreshPageInitializer action page) }}
+    if (!isDraft) {
+      owner.current = result.data;
+    }
+    {{/ if }}
+  {{/ if }}
+  return result;
 }
 {{ else }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>> => {
@@ -9,16 +17,18 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     setEditMode(false);
     {{# if page.container.table }}
       {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
-      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as JudoIdentifiable<any>{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
       {{/ with }}
     {{ else }}
       const response = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
       const { data: result } = response;
+      {{# if (isRefreshPageInitializer action page) }}
+      if (!isDraft) {
+        owner.current = result;
+      }
+      {{/ if }}
       setData(result);
       setLatestViewData(result);
-      // re-set payloadDiff
-      payloadDiff.current = {} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
-      decoratePayloadWithMetaFromData(payloadDiff.current, result);
       if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
         await customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(result{{# unless page.container.table }}, storeDiff, setValidation{{/ unless }});
       }

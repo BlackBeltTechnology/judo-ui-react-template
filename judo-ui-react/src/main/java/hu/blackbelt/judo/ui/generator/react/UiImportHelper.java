@@ -127,31 +127,27 @@ public class UiImportHelper {
         });
     }
 
-    public static String getTableAPIImports(Table table, PageContainer container) {
+    public static List<String> getTableAPIImports(Table table, PageContainer container) {
         Set<String> res = new HashSet<>();
 
         if (!container.isTable() && container.getDataElement() instanceof ClassType dataElement) {
             res.add(classDataName(dataElement, ""));
-            res.add(classDataName(dataElement, "Stored"));
         }
 
         ClassType classType = getReferenceClassType(table);
 
         if (classType != null) {
             res.add(classDataName(classType, ""));
-            res.add(classDataName(classType, "Stored"));
-            res.add(classDataName(classType, "QueryCustomizer"));
         }
 
-        return res.stream().sorted().collect(Collectors.joining(", "));
+        return res.stream().sorted().toList();
     }
 
-    public static String getLinkAPIImports(Link link, PageContainer container) {
+    public static List<String> getLinkAPIImports(Link link, PageContainer container) {
         Set<String> res = new HashSet<>();
 
         if (!container.isTable() && container.getDataElement() instanceof ClassType dataElement) {
             res.add(classDataName(dataElement, ""));
-            res.add(classDataName(dataElement, "Stored"));
         }
 
         if (link.getDataElement() instanceof RelationType relationType) {
@@ -159,15 +155,9 @@ public class UiImportHelper {
 
             if (classType != null) {
                 res.add(classDataName(classType, ""));
-                res.add(classDataName(classType, "Stored"));
-                res.add(classDataName(classType, "QueryCustomizer"));
             }
         }
 
-        if (link.getRefreshActionDefinition() != null) {
-            res.add("JudoRestResponse");
-        }
-
-        return res.stream().sorted().collect(Collectors.joining(", "));
+        return res.stream().sorted().toList();
     }
 }

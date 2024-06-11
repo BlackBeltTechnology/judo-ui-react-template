@@ -50,7 +50,7 @@
         }) }
         views={['hours', 'minutes', 'seconds']}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
-        value={ serviceTimeToUiTime(data.{{ child.attributeType.name }} ?? null) }
+        value={ data.{{ child.attributeType.name }} ?? null }
         readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
         disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
         {{# if child.onBlur }}
@@ -60,7 +60,7 @@
             }
         } }
         {{/ if }}
-        onChange={ (newValue: string | null | undefined) => {
+        onChange={ (newValue?: Date | null) => {
             storeDiff('{{ child.attributeType.name }}', newValue);
         } }
         />

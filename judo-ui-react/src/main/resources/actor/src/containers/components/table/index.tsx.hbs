@@ -47,9 +47,15 @@ import type { ContextMenuApi } from '~/components/table/ContextMenu';
 import type { Filter, FilterOption } from '~/components-api';
 import { FilterType } from '~/components-api';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
-import type {
-  {{ getTableAPIImports table container }}
-} from '~/services/data-api';
+{{# each (getTableAPIImports table container) as |imp| }}
+  import type {
+    {{ imp }},
+    {{ imp }}Stored,
+  } from '~/services/data-api/model/{{ imp }}';
+  import type {
+    {{ imp }}QueryCustomizer,
+  } from '~/services/data-api/rest/{{ imp }}QueryCustomizer';
+{{/ each }}
 {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
 import { useL10N } from '~/l10n/l10n-context';
 {{/ or }}
@@ -67,24 +73,19 @@ import {
   {{# if (tableHasBinaryColumn table) }}
   fileHandling,
   {{/ if }}
-  {{# or (tableHasDateTimeColumn table) (tableHasDateColumn table) }}
-  serviceDateToUiDate,
-  {{/ or }}
-  {{# if (tableHasTimeColumn table) }}
-  serviceTimeToUiTime,
-  {{/ if }}
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
   {{/ if }}
   mapAllFiltersToQueryCustomizerProperties,
   processQueryCustomizer,
+  serializeFilters,
+  deserializeFilters,
   {{# unless table.isEager }}
   useErrorHandler,
   {{/ unless }}
 } from '~/utilities';
-import type { SidekickComponentProps, DialogResult, TableRowAction, ToolBarActionProps, ColumnCustomizerHook{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
-import { useDataStore } from '~/hooks';
+import type { SidekickComponentProps, DialogResult, TableRowAction, ToolBarActionProps, ColumnCustomizerHook, FiltersSerializer{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackComponent, ComponentProxy } from '@pandino/react-hooks';
 {{# if (stringValueIsTrue useTableRowHighlighting) }}
@@ -94,8 +95,14 @@ import { TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY, transformRowStylings } from 
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 {{/ if }}
 import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}Props } from './types';
+import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
 
 export const {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY = '{{ componentName table }}SidekickComponent';
+
+export const filtersSerializer: FiltersSerializer = {
+  serialize: (filters: Filter[]) => serializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
+  deserialize: (filters: Filter[]) => deserializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
+};
 
 // XMIID: {{ getXMIID table }}
 // Name: {{ table.name }}
@@ -103,6 +110,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const {
     uniqueId,
     actions,
+    dataPath,
     refreshCounter,
     isOwnerLoading,
     isDraft,
@@ -123,7 +131,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY }))`;
 
   const { openConfirmDialog } = useConfirmDialog();
-  const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
   const { t } = useTranslation();
   {{# unless table.isEager }}
   const handleError = useErrorHandler();
@@ -270,6 +277,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         enabledByName='{{ table.enabledBy.name }}'
         dataElement={ ownerData?.{{ table.dataElement.name }} }
         relationName='{{ table.relationName }}'
+        filtersSerializer={filtersSerializer}
         {{# if container.isSelector }}
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
@@ -306,6 +314,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{/ if }}
         {{# if container.isRelationSelector }}
         containerIsRelationSelector={ true }
+        alreadySelected={alreadySelected}
         {{/ if }}
         {{# if table.showTotalCount }}
         showTotalCount={ true }
@@ -345,6 +354,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{/ unless }}
         enabledByName='{{ table.enabledBy.name }}'
         relationName='{{ table.relationName }}'
+        filtersSerializer={filtersSerializer}
         {{# if container.isSelector }}
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}

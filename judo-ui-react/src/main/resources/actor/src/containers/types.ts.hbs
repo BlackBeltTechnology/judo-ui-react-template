@@ -64,6 +64,7 @@
       isLoading: boolean;
       editMode: boolean;
       refreshCounter: number;
+      dataPath?: string;
       {{# unless container.table }}
         data: {{ classDataName container.dataElement 'Stored' }};
         isFormUpdateable: () => boolean;
@@ -87,6 +88,7 @@
     onClose: () => Promise<void>;
     {{# unless (containerIsEmptyDashboard container) }}
       actions: {{ containerComponentName container }}DialogActions;
+      dataPath?: string;
       isLoading: boolean;
       editMode: boolean;
       refreshCounter: number;
@@ -126,6 +128,7 @@ export interface {{ containerComponentName container }}Props {
     refreshCounter: number;
     isLoading: boolean;
     actions: {{ pageContainerActionDefinitionTypeName container }};
+    dataPath?: string;
     {{# if container.isSelector }}
       selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
       setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
