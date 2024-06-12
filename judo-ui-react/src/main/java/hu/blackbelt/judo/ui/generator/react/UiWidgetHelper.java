@@ -341,8 +341,13 @@ public class UiWidgetHelper {
         if (button.getActionDefinition().getIsOpenCreateFormAction() && !table.isIsEager() && container.isView()) {
             return "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";
         }
-        if (button.getActionDefinition().getIsOpenSelectorAction() && container.isView()) {
-            return "(isFormUpdateable ? isFormUpdateable() : false)";
+        if (container.isView()) {
+            if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsRemoveAction()) {
+                return "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + ") : false)";
+            }
+            if (button.getActionDefinition().getIsBulkRemoveAction() || button.getActionDefinition().getIsClearAction()) {
+                return "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + " && selectionModel.length > 0) : false)";
+            }
         }
         if (button.getActionDefinition().getIsClearAction()) {
             String result = "data.length > 0";
