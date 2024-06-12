@@ -45,7 +45,7 @@ import {
   mapFilterToFilterModel,
   {{/ if }}
 } from '~/utilities';
-import type { TableRowAction{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
+import type { TableRowAction, FiltersSerializer{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { CustomTablePagination } from '~/components';
@@ -96,6 +96,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   enabledByName?: string;
   checkboxSelection?: boolean;
   relationName: string;
+  filtersSerializer: FiltersSerializer;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: LazyTableProps<T, TStored>) {
@@ -139,6 +140,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     enabledByName,
     relationName,
     checkboxSelection,
+    filtersSerializer,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -170,7 +172,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
   const [sortModel, setSortModel] = useState<GridSortModel>(getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable));
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
-  const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
+  const [filters, setFilters] = useState<Filter[]>(filtersSerializer.deserialize(getItemParsedWithDefault(filtersKey, [])));
   {{# if isMUILicensePlanPro }}
     const [columnState, setColumnState] = useState<PersistedColumnInfo[]>(getItemParsedWithDefault(columnStateKey, []));
   {{/ if }}
@@ -308,7 +310,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const handleFiltersChange = (newFilters: Filter[]) => {
     setPage(0);
     setFilters(newFilters);
-    setItemStringified(filtersKey, newFilters);
+    setItemStringified(filtersKey, filtersSerializer.serialize(newFilters));
 
     setQueryCustomizer((prevQueryCustomizer: S | QueryCustomizer<T>) => {
       // remove previous filter values, so that we can always start with a clean slate

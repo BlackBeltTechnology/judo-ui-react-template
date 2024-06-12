@@ -1,11 +1,12 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}useEffect, useState, useMemo, lazy, Suspense } from 'react';
+import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
   import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
   import { OBJECTCLASS } from '@pandino/pandino-api';
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+  import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
   import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
   {{# if (containerHasTableWithTotalCount page.container) }}
   import { X_JUDO_COUNT_RECORDS } from '~/services/data-api/rest/headers';
@@ -25,15 +26,11 @@ import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}use
   import {
     {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
-    {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
-    {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
     isErrorNestedValidationError,
-    cleanUpPayload,
-    decoratePayloadWithMetaFromData,
-    {{# if page.container.view }}
-      cloneDeep,
-    {{/ if }}
+    simpleCloneDeep,
+    getValue,
+    setValue,
   } from '~/utilities';
   import type {
     DialogResult,
@@ -66,20 +63,28 @@ import { {{# unless page.container.table }}useCallback, useRef, {{/ unless }}use
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  {{# unless page.container.table }}
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
-    {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
-  {{/ unless }}
-
   const {{ containerComponentName page.container }}DialogContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer'));
 {{/ unless }}
 
 // XMIID: {{ getXMIID page }}
 // Name: {{ page.name }}
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
-  const { ownerData, {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output, {{/ and }}{{# if page.container.isRelationSelector }}alreadySelected, {{/ if }}{{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}{{# unless page.container.table }}maskRequest, {{/ unless }}onClose, onSubmit, isDraft, ownerValidation } = props;
+  const {
+    ownerData,
+    {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output,{{/ and }}
+    {{# if page.container.isRelationSelector }}alreadySelected,{{/ if }}
+    {{# unless page.container.isSelector }}templateDataOverride,{{/ unless }}
+    ownerValidation,
+    isDraft,
+    {{# unless page.container.table}}maskRequest,{{/ unless }}
+    dataPath,
+    onClose,
+    onSubmit,
+  } = props;
 
   {{# unless (containerIsEmptyDashboard page.container) }}
+    const owner = useRef<any>(ownerData ?? null);
+
     // Services
     const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
     {{# each (getRelatedServicesForPage page) as |rel| }}
@@ -101,34 +106,22 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
-    const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>(
-      {{# if page.container.table }}
-        []
-      {{ else }}
-        {{# and (isPageDataElementUnmappedSingle page) page.container.view }}output{{ else }}{}{{/ and }} as {{ classDataName (getReferenceClassType page) 'Stored' }}
-      {{/ if }}
-    );
+    const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>({{ dialogDataInitialValue page }} as {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }});
     {{# if page.container.isSelector }}
       const [selectionDiff, setSelectionDiff] = useState<{{ dialogDataType page }}[]>([]);
     {{/ if }}
     {{# unless page.container.table }}
       const [validation, setValidation] = useState<Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>>(new Map<keyof {{ classDataName (getReferenceClassType page) '' }}, string>());
 
-      // Ref section
-      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
-
       {{# if page.container.view}}
       // Rollback handling
-      const rollbackPoint = useRef<{{ dialogDataType page }} | null>((isDraft && templateDataOverride) ? cloneDeep<{{ dialogDataType page }}>(templateDataOverride) : null);
+      const rollbackPoint = useRef<{{ dialogDataType page }} | null>(isDraft ? simpleCloneDeep(getValue<{{ dialogDataType page }}>(ownerData, dataPath!, {})) : null);
       const rollbackData = useCallback(() => {
         if (rollbackPoint.current) {
           setData(rollbackPoint.current);
-          // re-set payloadDiff
-          payloadDiff.current = {} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>;
-          decoratePayloadWithMetaFromData(payloadDiff.current, rollbackPoint.current);
           setEditMode(false);
         }
-      }, [data, editMode, payloadDiff, rollbackPoint]);
+      }, [data, editMode, dataPath, ownerData, isDraft]);
       {{/ if }}
 
       // Callback section
@@ -206,57 +199,22 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{/ if }}
       }
     };
+    const produceDataAdjustedOwner = useCallback(() => {
+      const copy = simpleCloneDeep(owner.current);
+      setValue(copy, dataPath!, simpleCloneDeep(data));
+      return copy;
+    }, [data, owner]);
 
     // Validation
-    const validate: (data: {{ dialogBareDataType page }}) => Promise<void> = async (data) => {
-      {{# if (isDialogValidationSupported page) }}
+    const validate: (target: any) => Promise<void> = useCallback(async (target) => {
+      {{# if (isValidationSupported page) }}
         if (ownerValidation) {
-          await ownerValidation(data);
+          await ownerValidation(target);
         } else {
-          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data);
+          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}target);
         }
       {{/ if }}
-    };
-    {{# each page.container.links as |link| }}
-      {{# and (createNestedValidation link.relationType page) link.isEager }}
-        const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
-          try {
-            await validate({
-              ...cleanUpPayload({
-                ...payloadDiff.current,
-                {{ link.relationType.name }}: {
-                  ...linkData,
-                } as any
-              }),
-            } as {{ dialogBareDataType page }});
-          } catch (error: any) {
-            if (isErrorNestedValidationError(error, '{{ link.relationType.name }}')) {
-              throw error;
-            }
-          }
-        };
-      {{/ and }}
-    {{/ each }}
-    {{# each page.container.tables as |table| }}
-      {{# and (createNestedValidation table.relationType page) table.isEager }}
-        const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
-          try {
-            await validate({
-              ...cleanUpPayload({
-                ...payloadDiff.current,
-                {{ table.relationType.name }}: [
-                  { ...tableData } as any
-                ],
-              }),
-            } as {{ dialogBareDataType page }});
-          } catch (error: any) {
-            if (isErrorNestedValidationError(error, '{{ table.relationType.name }}')) {
-              throw error;
-            }
-          }
-        };
-      {{/ and }}
-    {{/ each }}
+    }, [{{# if (isValidationSupported page) }}ownerValidation, {{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data, {{ getServiceImplForPage page }}{{/ if }}]);
 
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
@@ -339,17 +297,17 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     // Effect section
     useEffect(() => {
       {{# if (pageShouldInitialize page) }}
-        if (!isDraft) {
+        {{# if page.container.view }}
+          if (!isDraft) {
+            actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
+          }
+        {{ else }}
           actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
-        }
+        {{/ if }}
       {{/ if }}
       {{# unless page.container.table }}
         if (templateDataOverride) {
           setData((prevData) => ({ ...prevData, ...templateDataOverride }));
-          {{# if page.container.view }}
-            // re-set payloadDiff
-            decoratePayloadWithMetaFromData(payloadDiff.current, templateDataOverride);
-          {{/ if }}
         }
       {{/ unless }}
     }, []);
@@ -364,6 +322,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             ownerData={ownerData}
             onClose={onClose}
             actions={actions}
+            dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}
             refreshCounter={refreshCounter}

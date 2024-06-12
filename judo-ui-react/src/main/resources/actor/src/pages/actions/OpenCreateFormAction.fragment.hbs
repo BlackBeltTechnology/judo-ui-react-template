@@ -1,5 +1,25 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}isDraft?: boolean, ownerValidation?: (data: any) => Promise<void>) => {
-  const { result, data: returnedData, openCreated } = await open{{ actionTargetPageName action }}({{{ getFormOpenParameters page action }}});
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}) => {
+  {{# if (isActionParentEagerTable action) }}
+  const itemIndex = (data.{{ action.targetDataElement.name }} || []).length; // length gives next without -1-ing it
+  {{/ if }}
+  const { result, data: returnedData, openCreated } = await open{{ actionTargetPageName action }}({
+    ownerData: produceDataAdjustedOwner(),
+    {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}
+      ownerValidation: validate,
+    {{/ or }}
+    {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
+      {{# with (getFirstAutocompleteColumnForLink link) as |col| }}
+        {{# unless link.isEager }}
+          maskRequest: '{ {{~ col.attributeType.name ~}} }',
+        {{/ unless }}
+      {{/ with }}
+    {{/ with }}
+    {{# if page.container.isRelationSelector }}
+      maskRequest: getMask(),
+    {{/ if }}
+    isDraft: {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}true{{ else }}false{{/ or }},
+    dataPath: `${dataPath ? (dataPath + '.') : ''}{{# if (isActionParentEagerElement action) }}{{ action.targetPageDefinition.dataElement.name }}{{/ if }}{{# if (isActionParentEagerTable action) }}[${itemIndex}]{{/ if }}`
+  });
   {{# if page.container.isRelationSelector }}
     if (result === 'submit' && returnedData) {
       onSubmit([returnedData]);
@@ -10,9 +30,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
         ...returnedData,
-        __identifier: `draft:${uuidv4()}`,
+        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
       };
-      const newData = {{# if action.targetDataElement.isCollection }}[...(payloadDiff.current.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
+      const newData = {{# if action.targetDataElement.isCollection }}[...(data.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
       storeDiff('{{ action.targetDataElement.name }}', newData);
       return;
     }
@@ -24,7 +44,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       } else if (result === 'submit-draft' && returnedData) {
         const decoratedData = {
           ...returnedData,
-          __identifier: `draft:${uuidv4()}`,
+          __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
         };
         const newData = {{# if action.targetDataElement.isCollection }}[...(data.{{ action.targetDataElement.name }} || []), decoratedData]{{ else }}decoratedData{{/ if }}
         storeDiff('{{ action.targetDataElement.name }}', newData);

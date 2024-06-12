@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useCallback, useEffect, useRef, {{/ unless }}useState, useMemo, lazy, Suspense } from 'react';
+import { {{# unless page.container.table }}useEffect, {{/ unless }}useCallback, useRef, useState, useMemo, lazy, Suspense } from 'react';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 {{# if (containerIsEmptyDashboard page.container) }}
   import { ComponentProxy } from '@pandino/react-hooks';
@@ -10,6 +10,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+  import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
   import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
   {{# if (containerHasTableWithTotalCount page.container) }}
   import { X_JUDO_COUNT_RECORDS } from '~/services/data-api/rest/headers';
@@ -29,11 +30,10 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   import {
     {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
-    {{# if (containerHasDateInput page.container) }}uiDateToServiceDate,{{/ if }}
-    {{# if (containerHasTimeInput page.container) }}uiTimeToServiceTime,{{/ if }}
     useErrorHandler,
-    cleanUpPayload,
-    decoratePayloadWithMetaFromData,
+    simpleCloneDeep,
+    getValue,
+    setValue,
     {{# if (hasExportAction page) }}fileHandling,{{/ if }}
   } from '~/utilities';
   import type {
@@ -72,11 +72,6 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 {{/ if }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
-  {{# unless page.container.table }}
-    {{# if isDebugPrint }}// include: actor/src/fragments/page/payload-converter.fragment.hbs{{/ if }}
-    {{> actor/src/fragments/page/payload-converter.fragment.hbs classType=page.dataElement.target page=page }}
-  {{/ unless }}
-
   const {{ containerComponentName page.container }}PageContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer'));
 {{/ unless }}
 
@@ -84,9 +79,16 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 // Name: {{ page.name }}
 export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
+    const dataPath = '';
+    const isDraft = false;
+    const owner = useRef<any>(null);
+
     {{# if (pageHasSignedId page) }}
       // Router params section
       const { signedIdentifier } = useParams();
+      {{# if page.container.table }}
+        owner.current = { __signedIdentifier: signedIdentifier };
+      {{/ if }}
     {{/ if }}
 
     // Services
@@ -123,7 +125,6 @@ export default function {{ pageName page }}() {
       {{# if (isSingleAccessPage page) }}
         const singletonHost = useRef<{ __signedIdentifier: string }>({} as unknown as { __signedIdentifier: string });
       {{/ if }}
-      const payloadDiff = useRef<Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>>({} as unknown as Record<keyof {{ classDataName (getReferenceClassType page) 'Stored' }}, any>);
 
       // Callback section
       const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {
@@ -198,37 +199,19 @@ export default function {{ pageName page }}() {
         }
       {{/ if }}
     };
+    const produceDataAdjustedOwner = useCallback(() => {
+      const copy = simpleCloneDeep(owner.current);
+      setValue(copy, dataPath, simpleCloneDeep(data));
+      return copy;
+    }, [data, owner]);
 
     // Validation
     {{# unless page.container.table }}
-      {{# each page.container.links as |link| }}
-        {{# and page.dataElement.isUpdateValidatable link.relationType.isUpdateValidatable link.isEager }}
-          const validate{{ firstToUpper link.relationType.name }} = async (linkData: {{ classDataName link.relationType.target '' }}): Promise<void> => {
-            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
-              ...cleanUpPayload({
-                ...payloadDiff.current,
-                {{ link.relationType.name }}: {
-                  ...linkData,
-                } as any
-              }),
-            } as {{ classDataName (getReferenceClassType page) 'Stored' }});
-          };
-        {{/ and }}
-      {{/ each }}
-      {{# each page.container.tables as |table| }}
-        {{# and page.dataElement.isUpdateValidatable table.relationType.isUpdateValidatable table.isEager }}
-          const validate{{ firstToUpper table.relationType.name }} = async (tableData: {{ classDataName table.relationType.target '' }}): Promise<void> => {
-            await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}{
-              ...cleanUpPayload({
-                ...payloadDiff.current,
-                {{ table.relationType.name }}: [
-                  { ...tableData } as any
-                ],
-              }),
-            } as {{ classDataName (getReferenceClassType page) 'Stored' }});
-          };
-        {{/ and }}
-      {{/ each }}
+    const validate: (target: any) => Promise<void> = useCallback(async (target) => {
+      {{# if (isValidationSupported page) }}
+        await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}target);
+      {{/ if }}
+    }, [{{# if (isValidationSupported page) }}data, {{ getServiceImplForPage page }}{{/ if }}]);
     {{/ unless }}
 
     // Pandino Action overrides
@@ -319,6 +302,7 @@ export default function {{ pageName page }}() {
             const res = await getSingletonPayload();
             if (res?.__signedIdentifier) {
               singletonHost.current = res;
+              owner.current = res;
             } else {
               navigate('*');
               return;
@@ -338,6 +322,7 @@ export default function {{ pageName page }}() {
           <PageContainerTransition>
             <{{ containerComponentName page.container }}PageContainer
               actions={actions}
+              dataPath={dataPath}
               isLoading={isLoading}
               editMode={editMode}
               refreshCounter={refreshCounter}

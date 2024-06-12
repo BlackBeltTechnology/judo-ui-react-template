@@ -46,7 +46,7 @@ export const useErrorHandler = () => {
   const { showErrorSnack } = useSnacks();
   const openFaultDialog = useFaultDialog();
 
-  return <T>(error: any, options?: ErrorHandlingOption<T>, payload?: T, relationName?: string) => {
+  return <T>(error: any, options?: ErrorHandlingOption<T>, payload?: T, dataPath?: string) => {
     console.error(error);
     const errorResults: ErrorProcessResult<T> = {
       errorToastConfig: {
@@ -117,10 +117,8 @@ export const useErrorHandler = () => {
             if (exists(errorList[0].location)) {
               errorResults.validation = new Map<keyof T, string>();
               if (typeof options?.setValidation === 'function') {
-                const errorRelations: Record<string, Array<string>> = {};
-
-                if (relationName) {
-                  validateRelationErrors(errorList, relationName, errorResults.validation, t);
+                if (dataPath) {
+                  validateRelationErrors(errorList, dataPath, errorResults.validation, t);
                 } else {
                   validateWithNestedErrors(errorList, errorResults.validation, t);
                 }
@@ -145,15 +143,15 @@ export const useErrorHandler = () => {
   };
 };
 
-function validateRelationErrors<T>(errorList: ServerError<T>[], relationName: string, validation: Map<keyof T, string>, t: any): void {
+function validateRelationErrors<T>(errorList: ServerError<T>[], dataPath: string, validation: Map<keyof T, string>, t: any): void {
   errorList.forEach((error) => {
-    if ((error.location.startsWith(relationName + '.') || error.location.startsWith(relationName + '['))) {
-      const idx = error.location.startsWith(relationName + '.') ? error.location.indexOf('.') + 1 : error.location.lastIndexOf(']') + 2;
+    if (error.location.startsWith(dataPath)) {
+      const idx = error.location.includes('.') ? error.location.lastIndexOf('.') + 1 : 0;
       validation.set(
         error.location.substring(idx) as keyof T,
         t(`judo.error.validation-failed.${error.code}`, {
           defaultValue: error.code,
-          relation: relationName,
+          relation: dataPath,
           error,
         }) as string,
       );
@@ -197,11 +195,14 @@ export const isErrorOperationFault = (error: any): boolean => {
   return error?.response?.status === 422;
 };
 
-export const isErrorNestedValidationError = (error: any, relation: string): boolean => {
+export const isErrorNestedValidationError = (error: any, dataPath?: string): boolean => {
+  if (dataPath === undefined || dataPath === null) {
+    return false;
+  }
   const { response } = error;
   return response
     && response.status === 400
     && Array.isArray(response.data)
     && response.data.length
-    && response.data.some((e: any) => e.location.startsWith(relation + '.') || e.location.startsWith(relation + '['));
+    && response.data.some((e: any) => e.location.startsWith(dataPath));
 }

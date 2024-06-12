@@ -1,5 +1,11 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
-  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({{{ getSelectorOpenActionParameters action page.container }}});
+  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
+    {{# if action.actionDefinition.targetType }}
+      ownerData: target!,
+    {{ else }}
+      ownerData: produceDataAdjustedOwner(),
+    {{/ if }}
+  });
   if (result === 'submit') {
     await refresh();
   }

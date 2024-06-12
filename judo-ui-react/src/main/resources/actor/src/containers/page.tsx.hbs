@@ -17,8 +17,11 @@ import { mainContainerPadding } from '~/theme';
   import type {
     {{ classDataName container.dataElement '' }},
     {{ classDataName container.dataElement 'Stored' }},
-    {{ classDataName container.dataElement 'QueryCustomizer' }}
-  } from '~/services/data-api';
+  } from '~/services/data-api/model/{{ classDataName container.dataElement '' }}';
+  import type {
+    {{ classDataName container.dataElement 'QueryCustomizer' }},
+  } from '~/services/data-api/rest/{{ classDataName container.dataElement 'QueryCustomizer' }}';
+
   import type {
     {{ containerComponentName container }}ActionDefinitions,
     {{ containerComponentName container }}PageActions,
@@ -37,7 +40,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { actions, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
+    const { actions, dataPath, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
     const isDraft = false; // currently no page can be opened as draft, but we need this variable anyway
     {{# if container.view }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
@@ -88,6 +91,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
           <Box sx={mainContainerPadding}>
             <{{ containerComponentName container }}
               actions={actions}
+              dataPath={dataPath}
               refreshCounter={refreshCounter}
               {{# unless (containerIsEmptyDashboard container) }}
                 isLoading={isLoading}

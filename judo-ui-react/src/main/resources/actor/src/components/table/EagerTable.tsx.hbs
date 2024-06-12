@@ -43,7 +43,7 @@ import {
   {{/ if }}
 }
 from '~/utilities';
-import type { TableRowAction{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
+import type { TableRowAction, FiltersSerializer{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
@@ -85,6 +85,7 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   isFormUpdateable?: () => boolean;
   enabledByName?: string;
   relationName: string;
+  filtersSerializer: FiltersSerializer;
 }
 
 export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: EagerTableProps<T, TStored>) {
@@ -120,6 +121,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     enabledByName,
     relationName,
     checkboxSelection,
+    filtersSerializer,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -149,7 +151,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
   const [sortModel, setSortModel] = useState<GridSortModel>(getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable));
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
-  const [filters, setFilters] = useState<Filter[]>(getItemParsedWithDefault(filtersKey, []));
+  const [filters, setFilters] = useState<Filter[]>(filtersSerializer.deserialize(getItemParsedWithDefault(filtersKey, [])));
   {{# if isMUILicensePlanPro }}
     const [columnState, setColumnState] = useState<PersistedColumnInfo[]>(getItemParsedWithDefault(columnStateKey, []));
   {{/ if }}
@@ -264,7 +266,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       page: 0,
     }));
     setFilters(newFilters);
-    setItemStringified(filtersKey, newFilters);
+    setItemStringified(filtersKey, filtersSerializer.serialize(newFilters));
 
     setQueryCustomizer((prevQueryCustomizer: S | QueryCustomizer<T>) => {
       // remove previous filter values, so that we can always start with a clean slate
