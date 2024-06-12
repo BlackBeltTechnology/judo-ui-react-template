@@ -99,7 +99,7 @@ public class UiActionsHelper {
             // {{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}
             return "JudoRestResponse<" + classDataName((ClassType) container.getDataElement(), "Stored") + (container.isTable() ? "[]" : "") + ">";
         } else if (actionDefinition.getIsPreFetchAction()) {
-            return "JudoRestResponse<" + classDataName(actionDefinition.getTargetType(), "Stored") + ">";
+            return "JudoRestResponse<" + classDataName(actionDefinition.getTargetType(), "Stored") + " | null>";
         } else if (actionDefinition.getIsGetTemplateAction()) {
             return "JudoRestResponse<" + classDataName(actionDefinition.getTargetType(), "") + ">";
         }
@@ -207,7 +207,7 @@ public class UiActionsHelper {
         } else if (actionDefinition.getIsOpenSelectorAction()) {
             return classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + " | undefined";
         } else if (actionDefinition.getIsRefreshAction()) {
-            return "JudoRestResponse<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + ">";
+            return "JudoRestResponse<" + classDataName(((ReferenceType) link.getDataElement()).getTarget(), "Stored") + " | null>";
         }
         return "void";
     }
