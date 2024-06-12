@@ -414,8 +414,10 @@ public class UiPageContainerHelper {
         }
         segments.add("isLoading");
 
-        if (container.isIsSelector() && button.getActionDefinition().getIsCallOperationAction()) {
-            segments.add("!selectionDiff.length");
+        if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+            if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
+                segments.add("!selectionDiff.length");
+            }
         }
 
         return String.join(" || ", segments);
