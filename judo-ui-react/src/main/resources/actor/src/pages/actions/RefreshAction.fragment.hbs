@@ -1,5 +1,5 @@
 {{# if action.targetDataElement }}
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{/ if }}>> => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{ else }} | null{{/ if }}>> => {
   const result = await {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
   {{# if page.container.view }}
     {{# if (isRefreshPageInitializer action page) }}

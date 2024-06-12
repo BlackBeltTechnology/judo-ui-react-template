@@ -1,4 +1,4 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<JudoRestResponse<{{ classDataName action.actionDefinition.targetType 'Stored' }}>> => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<JudoRestResponse<{{ classDataName action.actionDefinition.targetType 'Stored' }} | null>> => {
   return {{ getServiceImplForPage page }}.get{{ firstToUpper action.targetDataElement.name }}({{# if (pageHasSignedId page) }}{{# if page.openInDialog }}data{{ else }}{ __signedIdentifier: signedIdentifier } as any{{/ if }}{{ else }}data{{/ if }}, {
     _mask: '{}',
   });
