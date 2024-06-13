@@ -43,7 +43,7 @@ import {
   {{/ if }}
 }
 from '~/utilities';
-import type { TableRowAction, FiltersSerializer{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
+import type { TableRowAction, FiltersSerializer, DialogResultReason{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
@@ -492,7 +492,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
                         } else {
                           if (toolBarAction.isBulk) {
                             const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
-                            if (bulkResult === 'submit') {
+                            const reason: DialogResultReason = bulkResult;
+                            if (reason === 'submit' || reason === 'delete') {
                               handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
                             }
                           } else {
