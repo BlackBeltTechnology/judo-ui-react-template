@@ -11,8 +11,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
         await validate(validationData);
         // we send data back in draft mode, because the owner is responsible to handle it in-memory
         onSubmit(data, 'submit-draft');
-      } catch (error) {
-        if (ownerValidation && !isErrorNestedValidationError(error, dataPath!)) {
+      } catch (error: any) {
+        if (error?.response?.status === 400 && ownerValidation && !isErrorNestedValidationError(error, dataPath!)) {
           // relation form has no remaining error(s), proceed with submission
           onSubmit(data, 'submit-draft');
         } else {
