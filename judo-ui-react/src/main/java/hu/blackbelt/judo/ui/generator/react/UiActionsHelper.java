@@ -277,7 +277,7 @@ public class UiActionsHelper {
             return "{ __signedIdentifier: signedIdentifier } as any";
         }
         if (isSingleAccessPage(pageDefinition)) {
-            return "singletonHost.current";
+            return "owner.current";
         }
         return "undefined";
     }
