@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { type MouseEvent, type SyntheticEvent, useCallback, useMemo, useState } from 'react';
+import { type MouseEvent, type SyntheticEvent, useCallback, useMemo, useState, useRef, useEffect } from 'react';
 import clsx from 'clsx';
 import InputAdornment from '@mui/material/InputAdornment';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -74,6 +74,7 @@ export function Tags<P, T> (props: TagsProps<P, T>) {
   } = props;
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const prevValues = useRef<T[]>(ownerData[name] as T[]);
 
   const handleSearch = async (searchText: string) => {
     try {
@@ -134,6 +135,14 @@ export function Tags<P, T> (props: TagsProps<P, T>) {
       }
     }
   }, [ownerData, onItemClick]);
+
+  useEffect(() => {
+    // prevent recursion
+    if (prevValues.current !== ownerData[name]) {
+      prevValues.current = ownerData[name] as T[];
+      onValueChange(ownerData[name] as any);
+    }
+  }, [ownerData[name]]);
 
   return (
     <Autocomplete
