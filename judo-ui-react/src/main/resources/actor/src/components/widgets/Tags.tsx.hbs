@@ -123,6 +123,8 @@ export function Tags<P, T> (props: TagsProps<P, T>) {
   );
 
   const onChange = useCallback((event: SyntheticEvent, value: (string | any)[]) => {
+    // prevent useEffect below from triggering recursion
+    prevValues.current = value;
     onValueChange(value as any);
   }, [ownerData, onValueChange]);
 
