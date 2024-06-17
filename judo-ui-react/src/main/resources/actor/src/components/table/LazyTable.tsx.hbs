@@ -645,10 +645,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                           }
                         }
 
-                        if (toolBarAction.name === calculateActionName(relationName, 'refreshAction')
-                            || toolBarAction.name === calculateActionName(relationName, 'exportAction')
-                            || toolBarAction.name === calculateActionName(relationName, 'selectorRangeAction')
-                          ) {
+                        if (toolBarAction.name === calculateActionName(relationName, 'refreshAction')) {
+                          fetching();
+                        } else if (toolBarAction.name === calculateActionName(relationName, 'exportAction')
+                          || toolBarAction.name === calculateActionName(relationName, 'selectorRangeAction')
+                        ) {
                           actions[toolBarAction.name]!(processedQueryCustomizer);
                         } else {
                           if (toolBarAction.isBulk) {
