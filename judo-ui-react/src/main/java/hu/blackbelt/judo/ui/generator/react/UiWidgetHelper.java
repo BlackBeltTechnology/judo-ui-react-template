@@ -381,6 +381,9 @@ public class UiWidgetHelper {
             }
             if (container.isView()) {
                 result += "(isFormUpdateable ? !isFormUpdateable() : false) || ";
+                if (!table.isIsEager()) {
+                    result += "editMode || ";
+                }
             }
         } else if (button.getActionDefinition().getIsRowDeleteAction()) {
             if (!container.isTable()) {
