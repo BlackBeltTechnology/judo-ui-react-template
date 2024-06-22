@@ -31,6 +31,7 @@ import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getActionOperationOutputClassType;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.isPageDataElementUnmappedSingle;
+import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerIsRefreshable;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
@@ -484,5 +485,38 @@ public class UiPageHelper {
                 return "(templateDataOverride ?? {})";
             }
         }
+    }
+
+    public static String pageHookCallParams(PageDefinition pageDefinition) {
+        Set<String> params = new LinkedHashSet<>();
+        // parameter order is important!
+        if (!pageDefinition.isOpenInDialog()) {
+            params.addAll(List.of("data", "editMode"));
+            if (!pageDefinition.getContainer().isTable()) {
+                params.add("storeDiff");
+            }
+            if (pageDefinition.getContainer().isIsSelector()) {
+                params.add("selectionDiff");
+            }
+            if (containerIsRefreshable(pageDefinition.getContainer())) {
+                params.add("refresh");
+            }
+            if (!pageDefinition.getContainer().isTable()) {
+                params.add("submit");
+            }
+        } else {
+            params.addAll(List.of("ownerData", "data", "editMode"));
+            if (!pageDefinition.getContainer().isTable()) {
+                params.add("storeDiff");
+            }
+            if (pageDefinition.getContainer().isIsSelector()) {
+                params.add("selectionDiff");
+            }
+            if (containerIsRefreshable(pageDefinition.getContainer())) {
+                params.add("refresh");
+            }
+            params.addAll(List.of("submit", "onSubmit"));
+        }
+        return String.join(", ", params);
     }
 }
