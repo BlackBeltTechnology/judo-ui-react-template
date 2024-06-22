@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiGeneralHelper.safeName;
+import static hu.blackbelt.judo.ui.generator.react.UiPandinoHelper.getVisualElementsWithCustomImplementation;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 import static java.util.Arrays.stream;
@@ -33,6 +34,10 @@ public class UiPageContainerHelper {
         return stream(container.getName().split(NAME_SPLITTER))
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining(""));
+    }
+
+    public static String containerName(PageContainer container) {
+        return String.join("", stream(container.getName().split(NAME_SPLITTER)).map(UiCommonsHelper::firstToUpper).toList()) + containerComponentName(container);
     }
 
     public static boolean containerIsRefreshable(PageContainer container) {
@@ -439,5 +444,37 @@ public class UiPageContainerHelper {
                 .filter(i -> !i.isIsReadOnly())
                 .sorted(Comparator.comparing(NamedElement::getFQName))
                 .collect(Collectors.toList());
+    }
+
+    public static Set<PageContainer> getPageContainersWithCustomImplementations(Application app) {
+        Set<PageContainer> containers = new HashSet<>();
+        for (PageContainer container : app.getPageContainers()) {
+            Set<VisualElement> elements = getVisualElementsWithCustomImplementation(container);
+            if (!elements.isEmpty()) {
+                containers.add(container);
+            }
+        }
+        return containers;
+    }
+
+    public static String getProxyPropsForCustomImplementation(VisualElement element) {
+        PageContainer container = element.getPageContainer();
+        String actionType = pageContainerActionDefinitionTypeName(container);
+        String targetType = container.isTable() ? "any" : classDataName((ClassType) container.getDataElement(), "Stored");
+        if (element instanceof Table) {
+            return "TableProxyProps<" + targetType + ", " + actionType + ">";
+        } else if (element instanceof Link) {
+            return "LinkProxyProps<" + targetType + ", " + actionType + ">";
+        }
+        return "GenericProxyProps<" + targetType + ", " + actionType + ">";
+    }
+
+    public static String getCustomImplementationProps(VisualElement element) {
+        if (element instanceof Table) {
+            return "ownerData, isOwnerLoading, actions, editMode, storeDiff, isFormUpdateable";
+        } else if (element instanceof Link) {
+            return "ownerData, data, disabled, readOnly, editMode, validation, actions, isLoading, isDraft";
+        }
+        return "data, validation, editMode, storeDiff, isLoading, actions";
     }
 }

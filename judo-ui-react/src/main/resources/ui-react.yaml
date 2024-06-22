@@ -279,6 +279,38 @@ templates:
     pathExpression: "'src/custom/interfaces.ts'"
     templateName: actor/src/custom/interfaces.ts.hbs
 
+  - name: actor/src/custom/default-page-hook-registration.ts
+    factoryExpression: "#getPagesForRouting(#application)"
+    pathExpression: "'src/custom/hooks/pages/register' + #pageName(#self) + 'ActionsHook.ts.default'"
+    templateName: actor/src/custom/default-page-hook-registration.ts.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/custom/default-page-hook-registration.ts
+    factoryExpression: "#getPagesForDialogs(#application)"
+    pathExpression: "'src/custom/hooks/dialogs/register' + #pageName(#self) + 'ActionsHook.ts.default'"
+    templateName: actor/src/custom/default-page-hook-registration.ts.hbs
+    templateContext:
+      - name: page
+        expression: "#self"
+
+  - name: actor/src/custom/default-container-hook-registration.ts
+    factoryExpression: "#application.pageContainers"
+    pathExpression: "'src/custom/hooks/containers/register' + #containerName(#self) + 'ActionsHook.ts.default'"
+    templateName: actor/src/custom/default-container-hook-registration.ts.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
+  - name: actor/src/custom/default-container-with-custom-implementations-hook-registration.tsx
+    factoryExpression: "#getPageContainersWithCustomImplementations(#application)"
+    pathExpression: "'src/custom/hooks/custom-implementations/register' + #containerName(#self) + 'CustomImplementations.tsx.default'"
+    templateName: actor/src/custom/default-container-with-custom-implementations-hook-registration.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self"
+
   # Actor - src - auth
 
   - name: actor/src/auth/index.tsx
