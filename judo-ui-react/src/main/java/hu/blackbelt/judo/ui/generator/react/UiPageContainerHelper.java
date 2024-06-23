@@ -37,7 +37,7 @@ public class UiPageContainerHelper {
     }
 
     public static String containerName(PageContainer container) {
-        return String.join("", stream(container.getName().split(NAME_SPLITTER)).map(UiCommonsHelper::firstToUpper).toList()) + containerComponentName(container);
+        return String.join("", stream(container.getName().split(NAME_SPLITTER)).map(UiCommonsHelper::firstToUpper).toList());
     }
 
     public static boolean containerIsRefreshable(PageContainer container) {
