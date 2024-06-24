@@ -4,7 +4,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
     openCRUDDialog<{{ classDataName (getReferenceClassType table) 'Stored' }}>({
       dialogTitle: t('{{ getTranslationKeyForVisualElement (translationElementForBulkAction action) }}', { defaultValue: '{{ defaultLabelForBulkAction action }}' }),
       {{# with (getFirstTitleColumnForTable table) as |column| }}
-        itemTitleFn: (item) => item.{{ column.attributeType.name }}!,
+        itemTitleFn: (item) => actions?.get{{ firstToUpper table.relationName }}RowRepresentation ? actions.get{{ firstToUpper table.relationName }}RowRepresentation(item) : item.{{ column.attributeType.name }}!,
       {{ else }}
         itemTitleFn: (item) => t('judo.placeholder', { defaultValue: 'placeholder' }) as string,
       {{/ with }}
