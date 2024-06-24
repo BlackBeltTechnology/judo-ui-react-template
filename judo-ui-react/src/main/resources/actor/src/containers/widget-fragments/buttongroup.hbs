@@ -22,7 +22,7 @@
             loadingPosition="start"
           {{/ if }}
           onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
-            {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button }}
+            {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
             await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
           } : undefined }
           {{# if (containerButtonHasDisabledConditions button container) }}
@@ -46,7 +46,7 @@
               id: '{{ getXMIID button }}',
               label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
               onClick: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
-                {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button }}
+                {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
                 await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
               } : undefined,
               {{# if button.icon }}

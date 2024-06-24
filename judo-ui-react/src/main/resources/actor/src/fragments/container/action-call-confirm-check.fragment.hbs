@@ -1,4 +1,7 @@
 {{# if button.confirmation }}
+  {{# if (shouldRenderConfirmationCondition button) }}
+    if ({{ dataParam }}?.{{ button.confirmation.confirmationCondition.name }}) {
+  {{/ if }}
   const result = await openConfirmDialog(
     '{{ getXMIID button }}',
     t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
@@ -8,4 +11,7 @@
   if (!result) {
     return;
   }
+  {{# if (shouldRenderConfirmationCondition button) }}
+    }
+  {{/ if }}
 {{/ if }}
