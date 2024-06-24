@@ -54,7 +54,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
       <>
         <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}>
           {{# each container.actionButtonGroup.buttons as |button| }}
-            { {{ containerButtonAvailable button }} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
+            { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
               <Grid className="page-action" item>
                 <LoadingButton
                   id="{{ getXMIID button }}"
