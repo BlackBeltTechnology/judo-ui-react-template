@@ -99,15 +99,17 @@ public/18n/application_default_extra.fragment.hbs
 
 === useViewData
 
-The `useViewData()` hook can be used to obtain the latest view page/dialog's latest data.
+The `useViewData()` hook can be used to obtain the data of page/dialog's.
 
-Be aware that navigating via associations breaks the reference "chain" therefore in such cases the latest view data will
-always be the current view's data.
+Be aware that in case of `getLatestViewData()`, navigating via associations breaks the reference "chain" therefore in
+such cases the latest view data will always be the current view's data.
 
 *Available methods:*
 
 - getLatestViewData(): Returns the data for the last loaded View page/dialog.
-- setLatestViewData(): Used internally only to update the data. Should not be used in application code.
+- getRouterPageData(): Returns the data of the page we are currently at. Will always return the "root" page data
+  regardless of how many layers of dialogs we opened. In case of non-access table pages, it will return the `JudoIdentifiable<any>`
+  value of the relation's owner.
 
 === RedirectServiceHook
 
@@ -822,7 +824,7 @@ page are also generated on the owner page.
 
 The easiest way of finding the XMIID of a page which we would like to register hooks for is to
 
-- right click on the page/dialog title in your browser
+- Right-click on the page/dialog title in your browser
 - Press `Inspect`
 - In the DOM tree, the corresponding XMIID will reside a couple of layer higher compared to the title node.
 
