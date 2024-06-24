@@ -8,20 +8,29 @@ interface DataContextProps {
 
 interface ViewContextContextValue {
   setLatestViewData: (newData: JudoIdentifiable<any> | null) => void;
+  setRouterPageData: (newData: JudoIdentifiable<any> | null) => void;
+  // Returns the latest data for a view which we navigated from
   getLatestViewData: () => JudoIdentifiable<any> | null;
+  // Returns the data for a page in the background regardless of where we are in a dialog chain
+  getRouterPageData: () => JudoIdentifiable<any> | null;
 }
 
 const ViewDataContext = createContext<ViewContextContextValue | undefined>(undefined);
 
 export const ViewDataProvider: FC<DataContextProps> = ({ children }) => {
   const data = useRef<JudoIdentifiable<any> | null>(null);
+  const pageData = useRef<JudoIdentifiable<any> | null>(null);
 
   const useData = (): ViewContextContextValue => {
     const setLatestViewData = (newData: JudoIdentifiable<any> | null): void => {
       data.current = newData;
     };
     const getLatestViewData = (): JudoIdentifiable<any> | null => data.current;
-    return { setLatestViewData, getLatestViewData };
+    const setRouterPageData = (newData: JudoIdentifiable<any> | null): void => {
+      pageData.current = newData;
+    };
+    const getRouterPageData = (): JudoIdentifiable<any> | null => pageData.current;
+    return { setLatestViewData, getLatestViewData, setRouterPageData, getRouterPageData };
   };
 
   return <ViewDataContext.Provider value={useData()}>{children}</ViewDataContext.Provider>;
