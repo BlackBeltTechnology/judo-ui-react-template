@@ -17,6 +17,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     setEditMode(false);
     {{# if page.container.table }}
       {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+      {{# if (pageHasSignedId page) }}
+        {{# unless page.openInDialog }}
+          setRouterPageData({ __signedIdentifier: signedIdentifier } as any);
+        {{/ unless }}
+      {{/ if }}
       return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
       {{/ with }}
     {{ else }}
@@ -29,6 +34,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
       {{/ if }}
       setData(result);
       setLatestViewData(result);
+      {{# unless page.openInDialog }}
+        {{# if page.container.view }}
+          setRouterPageData(result);
+        {{/ if }}
+      {{/ unless }}
       if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
         await customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(result{{# unless page.container.table }}, storeDiff, setValidation{{/ unless }});
       }
@@ -37,6 +47,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
   } catch (error) {
     handleError(error);
     setLatestViewData(null);
+    {{# unless page.openInDialog }}
+      setRouterPageData(null);
+    {{/ unless }}
     return Promise.reject(error);
   } finally {
     setIsLoading(false);

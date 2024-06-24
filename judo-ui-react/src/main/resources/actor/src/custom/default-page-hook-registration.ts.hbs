@@ -37,7 +37,7 @@ const {{ pageName page }}ActionsHook: {{ containerComponentName page.container }
   // call other hooks here
   const { t } = useTranslation();
   const { navigate, back } = useJudoNavigation();
-  const { getLatestViewData } = useViewData();
+  const { getLatestViewData{{# if page.openInDialog }}, getRouterPageData{{/ if }} } = useViewData();
   {{# each (getRelatedDialogs page false) as |relatedDialog| }}
   const open{{ pageName relatedDialog }} = use{{ pageName relatedDialog }}();
   {{/ each }}
