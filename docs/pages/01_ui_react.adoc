@@ -101,6 +101,9 @@ public/18n/application_default_extra.fragment.hbs
 
 The `useViewData()` hook can be used to obtain the latest view page/dialog's latest data.
 
+Be aware that navigating via associations breaks the reference "chain" therefore in such cases the latest view data will
+always be the current view's data.
+
 *Available methods:*
 
 - getLatestViewData(): Returns the data for the last loaded View page/dialog.
@@ -811,6 +814,17 @@ const containerLevelHook: ViewGalaxyViewContainerHook = () => {
   };
 };
 ----
+
+=== How to locate actions
+
+Every action is implemented in Pages/Dialogs. The actions of Tables and Single Components which are inlined in a certain
+page are also generated on the owner page.
+
+The easiest way of finding the XMIID of a page which we would like to register hooks for is to
+
+- right click on the page/dialog title in your browser
+- Press `Inspect`
+- In the DOM tree, the corresponding XMIID will reside a couple of layer higher compared to the title node.
 
 === Implementing page actions
 
