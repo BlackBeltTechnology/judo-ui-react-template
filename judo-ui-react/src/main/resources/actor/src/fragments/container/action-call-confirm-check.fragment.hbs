@@ -1,4 +1,11 @@
 {{# if button.confirmation }}
+  {{# if (shouldRenderConfirmationCondition button) }}
+    {{# and container container.isSelector }}
+    if (getValue<any>(ownerData, dataPath || '')?.{{ button.confirmation.confirmationCondition.name }}) {
+    {{ else }}
+    if ({{ dataParam }}?.{{ button.confirmation.confirmationCondition.name }}) {
+    {{/ and }}
+  {{/ if }}
   const result = await openConfirmDialog(
     '{{ getXMIID button }}',
     t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
@@ -8,4 +15,7 @@
   if (!result) {
     return;
   }
+  {{# if (shouldRenderConfirmationCondition button) }}
+    }
+  {{/ if }}
 {{/ if }}
