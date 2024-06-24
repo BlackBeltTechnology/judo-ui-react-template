@@ -453,6 +453,9 @@ public class UiWidgetHelper {
 
     public static boolean displayTableHeading(Table table, PageContainer container) {
         return elementHasIconOrLabel(table) && !container.isIsSelector() && !container.isTable();
+    }
 
+    public static boolean shouldRenderConfirmationCondition(Button button) {
+        return button.getConfirmation() != null && button.getConfirmation().getConfirmationCondition() != null;
     }
 }
