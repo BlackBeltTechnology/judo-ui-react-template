@@ -160,6 +160,8 @@ public class UiPageContainerHelper {
             // because it could be possible that there are no valid use cases where these actions
             // should be generated in the first place.
             tokens.add("!isDraft");
+        } else if (button.getActionDefinition().getIsDeleteAction()) {
+            tokens.add("!editMode && (isFormDeleteable() || isDraft)");
         } else {
             tokens.add("!editMode");
         }
