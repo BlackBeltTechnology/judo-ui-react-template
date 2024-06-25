@@ -77,9 +77,6 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     ownerValidation,
     isDraft,
     {{# unless page.container.table}}maskRequest,{{/ unless }}
-    {{# if page.container.view }}
-    openAsReadOnly,
-    {{/ if }}
     dataPath,
     onClose,
     onSubmit,
@@ -136,7 +133,10 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{# if page.container.form }}
           return true;
         {{ else }}
-          return {{# if page.container.view }}!openAsReadOnly && {{/ if }}(isDraft || ({{ boolValue (isPageUpdateable page) }} && typeof data?.__updateable === 'boolean' && data?.__updateable));
+          if (typeof data?.__updateable === 'boolean') {
+            return data?.__updateable;
+          }
+          return isDraft || {{ boolValue (isPageUpdateable page) }};
         {{/ if }}
       }, [data]);
       const isFormDeleteable = useCallback(() => {

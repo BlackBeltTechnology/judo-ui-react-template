@@ -16,9 +16,6 @@ interface {{ pageName page }}HookProps {
   maskRequest?: string;
   {{/ unless }}
   dataPath?: string;
-  {{# if page.container.view }}
-  openAsReadOnly?: boolean;
-  {{/ if }}
 }
 
 export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath }: {{ pageName page }}HookProps) => Promise<DialogResult<
@@ -32,7 +29,7 @@ export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElement
 
   const {{ pageName page }} = lazy(() => import('~/dialogs/{{ pagePath page }}'));
 
-  return ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}{{# if page.container.view }}, openAsReadOnly{{/ if }}, dataPath }: {{ pageName page }}HookProps) => new Promise((resolve) => {
+  return ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath }: {{ pageName page }}HookProps) => new Promise((resolve) => {
     createDialog({
       {{# if page.dialogSize }}
           fullWidth: true,

@@ -8,9 +8,6 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
         ownerData: produceDataAdjustedOwner(),
         isDraft: true,
         ownerValidation: validate,
-        {{# if (isActionDataElementDerived action) }}
-        openAsReadOnly: true,
-        {{/ if }}
         dataPath: `${dataPath ? (dataPath + '.') : ''}{{ action.targetPageDefinition.dataElement.name }}{{# if (isActionParentEagerTable action) }}[${itemIndex!}]{{/ if }}`
       });
       // we might need to differentiate result handling between operation inputs and crud relation creates
@@ -54,9 +51,6 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
   {{# if action.targetPageDefinition.openInDialog }}
     await open{{ pageName action.targetPageDefinition }}({
       ownerData: target!,
-      {{# if (isActionDataElementDerived action) }}
-      openAsReadOnly: true,
-      {{/ if }}
     });
     await refresh();
   {{ else }}
