@@ -459,6 +459,6 @@ public class UiActionsHelper {
     }
 
     public static boolean isActionDataElementDerived(Action action) {
-        return action.getTargetDataElement() instanceof RelationType relationType && relationType.getIsMemberTypeDerived();
+        return action.getTargetDataElement() != null && action.getTargetDataElement() instanceof RelationType relationType && relationType.getIsMemberTypeDerived();
     }
 }
