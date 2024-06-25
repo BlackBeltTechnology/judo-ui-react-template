@@ -1,6 +1,12 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
   {{# with action.actionDefinition.operation as |operation| }}
   try {
+    {{# if page.container.form }}
+      {{# if (hasPageRequiredBy page) }}
+        {{> actor/src/fragments/page/local-validate.fragment.hbs }}
+      {{/ if }}
+    {{/ if }}
+
     setIsLoading(true);
     {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
       {{# if page.container.form }}

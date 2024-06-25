@@ -1,5 +1,8 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCreated?: boolean) => {
   try {
+    {{# if (hasPageRequiredBy page) }}
+      {{> actor/src/fragments/page/local-validate.fragment.hbs }}
+    {{/ if }}
     {{# unless page.dataElement.isAccess }}
     if (isDraft) {
       try {
