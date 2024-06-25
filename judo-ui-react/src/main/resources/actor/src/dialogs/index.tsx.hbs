@@ -133,7 +133,10 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{# if page.container.form }}
           return true;
         {{ else }}
-          return isDraft || ({{ boolValue (isPageUpdateable page) }} && typeof data?.__updateable === 'boolean' && data?.__updateable);
+          if (typeof data?.__updateable === 'boolean') {
+            return data?.__updateable;
+          }
+          return isDraft || {{ boolValue (isPageUpdateable page) }};
         {{/ if }}
       }, [data]);
       const isFormDeleteable = useCallback(() => {
