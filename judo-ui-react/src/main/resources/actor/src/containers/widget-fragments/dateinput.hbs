@@ -58,7 +58,7 @@
             storeDiff('{{ child.attributeType.name }}', newValue);
             {{# if child.onBlur }}
             if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
-                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: newValue };
+                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: newValue{{# if child.attributeType.isRequired }}!{{/ if }} };
                 actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, submit);
             }
             {{/ if }}
