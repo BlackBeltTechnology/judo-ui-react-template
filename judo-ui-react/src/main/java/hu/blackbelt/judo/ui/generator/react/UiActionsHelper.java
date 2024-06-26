@@ -271,7 +271,10 @@ public class UiActionsHelper {
     public static String refreshActionDataParameter(Action action) {
         PageDefinition pageDefinition = (PageDefinition) action.eContainer();
         if (pageDefinition.isOpenInDialog()) {
-            return "ownerData";
+            if (isRefreshPageInitializer(action, pageDefinition)) {
+                return "ownerData";
+            }
+            return "data";
         }
         if (pageHasSignedId(pageDefinition)) {
             return "{ __signedIdentifier: signedIdentifier } as any";
