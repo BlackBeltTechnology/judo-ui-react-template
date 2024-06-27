@@ -1,4 +1,4 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (selectedRows: {{ classDataName action.actionDefinition.bulkOf.targetType 'Stored' }}[]): Promise<DialogResult<Array<{{ classDataName action.actionDefinition.bulkOf.targetType 'Stored' }}>>> => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (selectedRows: {{ classDataName action.actionDefinition.targetType 'Stored' }}[]): Promise<DialogResult<Array<{{ classDataName action.actionDefinition.targetType 'Stored' }}>>> => {
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   return new Promise((resolve) => {
     {{# if table.isEager }}
@@ -20,9 +20,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
         selectedItems: selectedRows,
         action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
           try {
-            if (actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}) {
-              await actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}!(item, true);
-            }
+            {{# if (isActionParentEagerElement action) }}
+              const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => c.__identifier !== item.__identifier);
+              storeDiff('{{ table.dataElement.name }}', newList);
+            {{ else }}
+              await {{ getServiceImplForPage page }}.delete{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}(item);
+            {{/ if }}
             successHandler();
           } catch (error) {
             errorHandler(error);

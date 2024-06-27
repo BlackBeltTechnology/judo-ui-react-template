@@ -1,4 +1,4 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{# if action.actionDefinition.isBulkCapable }}, silentMode?: boolean{{/ if }}{{/ if}}) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if}}) => {
   try {
     const confirmed = await openConfirmDialog(
       'delete-action',

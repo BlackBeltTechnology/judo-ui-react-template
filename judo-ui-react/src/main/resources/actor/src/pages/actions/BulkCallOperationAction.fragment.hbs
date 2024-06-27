@@ -11,9 +11,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
       selectedItems: selectedRows,
       action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
         try {
-          if (actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}) {
-            await actions.{{ simpleActionDefinitionName actionDefinition.bulkOf }}!(item, true);
-          }
+          await {{ getServiceImplForPage page }}.{{ action.actionDefinition.operation.name }}{{ operationCallSuffix action }}(item);
           successHandler();
         } catch (error) {
           errorHandler(error);

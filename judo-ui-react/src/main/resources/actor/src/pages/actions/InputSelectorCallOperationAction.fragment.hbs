@@ -1,59 +1,19 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
   {{# with action.actionDefinition.operation as |operation| }}
   try {
-    {{# if page.container.form }}
-      {{# if (hasPageRequiredBy page) }}
-        {{> actor/src/fragments/page/local-validate.fragment.hbs }}
-      {{/ if }}
-    {{/ if }}
-
     setIsLoading(true);
     {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
-      {{# if page.container.form }}
-        {{# unless operation.isStatic }}produceDataAdjustedOwner(){{/ unless }}
-        {{# if operation.input }}{{# unless operation.isStatic }}, {{/ unless }}data{{/ if }}
-      {{ else }}
-        {{# if page.container.isSelector }}
-          {{# unless operation.isStatic }}ownerData, {{/ unless }}selectionDiff[0]
-        {{ else }}
-          {{# if page.container.table }}
-            {{# unless operation.isStatic }}
-              target!
-            {{/ unless }}
-          {{ else }}
-            {{# unless operation.isStatic }}
-              {{# if action.actionDefinition.targetType }}
-                target!
-              {{ else }}
-                data
-              {{/ if }}
-            {{/ unless }}
-            {{# if operation.input }}
-              {{# unless operation.isStatic }}, {{/ unless }}target!
-            {{/ if }}
-          {{/ if }}
-        {{/ if }}
-      {{/ if }}
+      {{# unless operation.isStatic }}ownerData, {{/ unless }}selectionDiff[0]
     );
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
         {{# if action.actionDefinition.targetType }}target!,{{/ if }}
         {{# if operation.output }}result,{{/ if }}
-        {{# if page.container.form }}onSubmit,{{/ if }}
         {{# if page.openInDialog }}onClose{{/ if }}
       );
     } else {
       showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
-
-      {{# if page.openInDialog }}
-        {{# or page.container.form page.container.isSelector }}
-          onSubmit({{# if operation.output }}result{{/ if }});
-        {{/ or }}
-      {{ else }}
-        {{# if (allowRefreshAfterOperationCall action) }}
-          await refresh();
-        {{/ if }}
-      {{/ if }}
+      onSubmit({{# if operation.output }}result{{/ if }});
 
       {{# if operation.postCallAccessNavigation }}
         try {
@@ -84,11 +44,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{/ if }}
     }
   } catch (error) {
-    {{# unless page.container.table }}
-      handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, owner.current, dataPath);
-    {{ else }}
-      handleError(error);
-    {{/ unless }}
+    handleError(error);
   } finally {
     setIsLoading(false);
   }

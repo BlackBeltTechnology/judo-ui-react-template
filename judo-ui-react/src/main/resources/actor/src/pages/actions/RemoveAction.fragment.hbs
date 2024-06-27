@@ -1,34 +1,18 @@
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{# if action.actionDefinition.isBulkCapable }}, silentMode?: boolean{{/ if }}) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType 'Stored' }}) => {
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
-    if (target) {
-      {{# if table.isEager }}
-        const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => c.__identifier !== target!.__identifier);
-        storeDiff('{{ table.dataElement.name }}', newList);
-      {{ else }}
-        try {
-          if (!silentMode) {
-            setIsLoading(true);
-          }
-          await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.targetDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as any{{ else }}data{{/ if }}, [target!]);
-          if (!silentMode) {
-            await refresh();
-          }
-        } catch(error) {
-          if (!silentMode) {
-            {{# if action.actionDefinition.targetType }}
-              handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, undefined, target);
-            {{ else }}
-              handleError(error, undefined, data);
-            {{/ if }}
-          } else {
-            throw error;
-          }
-        } finally {
-          if (!silentMode) {
-            setIsLoading(false);
-          }
-        }
-      {{/ if }}
-    }
+    {{# if table.isEager }}
+      const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+      storeDiff('{{ table.dataElement.name }}', newList);
+    {{ else }}
+      try {
+        setIsLoading(true);
+        await {{ getServiceImplForPage page }}.remove{{ firstToUpper action.targetDataElement.name }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as any{{ else }}data{{/ if }}, [target]);
+        await refresh();
+      } catch(error) {
+        handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, undefined, target);
+      } finally {
+        setIsLoading(false);
+      }
+    {{/ if }}
   {{/ with }}
 };

@@ -88,7 +88,7 @@ public class UiPageContainerHelper {
             // CallOperation actions are rolled on the form container, which could lead to method name collisions.
             suffix = firstToLower(callOperationActionDefinition.getOperation().getName()) + "For" + firstToUpper(callOperationActionDefinition.getOperation().getOwnerSimpleName());
         } else if (actionDefinition instanceof BulkCallOperationActionDefinition bulkCallOperationActionDefinition) {
-            suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getBulkOf().getOperation().getName());
+            suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getOperation().getName());
         } else if (actionDefinition instanceof OpenOperationInputSelectorActionDefinition openOperationInputSelectorActionDefinition) {
             if (openOperationInputSelectorActionDefinition.getSelectorFor() != null) {
                 if (openOperationInputSelectorActionDefinition.getSelectorFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
