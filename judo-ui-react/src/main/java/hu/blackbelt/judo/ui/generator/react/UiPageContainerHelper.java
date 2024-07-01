@@ -421,10 +421,14 @@ public class UiPageContainerHelper {
         }
         segments.add("isLoading");
 
-        if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
-            if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
-                segments.add("!selectionDiff.length");
+        try {
+            if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+                if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
+                    segments.add("!selectionDiff.length");
+                }
             }
+        } catch (Exception e) {
+            throw e;
         }
 
         return String.join(" || ", segments);
