@@ -1,3 +1,4 @@
+// BulkDeleteAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (selectedRows: {{ classDataName action.actionDefinition.targetType 'Stored' }}[]): Promise<DialogResult<Array<{{ classDataName action.actionDefinition.targetType 'Stored' }}>>> => {
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   return new Promise((resolve) => {

@@ -1,8 +1,9 @@
+// ParameterlessCallOperationAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
   {{# with action.actionDefinition.operation as |operation| }}
   try {
     setIsLoading(true);
-    {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
+    {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{# if action.actionDefinition.isContainedRelationAction }}{{ operationCallSuffix action }}{{/ if }}(
       {{# if page.container.table }}
         {{# unless operation.isStatic }}
           target!

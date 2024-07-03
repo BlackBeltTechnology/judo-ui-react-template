@@ -1,3 +1,4 @@
+// OpenOperationInputFormAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, {{/ if}}isDraft?: boolean, ownerValidation?: (target: any) => Promise<void>) => {
   const { result, data: returnedData } = await open{{ actionTargetPageName action }}({
     {{# if action.actionDefinition.targetType }}

@@ -1,3 +1,4 @@
+// OpenSelectorAction: {{ getXMIID action }}
 {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<{{ classDataName (getReferenceClassType link) 'Stored' }} | undefined> => {
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
