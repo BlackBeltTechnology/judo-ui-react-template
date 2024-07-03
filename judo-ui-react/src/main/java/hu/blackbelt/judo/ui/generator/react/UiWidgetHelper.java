@@ -345,7 +345,7 @@ public class UiWidgetHelper {
             if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsRemoveAction()) {
                 return "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + ") : false)";
             }
-            if (button.getActionDefinition().getIsBulkRemoveAction() || button.getActionDefinition().getIsClearAction()) {
+            if (button.getActionDefinition().getIsBulkRemoveAction()) {
                 return "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + " && selectionModel.length > 0) : false)";
             }
         }
