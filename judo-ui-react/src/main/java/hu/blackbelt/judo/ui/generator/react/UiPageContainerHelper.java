@@ -11,6 +11,7 @@ import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -482,5 +483,30 @@ public class UiPageContainerHelper {
             return "ownerData, data, disabled, readOnly, editMode, validation, actions, isLoading, isDraft";
         }
         return "data, validation, editMode, storeDiff, isLoading, actions";
+    }
+
+    public static List<PageDefinition> getOperationFormCallerPages(PageContainer container, Application application) {
+        List<PageDefinition> pages = new ArrayList<>();
+        if (!container.isForm()) {
+            return pages;
+        }
+        boolean hasOp = getContainerOwnActionDefinitions(container).stream().anyMatch(ActionDefinition::getIsInputFormCallOperationAction);
+
+        if (hasOp) {
+            pages = application.getPages().stream().filter(p -> p.getContainer().equals(container)).toList();
+        }
+        return pages;
+    }
+
+    public static boolean hasOperationFormCallerPages(PageContainer container, Application application) {
+        return !getOperationFormCallerPages(container, application).isEmpty();
+    }
+
+    public static PageDefinition getCallerPageForOperationFormCallButton(Button button, Application application) {
+        PageContainer container = button.getPageContainer();
+        List<PageDefinition> pages = getOperationFormCallerPages(container, application);
+        return pages.stream()
+                .filter(p -> p.getActions().stream().anyMatch(a -> a.getActionDefinition().equals(button.getActionDefinition())))
+                .findFirst().orElse(null);
     }
 }

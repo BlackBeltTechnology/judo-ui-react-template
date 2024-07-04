@@ -137,6 +137,12 @@ public class UiI18NHelper {
         if (element instanceof PageContainer) {
             return element.getName().replaceAll("::", ".");
         }
+//        if (element instanceof Button button && (button.getActionDefinition().getIsInputFormCallOperationAction() || button.getActionDefinition().getIsInputSelectorCallOperationAction())) {
+//            String[] nameTokens = ((Button) element).getActionDefinition().getName().split("::");
+//            String name = nameTokens[nameTokens.length - 1];
+//            String containerName = element.getPageContainer().getName().replaceAll("::", ".");
+//            return containerName + "." + name;
+//        }
         String root = element.getPageContainer().getName();
         VisualElement target = element;
 
