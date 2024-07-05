@@ -33,8 +33,7 @@ import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.*;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.classDataName;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToUpper;
+import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.*;
 
 @Log
 @TemplateHelper
@@ -65,10 +64,24 @@ public class UiActionsHelper {
         actionDefinitions.addAll(buttons.stream().map(Button::getActionDefinition).toList());
         actionDefinitions.addAll(buttons.stream().map(Button::getPreFetchActionDefinition).filter(Objects::nonNull).toList());
 
+        Set<ActionDefinition> target = new HashSet<>();
+        Map<String, ActionDefinition> actionDefinitionMap = new HashMap<>();
+
+        for (ActionDefinition actionDefinition : flexActionDefinitions) {
+            OperationType operationType = actionDefinition instanceof InputFormCallOperationActionDefinition cad ? cad.getOperation() : null;
+            if (operationType == null) {
+                target.add(actionDefinition);
+            } else {
+                actionDefinitionMap.putIfAbsent(getXMIID(operationType), actionDefinition);
+            }
+        }
+
+        target.addAll(actionDefinitionMap.values());
+
         SortedSet<ActionDefinition> sorted = new TreeSet<>(Comparator.comparing(NamedElement::getFQName));
 
+        sorted.addAll(target);
         sorted.addAll(actionDefinitions);
-        sorted.addAll(flexActionDefinitions);
 
         return sorted;
     }
