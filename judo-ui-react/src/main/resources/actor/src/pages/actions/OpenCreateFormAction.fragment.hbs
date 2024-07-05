@@ -1,3 +1,4 @@
+// OpenCreateFormAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}templateDataOverride?: Partial<{{ classDataName action.actionDefinition.targetType '' }}>, {{/ if}}) => {
   {{# if (isActionParentEagerTable action) }}
   const itemIndex = (data.{{ action.targetDataElement.name }} || []).length; // length gives next without -1-ing it

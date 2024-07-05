@@ -1,3 +1,4 @@
+// OpenPageAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraftParam?: boolean) => {
   {{# if (isActionParentEagerTable action) }}
     const itemIndex = {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}(data.{{ table.relationName }} || []).findIndex(r => r.__identifier === target.__identifier)!{{/ with }};

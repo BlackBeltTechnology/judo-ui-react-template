@@ -57,6 +57,9 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
     const createDropdownRef = useRef<HTMLDivElement>(null);
     {{/ if }}
     const {
+      {{# if (hasOperationFormCallerPages container application) }}
+        formFor,
+      {{/ if }}
       ownerData,
       onClose
       {{# unless (containerIsEmptyDashboard container) }},
@@ -150,7 +153,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         </DialogContent>
         <DialogActions>
           {{# each container.actionButtonGroup.buttons as |button| }}
-            { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
+            { {{# if button.actionDefinition.isInputFormCallOperationAction }}formFor === '{{ safeName (getCallerPageForOperationFormCallButton button application) }}' && {{/ if }}{{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
               <Grid className="page-action" item>
                 {{# if button.actionDefinition.isCreateAction }}
                 {{# unless button.actionDefinition.autoOpenAfterCreate }}

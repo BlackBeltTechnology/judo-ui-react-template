@@ -11,6 +11,7 @@ import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
 
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -88,7 +89,7 @@ public class UiPageContainerHelper {
             // CallOperation actions are rolled on the form container, which could lead to method name collisions.
             suffix = firstToLower(callOperationActionDefinition.getOperation().getName()) + "For" + firstToUpper(callOperationActionDefinition.getOperation().getOwnerSimpleName());
         } else if (actionDefinition instanceof BulkCallOperationActionDefinition bulkCallOperationActionDefinition) {
-            suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getBulkOf().getOperation().getName());
+            suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getOperation().getName());
         } else if (actionDefinition instanceof OpenOperationInputSelectorActionDefinition openOperationInputSelectorActionDefinition) {
             if (openOperationInputSelectorActionDefinition.getSelectorFor() != null) {
                 if (openOperationInputSelectorActionDefinition.getSelectorFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
@@ -421,10 +422,14 @@ public class UiPageContainerHelper {
         }
         segments.add("isLoading");
 
-        if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
-            if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
-                segments.add("!selectionDiff.length");
+        try {
+            if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+                if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
+                    segments.add("!selectionDiff.length");
+                }
             }
+        } catch (Exception e) {
+            throw e;
         }
 
         return String.join(" || ", segments);
@@ -478,5 +483,30 @@ public class UiPageContainerHelper {
             return "ownerData, data, disabled, readOnly, editMode, validation, actions, isLoading, isDraft";
         }
         return "data, validation, editMode, storeDiff, isLoading, actions";
+    }
+
+    public static List<PageDefinition> getOperationFormCallerPages(PageContainer container, Application application) {
+        List<PageDefinition> pages = new ArrayList<>();
+        if (!container.isForm()) {
+            return pages;
+        }
+        boolean hasOp = getContainerOwnActionDefinitions(container).stream().anyMatch(ActionDefinition::getIsInputFormCallOperationAction);
+
+        if (hasOp) {
+            pages = application.getPages().stream().filter(p -> p.getContainer().equals(container)).toList();
+        }
+        return pages;
+    }
+
+    public static boolean hasOperationFormCallerPages(PageContainer container, Application application) {
+        return !getOperationFormCallerPages(container, application).isEmpty();
+    }
+
+    public static PageDefinition getCallerPageForOperationFormCallButton(Button button, Application application) {
+        PageContainer container = button.getPageContainer();
+        List<PageDefinition> pages = getOperationFormCallerPages(container, application);
+        return pages.stream()
+                .filter(p -> p.getActions().stream().anyMatch(a -> a.getActionDefinition().equals(button.getActionDefinition())))
+                .findFirst().orElse(null);
     }
 }

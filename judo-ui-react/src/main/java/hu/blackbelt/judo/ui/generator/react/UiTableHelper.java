@@ -251,10 +251,7 @@ public class UiTableHelper {
     }
 
     public static boolean tableHasSelectorColumn(Table table) {
-        return table.isIsSelectorTable()
-                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).isIsBulkCapable())
-                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsDeleteAction())
-                || table.getRowActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRemoveAction());
+        return table.isIsSelectorTable() || tableHasBulkOperations(table);
     }
 
     public static Column getFirstTitleColumnForTable(Table table) {

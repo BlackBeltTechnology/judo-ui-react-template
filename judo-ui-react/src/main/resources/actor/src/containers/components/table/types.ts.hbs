@@ -42,7 +42,7 @@ export interface {{ componentName table }}ActionDefinitions {
   {{/ if }}
 {{/ each }}
 {{# each table.rowActionDefinitions as |actionDefinition| }}
-  {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}{{# if actionDefinition.isBulkCapable }}, silentMode?: boolean{{ else }}{{# if actionDefinition.isOpenPageAction }}, isDraft?: boolean{{/ if }}{{/ if }}) => Promise<void>;
+  {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}{{# if actionDefinition.isOpenPageAction }}, isDraft?: boolean{{/ if }}) => Promise<void>;
 {{/ each }}
   {{ table.relationType.name }}AdditionalToolbarButtons?: (
     {{# with (getReferenceClassType table) as |classType| }}
