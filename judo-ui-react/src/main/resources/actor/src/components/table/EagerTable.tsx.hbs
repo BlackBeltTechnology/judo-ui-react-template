@@ -25,6 +25,7 @@ import {
   columnsActionCalculator,
 } from '~/components/table';
 import { RowHighlightLegend } from '~/components/table';
+import { useConfirmDialog } from '~/components/dialog';
 import { basePageSizeOptions, baseTableConfig } from '~/config';
 import { useDataStore } from '~/hooks';
 import { transformRowStylings } from '~/theme/table-row-highlighting';
@@ -133,6 +134,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     const columnStateKey = `${uniqueId}-columnState`;
   {{/ if }}
 
+  const { openConfirmDialog } = useConfirmDialog();
   const { locale: l10nLocale } = useL10N();
   const { downloadFile, extractFileNameFromToken } = fileHandling();
   const { getItemParsed, getItemParsedWithDefault, setItemStringified } = useDataStore('sessionStorage');
@@ -464,6 +466,17 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
                     startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                     variant={toolBarAction.variant}
                     onClick={async () => {
+                      if (toolBarAction.confirmation && (typeof toolBarAction.confirmationCondition === 'undefined' || toolBarAction.confirmationCondition === true)) {
+                        const result = await openConfirmDialog(
+                          toolBarAction.id,
+                          toolBarAction.confirmation,
+                          t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+                        );
+
+                        if (!result) {
+                          return;
+                        }
+                      }
                       if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
                         await filterAction(toolBarAction.id);
                       } else {

@@ -137,12 +137,7 @@ public class UiI18NHelper {
         if (element instanceof PageContainer) {
             return element.getName().replaceAll("::", ".");
         }
-//        if (element instanceof Button button && (button.getActionDefinition().getIsInputFormCallOperationAction() || button.getActionDefinition().getIsInputSelectorCallOperationAction())) {
-//            String[] nameTokens = ((Button) element).getActionDefinition().getName().split("::");
-//            String name = nameTokens[nameTokens.length - 1];
-//            String containerName = element.getPageContainer().getName().replaceAll("::", ".");
-//            return containerName + "." + name;
-//        }
+
         String root = element.getPageContainer().getName();
         VisualElement target = element;
 
@@ -282,6 +277,9 @@ public class UiI18NHelper {
                                 return;
                             }
                             translations.put(getTranslationKeyForVisualElement(b), b.getLabel());
+                            if (b.getConfirmation() != null) {
+                                translations.put(getTranslationKeyForVisualElement(b) + ".confirmation", b.getConfirmation().getConfirmationMessage());
+                            }
                         });
                     }
                     if (table.getRowActionButtonGroup() != null) {

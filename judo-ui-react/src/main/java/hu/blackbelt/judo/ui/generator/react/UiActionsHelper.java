@@ -450,6 +450,14 @@ public class UiActionsHelper {
         return null;
     }
 
+    public static boolean isActionInTableInView(Action action) {
+        Table table = getTableParentForActionDefinition(action.getActionDefinition());
+        if (table != null) {
+            return ((PageDefinition) action.eContainer()).getContainer().isView();
+        }
+        return false;
+    }
+
     public static boolean isActionParentEagerElement(Action action) {
         Table table = getTableParentForActionDefinition(action.getActionDefinition());
         Link link = getLinkParentForActionDefinition(action.getActionDefinition());

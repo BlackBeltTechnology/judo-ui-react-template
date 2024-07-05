@@ -171,16 +171,22 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const toolBarActions: ToolBarActionProps<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}>[]  = [
     {{# each table.tableActionButtonGroup.buttons as |button| }}
     {
-      name:"{{ simpleActionDefinitionName actionDefinition }}",
-      id:"{{ getXMIID button }}",
+      name: "{{ simpleActionDefinitionName actionDefinition }}",
+      id: "{{ getXMIID button }}",
       {{# if button.icon }}
-      startIcon:"{{ button.icon.iconName }}",
+      startIcon: "{{ button.icon.iconName }}",
       {{/ if }}
-      variant:{{{ variantForButton button }}},
-      hiddenBy:{{# if button.hiddenBy }}true{{ else }}false{{/ if }},
-      label:{ 'translationKey': '{{ getTranslationKeyForVisualElement button }}', 'defaultValue': '{{ button.label }}' },
+      variant: {{{ variantForButton button }}},
+      hiddenBy: {{# if button.hiddenBy }}true{{ else }}false{{/ if }},
+      label: { 'translationKey': '{{ getTranslationKeyForVisualElement button }}', 'defaultValue': '{{ button.label }}' },
       enabled: (data: {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, selectionModel: GridRowSelectionModel, ownerData?: any, isFormUpdateable?: () => boolean): boolean => {{{ tableButtonVisibilityConditions button table container }}},
       isBulk: {{ boolValue actionDefinition.isBulk }},
+      {{# if button.confirmation }}
+        confirmation: t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
+        {{# if (shouldRenderConfirmationCondition button) }}
+          confirmationCondition: data?.{{ button.confirmation.confirmationCondition.name }} ?? false,
+        {{/ if }}
+      {{/ if }}
     },
     {{/ each }}
 

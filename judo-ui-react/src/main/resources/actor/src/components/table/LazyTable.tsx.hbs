@@ -27,6 +27,7 @@ StripedDataGrid,
 columnsActionCalculator,
 RowHighlightLegend,
 } from '~/components/table';
+import { useConfirmDialog } from '~/components/dialog';
 import { basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
 import { useDataStore } from '~/hooks';
 import { transformRowStylings } from '~/theme/table-row-highlighting';
@@ -166,6 +167,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     }, [rowHighlighting]);
   {{/ if }}
 
+  const { openConfirmDialog } = useConfirmDialog();
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
   const [totalCount, setTotalCount] = useState<number>(-1);
   const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
@@ -625,6 +627,17 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                     startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                     variant={toolBarAction.variant}
                     onClick={async () => {
+                      if (toolBarAction.confirmation && (typeof toolBarAction.confirmationCondition === 'undefined' || toolBarAction.confirmationCondition === true)) {
+                        const result = await openConfirmDialog(
+                          toolBarAction.id,
+                          toolBarAction.confirmation,
+                          t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+                        );
+
+                        if (!result) {
+                          return;
+                        }
+                      }
                       if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
                         await filterAction(toolBarAction.id);
                       } else {
