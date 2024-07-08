@@ -137,6 +137,7 @@ public class UiI18NHelper {
         if (element instanceof PageContainer) {
             return element.getName().replaceAll("::", ".");
         }
+
         String root = element.getPageContainer().getName();
         VisualElement target = element;
 
@@ -276,6 +277,9 @@ public class UiI18NHelper {
                                 return;
                             }
                             translations.put(getTranslationKeyForVisualElement(b), b.getLabel());
+                            if (b.getConfirmation() != null) {
+                                translations.put(getTranslationKeyForVisualElement(b) + ".confirmation", b.getConfirmation().getConfirmationMessage());
+                            }
                         });
                     }
                     if (table.getRowActionButtonGroup() != null) {
