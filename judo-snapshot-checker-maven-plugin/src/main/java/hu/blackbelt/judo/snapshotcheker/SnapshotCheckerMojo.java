@@ -104,25 +104,4 @@ public class SnapshotCheckerMojo extends AbstractMojo {
             System.out.println(line);
         }
     }
-
-    public static class FilePair {
-        private String sourceFile;
-        private String snapshotFile;
-
-        public String getSourceFile() {
-            return sourceFile;
-        }
-
-        public void setSourceFile(String sourceFile) {
-            this.sourceFile = sourceFile;
-        }
-
-        public String getSnapshotFile() {
-            return snapshotFile;
-        }
-
-        public void setSnapshotFile(String snapshotFile) {
-            this.snapshotFile = snapshotFile;
-        }
-    }
 }
