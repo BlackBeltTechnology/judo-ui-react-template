@@ -335,9 +335,6 @@ public class UiWidgetHelper {
     }
 
     public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {
-        if ((button.getActionDefinition().getIsFilterAction() || button.getActionDefinition().getIsFilterRelationAction()) && isUseInlineColumnFilters()) {
-            return "false";
-        }
         if (button.getActionDefinition().getIsOpenCreateFormAction() && !table.isIsEager() && container.isView()) {
             return "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";
         }
