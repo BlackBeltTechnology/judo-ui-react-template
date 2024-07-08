@@ -10,7 +10,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{/ unless }}
       {{ else }}
         {{# unless operation.isStatic }}
-          {{# if (isActionInTableInViewNonBulk action) }}
+          {{# if (actionShouldUseDataAsParam action) }}
             data
           {{ else }}
             {{# if action.actionDefinition.targetType }}

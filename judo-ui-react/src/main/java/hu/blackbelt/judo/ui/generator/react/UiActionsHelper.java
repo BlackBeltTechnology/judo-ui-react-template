@@ -450,11 +450,15 @@ public class UiActionsHelper {
         return null;
     }
 
-    public static boolean isActionInTableInViewNonBulk(Action action) {
+    public static boolean actionShouldUseDataAsParam(Action action) {
         Table table = getTableParentForActionDefinition(action.getActionDefinition());
+        Link link = getLinkParentForActionDefinition(action.getActionDefinition());
         boolean isTableAction = table != null && table.getTableActionButtonGroup().getButtons().stream().anyMatch(b -> b.getActionDefinition().equals(action.getActionDefinition()));
+        boolean isContainerView = ((PageDefinition) action.eContainer()).getContainer().isView();
         if (!action.getActionDefinition().isIsBulk() && isTableAction) {
-            return ((PageDefinition) action.eContainer()).getContainer().isView();
+            return isContainerView;
+        } else if (table == null && link == null) {
+            return isContainerView;
         }
         return false;
     }

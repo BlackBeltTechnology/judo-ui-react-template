@@ -1,7 +1,7 @@
 // OpenOperationInputSelectorAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
   const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
-    {{# if (isActionInTableInViewNonBulk action) }}
+    {{# if (actionShouldUseDataAsParam action) }}
       ownerData: data,
     {{ else }}
       {{# if action.actionDefinition.targetType }}
