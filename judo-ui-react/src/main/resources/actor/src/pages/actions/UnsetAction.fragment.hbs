@@ -1,3 +1,4 @@
+// UnsetAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.targetDataElement }}target: {{ classDataName action.targetDataElement.target '' }} | {{ classDataName action.targetDataElement.target 'Stored' }}{{/ if }}) => {
   {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
     {{# if link.isEager }}

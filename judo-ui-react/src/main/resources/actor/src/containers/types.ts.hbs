@@ -22,6 +22,10 @@
   export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
     getPageTitle?: ({{# unless container.table }}data: {{ classDataName container.dataElement '' }}{{/ unless }}) => string;
     {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
+      {{# if actionDefinition.isCallOperationAction }}
+      // {{ getXMIID actionDefinition.operation }}
+      // {{ actionDefinition.operation.name }}
+      {{/ if }}
       {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{{ getContainerOwnActionReturnType actionDefinition container }}}>;
     {{/ each }}
     {{# each (getOnBlurAttributesForContainer container) as |attributeType| }}
@@ -53,7 +57,9 @@
       {{# if actionDefinition.isRefreshAction }}
         {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>>;
       {{ else }}
-        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+        {{# unless actionDefinition.isCallOperationAction }}
+          {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
+        {{/ unless }}
       {{/ if }}
     {{/ each }}
   }
@@ -79,13 +85,25 @@
 
   export interface {{ containerComponentName container }}DialogActions extends {{ pageContainerActionDefinitionTypeName container }} {
     {{# each container.pageActionDefinitions as |actionDefinition| }}
-      {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{{ getContainerOwnActionReturnType actionDefinition container }}}>;
+      {{# unless actionDefinition.isCallOperationAction }}
+        {{ simpleActionDefinitionName actionDefinition }}?: ({{{ getContainerOwnActionParameters actionDefinition container }}}) => Promise<{{{ getContainerOwnActionReturnType actionDefinition container }}}>;
+      {{/ unless }}
     {{/ each }}
   }
+
+{{# if (hasOperationFormCallerPages container application) }}
+  export type FormFor{{ containerComponentName container }} =
+    {{# each (getOperationFormCallerPages container application) as |actionDefinition| }}
+        '{{ safeName actionDefinition }}'{{# unless @last}} | {{/ unless}}
+    {{/ each }};
+{{/ if }}
 
   export interface {{ containerComponentName container }}DialogProps {
     ownerData: any;
     onClose: () => Promise<void>;
+    {{# if (hasOperationFormCallerPages container application) }}
+      formFor: FormFor{{ containerComponentName container }};
+    {{/ if }}
     {{# unless (containerIsEmptyDashboard container) }}
       actions: {{ containerComponentName container }}DialogActions;
       dataPath?: string;
@@ -109,16 +127,6 @@
       isDraft?: boolean;
     {{/ unless }}
   };
-
-  export interface {{ containerComponentName container }}PageActions extends {{ pageContainerActionDefinitionTypeName container }} {
-    {{# each container.pageActionDefinitions as |actionDefinition| }}
-      {{# if actionDefinition.isRefreshAction }}
-        {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName container.dataElement 'Stored' }}{{# if container.table }}[]{{/ if }}>>;
-      {{ else }}
-        {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<void>;
-      {{/ if }}
-    {{/ each }}
-  }
 {{ else }}
   export const _ = 'placeholder';
 {{/ unless }}

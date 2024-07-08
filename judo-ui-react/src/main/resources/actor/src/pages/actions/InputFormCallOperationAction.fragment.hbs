@@ -1,0 +1,59 @@
+// InputFormCallOperationAction: {{ getXMIID action }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
+  {{# with action.actionDefinition.operation as |operation| }}
+  try {
+    {{# if (hasPageRequiredBy page) }}
+      {{> actor/src/fragments/page/local-validate.fragment.hbs }}
+    {{/ if }}
+
+    setIsLoading(true);
+    {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
+      {{# unless operation.isStatic }}produceDataAdjustedOwner(),{{/ unless }}
+      data
+    );
+    if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
+      await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
+        {{# if action.actionDefinition.targetType }}target!,{{/ if }}
+        {{# if operation.output }}result,{{/ if }}
+        onSubmit,
+        onClose
+      );
+    } else {
+      showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
+      onSubmit({{# if operation.output }}result{{/ if }});
+
+      {{# if operation.postCallAccessNavigation }}
+        try {
+          const { data: pcan } = await {{ firstToLower (serviceRelationName operation.postCallAccessNavigation.accessRelation) }}Impl.list(undefined, {
+            _identifier: result.__identifier,
+          });
+          {{# if action.targetPageDefinition.openInDialog }}
+            await open{{ pageName operation.postCallAccessNavigation.pageDefinition }}({
+              ownerData: pcan[0]
+            });
+          {{ else }}
+            navigate(routeTo{{ pageName operation.postCallAccessNavigation.pageDefinition }}(pcan[0].__signedIdentifier));
+          {{/ if }}
+        } catch(error) {
+          console.error('Could not proceed with post call access navigation', error);
+        }
+      {{ else }}
+        {{# if operation.output }}
+          {{# if action.targetPageDefinition.openInDialog }}
+            await open{{ pageName action.targetPageDefinition }}({
+              ownerData: produceDataAdjustedOwner(),
+              data: result,
+            });
+          {{ else }}
+            navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+          {{/ if }}
+        {{/ if }}
+      {{/ if }}
+    }
+  } catch (error) {
+    handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, owner.current, dataPath);
+  } finally {
+    setIsLoading(false);
+  }
+  {{/ with }}
+};

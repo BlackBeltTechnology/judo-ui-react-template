@@ -255,6 +255,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     // ViewModel setup
     const viewModel: {{ containerComponentName page.container }}ViewModel = {
+      {{# if (hasOperationFormCallerPages page.container application) }}
+        formFor: '{{ safeName page }}',
+      {{/ if }}
       onClose,
       actions,
       ownerData,
@@ -318,6 +321,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             isLoading={isLoading}
             editMode={editMode}
             refreshCounter={refreshCounter}
+            {{# if (hasOperationFormCallerPages page.container application) }}
+              formFor={'{{ safeName page }}'}
+            {{/ if }}
             {{# unless (containerIsEmptyDashboard page.container) }}
               {{# if page.container.isSelector }}
                 selectionDiff={selectionDiff}
