@@ -4,6 +4,7 @@ import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.ClassType;
 import hu.blackbelt.judo.meta.ui.data.EnumerationType;
+import hu.blackbelt.judo.meta.ui.data.OperationType;
 import hu.blackbelt.judo.ui.generator.react.mask.MaskEntry;
 import hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper;
 import lombok.extern.java.Log;
@@ -86,19 +87,19 @@ public class UiPageContainerHelper {
         if (actionDefinition instanceof CallOperationActionDefinition callOperationActionDefinition) {
             // We need to append a discriminator for actions because for unmapped operation input forms, caller
             // CallOperation actions are rolled on the form container, which could lead to method name collisions.
-            suffix = firstToLower(callOperationActionDefinition.getOperation().getName()) + "For" + firstToUpper(callOperationActionDefinition.getOperation().getOwnerSimpleName());
+            suffix = firstToLower(getCallOperationName(callOperationActionDefinition)) + "For" + firstToUpper(callOperationActionDefinition.getOperation().getOwnerSimpleName());
         } else if (actionDefinition instanceof BulkCallOperationActionDefinition bulkCallOperationActionDefinition) {
-            suffix = "bulk" + firstToUpper(bulkCallOperationActionDefinition.getOperation().getName());
+            suffix = "bulk" + firstToUpper(getCallOperationName(bulkCallOperationActionDefinition));
         } else if (actionDefinition instanceof OpenOperationInputSelectorActionDefinition openOperationInputSelectorActionDefinition) {
             if (openOperationInputSelectorActionDefinition.getSelectorFor() != null) {
                 if (openOperationInputSelectorActionDefinition.getSelectorFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
-                    suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
+                    suffix = firstToLower(getCallOperationName(callOperationActionDefinition));
                 }
             }
         } else if (actionDefinition instanceof OpenFormActionDefinition openFormActionDefinition) {
             if (openFormActionDefinition.getFormFor() != null) {
                 if (openFormActionDefinition.getFormFor() instanceof CallOperationActionDefinition callOperationActionDefinition) {
-                    suffix = firstToLower(callOperationActionDefinition.getOperation().getName());
+                    suffix = firstToLower(getCallOperationName(callOperationActionDefinition));
                 }
             }
         } else if (actionDefinition instanceof CustomActionDefinition) {
@@ -109,6 +110,23 @@ public class UiPageContainerHelper {
         return relationName + (!relationName.isEmpty() ? firstToUpper(suffix) : suffix) + "Action";
     }
 
+    private static String getCallOperationName(ActionDefinition actionDefinition) {
+        OperationType operationType = null;
+        int index = 2;
+        if (actionDefinition instanceof CallOperationActionDefinition callOperationActionDefinition) {
+            operationType = callOperationActionDefinition.getOperation();
+        } else if (actionDefinition instanceof BulkCallOperationActionDefinition bulkCallOperationActionDefinition) {
+            operationType = bulkCallOperationActionDefinition.getOperation();
+        }
+        String actionDefinitionName = actionDefinition.getName();
+        String fallbackName = operationType.getName();
+        String[] nameParts = actionDefinitionName.split(NAME_SPLITTER);
+        if (nameParts.length >= index + 1) {
+            return nameParts[nameParts.length - index];
+        } else {
+            return fallbackName;
+        }
+    }
     public static List<ClassType> getContainerApiImports(PageContainer container) {
         Set<ClassType> imports = new HashSet<>();
 
