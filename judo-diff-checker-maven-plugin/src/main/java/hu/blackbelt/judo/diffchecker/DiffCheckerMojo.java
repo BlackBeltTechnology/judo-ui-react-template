@@ -1,4 +1,4 @@
-package hu.blackbelt.judo.snapshotcheker;
+package hu.blackbelt.judo.diffchecker;
 
 import com.github.difflib.DiffUtils;
 import com.github.difflib.UnifiedDiffUtils;
@@ -17,8 +17,8 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 
-@Mojo(name = "checkSnapshots", defaultPhase = LifecyclePhase.VERIFY)
-public class SnapshotCheckerMojo extends AbstractMojo {
+@Mojo(name = "checkDiffs", defaultPhase = LifecyclePhase.VERIFY)
+public class DiffCheckerMojo extends AbstractMojo {
 
     @Parameter(property = "sources")
     private List<String> sources;

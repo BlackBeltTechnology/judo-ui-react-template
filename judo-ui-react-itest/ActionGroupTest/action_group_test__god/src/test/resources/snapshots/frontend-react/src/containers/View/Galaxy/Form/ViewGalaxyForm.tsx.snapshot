@@ -4,7 +4,6 @@
 // Factory expression: #application.pageContainers
 // Path expression: 'src/containers/'+#containerPath(#self)+'/'+#containerComponentName(#self)+'.tsx'
 // Template name: actor/src/containers/container.tsx
-// Base URL: mvn:hu.blackbelt.judo.generator:judo-ui-react:1.0.0-SNAPSHOT
 // Template file: actor/src/containers/container.tsx.hbs
 
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -23,25 +22,24 @@ import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-// include: actor/src/fragments/container/view-imports.fragment.hbs
-import { DateTimePicker } from '@mui/x-date-pickers';
-import type { DateTimeValidationError } from '@mui/x-date-pickers';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { clsx } from 'clsx';
-// include: actor/src/fragments/container/common-imports.fragment.hbs
 import type { Dispatch, FC, SetStateAction } from 'react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
+import { useL10N } from '~/l10n/l10n-context';
+import { isErrorOperationFault, useErrorHandler } from '~/utilities';
+
+import { DateTimePicker } from '@mui/x-date-pickers';
+import type { DateTimeValidationError } from '@mui/x-date-pickers';
 import { NumericInput } from '~/components/widgets';
 import { autoFocusRefDelay } from '~/config';
 import { useConfirmationBeforeChange } from '~/hooks';
-import { useL10N } from '~/l10n/l10n-context';
 import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
-import { isErrorOperationFault, useErrorHandler } from '~/utilities';
 import { ViewGalaxyFormAstronomerComponent } from './components/ViewGalaxyFormAstronomerComponent';
 import { VIEW_GALAXY_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyFormContainerHook } from './customization';
@@ -99,8 +97,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
 
   return (
     <Grid container data-container-id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer">
-      {/* include: getWidgetTemplate() */}
-
       <Grid item data-name="Form" xs={12} sm={12} md={36.0}>
         <Grid container direction="row" spacing={2}>
           <Grid item xs={12} sm={12}>
@@ -113,8 +109,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
               justifyContent="flex-start"
               spacing={2}
             >
-              {/* include: getWidgetTemplate() */}
-
               <Grid item xs={12} sm={12} md={4.0}>
                 <TextField
                   required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : true}
@@ -149,8 +143,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              {/* include: getWidgetTemplate() */}
-
               <Grid item xs={12} sm={12} md={4.0}>
                 <FormControl error={!!validation.get('real')}>
                   <FormGroup>
@@ -180,8 +172,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   {validation.has('real') && <FormHelperText>{validation.get('real')}</FormHelperText>}
                 </FormControl>
               </Grid>
-
-              {/* include: getWidgetTemplate() */}
 
               <Grid item xs={12} sm={12} md={4.0}>
                 <TextField
@@ -220,8 +210,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              {/* include: getWidgetTemplate() */}
-
               <Grid item xs={12} sm={12} md={4.0}>
                 <FormControl error={!!validation.get('nakedEye')}>
                   <FormGroup>
@@ -251,8 +239,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   {validation.has('nakedEye') && <FormHelperText>{validation.get('nakedEye')}</FormHelperText>}
                 </FormControl>
               </Grid>
-
-              {/* include: getWidgetTemplate() */}
 
               <Grid item xs={12} sm={12} md={4.0}>
                 <NumericInput
@@ -291,8 +277,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              {/* include: getWidgetTemplate() */}
-
               <Grid item xs={12} sm={12} md={4.0}>
                 <TextField
                   required={actions?.isOriginOfNameRequired ? actions.isOriginOfNameRequired(data, editMode) : false}
@@ -329,8 +313,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }}
                 />
               </Grid>
-
-              {/* include: getWidgetTemplate() */}
 
               <Grid item xs={12} sm={12} md={4.0}>
                 <DateTimePicker
@@ -385,8 +367,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }}
                 />
               </Grid>
-
-              {/* include: getWidgetTemplate() */}
 
               <Grid item xs={12} sm={12}>
                 <ViewGalaxyFormAstronomerComponent

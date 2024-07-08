@@ -1,10 +1,6 @@
-= judo-snapshot-checker-maven-plugin
+= judo-diff-checker-maven-plugin
 
-Snapshot tests are a very useful tool whenever you want to make sure your code does not change unexpectedly.
-
-A typical snapshot test takes a source file, then compares it to a reference snapshot file.
-The test will fail if the two snapshots do not match: either the change is unexpected, or the reference snapshot needs
-to be updated to the new version of the code.
+Check diff for any number of files, and highlight them.
 
 == Usage
 
@@ -12,12 +8,12 @@ to be updated to the new version of the code.
 ----
 <plugin>
     <groupId>hu.blackbelt.judo.generator</groupId>
-    <artifactId>judo-snapshot-checker-maven-plugin</artifactId>
+    <artifactId>judo-diff-checker-maven-plugin</artifactId>
     <version>${revision}</version>
     <executions>
         <execution>
             <goals>
-                <goal>checkSnapshots</goal>
+                <goal>checkDiffs</goal>
             </goals>
             <phase>generate-sources</phase>
         </execution>

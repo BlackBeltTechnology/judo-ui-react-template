@@ -4,7 +4,6 @@
 // Factory expression: #application.pageContainers
 // Path expression: 'src/containers/'+#containerPath(#self)+'/'+#containerComponentName(#self)+'.tsx'
 // Template name: actor/src/containers/container.tsx
-// Base URL: mvn:hu.blackbelt.judo.generator:judo-ui-react:1.0.0-SNAPSHOT
 // Template file: actor/src/containers/container.tsx.hbs
 
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -26,29 +25,28 @@ import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-// include: actor/src/fragments/container/view-imports.fragment.hbs
-import { DateTimePicker } from '@mui/x-date-pickers';
-import type { DateTimeValidationError } from '@mui/x-date-pickers';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
 import { useTrackService } from '@pandino/react-hooks';
 import { clsx } from 'clsx';
-// include: actor/src/fragments/container/common-imports.fragment.hbs
 import type { Dispatch, FC, SetStateAction } from 'react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { AssociationButton, NumericInput } from '~/components/widgets';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import type { CustomFormVisualElementProps } from '~/custom';
-import { useConfirmationBeforeChange } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
+import { isErrorOperationFault, useErrorHandler } from '~/utilities';
+
+import { DateTimePicker } from '@mui/x-date-pickers';
+import type { DateTimeValidationError } from '@mui/x-date-pickers';
+import { AssociationButton, NumericInput } from '~/components/widgets';
+import { useConfirmationBeforeChange } from '~/hooks';
 import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
 import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
 import type { ViewStar, ViewStarStored } from '~/services/data-api/model/ViewStar';
-import { isErrorOperationFault, useErrorHandler } from '~/utilities';
 import { ViewGalaxyViewAstronomerComponent } from './components/ViewGalaxyViewAstronomerComponent';
 import { ViewGalaxyViewStarsComponent } from './components/ViewGalaxyViewStarsComponent';
 import {
@@ -99,8 +97,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
 
   return (
     <Grid container data-container-id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer">
-      {/* include: getWidgetTemplate() */}
-
       <Grid item data-name="View" xs={12} sm={12} md={36.0}>
         <Grid container direction="row" spacing={2}>
           <Grid item xs={12} sm={12}>
@@ -113,8 +109,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
               justifyContent="flex-start"
               spacing={2}
             >
-              {/* include: getWidgetTemplate() */}
-
               <Grid item data-name="group" xs={12} sm={12}>
                 <Grid container direction="row" spacing={2}>
                   <Grid item xs={12} sm={12}>
@@ -127,8 +121,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                       justifyContent="flex-start"
                       spacing={2}
                     >
-                      {/* include: getWidgetTemplate() */}
-
                       <Grid item data-name="group" xs={12} sm={12} md={6.0}>
                         <Card id="God/(esm/_D4bTwE7uEeycO-gUAWxcVg)/GroupVisualElement" data-name="group">
                           <CardContent>
@@ -156,8 +148,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               justifyContent="flex-start"
                               spacing={2}
                             >
-                              {/* include: getWidgetTemplate() */}
-
                               <Grid item xs={12} sm={12} md={24.0}>
                                 <Grid container direction="row" spacing={2}>
                                   <Grid item xs={12} sm={12}>
@@ -190,8 +180,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                         </Card>
                       </Grid>
 
-                      {/* include: getWidgetTemplate() */}
-
                       <Grid item data-name="group_2" xs={12} sm={12} md={6.0}>
                         <Card id="God/(esm/_Emq50E7uEeycO-gUAWxcVg)/GroupVisualElement" data-name="group_2">
                           <CardContent>
@@ -219,8 +207,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               justifyContent="flex-start"
                               spacing={2}
                             >
-                              {/* include: getWidgetTemplate() */}
-
                               <Grid item data-name="group" xs={12} sm={12}>
                                 <Grid container direction="row" spacing={2}>
                                   <Grid item xs={12} sm={12}>
@@ -233,8 +219,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                       justifyContent="flex-start"
                                       spacing={2}
                                     >
-                                      {/* include: getWidgetTemplate() */}
-
                                       <Grid item xs={12} sm={12} md={8.0}>
                                         <TextField
                                           required={
@@ -275,8 +259,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                         />
                                       </Grid>
 
-                                      {/* include: getWidgetTemplate() */}
-
                                       <Grid item xs={12} sm={12} md={4.0}>
                                         <FormControl error={!!validation.get('real')}>
                                           <FormGroup>
@@ -316,8 +298,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   </Grid>
                                 </Grid>
                               </Grid>
-
-                              {/* include: getWidgetTemplate() */}
 
                               <Grid item xs={12} sm={12} md={8.0}>
                                 <TextField
@@ -362,8 +342,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 />
                               </Grid>
 
-                              {/* include: getWidgetTemplate() */}
-
                               <Grid item xs={12} sm={12} md={8.0}>
                                 <NumericInput
                                   required={
@@ -405,8 +383,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 />
                               </Grid>
 
-                              {/* include: getWidgetTemplate() */}
-
                               <Grid item xs={12} sm={12} md={8.0}>
                                 <FormControl error={!!validation.get('nakedEye')}>
                                   <FormGroup>
@@ -442,8 +418,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   )}
                                 </FormControl>
                               </Grid>
-
-                              {/* include: getWidgetTemplate() */}
 
                               <Grid item xs={12} sm={12} md={8.0}>
                                 <TextField
@@ -494,8 +468,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                         </Card>
                       </Grid>
 
-                      {/* include: getWidgetTemplate() */}
-
                       <Grid item data-name="Discoverer" xs={12} sm={12}>
                         <ComponentProxy
                           filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_GALAXY_VIEW_DISCOVERER_COMPONENT}))`}
@@ -532,8 +504,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 justifyContent="flex-start"
                                 spacing={2}
                               >
-                                {/* include: getWidgetTemplate() */}
-
                                 <Grid item xs={12} sm={12} md={4.0}>
                                   <DateTimePicker
                                     ampm={false}
@@ -592,8 +562,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   />
                                 </Grid>
 
-                                {/* include: getWidgetTemplate() */}
-
                                 <Grid item xs={12} sm={12} md={4.0}>
                                   <ViewGalaxyViewAstronomerComponent
                                     disabled={false || isLoading}
@@ -614,8 +582,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                           </Card>
                         </ComponentProxy>
                       </Grid>
-
-                      {/* include: getWidgetTemplate() */}
 
                       <Grid item data-name="group_3" xs={12} sm={12}>
                         <Card id="God/(esm/_KkOiwFjFEeyV2_3ibolaNQ)/GroupVisualElement" data-name="group_3">
@@ -643,8 +609,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               justifyContent="flex-start"
                               spacing={2}
                             >
-                              {/* include: getWidgetTemplate() */}
-
                               <Grid item xs={12} sm={12} md={3.0}>
                                 <AssociationButton
                                   id="God/(esm/_8A3hoE7tEeycO-gUAWxcVg)/TabularReferenceFieldButton"
@@ -657,8 +621,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   <MdiIcon path="arrow-right" />
                                 </AssociationButton>
                               </Grid>
-
-                              {/* include: getWidgetTemplate() */}
 
                               <Grid item xs={12} sm={12} md={2.0}>
                                 <NumericInput
@@ -700,8 +662,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                 />
                               </Grid>
-
-                              {/* include: getWidgetTemplate() */}
 
                               <Grid item xs={12} sm={12} md={2.0}>
                                 <NumericInput
@@ -750,8 +710,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 />
                               </Grid>
 
-                              {/* include: getWidgetTemplate() */}
-
                               <Grid item xs={12} sm={12} md={2.0}>
                                 <NumericInput
                                   required={
@@ -798,8 +756,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                 />
                               </Grid>
-
-                              {/* include: getWidgetTemplate() */}
 
                               <Grid item xs={12} sm={3.0}>
                                 <Box sx={{ display: 'flex', gap: 1 }}>

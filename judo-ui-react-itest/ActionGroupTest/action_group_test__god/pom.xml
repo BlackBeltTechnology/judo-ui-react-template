@@ -93,7 +93,7 @@
                             <ui>${ui-model}</ui>
                             <destination>${generation-target}</destination>
                             <templateParameters>
-                                <debugPrint>true</debugPrint>
+                                <debugPrint>false</debugPrint>
                                 <appModelName>${model-name}</appModelName>
                                 <appScope>${appScope}</appScope>
                                 <appVersion>${appVersion}</appVersion>
@@ -204,12 +204,12 @@
 
             <plugin>
                 <groupId>hu.blackbelt.judo.generator</groupId>
-                <artifactId>judo-snapshot-checker-maven-plugin</artifactId>
+                <artifactId>judo-diff-checker-maven-plugin</artifactId>
                 <version>${revision}</version>
                 <executions>
                     <execution>
                         <goals>
-                            <goal>checkSnapshots</goal>
+                            <goal>checkDiffs</goal>
                         </goals>
                         <phase>generate-sources</phase>
                     </execution>
