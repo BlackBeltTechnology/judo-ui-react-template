@@ -2,6 +2,11 @@
 
 import { lazy, Suspense{{# if (containerHasCreateAction container) }}, useRef, useState, useCallback{{/ if }} } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
+{{# if (containerHasActionsWithCustomImplementation container) }}
+  import { OBJECTCLASS } from '@pandino/pandino-api';
+  import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
+  import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+{{/ if }}
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -39,6 +44,14 @@ import { useConfirmDialog } from '~/components/dialog';
     {{ containerComponentName container }}DialogActions,
     {{ containerComponentName container }}DialogProps,
   } from './types';
+
+  {{# if (containerHasActionsWithCustomImplementation container) }}
+    import {
+      {{# each (getContainerActionsVisualElementsWithCustomImplementation container) as |ve| }}
+        {{ getCustomizationComponentInterfaceKey ve }},
+      {{/ each }}
+    } from './customization';
+  {{/ if }}
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
@@ -160,6 +173,23 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                 <ButtonGroup disabled={isLoading} variant={ {{{ variantForButton button }}} } ref={createDropdownRef} sx={ { borderRadius: 0, boxShadow: 0 } } aria-label="split button for create action">
                 {{/ unless }}
                 {{/ if }}
+                {{# if button.customImplementation }}
+                  <ComponentProxy
+                    filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey button ~}} }))`}
+                    editMode={editMode}
+                    {{# unless container.table }}
+                    data={data}
+                    validation={validation}
+                    storeDiff={storeDiff}
+                    submit={submit}
+                    {{/ unless }}
+                    {{# if container.isSelector }}
+                    selectionDiff={selectionDiff}
+                    {{/ if }}
+                    isLoading={isLoading}
+                    actions={actions}
+                  >
+                {{/ if }}
                 <LoadingButton
                   id="{{ getXMIID button }}"
                   loading={isLoading}
@@ -220,6 +250,9 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                     {{/ if }}
                   {{/ if }}
                 </LoadingButton>
+                {{# if button.customImplementation }}
+                  </ComponentProxy>
+                {{/ if }}
                 {{# if button.actionDefinition.isCreateAction }}
                 {{# unless button.actionDefinition.autoOpenAfterCreate }}
                 {!isDraft && <Button size="small" onClick={handleCreateDropdownToggle} aria-label="dropdown toggle for create dialog">

@@ -58,6 +58,18 @@ public class UiPandinoHelper {
         return result;
     }
 
+    public static SortedSet<VisualElement> getContainerActionsVisualElementsWithCustomImplementation(PageContainer container) {
+        SortedSet<VisualElement> result = new TreeSet<>(Comparator.comparing((VisualElement v) -> v.getFQName().trim()));
+
+        collectVisualElementsMatchingCondition(container.getActionButtonGroup(), VisualElement::isCustomImplementation, result);
+
+        return result;
+    }
+
+    public static boolean containerHasActionsWithCustomImplementation(PageContainer container) {
+        return !getContainerActionsVisualElementsWithCustomImplementation(container).isEmpty();
+    }
+
     public static String pageActionFQName(Action action) {
         String adn = simpleActionDefinitionName(action.getActionDefinition());
         PageDefinition pageDefinition = (PageDefinition) action.eContainer();

@@ -504,4 +504,13 @@ public class UiPageContainerHelper {
                 .filter(p -> p.getActions().stream().anyMatch(a -> a.getActionDefinition().equals(button.getActionDefinition())))
                 .findFirst().orElse(null);
     }
+
+    public static boolean isVisualElementContainerButton(VisualElement visualElement) {
+        if (visualElement instanceof Button button) {
+            if (button.eContainer() instanceof ButtonGroup buttonGroup) {
+                return buttonGroup.eContainer() instanceof PageContainer;
+            }
+        }
+        return false;
+    }
 }
