@@ -1,0 +1,188 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #application.pageContainers
+// Path expression: 'src/containers/'+#containerPath(#self)+'/'+#containerComponentName(#self)+'DialogContainer.tsx'
+// Template name: actor/src/containers/dialog.tsx
+// Base URL: mvn:hu.blackbelt.judo.generator:judo-ui-react:1.0.0-SNAPSHOT
+// Template file: actor/src/containers/dialog.tsx.hbs
+
+import LoadingButton from '@mui/lab/LoadingButton';
+import Button from '@mui/material/Button';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import { Suspense, lazy } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import { MdiIcon, useJudoNavigation } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
+import { processQueryCustomizer } from '~/utilities';
+import { getValue } from '~/utilities/helper';
+
+import type { ViewGalaxyViewActionDefinitions, ViewGalaxyViewDialogActions, ViewGalaxyViewDialogProps } from './types';
+
+const ViewGalaxyView = lazy(() => import('~/containers/View/Galaxy/View/ViewGalaxyView'));
+
+// Name: View::Galaxy::View
+export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
+  const { openConfirmDialog } = useConfirmDialog();
+
+  const { t } = useTranslation();
+  const { navigate, back } = useJudoNavigation();
+  const {
+    ownerData,
+    onClose,
+    actions,
+    dataPath,
+    isLoading,
+    editMode,
+    refreshCounter,
+    data,
+    isFormUpdateable,
+    isFormDeleteable,
+    storeDiff,
+    validation,
+    setValidation,
+    submit,
+    isDraft,
+  } = props;
+  const queryCustomizer: ViewGalaxyQueryCustomizer = {
+    _mask: actions.getMask?.(),
+  };
+
+  return (
+    <>
+      <DialogTitle>
+        {actions.getPageTitle ? actions.getPageTitle(data) : ''}
+        <IconButton
+          id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer-dialog-close-wrapper"
+          aria-label="close"
+          onClick={onClose}
+          sx={{
+            position: 'absolute',
+            right: 8,
+            top: 8,
+            color: (theme) => theme.palette.grey[500],
+          }}
+        >
+          <MdiIcon path="close" />
+        </IconButton>
+      </DialogTitle>
+      <DialogContent dividers>
+        <Suspense>
+          <ViewGalaxyView
+            actions={actions}
+            dataPath={dataPath}
+            refreshCounter={refreshCounter}
+            isLoading={isLoading}
+            data={data}
+            editMode={editMode}
+            storeDiff={storeDiff}
+            isFormUpdateable={isFormUpdateable}
+            isFormDeleteable={isFormDeleteable}
+            validation={validation}
+            setValidation={setValidation}
+            submit={submit}
+            isDraft={isDraft}
+          />
+        </Suspense>
+      </DialogContent>
+      <DialogActions>
+        {!editMode && actions.backAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'text'}
+              disabled={isLoading || editMode}
+              startIcon={<MdiIcon path="arrow-left" />}
+              onClick={async () => {
+                await actions.backAction!();
+              }}
+            >
+              <span>{t('judo.action.back', { defaultValue: 'Back' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        {!isDraft && actions.refreshAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'contained'}
+              disabled={isLoading || editMode}
+              startIcon={<MdiIcon path="refresh" />}
+              onClick={async () => {
+                await actions.refreshAction!(processQueryCustomizer(queryCustomizer));
+              }}
+            >
+              <span>{t('judo.action.refresh', { defaultValue: 'Refresh' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        {!editMode && (isFormDeleteable() || isDraft) && actions.deleteAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'contained'}
+              disabled={isLoading || editMode}
+              startIcon={<MdiIcon path="delete_forever" />}
+              onClick={async () => {
+                actions.deleteAction!();
+              }}
+            >
+              <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        {editMode && actions.cancelAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'text'}
+              disabled={isLoading}
+              startIcon={<MdiIcon path="cancel" />}
+              onClick={async () => {
+                await actions.cancelAction!();
+              }}
+            >
+              <span>{t('judo.action.cancel', { defaultValue: 'Cancel' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        {editMode && actions.updateAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'contained'}
+              disabled={isLoading}
+              startIcon={<MdiIcon path="content-save" />}
+              onClick={async () => {
+                await actions.updateAction!();
+              }}
+            >
+              <span>
+                {isDraft
+                  ? t('judo.dialogs.draft.submit', { defaultValue: 'Ok' })
+                  : t('judo.action.update', { defaultValue: 'Save' })}
+              </span>
+            </LoadingButton>
+          </Grid>
+        )}
+      </DialogActions>
+    </>
+  );
+}

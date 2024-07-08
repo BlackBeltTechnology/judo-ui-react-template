@@ -1,0 +1,870 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #application.pageContainers
+// Path expression: 'src/containers/'+#containerPath(#self)+'/'+#containerComponentName(#self)+'.tsx'
+// Template name: actor/src/containers/container.tsx
+// Base URL: mvn:hu.blackbelt.judo.generator:judo-ui-react:1.0.0-SNAPSHOT
+// Template file: actor/src/containers/container.tsx.hbs
+
+import LoadingButton from '@mui/lab/LoadingButton';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardHeader from '@mui/material/CardHeader';
+import Checkbox from '@mui/material/Checkbox';
+import Container from '@mui/material/Container';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormGroup from '@mui/material/FormGroup';
+import FormHelperText from '@mui/material/FormHelperText';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import MenuItem from '@mui/material/MenuItem';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+// include: actor/src/fragments/container/view-imports.fragment.hbs
+import { DateTimePicker } from '@mui/x-date-pickers';
+import type { DateTimeValidationError } from '@mui/x-date-pickers';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy } from '@pandino/react-hooks';
+import { useTrackService } from '@pandino/react-hooks';
+import { clsx } from 'clsx';
+// include: actor/src/fragments/container/common-imports.fragment.hbs
+import type { Dispatch, FC, SetStateAction } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { DropdownButton, MdiIcon, useJudoNavigation } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+import { AssociationButton, NumericInput } from '~/components/widgets';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+import type { CustomFormVisualElementProps } from '~/custom';
+import { useConfirmationBeforeChange } from '~/hooks';
+import { useL10N } from '~/l10n/l10n-context';
+import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
+import type { ViewStar, ViewStarStored } from '~/services/data-api/model/ViewStar';
+import { isErrorOperationFault, useErrorHandler } from '~/utilities';
+import { ViewGalaxyViewAstronomerComponent } from './components/ViewGalaxyViewAstronomerComponent';
+import { ViewGalaxyViewStarsComponent } from './components/ViewGalaxyViewStarsComponent';
+import {
+  VIEW_GALAXY_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY,
+  VIEW_GALAXY_VIEW_DISCOVERER_COMPONENT,
+} from './customization';
+import type { ViewGalaxyViewContainerHook } from './customization';
+import type { ViewGalaxyViewActionDefinitions, ViewGalaxyViewProps } from './types';
+
+// XMIID: God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer
+// Name: View::Galaxy::View
+export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
+  // Container props
+  const {
+    refreshCounter,
+    isLoading,
+    isDraft,
+    dataPath,
+    actions: pageActions,
+    data,
+    isFormUpdateable,
+    isFormDeleteable,
+    storeDiff,
+    editMode,
+    validation,
+    setValidation,
+    submit,
+  } = props;
+
+  // Container hooks
+  const { t } = useTranslation();
+  const { navigate, back } = useJudoNavigation();
+  const { locale: l10nLocale } = useL10N();
+  const { openConfirmDialog } = useConfirmDialog();
+
+  useConfirmationBeforeChange(
+    editMode,
+    t('judo.form.navigation.confirmation', {
+      defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?',
+    }),
+  );
+  // Pandino Container Action overrides
+  const { service: customContainerHook } = useTrackService<ViewGalaxyViewContainerHook>(
+    `(${OBJECTCLASS}=${VIEW_GALAXY_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY})`,
+  );
+  const containerActions: ViewGalaxyViewActionDefinitions = customContainerHook?.(data, editMode, storeDiff) || {};
+  const actions = useMemo(() => ({ ...pageActions, ...containerActions }), [pageActions, containerActions]);
+
+  return (
+    <Grid container data-container-id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer">
+      {/* include: getWidgetTemplate() */}
+
+      <Grid item data-name="View" xs={12} sm={12} md={36.0}>
+        <Grid container direction="row" spacing={2}>
+          <Grid item xs={12} sm={12}>
+            <Grid
+              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewVisualElement"
+              data-name="View"
+              container
+              direction="row"
+              alignItems="stretch"
+              justifyContent="flex-start"
+              spacing={2}
+            >
+              {/* include: getWidgetTemplate() */}
+
+              <Grid item data-name="group" xs={12} sm={12}>
+                <Grid container direction="row" spacing={2}>
+                  <Grid item xs={12} sm={12}>
+                    <Grid
+                      id="God/(esm/_CtcuYE7uEeycO-gUAWxcVg)/GroupVisualElement"
+                      data-name="group"
+                      container
+                      direction="row"
+                      alignItems="flex-start"
+                      justifyContent="flex-start"
+                      spacing={2}
+                    >
+                      {/* include: getWidgetTemplate() */}
+
+                      <Grid item data-name="group" xs={12} sm={12} md={6.0}>
+                        <Card id="God/(esm/_D4bTwE7uEeycO-gUAWxcVg)/GroupVisualElement" data-name="group">
+                          <CardContent>
+                            <Grid
+                              container
+                              direction="row"
+                              alignItems="center"
+                              justifyContent="space-between"
+                              spacing={2}
+                              sx={{ mb: 2 }}
+                            >
+                              <Grid item>
+                                <Grid container direction="row" alignItems="center" justifyContent="flex-start">
+                                  <MdiIcon path="star-shooting" sx={{ marginRight: 1 }} />
+                                  <Typography variant="h5" component="h1">
+                                    {t('View.Galaxy.View.group', { defaultValue: 'Stars' })}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                            <Grid
+                              container
+                              direction="row"
+                              alignItems="flex-start"
+                              justifyContent="flex-start"
+                              spacing={2}
+                            >
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={24.0}>
+                                <Grid container direction="row" spacing={2}>
+                                  <Grid item xs={12} sm={12}>
+                                    <Grid
+                                      id="God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceFieldTargetDefinedTable"
+                                      container
+                                      direction="column"
+                                      alignItems="stretch"
+                                      justifyContent="flex-start"
+                                    >
+                                      <ViewGalaxyViewStarsComponent
+                                        uniqueId={
+                                          'God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceFieldTargetDefinedTable'
+                                        }
+                                        actions={actions}
+                                        dataPath={dataPath ? dataPath + '.stars' : 'stars'}
+                                        ownerData={data}
+                                        editMode={editMode}
+                                        isFormUpdateable={isFormUpdateable}
+                                        validationError={validation.get('stars')}
+                                        refreshCounter={refreshCounter}
+                                        isOwnerLoading={isLoading}
+                                      />
+                                    </Grid>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+
+                      {/* include: getWidgetTemplate() */}
+
+                      <Grid item data-name="group_2" xs={12} sm={12} md={6.0}>
+                        <Card id="God/(esm/_Emq50E7uEeycO-gUAWxcVg)/GroupVisualElement" data-name="group_2">
+                          <CardContent>
+                            <Grid
+                              container
+                              direction="row"
+                              alignItems="center"
+                              justifyContent="space-between"
+                              spacing={2}
+                              sx={{ mb: 2 }}
+                            >
+                              <Grid item>
+                                <Grid container direction="row" alignItems="center" justifyContent="flex-start">
+                                  <MdiIcon path="flare" sx={{ marginRight: 1 }} />
+                                  <Typography variant="h5" component="h1">
+                                    {t('View.Galaxy.View.group_2', { defaultValue: 'About' })}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                            <Grid
+                              container
+                              direction="column"
+                              alignItems="stretch"
+                              justifyContent="flex-start"
+                              spacing={2}
+                            >
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item data-name="group" xs={12} sm={12}>
+                                <Grid container direction="row" spacing={2}>
+                                  <Grid item xs={12} sm={12}>
+                                    <Grid
+                                      id="God/(esm/_YJOJEFjWEeyV2_3ibolaNQ)/GroupVisualElement"
+                                      data-name="group"
+                                      container
+                                      direction="row"
+                                      alignItems="stretch"
+                                      justifyContent="flex-start"
+                                      spacing={2}
+                                    >
+                                      {/* include: getWidgetTemplate() */}
+
+                                      <Grid item xs={12} sm={12} md={8.0}>
+                                        <TextField
+                                          required={
+                                            actions?.isNameRequired ? actions.isNameRequired(data, editMode) : true
+                                          }
+                                          name="name"
+                                          id="God/(esm/_8Ad5AE7tEeycO-gUAWxcVg)/StringTypeTextInput"
+                                          label={t('View.Galaxy.View.name', { defaultValue: 'Name' }) as string}
+                                          value={data.name ?? ''}
+                                          className={clsx({
+                                            'JUDO-viewMode': !editMode,
+                                            'JUDO-required': true,
+                                          })}
+                                          disabled={
+                                            actions?.isNameDisabled
+                                              ? actions.isNameDisabled(data, editMode, isLoading)
+                                              : isLoading
+                                          }
+                                          error={!!validation.get('name')}
+                                          helperText={validation.get('name')}
+                                          onChange={(event) => {
+                                            const realValue =
+                                              event.target.value?.length === 0 ? null : event.target.value;
+                                            storeDiff('name', realValue);
+                                          }}
+                                          InputLabelProps={{ shrink: true }}
+                                          InputProps={{
+                                            readOnly: false || !isFormUpdateable(),
+                                            startAdornment: (
+                                              <InputAdornment position="start">
+                                                <MdiIcon path="atom-variant" />
+                                              </InputAdornment>
+                                            ),
+                                          }}
+                                          inputProps={{
+                                            maxLength: 255,
+                                          }}
+                                        />
+                                      </Grid>
+
+                                      {/* include: getWidgetTemplate() */}
+
+                                      <Grid item xs={12} sm={12} md={4.0}>
+                                        <FormControl error={!!validation.get('real')}>
+                                          <FormGroup>
+                                            <FormControlLabel
+                                              className="checkbox"
+                                              sx={{
+                                                marginTop: '6px',
+                                                color: (theme) =>
+                                                  validation.has('real') ? theme.palette.error.main : 'primary',
+                                              }}
+                                              disabled={
+                                                actions?.isRealDisabled
+                                                  ? actions.isRealDisabled(data, editMode, isLoading)
+                                                  : false || !isFormUpdateable() || isLoading
+                                              }
+                                              control={
+                                                <Checkbox
+                                                  checked={data.real || false}
+                                                  sx={{
+                                                    color: (theme) =>
+                                                      validation.has('real') ? theme.palette.error.main : 'primary',
+                                                  }}
+                                                  onChange={(event) => {
+                                                    storeDiff('real', event.target.checked);
+                                                  }}
+                                                />
+                                              }
+                                              label={t('View.Galaxy.View.real', { defaultValue: 'Real' }) as string}
+                                            />
+                                          </FormGroup>
+                                          {validation.has('real') && (
+                                            <FormHelperText>{validation.get('real')}</FormHelperText>
+                                          )}
+                                        </FormControl>
+                                      </Grid>
+                                    </Grid>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={8.0}>
+                                <TextField
+                                  required={
+                                    actions?.isConstellationRequired
+                                      ? actions.isConstellationRequired(data, editMode)
+                                      : true
+                                  }
+                                  name="constellation"
+                                  id="God/(esm/_gT1p0FjFEeyV2_3ibolaNQ)/StringTypeTextInput"
+                                  label={
+                                    t('View.Galaxy.View.constellation', { defaultValue: 'Constellation' }) as string
+                                  }
+                                  value={data.constellation ?? ''}
+                                  className={clsx({
+                                    'JUDO-viewMode': !editMode,
+                                    'JUDO-required': true,
+                                  })}
+                                  disabled={
+                                    actions?.isConstellationDisabled
+                                      ? actions.isConstellationDisabled(data, editMode, isLoading)
+                                      : isLoading
+                                  }
+                                  error={!!validation.get('constellation')}
+                                  helperText={validation.get('constellation')}
+                                  onChange={(event) => {
+                                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
+                                    storeDiff('constellation', realValue);
+                                  }}
+                                  InputLabelProps={{ shrink: true }}
+                                  InputProps={{
+                                    readOnly: false || !isFormUpdateable(),
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <MdiIcon path="star-settings-outline" />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                  inputProps={{
+                                    maxLength: 255,
+                                  }}
+                                />
+                              </Grid>
+
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={8.0}>
+                                <NumericInput
+                                  required={
+                                    actions?.isMagnitudeRequired ? actions.isMagnitudeRequired(data, editMode) : false
+                                  }
+                                  name="magnitude"
+                                  id="God/(esm/_gT2Q4FjFEeyV2_3ibolaNQ)/NumericTypeVisualInput"
+                                  label={t('View.Galaxy.View.magnitude', { defaultValue: 'Magnitude' }) as string}
+                                  customInput={TextField}
+                                  value={data.magnitude ?? ''}
+                                  formatValue={true}
+                                  decimalScale={4}
+                                  className={clsx({
+                                    'JUDO-viewMode': !editMode,
+                                    'JUDO-required': false,
+                                  })}
+                                  disabled={
+                                    actions?.isMagnitudeDisabled
+                                      ? actions.isMagnitudeDisabled(data, editMode, isLoading)
+                                      : isLoading
+                                  }
+                                  error={!!validation.get('magnitude')}
+                                  helperText={validation.get('magnitude')}
+                                  onValueChange={(values, sourceInfo) => {
+                                    const newValue = values.floatValue === undefined ? null : values.floatValue;
+                                    if (data.magnitude !== newValue) {
+                                      storeDiff('magnitude', newValue);
+                                    }
+                                  }}
+                                  InputLabelProps={{ shrink: true }}
+                                  InputProps={{
+                                    readOnly: false || !isFormUpdateable(),
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <MdiIcon path="decagram-outline" />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </Grid>
+
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={8.0}>
+                                <FormControl error={!!validation.get('nakedEye')}>
+                                  <FormGroup>
+                                    <FormControlLabel
+                                      className="checkbox"
+                                      sx={{
+                                        marginTop: '6px',
+                                        color: (theme) =>
+                                          validation.has('nakedEye') ? theme.palette.error.main : 'primary',
+                                      }}
+                                      disabled={
+                                        actions?.isNakedEyeDisabled
+                                          ? actions.isNakedEyeDisabled(data, editMode, isLoading)
+                                          : false || !isFormUpdateable() || isLoading
+                                      }
+                                      control={
+                                        <Checkbox
+                                          checked={data.nakedEye || false}
+                                          sx={{
+                                            color: (theme) =>
+                                              validation.has('nakedEye') ? theme.palette.error.main : 'primary',
+                                          }}
+                                          onChange={(event) => {
+                                            storeDiff('nakedEye', event.target.checked);
+                                          }}
+                                        />
+                                      }
+                                      label={t('View.Galaxy.View.nakedEye', { defaultValue: 'Naked Eye' }) as string}
+                                    />
+                                  </FormGroup>
+                                  {validation.has('nakedEye') && (
+                                    <FormHelperText>{validation.get('nakedEye')}</FormHelperText>
+                                  )}
+                                </FormControl>
+                              </Grid>
+
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={8.0}>
+                                <TextField
+                                  required={
+                                    actions?.isOriginOfNameRequired
+                                      ? actions.isOriginOfNameRequired(data, editMode)
+                                      : false
+                                  }
+                                  name="originOfName"
+                                  id="God/(esm/_gT3fAFjFEeyV2_3ibolaNQ)/StringTypeTextArea"
+                                  label={
+                                    t('View.Galaxy.View.originOfName', { defaultValue: 'Origin Of Name' }) as string
+                                  }
+                                  value={data.originOfName ?? ''}
+                                  className={clsx({
+                                    'JUDO-viewMode': !editMode,
+                                    'JUDO-required': false,
+                                  })}
+                                  disabled={
+                                    actions?.isOriginOfNameDisabled
+                                      ? actions.isOriginOfNameDisabled(data, editMode, isLoading)
+                                      : isLoading
+                                  }
+                                  multiline
+                                  minRows={2.0}
+                                  error={!!validation.get('originOfName')}
+                                  helperText={validation.get('originOfName')}
+                                  onChange={(event) => {
+                                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
+                                    storeDiff('originOfName', realValue);
+                                  }}
+                                  InputLabelProps={{ shrink: true }}
+                                  InputProps={{
+                                    readOnly: false || !isFormUpdateable(),
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <MdiIcon path="weather-night" />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                  inputProps={{
+                                    maxLength: 255,
+                                  }}
+                                />
+                              </Grid>
+                            </Grid>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+
+                      {/* include: getWidgetTemplate() */}
+
+                      <Grid item data-name="Discoverer" xs={12} sm={12}>
+                        <ComponentProxy
+                          filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_GALAXY_VIEW_DISCOVERER_COMPONENT}))`}
+                          data={data}
+                          validation={validation}
+                          editMode={editMode}
+                          storeDiff={storeDiff}
+                          isLoading={isLoading}
+                          actions={actions}
+                        >
+                          <Card id="God/(esm/_0LmPoBMbEe2_DOUDKkB20Q)/GroupVisualElement" data-name="Discoverer">
+                            <CardContent>
+                              <Grid
+                                container
+                                direction="row"
+                                alignItems="center"
+                                justifyContent="space-between"
+                                spacing={2}
+                                sx={{ mb: 2 }}
+                              >
+                                <Grid item>
+                                  <Grid container direction="row" alignItems="center" justifyContent="flex-start">
+                                    <MdiIcon path="telescope" sx={{ marginRight: 1 }} />
+                                    <Typography variant="h5" component="h1">
+                                      {t('View.Galaxy.View.Discoverer', { defaultValue: 'Discoverer' })}
+                                    </Typography>
+                                  </Grid>
+                                </Grid>
+                              </Grid>
+                              <Grid
+                                container
+                                direction="row"
+                                alignItems="flex-start"
+                                justifyContent="flex-start"
+                                spacing={2}
+                              >
+                                {/* include: getWidgetTemplate() */}
+
+                                <Grid item xs={12} sm={12} md={4.0}>
+                                  <DateTimePicker
+                                    ampm={false}
+                                    ampmInClock={false}
+                                    className={clsx({
+                                      'JUDO-viewMode': !editMode,
+                                      'JUDO-required': false,
+                                    })}
+                                    slotProps={{
+                                      textField: {
+                                        id: 'God/(esm/_conRABMcEe2_DOUDKkB20Q)/TimestampTypeDateTimeInput',
+                                        required: actions?.isDiscoveredRequired
+                                          ? actions.isDiscoveredRequired(data, editMode)
+                                          : false,
+                                        helperText: validation.get('discovered'),
+                                        error: !!validation.get('discovered'),
+                                        InputProps: {
+                                          startAdornment: (
+                                            <InputAdornment position="start">
+                                              <MdiIcon path="schedule" />
+                                            </InputAdornment>
+                                          ),
+                                        },
+                                      },
+                                      actionBar: {
+                                        actions: ['today', 'accept'],
+                                      },
+                                    }}
+                                    onError={(newError: DateTimeValidationError, value: any) => {
+                                      // https://mui.com/x/react-date-pickers/validation/#show-the-error
+                                      setValidation((prevValidation) => {
+                                        const copy = new Map<keyof ViewGalaxy, string>(prevValidation);
+                                        copy.set(
+                                          'discovered',
+                                          newError === 'invalidDate'
+                                            ? (t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
+                                                defaultValue: 'Value does not match the pattern requirements.',
+                                              }) as string)
+                                            : '',
+                                        );
+                                        return copy;
+                                      });
+                                    }}
+                                    views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
+                                    label={t('View.Galaxy.View.discovered', { defaultValue: 'Discovered' }) as string}
+                                    value={data.discovered ?? null}
+                                    readOnly={false || !isFormUpdateable()}
+                                    disabled={
+                                      actions?.isDiscoveredDisabled
+                                        ? actions.isDiscoveredDisabled(data, editMode, isLoading)
+                                        : isLoading
+                                    }
+                                    onChange={(newValue: Date | null) => {
+                                      storeDiff('discovered', newValue);
+                                    }}
+                                  />
+                                </Grid>
+
+                                {/* include: getWidgetTemplate() */}
+
+                                <Grid item xs={12} sm={12} md={4.0}>
+                                  <ViewGalaxyViewAstronomerComponent
+                                    disabled={false || isLoading}
+                                    readOnly={false || !isFormUpdateable()}
+                                    ownerData={data}
+                                    dataPath={dataPath ? dataPath + '.astronomer' : 'astronomer'}
+                                    editMode={editMode}
+                                    isLoading={isLoading}
+                                    isDraft={isDraft}
+                                    storeDiff={storeDiff}
+                                    validationError={validation.get('astronomer')}
+                                    actions={actions}
+                                    submit={submit}
+                                  />
+                                </Grid>
+                              </Grid>
+                            </CardContent>
+                          </Card>
+                        </ComponentProxy>
+                      </Grid>
+
+                      {/* include: getWidgetTemplate() */}
+
+                      <Grid item data-name="group_3" xs={12} sm={12}>
+                        <Card id="God/(esm/_KkOiwFjFEeyV2_3ibolaNQ)/GroupVisualElement" data-name="group_3">
+                          <CardContent>
+                            <Grid
+                              container
+                              direction="row"
+                              alignItems="center"
+                              justifyContent="space-between"
+                              spacing={2}
+                              sx={{ mb: 2 }}
+                            >
+                              <Grid item>
+                                <Grid container direction="row" alignItems="center" justifyContent="flex-start">
+                                  <Typography variant="h5" component="h1">
+                                    {t('View.Galaxy.View.group_3', { defaultValue: 'Matter' })}
+                                  </Typography>
+                                </Grid>
+                              </Grid>
+                            </Grid>
+                            <Grid
+                              container
+                              direction="row"
+                              alignItems="flex-start"
+                              justifyContent="flex-start"
+                              spacing={2}
+                            >
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={3.0}>
+                                <AssociationButton
+                                  id="God/(esm/_8A3hoE7tEeycO-gUAWxcVg)/TabularReferenceFieldButton"
+                                  variant={undefined}
+                                  editMode={editMode}
+                                  navigateAction={actions.matterOpenPageAction}
+                                  refreshCounter={refreshCounter}
+                                >
+                                  {t('judo.action.open-page', { defaultValue: 'Matter' })}
+                                  <MdiIcon path="arrow-right" />
+                                </AssociationButton>
+                              </Grid>
+
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={2.0}>
+                                <NumericInput
+                                  required={
+                                    actions?.isDarkMatterRequired ? actions.isDarkMatterRequired(data, editMode) : false
+                                  }
+                                  name="darkMatter"
+                                  id="God/(esm/_8Aj_oE7tEeycO-gUAWxcVg)/MeasuredTypeInput"
+                                  label={t('View.Galaxy.View.darkMatter', { defaultValue: 'Dark Matter' }) as string}
+                                  customInput={TextField}
+                                  value={data.darkMatter ?? ''}
+                                  formatValue={true}
+                                  decimalScale={2}
+                                  className={clsx({
+                                    'JUDO-viewMode': !editMode,
+                                    'JUDO-required': false,
+                                  })}
+                                  disabled={
+                                    actions?.isDarkMatterDisabled
+                                      ? actions.isDarkMatterDisabled(data, editMode, isLoading)
+                                      : isLoading
+                                  }
+                                  error={!!validation.get('darkMatter')}
+                                  helperText={validation.get('darkMatter')}
+                                  onValueChange={(values, sourceInfo) => {
+                                    const newValue = values.floatValue === undefined ? null : values.floatValue;
+                                    if (data.darkMatter !== newValue) {
+                                      storeDiff('darkMatter', newValue);
+                                    }
+                                  }}
+                                  InputLabelProps={{ shrink: true }}
+                                  InputProps={{
+                                    readOnly: true || !isFormUpdateable(),
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <MdiIcon path="chart-bubble" />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </Grid>
+
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={2.0}>
+                                <NumericInput
+                                  required={
+                                    actions?.isIntergalacticDustRequired
+                                      ? actions.isIntergalacticDustRequired(data, editMode)
+                                      : false
+                                  }
+                                  name="intergalacticDust"
+                                  id="God/(esm/_8AoREE7tEeycO-gUAWxcVg)/MeasuredTypeInput"
+                                  label={
+                                    t('View.Galaxy.View.intergalacticDust', {
+                                      defaultValue: 'Intergalactic Dust',
+                                    }) as string
+                                  }
+                                  customInput={TextField}
+                                  value={data.intergalacticDust ?? ''}
+                                  formatValue={true}
+                                  decimalScale={2}
+                                  className={clsx({
+                                    'JUDO-viewMode': !editMode,
+                                    'JUDO-required': false,
+                                  })}
+                                  disabled={
+                                    actions?.isIntergalacticDustDisabled
+                                      ? actions.isIntergalacticDustDisabled(data, editMode, isLoading)
+                                      : isLoading
+                                  }
+                                  error={!!validation.get('intergalacticDust')}
+                                  helperText={validation.get('intergalacticDust')}
+                                  onValueChange={(values, sourceInfo) => {
+                                    const newValue = values.floatValue === undefined ? null : values.floatValue;
+                                    if (data.intergalacticDust !== newValue) {
+                                      storeDiff('intergalacticDust', newValue);
+                                    }
+                                  }}
+                                  InputLabelProps={{ shrink: true }}
+                                  InputProps={{
+                                    readOnly: true || !isFormUpdateable(),
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <MdiIcon path="scatter-plot-outline" />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </Grid>
+
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={12} md={2.0}>
+                                <NumericInput
+                                  required={
+                                    actions?.isInterstellarMediumRequired
+                                      ? actions.isInterstellarMediumRequired(data, editMode)
+                                      : false
+                                  }
+                                  name="interstellarMedium"
+                                  id="God/(esm/_8AtJkE7tEeycO-gUAWxcVg)/MeasuredTypeInput"
+                                  label={
+                                    t('View.Galaxy.View.interstellarMedium', {
+                                      defaultValue: 'Interstellar Medium',
+                                    }) as string
+                                  }
+                                  customInput={TextField}
+                                  value={data.interstellarMedium ?? ''}
+                                  formatValue={true}
+                                  decimalScale={2}
+                                  className={clsx({
+                                    'JUDO-viewMode': !editMode,
+                                    'JUDO-required': false,
+                                  })}
+                                  disabled={
+                                    actions?.isInterstellarMediumDisabled
+                                      ? actions.isInterstellarMediumDisabled(data, editMode, isLoading)
+                                      : isLoading
+                                  }
+                                  error={!!validation.get('interstellarMedium')}
+                                  helperText={validation.get('interstellarMedium')}
+                                  onValueChange={(values, sourceInfo) => {
+                                    const newValue = values.floatValue === undefined ? null : values.floatValue;
+                                    if (data.interstellarMedium !== newValue) {
+                                      storeDiff('interstellarMedium', newValue);
+                                    }
+                                  }}
+                                  InputLabelProps={{ shrink: true }}
+                                  InputProps={{
+                                    readOnly: true || !isFormUpdateable(),
+                                    startAdornment: (
+                                      <InputAdornment position="start">
+                                        <MdiIcon path="scatter-plot" />
+                                      </InputAdornment>
+                                    ),
+                                  }}
+                                />
+                              </Grid>
+
+                              {/* include: getWidgetTemplate() */}
+
+                              <Grid item xs={12} sm={3.0}>
+                                <Box sx={{ display: 'flex', gap: 1 }}>
+                                  <DropdownButton
+                                    id="God/(esm/_zk8ooFyrEeylCdga_wJIBQ)/ButtonGroupVisualElement-button-group"
+                                    disabled={isLoading || editMode}
+                                    startIcon={<MdiIcon path="flare" />}
+                                    menuItems={[
+                                      {
+                                        id: 'God/(esm/_5NwrQFyrEeylCdga_wJIBQ)/OperationFormVisualElement',
+                                        label: t('View.Galaxy.View.createDarkMatter', {
+                                          defaultValue: 'Create Dark Matter',
+                                        }) as string,
+                                        onClick: actions.createDarkMatterAction
+                                          ? async () => {
+                                              await actions.createDarkMatterAction!();
+                                            }
+                                          : undefined,
+                                        startIcon: <MdiIcon path="chevron_right" />,
+                                        disabled: isLoading || editMode,
+                                      },
+                                      {
+                                        id: 'God/(esm/_5Nx5YFyrEeylCdga_wJIBQ)/OperationFormVisualElement',
+                                        label: t('View.Galaxy.View.createIntergalacticDust', {
+                                          defaultValue: 'Create Intergalactic Dust',
+                                        }) as string,
+                                        onClick: actions.createIntergalacticDustAction
+                                          ? async () => {
+                                              await actions.createIntergalacticDustAction!();
+                                            }
+                                          : undefined,
+                                        startIcon: <MdiIcon path="chevron_right" />,
+                                        disabled: isLoading || editMode,
+                                      },
+                                      {
+                                        id: 'God/(esm/_5Nx5YVyrEeylCdga_wJIBQ)/OperationFormVisualElement',
+                                        label: t('View.Galaxy.View.createInterstellarMedium', {
+                                          defaultValue: 'Create Interstellar Medium',
+                                        }) as string,
+                                        onClick: actions.createInterstellarMediumAction
+                                          ? async () => {
+                                              await actions.createInterstellarMediumAction!();
+                                            }
+                                          : undefined,
+                                        startIcon: <MdiIcon path="chevron_right" />,
+                                        disabled: isLoading || editMode,
+                                      },
+                                    ]}
+                                  >
+                                    {t('View.Galaxy.View.actionGroup', { defaultValue: 'Create Matter' })}
+                                  </DropdownButton>
+                                </Box>
+                              </Grid>
+                            </Grid>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    </Grid>
+                  </Grid>
+                </Grid>
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+}
