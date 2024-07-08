@@ -1,0 +1,163 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #getPageContainersToGenerate(#application)
+// Path expression: 'src/containers/'+#containerPath(#self)+'/'+#containerComponentName(#self)+'PageContainer.tsx'
+// Template name: actor/src/containers/page.tsx
+// Template file: actor/src/containers/page.tsx.hbs
+
+import LoadingButton from '@mui/lab/LoadingButton';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import { Suspense, lazy } from 'react';
+import type { Dispatch, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import { MdiIcon, PageHeader, useJudoNavigation } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+import type { Planet, PlanetStored } from '~/services/data-api/model/Planet';
+import type { PlanetQueryCustomizer } from '~/services/data-api/rest/PlanetQueryCustomizer';
+import { mainContainerPadding } from '~/theme';
+import { processQueryCustomizer } from '~/utilities';
+import { getValue } from '~/utilities/helper';
+
+import type { PlanetViewActionDefinitions, PlanetViewPageActions, PlanetViewPageProps } from './types';
+
+const PlanetView = lazy(() => import('~/containers/Planet/View/PlanetView'));
+
+// Name: Planet::View
+export default function PlanetViewPage(props: PlanetViewPageProps) {
+  const { openConfirmDialog } = useConfirmDialog();
+
+  const { t } = useTranslation();
+  const { navigate, back } = useJudoNavigation();
+  const {
+    actions,
+    dataPath,
+    isLoading,
+    editMode,
+    refreshCounter,
+    data,
+    isFormUpdateable,
+    isFormDeleteable,
+    storeDiff,
+    validation,
+    setValidation,
+    submit,
+  } = props;
+  const isDraft = false; // currently no page can be opened as draft, but we need this variable anyway
+  const queryCustomizer: PlanetQueryCustomizer = {
+    _mask: actions.getMask?.(),
+  };
+
+  return (
+    <>
+      <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle(data) : ''}>
+        {!editMode && actions.backAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewBackButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'text'}
+              startIcon={<MdiIcon path="arrow-left" />}
+              disabled={isLoading || editMode}
+              onClick={async () => {
+                await actions.backAction!();
+              }}
+            >
+              <span>{t('judo.action.back', { defaultValue: 'Back' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        {!isDraft && actions.refreshAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewRefreshButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'contained'}
+              startIcon={<MdiIcon path="refresh" />}
+              disabled={isLoading || editMode}
+              onClick={async () => {
+                await actions.refreshAction!(processQueryCustomizer(queryCustomizer));
+              }}
+            >
+              <span>{t('judo.action.refresh', { defaultValue: 'Refresh' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        {!editMode && (isFormDeleteable() || isDraft) && actions.deleteAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewDeleteButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'contained'}
+              startIcon={<MdiIcon path="delete_forever" />}
+              disabled={isLoading || editMode}
+              onClick={async () => {
+                actions.deleteAction!();
+              }}
+            >
+              <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        {editMode && actions.cancelAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewCancelButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'text'}
+              startIcon={<MdiIcon path="cancel" />}
+              disabled={isLoading}
+              onClick={async () => {
+                await actions.cancelAction!();
+              }}
+            >
+              <span>{t('judo.action.cancel', { defaultValue: 'Cancel' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        {editMode && actions.updateAction && (
+          <Grid className="page-action" item>
+            <LoadingButton
+              id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewUpdateButton"
+              loading={isLoading}
+              loadingPosition="start"
+              variant={'contained'}
+              startIcon={<MdiIcon path="content-save" />}
+              disabled={isLoading}
+              onClick={async () => {
+                await actions.updateAction!();
+              }}
+            >
+              <span>{t('judo.action.update', { defaultValue: 'Save' })}</span>
+            </LoadingButton>
+          </Grid>
+        )}
+        <div>{/* Placeholder */}</div>
+      </PageHeader>
+      <Suspense>
+        <Box sx={mainContainerPadding}>
+          <PlanetView
+            actions={actions}
+            dataPath={dataPath}
+            refreshCounter={refreshCounter}
+            isLoading={isLoading}
+            data={data}
+            editMode={editMode}
+            storeDiff={storeDiff}
+            isFormUpdateable={isFormUpdateable}
+            isFormDeleteable={isFormDeleteable}
+            validation={validation}
+            setValidation={setValidation}
+            submit={submit}
+          />
+        </Box>
+      </Suspense>
+    </>
+  );
+}

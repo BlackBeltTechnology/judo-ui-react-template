@@ -1,0 +1,130 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #application.pageContainers
+// Path expression: 'src/containers/'+#containerPath(#self)+'/'+#containerComponentName(#self)+'.tsx'
+// Template name: actor/src/containers/container.tsx
+// Template file: actor/src/containers/container.tsx.hbs
+
+import LoadingButton from '@mui/lab/LoadingButton';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+import { clsx } from 'clsx';
+import type { Dispatch, FC, SetStateAction } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { DropdownButton, MdiIcon, useJudoNavigation } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+import { useL10N } from '~/l10n/l10n-context';
+import { isErrorOperationFault, useErrorHandler } from '~/utilities';
+
+import {} from '@mui/x-date-pickers';
+import type {} from '@mui/x-date-pickers';
+import {} from '~/components/widgets';
+import { useConfirmationBeforeChange } from '~/hooks';
+import type { Planet, PlanetStored } from '~/services/data-api/model/Planet';
+import { PLANET_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+import type { PlanetViewContainerHook } from './customization';
+import type { PlanetViewActionDefinitions, PlanetViewProps } from './types';
+
+// XMIID: God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewPageContainer
+// Name: Planet::View
+export default function PlanetView(props: PlanetViewProps) {
+  // Container props
+  const {
+    refreshCounter,
+    isLoading,
+    isDraft,
+    dataPath,
+    actions: pageActions,
+    data,
+    isFormUpdateable,
+    isFormDeleteable,
+    storeDiff,
+    editMode,
+    validation,
+    setValidation,
+    submit,
+  } = props;
+
+  // Container hooks
+  const { t } = useTranslation();
+  const { navigate, back } = useJudoNavigation();
+  const { locale: l10nLocale } = useL10N();
+  const { openConfirmDialog } = useConfirmDialog();
+
+  useConfirmationBeforeChange(
+    editMode,
+    t('judo.form.navigation.confirmation', {
+      defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?',
+    }),
+  );
+  // Pandino Container Action overrides
+  const { service: customContainerHook } = useTrackService<PlanetViewContainerHook>(
+    `(${OBJECTCLASS}=${PLANET_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY})`,
+  );
+  const containerActions: PlanetViewActionDefinitions = customContainerHook?.(data, editMode, storeDiff) || {};
+  const actions = useMemo(() => ({ ...pageActions, ...containerActions }), [pageActions, containerActions]);
+
+  return (
+    <Grid container data-container-id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewPageContainer">
+      <Grid item data-name="View" xs={12} sm={12} md={36.0}>
+        <Grid container direction="row" spacing={2}>
+          <Grid item xs={12} sm={12}>
+            <Grid
+              id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewVisualElement"
+              data-name="View"
+              container
+              direction="column"
+              alignItems="stretch"
+              justifyContent="flex-start"
+              spacing={2}
+            >
+              <Grid item xs={12} sm={12} md={4.0}>
+                <TextField
+                  required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : false}
+                  name="name"
+                  id="God/(esm/_0wQI8ORsEeuSU8xLq1yYbw)/StringTypeTextInput"
+                  label={t('Planet.View.name', { defaultValue: 'Name' }) as string}
+                  value={data.name ?? ''}
+                  className={clsx({
+                    'JUDO-viewMode': !editMode,
+                    'JUDO-required': false,
+                  })}
+                  disabled={actions?.isNameDisabled ? actions.isNameDisabled(data, editMode, isLoading) : isLoading}
+                  error={!!validation.get('name')}
+                  helperText={validation.get('name')}
+                  onChange={(event) => {
+                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
+                    storeDiff('name', realValue);
+                  }}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    readOnly: false || !isFormUpdateable(),
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MdiIcon path="brightness-1" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  inputProps={{
+                    maxLength: 255,
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+}

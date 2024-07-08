@@ -2,6 +2,11 @@
 
 import { lazy, Suspense } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
+{{# if (containerHasActionsWithCustomImplementation container) }}
+  import { OBJECTCLASS } from '@pandino/pandino-api';
+  import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
+  import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+{{/ if }}
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
@@ -28,6 +33,14 @@ import { mainContainerPadding } from '~/theme';
     {{ containerComponentName container }}PageActions,
     {{ containerComponentName container }}PageProps,
   } from './types';
+
+  {{# if (containerHasActionsWithCustomImplementation container) }}
+    import {
+      {{# each (getContainerActionsVisualElementsWithCustomImplementation container) as |ve| }}
+        {{ getCustomizationComponentInterfaceKey ve }},
+      {{/ each }}
+    } from './customization';
+  {{/ if }}
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
@@ -57,6 +70,20 @@ export default function {{ containerComponentName container }}Page ({{# unless (
           {{# each container.actionButtonGroup.buttons as |button| }}
             { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
               <Grid className="page-action" item>
+                {{# if button.customImplementation }}
+                  <ComponentProxy
+                    filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey button ~}} }))`}
+                    editMode={editMode}
+                    {{# unless container.table }}
+                    data={data}
+                    validation={validation}
+                    storeDiff={storeDiff}
+                    submit={submit}
+                    {{/ unless }}
+                    isLoading={isLoading}
+                    actions={actions}
+                  >
+                {{/ if }}
                 <LoadingButton
                   id="{{ getXMIID button }}"
                   loading={isLoading}
@@ -83,6 +110,9 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                 >
                   <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
                 </LoadingButton>
+                {{# if button.customImplementation }}
+                </ComponentProxy>
+                {{/ if }}
               </Grid>
             )}
           {{/ each }}
