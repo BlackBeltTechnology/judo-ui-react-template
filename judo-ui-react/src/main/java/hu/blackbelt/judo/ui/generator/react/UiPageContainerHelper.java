@@ -11,7 +11,6 @@ import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
 
-import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -422,14 +421,10 @@ public class UiPageContainerHelper {
         }
         segments.add("isLoading");
 
-        try {
-            if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
-                if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
-                    segments.add("!selectionDiff.length");
-                }
+        if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+            if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
+                segments.add("!selectionDiff.length");
             }
-        } catch (Exception e) {
-            throw e;
         }
 
         return String.join(" || ", segments);
