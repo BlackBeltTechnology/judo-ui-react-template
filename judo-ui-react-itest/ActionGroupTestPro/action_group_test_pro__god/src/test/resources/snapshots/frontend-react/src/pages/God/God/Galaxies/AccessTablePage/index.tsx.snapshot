@@ -1,0 +1,299 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #getPagesForRouting(#application)
+// Path expression: 'src/pages/'+#pagePath(#self)+'/index.tsx'
+// Template name: actor/src/pages/index.tsx
+// Template file: actor/src/pages/index.tsx.hbs
+
+import type { GridFilterModel } from '@mui/x-data-grid-pro';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+import { Suspense, lazy, useCallback, useMemo, useRef, useState } from 'react';
+import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import { useJudoNavigation } from '~/components';
+import type { Filter, FilterOption } from '~/components-api';
+import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
+import type { ViewGalaxyTablePageActions, ViewGalaxyTablePageProps } from '~/containers/View/Galaxy/Table/types';
+import { useGodGodGalaxiesAccessFormPage } from '~/dialogs/God/God/Galaxies/AccessFormPage/hooks';
+import { useViewGalaxyTableCreateDarkMatterInputForm } from '~/dialogs/View/Galaxy/Table/CreateDarkMatter/Input/Form/hooks';
+import { useViewGalaxyTableCreateIntergalacticDustInputForm } from '~/dialogs/View/Galaxy/Table/CreateIntergalacticDust/Input/Form/hooks';
+import { useViewGalaxyTableCreateInterstellarMediumInputForm } from '~/dialogs/View/Galaxy/Table/CreateInterstellarMedium/Input/Form/hooks';
+import { useCRUDDialog, useSnacks, useViewData } from '~/hooks';
+import { routeToGodGodGalaxiesAccessViewPage } from '~/routes';
+import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import { GodServiceForGalaxiesImpl } from '~/services/data-axios/GodServiceForGalaxiesImpl';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { PageContainerTransition } from '~/theme/animations';
+import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
+import type { DialogResult } from '~/utilities';
+import { type ViewGalaxyTableViewModel, ViewGalaxyTableViewModelContext } from './context';
+import type { ViewGalaxyTableActionsHook } from './customization';
+import { GOD_GOD_GALAXIES_ACCESS_TABLE_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+import type { ViewGalaxyTablePageActionsExtended } from './types';
+
+const ViewGalaxyTablePageContainer = lazy(() => import('~/containers/View/Galaxy/Table/ViewGalaxyTablePageContainer'));
+
+// XMIID: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTablePageDefinition
+// Name: God::God::galaxies::AccessTablePage
+export default function GodGodGalaxiesAccessTablePage() {
+  const dataPath = '';
+  const isDraft = false;
+  const owner = useRef<any>(null);
+
+  // Services
+  const godServiceForGalaxiesImpl = useMemo(() => new GodServiceForGalaxiesImpl(judoAxiosProvider), []);
+
+  // Hooks section
+  const { t } = useTranslation();
+  const { showSuccessSnack, showErrorSnack } = useSnacks();
+  const { navigate, back: navigateBack } = useJudoNavigation();
+  const { openFilterDialog } = useFilterDialog();
+  const { openConfirmDialog } = useConfirmDialog();
+  const { setLatestViewData, setRouterPageData } = useViewData();
+  const handleError = useErrorHandler();
+  const openCRUDDialog = useCRUDDialog();
+
+  // State section
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [refreshCounter, setRefreshCounter] = useState<number>(0);
+  const [data, setData] = useState<ViewGalaxyStored[]>([]);
+
+  // Masks
+  const getMask: () => string = () => {
+    return '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,real}';
+  };
+
+  // Private actions
+  const submit = async () => {};
+  const refresh = async (forced = false) => {
+    setRefreshCounter((prev) => prev + 1);
+  };
+  const produceDataAdjustedOwner = useCallback(() => {
+    const copy = simpleCloneDeep(owner.current);
+    setValue(copy, dataPath, simpleCloneDeep(data));
+    return copy;
+  }, [data, owner]);
+
+  // Validation
+
+  // Pandino Action overrides
+  const { service: customActionsHook } = useTrackService<ViewGalaxyTableActionsHook>(
+    `(${OBJECTCLASS}=${GOD_GOD_GALAXIES_ACCESS_TABLE_PAGE_ACTIONS_HOOK_INTERFACE_KEY})`,
+  );
+  const customActions: ViewGalaxyTablePageActionsExtended | undefined = customActionsHook?.(data, editMode);
+
+  // Dialog hooks
+  const openGodGodGalaxiesAccessFormPage = useGodGodGalaxiesAccessFormPage();
+  const openViewGalaxyTableCreateDarkMatterInputForm = useViewGalaxyTableCreateDarkMatterInputForm();
+  const openViewGalaxyTableCreateIntergalacticDustInputForm = useViewGalaxyTableCreateIntergalacticDustInputForm();
+  const openViewGalaxyTableCreateInterstellarMediumInputForm = useViewGalaxyTableCreateInterstellarMediumInputForm();
+
+  // Action section
+  const getPageTitle = (): string => {
+    return t('View.Galaxy.Table', { defaultValue: 'Galaxies' });
+  };
+  // BackAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableBackAction
+  const backAction = async () => {
+    navigateBack();
+  };
+  // BulkDeleteAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableBulkDeleteAction
+  const bulkDeleteAction = async (selectedRows: ViewGalaxyStored[]): Promise<DialogResult<Array<ViewGalaxyStored>>> => {
+    return new Promise((resolve) => {
+      openCRUDDialog<ViewGalaxyStored>({
+        dialogTitle: t('judo.action.bulk-delete', { defaultValue: 'Delete' }),
+        itemTitleFn: (item) => (actions?.getRowRepresentation ? actions.getRowRepresentation(item) : item.name!),
+        selectedItems: selectedRows,
+        action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
+          try {
+            await godServiceForGalaxiesImpl.delete(item);
+            successHandler();
+          } catch (error) {
+            errorHandler(error);
+          }
+        },
+        autoCloseOnSuccess: true,
+        onClose: async (needsRefresh) => {
+          if (needsRefresh) {
+            setRefreshCounter((prev) => prev + 1);
+            resolve({
+              result: 'delete',
+              data: [],
+            });
+          } else {
+            resolve({
+              result: 'close',
+              data: [],
+            });
+          }
+        },
+      });
+    });
+  };
+  // OpenCreateFormAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableCreateAction
+  const openCreateFormAction = async () => {
+    const {
+      result,
+      data: returnedData,
+      openCreated,
+    } = await openGodGodGalaxiesAccessFormPage({
+      ownerData: produceDataAdjustedOwner(),
+      isDraft: false,
+      dataPath: `${dataPath ? dataPath + '.' : ''}`,
+    });
+    if (result === 'submit') {
+      setRefreshCounter((prev) => prev + 1);
+    }
+    if (openCreated && returnedData) {
+      await openPageAction(returnedData!);
+    }
+  };
+  // RowDeleteAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableRowDeleteAction
+  const rowDeleteAction = async (target: ViewGalaxyStored) => {
+    try {
+      const confirmed = await openConfirmDialog(
+        'row-delete-action',
+        t('judo.modal.confirm.confirm-delete', {
+          defaultValue: 'Are you sure you would like to delete the selected element?',
+        }),
+        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+      );
+      if (confirmed) {
+        await godServiceForGalaxiesImpl.delete(target);
+        showSuccessSnack(t('judo.action.delete.success', { defaultValue: 'Delete successful' }));
+        setRefreshCounter((prev) => prev + 1);
+      }
+    } catch (error) {
+      handleError<ViewGalaxy>(error, undefined, target);
+    }
+  };
+  // FilterAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableTableFilterAction
+  const filterAction = async (
+    id: string,
+    filterOptions: FilterOption[],
+    model?: GridFilterModel,
+    filters?: Filter[],
+  ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
+    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    return {
+      filters: newFilters,
+    };
+  };
+  // RefreshAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableTableRefreshAction
+  const refreshAction = async (
+    queryCustomizer: ViewGalaxyQueryCustomizer,
+  ): Promise<JudoRestResponse<ViewGalaxyStored[]>> => {
+    try {
+      setIsLoading(true);
+      setEditMode(false);
+      return godServiceForGalaxiesImpl.list(undefined, queryCustomizer);
+    } catch (error) {
+      handleError(error);
+      setLatestViewData(null);
+      setRouterPageData(null);
+      return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // OpenPageAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableRowViewAction
+  const openPageAction = async (target: ViewGalaxyStored, isDraftParam?: boolean) => {
+    // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
+    navigate(routeToGodGodGalaxiesAccessViewPage((target as ViewGalaxyStored)!.__signedIdentifier));
+  };
+  // OpenOperationInputFormAction: God/(esm/_uqp7kDV3Ee-rMcMaep1uNQ)/OperationFormTableRowCallAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTablePageDefinition)
+  const createDarkMatterAction = async (
+    target: ViewGalaxyStored,
+    isDraft?: boolean,
+    ownerValidation?: (target: any) => Promise<void>,
+  ) => {
+    const { result, data: returnedData } = await openViewGalaxyTableCreateDarkMatterInputForm({
+      ownerData: target,
+    });
+    if (result === 'submit') {
+      await refresh();
+    }
+  };
+  // OpenOperationInputFormAction: God/(esm/_uqqioTV3Ee-rMcMaep1uNQ)/OperationFormTableRowCallAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTablePageDefinition)
+  const createIntergalacticDustAction = async (
+    target: ViewGalaxyStored,
+    isDraft?: boolean,
+    ownerValidation?: (target: any) => Promise<void>,
+  ) => {
+    const { result, data: returnedData } = await openViewGalaxyTableCreateIntergalacticDustInputForm({
+      ownerData: target,
+    });
+    if (result === 'submit') {
+      await refresh();
+    }
+  };
+  // OpenOperationInputFormAction: God/(esm/_uqqiozV3Ee-rMcMaep1uNQ)/OperationFormTableRowCallAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTablePageDefinition)
+  const createInterstellarMediumAction = async (
+    target: ViewGalaxyStored,
+    isDraft?: boolean,
+    ownerValidation?: (target: any) => Promise<void>,
+  ) => {
+    const { result, data: returnedData } = await openViewGalaxyTableCreateInterstellarMediumInputForm({
+      ownerData: target,
+    });
+    if (result === 'submit') {
+      await refresh();
+    }
+  };
+
+  const actions: ViewGalaxyTablePageActions = {
+    getPageTitle,
+    backAction,
+    bulkDeleteAction,
+    openCreateFormAction,
+    rowDeleteAction,
+    filterAction,
+    refreshAction,
+    openPageAction,
+    createDarkMatterAction,
+    createIntergalacticDustAction,
+    createInterstellarMediumAction,
+    getMask,
+    ...(customActions ?? {}),
+  };
+
+  // ViewModel setup
+  const viewModel: ViewGalaxyTableViewModel = {
+    actions,
+    isLoading,
+    setIsLoading,
+    refreshCounter,
+    editMode,
+    setEditMode,
+    refresh,
+  };
+
+  // Effect section
+
+  return (
+    <ViewGalaxyTableViewModelContext.Provider value={viewModel}>
+      <Suspense>
+        <div
+          id="God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTablePageDefinition"
+          data-page-name="God::God::galaxies::AccessTablePage"
+        />
+        <PageContainerTransition>
+          <ViewGalaxyTablePageContainer
+            actions={actions}
+            dataPath={dataPath}
+            isLoading={isLoading}
+            editMode={editMode}
+            refreshCounter={refreshCounter}
+          />
+        </PageContainerTransition>
+      </Suspense>
+    </ViewGalaxyTableViewModelContext.Provider>
+  );
+}

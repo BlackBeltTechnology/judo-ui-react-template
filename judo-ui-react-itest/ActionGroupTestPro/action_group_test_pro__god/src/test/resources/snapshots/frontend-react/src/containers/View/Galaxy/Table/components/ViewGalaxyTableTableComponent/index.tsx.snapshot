@@ -1,0 +1,602 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #getTablesForPageContainers(#application)
+// Path expression: 'src/containers/'+#containerPath(#self.pageContainer)+'/components/'+#tableComponentName(#self)+'/index.tsx'
+// Template name: actor/src/containers/components/table/index.tsx
+// Template file: actor/src/containers/components/table/index.tsx.hbs
+
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import { GridLogicOperator, useGridApiRef } from '@mui/x-data-grid-pro';
+import { gridColumnDefinitionsSelector } from '@mui/x-data-grid-pro';
+import type {
+  GridColDef,
+  GridFilterModel,
+  GridRenderCellParams,
+  GridRowClassNameParams,
+  GridRowId,
+  GridRowModel,
+  GridRowParams,
+  GridRowSelectionModel,
+  GridSortItem,
+  GridSortModel,
+  GridValidRowModel,
+} from '@mui/x-data-grid-pro';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackComponent } from '@pandino/react-hooks';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Dispatch, ElementType, FC, MouseEvent, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CustomTablePagination, MdiIcon } from '~/components';
+import type { Filter, FilterOption } from '~/components-api';
+import { FilterType } from '~/components-api';
+import { useConfirmDialog } from '~/components/dialog';
+import {
+  ContextMenu,
+  EagerTable,
+  LazyTable,
+  StripedDataGrid,
+  booleanColumnOperators,
+  columnsActionCalculator,
+  dateTimeColumnOperators,
+  numericColumnOperators,
+  stringColumnOperators,
+} from '~/components/table';
+import type { ContextMenuApi } from '~/components/table/ContextMenu';
+import { baseColumnConfig, basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+import { useL10N } from '~/l10n/l10n-context';
+import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
+import { ViewGalaxyStoredSerializer } from '~/services/data-api/rest/ViewGalaxySerializer';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import {
+  TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
+  deserializeFilters,
+  getUpdatedRowsSelected,
+  mapAllFiltersToQueryCustomizerProperties,
+  mapFilterModelToFilters,
+  mapFilterToFilterModel,
+  processQueryCustomizer,
+  randomUtils,
+  serializeFilters,
+  useErrorHandler,
+} from '~/utilities';
+import type {
+  ColumnCustomizerHook,
+  DialogResult,
+  FiltersSerializer,
+  PersistedColumnInfo,
+  SidekickComponentProps,
+  TableRowAction,
+  ToolBarActionProps,
+} from '~/utilities';
+import type { ViewGalaxyTableTableComponentActionDefinitions, ViewGalaxyTableTableComponentProps } from './types';
+
+export const VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
+  'ViewGalaxyTableTableComponentSidekickComponent';
+
+export const filtersSerializer: FiltersSerializer = {
+  serialize: (filters: Filter[]) =>
+    serializeFilters<ViewGalaxyStored>(filters, ViewGalaxyStoredSerializer.getInstance()),
+  deserialize: (filters: Filter[]) =>
+    deserializeFilters<ViewGalaxyStored>(filters, ViewGalaxyStoredSerializer.getInstance()),
+};
+
+// XMIID: God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable
+// Name: Table
+export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableComponentProps) {
+  const { uniqueId, actions, dataPath, refreshCounter, isOwnerLoading, isDraft, validationError } = props;
+  const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY}))`;
+
+  const { openConfirmDialog } = useConfirmDialog();
+  const { t } = useTranslation();
+  const handleError = useErrorHandler();
+  const { locale: l10nLocale } = useL10N();
+
+  const nameColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'name',
+    headerName: t('View.Galaxy.Table.name', { defaultValue: 'Name' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 230,
+    type: 'string',
+    filterable: true && true,
+    filterOperators: stringColumnOperators,
+  };
+  const realColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'real',
+    headerName: t('View.Galaxy.Table.real', { defaultValue: 'Real' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 100,
+    type: 'boolean',
+    filterable: true && true,
+    align: 'center',
+    renderCell: (params: GridRenderCellParams<any, ViewGalaxyStored>) => {
+      if (params.row.real === null || params.row.real === undefined) {
+        return <MdiIcon className="undefined" path="minus" color="#ddd" />;
+      } else if (params.row.real) {
+        return <MdiIcon className="true" path="check-circle" color="green" />;
+      }
+      return <MdiIcon className="false" path="close-circle" color="red" />;
+    },
+    filterOperators: booleanColumnOperators,
+  };
+  const constellationColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'constellation',
+    headerName: t('View.Galaxy.Table.constellation', { defaultValue: 'Constellation' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 230,
+    type: 'string',
+    filterable: true && true,
+    filterOperators: stringColumnOperators,
+  };
+  const magnitudeColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'magnitude',
+    headerName: t('View.Galaxy.Table.magnitude', { defaultValue: 'Magnitude' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 100,
+    type: 'number',
+    filterable: true && true,
+    valueFormatter: (value?: number) => {
+      if (value === null || value === undefined) {
+        return '';
+      }
+      return new Intl.NumberFormat(l10nLocale).format(value);
+    },
+    filterOperators: numericColumnOperators,
+  };
+  const nakedEyeColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'nakedEye',
+    headerName: t('View.Galaxy.Table.nakedEye', { defaultValue: 'Naked Eye' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 100,
+    type: 'boolean',
+    filterable: true && true,
+    align: 'center',
+    renderCell: (params: GridRenderCellParams<any, ViewGalaxyStored>) => {
+      if (params.row.nakedEye === null || params.row.nakedEye === undefined) {
+        return <MdiIcon className="undefined" path="minus" color="#ddd" />;
+      } else if (params.row.nakedEye) {
+        return <MdiIcon className="true" path="check-circle" color="green" />;
+      }
+      return <MdiIcon className="false" path="close-circle" color="red" />;
+    },
+    filterOperators: booleanColumnOperators,
+  };
+  const darkMatterColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'darkMatter',
+    headerName: t('View.Galaxy.Table.darkMatter', { defaultValue: 'Dark Matter' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 100,
+    type: 'number',
+    filterable: true && true,
+    valueFormatter: (value?: number) => {
+      if (value === null || value === undefined) {
+        return '';
+      }
+      return new Intl.NumberFormat(l10nLocale).format(value);
+    },
+    filterOperators: numericColumnOperators,
+  };
+  const intergalacticDustColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'intergalacticDust',
+    headerName: t('View.Galaxy.Table.intergalacticDust', { defaultValue: 'Intergalactic Dust' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 100,
+    type: 'number',
+    filterable: true && true,
+    valueFormatter: (value?: number) => {
+      if (value === null || value === undefined) {
+        return '';
+      }
+      return new Intl.NumberFormat(l10nLocale).format(value);
+    },
+    filterOperators: numericColumnOperators,
+  };
+  const interstellarMediumColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'interstellarMedium',
+    headerName: t('View.Galaxy.Table.interstellarMedium', { defaultValue: 'Interstellar Medium' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 100,
+    type: 'number',
+    filterable: true && true,
+    valueFormatter: (value?: number) => {
+      if (value === null || value === undefined) {
+        return '';
+      }
+      return new Intl.NumberFormat(l10nLocale).format(value);
+    },
+    filterOperators: numericColumnOperators,
+  };
+  const discoveredColumn: GridColDef<ViewGalaxyStored> = {
+    ...baseColumnConfig,
+    field: 'discovered',
+    headerName: t('View.Galaxy.Table.discovered', { defaultValue: 'Discovered' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 170,
+    type: 'dateTime',
+    filterable: true && true,
+    valueFormatter: (value?: Date) => {
+      return (
+        value &&
+        new Intl.DateTimeFormat(l10nLocale, {
+          year: 'numeric',
+          month: '2-digit',
+          day: '2-digit',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false,
+        }).format(value)
+      );
+    },
+    filterOperators: dateTimeColumnOperators,
+  };
+
+  const columns = useMemo<GridColDef<ViewGalaxyStored>[]>(
+    () => [
+      nameColumn,
+      realColumn,
+      constellationColumn,
+      magnitudeColumn,
+      nakedEyeColumn,
+      darkMatterColumn,
+      intergalacticDustColumn,
+      interstellarMediumColumn,
+      discoveredColumn,
+    ],
+    [l10nLocale],
+  );
+
+  const toolBarActions: ToolBarActionProps<ViewGalaxyStored>[] = [
+    {
+      name: 'filterAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTableFilterButton',
+      startIcon: 'filter',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.filter', defaultValue: 'Set Filters' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'refreshAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTableRefreshButton',
+      startIcon: 'refresh',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.refresh', defaultValue: 'Refresh' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'exportAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableExportButton',
+      startIcon: 'file-export-outline',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.export', defaultValue: 'Export' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'openCreateFormAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableCreateButton',
+      startIcon: 'note-add',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.open-create-form', defaultValue: 'Create' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'openAddSelectorAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableAddSelectorButton',
+      startIcon: 'attachment-plus',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.open-add-selector', defaultValue: 'Add' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'openSetSelectorAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableSetSelectorButton',
+      startIcon: 'attachment-plus',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.open-set-selector', defaultValue: 'Set' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'clearAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableClearButton',
+      startIcon: 'link_off',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.clear', defaultValue: 'Clear' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => data.length > 0,
+      isBulk: false,
+    },
+    {
+      name: 'bulkRemoveAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableBulkRemoveButton',
+      startIcon: 'link_off',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.bulk-remove', defaultValue: 'Remove' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => selectionModel.length > 0,
+      isBulk: true,
+    },
+    {
+      name: 'bulkDeleteAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableBulkDeleteButton',
+      startIcon: 'delete_forever',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.bulk-delete', defaultValue: 'Delete' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+      ): boolean => selectionModel.length > 0,
+      isBulk: true,
+    },
+  ];
+
+  const rowActions: TableRowAction<ViewGalaxyStored, ViewGalaxyStored>[] = [
+    {
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableRowRemoveButton',
+      label: t('judo.action.remove', { defaultValue: 'Remove' }) as string,
+      icon: <MdiIcon path="link_off" />,
+      isCRUD: true,
+      disabled: (
+        row: ViewGalaxyStored,
+        isLoading: boolean,
+        getSelectedRows: () => ViewGalaxyStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading,
+      action: actions.removeAction
+        ? async (rowData) => {
+            await actions.removeAction!(rowData);
+          }
+        : undefined,
+    },
+    {
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableRowDeleteButton',
+      label: t('View.Galaxy.Table.Delete', { defaultValue: 'Delete' }) as string,
+      icon: <MdiIcon path="delete_forever" />,
+      isCRUD: true,
+      disabled: (
+        row: ViewGalaxyStored,
+        isLoading: boolean,
+        getSelectedRows: () => ViewGalaxyStored[],
+        ownerdata?: any,
+      ): boolean =>
+        (getSelectedRows && getSelectedRows().length > 0) ||
+        (typeof row.__deleteable === 'boolean' && !row.__deleteable) ||
+        isLoading,
+      action: actions.rowDeleteAction
+        ? async (rowData) => {
+            await actions.rowDeleteAction!(rowData);
+          }
+        : undefined,
+    },
+    {
+      id: 'God/(esm/_uqp7kDV3Ee-rMcMaep1uNQ)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      label: t('View.Galaxy.Table.createDarkMatter', { defaultValue: 'createDarkMatter' }) as string,
+      icon: <MdiIcon path="chevron_right" />,
+      disabled: (
+        row: ViewGalaxyStored,
+        isLoading: boolean,
+        getSelectedRows: () => ViewGalaxyStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading,
+      action: actions.createDarkMatterAction
+        ? async (rowData) => {
+            await actions.createDarkMatterAction!(rowData);
+          }
+        : undefined,
+    },
+    {
+      id: 'God/(esm/_uqqioTV3Ee-rMcMaep1uNQ)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      label: t('View.Galaxy.Table.createIntergalacticDust', { defaultValue: 'createIntergalacticDust' }) as string,
+      icon: <MdiIcon path="chevron_right" />,
+      disabled: (
+        row: ViewGalaxyStored,
+        isLoading: boolean,
+        getSelectedRows: () => ViewGalaxyStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading,
+      action: actions.createIntergalacticDustAction
+        ? async (rowData) => {
+            await actions.createIntergalacticDustAction!(rowData);
+          }
+        : undefined,
+    },
+    {
+      id: 'God/(esm/_uqqiozV3Ee-rMcMaep1uNQ)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      label: t('View.Galaxy.Table.createInterstellarMedium', { defaultValue: 'createInterstellarMedium' }) as string,
+      icon: <MdiIcon path="chevron_right" />,
+      disabled: (
+        row: ViewGalaxyStored,
+        isLoading: boolean,
+        getSelectedRows: () => ViewGalaxyStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading,
+      action: actions.createInterstellarMediumAction
+        ? async (rowData) => {
+            await actions.createInterstellarMediumAction!(rowData);
+          }
+        : undefined,
+    },
+  ];
+
+  const filterOptions: FilterOption[] = [
+    {
+      id: 'God/(esm/_8AiKcE7tEeycO-gUAWxcVg)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'name',
+      label: t('View.Galaxy.Table.name', { defaultValue: 'Name' }) as string,
+      filterType: FilterType.string,
+    },
+
+    {
+      id: 'God/(esm/_EIBPIFjXEeyV2_3ibolaNQ)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'real',
+      label: t('View.Galaxy.Table.real', { defaultValue: 'Real' }) as string,
+      filterType: FilterType.trinaryLogic,
+    },
+
+    {
+      id: 'God/(esm/_Vne4AFjJEeyV2_3ibolaNQ)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'constellation',
+      label: t('View.Galaxy.Table.constellation', { defaultValue: 'Constellation' }) as string,
+      filterType: FilterType.string,
+    },
+
+    {
+      id: 'God/(esm/_Vnh7UFjJEeyV2_3ibolaNQ)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'magnitude',
+      label: t('View.Galaxy.Table.magnitude', { defaultValue: 'Magnitude' }) as string,
+      filterType: FilterType.numeric,
+    },
+
+    {
+      id: 'God/(esm/_Vnh7UVjJEeyV2_3ibolaNQ)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'nakedEye',
+      label: t('View.Galaxy.Table.nakedEye', { defaultValue: 'Naked Eye' }) as string,
+      filterType: FilterType.trinaryLogic,
+    },
+
+    {
+      id: 'God/(esm/_cE_G8FjJEeyV2_3ibolaNQ)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'darkMatter',
+      label: t('View.Galaxy.Table.darkMatter', { defaultValue: 'Dark Matter' }) as string,
+      filterType: FilterType.numeric,
+    },
+
+    {
+      id: 'God/(esm/_cFAVEFjJEeyV2_3ibolaNQ)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'intergalacticDust',
+      label: t('View.Galaxy.Table.intergalacticDust', { defaultValue: 'Intergalactic Dust' }) as string,
+      filterType: FilterType.numeric,
+    },
+
+    {
+      id: 'God/(esm/_cFA8IFjJEeyV2_3ibolaNQ)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'interstellarMedium',
+      label: t('View.Galaxy.Table.interstellarMedium', { defaultValue: 'Interstellar Medium' }) as string,
+      filterType: FilterType.numeric,
+    },
+
+    {
+      id: 'God/(esm/_ihOqMBMcEe2_DOUDKkB20Q)/TableColumnFilter/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable)',
+      attributeName: 'discovered',
+      label: t('View.Galaxy.Table.discovered', { defaultValue: 'Discovered' }) as string,
+      filterType: FilterType.dateTime,
+    },
+  ];
+
+  return (
+    <div id="God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable" data-table-name="Table">
+      <LazyTable<ViewGalaxyStored, ViewGalaxyStored, ViewGalaxyQueryCustomizer>
+        uniqueId={`God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable-${uniqueId}`}
+        dataProp={[]}
+        defaultSortParamsForTable={[
+          { field: 'name', sort: 'asc' },
+          { field: 'magnitude', sort: 'desc' },
+        ]}
+        tablePageLimit={25}
+        tableColumns={columns}
+        tableRowActions={rowActions}
+        tableFilterOptions={filterOptions}
+        isOwnerLoading={isOwnerLoading}
+        validationError={validationError}
+        actions={actions}
+        dataElementId={'God/(esm/_YTkpoE7rEeycO-gUAWxcVg)/ClassType'}
+        crudOperationsDisplayed={1}
+        transferOperationsDisplayed={0}
+        onRowClick={
+          actions.openPageAction
+            ? async (params: GridRowParams<ViewGalaxyStored>) => await actions.openPageAction!(params.row, false)
+            : undefined
+        }
+        sidekickComponentFilter={sidekickComponentFilter}
+        containerHasTable={true}
+        maskAction={actions.getMask!}
+        fetch={actions.refreshAction}
+        refreshCounter={refreshCounter}
+        toolBarActions={toolBarActions}
+        additionalToolbarButtons={actions?.AdditionalToolbarButtons}
+        tableHasSelectorColumn={true}
+        enabledByName=""
+        relationName=""
+        filtersSerializer={filtersSerializer}
+      />
+    </div>
+  );
+}
