@@ -1,0 +1,52 @@
+= judo-diff-checker-maven-plugin
+
+Check diff for any number of files, and highlight them.
+
+== Usage
+
+[source,xml]
+----
+<plugin>
+    <groupId>hu.blackbelt.judo.generator</groupId>
+    <artifactId>judo-diff-checker-maven-plugin</artifactId>
+    <version>${revision}</version>
+    <executions>
+        <execution>
+            <goals>
+                <goal>checkDiffs</goal>
+            </goals>
+            <phase>generate-sources</phase>
+        </execution>
+    </executions>
+    <configuration>
+        <sourceDirectory>${project.basedir}/target/frontend-react/</sourceDirectory>
+        <snapshotDirectory>${project.basedir}/src/test/resources/snapshots/frontend-react/</snapshotDirectory>
+        <sources>
+            <source>src/pages/God/God/Galaxies/AccessViewPage/index.tsx</source>
+            <source>src/pages/God/God/Galaxies/AccessTablePage/index.tsx</source>
+            <!-- etc... -->
+        </sources>
+    </configuration>
+</plugin>
+----
+
+== Configuration
+
+=== createSnapshotIfNotExists
+
+(Optional, default: `true`)
+
+The plugin will automatically create snapshot files if they do not exist, unless the `createSnapshotIfNotExists`
+configuration is explicitly set to `false`;
+
+=== forceSnapshotOverwrite
+
+(Optional, default: `false`)
+
+If you would like the plugin to always update the contents of snapshot files before checking, set this to `true`.
+
+Setting it to true can be useful if you are e.g. doing refactors and do not intend to have any changes in your snapshot.
+
+=== snapshotPostfix
+
+(Optional, default: `".snapshot"`)
