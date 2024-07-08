@@ -26,6 +26,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
         {{# if action.actionDefinition.targetType }}target!,{{/ if }}
         {{# if operation.output }}result,{{/ if }}
+        {{# if page.openInDialog }}onClose{{/ if }}
       );
     } else {
       showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
