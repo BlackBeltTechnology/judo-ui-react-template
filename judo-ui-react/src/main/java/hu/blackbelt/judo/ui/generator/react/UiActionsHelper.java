@@ -453,7 +453,7 @@ public class UiActionsHelper {
     public static boolean isActionInTableInViewNonBulk(Action action) {
         Table table = getTableParentForActionDefinition(action.getActionDefinition());
         boolean isTableAction = table != null && table.getTableActionButtonGroup().getButtons().stream().anyMatch(b -> b.getActionDefinition().equals(action.getActionDefinition()));
-        if (table != null && !action.getActionDefinition().isIsBulk() && isTableAction) {
+        if (!action.getActionDefinition().isIsBulk() && isTableAction) {
             return ((PageDefinition) action.eContainer()).getContainer().isView();
         }
         return false;
