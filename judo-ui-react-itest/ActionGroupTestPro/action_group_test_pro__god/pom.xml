@@ -179,7 +179,7 @@
                         <goals>
                             <goal>pnpm</goal>
                         </goals>
-                        <phase>generate-sources</phase>
+                        <phase>test</phase>
                         <configuration>
                             <arguments>run build</arguments>
                         </configuration>
@@ -188,6 +188,31 @@
                 <configuration>
                     <installDirectory>${node-install-dir}</installDirectory>
                     <workingDirectory>${generation-target}</workingDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>hu.blackbelt.judo.generator</groupId>
+                <artifactId>judo-diff-checker-maven-plugin</artifactId>
+                <version>${revision}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>checkDiffs</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceDirectory>${project.basedir}/target/frontend-react/</sourceDirectory>
+                    <snapshotDirectory>${project.basedir}/src/test/resources/snapshots/frontend-react/</snapshotDirectory>
+                    <sources>
+                        <source>src/pages/God/God/Galaxies/AccessTablePage/index.tsx</source>
+                        <source>src/pages/God/God/Galaxies/AccessViewPage/index.tsx</source>
+                        <source>src/containers/View/Galaxy/Table/components/ViewGalaxyTableTableComponent/index.tsx</source>
+                        <source>src/components/table/LazyTable.tsx</source>
+                        <source>src/components/table/EagerTable.tsx</source>
+                    </sources>
                 </configuration>
             </plugin>
         </plugins>
