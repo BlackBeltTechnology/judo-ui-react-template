@@ -12,6 +12,7 @@ import { useTrackService } from '@pandino/react-hooks';
 import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
@@ -35,31 +36,36 @@ import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type { ViewCreature, ViewCreatureStored } from '~/services/data-api/model/ViewCreature';
 import type { ViewMessage, ViewMessageStored } from '~/services/data-api/model/ViewMessage';
 import type { ViewPlanet, ViewPlanetStored } from '~/services/data-api/model/ViewPlanet';
+import type { ViewStar, ViewStarStored } from '~/services/data-api/model/ViewStar';
 import type { ViewCreatureQueryCustomizer } from '~/services/data-api/rest/ViewCreatureQueryCustomizer';
 import type { ViewMessageQueryCustomizer } from '~/services/data-api/rest/ViewMessageQueryCustomizer';
 import type { ViewPlanetQueryCustomizer } from '~/services/data-api/rest/ViewPlanetQueryCustomizer';
+import type { ViewStarQueryCustomizer } from '~/services/data-api/rest/ViewStarQueryCustomizer';
 import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
-import { GodServiceForEarthImpl } from '~/services/data-axios/GodServiceForEarthImpl';
 import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { ViewStarServiceForPlanetsImpl } from '~/services/data-axios/ViewStarServiceForPlanetsImpl';
 import { PageContainerTransition } from '~/theme/animations';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import type { DialogResult } from '~/utilities';
 import { type ViewPlanetViewViewModel, ViewPlanetViewViewModelContext } from './context';
 import type { ViewPlanetViewActionsHook } from './customization';
-import { GOD_GOD_EARTH_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+import { VIEW_STAR_PLANETS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewPlanetViewPageActionsExtended } from './types';
 
 const ViewPlanetViewPageContainer = lazy(() => import('~/containers/View/Planet/View/ViewPlanetViewPageContainer'));
 
-// XMIID: God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition
-// Name: God::God::earth::AccessViewPage
-export default function GodGodEarthAccessViewPage() {
+// XMIID: God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView
+// Name: View::Star::planets::RelationViewPage
+export default function ViewStarPlanetsRelationViewPage() {
   const dataPath = '';
   const isDraft = false;
   const owner = useRef<any>(null);
 
+  // Router params section
+  const { signedIdentifier } = useParams();
+
   // Services
-  const godServiceForEarthImpl = useMemo(() => new GodServiceForEarthImpl(judoAxiosProvider), []);
+  const viewStarServiceForPlanetsImpl = useMemo(() => new ViewStarServiceForPlanetsImpl(judoAxiosProvider), []);
 
   // Hooks section
   const { t } = useTranslation();
@@ -75,11 +81,10 @@ export default function GodGodEarthAccessViewPage() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [editMode, setEditMode] = useState<boolean>(false);
   const [refreshCounter, setRefreshCounter] = useState<number>(0);
-  const [data, setData] = useState<ViewPlanetStored>({} as ViewPlanetStored);
+  const [data, setData] = useState<ViewPlanetStored>({ __signedIdentifier: signedIdentifier } as ViewPlanetStored);
   const [validation, setValidation] = useState<Map<keyof ViewPlanet, string>>(new Map<keyof ViewPlanet, string>());
 
   // Ref section
-  const singletonHost = useRef<{ __signedIdentifier: string }>({} as unknown as { __signedIdentifier: string });
 
   // Callback section
   const storeDiff: (attributeName: keyof ViewPlanet, value: any) => void = useCallback(
@@ -132,14 +137,14 @@ export default function GodGodEarthAccessViewPage() {
   // Validation
   const validate: (target: any) => Promise<void> = useCallback(
     async (target) => {
-      await godServiceForEarthImpl.validateUpdate(target);
+      await viewStarServiceForPlanetsImpl.validateUpdate(null as any, target);
     },
-    [data, godServiceForEarthImpl],
+    [data, viewStarServiceForPlanetsImpl],
   );
 
   // Pandino Action overrides
   const { service: customActionsHook } = useTrackService<ViewPlanetViewActionsHook>(
-    `(${OBJECTCLASS}=${GOD_GOD_EARTH_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY})`,
+    `(${OBJECTCLASS}=${VIEW_STAR_PLANETS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY})`,
   );
   const customActions: ViewPlanetViewPageActionsExtended | undefined = customActionsHook?.(
     data,
@@ -168,17 +173,328 @@ export default function GodGodEarthAccessViewPage() {
   const getPageTitle = (data: ViewPlanet): string => {
     return data.name as string;
   };
-  // BackAction: God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewBackAction
+  // ParameterlessCallOperationAction: God/(esm/_bkGTMNAmEe65Ld16OAb1kw)/OperationFormCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const bangForPlanetAction = async (target?: ViewPlanetStored) => {
+    try {
+      setIsLoading(true);
+      await viewStarServiceForPlanetsImpl.bang(data);
+      if (customActions?.postBangForPlanetAction) {
+        await customActions.postBangForPlanetAction(target!);
+      } else {
+        showSuccessSnack(
+          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
+        );
+        await refresh();
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // OpenOperationInputFormAction: God/(esm/_sbMMINAmEe65Ld16OAb1kw)/OperationFormCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const createChaosForInstanceAction = async (isDraft?: boolean, ownerValidation?: (target: any) => Promise<void>) => {
+    const { result, data: returnedData } = await openViewPlanetViewCreateChaosForInstanceInputForm({
+      ownerData: data,
+    });
+    if (result === 'submit' && !editMode) {
+      await refresh();
+    }
+  };
+  // OpenOperationInputFormAction: God/(esm/_j_0QYNAoEe65Ld16OAb1kw)/OperationFormCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const createStaticChaosAction = async (isDraft?: boolean, ownerValidation?: (target: any) => Promise<void>) => {
+    const { result, data: returnedData } = await openViewPlanetViewCreateStaticChaosInputForm({
+      ownerData: data,
+    });
+    if (result === 'submit' && !editMode) {
+      await refresh();
+    }
+  };
+  // ParameterlessCallOperationAction: God/(esm/_a1neIFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const endWarForPlanetAction = async (target?: ViewPlanetStored) => {
+    try {
+      setIsLoading(true);
+      await viewStarServiceForPlanetsImpl.endWar(data);
+      if (customActions?.postEndWarForPlanetAction) {
+        await customActions.postEndWarForPlanetAction(target!);
+      } else {
+        showSuccessSnack(
+          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
+        );
+        await refresh();
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // OpenOperationInputSelectorAction: God/(esm/_a1osQVDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const sendASignAction = async () => {
+    const { result, data: returnedData } = await openViewPlanetViewGroupActionGroupSendASignRelationTableCallSelector({
+      ownerData: data,
+    });
+    if (result === 'submit') {
+      await refresh();
+    }
+  };
+  // ParameterlessCallOperationAction: God/(esm/_a1pTUFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const startWarForPlanetAction = async (target?: ViewPlanetStored) => {
+    try {
+      setIsLoading(true);
+      await viewStarServiceForPlanetsImpl.startWar(data);
+      if (customActions?.postStartWarForPlanetAction) {
+        await customActions.postStartWarForPlanetAction(target!);
+      } else {
+        showSuccessSnack(
+          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
+        );
+        await refresh();
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // ParameterlessCallOperationAction: God/(esm/_a1m3EFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const createLifeForPlanetAction = async (target?: ViewPlanetStored) => {
+    try {
+      setIsLoading(true);
+      await viewStarServiceForPlanetsImpl.createLife(data);
+      if (customActions?.postCreateLifeForPlanetAction) {
+        await customActions.postCreateLifeForPlanetAction(target!);
+      } else {
+        showSuccessSnack(
+          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
+        );
+        await refresh();
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // ParameterlessCallOperationAction: God/(esm/_a1m3EVDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const destroyLifeForPlanetAction = async (target?: ViewPlanetStored) => {
+    try {
+      setIsLoading(true);
+      await viewStarServiceForPlanetsImpl.destroyLife(data);
+      if (customActions?.postDestroyLifeForPlanetAction) {
+        await customActions.postDestroyLifeForPlanetAction(target!);
+      } else {
+        showSuccessSnack(
+          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
+        );
+        await refresh();
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // OpenAddSelectorAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableAddSelectorOpenPageAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesOpenAddSelectorAction = async () => {
+    const { result, data: returnedData } = await openViewPlanetViewGroup_2RightCreaturesTableAddSelectorPage({
+      ownerData: data,
+      alreadySelected: data.creatures ?? [],
+    });
+    if (result === 'submit') {
+      if (Array.isArray(returnedData) && returnedData.length) {
+        storeDiff('creatures', [...(data.creatures || []), ...returnedData]);
+      }
+    }
+  };
+
+  // BulkDeleteAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableBulkDeleteAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesBulkDeleteAction = async (
+    selectedRows: ViewCreatureStored[],
+  ): Promise<DialogResult<Array<ViewCreatureStored>>> => {
+    return new Promise((resolve) => {
+      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const newList = (data?.creatures ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      storeDiff('creatures', newList);
+      resolve({
+        result: 'delete',
+        data: [],
+      });
+    });
+  };
+  // BulkRemoveAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableBulkRemoveAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesBulkRemoveAction = async (
+    selectedRows: ViewCreatureStored[],
+  ): Promise<DialogResult<Array<ViewCreatureStored>>> => {
+    return new Promise((resolve) => {
+      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const newList = (data?.creatures ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      storeDiff('creatures', newList);
+      resolve({
+        result: 'submit',
+        data: [],
+      });
+    });
+  };
+  // ClearAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableClearAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesClearAction = async () => {
+    storeDiff('creatures', []);
+  };
+  // FilterAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesFilterAction = async (
+    id: string,
+    filterOptions: FilterOption[],
+    model?: GridFilterModel,
+    filters?: Filter[],
+  ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
+    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    return {
+      filters: newFilters,
+    };
+  };
+  // RowDeleteAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesRowDeleteAction = async (target: ViewCreatureStored) => {
+    try {
+      const confirmed = await openConfirmDialog(
+        'row-delete-action',
+        t('judo.modal.confirm.confirm-delete', {
+          defaultValue: 'Are you sure you would like to delete the selected element?',
+        }),
+        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+      );
+      if (confirmed) {
+        const newList = (data?.creatures ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+        storeDiff('creatures', newList);
+      }
+    } catch (error) {
+      handleError<ViewCreature>(error, undefined, target);
+    }
+  };
+  // RemoveAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowRemoveAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesRemoveAction = async (target: ViewCreatureStored) => {
+    const newList = (data?.creatures ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+    storeDiff('creatures', newList);
+  };
+  // OpenPageAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesOpenPageAction = async (target: ViewCreatureStored, isDraftParam?: boolean) => {
+    const itemIndex = (data.creatures || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
+    navigate(routeToViewPlanetCreaturesRelationViewPage(((target as ViewCreatureStored) || data).__signedIdentifier));
+  };
+  // ParameterlessCallOperationAction: God/(esm/_ZggBoT0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesChooseTheMessiahForPlanetAction = async (target?: ViewPlanetStored) => {
+    try {
+      setIsLoading(true);
+      const { data: result } = await viewStarServiceForPlanetsImpl.chooseTheMessiah(data);
+      if (customActions?.postCreaturesChooseTheMessiahForPlanetAction) {
+        await customActions.postCreaturesChooseTheMessiahForPlanetAction(target!, result);
+      } else {
+        showSuccessSnack(
+          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
+        );
+
+        navigate(routeToViewPlanetViewChooseTheMessiahOutputView(result.__signedIdentifier));
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // OpenOperationInputFormAction: God/(esm/_Tr7a8T0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesCreateCreatureAction = async (
+    target: ViewPlanetStored,
+    isDraft?: boolean,
+    ownerValidation?: (target: any) => Promise<void>,
+  ) => {
+    const { result, data: returnedData } = await openViewPlanetViewCreateCreatureInputForm({
+      ownerData: data,
+    });
+    if (result === 'submit' && !editMode) {
+      await refresh();
+    }
+  };
+  // ParameterlessCallOperationAction: God/(esm/_a2C4QT0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesHateGodForCreatureAction = async (target?: ViewCreatureStored) => {
+    try {
+      setIsLoading(true);
+      const { data: result } = await viewStarServiceForPlanetsImpl.hateGodForCreatures(target!);
+      if (customActions?.postCreaturesHateGodForCreatureAction) {
+        await customActions.postCreaturesHateGodForCreatureAction(target!, result);
+      } else {
+        showSuccessSnack(
+          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
+        );
+
+        navigate(routeToViewPlanetViewHateGodOutputView(result.__signedIdentifier));
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // ParameterlessCallOperationAction: God/(esm/_a2C4Qz0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesLoveGodForCreatureAction = async (target?: ViewCreatureStored) => {
+    try {
+      setIsLoading(true);
+      const { data: result } = await viewStarServiceForPlanetsImpl.loveGodForCreatures(target!);
+      if (customActions?.postCreaturesLoveGodForCreatureAction) {
+        await customActions.postCreaturesLoveGodForCreatureAction(target!, result);
+      } else {
+        showSuccessSnack(
+          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
+        );
+
+        navigate(routeToViewPlanetViewLoveGodOutputView(result.__signedIdentifier));
+      }
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // OpenOperationInputSelectorAction: God/(esm/_VRoNcT0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesPunishCreatureAction = async (target?: ViewPlanetStored) => {
+    const { result, data: returnedData } =
+      await openViewPlanetViewGroup_2RightCreaturesPunishCreatureRelationTableCallSelector({
+        ownerData: data,
+      });
+    if (result === 'submit') {
+      await refresh();
+    }
+  };
+  // OpenOperationInputSelectorAction: God/(esm/_VRoNcz0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesRewardCreatureAction = async (target?: ViewPlanetStored) => {
+    const { result, data: returnedData } =
+      await openViewPlanetViewGroup_2RightCreaturesRewardCreatureRelationTableCallSelector({
+        ownerData: data,
+      });
+    if (result === 'submit') {
+      await refresh();
+    }
+  };
+  // OpenOperationInputSelectorAction: God/(esm/_a2C4RT0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const creaturesTalkToGodAction = async (target?: ViewPlanetStored) => {
+    const { result, data: returnedData } =
+      await openViewPlanetViewGroup_2RightCreaturesTalkToGodRelationTableCallSelector({
+        ownerData: target!,
+      });
+    if (result === 'submit') {
+      await refresh();
+    }
+  };
+  // BackAction: God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureViewBackAction
   const backAction = async () => {
     navigateBack();
   };
-  // CancelAction: God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewCancelAction
+  // CancelAction: God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureViewCancelAction
   const cancelAction = async () => {
     setValidation(new Map());
     // no need to set editMode to false, given refresh should do it implicitly
     await refresh(true);
   };
-  // DeleteAction: God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewDeleteAction
+  // DeleteAction: God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureViewDeleteAction
   const deleteAction = async () => {
     try {
       const confirmed = await openConfirmDialog(
@@ -189,7 +505,7 @@ export default function GodGodEarthAccessViewPage() {
         t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
       );
       if (confirmed) {
-        await godServiceForEarthImpl.delete(data);
+        await viewStarServiceForPlanetsImpl.delete(data);
         showSuccessSnack(t('judo.action.delete.success', { defaultValue: 'Delete successful' }));
         navigateBack();
       }
@@ -197,14 +513,17 @@ export default function GodGodEarthAccessViewPage() {
       handleError(error, undefined, data);
     }
   };
-  // RefreshAction: God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewRefreshAction
+  // RefreshAction: God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureViewRefreshAction
   const refreshAction = async (
     queryCustomizer: ViewPlanetQueryCustomizer,
   ): Promise<JudoRestResponse<ViewPlanetStored>> => {
     try {
       setIsLoading(true);
       setEditMode(false);
-      const response = await godServiceForEarthImpl.refresh(owner.current, getPageQueryCustomizer());
+      const response = await viewStarServiceForPlanetsImpl.refresh(
+        { __signedIdentifier: signedIdentifier } as any,
+        getPageQueryCustomizer(),
+      );
       const { data: result } = response;
       if (!isDraft) {
         owner.current = result;
@@ -226,11 +545,11 @@ export default function GodGodEarthAccessViewPage() {
       setRefreshCounter((prevCounter) => prevCounter + 1);
     }
   };
-  // UpdateAction: God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewUpdateAction
+  // UpdateAction: God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureViewUpdateAction
   const updateAction = async () => {
     setIsLoading(true);
     try {
-      const { data: res } = await godServiceForEarthImpl.update(data);
+      const { data: res } = await viewStarServiceForPlanetsImpl.update(data);
       if (res) {
         showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
         setValidation(new Map<keyof ViewPlanet, string>());
@@ -243,331 +562,9 @@ export default function GodGodEarthAccessViewPage() {
       setIsLoading(false);
     }
   };
-  // ParameterlessCallOperationAction: God/(esm/_bkGTMNAmEe65Ld16OAb1kw)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const bangForPlanetAction = async (target?: ViewPlanetStored) => {
-    try {
-      setIsLoading(true);
-      await godServiceForEarthImpl.bang(data);
-      if (customActions?.postBangForPlanetAction) {
-        await customActions.postBangForPlanetAction(target!);
-      } else {
-        showSuccessSnack(
-          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
-        );
-        await refresh();
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // OpenOperationInputFormAction: God/(esm/_sbMMINAmEe65Ld16OAb1kw)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const createChaosForInstanceAction = async (isDraft?: boolean, ownerValidation?: (target: any) => Promise<void>) => {
-    const { result, data: returnedData } = await openViewPlanetViewCreateChaosForInstanceInputForm({
-      ownerData: data,
-    });
-    if (result === 'submit' && !editMode) {
-      await refresh();
-    }
-  };
-  // OpenOperationInputFormAction: God/(esm/_j_0QYNAoEe65Ld16OAb1kw)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const createStaticChaosAction = async (isDraft?: boolean, ownerValidation?: (target: any) => Promise<void>) => {
-    const { result, data: returnedData } = await openViewPlanetViewCreateStaticChaosInputForm({
-      ownerData: data,
-    });
-    if (result === 'submit' && !editMode) {
-      await refresh();
-    }
-  };
-  // ParameterlessCallOperationAction: God/(esm/_a1neIFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const endWarForPlanetAction = async (target?: ViewPlanetStored) => {
-    try {
-      setIsLoading(true);
-      await godServiceForEarthImpl.endWar(data);
-      if (customActions?.postEndWarForPlanetAction) {
-        await customActions.postEndWarForPlanetAction(target!);
-      } else {
-        showSuccessSnack(
-          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
-        );
-        await refresh();
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // OpenOperationInputSelectorAction: God/(esm/_a1osQVDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const sendASignAction = async () => {
-    const { result, data: returnedData } = await openViewPlanetViewGroupActionGroupSendASignRelationTableCallSelector({
-      ownerData: data,
-    });
-    if (result === 'submit') {
-      await refresh();
-    }
-  };
-  // ParameterlessCallOperationAction: God/(esm/_a1pTUFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const startWarForPlanetAction = async (target?: ViewPlanetStored) => {
-    try {
-      setIsLoading(true);
-      await godServiceForEarthImpl.startWar(data);
-      if (customActions?.postStartWarForPlanetAction) {
-        await customActions.postStartWarForPlanetAction(target!);
-      } else {
-        showSuccessSnack(
-          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
-        );
-        await refresh();
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // ParameterlessCallOperationAction: God/(esm/_a1m3EFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const createLifeForPlanetAction = async (target?: ViewPlanetStored) => {
-    try {
-      setIsLoading(true);
-      await godServiceForEarthImpl.createLife(data);
-      if (customActions?.postCreateLifeForPlanetAction) {
-        await customActions.postCreateLifeForPlanetAction(target!);
-      } else {
-        showSuccessSnack(
-          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
-        );
-        await refresh();
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // ParameterlessCallOperationAction: God/(esm/_a1m3EVDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const destroyLifeForPlanetAction = async (target?: ViewPlanetStored) => {
-    try {
-      setIsLoading(true);
-      await godServiceForEarthImpl.destroyLife(data);
-      if (customActions?.postDestroyLifeForPlanetAction) {
-        await customActions.postDestroyLifeForPlanetAction(target!);
-      } else {
-        showSuccessSnack(
-          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
-        );
-        await refresh();
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // OpenAddSelectorAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableAddSelectorOpenPageAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesOpenAddSelectorAction = async () => {
-    const { result, data: returnedData } = await openViewPlanetViewGroup_2RightCreaturesTableAddSelectorPage({
-      ownerData: data,
-      alreadySelected: data.creatures ?? [],
-    });
-    if (result === 'submit') {
-      if (Array.isArray(returnedData) && returnedData.length) {
-        storeDiff('creatures', [...(data.creatures || []), ...returnedData]);
-      }
-    }
-  };
-
-  // BulkDeleteAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableBulkDeleteAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesBulkDeleteAction = async (
-    selectedRows: ViewCreatureStored[],
-  ): Promise<DialogResult<Array<ViewCreatureStored>>> => {
-    return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.creatures ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
-      storeDiff('creatures', newList);
-      resolve({
-        result: 'delete',
-        data: [],
-      });
-    });
-  };
-  // BulkRemoveAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableBulkRemoveAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesBulkRemoveAction = async (
-    selectedRows: ViewCreatureStored[],
-  ): Promise<DialogResult<Array<ViewCreatureStored>>> => {
-    return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.creatures ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
-      storeDiff('creatures', newList);
-      resolve({
-        result: 'submit',
-        data: [],
-      });
-    });
-  };
-  // ClearAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableClearAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesClearAction = async () => {
-    storeDiff('creatures', []);
-  };
-  // FilterAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesFilterAction = async (
-    id: string,
-    filterOptions: FilterOption[],
-    model?: GridFilterModel,
-    filters?: Filter[],
-  ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-    const newFilters = await openFilterDialog(id, filterOptions, filters);
-    return {
-      filters: newFilters,
-    };
-  };
-  // RowDeleteAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesRowDeleteAction = async (target: ViewCreatureStored) => {
-    try {
-      const confirmed = await openConfirmDialog(
-        'row-delete-action',
-        t('judo.modal.confirm.confirm-delete', {
-          defaultValue: 'Are you sure you would like to delete the selected element?',
-        }),
-        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
-      );
-      if (confirmed) {
-        const newList = (data?.creatures ?? []).filter((c: any) => c.__identifier !== target.__identifier);
-        storeDiff('creatures', newList);
-      }
-    } catch (error) {
-      handleError<ViewCreature>(error, undefined, target);
-    }
-  };
-  // RemoveAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowRemoveAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesRemoveAction = async (target: ViewCreatureStored) => {
-    const newList = (data?.creatures ?? []).filter((c: any) => c.__identifier !== target.__identifier);
-    storeDiff('creatures', newList);
-  };
-  // OpenPageAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesOpenPageAction = async (target: ViewCreatureStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.creatures || []).findIndex((r) => r.__identifier === target.__identifier)!;
-    // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
-    navigate(routeToViewPlanetCreaturesRelationViewPage(((target as ViewCreatureStored) || data).__signedIdentifier));
-  };
-  // ParameterlessCallOperationAction: God/(esm/_ZggBoT0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesChooseTheMessiahForPlanetAction = async (target?: ViewPlanetStored) => {
-    try {
-      setIsLoading(true);
-      const { data: result } = await godServiceForEarthImpl.chooseTheMessiah(data);
-      if (customActions?.postCreaturesChooseTheMessiahForPlanetAction) {
-        await customActions.postCreaturesChooseTheMessiahForPlanetAction(target!, result);
-      } else {
-        showSuccessSnack(
-          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
-        );
-
-        navigate(routeToViewPlanetViewChooseTheMessiahOutputView(result.__signedIdentifier));
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // OpenOperationInputFormAction: God/(esm/_Tr7a8T0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesCreateCreatureAction = async (
-    target: ViewPlanetStored,
-    isDraft?: boolean,
-    ownerValidation?: (target: any) => Promise<void>,
-  ) => {
-    const { result, data: returnedData } = await openViewPlanetViewCreateCreatureInputForm({
-      ownerData: data,
-    });
-    if (result === 'submit' && !editMode) {
-      await refresh();
-    }
-  };
-  // ParameterlessCallOperationAction: God/(esm/_a2C4QT0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesHateGodForCreatureAction = async (target?: ViewCreatureStored) => {
-    try {
-      setIsLoading(true);
-      const { data: result } = await godServiceForEarthImpl.hateGodForCreatures(target!);
-      if (customActions?.postCreaturesHateGodForCreatureAction) {
-        await customActions.postCreaturesHateGodForCreatureAction(target!, result);
-      } else {
-        showSuccessSnack(
-          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
-        );
-
-        navigate(routeToViewPlanetViewHateGodOutputView(result.__signedIdentifier));
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // ParameterlessCallOperationAction: God/(esm/_a2C4Qz0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesLoveGodForCreatureAction = async (target?: ViewCreatureStored) => {
-    try {
-      setIsLoading(true);
-      const { data: result } = await godServiceForEarthImpl.loveGodForCreatures(target!);
-      if (customActions?.postCreaturesLoveGodForCreatureAction) {
-        await customActions.postCreaturesLoveGodForCreatureAction(target!, result);
-      } else {
-        showSuccessSnack(
-          t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
-        );
-
-        navigate(routeToViewPlanetViewLoveGodOutputView(result.__signedIdentifier));
-      }
-    } catch (error) {
-      handleError(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  // OpenOperationInputSelectorAction: God/(esm/_VRoNcT0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesPunishCreatureAction = async (target?: ViewPlanetStored) => {
-    const { result, data: returnedData } =
-      await openViewPlanetViewGroup_2RightCreaturesPunishCreatureRelationTableCallSelector({
-        ownerData: data,
-      });
-    if (result === 'submit') {
-      await refresh();
-    }
-  };
-  // OpenOperationInputSelectorAction: God/(esm/_VRoNcz0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesRewardCreatureAction = async (target?: ViewPlanetStored) => {
-    const { result, data: returnedData } =
-      await openViewPlanetViewGroup_2RightCreaturesRewardCreatureRelationTableCallSelector({
-        ownerData: data,
-      });
-    if (result === 'submit') {
-      await refresh();
-    }
-  };
-  // OpenOperationInputSelectorAction: God/(esm/_a2C4RT0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesTalkToGodAction = async (target?: ViewPlanetStored) => {
-    const { result, data: returnedData } =
-      await openViewPlanetViewGroup_2RightCreaturesTalkToGodRelationTableCallSelector({
-        ownerData: target!,
-      });
-    if (result === 'submit') {
-      await refresh();
-    }
-  };
-  const getSingletonPayload = async (): Promise<JudoIdentifiable<any>> => {
-    const { data: sp } = await godServiceForEarthImpl.refreshForEarth({
-      _mask: '{}',
-    });
-    return sp;
-  };
 
   const actions: ViewPlanetViewPageActions = {
     getPageTitle,
-    backAction,
-    cancelAction,
-    deleteAction,
-    refreshAction,
-    updateAction,
     bangForPlanetAction,
     createChaosForInstanceAction,
     createStaticChaosAction,
@@ -591,6 +588,11 @@ export default function GodGodEarthAccessViewPage() {
     creaturesPunishCreatureAction,
     creaturesRewardCreatureAction,
     creaturesTalkToGodAction,
+    backAction,
+    cancelAction,
+    deleteAction,
+    refreshAction,
+    updateAction,
     getMask,
     getCreaturesMask,
     ...(customActions ?? {}),
@@ -617,14 +619,6 @@ export default function GodGodEarthAccessViewPage() {
   // Effect section
   useEffect(() => {
     (async () => {
-      const res = await getSingletonPayload();
-      if (res?.__signedIdentifier) {
-        singletonHost.current = res;
-        owner.current = res;
-      } else {
-        navigate('*');
-        return;
-      }
       await actions.refreshAction!(getPageQueryCustomizer());
     })();
   }, []);
@@ -633,8 +627,8 @@ export default function GodGodEarthAccessViewPage() {
     <ViewPlanetViewViewModelContext.Provider value={viewModel}>
       <Suspense>
         <div
-          id="God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition"
-          data-page-name="God::God::earth::AccessViewPage"
+          id="God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView"
+          data-page-name="View::Star::planets::RelationViewPage"
         />
         <PageContainerTransition>
           <ViewPlanetViewPageContainer
