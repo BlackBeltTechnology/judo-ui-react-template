@@ -585,12 +585,16 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         rows={data}
         getRowClassName={ (params: GridRowClassNameParams) => {
           const styles: string[] = [];
+          {{# if (stringValueIsTrue useTableRowHighlighting) }}
           const customStyle = rowStylings.find((r) => r.condition(params));
           if (customStyle) {
             styles.push(customStyle.name);
           } else {
+          {{/ if }}
             styles.push(params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd');
+          {{# if (stringValueIsTrue useTableRowHighlighting) }}
           }
+          {{/ if }}
           if (navigable) {
             styles.push('navigable');
           }

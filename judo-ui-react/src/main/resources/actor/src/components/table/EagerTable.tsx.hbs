@@ -428,19 +428,23 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         getRowId={getRowIdentifier}
         loading={isLoading}
         rows={data}
-        getRowClassName={(params: GridRowClassNameParams) => {
+        getRowClassName={ (params: GridRowClassNameParams) => {
           const styles: string[] = [];
+          {{# if (stringValueIsTrue useTableRowHighlighting) }}
           const customStyle = rowStylings.find((r) => r.condition(params));
           if (customStyle) {
             styles.push(customStyle.name);
           } else {
+          {{/ if }}
             styles.push(params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd');
+          {{# if (stringValueIsTrue useTableRowHighlighting) }}
           }
+          {{/ if }}
           if (navigable) {
             styles.push('navigable');
           }
           return styles.join(' ');
-        }}
+        } }
         columns={effectiveTableColumns}
         {{# if isMUILicensePlanPro }}
           onColumnOrderChange={onColumnsChanged}
