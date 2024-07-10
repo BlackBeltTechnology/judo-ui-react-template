@@ -107,6 +107,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   checkboxSelection?: boolean;
   relationName: string;
   filtersSerializer: FiltersSerializer;
+  navigable?: boolean;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
@@ -150,6 +151,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     relationName,
     checkboxSelection,
     filtersSerializer,
+    navigable = true,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -571,7 +573,12 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         loading={isLoading}
         rows={data}
         getRowClassName={(params: GridRowClassNameParams) => {
-          return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+          const styles: string[] = [];
+          styles.push(params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd');
+          if (navigable) {
+            styles.push('navigable');
+          }
+          return styles.join(' ');
         }}
         columns={effectiveTableColumns}
         onColumnOrderChange={onColumnsChanged}
