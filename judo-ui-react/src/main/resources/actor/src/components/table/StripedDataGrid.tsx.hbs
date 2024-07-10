@@ -4,6 +4,9 @@ import { {{ muiDataGridComponent }}, gridClasses } from '@mui/x-data-grid{{ getM
 const ODD_OPACITY = 0.1;
 
 export const StripedDataGrid: typeof {{ muiDataGridComponent }} = styled({{ muiDataGridComponent }})(({ theme }) => ({
+  [`& .${gridClasses.row}.navigable`]: {
+    cursor: 'pointer',
+  },
   [`& .${gridClasses.row}.even`]: {
     backgroundColor: theme.palette.background.default,
     '&:hover, &.Mui-hovered': {

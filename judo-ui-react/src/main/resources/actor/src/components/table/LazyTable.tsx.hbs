@@ -98,6 +98,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   checkboxSelection?: boolean;
   relationName: string;
   filtersSerializer: FiltersSerializer;
+  navigable?: boolean;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: LazyTableProps<T, TStored>) {
@@ -142,6 +143,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     relationName,
     checkboxSelection,
     filtersSerializer,
+    navigable = true,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -582,13 +584,17 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         loading={isLoading}
         rows={data}
         getRowClassName={ (params: GridRowClassNameParams) => {
-          {{# if (stringValueIsTrue useTableRowHighlighting) }}
-            const customStyle = rowStylings.find(r => r.condition(params));
-            if (customStyle) {
-              return customStyle.name;
-            }
-          {{/ if }}
-          return params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd';
+          const styles: string[] = [];
+          const customStyle = rowStylings.find((r) => r.condition(params));
+          if (customStyle) {
+            styles.push(customStyle.name);
+          } else {
+            styles.push(params.indexRelativeToCurrentPage % 2 === 0 ? 'even' : 'odd');
+          }
+          if (navigable) {
+            styles.push('navigable');
+          }
+          return styles.join(' ');
         } }
         columns={effectiveTableColumns}
         {{# if isMUILicensePlanPro }}
