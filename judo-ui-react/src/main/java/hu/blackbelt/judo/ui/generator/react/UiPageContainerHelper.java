@@ -42,6 +42,9 @@ public class UiPageContainerHelper {
     }
 
     public static boolean containerIsRefreshable(PageContainer container) {
+        if (container.isTable()) {
+            return ((Table) container.getTables().get(0)).getTableActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRefreshAction());
+        }
         return container.getPageActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRefreshAction());
     }
 

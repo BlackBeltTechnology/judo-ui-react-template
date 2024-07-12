@@ -88,7 +88,7 @@ export default function GodGodGalaxiesAccessTablePage() {
   const { service: customActionsHook } = useTrackService<ViewGalaxyTableActionsHook>(
     `(${OBJECTCLASS}=${GOD_GOD_GALAXIES_ACCESS_TABLE_PAGE_ACTIONS_HOOK_INTERFACE_KEY})`,
   );
-  const customActions: ViewGalaxyTablePageActionsExtended | undefined = customActionsHook?.(data, editMode);
+  const customActions: ViewGalaxyTablePageActionsExtended | undefined = customActionsHook?.(data, editMode, refresh);
 
   // Dialog hooks
   const openGodGodGalaxiesAccessFormPage = useGodGodGalaxiesAccessFormPage();

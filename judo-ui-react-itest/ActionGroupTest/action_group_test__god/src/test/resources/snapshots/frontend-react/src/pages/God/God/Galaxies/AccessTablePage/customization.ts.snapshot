@@ -1,0 +1,12 @@
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
+import type { ViewGalaxyTablePageActionsExtended } from './types';
+
+export const GOD_GOD_GALAXIES_ACCESS_TABLE_PAGE_ACTIONS_HOOK_INTERFACE_KEY =
+  'GOD_GOD_GALAXIES_ACCESS_TABLE_PAGE_ACTIONS_HOOK';
+export type ViewGalaxyTableActionsHook = (
+  data: ViewGalaxyStored[],
+  editMode: boolean,
+
+  refresh: () => Promise<void>,
+) => ViewGalaxyTablePageActionsExtended;
