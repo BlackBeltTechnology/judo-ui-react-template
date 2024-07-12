@@ -1,0 +1,20 @@
+import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
+import type { ViewStar, ViewStarStored } from '~/services/data-api/model/ViewStar';
+import type { ViewAstronomerQueryCustomizer } from '~/services/data-api/rest/ViewAstronomerQueryCustomizer';
+import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
+import type { ViewMatterQueryCustomizer } from '~/services/data-api/rest/ViewMatterQueryCustomizer';
+import type { ViewStarQueryCustomizer } from '~/services/data-api/rest/ViewStarQueryCustomizer';
+import type { ViewGalaxyViewPageActionsExtended } from './types';
+
+export const GOD_GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY =
+  'GOD_GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK';
+export type ViewGalaxyViewActionsHook = (
+  data: ViewGalaxyStored,
+  editMode: boolean,
+  storeDiff: (attributeName: keyof ViewGalaxy, value: any) => void,
+
+  refresh: () => Promise<void>,
+  submit: () => Promise<void>,
+) => ViewGalaxyViewPageActionsExtended;
