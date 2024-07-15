@@ -16,9 +16,10 @@ interface {{ pageName page }}HookProps {
   maskRequest?: string;
   {{/ unless }}
   dataPath?: string;
+  rootPageId?: string;
 }
 
-export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath }: {{ pageName page }}HookProps) => Promise<DialogResult<
+export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath, rootPageId }: {{ pageName page }}HookProps) => Promise<DialogResult<
   {{# if (pageHasOutputTarget page) }}
     {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}void{{/ if }}
   {{ else }}
@@ -29,7 +30,7 @@ export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElement
 
   const {{ pageName page }} = lazy(() => import('~/dialogs/{{ pagePath page }}'));
 
-  return ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath }: {{ pageName page }}HookProps) => new Promise((resolve) => {
+  return ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath, rootPageId }: {{ pageName page }}HookProps) => new Promise((resolve) => {
     createDialog({
       {{# if page.dialogSize }}
           fullWidth: true,
@@ -60,6 +61,7 @@ export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElement
             ownerValidation={ownerValidation}
             {{/ unless }}
             dataPath={dataPath}
+            rootPageId={rootPageId}
             onClose={async () => {
               await closeDialog();
               resolve({

@@ -9,7 +9,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
         ownerData: produceDataAdjustedOwner(),
         isDraft: true,
         ownerValidation: validate,
-        dataPath: `${dataPath ? (dataPath + '.') : ''}{{ action.targetPageDefinition.dataElement.name }}{{# if (isActionParentEagerTable action) }}[${itemIndex!}]{{/ if }}`
+        dataPath: `${dataPath ? (dataPath + '.') : ''}{{ action.targetPageDefinition.dataElement.name }}{{# if (isActionParentEagerTable action) }}[${itemIndex!}]{{/ if }}`,
+        rootPageId: rootPageId ?? '{{ getXMIID page }}',
       });
       // we might need to differentiate result handling between operation inputs and crud relation creates
       if (result === 'submit-draft' && returnedData) {

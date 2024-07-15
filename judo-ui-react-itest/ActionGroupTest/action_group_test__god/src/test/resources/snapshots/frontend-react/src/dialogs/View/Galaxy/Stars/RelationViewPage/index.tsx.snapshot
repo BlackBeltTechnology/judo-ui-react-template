@@ -1,0 +1,702 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #getPagesForDialogs(#application)
+// Path expression: 'src/dialogs/'+#pagePath(#self)+'/index.tsx'
+// Template name: actor/src/dialogs/index.tsx
+// Template file: actor/src/dialogs/index.tsx.hbs
+
+import type { GridFilterModel } from '@mui/x-data-grid';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import { useJudoNavigation } from '~/components';
+import type { Filter, FilterOption } from '~/components-api';
+import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
+import type { ViewStarViewDialogActions, ViewStarViewDialogProps } from '~/containers/View/Star/View/types';
+import { useViewStarPlanetsRelationFormPage } from '~/dialogs/View/Star/Planets/RelationFormPage/hooks';
+import { useViewStarViewLastObservationLinkSetSelectorPage } from '~/dialogs/View/Star/View/LastObservation/LinkSetSelectorPage/hooks';
+import { useViewStarViewObservationsTableAddSelectorPage } from '~/dialogs/View/Star/View/Observations/TableAddSelectorPage/hooks';
+import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
+import { routeToViewStarLastObservationRelationViewPage } from '~/routes';
+import { routeToViewStarObservationsRelationViewPage } from '~/routes';
+import { routeToViewStarPlanetsRelationViewPage } from '~/routes';
+import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
+import type {
+  CreatePageTestObservationTransfer,
+  CreatePageTestObservationTransferStored,
+} from '~/services/data-api/model/CreatePageTestObservationTransfer';
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { ViewPlanet, ViewPlanetStored } from '~/services/data-api/model/ViewPlanet';
+import type { ViewStar, ViewStarStored } from '~/services/data-api/model/ViewStar';
+import type { CreatePageTestObservationTransferQueryCustomizer } from '~/services/data-api/rest/CreatePageTestObservationTransferQueryCustomizer';
+import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
+import type { ViewPlanetQueryCustomizer } from '~/services/data-api/rest/ViewPlanetQueryCustomizer';
+import type { ViewStarQueryCustomizer } from '~/services/data-api/rest/ViewStarQueryCustomizer';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { ViewGalaxyServiceForStarsImpl } from '~/services/data-axios/ViewGalaxyServiceForStarsImpl';
+import {
+  getValue,
+  isErrorNestedValidationError,
+  processQueryCustomizer,
+  setValue,
+  simpleCloneDeep,
+  useErrorHandler,
+} from '~/utilities';
+import type { DialogResult } from '~/utilities';
+import { type ViewStarViewViewModel, ViewStarViewViewModelContext } from './context';
+import type { ViewStarViewActionsHook } from './customization';
+import { VIEW_GALAXY_STARS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+import type { ViewGalaxyStarsRelationViewPageProps, ViewStarViewDialogActionsExtended } from './types';
+
+const ViewStarViewDialogContainer = lazy(() => import('~/containers/View/Star/View/ViewStarViewDialogContainer'));
+
+// XMIID: God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView
+// Name: View::Galaxy::stars::RelationViewPage
+export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRelationViewPageProps) {
+  const {
+    ownerData,
+
+    templateDataOverride,
+    ownerValidation,
+    isDraft,
+    maskRequest,
+    dataPath,
+    rootPageId,
+    onClose,
+    onSubmit,
+  } = props;
+
+  const owner = useRef<any>(ownerData ?? null);
+
+  // Services
+  const viewGalaxyServiceForStarsImpl = useMemo(() => new ViewGalaxyServiceForStarsImpl(judoAxiosProvider), []);
+
+  // Hooks section
+  const { t } = useTranslation();
+  const { showSuccessSnack, showErrorSnack } = useSnacks();
+  const { navigate, back: navigateBack } = useJudoNavigation();
+  const { openFilterDialog } = useFilterDialog();
+  const { openConfirmDialog } = useConfirmDialog();
+  const { setLatestViewData } = useViewData();
+  const { publish, subscribe } = useEventBus();
+  const subscriptionRef = useRef<any>(null);
+  const handleError = useErrorHandler();
+  const openCRUDDialog = useCRUDDialog();
+  const [createDialog, closeDialog] = useDialog();
+
+  // State section
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [editMode, setEditMode] = useState<boolean>(false);
+  const [refreshCounter, setRefreshCounter] = useState<number>(0);
+  const [data, setData] = useState<ViewStarStored>(
+    (isDraft ? simpleCloneDeep(getValue(ownerData, dataPath!, {})) : {}) as ViewStarStored,
+  );
+  const [validation, setValidation] = useState<Map<keyof ViewStar, string>>(new Map<keyof ViewStar, string>());
+
+  // Rollback handling
+  const rollbackPoint = useRef<ViewStarStored | null>(
+    isDraft ? simpleCloneDeep(getValue<ViewStarStored>(ownerData, dataPath!, {})) : null,
+  );
+  const rollbackData = useCallback(() => {
+    if (rollbackPoint.current) {
+      setData(rollbackPoint.current);
+      setEditMode(false);
+    }
+  }, [data, editMode, dataPath, ownerData, isDraft]);
+
+  // Callback section
+  const storeDiff: (attributeName: keyof ViewStar, value: any) => void = useCallback(
+    (attributeName: keyof ViewStar, value: any) => {
+      setData((prevData) => ({
+        ...prevData,
+        [attributeName]: value,
+      }));
+      if (!editMode) {
+        setEditMode(true);
+      }
+    },
+    [data, editMode],
+  );
+  const isFormUpdateable = useCallback(() => {
+    if (typeof data?.__updateable === 'boolean') {
+      return data?.__updateable;
+    }
+    return isDraft || true;
+  }, [data]);
+  const isFormDeleteable = useCallback(() => {
+    return true && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
+  }, [data]);
+
+  const getPageQueryCustomizer: () => ViewStarQueryCustomizer = () => ({
+    _mask: actions.getMask
+      ? actions.getMask!()
+      : '{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name,punished,rewarded}}}',
+  });
+
+  // Masks
+  const getMask = () =>
+    '{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name,punished,rewarded}}}';
+  const getLastObservationMask = () => '{date,name}';
+  const getObservationsMask = () => '{date,name}';
+  const getPlanetsMask = () => '{habitable,inhabited,name,peaceful,creatures{id,name,punished,rewarded}}';
+
+  // Private actions
+  const submit = async () => {
+    await updateAction();
+  };
+  const refresh = async (forced = false) => {
+    if (!isDraft) {
+      if (!editMode || forced) {
+        if (actions.refreshAction) {
+          await actions.refreshAction!(processQueryCustomizer(getPageQueryCustomizer()));
+        }
+      }
+    }
+  };
+  const produceDataAdjustedOwner = useCallback(() => {
+    const copy = simpleCloneDeep(owner.current);
+    setValue(copy, dataPath!, simpleCloneDeep(data));
+    return copy;
+  }, [data, owner]);
+
+  // Validation
+  const validate: (target: any) => Promise<void> = useCallback(
+    async (target) => {
+      if (ownerValidation) {
+        await ownerValidation(target);
+      } else {
+        await viewGalaxyServiceForStarsImpl.validateUpdate(owner.current, target);
+      }
+    },
+    [ownerValidation, ownerData, data, viewGalaxyServiceForStarsImpl],
+  );
+
+  // Pandino Action overrides
+  const { service: customActionsHook } = useTrackService<ViewStarViewActionsHook>(
+    `(${OBJECTCLASS}=${VIEW_GALAXY_STARS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY})`,
+  );
+  const customActions: ViewStarViewDialogActionsExtended | undefined = customActionsHook?.(
+    ownerData,
+    data,
+    editMode,
+    storeDiff,
+    refresh,
+    submit,
+    onSubmit,
+  );
+
+  // Dialog hooks
+  const openViewStarViewLastObservationLinkSetSelectorPage = useViewStarViewLastObservationLinkSetSelectorPage();
+  const openViewStarViewObservationsTableAddSelectorPage = useViewStarViewObservationsTableAddSelectorPage();
+  const openViewStarPlanetsRelationFormPage = useViewStarPlanetsRelationFormPage();
+
+  // Action section
+  const getPageTitle = (data: ViewStar): string => {
+    return data.name as string;
+  };
+  // BackAction: God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewBackAction
+  const backAction = async () => {
+    onClose();
+  };
+  // CancelAction: God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewCancelAction
+  const cancelAction = async () => {
+    setValidation(new Map());
+    if (isDraft) {
+      rollbackData();
+    } else {
+      // no need to set editMode to false, given refresh should do it implicitly
+      await refresh(true);
+    }
+  };
+  // DeleteAction: God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewDeleteAction
+  const deleteAction = async () => {
+    try {
+      const confirmed = await openConfirmDialog(
+        'delete-action',
+        t('judo.modal.confirm.confirm-delete', {
+          defaultValue: 'Are you sure you would like to delete the selected element?',
+        }),
+        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+      );
+      if (confirmed) {
+        if (isDraft) {
+          onSubmit(data, 'delete');
+          return;
+        }
+        await viewGalaxyServiceForStarsImpl.delete(data);
+        showSuccessSnack(t('judo.action.delete.success', { defaultValue: 'Delete successful' }));
+        onSubmit(data, 'delete');
+      }
+    } catch (error) {
+      handleError(error, undefined, data);
+    }
+  };
+  // RefreshAction: God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewRefreshAction
+  const refreshAction = async (queryCustomizer: ViewStarQueryCustomizer): Promise<JudoRestResponse<ViewStarStored>> => {
+    try {
+      setIsLoading(true);
+      setEditMode(false);
+      const response = await viewGalaxyServiceForStarsImpl.refresh(ownerData, getPageQueryCustomizer());
+      const { data: result } = response;
+      if (!isDraft) {
+        owner.current = result;
+      }
+      setData(result);
+      setLatestViewData(result);
+      if (customActions?.postRefreshAction) {
+        await customActions?.postRefreshAction(result, storeDiff, setValidation);
+      }
+      return response;
+    } catch (error) {
+      handleError(error);
+      setLatestViewData(null);
+      return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
+      setRefreshCounter((prevCounter) => prevCounter + 1);
+    }
+  };
+  // UpdateAction: God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewUpdateAction
+  const updateAction = async () => {
+    if (isDraft) {
+      try {
+        setIsLoading(true);
+        const validationData = simpleCloneDeep(owner.current);
+        setValue(validationData, dataPath!, data);
+        await validate(validationData);
+        // we send data back in draft mode, because the owner is responsible to handle it in-memory
+        onSubmit(data, 'submit-draft');
+      } catch (error: any) {
+        if (error?.response?.status === 400 && ownerValidation && !isErrorNestedValidationError(error, dataPath!)) {
+          // relation form has no remaining error(s), proceed with submission
+          onSubmit(data, 'submit-draft');
+        } else {
+          handleError<ViewStar>(error, { setValidation }, owner.current, dataPath!);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const { data: res } = await viewGalaxyServiceForStarsImpl.update(data);
+      if (res) {
+        showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
+        setValidation(new Map<keyof ViewStar, string>());
+        setEditMode(false);
+        await actions.refreshAction!(getPageQueryCustomizer());
+      }
+    } catch (error) {
+      handleError<ViewStar>(error, { setValidation }, data);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // AutocompleteRangeAction: God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkAutocompleteRangeAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const lastObservationAutocompleteRangeAction = async (
+    queryCustomizer: CreatePageTestObservationTransferQueryCustomizer,
+  ): Promise<CreatePageTestObservationTransferStored[]> => {
+    try {
+      const { data: result } = await viewGalaxyServiceForStarsImpl.getRangeForLastObservation(data, queryCustomizer);
+      return result;
+    } catch (error: any) {
+      handleError(error);
+      return Promise.resolve([]);
+    }
+  };
+  // AutocompleteSetAction: God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkAutocompleteSetAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const lastObservationAutocompleteSetAction = async (selected: CreatePageTestObservationTransferStored) => {
+    try {
+      storeDiff('lastObservation', selected);
+    } catch (error) {
+      handleError(error);
+      return Promise.reject(error);
+    }
+  };
+  // OpenSelectorAction: God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkSetSelectorOpenPageAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const lastObservationOpenSetSelectorAction = async (): Promise<
+    CreatePageTestObservationTransferStored | undefined
+  > => {
+    const { result, data: returnedData } = await openViewStarViewLastObservationLinkSetSelectorPage({
+      ownerData: data,
+      alreadySelected: data.lastObservation ? [data.lastObservation] : [],
+    });
+    if (result === 'submit') {
+      if (Array.isArray(returnedData) && returnedData.length) {
+        try {
+          storeDiff('lastObservation', returnedData[0]);
+          return returnedData[0];
+        } catch (error) {
+          console.error(error);
+          return undefined;
+        }
+      }
+    }
+    return undefined;
+  };
+  // UnsetAction: God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkUnsetAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const lastObservationUnsetAction = async (
+    target: CreatePageTestObservationTransfer | CreatePageTestObservationTransferStored,
+  ) => {
+    storeDiff('lastObservation', null);
+  };
+  // OpenPageAction: God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkViewAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const lastObservationOpenPageAction = async (
+    target: CreatePageTestObservationTransferStored,
+    isDraftParam?: boolean,
+  ) => {
+    // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
+    navigate(
+      routeToViewStarLastObservationRelationViewPage(
+        ((target as CreatePageTestObservationTransferStored) || data).__signedIdentifier,
+      ),
+    );
+    onSubmit();
+  };
+  // OpenAddSelectorAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableAddSelectorOpenPageAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const observationsOpenAddSelectorAction = async () => {
+    const { result, data: returnedData } = await openViewStarViewObservationsTableAddSelectorPage({
+      ownerData: data,
+      alreadySelected: data.observations ?? [],
+    });
+    if (result === 'submit') {
+      if (Array.isArray(returnedData) && returnedData.length) {
+        storeDiff('observations', [...(data.observations || []), ...returnedData]);
+      }
+    }
+  };
+
+  // BulkRemoveAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableBulkRemoveAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const observationsBulkRemoveAction = async (
+    selectedRows: CreatePageTestObservationTransferStored[],
+  ): Promise<DialogResult<Array<CreatePageTestObservationTransferStored>>> => {
+    return new Promise((resolve) => {
+      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const newList = (data?.observations ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      storeDiff('observations', newList);
+      resolve({
+        result: 'submit',
+        data: [],
+      });
+    });
+  };
+  // ClearAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableClearAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const observationsClearAction = async () => {
+    storeDiff('observations', []);
+  };
+  // FilterAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const observationsFilterAction = async (
+    id: string,
+    filterOptions: FilterOption[],
+    model?: GridFilterModel,
+    filters?: Filter[],
+  ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
+    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    return {
+      filters: newFilters,
+    };
+  };
+  // RemoveAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableRowRemoveAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const observationsRemoveAction = async (target: CreatePageTestObservationTransferStored) => {
+    const newList = (data?.observations ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+    storeDiff('observations', newList);
+  };
+  // OpenPageAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const observationsOpenPageAction = async (
+    target: CreatePageTestObservationTransferStored,
+    isDraftParam?: boolean,
+  ) => {
+    const itemIndex = (data.observations || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
+    navigate(
+      routeToViewStarObservationsRelationViewPage(
+        ((target as CreatePageTestObservationTransferStored) || data).__signedIdentifier,
+      ),
+    );
+    onSubmit();
+  };
+  // BulkDeleteAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableBulkDeleteAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const planetsBulkDeleteAction = async (
+    selectedRows: ViewPlanetStored[],
+  ): Promise<DialogResult<Array<ViewPlanetStored>>> => {
+    return new Promise((resolve) => {
+      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const newList = (data?.planets ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      storeDiff('planets', newList);
+      resolve({
+        result: 'delete',
+        data: [],
+      });
+    });
+  };
+  // OpenCreateFormAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableCreateAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const planetsOpenCreateFormAction = async () => {
+    const itemIndex = (data.planets || []).length; // length gives next without -1-ing it
+    const {
+      result,
+      data: returnedData,
+      openCreated,
+    } = await openViewStarPlanetsRelationFormPage({
+      ownerData: produceDataAdjustedOwner(),
+      ownerValidation: validate,
+      isDraft: true,
+      dataPath: `${dataPath ? dataPath + '.' : ''}planets[${itemIndex}]`,
+    });
+    if (result === 'submit' && !editMode) {
+      await actions.refreshAction!(processQueryCustomizer(getPageQueryCustomizer()));
+    } else if (result === 'submit-draft' && returnedData) {
+      const decoratedData = {
+        ...returnedData,
+        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+      };
+      const newData = [...(data.planets || []), decoratedData];
+      storeDiff('planets', newData);
+      return;
+    }
+    if (openCreated && returnedData) {
+      await planetsOpenPageAction(returnedData!);
+    }
+  };
+  // FilterAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const planetsFilterAction = async (
+    id: string,
+    filterOptions: FilterOption[],
+    model?: GridFilterModel,
+    filters?: Filter[],
+  ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
+    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    return {
+      filters: newFilters,
+    };
+  };
+  // RowDeleteAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const planetsRowDeleteAction = async (target: ViewPlanetStored) => {
+    try {
+      const confirmed = await openConfirmDialog(
+        'row-delete-action',
+        t('judo.modal.confirm.confirm-delete', {
+          defaultValue: 'Are you sure you would like to delete the selected element?',
+        }),
+        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+      );
+      if (confirmed) {
+        const newList = (data?.planets ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+        storeDiff('planets', newList);
+      }
+    } catch (error) {
+      handleError<ViewPlanet>(error, undefined, target);
+    }
+  };
+  // OpenPageAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const planetsOpenPageAction = async (target: ViewPlanetStored, isDraftParam?: boolean) => {
+    const itemIndex = (data.planets || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
+    navigate(routeToViewStarPlanetsRelationViewPage(((target as ViewPlanetStored) || data).__signedIdentifier));
+    onSubmit();
+  };
+  // BulkCallOperationAction: God/(esm/_D3dnMT0xEe-oxNmZsPxMmA)/OperationFormTableBulkCallAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const planetsEndWarForPlanetAction = async (
+    selectedRows: ViewPlanetStored[],
+  ): Promise<DialogResult<Array<ViewPlanetStored>>> => {
+    return new Promise((resolve) => {
+      openCRUDDialog<ViewPlanetStored>({
+        dialogTitle: t('View.Star.View.endWar', { defaultValue: 'endWar' }),
+        itemTitleFn: (item) =>
+          actions?.getPlanetsRowRepresentation ? actions.getPlanetsRowRepresentation(item) : item.name!,
+        selectedItems: selectedRows,
+        action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
+          try {
+            await viewGalaxyServiceForStarsImpl.endWarForPlanets(item);
+            successHandler();
+          } catch (error) {
+            errorHandler(error);
+          }
+        },
+        autoCloseOnSuccess: true,
+        onClose: async (needsRefresh) => {
+          if (needsRefresh) {
+            if (rootPageId) {
+              publish(`refresh:${rootPageId}`);
+            } else {
+              if (actions.refreshAction) {
+                await actions.refreshAction!(processQueryCustomizer(getPageQueryCustomizer()));
+              }
+            }
+            resolve({
+              result: 'submit',
+              data: [],
+            });
+          } else {
+            resolve({
+              result: 'close',
+              data: [],
+            });
+          }
+        },
+      });
+    });
+  };
+  // BulkCallOperationAction: God/(esm/_D3eOQT0xEe-oxNmZsPxMmA)/OperationFormTableBulkCallAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const planetsStartWarForPlanetAction = async (
+    selectedRows: ViewPlanetStored[],
+  ): Promise<DialogResult<Array<ViewPlanetStored>>> => {
+    return new Promise((resolve) => {
+      openCRUDDialog<ViewPlanetStored>({
+        dialogTitle: t('View.Star.View.startWar', { defaultValue: 'startWar' }),
+        itemTitleFn: (item) =>
+          actions?.getPlanetsRowRepresentation ? actions.getPlanetsRowRepresentation(item) : item.name!,
+        selectedItems: selectedRows,
+        action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
+          try {
+            await viewGalaxyServiceForStarsImpl.startWarForPlanets(item);
+            successHandler();
+          } catch (error) {
+            errorHandler(error);
+          }
+        },
+        autoCloseOnSuccess: true,
+        onClose: async (needsRefresh) => {
+          if (needsRefresh) {
+            if (rootPageId) {
+              publish(`refresh:${rootPageId}`);
+            } else {
+              if (actions.refreshAction) {
+                await actions.refreshAction!(processQueryCustomizer(getPageQueryCustomizer()));
+              }
+            }
+            resolve({
+              result: 'submit',
+              data: [],
+            });
+          } else {
+            resolve({
+              result: 'close',
+              data: [],
+            });
+          }
+        },
+      });
+    });
+  };
+
+  const actions: ViewStarViewDialogActions = {
+    getPageTitle,
+    backAction,
+    cancelAction,
+    deleteAction,
+    refreshAction,
+    updateAction,
+    lastObservationAutocompleteRangeAction,
+    lastObservationAutocompleteSetAction,
+    lastObservationOpenSetSelectorAction,
+    lastObservationUnsetAction,
+    lastObservationOpenPageAction,
+    observationsOpenAddSelectorAction,
+    observationsBulkRemoveAction,
+    observationsClearAction,
+    observationsFilterAction,
+    observationsRemoveAction,
+    observationsOpenPageAction,
+    planetsBulkDeleteAction,
+    planetsOpenCreateFormAction,
+    planetsFilterAction,
+    planetsRowDeleteAction,
+    planetsOpenPageAction,
+    planetsEndWarForPlanetAction,
+    planetsStartWarForPlanetAction,
+    getMask,
+    getLastObservationMask,
+    getObservationsMask,
+    getPlanetsMask,
+    ...(customActions ?? {}),
+  };
+
+  // ViewModel setup
+  const viewModel: ViewStarViewViewModel = {
+    onClose,
+    actions,
+    ownerData,
+    isLoading,
+    setIsLoading,
+    editMode,
+    setEditMode,
+    refresh,
+    refreshCounter,
+    submit,
+    data,
+    validation,
+    setValidation,
+    storeDiff,
+    isFormUpdateable,
+    isFormDeleteable,
+    templateDataOverride,
+    isDraft,
+  };
+
+  // Effect section
+  useEffect(() => {
+    if (!isDraft) {
+      actions.refreshAction!(getPageQueryCustomizer());
+    }
+    if (templateDataOverride) {
+      setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!rootPageId && subscriptionRef.current) {
+      // unsubscribe and unset
+      subscriptionRef.current();
+      subscriptionRef.current = null;
+    }
+    if (rootPageId && dataPath && isDraft) {
+      subscriptionRef.current = subscribe(`${rootPageId}:refreshed`, async (freshRootData: any) => {
+        const copy = simpleCloneDeep(getValue<ViewStarStored>(freshRootData, dataPath!)!);
+        setData(copy);
+      });
+    }
+
+    return () => {
+      // unsubscribe
+      if (subscriptionRef.current) {
+        subscriptionRef.current();
+      }
+    };
+  }, [subscribe, rootPageId]);
+
+  return (
+    <ViewStarViewViewModelContext.Provider value={viewModel}>
+      <Suspense>
+        <div
+          id="God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView"
+          data-page-name="View::Galaxy::stars::RelationViewPage"
+        />
+        <ViewStarViewDialogContainer
+          ownerData={ownerData}
+          onClose={onClose}
+          actions={actions}
+          dataPath={dataPath}
+          isLoading={isLoading}
+          editMode={editMode}
+          refreshCounter={refreshCounter}
+          data={data}
+          storeDiff={storeDiff}
+          isFormUpdateable={isFormUpdateable}
+          isFormDeleteable={isFormDeleteable}
+          validation={validation}
+          setValidation={setValidation}
+          submit={submit}
+          isDraft={isDraft}
+        />
+      </Suspense>
+    </ViewStarViewViewModelContext.Provider>
+  );
+}

@@ -35,6 +35,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
       {{/ if }}
       setData(result);
       setLatestViewData(result);
+      {{# if (pageIsRootStateOwner page) }}
+        publish('{{ getXMIID page }}:refreshed', result);
+      {{/ if }}
       {{# unless page.openInDialog }}
         {{# if page.container.view }}
           setRouterPageData(result);

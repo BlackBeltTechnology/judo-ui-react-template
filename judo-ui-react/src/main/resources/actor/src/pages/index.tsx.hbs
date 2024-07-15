@@ -26,7 +26,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   {{/ if }}
   import { useJudoNavigation } from '~/components';
   import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
-  import { useSnacks, useCRUDDialog, useViewData } from '~/hooks';
+  import { useSnacks, useCRUDDialog, useViewData, useEventBus } from '~/hooks';
   import {
     {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
@@ -79,7 +79,8 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 // Name: {{ page.name }}
 export default function {{ pageName page }}() {
   {{# unless (containerIsEmptyDashboard page.container) }}
-    const dataPath = '';
+    const dataPath: string = '';
+    const rootPageId: string | undefined = undefined;
     const isDraft = false;
     const owner = useRef<any>(null);
 
@@ -104,6 +105,7 @@ export default function {{ pageName page }}() {
     const { openFilterDialog } = useFilterDialog();
     const { openConfirmDialog } = useConfirmDialog();
     const { setLatestViewData, setRouterPageData } = useViewData();
+    const { publish, subscribe } = useEventBus();
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();
     {{# if (hasExportAction page) }}
@@ -296,6 +298,18 @@ export default function {{ pageName page }}() {
           await actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
         })();
       }, []);
+    {{/ if }}
+
+    {{# if (pageIsRootStateOwner page) }}
+      useEffect(() => {
+        const unsubscribe = subscribe('refresh:{{ getXMIID page }}', async () => {
+          await refresh();
+        });
+
+        return () => {
+          unsubscribe();
+        };
+      }, [subscribe, data, editMode]);
     {{/ if }}
   {{/ unless }}
 
