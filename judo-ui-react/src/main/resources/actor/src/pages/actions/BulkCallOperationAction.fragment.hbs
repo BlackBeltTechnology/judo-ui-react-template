@@ -22,15 +22,23 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
       ,
       onClose: async (needsRefresh) => {
         if (needsRefresh) {
-          {{# if page.container.table }}
-            setRefreshCounter((prev) => prev + 1);
+          {{# if page.openInDialog }}
+          if (rootPageId) {
+            publish(`refresh:${rootPageId}`);
+          } else {
           {{/ if }}
-          {{# if page.container.view }}
-            {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
-              if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
-                await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
-              }
-            {{/ with }}
+            {{# if page.container.table }}
+              setRefreshCounter((prev) => prev + 1);
+            {{/ if }}
+            {{# if page.container.view }}
+              {{# with (getRefreshActionDefinitionForContainer page.container) as |refreshActionDefinition| }}
+                if (actions.{{ simpleActionDefinitionName refreshActionDefinition }}) {
+                  await actions.{{ simpleActionDefinitionName refreshActionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
+                }
+              {{/ with }}
+            {{/ if }}
+          {{# if page.openInDialog }}
+          }
           {{/ if }}
           resolve({
             result: 'submit',

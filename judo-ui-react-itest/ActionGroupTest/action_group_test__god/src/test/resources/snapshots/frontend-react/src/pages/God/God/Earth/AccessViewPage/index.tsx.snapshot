@@ -25,7 +25,7 @@ import { useViewPlanetViewGroup_2RightCreaturesPunishCreatureRelationTableCallSe
 import { useViewPlanetViewGroup_2RightCreaturesRewardCreatureRelationTableCallSelector } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/RewardCreature/Relation/Table/CallSelector/hooks';
 import { useViewPlanetViewGroup_2RightCreaturesTableAddSelectorPage } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/TableAddSelectorPage/hooks';
 import { useViewPlanetViewGroup_2RightCreaturesTalkToGodRelationTableCallSelector } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/TalkToGod/Relation/Table/CallSelector/hooks';
-import { useCRUDDialog, useSnacks, useViewData } from '~/hooks';
+import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
 import { routeToViewPlanetViewChooseTheMessiahOutputView } from '~/routes';
 import { routeToViewPlanetViewHateGodOutputView } from '~/routes';
 import { routeToViewPlanetViewLoveGodOutputView } from '~/routes';
@@ -54,7 +54,8 @@ const ViewPlanetViewPageContainer = lazy(() => import('~/containers/View/Planet/
 // XMIID: God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition
 // Name: God::God::earth::AccessViewPage
 export default function GodGodEarthAccessViewPage() {
-  const dataPath = '';
+  const dataPath: string = '';
+  const rootPageId: string | undefined = undefined;
   const isDraft = false;
   const owner = useRef<any>(null);
 
@@ -68,6 +69,7 @@ export default function GodGodEarthAccessViewPage() {
   const { openFilterDialog } = useFilterDialog();
   const { openConfirmDialog } = useConfirmDialog();
   const { setLatestViewData, setRouterPageData } = useViewData();
+  const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
 
@@ -211,6 +213,7 @@ export default function GodGodEarthAccessViewPage() {
       }
       setData(result);
       setLatestViewData(result);
+      publish('God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition:refreshed', result);
       setRouterPageData(result);
       if (customActions?.postRefreshAction) {
         await customActions?.postRefreshAction(result, storeDiff, setValidation);
@@ -628,6 +631,16 @@ export default function GodGodEarthAccessViewPage() {
       await actions.refreshAction!(getPageQueryCustomizer());
     })();
   }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribe('refresh:God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition', async () => {
+      await refresh();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribe, data, editMode]);
 
   return (
     <ViewPlanetViewViewModelContext.Provider value={viewModel}>

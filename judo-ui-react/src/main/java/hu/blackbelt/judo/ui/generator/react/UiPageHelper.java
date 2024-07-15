@@ -519,4 +519,11 @@ public class UiPageHelper {
         }
         return String.join(", ", params);
     }
+
+    public static boolean pageIsRootStateOwner(PageDefinition pageDefinition) {
+        return pageDefinition.getContainer().isView()
+                && pageDefinition.getDataElement() instanceof RelationType relationType
+                && relationType.getIsRefreshable()
+                && (relationType.getIsMemberTypeAccess() || relationType.getIsRelationKindAssociation());
+    }
 }
