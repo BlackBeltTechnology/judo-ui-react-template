@@ -21,7 +21,7 @@ import { useGodGodGalaxiesAccessFormPage } from '~/dialogs/God/God/Galaxies/Acce
 import { useViewGalaxyTableCreateDarkMatterInputForm } from '~/dialogs/View/Galaxy/Table/CreateDarkMatter/Input/Form/hooks';
 import { useViewGalaxyTableCreateIntergalacticDustInputForm } from '~/dialogs/View/Galaxy/Table/CreateIntergalacticDust/Input/Form/hooks';
 import { useViewGalaxyTableCreateInterstellarMediumInputForm } from '~/dialogs/View/Galaxy/Table/CreateInterstellarMedium/Input/Form/hooks';
-import { useCRUDDialog, useSnacks, useViewData } from '~/hooks';
+import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
 import { routeToGodGodGalaxiesAccessViewPage } from '~/routes';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
@@ -43,7 +43,8 @@ const ViewGalaxyTablePageContainer = lazy(() => import('~/containers/View/Galaxy
 // XMIID: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTablePageDefinition
 // Name: God::God::galaxies::AccessTablePage
 export default function GodGodGalaxiesAccessTablePage() {
-  const dataPath = '';
+  const dataPath: string = '';
+  const rootPageId: string | undefined = undefined;
   const isDraft = false;
   const owner = useRef<any>(null);
 
@@ -57,6 +58,7 @@ export default function GodGodGalaxiesAccessTablePage() {
   const { openFilterDialog } = useFilterDialog();
   const { openConfirmDialog } = useConfirmDialog();
   const { setLatestViewData, setRouterPageData } = useViewData();
+  const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
 
