@@ -357,7 +357,11 @@ public class UiWidgetHelper {
             return result;
         }
         if (button.getActionDefinition().isIsBulk()) {
-            return "selectionModel.length > 0";
+            String result = "selectionModel.length > 0";
+            if (container.isView() && button.getActionDefinition().getIsCallOperationAction()) {
+                return result + " && !editMode";
+            }
+            return result;
         }
         return "true";
     }

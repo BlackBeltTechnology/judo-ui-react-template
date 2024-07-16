@@ -1,0 +1,46 @@
+import { type FC, createContext, useContext, useRef } from 'react';
+
+type EventHandler = (...args: any[]) => void;
+type Topics = { [key: string]: EventHandler[] };
+
+interface EventBusContextType {
+  publish: (topic: string, ...args: any[]) => void;
+  subscribe: (topic: string, handler: EventHandler) => () => void;
+}
+
+const EventBusContext = createContext<EventBusContextType | undefined>(undefined);
+
+export const useEventBus = () => {
+  const context = useContext(EventBusContext);
+  if (!context) {
+    throw new Error('useEventBus must be used within an EventBusProvider');
+  }
+  return context;
+};
+
+export const EventBusProvider: FC<any> = ({ children }) => {
+  const topicsRef = useRef<Topics>({});
+
+  const publish = (topic: string, ...args: any[]) => {
+    const handlers = topicsRef.current[topic];
+    if (handlers) {
+      handlers.forEach((handler) => handler(...args));
+    }
+  };
+
+  const subscribe = (topic: string, handler: EventHandler) => {
+    if (!topicsRef.current[topic]) {
+      topicsRef.current[topic] = [];
+    }
+    topicsRef.current[topic].push(handler);
+
+    return () => {
+      const index = topicsRef.current[topic].indexOf(handler);
+      if (index !== -1) {
+        topicsRef.current[topic].splice(index, 1);
+      }
+    };
+  };
+
+  return <EventBusContext.Provider value={ { publish, subscribe } }>{children}</EventBusContext.Provider>;
+};

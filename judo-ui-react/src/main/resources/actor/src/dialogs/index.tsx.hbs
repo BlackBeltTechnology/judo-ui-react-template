@@ -22,7 +22,7 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
   {{/ if }}
   import { useJudoNavigation } from '~/components';
   import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
-  import { useSnacks, useCRUDDialog, useViewData } from '~/hooks';
+  import { useSnacks, useCRUDDialog, useViewData, useEventBus } from '~/hooks';
   import {
     {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
@@ -78,6 +78,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     isDraft,
     {{# unless page.container.table}}maskRequest,{{/ unless }}
     dataPath,
+    rootPageId,
     onClose,
     onSubmit,
   } = props;
@@ -98,6 +99,8 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const { openFilterDialog } = useFilterDialog();
     const { openConfirmDialog } = useConfirmDialog();
     const { setLatestViewData } = useViewData();
+    const { publish, subscribe } = useEventBus();
+    const subscriptionRef = useRef<any>(null);
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();
     const [createDialog, closeDialog] = useDialog();
@@ -306,6 +309,40 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         }
       {{/ unless }}
     }, []);
+
+    {{# if (pageIsRootStateOwner page) }}
+      useEffect(() => {
+        const unsubscribe = subscribe('refresh:{{ getXMIID page }}', async () => {
+          await refresh();
+        });
+
+        return () => {
+          unsubscribe();
+        };
+      }, [subscribe, data, editMode]);
+    {{/ if }}
+    {{# if page.container.view }}
+      useEffect(() => {
+        if (!rootPageId && subscriptionRef.current) {
+          // unsubscribe and unset
+          subscriptionRef.current();
+          subscriptionRef.current = null;
+        }
+        if (rootPageId && dataPath && isDraft) {
+          subscriptionRef.current = subscribe(`${rootPageId}:refreshed`, async (freshRootData: any) => {
+            const copy = simpleCloneDeep(getValue<{{ dialogDataType page }}>(freshRootData, dataPath!)!);
+            setData(copy);
+          });
+        }
+
+        return () => {
+          // unsubscribe
+          if (subscriptionRef.current) {
+            subscriptionRef.current();
+          }
+        };
+      }, [subscribe, rootPageId]);
+    {{/ if }}
   {{/ unless }}
 
   return (

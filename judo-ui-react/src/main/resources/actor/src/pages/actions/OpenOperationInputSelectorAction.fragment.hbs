@@ -12,6 +12,14 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{/ if }}
   });
   if (result === 'submit') {
-    await refresh();
+    {{# if page.openInDialog }}
+    if (rootPageId) {
+      publish(`refresh:${rootPageId}`);
+    } else {
+    {{/ if }}
+      await refresh();
+    {{# if page.openInDialog }}
+    }
+    {{/ if }}
   }
 };

@@ -26,7 +26,7 @@ import { useViewPlanetViewGroup_2RightCreaturesPunishCreatureRelationTableCallSe
 import { useViewPlanetViewGroup_2RightCreaturesRewardCreatureRelationTableCallSelector } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/RewardCreature/Relation/Table/CallSelector/hooks';
 import { useViewPlanetViewGroup_2RightCreaturesTableAddSelectorPage } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/TableAddSelectorPage/hooks';
 import { useViewPlanetViewGroup_2RightCreaturesTalkToGodRelationTableCallSelector } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/TalkToGod/Relation/Table/CallSelector/hooks';
-import { useCRUDDialog, useSnacks, useViewData } from '~/hooks';
+import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
 import { routeToViewPlanetViewChooseTheMessiahOutputView } from '~/routes';
 import { routeToViewPlanetViewHateGodOutputView } from '~/routes';
 import { routeToViewPlanetViewLoveGodOutputView } from '~/routes';
@@ -57,7 +57,8 @@ const ViewPlanetViewPageContainer = lazy(() => import('~/containers/View/Planet/
 // XMIID: God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView
 // Name: View::Star::planets::RelationViewPage
 export default function ViewStarPlanetsRelationViewPage() {
-  const dataPath = '';
+  const dataPath: string = '';
+  const rootPageId: string | undefined = undefined;
   const isDraft = false;
   const owner = useRef<any>(null);
 
@@ -74,6 +75,7 @@ export default function ViewStarPlanetsRelationViewPage() {
   const { openFilterDialog } = useFilterDialog();
   const { openConfirmDialog } = useConfirmDialog();
   const { setLatestViewData, setRouterPageData } = useViewData();
+  const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
 
