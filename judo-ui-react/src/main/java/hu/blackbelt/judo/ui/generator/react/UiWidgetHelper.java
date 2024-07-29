@@ -335,19 +335,26 @@ public class UiWidgetHelper {
     }
 
     public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {
+        String result = "";
+        if (button.getEnabledBy() != null) {
+            result += "(ownerData ? ownerData." + button.getEnabledBy().getName() + " : true) && ";
+        }
+        if (button.getHiddenBy() != null) {
+            result += "(ownerData ? !ownerData." + button.getHiddenBy().getName() + " : true) && ";
+        }
         if (button.getActionDefinition().getIsOpenCreateFormAction() && !table.isIsEager() && container.isView()) {
-            return "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";
+            return result += "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";
         }
         if (container.isView()) {
             if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsRemoveAction()) {
-                return "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + ") : false)";
+                return result += "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + ") : false)";
             }
             if (button.getActionDefinition().getIsBulkRemoveAction()) {
-                return "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + " && selectionModel.length > 0) : false)";
+                return result += "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + " && selectionModel.length > 0) : false)";
             }
         }
         if (button.getActionDefinition().getIsClearAction()) {
-            String result = "data.length > 0";
+            result += "data.length > 0";
             if (table.getEnabledBy() != null) {
                 result += " && (ownerData ? ownerData." + table.getEnabledBy().getName() +" : false)";
             }
@@ -357,13 +364,13 @@ public class UiWidgetHelper {
             return result;
         }
         if (button.getActionDefinition().isIsBulk()) {
-            String result = "selectionModel.length > 0";
+            result += "selectionModel.length > 0";
             if (container.isView() && button.getActionDefinition().getIsCallOperationAction()) {
                 return result + " && !editMode";
             }
             return result;
         }
-        return "true";
+        return result += "true";
     }
 
     public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
