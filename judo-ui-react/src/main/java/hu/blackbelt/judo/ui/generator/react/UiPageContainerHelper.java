@@ -197,10 +197,17 @@ public class UiPageContainerHelper {
         columnAttributeNames.addAll(table.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
         mask.addPrimitives(columnAttributeNames);
         if (table.getRowActionButtonGroup() != null) {
-            mask.addPrimitives(table.getRowActionButtonGroup().getButtons().stream()
-                    .filter(b -> b.getConfirmation() != null && b.getConfirmation().getConfirmationCondition() !=  null)
-                    .map(b -> b.getConfirmation().getConfirmationCondition().getName())
-                    .collect(Collectors.toSet()));
+            for (Button button: table.getRowActionButtonGroup().getButtons()) {
+                if (button.getConfirmation() != null && button.getConfirmation().getConfirmationCondition() !=  null) {
+                    mask.addPrimitives(button.getConfirmation().getConfirmationCondition().getName());
+                }
+                if (button.getEnabledBy() != null) {
+                    mask.addPrimitives(button.getEnabledBy().getName());
+                }
+                if (button.getHiddenBy() != null) {
+                    mask.addPrimitives(button.getHiddenBy().getName());
+                }
+            }
         }
         if (table.isIsEager() && counter < 5) {
             // table items can be potentially opened, therefore we need the target's attributes as well
@@ -282,6 +289,18 @@ public class UiPageContainerHelper {
             MaskEntry tableMask = getMaskForTable(table, pageDefinition, counter + 1);
             tableMask.setRelationName(table.getDataElement().getName());
             mask.addRelations(tableMask);
+        }
+
+        for (Table table: ((List<Table>) container.getTables())) {
+            List<Button> tableButtons = table.getTableActionButtonGroup().getButtons();
+            for (Button button: tableButtons) {
+                if (button.getHiddenBy() != null) {
+                    mask.addPrimitives(button.getHiddenBy().getName());
+                }
+                if (button.getEnabledBy() != null) {
+                    mask.addPrimitives(button.getEnabledBy().getName());
+                }
+            }
         }
 
         for (Link link: ((List<Link>) container.getLinks()).stream().filter(t -> t.getRelationType().getIsRelationKindComposition() || t.getRelationType().getIsRelationKindAggregation()).toList()) {
