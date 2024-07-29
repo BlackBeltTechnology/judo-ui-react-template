@@ -196,6 +196,12 @@ public class UiPageContainerHelper {
                 .collect(Collectors.toSet());
         columnAttributeNames.addAll(table.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
         mask.addPrimitives(columnAttributeNames);
+        if (table.getRowActionButtonGroup() != null) {
+            mask.addPrimitives(table.getRowActionButtonGroup().getButtons().stream()
+                    .filter(b -> b.getConfirmation() != null && b.getConfirmation().getConfirmationCondition() !=  null)
+                    .map(b -> b.getConfirmation().getConfirmationCondition().getName())
+                    .collect(Collectors.toSet()));
+        }
         if (table.isIsEager() && counter < 5) {
             // table items can be potentially opened, therefore we need the target's attributes as well
             Button openPageButton = table.getRowActionButtonGroup().getButtons().stream()

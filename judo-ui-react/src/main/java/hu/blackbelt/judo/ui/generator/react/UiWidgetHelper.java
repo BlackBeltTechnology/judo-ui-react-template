@@ -459,4 +459,9 @@ public class UiWidgetHelper {
     public static boolean shouldRenderConfirmationCondition(Button button) {
         return button.getConfirmation() != null && button.getConfirmation().getConfirmationCondition() != null;
     }
+
+    public static boolean isParameterOpenerButton(Button button) {
+        ActionDefinition actionDefinition = button.getActionDefinition();
+        return actionDefinition.getIsOpenOperationInputFormAction() || actionDefinition.getIsOpenOperationInputSelectorAction();
+    }
 }

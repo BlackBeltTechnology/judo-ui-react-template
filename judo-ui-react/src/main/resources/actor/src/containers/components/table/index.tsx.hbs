@@ -208,7 +208,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{/ if }}
       disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}, isLoading: boolean, getSelectedRows: () => {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, ownerdata?: any): boolean => {{{ tableRowButtonDisabledConditions button table container }}},
       action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
-        {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='rowData' }}
+        {{# unless (isParameterOpenerButton button) }}
+          {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='rowData' }}
+        {{/ unless }}
         await actions.{{ simpleActionDefinitionName button.actionDefinition }}!(rowData{{# if button.actionDefinition.isOpenPageAction }}, isDraft{{/ if }});
       } : undefined,
     },
