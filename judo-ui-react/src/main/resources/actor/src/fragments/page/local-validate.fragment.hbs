@@ -9,8 +9,8 @@ const requiredByRecord: Record<string, boolean> = {
   {{/ each }}
 };
 
-const result = passesLocalValidation<{{ classDataName (getReferenceClassType page) '' }}>(data, requiredByRecord, t, setValidation);
+const validationResult = passesLocalValidation<{{ classDataName (getReferenceClassType page) '' }}>(data, requiredByRecord, t, setValidation);
 
-if (!result) {
+if (!validationResult) {
   return;
 }
