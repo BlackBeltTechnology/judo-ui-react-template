@@ -330,7 +330,12 @@ public class UiPageHelper {
         Set<RelationType> relations = getAccessBasedNavigationsForOperations(pageDefinition).stream()
                 .map(AccessBasedNavigation::getAccessRelation)
                 .collect(Collectors.toSet());
-        return relations.stream().sorted(Comparator.comparing(NamedElement::getName)).toList();
+        String serviceClassForPage = getServiceClassForPage(pageDefinition);
+        return relations.stream()
+                        // filter already imported service impl.
+                        .filter(r -> !(serviceRelationName(r) + "Impl").equals(serviceClassForPage))
+                        .sorted(Comparator.comparing(NamedElement::getName))
+                        .toList();
     }
 
     public static boolean isPageUpdateable(PageDefinition pageDefinition) {
