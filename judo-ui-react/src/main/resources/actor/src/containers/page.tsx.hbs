@@ -96,7 +96,9 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                   disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
                   {{/ if }}
                   onClick={ async () => {
-                    {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+                    {{# unless (isParameterOpenerButton button) }}
+                      {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+                    {{/ unless }}
                     {{# if button.actionDefinition.isDeleteAction }}
                       actions.{{ simpleActionDefinitionName actionDefinition }}!();
                     {{ else }}
