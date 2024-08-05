@@ -327,8 +327,11 @@ public class UiPageHelper {
     }
 
     public static List<RelationType> getRelatedServicesForPage(PageDefinition pageDefinition) {
+        String serviceClassForPage = getServiceClassForPage(pageDefinition);
         Set<RelationType> relations = getAccessBasedNavigationsForOperations(pageDefinition).stream()
                 .map(AccessBasedNavigation::getAccessRelation)
+                // filter out already imported service impl.
+                .filter(r -> !(serviceRelationName(r) + "Impl").equals(serviceClassForPage))
                 .collect(Collectors.toSet());
         return relations.stream().sorted(Comparator.comparing(NamedElement::getName)).toList();
     }
