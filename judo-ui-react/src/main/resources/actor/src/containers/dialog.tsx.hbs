@@ -208,7 +208,9 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                     }
                   {{/ if }}
                   onClick={ async () => {
-                    {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+                    {{# unless (isParameterOpenerButton button) }}
+                      {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+                    {{/ unless }}
                     {{# if button.actionDefinition.isDeleteAction }}
                       actions.{{ simpleActionDefinitionName actionDefinition }}!();
                     {{ else }}

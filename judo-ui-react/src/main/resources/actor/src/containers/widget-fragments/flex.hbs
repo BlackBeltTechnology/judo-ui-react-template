@@ -43,7 +43,9 @@
                                         title={ t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string }
                                         color="primary"
                                         onClick={ async () => {
-                                            {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+                                            {{# unless (isParameterOpenerButton button) }}
+                                              {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+                                            {{/ unless }}
                                             await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
                                         } }
                                     >
