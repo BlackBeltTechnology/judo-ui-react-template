@@ -297,7 +297,7 @@ export default function {{ pageName page }}() {
           {{/ if }}
           await actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
         })();
-      }, []);
+      }, [{{# if (pageHasSignedId page) }}signedIdentifier{{/ if }}]);
     {{/ if }}
 
     {{# if (pageIsRootStateOwner page) }}
