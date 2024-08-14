@@ -10,28 +10,28 @@ import {
 import type { GridFilterOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 
 function filterStringColumnOperators(operator: GridFilterOperator): boolean {
-  // https://github.com/mui/mui-x/blob/master/packages/grid/x-data-grid/src/colDef/gridStringOperators.ts
+  // https://github.com/mui/mui-x/blob/master/packages/x-data-grid/src/colDef/gridStringOperators.ts
   // startsWith and endsWith is filtered out because they'd need complex value mapping...
-  return !(['startsWith', 'endsWith', 'isEmpty', 'isNotEmpty', 'isAnyOf'].includes(operator.value));
+  return !(['startsWith', 'endsWith', 'isAnyOf'].includes(operator.value));
 }
 
 function filterNumericColumnOperators(operator: GridFilterOperator): boolean {
-  // https://github.com/mui/mui-x/blob/master/packages/grid/x-data-grid/src/colDef/gridNumericOperators.ts
-  return !(['isEmpty', 'isNotEmpty', 'isAnyOf'].includes(operator.value));
+  // https://github.com/mui/mui-x/blob/master/packages/x-data-grid/src/colDef/gridNumericOperators.ts
+  return !(['isAnyOf'].includes(operator.value));
 }
 
 function filterDateColumnOperators(operator: GridFilterOperator): boolean {
-  // https://github.com/mui/mui-x/blob/master/packages/grid/x-data-grid/src/colDef/gridDateOperators.ts
-  return !(['isEmpty', 'isNotEmpty'].includes(operator.value));
+  // https://github.com/mui/mui-x/blob/master/packages/x-data-grid/src/colDef/gridDateOperators.ts
+  return true;
 }
 
 function filterDateTimeColumnOperators(operator: GridFilterOperator): boolean {
-  // https://github.com/mui/mui-x/blob/master/packages/grid/x-data-grid/src/colDef/gridDateOperators.ts
-  return !['isEmpty', 'isNotEmpty'].includes(operator.value);
+  // https://github.com/mui/mui-x/blob/master/packages/x-data-grid/src/colDef/gridDateOperators.ts
+  return true;
 }
 
 function filterBooleanColumnOperators(operator: GridFilterOperator): boolean {
-  // https://github.com/mui/mui-x/blob/master/packages/grid/x-data-grid/src/colDef/gridBooleanOperators.ts
+  // https://github.com/mui/mui-x/blob/master/packages/x-data-grid/src/colDef/gridBooleanColDef.tsx
   return true;
 }
 
