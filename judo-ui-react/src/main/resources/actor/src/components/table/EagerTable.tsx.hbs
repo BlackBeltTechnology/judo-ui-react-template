@@ -254,12 +254,10 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       setFilterModel(newModel);
       setItemStringified(filterModelKey, newModel);
 
-      if (newModel.items.every((i: any) => i.value !== undefined)) {
-        const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
+      const newFilters: Filter[] = mapFilterModelToFilters(newModel, filterOptions);
 
-        if (Array.isArray(newFilters)) {
-          handleFiltersChange(newFilters);
-        }
+      if (Array.isArray(newFilters)) {
+        handleFiltersChange(newFilters);
       }
     }
   {{/ if }}
