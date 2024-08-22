@@ -225,6 +225,15 @@ public class UiPageContainerHelper {
             }
         }
 
+        for (Button button: table.getTableActionButtonGroup().getButtons()) {
+            if (button.getHiddenBy() != null) {
+                mask.addPrimitives(button.getHiddenBy().getName());
+            }
+            if (button.getEnabledBy() != null) {
+                mask.addPrimitives(button.getEnabledBy().getName());
+            }
+        }
+
         return mask;
     }
 
