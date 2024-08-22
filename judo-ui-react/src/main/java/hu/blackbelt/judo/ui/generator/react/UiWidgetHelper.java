@@ -367,6 +367,11 @@ public class UiWidgetHelper {
             result += "selectionModel.length > 0";
             if (container.isView() && button.getActionDefinition().getIsCallOperationAction()) {
                 return result + " && !editMode";
+            } else if (button.getActionDefinition().getIsBulkCallOperationAction() && button.getHiddenBy() != null) {
+                if (container.isView()) {
+                    result += " && !editMode";
+                }
+                return result + " && selectedRows.every(s => !s." + button.getHiddenBy().getName() + ")";
             }
             return result;
         }
