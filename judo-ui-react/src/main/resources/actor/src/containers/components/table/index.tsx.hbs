@@ -179,7 +179,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       variant: {{{ variantForButton button }}},
       hiddenBy: {{# if button.hiddenBy }}true{{ else }}false{{/ if }},
       label: { 'translationKey': '{{ getTranslationKeyForVisualElement button }}', 'defaultValue': '{{ button.label }}' },
-      enabled: (data: {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, selectionModel: GridRowSelectionModel, ownerData?: any, isFormUpdateable?: () => boolean): boolean => {{{ tableButtonVisibilityConditions button table container }}},
+      enabled: (data: {{# with (getReferenceClassType table) as |classType| }}{{ classDataName (getReferenceClassType table) '' }}{{# if classType.isMapped }}Stored{{/ if }}[]{{/ with }}, selectionModel: GridRowSelectionModel, selectedRows: {{# with (getReferenceClassType table) as |classType| }}{{ classDataName (getReferenceClassType table) '' }}{{# if classType.isMapped }}Stored{{/ if }}[]{{/ with }}, ownerData?: any, isFormUpdateable?: () => boolean): boolean => {{{ tableButtonVisibilityConditions button table container }}},
       isBulk: {{ boolValue actionDefinition.isBulk }},
       {{# if button.confirmation }}
         confirmation: t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,

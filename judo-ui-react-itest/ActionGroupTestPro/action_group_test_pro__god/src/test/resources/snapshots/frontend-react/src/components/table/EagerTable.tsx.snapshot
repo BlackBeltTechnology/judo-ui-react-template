@@ -422,7 +422,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
             <GridToolbarContainer>
               {toolBarActions.map((toolBarAction: ToolBarActionProps<T>) =>
                 actions[toolBarAction.name] &&
-                toolBarAction.enabled(data, selectionModel, ownerData, isFormUpdateable) ? (
+                toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
                   <Button
                     key={toolBarAction.id}
                     id={toolBarAction.id}
