@@ -16,6 +16,7 @@ import { gridColumnDefinitionsSelector } from '@mui/x-data-grid{{ getMUIDataGrid
 {{/ if }}
 import type {
   GridColDef,
+  GridColumnHeaderParams,
   GridFilterModel,
   GridRowModel,
   GridRowId,
@@ -151,7 +152,16 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const {{ column.name }}Column: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}> = {
     ...baseColumnConfig,
     field: '{{ column.attributeType.name }}',
+    {{# unless column.icon }}
     headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
+    {{ else }}
+    renderHeader: (params: GridColumnHeaderParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => (
+      <strong style={ { display: 'flex', alignItems: 'center' } }>
+        {t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string + ' '}
+        <MdiIcon path="{{ column.icon.iconName }}" sx={ { ml: 0.5, mr: 0.5 } } />
+      </strong>
+    ),
+    {{/ unless }}
     headerClassName: 'data-grid-column-header',
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}

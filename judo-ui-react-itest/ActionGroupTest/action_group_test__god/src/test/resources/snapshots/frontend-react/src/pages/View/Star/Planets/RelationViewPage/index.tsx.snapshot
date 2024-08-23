@@ -111,12 +111,12 @@ export default function ViewStarPlanetsRelationViewPage() {
   const getPageQueryCustomizer: () => ViewPlanetQueryCustomizer = () => ({
     _mask: actions.getMask
       ? actions.getMask!()
-      : '{habitable,inhabited,name,peaceful,creatures{id,name,punished,rewarded}}',
+      : '{habitable,inhabited,name,peaceful,creatures{habitable,id,name,punished,rewarded}}',
   });
 
   // Masks
-  const getMask = () => '{habitable,inhabited,name,peaceful,creatures{id,name,punished,rewarded}}';
-  const getCreaturesMask = () => '{id,name,punished,rewarded}';
+  const getMask = () => '{habitable,inhabited,name,peaceful,creatures{habitable,id,name,punished,rewarded}}';
+  const getCreaturesMask = () => '{habitable,id,name,punished,rewarded}';
 
   // Private actions
   const submit = async () => {

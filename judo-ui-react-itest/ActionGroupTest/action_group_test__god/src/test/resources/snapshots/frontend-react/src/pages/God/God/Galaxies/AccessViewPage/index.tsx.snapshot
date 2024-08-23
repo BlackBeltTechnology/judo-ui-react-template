@@ -116,15 +116,15 @@ export default function GodGodGalaxiesAccessViewPage() {
   const getPageQueryCustomizer: () => ViewGalaxyQueryCustomizer = () => ({
     _mask: actions.getMask
       ? actions.getMask!()
-      : '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}',
+      : '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{habitable,id,name}}}}',
   });
 
   // Masks
   const getMask = () =>
-    '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}';
+    '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{habitable,id,name}}}}';
   const getAstronomerMask = () => '{born,name,derivedMessage{message},messages{message},singleMessage{message}}';
   const getStarsMask = () =>
-    '{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name,punished,rewarded}}}';
+    '{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{habitable,id,name,punished,rewarded}}}';
 
   // Private actions
   const submit = async () => {
