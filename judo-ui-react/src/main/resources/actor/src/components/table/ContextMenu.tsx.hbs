@@ -16,7 +16,6 @@ export interface ContextMenuProps<T, P extends JudoStored<T>> {
   filterOptions: FilterOption[];
   data: P[];
   onFilterByCell: (filter: Filter) => void;
-  onExcludeByCell: (filter: Filter) => void;
 }
 
 export interface ContextMenuApi {
@@ -25,7 +24,7 @@ export interface ContextMenuApi {
 
 export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>>(<T, P extends JudoStored<T>>(props: ContextMenuProps<T, P>, ref: ForwardedRef<ContextMenuApi>) => {
     const { t } = useTranslation();
-    const { filters, data, onFilterByCell, onExcludeByCell, filterOptions, columns } = props;
+    const { filters, data, onFilterByCell, filterOptions, columns } = props;
     const [selectedColumn, setSelectedColumn] = useState<GridColDef<P> | undefined>();
     const [selectedRow, setSelectedRow] = useState<string | undefined>();
     const [selectedRowData, setSelectedRowData] = useState<P | undefined>();
@@ -114,7 +113,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
         const filterOption = filterOptions.find((f) => f.attributeName === field)!;
         const filterType: FilterType = filterOption.filterType;
 
-        onExcludeByCell({
+        onFilterByCell({
           valueId: `${field as string}-value-${new Date().toISOString()}`,
           operationId: `${field as string}-operation-${new Date().toISOString()}`,
           id: field as string,
@@ -135,6 +134,61 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
               : filterType === FilterType.enumeration
                 ? 'notEquals'
                 : 'notEqual') as Operation,
+          },
+        });
+      }
+      closeContextMenu();
+    };
+
+    const filterByEmpty = () => {
+      if (field) {
+        const filterOption = filterOptions.find((f) => f.attributeName === field)!;
+        const filterType: FilterType = filterOption.filterType;
+        onFilterByCell({
+         valueId: `${field as string}-value-${new Date().toISOString()}`,
+         operationId: `${field as string}-operation-${new Date().toISOString()}`,
+         id: field as string,
+         filterOption: {
+           id: `${field as string}-option-${new Date().toISOString()}`,
+           attributeName: field as string,
+           filterType: filterType,
+           ...(filterType === FilterType.enumeration
+             ? {
+               enumValues: filterOption.enumValues,
+             }
+             : {}),
+         },
+         filterBy: {
+           value: null,
+           operator: 'isEmpty' as Operation,
+         },
+       });
+      }
+      closeContextMenu();
+    };
+
+    const filterByNonEmpty = () => {
+      if (field) {
+        const filterOption = filterOptions.find((f) => f.attributeName === field)!;
+        const filterType: FilterType = filterOption.filterType;
+
+        onFilterByCell({
+          valueId: `${field as string}-value-${new Date().toISOString()}`,
+          operationId: `${field as string}-operation-${new Date().toISOString()}`,
+          id: field as string,
+          filterOption: {
+            id: `${field as string}-option-${new Date().toISOString()}`,
+            attributeName: field as string,
+            filterType: filterType,
+            ...(filterType === FilterType.enumeration
+              ? {
+                enumValues: filterOption.enumValues,
+              }
+              : {}),
+          },
+          filterBy: {
+            value: null,
+            operator: 'isNotEmpty' as Operation,
           },
         });
       }
@@ -175,6 +229,18 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
             {t('judo.component.Table.ContextMenu.excludeBy', { defaultValue: 'Exclude based on the selected value', columnName: selectedColumn?.headerName, field: field, value: selectedValue }) as string}
           </Typography>
         </MenuItem>)}
+        <MenuItem onClick={filterByEmpty}>
+          <MdiIcon path="file-hidden" sx={ { mr: 1 } } />
+          <Typography variant="inherit">
+            {t('judo.component.Table.ContextMenu.filterByEmpty', { defaultValue: 'Filter by empty values', columnName: selectedColumn?.headerName, field: field, value: selectedValue }) as string}
+          </Typography>
+        </MenuItem>
+        <MenuItem onClick={filterByNonEmpty}>
+          <MdiIcon path="file-document-outline" sx={ { mr: 1 } } />
+          <Typography variant="inherit">
+            {t('judo.component.Table.ContextMenu.filterByNonEmpty', { defaultValue: 'Filter by non-empty values', columnName: selectedColumn?.headerName, field: field, value: selectedValue }) as string}
+          </Typography>
+        </MenuItem>
       </Menu>
     );
   },
