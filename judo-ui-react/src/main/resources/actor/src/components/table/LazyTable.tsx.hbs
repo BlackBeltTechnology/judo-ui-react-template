@@ -739,16 +739,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
             handleFiltersChange([...filters, filter]);
           {{/ if }}
         } }
-        onExcludeByCell={ (filter: Filter) => {
-          {{# if isUseInlineColumnFilters }}
-            handleFilterModelChange({
-            ...filterModel,
-            items: [...filterModel.items, mapFilterToFilterModel(filter)],
-            });
-          {{ else }}
-            handleFiltersChange([...filters, filter]);
-          {{/ if }}
-        } }
       />
       {{/ if }}
     </>
