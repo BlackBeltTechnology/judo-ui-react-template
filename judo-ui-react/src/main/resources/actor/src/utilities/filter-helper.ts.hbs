@@ -98,7 +98,7 @@ export const getOperatorsByFilter = (filter: Filter): string[] => {
 };
 
 export const isFilterWithoutValue = (filter: Filter) => {
-  return ['isDefined', 'isUndefined'].includes(getOperationEnumValue(filter, filter.filterBy.operator))
+  return ['isNotEmpty', 'isEmpty'].includes(getOperationEnumValue(filter, filter.filterBy.operator));
 };
 
 export const ucFirst = (str: string): string => {
@@ -117,7 +117,7 @@ export const mapFiltersToQueryCustomizerProperty = (filters: Filter[], property:
         const notEquals = 'not' + ucFirst(equals);
         return {
           value: null,
-          operator: (filter.filterBy.operator === 'isDefined' ? notEquals : equals) as Operation,
+          operator: (filter.filterBy.operator === 'isNotEmpty' ? notEquals : equals) as Operation,
         };
       }
       return {
@@ -192,9 +192,9 @@ export function filterByStringOperation<T>(filter: Filter, data: T[]): T[] {
       return data.filter((d) => (d[attributeName] as string).localeCompare(filter.filterBy.value) <= 0);
     case _StringOperation.lessThan:
       return data.filter((d) => (d[attributeName] as string).localeCompare(filter.filterBy.value) < 0);
-    case _StringOperation.isDefined:
+    case _StringOperation.isNotEmpty:
       return data.filter((d) => d[attributeName] !== null && d[attributeName] !== undefined);
-    case _StringOperation.isUndefined:
+    case _StringOperation.isEmpty:
       return data.filter((d) => d[attributeName] === null || d[attributeName] === undefined);
     default:
       return [...data];
@@ -216,9 +216,9 @@ export function filterByNumericOperation<T>(filter: Filter, data: T[]): T[] {
       return data.filter((d) => (d[attributeName] as number) > filter.filterBy.value);
     case _NumericOperation.greaterOrEqual:
       return data.filter((d) => (d[attributeName] as number) >= filter.filterBy.value);
-    case _NumericOperation.isDefined:
+    case _NumericOperation.isNotEmpty:
       return data.filter((d) => d[attributeName] !== null && d[attributeName] !== undefined);
-    case _NumericOperation.isUndefined:
+    case _NumericOperation.isEmpty:
       return data.filter((d) => d[attributeName] === null || d[attributeName] === undefined);
     default:
       return [...data];
@@ -240,9 +240,9 @@ export function filterByDateOperation<T>(filter: Filter, data: T[]): T[] {
       return data.filter((d) => compareAsc(d[attributeName] as Date, filter.filterBy.value) > 0);
     case _NumericOperation.greaterOrEqual:
       return data.filter((d) => compareAsc(d[attributeName] as Date, filter.filterBy.value) >= 0);
-    case _NumericOperation.isDefined:
+    case _NumericOperation.isNotEmpty:
       return data.filter((d) => d[attributeName] !== null && d[attributeName] !== undefined);
-    case _NumericOperation.isUndefined:
+    case _NumericOperation.isEmpty:
       return data.filter((d) => d[attributeName] === null || d[attributeName] === undefined);
     default:
       return [...data];
@@ -257,11 +257,11 @@ export function filterByBooleanOperation<T>(filter: Filter, data: T[]): T[] {
         if (d[attributeName] === undefined || d[attributeName] === null) {
           return filter.filterBy.value === undefined || filter.filterBy.value === null;
         }
-        return (d[attributeName] as boolean) === filter.filterBy.value
+        return (d[attributeName] as boolean) === filter.filterBy.value;
       });
-    case _BooleanOperation.isDefined:
+    case _BooleanOperation.isNotEmpty:
       return data.filter((d) => d[attributeName] !== null && d[attributeName] !== undefined);
-    case _BooleanOperation.isUndefined:
+    case _BooleanOperation.isEmpty:
       return data.filter((d) => d[attributeName] === null || d[attributeName] === undefined);
     default:
       return [...data];
@@ -275,9 +275,9 @@ export function filterByEnumerationOperation<T>(filter: Filter, data: T[]): T[] 
       return data.filter((d) => d[attributeName] === filter.filterBy.value);
     case _EnumerationOperation.notEquals:
       return data.filter((d) => d[attributeName] !== filter.filterBy.value);
-    case _EnumerationOperation.isDefined:
+    case _EnumerationOperation.isNotEmpty:
       return data.filter((d) => d[attributeName] !== null && d[attributeName] !== undefined);
-    case _EnumerationOperation.isUndefined:
+    case _EnumerationOperation.isEmpty:
       return data.filter((d) => d[attributeName] === null || d[attributeName] === undefined);
     default:
       return [...data];
@@ -294,10 +294,10 @@ function mapStringOperator(operator: string): _StringOperation {
     return _StringOperation.notEqual;
   }
   if (operator === 'isEmpty') {
-    return _StringOperation.isUndefined;
+    return _StringOperation.isEmpty;
   }
   if (operator === 'isNotEmpty') {
-    return _StringOperation.isDefined;
+    return _StringOperation.isNotEmpty;
   }
 
   // contains
@@ -321,10 +321,10 @@ function mapNumericOperator(operator: string): _NumericOperation {
     return _NumericOperation.lessOrEqual;
   }
   if (operator === 'isEmpty') {
-    return _NumericOperation.isUndefined;
+    return _NumericOperation.isEmpty;
   }
   if (operator === 'isNotEmpty') {
-    return _NumericOperation.isDefined;
+    return _NumericOperation.isNotEmpty;
   }
 
   // =
@@ -351,10 +351,10 @@ function mapDateOperator(operator: string): _NumericOperation {
     return _NumericOperation.lessOrEqual;
   }
   if (operator === 'isEmpty') {
-    return _NumericOperation.isUndefined;
+    return _NumericOperation.isEmpty;
   }
   if (operator === 'isNotEmpty') {
-    return _NumericOperation.isDefined;
+    return _NumericOperation.isNotEmpty;
   }
 
   // is
@@ -371,10 +371,10 @@ function mapSingleSelectOperator(operator: string): _EnumerationOperation {
     return _EnumerationOperation.notEquals;
   }
   if (operator === 'isEmpty') {
-    return _EnumerationOperation.isUndefined;
+    return _EnumerationOperation.isEmpty;
   }
   if (operator === 'isNotEmpty') {
-    return _EnumerationOperation.isDefined;
+    return _EnumerationOperation.isNotEmpty;
   }
 
   // is
@@ -464,6 +464,13 @@ export function mapFilterModelToFilters(filterModel: GridFilterModel, filterOpti
   return filters;
 }
 
+export function operatorToMUIOperator(operator: string, equals: string, notEquals: string): string {
+  if (operator === 'isEmpty' || operator === 'isNotEmpty') {
+    return operator;
+  }
+  return (operator === 'equal' || operator === 'equals') ? equals : notEquals;
+}
+
 // Used by cell context menus
 export function mapFilterToFilterModel(filter: Filter): GridFilterItem {
  const filterOption = filter.filterOption;
@@ -477,33 +484,33 @@ export function mapFilterToFilterModel(filter: Filter): GridFilterItem {
       return {
         ...res,
         value: filterBy.value,
-        operator: filterBy.operator === _StringOperation.equal ? 'equals' : 'not',
+        operator: operatorToMUIOperator(filterBy.operator, 'equals', 'not'),
       };
    case FilterType.numeric:
      return {
        ...res,
        value: filterBy.value,
-       operator: filterBy.operator === _NumericOperation.equal ? '=' : '!=',
+       operator: operatorToMUIOperator(filterBy.operator, '=', '!='),
      };
    case FilterType.date:
    case FilterType.dateTime:
      return {
        ...res,
        value: filterBy.value,
-       operator: filterBy.operator === _NumericOperation.equal ? 'is' : 'not',
+       operator: operatorToMUIOperator(filterBy.operator, 'is', 'not'),
      };
    case FilterType.boolean:
    case FilterType.trinaryLogic:
      return {
        ...res,
        value: String(filterBy.value),
-       operator: (filterBy.operator === 'equal' || filterBy.operator === 'equals') ? 'is' : 'not',
+       operator: operatorToMUIOperator(filterBy.operator, 'is', 'not'),
      };
    case FilterType.enumeration:
      return {
        ...res,
        value: filterBy.value,
-       operator: filterBy.operator === _EnumerationOperation.equals ? 'is' : 'not',
+       operator: operatorToMUIOperator(filterBy.operator , 'is', 'not'),
      };
    default:
      return {
