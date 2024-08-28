@@ -226,11 +226,13 @@ public class UiPageContainerHelper {
         }
 
         for (Button button: table.getTableActionButtonGroup().getButtons()) {
-            if (button.getHiddenBy() != null) {
-                mask.addPrimitives(button.getHiddenBy().getName());
-            }
-            if (button.getEnabledBy() != null) {
-                mask.addPrimitives(button.getEnabledBy().getName());
+            if (button.getActionDefinition().getIsBulkCallOperationAction()) {
+                if (button.getHiddenBy() != null) {
+                    mask.addPrimitives(button.getHiddenBy().getName());
+                }
+                if (button.getEnabledBy() != null) {
+                    mask.addPrimitives(button.getEnabledBy().getName());
+                }
             }
         }
 
@@ -303,11 +305,13 @@ public class UiPageContainerHelper {
         for (Table table: ((List<Table>) container.getTables())) {
             List<Button> tableButtons = table.getTableActionButtonGroup().getButtons();
             for (Button button: tableButtons) {
-                if (button.getHiddenBy() != null) {
-                    mask.addPrimitives(button.getHiddenBy().getName());
-                }
-                if (button.getEnabledBy() != null) {
-                    mask.addPrimitives(button.getEnabledBy().getName());
+                if (!button.getActionDefinition().getIsBulkCallOperationAction()) {
+                    if (button.getHiddenBy() != null) {
+                        mask.addPrimitives(button.getHiddenBy().getName());
+                    }
+                    if (button.getEnabledBy() != null) {
+                        mask.addPrimitives(button.getEnabledBy().getName());
+                    }
                 }
             }
         }
