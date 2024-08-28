@@ -280,6 +280,9 @@ public class UiPageContainerHelper {
         Set<VisualElement> inputs = new HashSet<>();
         collectVisualElementsMatchingCondition(container, (VisualElement element) -> element instanceof AttributeBased, inputs);
 
+        Set<VisualElement> buttons = new HashSet<>();
+        collectVisualElementsMatchingCondition(container, (VisualElement element) -> element instanceof Button, buttons);
+
         Set<String> attributeNames = inputs.stream().map(i -> ((AttributeBased) i)).map(i -> i.getAttributeType().getName()).collect(Collectors.toSet());
         attributeNames.addAll(container.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
 
@@ -289,6 +292,11 @@ public class UiPageContainerHelper {
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getHiddenBy() != null).map(i -> i.getHiddenBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getEnabledBy() != null).map(i -> i.getEnabledBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getRequiredBy() != null).map(i -> i.getRequiredBy().getName()).collect(Collectors.toSet()));
+        attributeNames.addAll(buttons.stream()
+                .map(v -> (Button) v)
+                .filter(e -> e.getConfirmation() != null && e.getConfirmation().getConfirmationCondition() != null)
+                .map(i -> i.getConfirmation().getConfirmationCondition().getName()).collect(Collectors.toSet())
+        );
 
         if (container.getTitleFrom() != null && container.getTitleFrom().equals(TitleFrom.ATTRIBUTE)) {
             attributeNames.add(container.getTitleAttribute().getName());
