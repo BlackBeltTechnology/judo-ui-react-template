@@ -137,6 +137,10 @@ public class UiTableHelper {
         return dataType instanceof EnumerationType;
     }
 
+    public static boolean isColumnEditable(Column column) {
+        return !column.getAttributeType().getIsMemberTypeDerived();
+    }
+
     public static boolean isColumnTimestamp(Column column) {
         DataType dataType = column.getAttributeType().getDataType();
 

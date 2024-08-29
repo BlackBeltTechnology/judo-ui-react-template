@@ -14,6 +14,9 @@ import {
   GridRowParams,
   GridToolbarContainer,
   GridEventListener,
+  GridRowModesModel,
+  GridRowModes,
+  GridRowEditStopReasons,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
@@ -21,11 +24,11 @@ import { useTranslation } from 'react-i18next';
 import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
 import { Filter, FilterOption } from '~/components-api';
 import {
-ContextMenu,
-ContextMenuApi,
-StripedDataGrid,
-columnsActionCalculator,
-RowHighlightLegend,
+  ContextMenu,
+  ContextMenuApi,
+  StripedDataGrid,
+  columnsActionCalculator,
+  RowHighlightLegend,
 } from '~/components/table';
 import { useConfirmDialog } from '~/components/dialog';
 import { basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
@@ -39,6 +42,7 @@ import {
   useErrorHandler,
   isRowSelectable,
   fileHandling,
+  simpleCloneDeep,
   ToolBarActionProps,
   calculateActionName,
   {{# if isUseInlineColumnFilters }}
@@ -99,6 +103,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   relationName: string;
   filtersSerializer: FiltersSerializer;
   navigable?: boolean;
+  editable?: boolean;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: LazyTableProps<T, TStored>) {
@@ -144,6 +149,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     checkboxSelection,
     filtersSerializer,
     navigable = true,
+    editable = false,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -203,6 +209,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const [lastItem, setLastItem] = useState<TStored>();
   const [firstItem, setFirstItem] = useState<TStored>();
   const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
+  const [rowEditingData, setRowEditingData] = useState<Record<string, TStored>>({});
 
   const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
@@ -217,8 +225,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
   const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [l10nLocale]);
 
-  const rowActions: TableRowAction<T, TStored>[] = useMemo(() => tableRowActions, [actions, isLoading]);
-
   const getSelectedRows: () => T[] = useCallback(() => {
     if (tableHasSelectorColumn) {
       if (containerIsSelector) {
@@ -231,10 +237,65 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     }
   }, [selectionDiff, selectedRows.current]);
 
+  const editActions = useMemo(() => [
+    {
+      id: `${uniqueId}-row-edit`,
+      icon: <MdiIcon path="pencil" />,
+      isCRUD: true,
+      forceKeep: true,
+      hidden: (row: any) => rowModesModel[row.__identifier]?.mode === GridRowModes.Edit,
+      disabled: () => false,
+      action: async (rowData: any) => {
+        setRowEditingData({
+          ...rowEditingData,
+          [rowData.__identifier]: simpleCloneDeep(rowData),
+        });
+        setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.Edit } });
+      },
+    },
+    {
+      id: `${uniqueId}-row-save`,
+      icon: <MdiIcon path="content-save" />,
+      isCRUD: true,
+      forceKeep: true,
+      hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
+      disabled: () => false,
+      action: async (rowData: any) => {
+
+      },
+    },
+    {
+      id: `${uniqueId}-row-cancel`,
+      icon: <MdiIcon path="close" />,
+      isCRUD: true,
+      forceKeep: true,
+      hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
+      disabled: () => false,
+      action: async (rowData: any) => {
+        setRowModesModel({
+          ...rowModesModel,
+          [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true }
+        });
+        const tmp = {
+          ...rowEditingData,
+        };
+        const original = tmp[rowData.__identifier];
+        delete rowEditingData[rowData.__identifier];
+        setData((prevData) => {
+          const ttt = [...prevData];
+          const idx = ttt.findIndex(d => d.__identifier === rowData.__identifier);
+          ttt[idx] = original;
+          // debugger;
+          return [...ttt];
+        });
+      },
+    },
+  ], [rowEditingData, tableRowActions, rowModesModel]);
+
   const effectiveTableColumns = useMemo(() => {
     const cols = [
       ...columns,
-      ...columnsActionCalculator(dataElementId, rowActions, t, isLoading, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
+      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
     ];
     {{# if isMUILicensePlanPro }}
     if (columnState.length) {
@@ -252,7 +313,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     }
     {{/ if }}
     return cols;
-  }, [columns, rowActions, getSelectedRows, ownerData, isLoading{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
+  }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {
@@ -539,6 +600,27 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     {{/ if }}
   }
 
+  const processRowUpdate = (newRow: GridRowModel) => {
+    console.warn(newRow);
+    //const updatedRow = { ...newRow, isNew: false };
+    //setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
+    //return updatedRow;
+  };
+
+  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
+    // setRowModesModel(newRowModesModel);
+  };
+
+  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
+    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
+      event.defaultMuiPrevented = true;
+    }
+  };
+
+  const handleProcessRowUpdateError = useCallback((error: Error) => {
+    console.error(error);
+  }, []);
+
   return (
     <>
       <ComponentProxy
@@ -568,6 +650,12 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
             ...transformRowStylings(rowStylings),
           {{/ if }}
         } }
+        editMode="row"
+        rowModesModel={rowModesModel}
+        onRowModesModelChange={handleRowModesModelChange}
+        onRowEditStop={handleRowEditStop}
+        processRowUpdate={processRowUpdate}
+        onProcessRowUpdateError={handleProcessRowUpdateError}
         slotProps={ {
           {{# if (stringValueIsTrue useTableContextMenus) }}
             cell: {

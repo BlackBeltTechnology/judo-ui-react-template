@@ -7,6 +7,7 @@ export interface TableRowAction<R, RStored> {
   label?: string;
   action?: (row: RStored) => Promise<void>;
   icon?: ReactNode;
+  hidden: (row: RStored) => boolean;
   disabled: (
     row: RStored,
     isLoading: boolean,
@@ -15,6 +16,7 @@ export interface TableRowAction<R, RStored> {
   ) => boolean,
   disabledExpression?: string;
   isCRUD?: boolean;
+  forceKeep?: boolean;
 }
 
 export interface ColumnsActionsOptions {

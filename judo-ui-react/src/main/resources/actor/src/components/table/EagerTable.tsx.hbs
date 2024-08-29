@@ -13,6 +13,9 @@ import {
   useGridApiRef,
   GridToolbarContainer,
   GridEventListener,
+  GridRowModesModel,
+  GridRowModes,
+  GridRowEditStopReasons,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType } from 'react';
@@ -88,6 +91,10 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   relationName: string;
   filtersSerializer: FiltersSerializer;
   navigable?: boolean;
+  rowModesModel?: GridRowModesModel;
+  handleRowModesModelChange?: (newRowModesModel: GridRowModesModel) => void;
+  handleRowEditStop?: GridEventListener<'rowEditStop'>;
+  processRowUpdate?: (newRow: GridRowModel) => void;
 }
 
 export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: EagerTableProps<T, TStored>) {
@@ -125,6 +132,10 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     checkboxSelection,
     filtersSerializer,
     navigable = true,
+    rowModesModel = {},
+    handleRowModesModelChange,
+    handleRowEditStop,
+    processRowUpdate,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -190,8 +201,6 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
 
   const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [l10nLocale]);
 
-  const rowActions: TableRowAction<T, TStored>[] = useMemo(() => tableRowActions, [actions, isLoading]);
-
   const getSelectedRows: () => T[] = useCallback(() => {
     if (tableHasSelectorColumn) {
       return selectedRows.current;
@@ -203,7 +212,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const effectiveTableColumns = useMemo(() => {
     const cols = [
       ...columns,
-      ...columnsActionCalculator(dataElementId, rowActions, t, isLoading, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
+      ...columnsActionCalculator(dataElementId, tableRowActions, t, isLoading, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
     ];
     {{# if isMUILicensePlanPro }}
       if (columnState.length) {
@@ -222,7 +231,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       }
     {{/ if }}
     return cols;
-  }, [columns, rowActions, getSelectedRows, ownerData, isLoading{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
+  }, [columns, tableRowActions, getSelectedRows, ownerData, isLoading{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {

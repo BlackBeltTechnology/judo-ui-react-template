@@ -1,6 +1,9 @@
 import type { ElementType, Dispatch, SetStateAction } from 'react';
 import type {
   GridFilterModel,
+  GridEventListener,
+  GridRowModesModel,
+  GridRowModel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 {{# each (getTableAPIImports table container) as |imp| }}
   import type {
@@ -79,4 +82,8 @@ export interface {{ componentName table }}Props {
   editMode: boolean;
   isFormUpdateable: () => boolean;
   {{/ unless }}
+  rowModesModel?: GridRowModesModel;
+  handleRowModesModelChange?: (newRowModesModel: GridRowModesModel) => void;
+  handleRowEditStop?: GridEventListener<'rowEditStop'>;
+  processRowUpdate?: (newRow: GridRowModel) => void;
 }

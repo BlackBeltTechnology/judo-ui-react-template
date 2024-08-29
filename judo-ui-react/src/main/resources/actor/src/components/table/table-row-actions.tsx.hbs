@@ -11,6 +11,15 @@ import { MdiIcon } from '../MdiIcon';
 
 export const calculateMinWidth = (entry: TableRowAction<any, any>[]) => entry.length ? ((entry.map(a => (a.label ?? '').length).reduce((p, c) => p + c, 0) * characterMultiplier) + iconAndDropdownIconExtra) : onlyDropdownWidth;
 
+const findLastIndex = <T,>(array: T[], predicate: (e: T) => boolean): number => {
+  for (let i = array.length - 1; i >= 0; i--) {
+    if (predicate(array[i])) {
+      return i;
+    }
+  }
+  return -1;
+};
+
 export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   id: string,
   actions: TableRowAction<any, any>[],
@@ -26,7 +35,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   };
   const originalCrudActions = actions.filter((a) => !!a.action && a.isCRUD);
   const originalOperationActions = actions.filter((a) => !!a.action && !a.isCRUD);
-  const keptCrudActions = originalCrudActions.splice(0, safeOptions.crudOperationsDisplayed);
+  const keptCrudActions = originalCrudActions.splice(0, (findLastIndex<TableRowAction<any, any>>(actions, a => !!a.forceKeep) + 1) + (safeOptions.crudOperationsDisplayed || 0));
   const keptOperationActions = originalOperationActions.splice(0, safeOptions.transferOperationsDisplayed);
   const splitActions = [...keptCrudActions, ...keptOperationActions];
   const dropdownActions = [...originalCrudActions, ...originalOperationActions];
@@ -46,7 +55,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
       type: 'actions',
       getActions: (params: GridRowParams) => [
         <ButtonGroup>
-          {splitActions.map((a) => (
+          {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Button
               id={a.id}
               key={a.id}
@@ -62,7 +71,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
             id={id}
             variant="text"
             showDropdownIcon={false}
-            menuItems={dropdownActions.map((action) => ({
+            menuItems={dropdownActions.filter(a => !a.hidden(params.row)).map((action) => ({
               id: action.id,
               label: action.label,
               startIcon: action.icon,
