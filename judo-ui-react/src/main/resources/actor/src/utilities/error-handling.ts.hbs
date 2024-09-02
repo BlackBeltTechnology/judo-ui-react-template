@@ -159,7 +159,7 @@ function validateRelationErrors<T>(errorList: ServerError<T>[], dataPath: string
   });
 }
 
-function validateWithNestedErrors<T>(errorList: ServerError<T>[], validation: Map<keyof T, string>, t: any): void {
+export function validateWithNestedErrors<T>(errorList: ServerError<T>[], validation: Map<keyof T, string>, t: any): void {
   const errorRelations: Record<string, Array<string>> = {};
 
   errorList.forEach((error) => {

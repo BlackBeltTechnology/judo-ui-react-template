@@ -238,6 +238,17 @@ export default function {{ pageName page }}() {
         return sp;
       }
     {{/ if }}
+    {{# each page.container.tables as |table| }}
+      {{# if table.isInlineEditable }}
+        const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
+          setIsLoading(true);
+          alert(JSON.stringify(rowData, null, 2));
+          setTimeout(() => {
+            setIsLoading(false);
+          }, 500);
+        };
+      {{/ if }}
+    {{/ each }}
 
     const actions: {{ containerComponentName page.container }}PageActions = {
       getPageTitle,
@@ -255,6 +266,11 @@ export default function {{ pageName page }}() {
           get{{ firstToUpper table.relationName }}Mask,
         {{/ each }}
       {{/ unless }}
+      {{# each page.container.tables as |table| }}
+        {{# if table.isInlineEditable }}
+          apply{{ firstToUpper table.relationName }}RowEdit,
+        {{/ if }}
+      {{/ each }}
       ...(customActions ?? {}),
     };
 

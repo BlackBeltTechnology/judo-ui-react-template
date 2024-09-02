@@ -104,6 +104,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   filtersSerializer: FiltersSerializer;
   navigable?: boolean;
   editable?: boolean;
+  applyRowEdit?: (rowData: TStored) => Promise<any>;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: LazyTableProps<T, TStored>) {
@@ -150,6 +151,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     filtersSerializer,
     navigable = true,
     editable = false,
+    applyRowEdit,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -210,7 +212,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const [firstItem, setFirstItem] = useState<TStored>();
   const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
-  const [rowEditingData, setRowEditingData] = useState<Record<string, TStored>>({});
 
   const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
@@ -242,14 +243,10 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       id: `${uniqueId}-row-edit`,
       icon: <MdiIcon path="pencil" />,
       isCRUD: true,
-      forceKeep: true,
+      isEditAction: true,
       hidden: (row: any) => rowModesModel[row.__identifier]?.mode === GridRowModes.Edit,
       disabled: () => false,
-      action: async (rowData: any) => {
-        setRowEditingData({
-          ...rowEditingData,
-          [rowData.__identifier]: simpleCloneDeep(rowData),
-        });
+      action: async (rowData: TStored) => {
         setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.Edit } });
       },
     },
@@ -257,45 +254,35 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       id: `${uniqueId}-row-save`,
       icon: <MdiIcon path="content-save" />,
       isCRUD: true,
-      forceKeep: true,
+      isEditAction: true,
       hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
       disabled: () => false,
-      action: async (rowData: any) => {
-
+      action: async (rowData: TStored) => {
+        setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View } });
+        /*try {
+          const validationResult = await applyRowEdit!(rowData);
+        } catch(e) {
+          console.error(e);
+        }*/
       },
     },
     {
       id: `${uniqueId}-row-cancel`,
       icon: <MdiIcon path="close" />,
       isCRUD: true,
-      forceKeep: true,
+      isEditAction: true,
       hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
       disabled: () => false,
-      action: async (rowData: any) => {
-        setRowModesModel({
-          ...rowModesModel,
-          [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true }
-        });
-        const tmp = {
-          ...rowEditingData,
-        };
-        const original = tmp[rowData.__identifier];
-        delete rowEditingData[rowData.__identifier];
-        setData((prevData) => {
-          const ttt = [...prevData];
-          const idx = ttt.findIndex(d => d.__identifier === rowData.__identifier);
-          ttt[idx] = original;
-          // debugger;
-          return [...ttt];
-        });
+      action: async (rowData: TStored) => {
+        setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
       },
     },
-  ], [rowEditingData, tableRowActions, rowModesModel]);
+  ], [tableRowActions, rowModesModel, applyRowEdit]);
 
   const effectiveTableColumns = useMemo(() => {
     const cols = [
       ...columns,
-      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
+      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed, transferOperationsDisplayed })
     ];
     {{# if isMUILicensePlanPro }}
     if (columnState.length) {
@@ -313,7 +300,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     }
     {{/ if }}
     return cols;
-  }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
+  }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {
@@ -600,25 +587,14 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     {{/ if }}
   }
 
-  const processRowUpdate = (newRow: GridRowModel) => {
-    console.warn(newRow);
-    //const updatedRow = { ...newRow, isNew: false };
-    //setRows(rows.map((row) => (row.id === newRow.id ? updatedRow : row)));
-    //return updatedRow;
-  };
-
-  const handleRowModesModelChange = (newRowModesModel: GridRowModesModel) => {
-    // setRowModesModel(newRowModesModel);
-  };
-
-  const handleRowEditStop: GridEventListener<'rowEditStop'> = (params, event) => {
-    if (params.reason === GridRowEditStopReasons.rowFocusOut) {
-      event.defaultMuiPrevented = true;
-    }
-  };
+  const processRowUpdate = useCallback(async (newRow: GridRowModel) => {
+    await applyRowEdit!(newRow as TStored);
+    throw new Error('lmao');
+  }, [applyRowEdit]);
 
   const handleProcessRowUpdateError = useCallback((error: Error) => {
     console.error(error);
+    setRowModesModel({ ...rowModesModel, [error.message]: { mode: GridRowModes.Edit } });
   }, []);
 
   return (
@@ -651,10 +627,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           {{/ if }}
         } }
         editMode="row"
-        rowModesModel={rowModesModel}
-        onRowModesModelChange={handleRowModesModelChange}
-        onRowEditStop={handleRowEditStop}
         processRowUpdate={processRowUpdate}
+        rowModesModel={rowModesModel}
         onProcessRowUpdateError={handleProcessRowUpdateError}
         slotProps={ {
           {{# if (stringValueIsTrue useTableContextMenus) }}

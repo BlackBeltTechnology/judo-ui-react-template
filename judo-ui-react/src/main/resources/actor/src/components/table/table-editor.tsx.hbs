@@ -1,0 +1,25 @@
+import { styled } from '@mui/material/styles';
+import Tooltip, { tooltipClasses, type TooltipProps } from '@mui/material/Tooltip';
+import {
+  GridEditInputCell,
+  type GridRenderEditCellParams,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+
+const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={ { popper: className } } />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.error.contrastText,
+  },
+}));
+
+export function NameEditInputCell(props: GridRenderEditCellParams & { error?: string }) {
+  const { error } = props;
+
+  return (
+    <StyledTooltip open={!!error} title={error}>
+      <GridEditInputCell {...props} />
+    </StyledTooltip>
+  );
+}

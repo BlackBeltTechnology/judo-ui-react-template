@@ -2,6 +2,16 @@ width: {{ columnWidth column }},
 type: '{{ columnType column }}',
 {{# if (isColumnEditable column) }}
 editable: true,
+renderEditCell: (props: GridRenderEditCellParams) => {
+  let error: string | undefined;
+  if (rowValidation.has(props.row.__identifier)) {
+    const errors = rowValidation.get(props.row.__identifier);
+    error = errors?.get('{{ column.attributeType.name }}');
+  }
+  return (
+    <NameEditInputCell { ...props } error={error} />
+  );
+},
 {{/ if }}
 filterable: {{ isUseInlineColumnFilters }} && {{# if (isColumnFilterable column) }}true{{ else }}false{{/ if }},
 {{# unless (isColumnSortable column) }}

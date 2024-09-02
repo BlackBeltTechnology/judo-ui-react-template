@@ -11,12 +11,13 @@ export interface TableRowAction<R, RStored> {
   disabled: (
     row: RStored,
     isLoading: boolean,
+    isRowInEditMode: boolean,
     getSelectedRows: () => R[],
     ownerData?: any,
   ) => boolean,
   disabledExpression?: string;
   isCRUD?: boolean;
-  forceKeep?: boolean;
+  isEditAction?: boolean;
 }
 
 export interface ColumnsActionsOptions {

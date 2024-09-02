@@ -249,6 +249,13 @@ export default function GodGodGalaxiesAccessTablePage() {
       await refresh();
     }
   };
+  const applyRowEdit = async (rowData: ViewGalaxyStored): Promise<any> => {
+    setIsLoading(true);
+    alert(JSON.stringify(rowData, null, 2));
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+  };
 
   const actions: ViewGalaxyTablePageActions = {
     getPageTitle,
@@ -263,6 +270,7 @@ export default function GodGodGalaxiesAccessTablePage() {
     createIntergalacticDustAction,
     createInterstellarMediumAction,
     getMask,
+    applyRowEdit,
     ...(customActions ?? {}),
   };
 

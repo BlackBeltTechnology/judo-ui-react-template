@@ -26,6 +26,7 @@ import type {
   GridRowClassNameParams,
   GridRowParams,
   GridValidRowModel,
+  GridRenderEditCellParams,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { baseColumnConfig, baseTableConfig, basePageSizeOptions{{# unless table.isEager }}, filterDebounceMs{{/ unless }} } from '~/config';
 import { MdiIcon{{# unless table.isEager }}, CustomTablePagination{{/ unless }} } from '~/components';
@@ -84,13 +85,15 @@ import {
   {{# unless table.isEager }}
   useErrorHandler,
   {{/ unless }}
+  type ServerError,
+  validateWithNestedErrors,
 } from '~/utilities';
 import type { SidekickComponentProps, DialogResult, TableRowAction, ToolBarActionProps, ColumnCustomizerHook, FiltersSerializer{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackComponent, ComponentProxy } from '@pandino/react-hooks';
 {{# if (stringValueIsTrue useTableRowHighlighting) }}
 import { useTrackService } from '@pandino/react-hooks';
-import { RowHighlightLegend } from '~/components/table';
+import { RowHighlightLegend, NameEditInputCell } from '~/components/table';
 import { TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY, transformRowStylings } from '~/theme/table-row-highlighting';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 {{/ if }}
@@ -141,6 +144,33 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{# if (tableHasBinaryColumn table) }}
   const { downloadFile, extractFileNameFromToken } = fileHandling();
   {{/ if }}
+  const [rowValidation, setRowValidation] = useState<Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>>(new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>());
+
+  const applyRowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {
+    try {
+      await actions.apply{{ firstToUpper table.relationName }}RowEdit!(rowData);
+    } catch(e: any) {
+      if (e?.response?.status === 400) {
+        // setRowValidation(rowData.__identifier, e.response.data);
+        const errorMap: Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string> = new Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>();
+        const errorList = e.response.data as ServerError<{{ classDataName (getReferenceClassType table) 'Stored' }}>[];
+        if (errorList && errorList.length && errorList[0].location) {
+          validateWithNestedErrors(errorList, errorMap, t);
+        }
+        setRowValidation((prevValidation) => {
+          const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(prevValidation);
+          copy.set(rowData.__identifier!, errorMap);
+          return copy;
+        });
+      } else {
+        setRowValidation((prevValidation) => {
+          const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(prevValidation);
+          copy.delete(rowData.__identifier!);
+          return copy;
+        });
+      }
+    }
+  }, [actions]);
 
   {{# each (customizableColumns table) as |column| }}
   const { service: {{ column.name }}ColumnCustomizerHook } = useTrackService<ColumnCustomizerHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}})(column={{ column.name }})`);
@@ -207,7 +237,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       isCRUD: true,
       {{/ if }}
       hidden: (row: any) => false,
-      disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}, isLoading: boolean, getSelectedRows: () => {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, ownerdata?: any): boolean => {{{ tableRowButtonDisabledConditions button table container }}},
+      disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}, isLoading: boolean, isRowInEditMode: boolean, getSelectedRows: () => {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, ownerdata?: any): boolean => {{{ tableRowButtonDisabledConditions button table container }}},
       action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
         {{# unless (isParameterOpenerButton button) }}
           {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='rowData' }}
@@ -367,6 +397,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         enabledByName='{{ table.enabledBy.name }}'
         relationName='{{ table.relationName }}'
         filtersSerializer={filtersSerializer}
+        applyRowEdit={applyRowEdit}
         {{# if container.isSelector }}
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}

@@ -396,9 +396,9 @@ public class UiWidgetHelper {
     public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
         if (table.getIsRelationType() && table.getRelationType().isIsInlineCreatable() && (button.getActionDefinition().getIsRemoveAction()) || button.getActionDefinition().getIsBulkRemoveAction()) {
             if (button.getActionDefinition().getIsRemoveAction()) {
-                return "isLoading";
+                return "isLoading || isRowInEditMode";
             } else if (button.getActionDefinition().getIsBulkRemoveAction()) {
-                return "getSelectedRows && getSelectedRows().length > 0 || isLoading";
+                return "(getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode";
             }
         }
         String result = "getSelectedRows && getSelectedRows().length > 0 ||";
@@ -436,7 +436,7 @@ public class UiWidgetHelper {
             result += "!row." + button.getEnabledBy().getName() + " || ";
         }
 
-        return result + "isLoading";
+        return result + "isLoading || isRowInEditMode";
     }
 
     public static String checkboxLabelPlacement(Checkbox checkbox) {
