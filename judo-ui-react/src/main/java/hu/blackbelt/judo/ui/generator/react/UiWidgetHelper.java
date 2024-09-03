@@ -502,4 +502,18 @@ public class UiWidgetHelper {
         ActionDefinition actionDefinition = button.getActionDefinition();
         return actionDefinition.getIsOpenOperationInputFormAction() || actionDefinition.getIsOpenOperationInputSelectorAction();
     }
+
+    public static String getCellEditType(Column column) {
+        DataType dataType = column.getAttributeType().getDataType();
+
+        if (dataType instanceof DateType || dataType instanceof TimestampType) {
+            return "date";
+        } else if (dataType instanceof EnumerationType) {
+            return "text";
+        } else if (dataType instanceof BooleanType) {
+            return "boolean";
+        }
+
+        return "text";
+    }
 }

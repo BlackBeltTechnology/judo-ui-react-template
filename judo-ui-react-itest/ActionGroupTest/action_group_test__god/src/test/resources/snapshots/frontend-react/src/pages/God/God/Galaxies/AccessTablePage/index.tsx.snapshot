@@ -250,11 +250,15 @@ export default function GodGodGalaxiesAccessTablePage() {
     }
   };
   const applyRowEdit = async (rowData: ViewGalaxyStored): Promise<any> => {
-    setIsLoading(true);
-    alert(JSON.stringify(rowData, null, 2));
-    setTimeout(() => {
+    try {
+      setIsLoading(true);
+      await godServiceForGalaxiesImpl.update(rowData);
+      await refresh();
+    } catch (error) {
+      return Promise.reject(error);
+    } finally {
       setIsLoading(false);
-    }, 500);
+    }
   };
 
   const actions: ViewGalaxyTablePageActions = {

@@ -9,7 +9,7 @@ renderEditCell: (props: GridRenderEditCellParams) => {
     error = errors?.get('{{ column.attributeType.name }}');
   }
   return (
-    <NameEditInputCell { ...props } error={error} />
+    <CellEditInput { ...props } error={error} cellEditorType={'{{ getCellEditType column }}'} />
   );
 },
 {{/ if }}

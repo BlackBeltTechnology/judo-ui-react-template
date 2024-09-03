@@ -2,6 +2,8 @@ import { styled } from '@mui/material/styles';
 import Tooltip, { tooltipClasses, type TooltipProps } from '@mui/material/Tooltip';
 import {
   GridEditInputCell,
+  GridEditBooleanCell,
+  GridEditDateCell,
   type GridRenderEditCellParams,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 
@@ -14,12 +16,23 @@ const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-export function NameEditInputCell(props: GridRenderEditCellParams & { error?: string }) {
-  const { error } = props;
+export type CellEditorType = 'text' | 'boolean' | 'date';
+
+export function CellEditInput(props: GridRenderEditCellParams & { error?: string, cellEditorType: CellEditorType }) {
+  const { error, cellEditorType } = props;
+
+  let EditComponent: any = GridEditInputCell;
+
+  if (cellEditorType === 'date') {
+    EditComponent = GridEditDateCell;
+  } else if (cellEditorType === 'boolean') {
+    EditComponent = GridEditBooleanCell;
+  }
 
   return (
     <StyledTooltip open={!!error} title={error}>
-      <GridEditInputCell {...props} />
+      {}
+      <EditComponent {...props} />
     </StyledTooltip>
   );
 }
