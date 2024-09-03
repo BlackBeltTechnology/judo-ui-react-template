@@ -589,11 +589,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
   const processRowUpdate = useCallback(async (newRow: GridRowModel) => {
     await applyRowEdit!(newRow as TStored);
-    throw new Error('lmao');
+    // we need to reject with the identifier in order for MUI to be able to detect which row should be kept in edit mode
+    return Promise.reject(new Error(newRow.__identifier));
   }, [applyRowEdit]);
 
   const handleProcessRowUpdateError = useCallback((error: Error) => {
-    console.error(error);
     setRowModesModel({ ...rowModesModel, [error.message]: { mode: GridRowModes.Edit } });
   }, []);
 
