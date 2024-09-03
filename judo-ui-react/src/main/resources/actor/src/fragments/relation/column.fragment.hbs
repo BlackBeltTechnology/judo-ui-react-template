@@ -4,7 +4,7 @@ type: '{{ columnType column }}',
 editable: true,
 renderEditCell: (props: GridRenderEditCellParams) => {
   let error: string | undefined;
-  if (rowValidation.has(props.row.__identifier)) {
+  if (props.row && rowValidation.has(props.row.__identifier)) {
     const errors = rowValidation.get(props.row.__identifier);
     error = errors?.get('{{ column.attributeType.name }}');
   }

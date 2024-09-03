@@ -241,11 +241,15 @@ export default function {{ pageName page }}() {
     {{# each page.container.tables as |table| }}
       {{# if table.isInlineEditable }}
         const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
-          setIsLoading(true);
-          alert(JSON.stringify(rowData, null, 2));
-          setTimeout(() => {
+          try {
+            setIsLoading(true);
+            await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData);
+            await refresh();
+          } catch(error) {
+            return Promise.reject(error);
+          } finally {
             setIsLoading(false);
-          }, 500);
+          }
         };
       {{/ if }}
     {{/ each }}

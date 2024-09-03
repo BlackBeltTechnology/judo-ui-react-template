@@ -259,11 +259,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       disabled: () => false,
       action: async (rowData: TStored) => {
         setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View } });
-        /*try {
-          const validationResult = await applyRowEdit!(rowData);
-        } catch(e) {
-          console.error(e);
-        }*/
       },
     },
     {
@@ -588,12 +583,19 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   }
 
   const processRowUpdate = useCallback(async (newRow: GridRowModel) => {
-    await applyRowEdit!(newRow as TStored);
-    // we need to reject with the identifier in order for MUI to be able to detect which row should be kept in edit mode
-    return Promise.reject(new Error(newRow.__identifier));
+    try {
+      await applyRowEdit!(newRow as TStored);
+      // https://mui.com/x/react-data-grid/editing/#server-side-persistence
+      // "Please note that the processRowUpdate must return the row object to update the Data Grid internal state."
+      return newRow;
+    } catch(error) {
+      // we need to reject with the identifier in order for MUI to be able to detect which row should be kept in edit mode
+      return Promise.reject(new Error(newRow.__identifier));
+    }
   }, [applyRowEdit]);
 
   const handleProcessRowUpdateError = useCallback((error: Error) => {
+    // the message is expected to be the row identifier
     setRowModesModel({ ...rowModesModel, [error.message]: { mode: GridRowModes.Edit } });
   }, []);
 
