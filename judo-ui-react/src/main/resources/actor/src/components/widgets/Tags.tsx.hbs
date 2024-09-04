@@ -89,7 +89,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
         });
       }
       const queryCustomizer: QueryCustomizer<any> = {
-        _mask: `{${autoCompleteAttribute as string}${additionalMaskAttributes.length ? ',' + additionalMaskAttributes.join(',') : ''} }`,
+        _mask: `{${autoCompleteAttribute as string}${additionalMaskAttributes.length ? ',' + additionalMaskAttributes.join(',') : ''}}`,
         [autoCompleteAttribute]: filter,
         _orderBy: [
           {
