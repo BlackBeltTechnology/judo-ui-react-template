@@ -55,6 +55,13 @@ public class UiPageContainerHelper {
 
     public static List<Table> getTablesForPageContainers(Application application) {
         return application.getPageContainers().stream().flatMap(c -> ((List<Table>) c.getTables()).stream())
+                .filter(t -> TableRepresentation.TABLE.equals(t.getRepresentationComponent()))
+                .collect(Collectors.toList());
+    }
+
+    public static List<Table> getTagsForPageContainers(Application application) {
+        return application.getPageContainers().stream().flatMap(c -> ((List<Table>) c.getTables()).stream())
+                .filter(t -> TableRepresentation.TAG.equals(t.getRepresentationComponent()))
                 .collect(Collectors.toList());
     }
 

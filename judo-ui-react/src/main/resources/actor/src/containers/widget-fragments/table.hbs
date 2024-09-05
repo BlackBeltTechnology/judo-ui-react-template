@@ -30,6 +30,7 @@
         {{/ if }}
         <Grid item xs={12} sm={12}>
             <Grid id="{{ getXMIID child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
+                {{# unless (isTableTag child) }}
                 <{{ componentName child }}
                     uniqueId={'{{ getXMIID child }}'}
                     actions={actions}
@@ -52,6 +53,9 @@
                     refreshCounter={refreshCounter}
                     isOwnerLoading={isLoading}
                 />
+                {{ else }}
+                {'LMAO'}
+                {{/ unless }}
             </Grid>
         </Grid>
     </Grid>
