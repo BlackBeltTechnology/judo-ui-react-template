@@ -42,6 +42,7 @@ import { isErrorOperationFault, useErrorHandler } from '~/utilities';
 import { DateTimePicker } from '@mui/x-date-pickers';
 import type { DateTimeValidationError } from '@mui/x-date-pickers';
 import { AssociationButton, NumericInput } from '~/components/widgets';
+import { Tags } from '~/components/widgets';
 import { useConfirmationBeforeChange } from '~/hooks';
 import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
@@ -164,12 +165,13 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                         }
                                         actions={actions}
                                         dataPath={dataPath ? dataPath + '.stars' : 'stars'}
+                                        isOwnerLoading={isLoading}
+                                        isDraft={isDraft}
+                                        validationError={validation.get('stars')}
                                         ownerData={data}
                                         editMode={editMode}
                                         isFormUpdateable={isFormUpdateable}
-                                        validationError={validation.get('stars')}
-                                        refreshCounter={refreshCounter}
-                                        isOwnerLoading={isLoading}
+                                        storeDiff={storeDiff}
                                       />
                                     </Grid>
                                   </Grid>

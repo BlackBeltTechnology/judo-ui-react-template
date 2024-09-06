@@ -1,0 +1,168 @@
+{{> fragment.header.hbs }}
+
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import type { ElementType, MouseEvent, Dispatch, SetStateAction, FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Typography from '@mui/material/Typography';
+import { GridLogicOperator, useGridApiRef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+{{# if isMUILicensePlanPro }}
+import { gridColumnDefinitionsSelector } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+{{/ if }}
+import type {
+  GridColDef,
+  GridFilterModel,
+  GridRowModel,
+  GridRowId,
+  GridRenderCellParams,
+  GridRowSelectionModel,
+  GridSortItem,
+  GridSortModel,
+  GridRowClassNameParams,
+  GridRowParams,
+  GridValidRowModel,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { baseColumnConfig, baseTableConfig, basePageSizeOptions{{# unless table.isEager }}, filterDebounceMs{{/ unless }} } from '~/config';
+import { MdiIcon{{# unless table.isEager }}, CustomTablePagination{{/ unless }} } from '~/components';
+import {
+  {{# if (tableHasBooleanColumn table) }}booleanColumnOperators,{{/ if }}
+  {{# if (tableHasDateColumn table) }}dateColumnOperators,{{/ if }}
+  {{# if (tableHasDateTimeColumn table) }}dateTimeColumnOperators,{{/ if }}
+  {{# if (tableHasNumericColumn table) }}numericColumnOperators,{{/ if }}
+  {{# if (tableHasEnumerationColumn table) }}singleSelectColumnOperators,{{/ if }}
+  {{# if isUseInlineColumnFilters }}stringColumnOperators,{{/ if }}
+  columnsActionCalculator,
+  ContextMenu,
+  StripedDataGrid,
+  EagerTable,
+  LazyTable,
+} from '~/components/table';
+import { Tags } from '~/components/widgets';
+import { useConfirmDialog } from '~/components/dialog';
+import type { ContextMenuApi } from '~/components/table/ContextMenu';
+import type { Filter, FilterOption } from '~/components-api';
+import { FilterType } from '~/components-api';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+{{# each (getTableAPIImports table container) as |imp| }}
+  import type {
+    {{ imp }},
+    {{ imp }}Stored,
+  } from '~/services/data-api/model/{{ imp }}';
+  import type {
+    {{ imp }}QueryCustomizer,
+  } from '~/services/data-api/rest/{{ imp }}QueryCustomizer';
+{{/ each }}
+{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
+import { useL10N } from '~/l10n/l10n-context';
+{{/ or }}
+import {
+  TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
+  randomUtils,
+  createActionName,
+  actionsHasCapability,
+  {{# if container.isSelector }}
+  isRowSelectable,
+  {{ else }}
+  getUpdatedRowsSelected,
+  {{/ if }}
+  {{# if table.isEager }}
+  applyInMemoryFilters,
+  {{/ if }}
+  {{# if (tableHasBinaryColumn table) }}
+  fileHandling,
+  {{/ if }}
+  {{# if isUseInlineColumnFilters }}
+  mapFilterModelToFilters,
+  mapFilterToFilterModel,
+  {{/ if }}
+  mapAllFiltersToQueryCustomizerProperties,
+  processQueryCustomizer,
+  serializeFilters,
+  deserializeFilters,
+  {{# unless table.isEager }}
+  useErrorHandler,
+  {{/ unless }}
+} from '~/utilities';
+import type { SidekickComponentProps, DialogResult, TableRowAction, ToolBarActionProps, ColumnCustomizerHook, FiltersSerializer{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackComponent, ComponentProxy } from '@pandino/react-hooks';
+{{# if (stringValueIsTrue useTableRowHighlighting) }}
+import { useTrackService } from '@pandino/react-hooks';
+import { RowHighlightLegend } from '~/components/table';
+import { TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY, transformRowStylings } from '~/theme/table-row-highlighting';
+import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+{{/ if }}
+import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}Props } from './types';
+import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
+
+
+export const filtersSerializer: FiltersSerializer = {
+  serialize: (filters: Filter[]) => serializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
+  deserialize: (filters: Filter[]) => deserializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
+};
+
+// XMIID: {{ getXMIID table }}
+// Name: {{ table.name }}
+export function {{ componentName table }}(props: {{ componentName table }}Props) {
+  const {
+    uniqueId,
+    actions,
+    dataPath,
+    isOwnerLoading,
+    isDraft,
+    validationError,
+    ownerData,
+    editMode,
+    isFormUpdateable,
+    storeDiff,
+  } = props;
+
+  const { t } = useTranslation();
+
+  const hasRangeCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'AutocompleteRangeAction');
+  }, [actions]);
+  const hasAutocompleteAddCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'AutocompleteAddAction');
+  }, [actions]);
+  const hasOpenAddCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'OpenAddSelectorAction');
+  }, [actions]);
+  const hasCreateCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'OpenCreateFormAction');
+  }, [actions]);
+
+  return (
+    <div id="{{ getXMIID table }}" data-table-name="{{ table.name }}">
+      <Tags<{{ classDataName container.dataElement '' }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>
+        id="{{ getXMIID table }}"
+        label={ {{# if (elementHasLabel table) }}t('{{ getTranslationKeyForVisualElement table }}', { defaultValue: '{{ table.label }}' }){{ else }}'{{ table.relationName }}'{{/ if }} }
+        helperText={validationError}
+        error={!!validationError}
+        editMode={editMode}
+        ownerData={ownerData}
+        name="{{ table.relationName }}"
+        disabled={ {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} || {{/ if }}isOwnerLoading || !isFormUpdateable()}
+        readOnly={ {{ boolValue table.relationType.isReadOnly }} || !isFormUpdateable() }
+        {{# with (getFirstAutocompleteColumnForTable table) as |column| }}
+        autoCompleteAttribute="{{ column.attributeType.name }}"
+        {{/ with }}
+        onAutoCompleteSearch={ hasRangeCapability ? async (searchText, preparedQueryCustomizer) => {
+          const values = await (actions as any)[createActionName('{{ table.relationName }}', 'AutocompleteRangeAction')](preparedQueryCustomizer);
+          return values;
+        } : undefined }
+        onSearchDialogsClick={hasOpenAddCapability ? () => (actions as any)[createActionName('{{ table.relationName }}', 'OpenAddSelectorAction')]() : undefined}
+        onValueChange={async (values) => storeDiff('{{ table.relationName }}', values)}
+        onItemClick={actions.{{ table.relationName }}OpenPageAction ? (target) => actions.{{ table.relationName }}OpenPageAction!(target) : undefined}
+        onCreateDialogsClick={hasCreateCapability ? () => (actions as any)[createActionName('{{ table.relationName }}', 'OpenCreateFormAction')]() : undefined}
+        onClearDialogsClick={() => storeDiff('{{ table.relationName }}', [])}
+        identifierAttribute="__identifier"
+      />
+    </div>
+  );
+}
