@@ -61,7 +61,7 @@ public class UiPageContainerHelper {
 
     public static List<Table> getTagsForPageContainers(Application application) {
         return application.getPageContainers().stream().flatMap(c -> ((List<Table>) c.getTables()).stream())
-                .filter(t -> TableRepresentation.TAG.equals(t.getRepresentationComponent()))
+                .filter(UiWidgetHelper::isTableTag)
                 .collect(Collectors.toList());
     }
 

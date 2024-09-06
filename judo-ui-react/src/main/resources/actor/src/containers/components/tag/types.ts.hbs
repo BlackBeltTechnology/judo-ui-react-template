@@ -18,6 +18,12 @@ import type { DialogResult } from '~/utilities';
 export interface {{ componentName table }}ActionDefinitions {
   get{{ firstToUpper table.relationName }}Mask?: () => string;
   get{{ firstToUpper table.relationName }}RowRepresentation?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => string;
+  {{# if table.autocompleteRangeActionDefinition }}
+    {{ simpleActionDefinitionName table.autocompleteRangeActionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>;
+  {{/ if }}
+  {{# if table.autocompleteAddActionDefinition }}
+    {{ simpleActionDefinitionName table.autocompleteAddActionDefinition }}?: (values: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<void>;
+  {{/ if }}
 {{# each table.tableActionDefinitions as |actionDefinition| }}
   {{# if actionDefinition.isFilterAction }}
     {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
@@ -69,4 +75,5 @@ export interface {{ componentName table }}Props {
   ownerData: {{ classDataName container.dataElement 'Stored' }};
   editMode: boolean;
   isFormUpdateable: () => boolean;
+  storeDiff: (attributeName: keyof {{ classDataName container.dataElement '' }}, value: any) => void,
 }

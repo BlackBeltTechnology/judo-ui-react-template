@@ -6,7 +6,7 @@ import { isEqual, compareAsc } from 'date-fns';
 import type { Filter, FilterOption, Operation } from '../components-api';
 import { FilterType } from '../components-api';
 import type { Serializer } from '~/services/data-api/common/Serializer';
-import { simpleCloneDeep } from './helper';
+import { simpleCloneDeep, ucFirst } from './helper';
 
 type FilterBy = {
   value: any;
@@ -100,11 +100,6 @@ export const getOperatorsByFilter = (filter: Filter): string[] => {
 export const isFilterWithoutValue = (filter: Filter) => {
   return ['isNotEmpty', 'isEmpty'].includes(getOperationEnumValue(filter, filter.filterBy.operator));
 };
-
-export const ucFirst = (str: string): string => {
-    if (!str) return str;
-    return str.charAt(0).toUpperCase() + str.slice(1);
-}
 
 export const mapFiltersToQueryCustomizerProperty = (filters: Filter[], property: string): FilterBy[] | undefined => {
   if (!filters.some((filter) => filter.filterOption.attributeName === property)) return undefined;

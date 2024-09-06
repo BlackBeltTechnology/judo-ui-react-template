@@ -63,6 +63,8 @@ import { useL10N } from '~/l10n/l10n-context';
 import {
   TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   randomUtils,
+  createActionName,
+  actionsHasCapability,
   {{# if container.isSelector }}
   isRowSelectable,
   {{ else }}
@@ -117,30 +119,48 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     ownerData,
     editMode,
     isFormUpdateable,
+    storeDiff,
   } = props;
+
+  const { t } = useTranslation();
+
+  const hasRangeCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'AutocompleteRangeAction');
+  }, [actions]);
+  const hasAutocompleteAddCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'AutocompleteAddAction');
+  }, [actions]);
+  const hasOpenAddCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'OpenAddSelectorAction');
+  }, [actions]);
+  const hasCreateCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'OpenCreateFormAction');
+  }, [actions]);
 
   return (
     <div id="{{ getXMIID table }}" data-table-name="{{ table.name }}">
       <Tags<{{ classDataName container.dataElement '' }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>
         id="{{ getXMIID table }}"
-        label={'KUKAC'}
+        label={ {{# if (elementHasLabel table) }}t('{{ getTranslationKeyForVisualElement table }}', { defaultValue: '{{ table.label }}' }){{ else }}'{{ table.relationName }}'{{/ if }} }
         helperText={validationError}
         error={!!validationError}
         editMode={editMode}
         ownerData={ownerData}
         name="{{ table.relationName }}"
-        disabled={!isFormUpdateable()}
-        autoCompleteAttribute="{{ table.columns.[0].attributeType.name }}"
-        onAutoCompleteSearch={ async (searchText, preparedQueryCustomizer) => {
-            alert('lol');
-            return Promise.resolve([]);
-        } }
-        onValueChange={ async (values) => {
-          console.log(values);
-        } }
-        onItemClick={(target) => alert('A')}
-        onSearchDialogsClick={() => alert('B')}
-        onClearDialogsClick={() => alert('C')}
+        disabled={ {{# if table.enabledBy }}!ownerData.{{ table.enabledBy.name }} || {{/ if }}isOwnerLoading || !isFormUpdateable()}
+        readOnly={ {{ boolValue table.relationType.isReadOnly }} || !isFormUpdateable() }
+        {{# with (getFirstAutocompleteColumnForTable table) as |column| }}
+        autoCompleteAttribute="{{ column.attributeType.name }}"
+        {{/ with }}
+        onAutoCompleteSearch={ hasRangeCapability ? async (searchText, preparedQueryCustomizer) => {
+          const values = await (actions as any)[createActionName('{{ table.relationName }}', 'AutocompleteRangeAction')](preparedQueryCustomizer);
+          return values;
+        } : undefined }
+        onSearchDialogsClick={hasOpenAddCapability ? () => (actions as any)[createActionName('{{ table.relationName }}', 'OpenAddSelectorAction')]() : undefined}
+        onValueChange={async (values) => storeDiff('{{ table.relationName }}', values)}
+        onItemClick={actions.{{ table.relationName }}OpenPageAction ? (target) => actions.{{ table.relationName }}OpenPageAction!(target) : undefined}
+        onCreateDialogsClick={hasCreateCapability ? () => (actions as any)[createActionName('{{ table.relationName }}', 'OpenCreateFormAction')]() : undefined}
+        onClearDialogsClick={() => storeDiff('{{ table.relationName }}', [])}
         identifierAttribute="__identifier"
       />
     </div>

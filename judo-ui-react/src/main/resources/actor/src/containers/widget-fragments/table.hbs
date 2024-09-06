@@ -54,7 +54,18 @@
                     isOwnerLoading={isLoading}
                 />
                 {{ else }}
-                {'LMAO'}
+                <{{ componentName child }}
+                    uniqueId={'{{ getXMIID child }}'}
+                    actions={actions}
+                    dataPath={dataPath ? (dataPath + '.{{ child.dataElement.name }}') : '{{ child.dataElement.name }}'}
+                    isOwnerLoading={isLoading}
+                    isDraft={isDraft}
+                    validationError={validation.get('{{ child.dataElement.name }}')}
+                    ownerData={data}
+                    editMode={editMode}
+                    isFormUpdateable={isFormUpdateable}
+                    storeDiff={storeDiff}
+                />
                 {{/ unless }}
             </Grid>
         </Grid>
