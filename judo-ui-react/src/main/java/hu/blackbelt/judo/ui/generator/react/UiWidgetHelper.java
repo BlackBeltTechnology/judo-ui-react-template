@@ -202,8 +202,23 @@ public class UiWidgetHelper {
                 .collect(Collectors.joining()) + "Component";
     }
 
+    public static String tagComponentName(Table table) {
+        return tableComponentName(table);
+    }
+
+    public static boolean isTableTag(Table table) {
+        return TableRepresentation.TAG.equals(table.getRepresentationComponent());
+    }
+
     public static Column getFirstAutocompleteColumnForLink(Link link) {
         Optional<Column> column = link.getParts().stream()
+                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .findFirst();
+        return column.orElse(null);
+    }
+
+    public static Column getFirstAutocompleteColumnForTable(Table table) {
+        Optional<Column> column = table.getColumns().stream()
                 .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
                 .findFirst();
         return column.orElse(null);
@@ -437,6 +452,10 @@ public class UiWidgetHelper {
         return defaultValue != null ? defaultValue : 10;
     }
 
+    public static Integer calculateTableAutocompleteRows(Table table) {
+        return 10;
+    }
+
     public static boolean flexParentIsNotTab(Flex flex) {
         return !(flex.eContainer() instanceof Tab);
     }
@@ -458,6 +477,13 @@ public class UiWidgetHelper {
             return link.getDefaultSortColumn();
         }
         return getFirstAutocompleteColumnForLink(link);
+    }
+
+    public static Column getSortColumnForTable(Table table) {
+        if (table.getDefaultSortColumn() != null) {
+            return table.getDefaultSortColumn();
+        }
+        return getFirstAutocompleteColumnForTable(table);
     }
 
     public static boolean isLinkAssociation(Link link) {

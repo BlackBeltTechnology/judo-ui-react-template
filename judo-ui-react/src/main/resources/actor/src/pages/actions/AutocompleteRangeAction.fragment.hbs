@@ -9,4 +9,13 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     return Promise.resolve([]);
   }
   {{/ with }}
+  {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+  try {
+    const { data: result } = await {{ getServiceImplForPage page }}.getRange{{# if (isActionOnOperationInput action) }}On{{ firstToUpper (getOperationNameForActionOnInput action) }}{{/ if }}For{{ firstToUpper table.relationName }}(data, queryCustomizer);
+    return result;
+  } catch (error: any) {
+    handleError(error);
+    return Promise.resolve([]);
+  }
+  {{/ with }}
 };
