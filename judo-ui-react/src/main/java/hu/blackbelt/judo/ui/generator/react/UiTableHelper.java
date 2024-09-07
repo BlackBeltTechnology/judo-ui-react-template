@@ -302,4 +302,8 @@ public class UiTableHelper {
     public static boolean checkboxSelectionEnabled(Table table) {
         return table.getCheckboxSelection() == null || table.getCheckboxSelection() != CheckboxSelection.DISABLED;
     }
+
+    public static boolean isTableTag(Table table) {
+        return TableRepresentation.TAG.equals(table.getRepresentationComponent());
+    }
 }

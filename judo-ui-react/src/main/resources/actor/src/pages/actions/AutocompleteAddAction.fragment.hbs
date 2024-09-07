@@ -1,0 +1,13 @@
+// AutocompleteAddAction: {{ getXMIID action }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (values: {{ classDataName action.actionDefinition.targetType 'Stored' }}[]) => {
+  {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+  try {
+    {{# if table.isEager }}
+      storeDiff('{{ table.relationName }}', values);
+    {{/ if }}
+  } catch (error) {
+    handleError(error);
+    return Promise.reject(error);
+  }
+  {{/ with }}
+};
