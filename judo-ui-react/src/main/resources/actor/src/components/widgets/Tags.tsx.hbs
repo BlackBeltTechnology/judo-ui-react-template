@@ -26,10 +26,10 @@ export interface TagsProps<P, T> {
   editMode?: boolean;
   autoCompleteAttribute: keyof T;
   identifierAttribute: string | keyof T;
-  onAutoCompleteSearch: (searchText: string, preparedQueryCustomizer: QueryCustomizer<T>) => Promise<T[]>;
+  onAutoCompleteSearch?: (searchText: string, preparedQueryCustomizer: QueryCustomizer<T>) => Promise<T[]>;
   additionalMaskAttributes?: string[];
   limitOptions?: number;
-  onValueChange: (target: T[]) => Promise<void>;
+  onValueChange?: (target: T[]) => Promise<void>;
   onItemClick?: (target: T) => void;
   onSearchDialogsClick?: () => void;
   searchDialogTitle?: string;
@@ -75,7 +75,6 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
   } = props;
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
-  const prevValues = useRef<T[]>(ownerData[name] as T[]);
 
   const handleSearch = async (searchText: string) => {
     try {
@@ -100,7 +99,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
           limit: limitOptions,
         },
       };
-      const response = await onAutoCompleteSearch(searchText, queryCustomizer);
+      const response = await onAutoCompleteSearch!(searchText, queryCustomizer);
       setOptions(response);
     } catch (error) {
       console.error(error);
@@ -122,9 +121,9 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
 
   const onChange = useCallback(
     (event: SyntheticEvent, value: (string | any)[]) => {
-      // prevent useEffect below from triggering recursion
-      prevValues.current = value;
-      onValueChange(value as any);
+      if (typeof onValueChange === 'function') {
+        onValueChange(value as any);
+      }
     },
     [ownerData, onValueChange],
   );
@@ -142,14 +141,6 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     [ownerData, onItemClick],
   );
 
-  useEffect(() => {
-    // prevent recursion
-    if (prevValues.current !== ownerData[name]) {
-      prevValues.current = ownerData[name] as T[];
-      onValueChange(ownerData[name] as any);
-    }
-  }, [ownerData[name]]);
-
   return (
     <Autocomplete
       multiple
@@ -165,10 +156,10 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
       getOptionKey={(option) => option[identifierAttribute]}
       getOptionLabel={(option) => option[autoCompleteAttribute] ?? ''}
       isOptionEqualToValue={(option, value) => option[identifierAttribute] === value[identifierAttribute]}
-      onOpen={ () => {
+      onOpen={ onAutoCompleteSearch ? () => {
         setOptions([]); // always start with a clean slate
         handleSearch('');
-      } }
+      } : undefined }
       onInputChange={onInputChange}
       onChange={onChange}
       renderInput={(params) => (

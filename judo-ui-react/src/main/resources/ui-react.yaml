@@ -758,6 +758,26 @@ templates:
       - name: table
         expression: "#self"
 
+  - name: actor/src/containers/components/tag/index.tsx
+    factoryExpression: "#getTagsForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #tagComponentName(#self) + '/index.tsx'"
+    templateName: actor/src/containers/components/tag/index.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
+  - name: actor/src/containers/components/tag/types.ts
+    factoryExpression: "#getTagsForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #tagComponentName(#self) + '/types.ts'"
+    templateName: actor/src/containers/components/tag/types.ts.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
   # Actor - src - pages
 
   - name: actor/src/pages/Redirect.tsx
