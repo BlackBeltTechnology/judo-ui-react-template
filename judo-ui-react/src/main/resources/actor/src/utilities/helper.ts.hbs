@@ -12,23 +12,40 @@ import type { RandomUtils } from './interfaces';
 
 export const exists = (element: any) => element !== undefined && element !== null;
 
-export const simpleCloneDeep = <T>(input: T): T => {
+export const ucFirst = (str: string): string => {
+    if (!str) return str;
+    return str.charAt(0).toUpperCase() + str.slice(1);
+}
+
+export const lcFirst = (str: string): string => {
+    if (!str) return str;
+    return str.charAt(0).toLowerCase() + str.slice(1);
+}
+
+export const simpleCloneDeep = <T>(input: T, excludeKeys: string[] = []): T => {
   if (input === null || input === undefined) {
     return input;
   } else if (Array.isArray(input)) {
-    return input.map(simpleCloneDeep) as T;
+    return input.map((v) => simpleCloneDeep(v, excludeKeys)) as T;
   } else if (input instanceof Date) {
     return input;
   } else if (input instanceof Set) {
-    return new Set(Array.from(input).map(simpleCloneDeep)) as T;
+    return new Set(Array.from(input).map((v) => simpleCloneDeep(v, excludeKeys))) as T;
   } else if (typeof input === 'object') {
     let payload: Record<string, any> = {};
     for (const key in input) {
-      payload[key] = simpleCloneDeep(input[key]);
+      if (!excludeKeys.includes(key)) {
+        payload[key] = simpleCloneDeep(input[key], excludeKeys);
+      }
     }
     return payload as T;
   }
   return input;
+};
+
+export const deepEquals = (a: any, b: any, excludeKeys: string[] = []) => {
+  // This is a pretty resource intensive function, consider using other methods for large inputs!
+  return JSON.stringify(simpleCloneDeep(a, excludeKeys)) === JSON.stringify(simpleCloneDeep(b, excludeKeys));
 };
 
 export const stringToBooleanSelect = (booleanString?: string | null): boolean | null => {
@@ -136,3 +153,16 @@ export function setValue(target: any, path: string, value: any): void {
   }
 }
 
+export type reservedActionSuffixes = 'OpenCreateFormAction' | 'OpenAddSelectorAction' | 'AutocompleteAddAction' | 'AutocompleteRangeAction';
+
+export const createActionName = (relationName: string, suffix: reservedActionSuffixes) => {
+  return relationName + (relationName ? ucFirst(suffix) : lcFirst(suffix));
+};
+
+export const actionsHasCapability = (actions: any, relationName: string, suffix: reservedActionSuffixes) => {
+  try {
+    return typeof actions[createActionName(relationName, suffix)] === 'function';
+  } catch (_) {
+    return false;
+  }
+};
