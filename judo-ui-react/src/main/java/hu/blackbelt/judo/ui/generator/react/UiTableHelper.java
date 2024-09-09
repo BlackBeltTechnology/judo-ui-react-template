@@ -138,7 +138,7 @@ public class UiTableHelper {
     }
 
     public static boolean isColumnEditable(Column column) {
-        return !column.getAttributeType().getIsMemberTypeDerived();
+        return !column.getAttributeType().isIsReadOnly();
     }
 
     public static boolean isColumnTimestamp(Column column) {

@@ -511,6 +511,9 @@ public class UiWidgetHelper {
         } else if (dataType instanceof EnumerationType) {
             return "text";
         } else if (dataType instanceof BooleanType) {
+            if (!column.getAttributeType().isIsRequired()) {
+                return "optionalBoolean";
+            }
             return "boolean";
         }
 
