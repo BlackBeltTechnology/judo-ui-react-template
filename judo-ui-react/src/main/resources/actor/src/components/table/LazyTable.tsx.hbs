@@ -105,6 +105,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   navigable?: boolean;
   editable?: boolean;
   applyRowEdit?: (rowData: TStored) => Promise<any>;
+  onRowEditCanceled?: (rowId: string) => void;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: LazyTableProps<T, TStored>) {
@@ -152,6 +153,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     navigable = true,
     editable = false,
     applyRowEdit,
+    onRowEditCanceled,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -270,6 +272,9 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       disabled: () => false,
       action: async (rowData: TStored) => {
         setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
+        if (typeof onRowEditCanceled === 'function') {
+          onRowEditCanceled(rowData.__identifier!);
+        }
       },
     },
   ], [tableRowActions, rowModesModel, applyRowEdit]);
@@ -597,7 +602,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const handleProcessRowUpdateError = useCallback((error: Error) => {
     // the message is expected to be the row identifier
     setRowModesModel({ ...rowModesModel, [error.message]: { mode: GridRowModes.Edit } });
-  }, []);
+  }, [rowModesModel]);
 
   return (
     <>

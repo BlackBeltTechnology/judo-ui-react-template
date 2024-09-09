@@ -144,33 +144,36 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{# if (tableHasBinaryColumn table) }}
   const { downloadFile, extractFileNameFromToken } = fileHandling();
   {{/ if }}
-  const [rowValidation, setRowValidation] = useState<Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>>(new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>());
+  const rowValidation = useRef<Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>>(new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>());
 
   const applyRowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {
     try {
       await actions.apply{{ firstToUpper table.relationName }}RowEdit!(rowData);
+      rowValidation.current.delete(rowData.__identifier!);
     } catch(e: any) {
       if (e?.response?.status === 400) {
-        // setRowValidation(rowData.__identifier, e.response.data);
         const errorMap: Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string> = new Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>();
         const errorList = e.response.data as ServerError<{{ classDataName (getReferenceClassType table) 'Stored' }}>[];
         if (errorList && errorList.length && errorList[0].location) {
           validateWithNestedErrors(errorList, errorMap, t);
         }
-        setRowValidation((prevValidation) => {
-          const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(prevValidation);
-          copy.set(rowData.__identifier!, errorMap);
-          return copy;
-        });
+        const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(rowValidation.current);
+        copy.set(rowData.__identifier!, errorMap);
+        rowValidation.current = copy;
       } else {
-        setRowValidation((prevValidation) => {
-          const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(prevValidation);
-          copy.delete(rowData.__identifier!);
-          return copy;
-        });
+        const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(rowValidation.current);
+        copy.delete(rowData.__identifier!);
+        rowValidation.current = copy;
       }
+      throw(rowData.__identifier);
     }
   }, [actions]);
+
+  const onRowEditCanceled = useCallback((rowId: string) => {
+    if (rowValidation.current.has(rowId)) {
+      rowValidation.current.delete(rowId);
+    }
+  }, []);
 
   {{# each (customizableColumns table) as |column| }}
   const { service: {{ column.name }}ColumnCustomizerHook } = useTrackService<ColumnCustomizerHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}})(column={{ column.name }})`);
@@ -398,6 +401,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         relationName='{{ table.relationName }}'
         filtersSerializer={filtersSerializer}
         applyRowEdit={applyRowEdit}
+        onRowEditCanceled={onRowEditCanceled}
         {{# if container.isSelector }}
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
