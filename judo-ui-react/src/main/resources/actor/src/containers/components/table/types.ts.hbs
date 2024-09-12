@@ -35,10 +35,14 @@ export interface {{ componentName table }}ActionDefinitions {
         {{# if actionDefinition.isSelectorRangeAction }}
           {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
         {{ else }}
-          {{# if actionDefinition.isBulk }}
-            {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+          {{# if actionDefinition.isInlineCreateRowAction }}
+            {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<{{ classDataName (getReferenceClassType table) '' }} | undefined>;
           {{ else }}
-            {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+            {{# if actionDefinition.isBulk }}
+              {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+            {{ else }}
+              {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+            {{/ if }}
           {{/ if }}
         {{/ if }}
       {{/ if }}

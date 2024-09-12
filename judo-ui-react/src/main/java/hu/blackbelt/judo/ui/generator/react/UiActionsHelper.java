@@ -486,4 +486,12 @@ public class UiActionsHelper {
         }
         return false;
     }
+
+    public static Action getTemplateActionForForm(PageDefinition pageDefinition) {
+        ActionDefinition templateDef = pageDefinition.getContainer().isForm() ? pageDefinition.getContainer().getOnInit() : null;
+        if (templateDef != null) {
+            return pageDefinition.getActions().stream().filter(a -> a.getActionDefinition().equals(templateDef)).findFirst().orElse(null);
+        }
+        return null;
+    }
 }

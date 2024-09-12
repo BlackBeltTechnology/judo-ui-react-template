@@ -139,23 +139,10 @@ export default function GodGodGalaxiesAccessTablePage() {
       });
     });
   };
-  // OpenCreateFormAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableCreateAction
-  const openCreateFormAction = async () => {
-    const {
-      result,
-      data: returnedData,
-      openCreated,
-    } = await openGodGodGalaxiesAccessFormPage({
-      ownerData: produceDataAdjustedOwner(),
-      isDraft: false,
-      dataPath: `${dataPath ? dataPath + '.' : ''}`,
-    });
-    if (result === 'submit') {
-      setRefreshCounter((prev) => prev + 1);
-    }
-    if (openCreated && returnedData) {
-      await openPageAction(returnedData!);
-    }
+  // InlineCreateRowAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableInlineCreateRowAction
+  const inlineCreateRowAction = async (): Promise<ViewGalaxy | undefined> => {
+    const { data: result } = await godServiceForGalaxiesImpl.getTemplate();
+    return result;
   };
   // RowDeleteAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableRowDeleteAction
   const rowDeleteAction = async (target: ViewGalaxyStored) => {
@@ -265,7 +252,7 @@ export default function GodGodGalaxiesAccessTablePage() {
     getPageTitle,
     backAction,
     bulkDeleteAction,
-    openCreateFormAction,
+    inlineCreateRowAction,
     rowDeleteAction,
     filterAction,
     refreshAction,
