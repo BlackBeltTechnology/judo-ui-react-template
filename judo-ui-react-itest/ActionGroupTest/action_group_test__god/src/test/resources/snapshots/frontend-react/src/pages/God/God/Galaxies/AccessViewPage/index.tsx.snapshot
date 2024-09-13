@@ -506,13 +506,18 @@ export default function GodGodGalaxiesAccessViewPage() {
   };
   const applyStarsRowEdit = async (rowData: ViewStarStored): Promise<any> => {
     try {
-      // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
-      const updatedList = [...(data.stars || [])];
-      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
-      updatedList[existingIndex] = {
-        ...rowData,
-      };
-      storeDiff('stars', updatedList);
+      if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+        const updatedList = [rowData, ...(data.stars || [])];
+        storeDiff('stars', updatedList);
+      } else {
+        // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+        const updatedList = [...(data.stars || [])];
+        const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+        updatedList[existingIndex] = {
+          ...rowData,
+        };
+        storeDiff('stars', updatedList);
+      }
     } catch (error) {
       return Promise.reject(error);
     }

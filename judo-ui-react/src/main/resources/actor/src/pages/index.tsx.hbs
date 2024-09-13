@@ -243,13 +243,18 @@ export default function {{ pageName page }}() {
         const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
           try {
             {{# if table.isEager }}
-              // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
-              const updatedList = [...(data.{{ table.relationName }} || [])];
-              const existingIndex = updatedList.findIndex(r => r.__identifier === rowData.__identifier);
-              updatedList[existingIndex] = {
-                ...rowData,
-              };
-              storeDiff('{{ table.dataElement.name }}', updatedList);
+              if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+                const updatedList = [rowData, ...(data.{{ table.relationName }} || [])];
+                storeDiff('{{ table.dataElement.name }}', updatedList);
+              } else {
+                // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+                const updatedList = [...(data.{{ table.relationName }} || [])];
+                const existingIndex = updatedList.findIndex(r => r.__identifier === rowData.__identifier);
+                updatedList[existingIndex] = {
+                  ...rowData,
+                };
+                storeDiff('{{ table.dataElement.name }}', updatedList);
+              }
             {{ else }}
               setIsLoading(true);
               if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
