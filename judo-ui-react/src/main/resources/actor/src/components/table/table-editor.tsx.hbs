@@ -25,7 +25,7 @@ const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
 export type CellEditorType = 'text' | 'boolean' | 'optionalBoolean' | 'date';
 
 export function BooleanSelectEditInputCell(props: GridRenderEditCellParams<any>) {
-  const { id, value, field, api } = props;
+  const { id, value, field, api, error } = props;
 
   const onChangeHandler = useCallback((event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
     const index = Array.from(TRINARY_LOGIC.values()).indexOf(event.target.value);
@@ -45,6 +45,7 @@ export function BooleanSelectEditInputCell(props: GridRenderEditCellParams<any>)
           fullWidth
           select
           hiddenLabel
+          error={error}
       >
         <MenuItem value={'Unknown'} sx={menuItemStyle}>
           <MdiIcon className="undefined" path="minus" color="#ddd" sx={iconStyle} />
@@ -74,7 +75,7 @@ export function CellEditInput(props: GridRenderEditCellParams & { error?: string
 
   return (
     <StyledTooltip open={!!error} title={error}>
-      <EditComponent {...otherProps} />
+      <EditComponent {...otherProps} error={error !== null && error !== undefined} />
     </StyledTooltip>
   );
 }
