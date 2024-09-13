@@ -7,14 +7,17 @@ export interface TableRowAction<R, RStored> {
   label?: string;
   action?: (row: RStored) => Promise<void>;
   icon?: ReactNode;
+  hidden: (row: RStored) => boolean;
   disabled: (
     row: RStored,
     isLoading: boolean,
+    isRowInEditMode: boolean,
     getSelectedRows: () => R[],
     ownerData?: any,
   ) => boolean,
   disabledExpression?: string;
   isCRUD?: boolean;
+  isEditAction?: boolean;
 }
 
 export interface ColumnsActionsOptions {

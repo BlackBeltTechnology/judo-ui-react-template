@@ -1,0 +1,83 @@
+import { type ChangeEvent, useCallback } from 'react';
+import MenuItem from '@mui/material/MenuItem';
+import Select, { type SelectChangeEvent } from '@mui/material/Select';
+import TextField from '@mui/material/TextField';
+import Tooltip, { tooltipClasses, type TooltipProps } from '@mui/material/Tooltip';
+import { styled } from '@mui/material/styles';
+import {
+  GridEditDateCell,
+  GridEditInputCell,
+  GridEditBooleanCell,
+  type GridRenderEditCellParams,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { TRINARY_LOGIC } from '~/components-api/components/TrinaryLogic';
+import { MdiIcon } from '../MdiIcon';
+
+const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={ { popper: className } } />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    backgroundColor: theme.palette.error.main,
+    color: theme.palette.error.contrastText,
+  },
+}));
+
+export type CellEditorType = 'text' | 'boolean' | 'optionalBoolean' | 'date';
+
+export function BooleanSelectEditInputCell(props: GridRenderEditCellParams<any>) {
+  const { id, value, field, api, error } = props;
+
+  const onChangeHandler = useCallback((event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
+    const index = Array.from(TRINARY_LOGIC.values()).indexOf(event.target.value);
+    const keysArray = Array.from(TRINARY_LOGIC.keys());
+    api.setEditCellValue({ id, field, value: keysArray[index] });
+  }, [api]);
+
+  const menuItemStyle = { pl: 2.5 };
+  const iconStyle = { justifyContent: 'center', pl: 2.5, pt: 0.4 };
+
+  return (
+      <TextField
+          id={`${id}-bool-editor`}
+          value={TRINARY_LOGIC.get(value)}
+          onChange={onChangeHandler}
+          autoFocus
+          fullWidth
+          select
+          hiddenLabel
+          error={error}
+          variant={'filled'}
+          className={'JUDO-viewMode'}
+      >
+        <MenuItem value={'Unknown'} sx={menuItemStyle}>
+          <MdiIcon className="undefined" path="minus" color="#ddd" sx={iconStyle} />
+        </MenuItem>
+        <MenuItem value={'Yes'} sx={menuItemStyle}>
+          <MdiIcon className="true" path="check-circle" color="green" sx={iconStyle} />
+        </MenuItem>
+        <MenuItem value={'No'} sx={menuItemStyle}>
+          <MdiIcon className="false" path="close-circle" color="red" sx={iconStyle} />
+        </MenuItem>
+      </TextField>
+  );
+}
+
+export function CellEditInput(props: GridRenderEditCellParams & { error?: string; cellEditorType: CellEditorType }) {
+  const { error, cellEditorType, ...otherProps } = props;
+
+  let EditComponent: any = GridEditInputCell;
+
+  if (cellEditorType === 'date') {
+    EditComponent = GridEditDateCell;
+  } else if (cellEditorType === 'boolean') {
+    EditComponent = GridEditBooleanCell;
+  } else if (cellEditorType === 'optionalBoolean') {
+    EditComponent = BooleanSelectEditInputCell;
+  }
+
+  return (
+    <StyledTooltip open={!!error} title={error}>
+      <EditComponent {...otherProps} error={error !== null && error !== undefined} />
+    </StyledTooltip>
+  );
+}

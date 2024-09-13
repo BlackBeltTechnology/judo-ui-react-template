@@ -1,13 +1,16 @@
 {{> fragment.header.hbs }}
 
-import type { GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type { GridColDef, GridRowModesModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { TFunction } from 'i18next';
 import { ColumnsActionsOptions, TableRowAction } from './table-row-actions';
 
 export type ColumnActionsProvider<R, RStored> = (
   id: string,
-  actions: TableRowAction<R, RStored>[], t: TFunction<string, any>,
+  actions: TableRowAction<R, RStored>[],
+  t: TFunction<string, any>,
   isLoading: boolean,
+  editable: boolean,
+  rowModesModel: GridRowModesModel,
   getSelectedRows: () => RStored[],
   ownerData?: RStored,
   options?: ColumnsActionsOptions,

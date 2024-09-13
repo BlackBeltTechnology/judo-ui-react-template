@@ -1,6 +1,9 @@
 import type { ElementType, Dispatch, SetStateAction } from 'react';
 import type {
   GridFilterModel,
+  GridEventListener,
+  GridRowModesModel,
+  GridRowModel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 {{# each (getTableAPIImports table container) as |imp| }}
   import type {
@@ -18,6 +21,7 @@ import type { DialogResult } from '~/utilities';
 export interface {{ componentName table }}ActionDefinitions {
   get{{ firstToUpper table.relationName }}Mask?: () => string;
   get{{ firstToUpper table.relationName }}RowRepresentation?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => string;
+  apply{{ firstToUpper table.relationName }}RowEdit?: (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}) => Promise<any>;
 {{# each table.tableActionDefinitions as |actionDefinition| }}
   {{# if actionDefinition.isFilterAction }}
     {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
@@ -31,10 +35,14 @@ export interface {{ componentName table }}ActionDefinitions {
         {{# if actionDefinition.isSelectorRangeAction }}
           {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
         {{ else }}
-          {{# if actionDefinition.isBulk }}
-            {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+          {{# if actionDefinition.isInlineCreateRowAction }}
+            {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<{{ classDataName (getReferenceClassType table) '' }} | undefined>;
           {{ else }}
-            {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+            {{# if actionDefinition.isBulk }}
+              {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+            {{ else }}
+              {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
+            {{/ if }}
           {{/ if }}
         {{/ if }}
       {{/ if }}
@@ -79,4 +87,8 @@ export interface {{ componentName table }}Props {
   editMode: boolean;
   isFormUpdateable: () => boolean;
   {{/ unless }}
+  rowModesModel?: GridRowModesModel;
+  handleRowModesModelChange?: (newRowModesModel: GridRowModesModel) => void;
+  handleRowEditStop?: GridEventListener<'rowEditStop'>;
+  processRowUpdate?: (newRow: GridRowModel) => void;
 }
