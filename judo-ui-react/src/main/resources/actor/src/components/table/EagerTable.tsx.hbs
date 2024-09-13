@@ -13,10 +13,14 @@ import {
   useGridApiRef,
   GridToolbarContainer,
   GridEventListener,
+  GridRowModesModel,
+  GridRowModes,
+  GridRowEditStopReasons,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType } from 'react';
 import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
 import { Filter, FilterOption } from '~/components-api';
 import {
   ContextMenu,
@@ -46,6 +50,7 @@ import {
 from '~/utilities';
 import type { TableRowAction, FiltersSerializer, DialogResultReason{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
+import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
 import { useL10N } from '~/l10n/l10n-context';
@@ -88,6 +93,9 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   relationName: string;
   filtersSerializer: FiltersSerializer;
   navigable?: boolean;
+  editable?: boolean;
+  applyRowEdit?: (rowData: TStored) => Promise<any>;
+  onRowEditCanceled?: (rowId: string) => void;
 }
 
 export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: EagerTableProps<T, TStored>) {
@@ -125,6 +133,9 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     checkboxSelection,
     filtersSerializer,
     navigable = true,
+    editable = false,
+    applyRowEdit,
+    onRowEditCanceled,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -164,6 +175,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     pageSize: rowsPerPage,
     page: 0,
   });
+  const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
   const [queryCustomizer, setQueryCustomizer] = useState<S | QueryCustomizer<T>>({
     _mask: maskAction(),
@@ -190,8 +202,6 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
 
   const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [l10nLocale]);
 
-  const rowActions: TableRowAction<T, TStored>[] = useMemo(() => tableRowActions, [actions, isLoading]);
-
   const getSelectedRows: () => T[] = useCallback(() => {
     if (tableHasSelectorColumn) {
       return selectedRows.current;
@@ -200,10 +210,57 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     }
   }, [selectedRows.current]);
 
+  const editActions = useMemo(() => [
+    {
+      id: `${uniqueId}-row-edit`,
+      icon: <MdiIcon path="pencil" />,
+      isCRUD: true,
+      isEditAction: true,
+      hidden: (row: any) => rowModesModel[row.__identifier]?.mode === GridRowModes.Edit,
+      disabled: () => false,
+      action: async (rowData: TStored) => {
+        setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.Edit } });
+      },
+    },
+    {
+      id: `${uniqueId}-row-save`,
+      icon: <MdiIcon path="content-save" />,
+      isCRUD: true,
+      isEditAction: true,
+      hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
+      disabled: () => false,
+      action: async (rowData: TStored) => {
+        setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View } });
+      },
+    },
+    {
+      id: `${uniqueId}-row-cancel`,
+      icon: <MdiIcon path="close" />,
+      isCRUD: true,
+      isEditAction: true,
+      hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
+      disabled: () => false,
+      action: async (rowData: TStored) => {
+        if (rowModesModel[rowData.__identifier!] && rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+          const newRows = data.filter(d => d.__identifier !== rowData.__identifier!);
+          setData(newRows);
+          const copy = {...rowModesModel};
+          delete copy[rowData.__identifier!];
+          setRowModesModel(copy);
+        } else {
+          setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
+        }
+        if (typeof onRowEditCanceled === 'function') {
+          onRowEditCanceled(rowData.__identifier!);
+        }
+      },
+    },
+  ], [tableRowActions, rowModesModel, applyRowEdit]);
+
   const effectiveTableColumns = useMemo(() => {
     const cols = [
       ...columns,
-      ...columnsActionCalculator(dataElementId, rowActions, t, isLoading, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
+      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed })
     ];
     {{# if isMUILicensePlanPro }}
       if (columnState.length) {
@@ -222,7 +279,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       }
     {{/ if }}
     return cols;
-  }, [columns, rowActions, getSelectedRows, ownerData, isLoading{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
+  }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {
@@ -384,6 +441,23 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   {{/ if }}
   }
 
+  const processRowUpdate = useCallback(async (newRow: GridRowModel) => {
+    try {
+      await applyRowEdit!(newRow as TStored);
+      // https://mui.com/x/react-data-grid/editing/#server-side-persistence
+      // "Please note that the processRowUpdate must return the row object to update the Data Grid internal state."
+      return newRow;
+    } catch(error) {
+      // we need to reject with the identifier in order for MUI to be able to detect which row should be kept in edit mode
+      return Promise.reject(new Error(newRow.__identifier));
+    }
+  }, [applyRowEdit]);
+
+  const handleProcessRowUpdateError = useCallback((error: Error) => {
+    // the message is expected to be the row identifier
+    setRowModesModel({ ...rowModesModel, [error.message]: { mode: GridRowModes.Edit } });
+  }, [rowModesModel]);
+
   return (
     <>
       <ComponentProxy
@@ -413,6 +487,10 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
             ...transformRowStylings(rowStylings),
           {{/ if }}
         } }
+        editMode="row"
+        processRowUpdate={processRowUpdate}
+        rowModesModel={rowModesModel}
+        onProcessRowUpdateError={handleProcessRowUpdateError}
         slotProps={ {
           {{# if (stringValueIsTrue useTableContextMenus) }}
             cell: {
@@ -484,6 +562,15 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
                         if (!result) {
                           return;
                         }
+                      }
+                      if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
+                        const templateResult: T | undefined = await actions[toolBarAction.name]!();
+                        const id = `${draftIdentifierPrefix}${uuidv4()}`;
+                        setData((oldRows) => [{ ...(templateResult || {}), __identifier: id } as unknown as T, ...oldRows]);
+                        setRowModesModel((oldModel) => ({
+                          ...oldModel,
+                          [id]: { mode: GridRowModes.Edit },
+                        }));
                       }
                       if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
                         {{# if isUseInlineColumnFilters }}
