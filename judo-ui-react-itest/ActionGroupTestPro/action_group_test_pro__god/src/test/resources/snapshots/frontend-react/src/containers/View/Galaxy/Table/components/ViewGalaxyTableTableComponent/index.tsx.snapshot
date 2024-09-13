@@ -17,6 +17,7 @@ import type {
   GridColDef,
   GridFilterModel,
   GridRenderCellParams,
+  GridRenderEditCellParams,
   GridRowClassNameParams,
   GridRowId,
   GridRowModel,
@@ -46,6 +47,7 @@ import {
   numericColumnOperators,
   stringColumnOperators,
 } from '~/components/table';
+import { CellEditInput } from '~/components/table';
 import type { ContextMenuApi } from '~/components/table/ContextMenu';
 import { baseColumnConfig, basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
@@ -56,6 +58,7 @@ import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGal
 import { ViewGalaxyStoredSerializer } from '~/services/data-api/rest/ViewGalaxySerializer';
 import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
 import {
+  type ServerError,
   TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   deserializeFilters,
   getUpdatedRowsSelected,
@@ -66,6 +69,7 @@ import {
   randomUtils,
   serializeFilters,
   useErrorHandler,
+  validateWithNestedErrors,
 } from '~/utilities';
 import type {
   ColumnCustomizerHook,
@@ -98,6 +102,41 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
   const { t } = useTranslation();
   const handleError = useErrorHandler();
   const { locale: l10nLocale } = useL10N();
+  const rowValidation = useRef<Map<string, Map<keyof ViewGalaxyStored, string>>>(
+    new Map<string, Map<keyof ViewGalaxyStored, string>>(),
+  );
+
+  const applyRowEdit = useCallback(
+    async (rowData: ViewGalaxyStored) => {
+      try {
+        await actions.applyRowEdit!(rowData);
+        rowValidation.current.delete(rowData.__identifier!);
+      } catch (e: any) {
+        if (e?.response?.status === 400) {
+          const errorMap: Map<keyof ViewGalaxyStored, string> = new Map<keyof ViewGalaxyStored, string>();
+          const errorList = e.response.data as ServerError<ViewGalaxyStored>[];
+          if (errorList && errorList.length && errorList[0].location) {
+            validateWithNestedErrors(errorList, errorMap, t);
+          }
+          const copy = new Map<string, Map<keyof ViewGalaxyStored, string>>(rowValidation.current);
+          copy.set(rowData.__identifier!, errorMap);
+          rowValidation.current = copy;
+        } else {
+          const copy = new Map<string, Map<keyof ViewGalaxyStored, string>>(rowValidation.current);
+          copy.delete(rowData.__identifier!);
+          rowValidation.current = copy;
+        }
+        throw rowData.__identifier;
+      }
+    },
+    [actions],
+  );
+
+  const onRowEditCanceled = useCallback((rowId: string) => {
+    if (rowValidation.current.has(rowId)) {
+      rowValidation.current.delete(rowId);
+    }
+  }, []);
 
   const nameColumn: GridColDef<ViewGalaxyStored> = {
     ...baseColumnConfig,
@@ -107,6 +146,15 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
 
     width: 230,
     type: 'string',
+    editable: true,
+    renderEditCell: (props: GridRenderEditCellParams) => {
+      let error: string | undefined;
+      if (props.row && rowValidation.current.has(props.row.__identifier)) {
+        const errors = rowValidation.current.get(props.row.__identifier);
+        error = errors?.get('name');
+      }
+      return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
+    },
     filterable: true && true,
     filterOperators: stringColumnOperators,
   };
@@ -118,6 +166,15 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
 
     width: 100,
     type: 'boolean',
+    editable: true,
+    renderEditCell: (props: GridRenderEditCellParams) => {
+      let error: string | undefined;
+      if (props.row && rowValidation.current.has(props.row.__identifier)) {
+        const errors = rowValidation.current.get(props.row.__identifier);
+        error = errors?.get('real');
+      }
+      return <CellEditInput {...props} error={error} cellEditorType={'optionalBoolean'} />;
+    },
     filterable: true && true,
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, ViewGalaxyStored>) => {
@@ -138,6 +195,15 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
 
     width: 230,
     type: 'string',
+    editable: true,
+    renderEditCell: (props: GridRenderEditCellParams) => {
+      let error: string | undefined;
+      if (props.row && rowValidation.current.has(props.row.__identifier)) {
+        const errors = rowValidation.current.get(props.row.__identifier);
+        error = errors?.get('constellation');
+      }
+      return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
+    },
     filterable: true && true,
     filterOperators: stringColumnOperators,
   };
@@ -149,6 +215,15 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
 
     width: 100,
     type: 'number',
+    editable: true,
+    renderEditCell: (props: GridRenderEditCellParams) => {
+      let error: string | undefined;
+      if (props.row && rowValidation.current.has(props.row.__identifier)) {
+        const errors = rowValidation.current.get(props.row.__identifier);
+        error = errors?.get('magnitude');
+      }
+      return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
+    },
     filterable: true && true,
     valueFormatter: (value?: number) => {
       if (value === null || value === undefined) {
@@ -166,6 +241,15 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
 
     width: 100,
     type: 'boolean',
+    editable: true,
+    renderEditCell: (props: GridRenderEditCellParams) => {
+      let error: string | undefined;
+      if (props.row && rowValidation.current.has(props.row.__identifier)) {
+        const errors = rowValidation.current.get(props.row.__identifier);
+        error = errors?.get('nakedEye');
+      }
+      return <CellEditInput {...props} error={error} cellEditorType={'optionalBoolean'} />;
+    },
     filterable: true && true,
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, ViewGalaxyStored>) => {
@@ -237,6 +321,15 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
 
     width: 170,
     type: 'dateTime',
+    editable: true,
+    renderEditCell: (props: GridRenderEditCellParams) => {
+      let error: string | undefined;
+      if (props.row && rowValidation.current.has(props.row.__identifier)) {
+        const errors = rowValidation.current.get(props.row.__identifier);
+        error = errors?.get('discovered');
+      }
+      return <CellEditInput {...props} error={error} cellEditorType={'date'} />;
+    },
     filterable: true && true,
     valueFormatter: (value?: Date) => {
       return (
@@ -320,12 +413,12 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       isBulk: false,
     },
     {
-      name: 'openCreateFormAction',
+      name: 'inlineCreateRowAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableCreateButton',
       startIcon: 'note-add',
       variant: 'text',
       hiddenBy: false,
-      label: { translationKey: 'judo.action.open-create-form', defaultValue: 'Create' },
+      label: { translationKey: 'View.Galaxy.Table.Create', defaultValue: 'Create' },
       enabled: (
         data: ViewGalaxyStored[],
         selectionModel: GridRowSelectionModel,
@@ -423,12 +516,14 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       label: t('judo.action.remove', { defaultValue: 'Remove' }) as string,
       icon: <MdiIcon path="link_off" />,
       isCRUD: true,
+      hidden: (row: any) => false,
       disabled: (
         row: ViewGalaxyStored,
         isLoading: boolean,
+        isRowInEditMode: boolean,
         getSelectedRows: () => ViewGalaxyStored[],
         ownerdata?: any,
-      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
       action: actions.removeAction
         ? async (rowData) => {
             await actions.removeAction!(rowData);
@@ -440,15 +535,18 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       label: t('View.Galaxy.Table.Delete', { defaultValue: 'Delete' }) as string,
       icon: <MdiIcon path="delete_forever" />,
       isCRUD: true,
+      hidden: (row: any) => false,
       disabled: (
         row: ViewGalaxyStored,
         isLoading: boolean,
+        isRowInEditMode: boolean,
         getSelectedRows: () => ViewGalaxyStored[],
         ownerdata?: any,
       ): boolean =>
         (getSelectedRows && getSelectedRows().length > 0) ||
         (typeof row.__deleteable === 'boolean' && !row.__deleteable) ||
-        isLoading,
+        isLoading ||
+        isRowInEditMode,
       action: actions.rowDeleteAction
         ? async (rowData) => {
             await actions.rowDeleteAction!(rowData);
@@ -459,12 +557,14 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       id: 'God/(esm/_9MKM0T0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
       label: t('View.Galaxy.Table.createDarkMatter', { defaultValue: 'CreateDarkMatter' }) as string,
       icon: <MdiIcon path="chevron_right" />,
+      hidden: (row: any) => false,
       disabled: (
         row: ViewGalaxyStored,
         isLoading: boolean,
+        isRowInEditMode: boolean,
         getSelectedRows: () => ViewGalaxyStored[],
         ownerdata?: any,
-      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
       action: actions.createDarkMatterAction
         ? async (rowData) => {
             await actions.createDarkMatterAction!(rowData);
@@ -475,12 +575,14 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       id: 'God/(esm/_9MKz4T0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
       label: t('View.Galaxy.Table.createIntergalacticDust', { defaultValue: 'CreateIntergalacticDust' }) as string,
       icon: <MdiIcon path="chevron_right" />,
+      hidden: (row: any) => false,
       disabled: (
         row: ViewGalaxyStored,
         isLoading: boolean,
+        isRowInEditMode: boolean,
         getSelectedRows: () => ViewGalaxyStored[],
         ownerdata?: any,
-      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
       action: actions.createIntergalacticDustAction
         ? async (rowData) => {
             await actions.createIntergalacticDustAction!(rowData);
@@ -491,12 +593,14 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       id: 'God/(esm/_9MKz4z0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
       label: t('View.Galaxy.Table.createInterstellarMedium', { defaultValue: 'CreateInterstellarMedium' }) as string,
       icon: <MdiIcon path="chevron_right" />,
+      hidden: (row: any) => false,
       disabled: (
         row: ViewGalaxyStored,
         isLoading: boolean,
+        isRowInEditMode: boolean,
         getSelectedRows: () => ViewGalaxyStored[],
         ownerdata?: any,
-      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
       action: actions.createInterstellarMediumAction
         ? async (rowData) => {
             await actions.createInterstellarMediumAction!(rowData);
@@ -574,6 +678,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     <div id="God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable" data-table-name="Table">
       <LazyTable<ViewGalaxyStored, ViewGalaxyStored, ViewGalaxyQueryCustomizer>
         uniqueId={`God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable-${uniqueId}`}
+        editable={true}
         dataProp={[]}
         defaultSortParamsForTable={[
           { field: 'name', sort: 'asc' },
@@ -605,6 +710,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         enabledByName=""
         relationName=""
         filtersSerializer={filtersSerializer}
+        applyRowEdit={applyRowEdit}
+        onRowEditCanceled={onRowEditCanceled}
       />
     </div>
   );

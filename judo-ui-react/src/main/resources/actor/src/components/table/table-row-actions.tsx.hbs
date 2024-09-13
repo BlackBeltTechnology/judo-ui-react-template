@@ -2,20 +2,40 @@
 
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
-import type { GridActionsColDef, GridRowParams } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { type GridActionsColDef, type GridRowParams, type GridRowModesModel, GridRowModes } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { TFunction } from 'i18next';
+import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
 import { baseColumnConfig, characterMultiplier, iconAndDropdownIconExtra, onlyDropdownWidth } from '../../config';
 import type { ColumnActionsProvider, ColumnsActionsOptions, TableRowAction } from '../../utilities';
 import { DropdownButton } from '../DropdownButton';
 import { MdiIcon } from '../MdiIcon';
 
-export const calculateMinWidth = (entry: TableRowAction<any, any>[]) => entry.length ? ((entry.map(a => (a.label ?? '').length).reduce((p, c) => p + c, 0) * characterMultiplier) + iconAndDropdownIconExtra) : onlyDropdownWidth;
+export const calculateMinWidth = (entry: TableRowAction<any, any>[], editable = false) => {
+  const baseWidth = entry.length ? ((entry.map(a => (a.label ?? '').length).reduce((p, c) => p + c, 0) * characterMultiplier) + iconAndDropdownIconExtra) : onlyDropdownWidth;
+  return baseWidth + (editable ? 90 : 0);
+};
+
+const findLastIndex = <T,>(array: T[], predicate: (e: T) => boolean): number => {
+  for (let i = array.length - 1; i >= 0; i--) {
+    if (predicate(array[i])) {
+      return i;
+    }
+  }
+  return -1;
+};
+
+const isRowInEditMode = <T extends JudoIdentifiable<any>,>(row: T, gridRowModesModel: GridRowModesModel): boolean => {
+  const rowData =  gridRowModesModel[row.__identifier!];
+  return rowData?.mode === GridRowModes.Edit;
+};
 
 export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   id: string,
   actions: TableRowAction<any, any>[],
   t: TFunction<string, any>,
   isLoading: boolean,
+  editable: boolean,
+  rowModesModel: GridRowModesModel,
   getSelectedRows: () => any[],
   ownerData?: any,
   options?: ColumnsActionsOptions,
@@ -26,7 +46,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   };
   const originalCrudActions = actions.filter((a) => !!a.action && a.isCRUD);
   const originalOperationActions = actions.filter((a) => !!a.action && !a.isCRUD);
-  const keptCrudActions = originalCrudActions.splice(0, safeOptions.crudOperationsDisplayed);
+  const keptCrudActions = originalCrudActions.splice(0, (findLastIndex<TableRowAction<any, any>>(actions, a => !!a.isEditAction) + 1) + (safeOptions.crudOperationsDisplayed || 0));
   const keptOperationActions = originalOperationActions.splice(0, safeOptions.transferOperationsDisplayed);
   const splitActions = [...keptCrudActions, ...keptOperationActions];
   const dropdownActions = [...originalCrudActions, ...originalOperationActions];
@@ -41,18 +61,18 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
       field: 'actions',
       sortable: false,
       disableColumnMenu: true,
-      minWidth: calculateMinWidth(splitActions),
+      minWidth: calculateMinWidth(splitActions, editable),
       headerName: t('judo.pages.table.column.actions', { defaultValue: 'Actions' }) as string,
       type: 'actions',
       getActions: (params: GridRowParams) => [
         <ButtonGroup>
-          {splitActions.map((a) => (
+          {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Button
               id={a.id}
               key={a.id}
               variant="text"
               startIcon={a.icon}
-              disabled={a.disabled ? a.disabled(params.row, isLoading, getSelectedRows, ownerData) : false}
+              disabled={a.disabled ? a.disabled(params.row, isLoading, isRowInEditMode(params.row, rowModesModel), getSelectedRows, ownerData) : false}
               onClick={() => a.action!(params.row)}
             >
               {a.label ?? ''}
@@ -62,12 +82,12 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
             id={id}
             variant="text"
             showDropdownIcon={false}
-            menuItems={dropdownActions.map((action) => ({
+            menuItems={dropdownActions.filter(a => !a.hidden(params.row)).map((action) => ({
               id: action.id,
               label: action.label,
               startIcon: action.icon,
               onClick: () => action.action!(params.row),
-              disabled: action.disabled ? action.disabled(params.row, isLoading, getSelectedRows, ownerData) : false,
+              disabled: action.disabled ? action.disabled(params.row, isLoading, isRowInEditMode(params.row, rowModesModel), getSelectedRows, ownerData) : false,
             }))}
           >
             <MdiIcon path="menu-down" />
