@@ -393,6 +393,13 @@ public class UiWidgetHelper {
         return result += "true";
     }
 
+    public static String tableRowButtonHiddenConditions(Button button, Table table, PageContainer container) {
+        if (button.getHiddenBy() != null) {
+            return "!!row." + button.getHiddenBy().getName();
+        }
+        return "false";
+    }
+
     public static String tableRowButtonDisabledConditions(Button button, Table table, PageContainer container) {
         if (table.getIsRelationType() && table.getRelationType().isIsInlineCreatable() && (button.getActionDefinition().getIsRemoveAction()) || button.getActionDefinition().getIsBulkRemoveAction()) {
             if (button.getActionDefinition().getIsRemoveAction()) {

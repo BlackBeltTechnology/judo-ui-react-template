@@ -241,7 +241,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{# if (isRowActionCRUD button.actionDefinition) }}
       isCRUD: true,
       {{/ if }}
-      hidden: (row: any) => false,
+      hidden: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {{{ tableRowButtonHiddenConditions button table container }}},
       disabled: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}, isLoading: boolean, isRowInEditMode: boolean, getSelectedRows: () => {{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}[]{{ else }}{{ classDataName (getReferenceClassType table) '' }}[]{{/ if }}{{/ with }}, ownerdata?: any): boolean => {{{ tableRowButtonDisabledConditions button table container }}},
       action: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async (rowData) => {
         {{# unless (isParameterOpenerButton button) }}
