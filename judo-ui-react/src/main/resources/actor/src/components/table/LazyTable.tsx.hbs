@@ -21,6 +21,7 @@ import {
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
 import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
 import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
 import { Filter, FilterOption } from '~/components-api';
 import {
@@ -53,6 +54,7 @@ import {
 import type { TableRowAction, FiltersSerializer, DialogResultReason{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
+import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import { CustomTablePagination } from '~/components';
 import { MdiIcon } from '../MdiIcon';
 import { Box, Button, Typography } from '@mui/material';
@@ -271,7 +273,15 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
       disabled: () => false,
       action: async (rowData: TStored) => {
-        setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
+        if (rowModesModel[rowData.__identifier!] && rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+          const newRows = data.filter(d => d.__identifier !== rowData.__identifier!);
+          setData(newRows);
+          const copy = {...rowModesModel};
+          delete copy[rowData.__identifier!];
+          setRowModesModel(copy);
+        } else {
+          setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
+        }
         if (typeof onRowEditCanceled === 'function') {
           onRowEditCanceled(rowData.__identifier!);
         }
@@ -715,6 +725,17 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                           return;
                         }
                       }
+
+                      if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
+                        const templateResult: T | undefined = await actions[toolBarAction.name]!();
+                        const id = `${draftIdentifierPrefix}${uuidv4()}`;
+                        setData((oldRows) => [{ ...(templateResult || {}), __identifier: id } as unknown as T, ...oldRows]);
+                        setRowModesModel((oldModel) => ({
+                          ...oldModel,
+                          [id]: { mode: GridRowModes.Edit },
+                        }));
+                      }
+
                       if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
                         {{# if isUseInlineColumnFilters }}
                           apiRef.current.showFilterPanel();

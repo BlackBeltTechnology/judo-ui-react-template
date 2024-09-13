@@ -242,14 +242,33 @@ export default function {{ pageName page }}() {
       {{# if table.isInlineEditable }}
         const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
           try {
-            setIsLoading(true);
-            await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData);
-            await refresh();
+            {{# if table.isEager }}
+              // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+              const updatedList = [...(data.{{ table.relationName }} || [])];
+              const existingIndex = updatedList.findIndex(r => r.__identifier === rowData.__identifier);
+              updatedList[existingIndex] = {
+                ...rowData,
+              };
+              storeDiff('{{ table.dataElement.name }}', updatedList);
+            {{ else }}
+              setIsLoading(true);
+              if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+                const queryCustomizer: { _mask: string } = {
+                  _mask: '{}',
+                };
+                await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData, queryCustomizer);
+                showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
+              } else {
+                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData);
+                showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
+              }
+              await refresh();
+            {{/ if }}
           } catch(error) {
             return Promise.reject(error);
-          } finally {
+          }{{# unless table.isEager }} finally {
             setIsLoading(false);
-          }
+          }{{/ unless }}
         };
       {{/ if }}
     {{/ each }}

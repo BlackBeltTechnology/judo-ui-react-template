@@ -2,8 +2,13 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<{{ classDataName action.actionDefinition.targetType '' }} | undefined> => {
   {{# with action.targetPageDefinition as |form| }}
     {{# with (getTemplateActionForForm form) as |templateAction| }}
-      const { data: result } = await {{ getServiceImplForPage page }}.getTemplate{{# if action.targetDataElement }}For{{ firstToUpper action.targetDataElement.name }}{{/ if }}();
-      return result;
+      try {
+        const { data: result } = await {{ getServiceImplForPage page }}.getTemplate{{# if action.targetDataElement }}For{{ firstToUpper action.targetDataElement.name }}{{/ if }}();
+        return result;
+      } catch(error) {
+        console.error(error);
+        return undefined;
+      }
     {{/ with }}
   {{/ with }}
 };

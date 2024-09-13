@@ -395,8 +395,13 @@ export default function GodGodGalaxiesAccessViewPage() {
   };
   // InlineCreateRowAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableInlineCreateRowAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const starsInlineCreateRowAction = async (): Promise<ViewStar | undefined> => {
-    const { data: result } = await godServiceForGalaxiesImpl.getTemplateForStars();
-    return result;
+    try {
+      const { data: result } = await godServiceForGalaxiesImpl.getTemplateForStars();
+      return result;
+    } catch (error) {
+      console.error(error);
+      return undefined;
+    }
   };
   // RowDeleteAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const starsRowDeleteAction = async (target: ViewStarStored) => {
@@ -501,13 +506,15 @@ export default function GodGodGalaxiesAccessViewPage() {
   };
   const applyStarsRowEdit = async (rowData: ViewStarStored): Promise<any> => {
     try {
-      setIsLoading(true);
-      await godServiceForGalaxiesImpl.updateStars(rowData);
-      await refresh();
+      // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+      const updatedList = [...(data.stars || [])];
+      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      updatedList[existingIndex] = {
+        ...rowData,
+      };
+      storeDiff('stars', updatedList);
     } catch (error) {
       return Promise.reject(error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
