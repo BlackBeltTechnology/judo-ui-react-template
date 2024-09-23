@@ -206,10 +206,6 @@ public class UiWidgetHelper {
         return tableComponentName(table);
     }
 
-    public static boolean isTableTag(Table table) {
-        return TableRepresentation.TAG.equals(table.getRepresentationComponent());
-    }
-
     public static Column getFirstAutocompleteColumnForLink(Link link) {
         Optional<Column> column = link.getParts().stream()
                 .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
