@@ -6,8 +6,9 @@ import { lazy, Suspense } from 'react';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
 import { Redirect } from './pages/Redirect';
+import { extraRoutes } from './extra-routes';
 
-let routes: Array<{path: string, element: ReactElement, exact?: boolean}> = [];
+let routes: Array<{path: string, element: ReactElement, exact?: boolean}> = [...extraRoutes];
 
 routes.push({
     path: '_redirect',
