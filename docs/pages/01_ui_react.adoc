@@ -579,6 +579,34 @@ const CustomDashboard: FC = () => {
 };
 ----
 
+=== Adding custom routes
+
+Adding custom routes can be done via adding the `src/extra-routes.tsx` tp the generator-ignore files and filling the
+array with our additional routes.
+
+*src/extra-routes.tsx:*
+[source,typescriptjsx]
+----
+import type { ReactElement } from 'react';
+
+const Hello = () => {
+  return (
+    <>
+      <div>
+        Hello
+      </div>
+    </>
+  );
+};
+
+export const extraRoutes: Array<{ path: string; element: ReactElement; exact?: boolean }> = [
+  {
+    path: 'hello',
+    element: <Hello />,
+  },
+];
+----
+
 === Filtering Enumeration options
 
 Enumeration options can be filtered based on current view/form data if needed. Filtering actions are available on
