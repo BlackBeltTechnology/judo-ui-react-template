@@ -4,10 +4,33 @@ import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useAuth, hasAuthParams } from 'react-oidc-context';
 import { useTranslation } from 'react-i18next';
+import { useSearchParams } from 'react-router-dom';
+{{# if application.authentication }}
+  import { getUser, clearSecurityStorage } from '../auth';
+{{/ if }}
 
 export const Auth = ({ children }: { children?: ReactNode }) => {
   const { isAuthenticated, isLoading, activeNavigator, signinRedirect, events } = useAuth();
   const { t } = useTranslation();
+
+  {{# if application.authentication }}
+  // check current token's user name with given parameter (when defined)
+  useEffect(() => {
+    const search = window.location.search;
+    const params = new URLSearchParams(search);
+    const forcedUser = params.get('user');
+
+    if (forcedUser != null) {
+      // Get current user name from token
+      const { profile } = getUser();
+      const tokenUser = profile?.preferred_username;
+      if (tokenUser != null && tokenUser === forcedUser) {
+        clearSecurityStorage();
+        window.location.reload();
+      }
+    }
+  }, [useSearchParams, getUser]);
+  {{/ if }}
 
   // automatically sign-in
   useEffect(() => {
