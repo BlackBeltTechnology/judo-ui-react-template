@@ -33,6 +33,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.isUseInlineColumnFilters;
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.isActionDefinitionCommand;
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
 import static java.util.Arrays.stream;
 
@@ -347,6 +348,20 @@ public class UiWidgetHelper {
 
     public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {
         String result = "";
+
+        if (table.getEnabledBy() != null) {
+            if (isActionDefinitionCommand(button.getActionDefinition()) && table.getTableActionButtonGroup().getButtons().contains(button)) {
+                result += "(ownerData ? ownerData." + table.getEnabledBy().getName() + " : true)";
+                if (button.getActionDefinition().getIsClearAction()) {
+                    result += " && data.length > 0";
+                }
+                if (button.getActionDefinition().isIsBulk()) {
+                    result += " && selectionModel.length > 0";
+                }
+                return result;
+            }
+        }
+
         if (button.getEnabledBy() != null) {
             result += "(ownerData ? ownerData." + button.getEnabledBy().getName() + " : true) && ";
         }
