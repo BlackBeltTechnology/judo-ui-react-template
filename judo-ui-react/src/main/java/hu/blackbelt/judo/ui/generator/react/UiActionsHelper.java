@@ -495,13 +495,10 @@ public class UiActionsHelper {
         return null;
     }
 
-    public static boolean isActionDefinitionCommand(ActionDefinition actionDefinition) {
+    public static boolean isActionDefinitionCRUDCommand(ActionDefinition actionDefinition) {
         return actionDefinition instanceof ClearActionDefinition
                 || actionDefinition instanceof OpenAddSelectorActionDefinition
                 || actionDefinition instanceof OpenSetSelectorActionDefinition
-                || actionDefinition instanceof OpenOperationInputFormActionDefinition
-                || actionDefinition instanceof OpenOperationInputSelectorActionDefinition
-                || actionDefinition instanceof CallOperationActionDefinition
                 || actionDefinition instanceof OpenCreateFormActionDefinition
                 || actionDefinition instanceof InlineCreateRowActionDefinition
                 || actionDefinition instanceof DeleteActionDefinition
