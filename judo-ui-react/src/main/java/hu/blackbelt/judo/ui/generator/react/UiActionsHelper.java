@@ -494,4 +494,22 @@ public class UiActionsHelper {
         }
         return null;
     }
+
+    public static boolean isActionDefinitionCRUDCommand(ActionDefinition actionDefinition) {
+        return actionDefinition instanceof ClearActionDefinition
+                || actionDefinition instanceof OpenAddSelectorActionDefinition
+                || actionDefinition instanceof OpenSetSelectorActionDefinition
+                || actionDefinition instanceof OpenCreateFormActionDefinition
+                || actionDefinition instanceof InlineCreateRowActionDefinition
+                || actionDefinition instanceof DeleteActionDefinition
+                || actionDefinition instanceof UpdateActionDefinition
+                || actionDefinition instanceof RemoveActionDefinition
+                || actionDefinition instanceof UnsetActionDefinition
+                || actionDefinition instanceof SelectorRangeActionDefinition
+                || actionDefinition instanceof AutocompleteSetActionDefinition
+                || actionDefinition instanceof AutocompleteAddActionDefinition
+                || actionDefinition instanceof RowDeleteActionDefinition
+                || actionDefinition instanceof BulkDeleteActionDefinition
+                || actionDefinition instanceof BulkRemoveActionDefinition;
+    }
 }
