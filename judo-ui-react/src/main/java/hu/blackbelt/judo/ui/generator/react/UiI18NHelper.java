@@ -177,6 +177,8 @@ public class UiI18NHelper {
                 return "judo.action.update";
             } else if (ad.getIsDeleteAction()) {
                 return "judo.action.delete";
+            } else if (ad.getIsRowDeleteAction()) {
+                return "judo.action.row-delete";
             } else if (ad.getIsRemoveAction()) {
                 return "judo.action.remove";
             } else if (ad.getIsFilterAction()) {
@@ -364,6 +366,7 @@ public class UiI18NHelper {
                     || ad.getIsSetAction()
                     || ad.getIsUpdateAction()
                     || ad.getIsDeleteAction()
+                    || ad.getIsRowDeleteAction()
                     || ad.getIsRemoveAction()
                     || ad.getIsFilterAction()
                     || ad.getIsFilterRelationAction()
