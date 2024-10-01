@@ -427,7 +427,7 @@ export function mapFilterModelToFilters(filterModel: GridFilterModel, filterOpti
         filters.push({
           ...filter,
           filterBy: {
-            value: new Date(item.value).toISOString(),
+            value: item.value ? (typeof item.value === 'string' ? new Date(item.value) : item.value) : undefined,
             operator: mapDateOperator(item.operator),
           },
         });
