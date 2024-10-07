@@ -123,6 +123,22 @@ public class UiActionsHelper {
         return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRefreshAction()).findFirst().orElse(null);
     }
 
+    public static ActionDefinition getClearActionDefinitionForTable(Table table) {
+        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsClearAction()).findFirst().orElse(null);
+    }
+
+    public static ActionDefinition getAutocompleteAddActionDefinitionForTable(Table table) {
+        return  table.getAutocompleteAddActionDefinition();
+    }
+
+    public static ActionDefinition getBulkRemoveActionDefinitionForTable(Table table) {
+        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsBulkRemoveAction()).findFirst().orElse(null);
+    }
+
+    public static ActionDefinition getRowDeleteActionDefinitionForTable(Table table) {
+        return (ActionDefinition) table.getRowActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRowDeleteAction()).findFirst().orElse(null);
+    }
+
     public static ActionDefinition getRangeActionDefinitionForTable(Table table) {
         return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsSelectorRangeAction()).findFirst().orElse(null);
     }

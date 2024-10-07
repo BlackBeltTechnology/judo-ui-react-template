@@ -3,11 +3,22 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (values: 
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   try {
     {{# if table.isEager }}
-      storeDiff('{{ table.relationName }}', values);
+      storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.relationName }} || []), ...values]);
+    {{ else }}
+      setIsLoading(true);
+      await {{ getServiceImplForPage page }}.add{{ firstToUpper table.relationName }}(
+        owner.current,
+        values
+      );
+      await refresh();
     {{/ if }}
   } catch (error) {
     handleError(error);
     return Promise.reject(error);
+  } finally {
+    {{# unless table.isEager }}
+    setIsLoading(false);
+    {{/ unless }}
   }
   {{/ with }}
 };
