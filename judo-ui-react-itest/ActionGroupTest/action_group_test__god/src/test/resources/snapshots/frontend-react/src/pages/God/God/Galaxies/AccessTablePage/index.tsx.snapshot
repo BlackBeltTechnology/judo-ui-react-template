@@ -139,14 +139,22 @@ export default function GodGodGalaxiesAccessTablePage() {
       });
     });
   };
-  // InlineCreateRowAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableInlineCreateRowAction
-  const inlineCreateRowAction = async (): Promise<ViewGalaxy | undefined> => {
-    try {
-      const { data: result } = await godServiceForGalaxiesImpl.getTemplate();
-      return result;
-    } catch (error) {
-      console.error(error);
-      return undefined;
+  // OpenCreateFormAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableCreateAction
+  const openCreateFormAction = async () => {
+    const {
+      result,
+      data: returnedData,
+      openCreated,
+    } = await openGodGodGalaxiesAccessFormPage({
+      ownerData: produceDataAdjustedOwner(),
+      isDraft: false,
+      dataPath: `${dataPath ? dataPath + '.' : ''}`,
+    });
+    if (result === 'submit') {
+      setRefreshCounter((prev) => prev + 1);
+    }
+    if (openCreated && returnedData) {
+      await openPageAction(returnedData!);
     }
   };
   // RowDeleteAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableRowDeleteAction
@@ -241,32 +249,12 @@ export default function GodGodGalaxiesAccessTablePage() {
       await refresh();
     }
   };
-  const applyRowEdit = async (rowData: ViewGalaxyStored): Promise<any> => {
-    try {
-      setIsLoading(true);
-      if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
-        const queryCustomizer: { _mask: string } = {
-          _mask: '{}',
-        };
-        await godServiceForGalaxiesImpl.create(rowData, queryCustomizer);
-        showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
-      } else {
-        await godServiceForGalaxiesImpl.update(rowData);
-        showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
-      }
-      await refresh();
-    } catch (error) {
-      return Promise.reject(error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const actions: ViewGalaxyTablePageActions = {
     getPageTitle,
     backAction,
     bulkDeleteAction,
-    inlineCreateRowAction,
+    openCreateFormAction,
     rowDeleteAction,
     filterAction,
     refreshAction,
@@ -275,7 +263,6 @@ export default function GodGodGalaxiesAccessTablePage() {
     createIntergalacticDustAction,
     createInterstellarMediumAction,
     getMask,
-    applyRowEdit,
     ...(customActions ?? {}),
   };
 

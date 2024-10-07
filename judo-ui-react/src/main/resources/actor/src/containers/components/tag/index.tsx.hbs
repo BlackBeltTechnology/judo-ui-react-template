@@ -44,6 +44,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     editMode,
     isFormUpdateable,
     storeDiff,
+    refreshCounter,
   } = props;
 
   const { t } = useTranslation();
@@ -53,6 +54,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   }, [actions]);
   const hasAutocompleteAddCapability = useMemo<boolean>(() => {
     return actionsHasCapability(actions, '{{ table.relationName }}', 'AutocompleteAddAction');
+  }, [actions]);
+  const hasClearCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, '{{ table.relationName }}', 'ClearAction');
   }, [actions]);
   const hasOpenAddCapability = useMemo<boolean>(() => {
     return actionsHasCapability(actions, '{{ table.relationName }}', 'OpenAddSelectorAction');
@@ -81,11 +85,53 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
           return values;
         } : undefined }
         onSearchDialogsClick={hasOpenAddCapability ? () => (actions as any)[createActionName('{{ table.relationName }}', 'OpenAddSelectorAction')]() : undefined}
-        onValueChange={async (values) => storeDiff('{{ table.relationName }}', values)}
+        onValueChange={ async (values, added, removed) => {
+          if (Array.isArray(added) && added.length) {
+            {{# with (getAutocompleteAddActionDefinitionForTable table) as |autocompleteAddActionDefinition| }}
+              if (actions.{{ simpleActionDefinitionName autocompleteAddActionDefinition }}) {
+                await actions.{{ simpleActionDefinitionName autocompleteAddActionDefinition }}!(added);
+              }
+            {{/ with }}
+          } else if (Array.isArray(removed) && removed.length) {
+            {{# unless table.isEager }}
+              {{# with (getRowDeleteActionDefinitionForTable table) as |rowDeleteActionDefinition| }}
+                if (actions.{{ simpleActionDefinitionName rowDeleteActionDefinition }}) {
+                  await actions.{{ simpleActionDefinitionName rowDeleteActionDefinition }}!(removed[0]);
+                }
+              {{/ with }}
+            {{ else }}
+              {{# with (getBulkRemoveActionDefinitionForTable table) as |bulkRemoveActionDefinition| }}
+                if (actions.{{ simpleActionDefinitionName bulkRemoveActionDefinition }}) {
+                  await actions.{{ simpleActionDefinitionName bulkRemoveActionDefinition }}!(removed);
+                }
+              {{/ with }}
+            {{/ unless }}
+          }
+        } }
         onItemClick={actions.{{ table.relationName }}OpenPageAction ? (target) => actions.{{ table.relationName }}OpenPageAction!(target) : undefined}
         onCreateDialogsClick={hasCreateCapability ? () => (actions as any)[createActionName('{{ table.relationName }}', 'OpenCreateFormAction')]() : undefined}
-        onClearDialogsClick={() => storeDiff('{{ table.relationName }}', [])}
+        {{# with (getClearActionDefinitionForTable table) as |clearActionDefinition| }}
+        onClearDialogsClick={ hasClearCapability ? async () => actions.{{ simpleActionDefinitionName clearActionDefinition }}!() : undefined }
+        {{/ with }}
         identifierAttribute="__identifier"
+        {{# unless table.isEager }}
+        refreshCounter={refreshCounter}
+        {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
+        onAsyncLoad={ async (queryCustomizer) => {
+          try {
+            if (typeof actions.{{ simpleActionDefinitionName actionDefinition }} === 'function') {
+              const { data: result } = await actions.{{ simpleActionDefinitionName actionDefinition }}!(queryCustomizer);
+              return result;
+            } else {
+              return [];
+            }
+          } catch(e) {
+            console.error(e);
+            return [];
+          }
+        } }
+        {{/ with }}
+        {{/ unless }}
       />
     </div>
   );

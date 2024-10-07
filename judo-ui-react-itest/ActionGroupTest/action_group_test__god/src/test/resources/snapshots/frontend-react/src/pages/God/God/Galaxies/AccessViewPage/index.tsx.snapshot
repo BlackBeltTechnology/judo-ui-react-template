@@ -365,6 +365,34 @@ export default function GodGodGalaxiesAccessViewPage() {
       });
     });
   };
+  // OpenCreateFormAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableCreateAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
+  const starsOpenCreateFormAction = async () => {
+    const itemIndex = (data.stars || []).length; // length gives next without -1-ing it
+    const {
+      result,
+      data: returnedData,
+      openCreated,
+    } = await openViewGalaxyStarsRelationFormPage({
+      ownerData: produceDataAdjustedOwner(),
+      ownerValidation: validate,
+      isDraft: true,
+      dataPath: `${dataPath ? dataPath + '.' : ''}stars[${itemIndex}]`,
+    });
+    if (result === 'submit' && !editMode) {
+      await actions.refreshAction!(processQueryCustomizer(getPageQueryCustomizer()));
+    } else if (result === 'submit-draft' && returnedData) {
+      const decoratedData = {
+        ...returnedData,
+        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+      };
+      const newData = [...(data.stars || []), decoratedData];
+      storeDiff('stars', newData);
+      return;
+    }
+    if (openCreated && returnedData) {
+      await starsOpenPageAction(returnedData!);
+    }
+  };
   // ExportAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableExportAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const starsExportAction = async (queryCustomizer: ViewStarQueryCustomizer) => {
     try {
@@ -392,16 +420,6 @@ export default function GodGodGalaxiesAccessViewPage() {
     return {
       filters: newFilters,
     };
-  };
-  // InlineCreateRowAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableInlineCreateRowAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const starsInlineCreateRowAction = async (): Promise<ViewStar | undefined> => {
-    try {
-      const { data: result } = await godServiceForGalaxiesImpl.getTemplateForStars();
-      return result;
-    } catch (error) {
-      console.error(error);
-      return undefined;
-    }
   };
   // RowDeleteAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const starsRowDeleteAction = async (target: ViewStarStored) => {
@@ -504,24 +522,6 @@ export default function GodGodGalaxiesAccessViewPage() {
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(routeToViewGalaxyMatterRelationTablePage(((target as ViewMatterStored) || data).__signedIdentifier));
   };
-  const applyStarsRowEdit = async (rowData: ViewStarStored): Promise<any> => {
-    try {
-      if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
-        const updatedList = [rowData, ...(data.stars || [])];
-        storeDiff('stars', updatedList);
-      } else {
-        // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
-        const updatedList = [...(data.stars || [])];
-        const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
-        updatedList[existingIndex] = {
-          ...rowData,
-        };
-        storeDiff('stars', updatedList);
-      }
-    } catch (error) {
-      return Promise.reject(error);
-    }
-  };
 
   const actions: ViewGalaxyViewPageActions = {
     getPageTitle,
@@ -538,9 +538,9 @@ export default function GodGodGalaxiesAccessViewPage() {
     astronomerUnsetAction,
     astronomerOpenPageAction,
     starsBulkDeleteAction,
+    starsOpenCreateFormAction,
     starsExportAction,
     starsFilterAction,
-    starsInlineCreateRowAction,
     starsRowDeleteAction,
     starsOpenPageAction,
     createDarkMatterAction,
@@ -550,7 +550,6 @@ export default function GodGodGalaxiesAccessViewPage() {
     getMask,
     getAstronomerMask,
     getStarsMask,
-    applyStarsRowEdit,
     ...(customActions ?? {}),
   };
 
