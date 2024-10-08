@@ -29,7 +29,7 @@ export interface TagsProps<P, T> {
   onAutoCompleteSearch?: (searchText: string, preparedQueryCustomizer: QueryCustomizer<T>) => Promise<T[]>;
   additionalMaskAttributes?: string[];
   limitOptions?: number;
-  onValueChange?: (target: T[]) => Promise<void>;
+  onValueChange?: (target: T[], added: T[], removed: T[]) => Promise<void>;
   onItemClick?: (target: T) => void;
   onSearchDialogsClick?: () => void;
   searchDialogTitle?: string;
@@ -37,9 +37,12 @@ export interface TagsProps<P, T> {
   onCreateDialogsClick?: () => void;
   createDialogTitle?: string;
   createDialogIcon?: string;
-  onClearDialogsClick?: () => void;
+  onClearDialogsClick?: () => Promise<void>;
   clearTitle?: string;
   clearIcon?: string;
+  refreshCounter?: number;
+  isOwnerLoading?: boolean;
+  onAsyncLoad?: (queryCustomizer: QueryCustomizer<T>) => Promise<T[]>;
 }
 
 /**
@@ -72,33 +75,42 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     additionalMaskAttributes = [],
     limitOptions = 10,
     identifierAttribute,
+    refreshCounter,
+    isOwnerLoading = false,
+    onAsyncLoad,
   } = props;
   const [options, setOptions] = useState<any[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(isOwnerLoading);
+  const [values, setValues] = useState<T[]>((ownerData[name] as T[]) ?? []);
+  const refreshRef = useRef<number>(refreshCounter || -1);
 
-  const handleSearch = async (searchText: string) => {
+  const createQueryCustomizer = useCallback((searchText?: string) => {
+    const filter: { value: string, operator: any }[] = [];
+    if (searchText) {
+      filter.push({
+        value: `%${searchText}%`,
+        operator: StringOperation.like,
+      });
+    }
+    return {
+      _mask: `{${autoCompleteAttribute as string}${additionalMaskAttributes.length ? ',' + additionalMaskAttributes.join(',') : ''}}`,
+      [autoCompleteAttribute]: filter,
+      _orderBy: [
+        {
+          attribute: autoCompleteAttribute as string,
+          descending: false,
+        },
+      ],
+      _seek: {
+        limit: limitOptions,
+      },
+    };
+  }, [autoCompleteAttribute, additionalMaskAttributes, limitOptions]);
+
+  const handleSearch = useCallback(async (searchText: string) => {
     try {
       setLoading(true);
-      const filter: { value: string, operator: any }[] = [];
-      if (searchText) {
-        filter.push({
-          value: `%${searchText}%`,
-          operator: StringOperation.like,
-        });
-      }
-      const queryCustomizer: QueryCustomizer<any> = {
-        _mask: `{${autoCompleteAttribute as string}${additionalMaskAttributes.length ? ',' + additionalMaskAttributes.join(',') : ''}}`,
-        [autoCompleteAttribute]: filter,
-        _orderBy: [
-          {
-            attribute: autoCompleteAttribute as string,
-            descending: false,
-          },
-        ],
-        _seek: {
-          limit: limitOptions,
-        },
-      };
+      const queryCustomizer: QueryCustomizer<any> = createQueryCustomizer(searchText);
       const response = await onAutoCompleteSearch!(searchText, queryCustomizer);
       setOptions(response);
     } catch (error) {
@@ -107,7 +119,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, options, onAutoCompleteSearch]);
 
   const onInputChange = useMemo(
     () =>
@@ -116,30 +128,57 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
           handleSearch(value);
         }
       }, debounceInputs),
-    [ownerData],
+    [handleSearch],
   );
 
   const onChange = useCallback(
-    (event: SyntheticEvent, value: (string | any)[]) => {
+    (event: SyntheticEvent, value: (string | any)[], reason: string) => {
       if (typeof onValueChange === 'function') {
-        onValueChange(value as any);
+        const added = value.filter(v => !values.some(vv => vv[identifierAttribute as keyof T] === v[identifierAttribute]));
+        const removed = values.filter(v => !value.some(vv => vv[identifierAttribute] === v[identifierAttribute as keyof T]));
+        onValueChange(value as any, added, removed);
       }
     },
-    [ownerData, onValueChange],
+    [onValueChange, values],
   );
 
   const onChipClicked = useCallback(
     (event: MouseEvent) => {
       const label = (event.target as HTMLSpanElement).textContent;
       if (label) {
-        const data = ((ownerData[name] as T[]) ?? []).find((c: any) => c[autoCompleteAttribute] === label);
-        if (data && onItemClick) {
+        const data = values.find((c: any) => c[autoCompleteAttribute] === label);
+        if (data && onItemClick && !editMode) {
           onItemClick(data);
         }
       }
     },
-    [ownerData, onItemClick],
+    [values, onItemClick, editMode],
   );
+
+  useEffect(() => {
+    if (typeof refreshCounter === 'number' && refreshCounter > refreshRef.current && typeof onAsyncLoad === 'function') {
+      (async () => {
+        try {
+          const queryCustomizer: QueryCustomizer<any> = createQueryCustomizer();
+          const response = await onAsyncLoad(queryCustomizer);
+          refreshRef.current = refreshCounter;
+          setValues(response);
+        } catch(e) {
+          console.error(e);
+        }
+      })();
+    }
+  }, [refreshCounter, onAsyncLoad]);
+
+  useEffect(() => {
+    if (typeof onAsyncLoad !== 'function') {
+      setValues(ownerData[name] as T[] || []);
+    }
+  }, [ownerData]);
+
+  useEffect(() => {
+    setLoading(isOwnerLoading);
+  }, [isOwnerLoading]);
 
   return (
     <Autocomplete
@@ -151,7 +190,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
       readOnly={readOnly}
       options={options}
       loading={loading}
-      value={(ownerData[name] as T[]) ?? []}
+      value={values}
       disableClearable={true}
       getOptionKey={(option) => option[identifierAttribute]}
       getOptionLabel={(option) => option[autoCompleteAttribute] ?? ''}
@@ -206,7 +245,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
         />
       )}
       ChipProps={ {
-        clickable: typeof onItemClick === 'function',
+        clickable: typeof onItemClick === 'function' && !editMode,
         onClick: onChipClicked,
       } }
     />
