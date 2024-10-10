@@ -357,6 +357,9 @@ public class UiWidgetHelper {
                 if (button.getActionDefinition().isIsBulk()) {
                     result += " && selectionModel.length > 0";
                 }
+                if (button.getActionDefinition().getIsInlineCreateRowAction()) {
+                    result += " && (rowModesModel ? Object.keys(rowModesModel).every(k => rowModesModel[k].mode !== GridRowModes.Edit) : true)";
+                }
                 return result;
             }
         }
@@ -366,6 +369,9 @@ public class UiWidgetHelper {
         }
         if (button.getHiddenBy() != null) {
             result += "(ownerData ? !ownerData." + button.getHiddenBy().getName() + " : true) && ";
+        }
+        if (button.getActionDefinition().getIsInlineCreateRowAction()) {
+            result += "(rowModesModel ? Object.keys(rowModesModel).every(k => rowModesModel[k].mode !== GridRowModes.Edit) : true) && ";
         }
         if (button.getActionDefinition().getIsOpenCreateFormAction() && !table.isIsEager() && container.isView()) {
             return result += "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";

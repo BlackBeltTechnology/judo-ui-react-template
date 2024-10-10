@@ -188,6 +188,28 @@
                     <workingDirectory>${generation-target}</workingDirectory>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>hu.blackbelt.judo.generator</groupId>
+                <artifactId>judo-diff-checker-maven-plugin</artifactId>
+                <version>${revision}</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>checkDiffs</goal>
+                        </goals>
+                        <phase>generate-sources</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <sourceDirectory>${project.basedir}/target/frontend-react/</sourceDirectory>
+                    <snapshotDirectory>${project.basedir}/src/test/resources/snapshots/frontend-react/</snapshotDirectory>
+                    <sources>
+                        <source>src/pages/Actor/TagContainerTransfer/AccessViewPage/index.tsx</source>
+                        <source>src/pages/Actor/InlineEditTransfer/AccessViewPage/index.tsx</source>
+                    </sources>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
 </project>
