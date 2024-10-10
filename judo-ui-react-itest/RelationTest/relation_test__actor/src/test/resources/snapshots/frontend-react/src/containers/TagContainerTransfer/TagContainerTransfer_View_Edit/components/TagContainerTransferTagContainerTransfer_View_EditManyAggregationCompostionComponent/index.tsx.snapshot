@@ -1,0 +1,131 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #getTagsForPageContainers(#application)
+// Path expression: 'src/containers/'+#containerPath(#self.pageContainer)+'/components/'+#tagComponentName(#self)+'/index.tsx'
+// Template name: actor/src/containers/components/tag/index.tsx
+// Template file: actor/src/containers/components/tag/index.tsx.hbs
+
+import { useMemo } from 'react';
+import type { Dispatch, ElementType, FC, MouseEvent, SetStateAction } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { Filter } from '~/components-api';
+import { Tags } from '~/components/widgets';
+import type { TagContainerTransfer, TagContainerTransferStored } from '~/services/data-api/model/TagContainerTransfer';
+import type { TransferObjectE, TransferObjectEStored } from '~/services/data-api/model/TransferObjectE';
+import type { TagContainerTransferQueryCustomizer } from '~/services/data-api/rest/TagContainerTransferQueryCustomizer';
+import type { TransferObjectEQueryCustomizer } from '~/services/data-api/rest/TransferObjectEQueryCustomizer';
+import { TransferObjectEStoredSerializer } from '~/services/data-api/rest/TransferObjectESerializer';
+import { actionsHasCapability, createActionName, deserializeFilters, serializeFilters } from '~/utilities';
+import type { FiltersSerializer } from '~/utilities';
+import type {
+  TagContainerTransferTagContainerTransfer_View_EditManyAggregationCompostionComponentActionDefinitions,
+  TagContainerTransferTagContainerTransfer_View_EditManyAggregationCompostionComponentProps,
+} from './types';
+
+export const filtersSerializer: FiltersSerializer = {
+  serialize: (filters: Filter[]) =>
+    serializeFilters<TransferObjectEStored>(filters, TransferObjectEStoredSerializer.getInstance()),
+  deserialize: (filters: Filter[]) =>
+    deserializeFilters<TransferObjectEStored>(filters, TransferObjectEStoredSerializer.getInstance()),
+};
+
+// XMIID: Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceFieldRelationDefinedTable
+// Name: manyAggregationCompostion
+export function TagContainerTransferTagContainerTransfer_View_EditManyAggregationCompostionComponent(
+  props: TagContainerTransferTagContainerTransfer_View_EditManyAggregationCompostionComponentProps,
+) {
+  const {
+    uniqueId,
+    actions,
+    dataPath,
+    isOwnerLoading,
+    isDraft,
+    validationError,
+    ownerData,
+    editMode,
+    isFormUpdateable,
+    storeDiff,
+    refreshCounter,
+  } = props;
+
+  const { t } = useTranslation();
+
+  const hasRangeCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, 'manyAggregationCompostion', 'AutocompleteRangeAction');
+  }, [actions]);
+  const hasAutocompleteAddCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, 'manyAggregationCompostion', 'AutocompleteAddAction');
+  }, [actions]);
+  const hasClearCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, 'manyAggregationCompostion', 'ClearAction');
+  }, [actions]);
+  const hasOpenAddCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, 'manyAggregationCompostion', 'OpenAddSelectorAction');
+  }, [actions]);
+  const hasCreateCapability = useMemo<boolean>(() => {
+    return actionsHasCapability(actions, 'manyAggregationCompostion', 'OpenCreateFormAction');
+  }, [actions]);
+
+  return (
+    <div
+      id="Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceFieldRelationDefinedTable"
+      data-table-name="manyAggregationCompostion"
+    >
+      <Tags<TagContainerTransfer, TransferObjectEStored>
+        id="Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceFieldRelationDefinedTable"
+        label={t('TagContainerTransfer.TagContainerTransfer_View_Edit.manyAggregationCompostion', {
+          defaultValue: 'ManyAggregationCompostion',
+        })}
+        helperText={validationError}
+        error={!!validationError}
+        editMode={editMode}
+        ownerData={ownerData}
+        name="manyAggregationCompostion"
+        disabled={isOwnerLoading || !isFormUpdateable()}
+        readOnly={false || !isFormUpdateable()}
+        autoCompleteAttribute="field"
+        onAutoCompleteSearch={
+          hasRangeCapability
+            ? async (searchText, preparedQueryCustomizer) => {
+                const values = await (actions as any)[
+                  createActionName('manyAggregationCompostion', 'AutocompleteRangeAction')
+                ](preparedQueryCustomizer);
+                return values;
+              }
+            : undefined
+        }
+        onSearchDialogsClick={
+          hasOpenAddCapability
+            ? () => (actions as any)[createActionName('manyAggregationCompostion', 'OpenAddSelectorAction')]()
+            : undefined
+        }
+        onValueChange={async (values, added, removed) => {
+          if (Array.isArray(added) && added.length) {
+            if (actions.manyAggregationCompostionAutocompleteAddAction) {
+              await actions.manyAggregationCompostionAutocompleteAddAction!(added);
+            }
+          } else if (Array.isArray(removed) && removed.length) {
+            if (actions.manyAggregationCompostionBulkDeleteAction) {
+              await actions.manyAggregationCompostionBulkDeleteAction!(removed);
+            }
+          }
+        }}
+        onItemClick={
+          actions.manyAggregationCompostionOpenPageAction
+            ? (target) => actions.manyAggregationCompostionOpenPageAction!(target)
+            : undefined
+        }
+        onCreateDialogsClick={
+          hasCreateCapability
+            ? () => (actions as any)[createActionName('manyAggregationCompostion', 'OpenCreateFormAction')]()
+            : undefined
+        }
+        onClearDialogsClick={
+          hasClearCapability ? async () => actions.manyAggregationCompostionClearAction!() : undefined
+        }
+        identifierAttribute="__identifier"
+      />
+    </div>
+  );
+}
