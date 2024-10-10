@@ -93,19 +93,17 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
               }
             {{/ with }}
           } else if (Array.isArray(removed) && removed.length) {
-            {{# unless table.isEager }}
-              {{# with (getRowDeleteActionDefinitionForTable table) as |rowDeleteActionDefinition| }}
-                if (actions.{{ simpleActionDefinitionName rowDeleteActionDefinition }}) {
-                  await actions.{{ simpleActionDefinitionName rowDeleteActionDefinition }}!(removed[0]);
-                }
-              {{/ with }}
+            {{# with (getBulkDeleteActionDefinitionForTable table) as |bulkDeleteActionDefinition| }}
+              if (actions.{{ simpleActionDefinitionName bulkDeleteActionDefinition }}) {
+                await actions.{{ simpleActionDefinitionName bulkDeleteActionDefinition }}!(removed);
+              }
             {{ else }}
               {{# with (getBulkRemoveActionDefinitionForTable table) as |bulkRemoveActionDefinition| }}
                 if (actions.{{ simpleActionDefinitionName bulkRemoveActionDefinition }}) {
                   await actions.{{ simpleActionDefinitionName bulkRemoveActionDefinition }}!(removed);
                 }
               {{/ with }}
-            {{/ unless }}
+            {{/ with }}
           }
         } }
         onItemClick={actions.{{ table.relationName }}OpenPageAction ? (target) => actions.{{ table.relationName }}OpenPageAction!(target) : undefined}
