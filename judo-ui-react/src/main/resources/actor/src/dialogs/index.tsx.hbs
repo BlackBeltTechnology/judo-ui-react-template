@@ -237,6 +237,46 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{> (getActionTemplate action) }}
     {{/ each }}
 
+    {{# each page.container.tables as |table| }}
+      {{# if table.isInlineEditable }}
+        const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
+          try {
+            {{# if table.isEager }}
+              if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+                const updatedList = [rowData, ...(data.{{ table.relationName }} || [])];
+                storeDiff('{{ table.dataElement.name }}', updatedList);
+              } else {
+                // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+                const updatedList = [...(data.{{ table.relationName }} || [])];
+                const existingIndex = updatedList.findIndex(r => r.__identifier === rowData.__identifier);
+                updatedList[existingIndex] = {
+                  ...rowData,
+                };
+                storeDiff('{{ table.dataElement.name }}', updatedList);
+              }
+            {{ else }}
+              setIsLoading(true);
+              if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+                const queryCustomizer: { _mask: string } = {
+                  _mask: '{}',
+                };
+                await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData, queryCustomizer);
+                showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
+              } else {
+                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData);
+                showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
+              }
+              await refresh();
+            {{/ if }}
+          } catch(error) {
+            return Promise.reject(error);
+          }{{# unless table.isEager }} finally {
+            setIsLoading(false);
+          }{{/ unless }}
+        };
+      {{/ if }}
+    {{/ each }}
+
     const actions: {{ containerComponentName page.container }}DialogActions = {
       getPageTitle,
       {{# each page.actions as |action| }}
@@ -251,6 +291,11 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{/ each }}
         {{# each page.container.tables as |table| }}
           get{{ firstToUpper table.relationName }}Mask,
+        {{/ each }}
+        {{# each page.container.tables as |table| }}
+          {{# if table.isInlineEditable }}
+            apply{{ firstToUpper table.relationName }}RowEdit,
+          {{/ if }}
         {{/ each }}
       {{/ unless }}
       ...(customActions ?? {}),
