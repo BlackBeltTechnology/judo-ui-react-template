@@ -139,6 +139,10 @@ public class UiActionsHelper {
         return (ActionDefinition) table.getRowActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsRowDeleteAction()).findFirst().orElse(null);
     }
 
+    public static ActionDefinition getBulkDeleteActionDefinitionForTable(Table table) {
+        return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsBulkDeleteAction()).findFirst().orElse(null);
+    }
+
     public static ActionDefinition getRangeActionDefinitionForTable(Table table) {
         return (ActionDefinition) table.getTableActionDefinitions().stream().filter(a -> ((ActionDefinition) a).getIsSelectorRangeAction()).findFirst().orElse(null);
     }

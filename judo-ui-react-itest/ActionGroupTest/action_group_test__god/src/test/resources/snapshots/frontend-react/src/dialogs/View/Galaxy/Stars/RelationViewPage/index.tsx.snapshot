@@ -437,6 +437,10 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
       });
     });
   };
+  // ClearAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableClearAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
+  const planetsClearAction = async () => {
+    storeDiff('planets', []);
+  };
   // OpenCreateFormAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableCreateAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const planetsOpenCreateFormAction = async () => {
     const itemIndex = (data.planets || []).length; // length gives next without -1-ing it
@@ -606,6 +610,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     observationsRemoveAction,
     observationsOpenPageAction,
     planetsBulkDeleteAction,
+    planetsClearAction,
     planetsOpenCreateFormAction,
     planetsFilterAction,
     planetsRowDeleteAction,
