@@ -31,6 +31,9 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
     simpleCloneDeep,
     getValue,
     setValue,
+    {{# if page.container.form }}
+    getErrorRelationKeyFromPayload,
+    {{/ if }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -244,6 +247,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             {{# if table.isEager }}
               if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
                 const updatedList = [rowData, ...(data.{{ table.relationName }} || [])];
+                {{# if page.container.form }}
+                await validate({...data, {{ table.relationName }}: updatedList});
+                {{/ if }}
                 storeDiff('{{ table.dataElement.name }}', updatedList);
               } else {
                 // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
@@ -252,6 +258,9 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 updatedList[existingIndex] = {
                   ...rowData,
                 };
+                {{# if page.container.form }}
+                await validate({...data, {{ table.relationName }}: updatedList});
+                {{/ if }}
                 storeDiff('{{ table.dataElement.name }}', updatedList);
               }
             {{ else }}
@@ -268,7 +277,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
               }
               await refresh();
             {{/ if }}
-          } catch(error) {
+          } catch(error: any) {
             return Promise.reject(error);
           }{{# unless table.isEager }} finally {
             setIsLoading(false);

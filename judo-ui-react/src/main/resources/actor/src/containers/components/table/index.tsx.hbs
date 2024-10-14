@@ -88,6 +88,8 @@ import {
   {{/ unless }}
   type ServerError,
   validateWithNestedErrors,
+  isErrorNestedValidationError,
+  extractRelationErrorList,
 } from '~/utilities';
 import type { SidekickComponentProps, DialogResult, TableRowAction, ToolBarActionProps, ColumnCustomizerHook, FiltersSerializer{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import { OBJECTCLASS } from '@pandino/pandino-api';
@@ -156,7 +158,11 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     } catch(e: any) {
       if (e?.response?.status === 400) {
         const errorMap: Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string> = new Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>();
-        const errorList = e.response.data as ServerError<{{ classDataName (getReferenceClassType table) 'Stored' }}>[];
+        {{# if table.isEager }}
+        // can be -1 if row is not yet written into ownerData
+        const rowIdx = (ownerData?.{{ table.dataElement.name }} || []).findIndex(r => r.__identifier === rowData.__identifier);
+        {{/ if }}
+        const errorList = isErrorNestedValidationError(e, dataPath) ? extractRelationErrorList<any, {{ classDataName (getReferenceClassType table) 'Stored' }}>(e.response.data, dataPath!{{# if table.isEager }}, rowIdx === -1 ? 0 : rowIdx{{/ if }}) : e.response.data as ServerError<{{ classDataName (getReferenceClassType table) 'Stored' }}>[];
         if (errorList && errorList.length && errorList[0].location) {
           validateWithNestedErrors(errorList, errorMap, t);
         }

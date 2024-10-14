@@ -41,6 +41,19 @@ export interface ErrorProcessResult<T> {
   validation?: Map<keyof T, string>;
 }
 
+export const getErrorRelationKeyFromPayload = <T,>(error: ServerError<T>): keyof T | undefined => {
+  const split = error.location.split(/\[|\./).filter((e) => e.length);
+  return split.length > 1 ? (split[0] as keyof T) : undefined;
+};
+
+export const extractRelationErrorList = <T,R>(errorList: ServerError<T>[], relationKey: keyof T, idx = 0): ServerError<R>[] => {
+  const reg = new RegExp(`^${relationKey as string}\\[${idx}\\]\\.`);
+  return errorList.filter(e => e.location.match(reg)).map(e => ({
+    ...e,
+    location: e.location.replace(reg, ''),
+  }));
+}
+
 export const useErrorHandler = () => {
   const { t } = useTranslation();
   const { showErrorSnack } = useSnacks();
@@ -163,8 +176,7 @@ export function validateWithNestedErrors<T>(errorList: ServerError<T>[], validat
   const errorRelations: Record<string, Array<string>> = {};
 
   errorList.forEach((error) => {
-    const split = error.location.split(/\[|\./).filter((e) => e.length);
-    const relationKey: keyof T | undefined = split.length > 1 ? (split[0] as keyof T) : undefined;
+    const relationKey: keyof T | undefined = getErrorRelationKeyFromPayload<T>(error);
     if (relationKey) {
       if(!Array.isArray(errorRelations[relationKey as string])) {
         errorRelations[relationKey as string] = [];

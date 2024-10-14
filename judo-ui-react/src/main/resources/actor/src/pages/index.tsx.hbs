@@ -243,10 +243,12 @@ export default function {{ pageName page }}() {
         const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
           try {
             {{# if table.isEager }}
+              {{# if page.container.view }}
               await {{ getServiceImplForPage page }}.validateUpdate{{ firstToUpper table.relationName }}(
                 { __signedIdentifier: signedIdentifier } as any,
                 rowData,
               );
+              {{/ if }}
               if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
                 const updatedList = [rowData, ...(data.{{ table.relationName }} || [])];
                 storeDiff('{{ table.dataElement.name }}', updatedList);
