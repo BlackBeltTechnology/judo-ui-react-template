@@ -583,6 +583,10 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
   const applyManyAggregationCompositionRowEdit = async (rowData: TransferObjectHStored): Promise<any> => {
     try {
+      await actorServiceForInlineEditTransferImpl.validateUpdateManyAggregationComposition(
+        { __signedIdentifier: signedIdentifier } as any,
+        rowData,
+      );
       if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
         const updatedList = [rowData, ...(data.manyAggregationComposition || [])];
         storeDiff('manyAggregationComposition', updatedList);
@@ -601,6 +605,10 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
   const applyManyDerivedAggregationAssociationRowEdit = async (rowData: TransferObjectHStored): Promise<any> => {
     try {
+      await actorServiceForInlineEditTransferImpl.validateUpdateManyDerivedAggregationAssociation(
+        { __signedIdentifier: signedIdentifier } as any,
+        rowData,
+      );
       if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
         const updatedList = [rowData, ...(data.manyDerivedAggregationAssociation || [])];
         storeDiff('manyDerivedAggregationAssociation', updatedList);
@@ -619,6 +627,10 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
   const applyManyDerivedAggregationCompositionRowEdit = async (rowData: TransferObjectHStored): Promise<any> => {
     try {
+      await actorServiceForInlineEditTransferImpl.validateUpdateManyDerivedAggregationComposition(
+        { __signedIdentifier: signedIdentifier } as any,
+        rowData,
+      );
       if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
         const updatedList = [rowData, ...(data.manyDerivedAggregationComposition || [])];
         storeDiff('manyDerivedAggregationComposition', updatedList);
