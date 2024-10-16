@@ -7,9 +7,9 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
   try {
     setIsLoading(true);
 {{# if container.isRelationSelector }}
-    const response = await {{ getServiceImplForPage page }}.export(undefined, queryCustomizer);
+    const response = await {{ getServiceImplForPage page }}.export(owner.current, queryCustomizer);
 {{ else }}
-  const response = await {{ getServiceImplForPage page }}.export{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}undefined{{/ if }}, queryCustomizer);
+    const response = await {{ getServiceImplForPage page }}.export{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}owner.current{{/ if }}, queryCustomizer);
 {{/ if }}
 
     exportFile(response);
