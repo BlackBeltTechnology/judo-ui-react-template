@@ -39,6 +39,7 @@ export const useCRUDDialog: UseCRUDDialog = () => {
 
   return ({ dialogTitle, itemTitleFn, selectedItems, action, onClose, autoCloseOnSuccess, faultPrefix }): void => {
     createDialog({
+      id: `crud-dialog-${new Date().toISOString()}`,
       fullWidth: true,
       maxWidth: 'sm',
       onClose: (event: object, reason: string) => {
@@ -110,7 +111,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
         setProgress((prevProgress) => prevProgress + progressMultiplier);
       }
     },
-    [queueItems],
+    [progressMultiplier],
   );
 
   const runActions = useCallback(async () => {
@@ -150,14 +151,14 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
     }
 
     setInProgress(false);
-  }, [queue, progress]);
+  }, [queue, inProgress, updateQueueItem, action]);
 
   const mapErrors = (error: any): string => {
     if (!error?.response?.status) {
       return t('judo.error.technical.no-status', { defaultValue: 'Could not determine the result(status) of the operation. Please contact with the system admins.' });
     }
     if (isErrorOperationFault(error)) {
-      if (!!faultPrefix) {
+      if (faultPrefix) {
         const faultObjectKeys = Object.keys(error.response.data);
         const translatedErrors: string[] = [];
 
@@ -190,7 +191,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
         showWarningSnack(t('judo.dialogs.crud-bulk.toast.warn', { defaultValue: 'Not all operations executed successfully!' }) as string);
       }
     }
-  }, [queue, inProgress]);
+  }, [queue, inProgress, showSuccessSnack, showWarningSnack, autoCloseOnSuccess, t, close]);
 
   return (
     <>

@@ -24,7 +24,9 @@ export const EventBusProvider: FC<any> = ({ children }) => {
   const publish = (topic: string, ...args: any[]) => {
     const handlers = topicsRef.current[topic];
     if (handlers) {
-      handlers.forEach((handler) => handler(...args));
+      for (const handler of handlers) {
+        handler(...args);
+      }
     }
   };
 

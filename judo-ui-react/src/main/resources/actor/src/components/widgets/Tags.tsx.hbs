@@ -119,7 +119,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     } finally {
       setLoading(false);
     }
-  }, [loading, options, onAutoCompleteSearch]);
+  }, [onAutoCompleteSearch, createQueryCustomizer]);
 
   const onInputChange = useMemo(
     () =>
@@ -139,7 +139,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
         onValueChange(value as any, added, removed);
       }
     },
-    [onValueChange, values],
+    [onValueChange, values, identifierAttribute],
   );
 
   const onChipClicked = useCallback(
@@ -152,7 +152,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
         }
       }
     },
-    [values, onItemClick, editMode],
+    [values, onItemClick, editMode, autoCompleteAttribute],
   );
 
   useEffect(() => {
@@ -168,13 +168,13 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
         }
       })();
     }
-  }, [refreshCounter, onAsyncLoad]);
+  }, [refreshCounter, onAsyncLoad, createQueryCustomizer]);
 
   useEffect(() => {
     if (typeof onAsyncLoad !== 'function') {
       setValues(ownerData[name] as T[] || []);
     }
-  }, [ownerData]);
+  }, [ownerData, name, onAsyncLoad]);
 
   useEffect(() => {
     setLoading(isOwnerLoading);

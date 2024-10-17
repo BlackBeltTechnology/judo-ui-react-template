@@ -51,9 +51,8 @@ export const deepEquals = (a: any, b: any, excludeKeys: string[] = []) => {
 export const stringToBooleanSelect = (booleanString?: string | null): boolean | null => {
   if (!booleanString || !booleanString.trim()) {
     return null;
-  } else {
-    return booleanString === 'true';
   }
+  return booleanString === 'true';
 };
 
 export const booleanToStringSelect = (booleanParam?: boolean | null): string | null => {
@@ -61,9 +60,8 @@ export const booleanToStringSelect = (booleanParam?: boolean | null): string | n
     return ' ';
   } else if (booleanParam) {
     return 'true';
-  } else {
-    return 'false';
   }
+  return 'false';
 };
 
 export const endWithSlash = (input: string): string => (input.endsWith('/') ? input : input + '/');
@@ -146,7 +144,7 @@ export function setValue(target: any, path: string, value: any): void {
       if (current[key] === null || current[key] === undefined) {
         // Determine if the next key is a number to create an array or an object
         const nextKey = pathArray[i + 1];
-        current[key] = isNaN(Number(nextKey)) ? {} : [];
+        current[key] = Number.isNaN(Number(nextKey)) ? {} : [];
       }
       current = current[key];
     }

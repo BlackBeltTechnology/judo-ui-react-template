@@ -81,7 +81,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
     if (isEager) {
       setValue(ownerData[name] || null);
     }
-  }, [isEager, ownerData[name]]);
+  }, [isEager, ownerData[name], name]);
 
   const onSet = useMemo(() => buttonProps.find(a => a.name === 'set'), [buttonProps]);
 
@@ -111,14 +111,14 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
       }
     },
     debounceInputs,
-  ), [ownerData, allowFetch]);
+  ), [allowFetch, handleSearch]);
 
   const handleDropdownToggle = () => {
     setDropdownOpen((prevOpen) => !prevOpen);
   };
 
   const handleDropdownClose = (event: Event) => {
-    if (anchorRef.current && anchorRef.current.contains(event.target as HTMLElement)) {
+    if (anchorRef.current?.contains(event.target as HTMLElement)) {
       return;
     }
 
@@ -142,7 +142,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
         }
       })();
     }
-  }, []);
+  }, [refreshAction, isEager]);
 
   // refresh value if parent is refreshed
   useEffect(() => {
@@ -160,7 +160,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
         }
       })();
     }
-  }, [refreshCounter]);
+  }, [refreshCounter, isEager, refreshAction]);
 
   return (
     <Grid container item direction="row" justifyContent="stretch" alignContent="stretch">

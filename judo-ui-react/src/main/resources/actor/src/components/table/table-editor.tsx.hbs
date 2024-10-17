@@ -31,7 +31,7 @@ export function BooleanSelectEditInputCell(props: GridRenderEditCellParams<any>)
     const index = Array.from(TRINARY_LOGIC.values()).indexOf(event.target.value);
     const keysArray = Array.from(TRINARY_LOGIC.keys());
     api.setEditCellValue({ id, field, value: keysArray[index] });
-  }, [api]);
+  }, [api, id, field]);
 
   const menuItemStyle = { pl: 2.5 };
   const iconStyle = { justifyContent: 'center', pl: 2.5, pt: 0.4 };

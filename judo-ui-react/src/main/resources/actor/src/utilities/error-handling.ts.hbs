@@ -105,18 +105,20 @@ export const useErrorHandler = () => {
               error: error.response?.data as ServerError<T>,
             }) as string;
             break;
-          case 404:
+          case 404: {
             errorResults.toastMessage = t('judo.error.not-found', {
               defaultValue: 'The item which you are trying to operate on does not exist (could be deleted).',
               error: error.response?.data as ServerError<T>,
               payload,
             }) as string;
             break;
-          case 422:
+          }
+          case 422: {
             const key = Object.keys(error.response.data)[0];
             openFaultDialog(key, error.response.data[key]);
             return;
-          case 400:
+          }
+          case 400: {
             const errorList = response.data as ServerError<T>[];
             errorResults.errorToastConfig = {
               ...errorResults.errorToastConfig,
@@ -138,6 +140,7 @@ export const useErrorHandler = () => {
               }
             }
             break;
+          }
           default:
             errorResults.toastMessage = t('error.unknown', {
               defaultValue: 'An unknown error occurred. Please contact with the system admins.',
@@ -157,7 +160,7 @@ export const useErrorHandler = () => {
 };
 
 function validateRelationErrors<T>(errorList: ServerError<T>[], dataPath: string, validation: Map<keyof T, string>, t: any): void {
-  errorList.forEach((error) => {
+  for (const error of errorList) {
     if (error.location.startsWith(dataPath)) {
       const idx = error.location.includes('.') ? error.location.lastIndexOf('.') + 1 : 0;
       validation.set(
@@ -169,13 +172,13 @@ function validateRelationErrors<T>(errorList: ServerError<T>[], dataPath: string
         }) as string,
       );
     }
-  });
+  }
 }
 
 export function validateWithNestedErrors<T>(errorList: ServerError<T>[], validation: Map<keyof T, string>, t: any): void {
   const errorRelations: Record<string, Array<string>> = {};
 
-  errorList.forEach((error) => {
+  for (const error of errorList) {
     const relationKey: keyof T | undefined = getErrorRelationKeyFromPayload<T>(error);
     if (relationKey) {
       if(!Array.isArray(errorRelations[relationKey as string])) {
@@ -194,7 +197,7 @@ export function validateWithNestedErrors<T>(errorList: ServerError<T>[], validat
         }) as string,
       );
     }
-  });
+  }
 
   for (const key in errorRelations) {
     if (Array.isArray(errorRelations[key]) && errorRelations[key].length) {

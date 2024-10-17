@@ -163,7 +163,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         const rowIdx = (ownerData?.{{ table.dataElement.name }} || []).findIndex(r => r.__identifier === rowData.__identifier);
         {{/ if }}
         const errorList = isErrorNestedValidationError(e, dataPath) ? extractRelationErrorList<any, {{ classDataName (getReferenceClassType table) 'Stored' }}>(e.response.data, dataPath!{{# if table.isEager }}, rowIdx === -1 ? 0 : rowIdx{{/ if }}) : e.response.data as ServerError<{{ classDataName (getReferenceClassType table) 'Stored' }}>[];
-        if (errorList && errorList.length && errorList[0].location) {
+        if (errorList?.length && errorList[0].location) {
           validateWithNestedErrors(errorList, errorMap, t);
         }
         const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(rowValidation.current);
@@ -176,7 +176,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       }
       throw(rowData.__identifier);
     }
-  }, [actions]);
+  }, [actions, t, dataPath{{# if table.isEager }}, ownerData?.{{ table.dataElement.name }}{{/ if }}]);
 
   const onRowEditCanceled = useCallback((rowId: string) => {
     if (rowValidation.current.has(rowId)) {
@@ -190,14 +190,21 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{/ each }}
 
   {{# each table.columns as |column| }}
-  const {{ column.name }}Column: GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}> = {
+  const {{ column.name }}Column = useMemo<GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(() => ({
     ...baseColumnConfig,
     field: '{{ column.attributeType.name }}',
     headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
     headerClassName: 'data-grid-column-header',
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
-  };
+  }), [
+    {{# if (isColumnNumeric column) }}
+      {{# if column.formatValue }}l10nLocale, {{/ if }}
+    {{/ if }}
+    {{# or (isColumnTimestamp column) (isColumnTime column) (isColumnDate column) }}l10nLocale, {{/ or }}
+    {{# if (isColumnBinary column) }}downloadFile, {{/ if }}
+    t
+  ]);
   {{/ each }}
 
   const columns = useMemo<GridColDef<{{ classDataName (getReferenceClassType table) 'Stored' }}>[]>(() => [
@@ -208,7 +215,11 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{ column.name }}Column,
       {{/ if }}
     {{/ each }}
-  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
+  ], [
+    {{# each table.columns as |column| }}
+      {{# if column.customImplementation }}{{ column.name }}ColumnCustomizer{{ else }}{{ column.name }}Column{{/ if }},
+    {{/ each }}
+  ]);
 
   const toolBarActions: ToolBarActionProps<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}>[]  = [
     {{# each table.tableActionButtonGroup.buttons as |button| }}

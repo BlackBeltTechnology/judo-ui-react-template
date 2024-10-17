@@ -5,7 +5,7 @@ import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import { debounce } from '@mui/material/utils';
 import { clsx } from 'clsx';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import { debounceInputs } from '~/config';
 
@@ -50,9 +50,9 @@ export const TextWithTypeAhead = ({
 
   useEffect(() => {
     setValue(ownerData[name] || null);
-  }, [ownerData[name]]);
+  }, [ownerData[name], name]);
 
-  const handleSearch = async (searchText: string) => {
+  const handleSearch = useCallback(async (searchText: string) => {
     try {
       if (onAutoCompleteSearch) {
         setLoading(true);
@@ -64,14 +64,14 @@ export const TextWithTypeAhead = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [setLoading, setOptions, onAutoCompleteSearch]);
 
   const propagateChange = useMemo(
     () =>
       debounce((val: string) => {
         handleSearch(val);
       }, debounceInputs),
-    [],
+    [handleSearch],
   );
 
   const onInputChange = useMemo(
@@ -81,7 +81,7 @@ export const TextWithTypeAhead = ({
         propagateChange(val);
       }
     },
-    [ownerData],
+    [onChange, value, propagateChange],
   );
 
   const effectiveReadOnly = readOnly || !onAutoCompleteSearch;

@@ -65,7 +65,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
       headerName: t('judo.pages.table.column.actions', { defaultValue: 'Actions' }) as string,
       type: 'actions',
       getActions: (params: GridRowParams) => [
-        <ButtonGroup>
+        <ButtonGroup key={`row-actions-${id}`}>
           {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Button
               id={a.id}

@@ -127,14 +127,14 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           setData(rollbackPoint.current);
           setEditMode(false);
         }
-      }, [data, editMode, dataPath, ownerData, isDraft]);
+      }, []);
       {{/ if }}
 
       // Callback section
       const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {
         {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target page=page }}
-      }, [data, editMode]);
+      }, [editMode]);
       const isFormUpdateable = useCallback(() => {
         {{# if page.container.form }}
           return true;
@@ -144,14 +144,14 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           }
           return isDraft || {{ boolValue (isPageUpdateable page) }};
         {{/ if }}
-      }, [data]);
+      }, [{{# unless page.container.form }}isDraft, data{{/ unless }}]);
       const isFormDeleteable = useCallback(() => {
         {{# if page.container.form }}
           return false;
         {{ else }}
           return {{ boolValue (isPageDeleteable page) }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
         {{/ if }}
-      }, [data]);
+      }, [{{# unless page.container.form }}data{{/ unless }}]);
 
       {{# if page.container.view }}
         const getPageQueryCustomizer: () => {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = () => ({
@@ -212,7 +212,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       const copy = simpleCloneDeep(owner.current);
       setValue(copy, dataPath!, simpleCloneDeep(data));
       return copy;
-    }, [data, owner]);
+    }, [data, dataPath]);
 
     // Validation
     const validate: (target: any) => Promise<void> = useCallback(async (target) => {
@@ -223,7 +223,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}target);
         }
       {{/ if }}
-    }, [{{# if (isValidationSupported page) }}ownerValidation, {{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data, {{ getServiceImplForPage page }}{{/ if }}]);
+    }, [{{# if (isValidationSupported page) }}ownerValidation, {{ getServiceImplForPage page }}{{/ if }}]);
 
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
@@ -362,7 +362,10 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           setData((prevData) => ({ ...prevData, ...templateDataOverride }));
         }
       {{/ unless }}
-    }, []);
+    }, [
+      {{# if (pageShouldInitialize page) }}actions.{{ simpleActionDefinitionName page.container.onInit }}, {{# if page.container.view }}getPageQueryCustomizer, isDraft, {{/ if }}{{/ if }}
+      {{# unless page.container.isSelector }}templateDataOverride, {{/ unless }}
+    ]);
 
     {{# if (pageIsRootStateOwner page) }}
       useEffect(() => {
@@ -373,7 +376,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         return () => {
           unsubscribe();
         };
-      }, [subscribe, data, editMode]);
+      }, [subscribe, refresh]);
     {{/ if }}
     {{# if page.container.view }}
       useEffect(() => {
@@ -395,7 +398,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             subscriptionRef.current();
           }
         };
-      }, [subscribe, rootPageId]);
+      }, [subscribe, rootPageId, {{# if page.container.view }}isDraft, {{/ if }}dataPath]);
     {{/ if }}
   {{/ unless }}
 

@@ -37,10 +37,8 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
     } | null>(null);
     const [field, setField] = useState<keyof P | undefined>();
     const filterTypeMapping: Record<keyof T, FilterType> = filterOptions.reduce((prev, current) => {
-      return {
-        ...prev,
-        [current.attributeName]: current.filterType,
-      };
+      prev[current.attributeName] = current.filterType;
+      return prev;
     }, {} as Record<keyof T, FilterType>);
 
     useImperativeHandle(ref, () => ({

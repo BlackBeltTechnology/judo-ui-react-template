@@ -132,21 +132,21 @@ export default function {{ pageName page }}() {
       const storeDiff: (attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => void = useCallback((attributeName: keyof {{ classDataName (getReferenceClassType page) '' }}, value: any) => {
         {{# if isDebugPrint }}// include: actor/src/fragments/page/store-diff-body.hbs{{/ if }}
         {{> actor/src/fragments/page/store-diff-body.hbs classType=page.dataElement.target page=page }}
-      }, [data, editMode]);
+      }, [editMode]);
       const isFormUpdateable = useCallback(() => {
         {{# if page.container.form }}
           return true;
         {{ else }}
           return {{ boolValue (isPageUpdateable page) }} && typeof data?.__updateable === 'boolean' && data?.__updateable;
         {{/ if }}
-      }, [data]);
+      }, [{{# unless page.container.form }}data{{/ unless }}]);
       const isFormDeleteable = useCallback(() => {
         {{# if page.container.form }}
           return false;
         {{ else }}
           return {{ boolValue (isPageDeleteable page) }} && typeof data?.__deleteable === 'boolean' && data?.__deleteable;
         {{/ if }}
-      }, [data]);
+      }, [{{# unless page.container.form }}data{{/ unless }}]);
 
       {{# if page.container.view }}
         const getPageQueryCustomizer: () => {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }} = () => ({
@@ -205,7 +205,7 @@ export default function {{ pageName page }}() {
       const copy = simpleCloneDeep(owner.current);
       setValue(copy, dataPath, simpleCloneDeep(data));
       return copy;
-    }, [data, owner]);
+    }, [data]);
 
     // Validation
     {{# unless page.container.table }}
@@ -213,7 +213,7 @@ export default function {{ pageName page }}() {
       {{# if (isValidationSupported page) }}
         await {{ getServiceImplForPage page }}.validateUpdate({{# unless page.dataElement.isAccess }}null as any, {{/ unless }}target);
       {{/ if }}
-    }, [{{# if (isValidationSupported page) }}data, {{ getServiceImplForPage page }}{{/ if }}]);
+    }, [{{# if (isValidationSupported page) }}{{ getServiceImplForPage page }}{{/ if }}]);
     {{/ unless }}
 
     // Pandino Action overrides
@@ -347,7 +347,7 @@ export default function {{ pageName page }}() {
           {{/ if }}
           await actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
         })();
-      }, [{{# if (pageHasSignedId page) }}signedIdentifier{{/ if }}]);
+      }, [actions.{{ simpleActionDefinitionName page.container.onInit }}, {{# if page.container.view }}getPageQueryCustomizer, {{/ if }}]);
     {{/ if }}
 
     {{# if (pageIsRootStateOwner page) }}
@@ -359,7 +359,7 @@ export default function {{ pageName page }}() {
         return () => {
           unsubscribe();
         };
-      }, [subscribe, data, editMode]);
+      }, [subscribe, refresh]);
     {{/ if }}
   {{/ unless }}
 

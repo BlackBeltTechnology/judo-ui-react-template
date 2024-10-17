@@ -28,7 +28,7 @@ export function StackableDialogProvider({ children }: { children: ReactNode }) {
       setDialogs((d) => {
         // const tmp = d[d.length - 1];
         //
-        // if (tmp && tmp.disableBackdropClick && reason === 'backdropClick') {
+        // if (tmp?.disableBackdropClick && reason === 'backdropClick') {
         //     return d;
         // }
 
@@ -72,7 +72,7 @@ export function StackableDialogProvider({ children }: { children: ReactNode }) {
         return (
           <Dialog
             TransitionComponent={SlideUpTransition}
-            key={i}
+            key={dialog.id}
             // onKill={handleKill}
             {...dialogParams}
           />

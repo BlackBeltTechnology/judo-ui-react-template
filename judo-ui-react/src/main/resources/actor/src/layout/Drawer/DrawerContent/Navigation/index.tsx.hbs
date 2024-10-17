@@ -27,7 +27,7 @@ export const Navigation = () => {
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
   const { menuOrientation, miniDrawer } = useConfig();
   const { service: useMenuItemsCustomizer } = useTrackService<MenuItemsCustomizerHook>(`(${OBJECTCLASS}=${MENU_ITEMS_CUSTOMIZER_HOOK_INTERFACE_KEY})`);
-  const menuItemsCustomizer = useMenuItemsCustomizer && useMenuItemsCustomizer();
+  const menuItemsCustomizer = useMenuItemsCustomizer?.();
   const [menuItems, setMenuItems] = useState<NavItemType[]>(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus);
 
   {{# if application.authentication }}
@@ -60,7 +60,7 @@ export const Navigation = () => {
     const filteredMenus: NavItemType[] = [];
     handlerMenuItems(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus, filteredMenus);
     setMenuItems(filteredMenus);
-  }, [{{# if application.authentication }}principal{{/ if }}]);
+  }, [handlerMenuItems, menuItemsCustomizer{{# if application.authentication }}, principal{{/ if }}]);
 
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
   let lastItemIndex = menuItems.length - 1;
