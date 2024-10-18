@@ -29,7 +29,7 @@ export function useHeroProps(): UseHeroProps {
     {{/ if }}
   };
   const { service: useCustomHeroProps } = useTrackService<CustomHeroPropsHook>(`(${OBJECTCLASS}=${CUSTOM_HERO_PROPS_HOOK_INTERFACE_KEY})`);
-  const getCustomHeroProps = useCustomHeroProps?.();
+  const getCustomHeroProps = useCustomHeroProps && useCustomHeroProps();
 
   return getCustomHeroProps ? getCustomHeroProps(defaults) : defaults;
 }

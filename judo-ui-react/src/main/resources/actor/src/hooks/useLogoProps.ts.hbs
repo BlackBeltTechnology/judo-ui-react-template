@@ -19,7 +19,7 @@ export function useLogoProps(): UseLogoProps {
     subTitle: '{{ application.modelName }}',
   };
   const { service: useCustomLogoProps } = useTrackService<CustomLogoPropsHook>(`(${OBJECTCLASS}=${CUSTOM_LOGO_PROPS_HOOK_INTERFACE_KEY})`);
-  const getCustomLogoProps = useCustomLogoProps?.();
+  const getCustomLogoProps = useCustomLogoProps && useCustomLogoProps();
 
   return getCustomLogoProps ? getCustomLogoProps(defaults) : defaults;
 }

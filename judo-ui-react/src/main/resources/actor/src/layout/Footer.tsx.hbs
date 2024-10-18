@@ -10,7 +10,7 @@ export type FooterTextHook = () => () => string;
 
 export const Footer = () => {
   const { service: useFooterText } = useTrackService<FooterTextHook>(`(${OBJECTCLASS}=${FOOTER_TEXT_HOOK_INTERFACE_KEY})`);
-  const getFooterText = useFooterText?.();
+  const getFooterText = useFooterText && useFooterText();
 
   return (
     <Stack direction="row" justifyContent="space-between" alignItems="center" sx={ { p: '24px 16px 0px', mt: 'auto' } }>

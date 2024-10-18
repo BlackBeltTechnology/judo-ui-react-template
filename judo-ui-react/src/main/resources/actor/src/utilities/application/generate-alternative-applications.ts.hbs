@@ -1,9 +1,8 @@
 {{> fragment.header.hbs }}
 
-import type { TFunction } from 'i18next';
 import type { AlternativeApplicationGenerator } from './interfaces';
 
-export const generateAlternativeApplications: AlternativeApplicationGenerator = (t: TFunction) => {
+export const generateAlternativeApplications: AlternativeApplicationGenerator = (t: Function) => {
     return {
         {{ debug applications }}
         {{# each (getAlternativeApplications application applications) as |app| }}

@@ -17,7 +17,7 @@ export function useLocalStorage<ValueType>(key: string, defaultValue: ValueType)
     return () => {
       window.removeEventListener('storage', listener);
     };
-  }, [key]);
+  }, [key, defaultValue]);
 
   const setValueInLocalStorage = (newValue: ValueType) => {
     setValue((currentValue: any) => {

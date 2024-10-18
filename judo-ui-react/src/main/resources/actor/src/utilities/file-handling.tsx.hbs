@@ -16,7 +16,7 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 export type FileHandlingHook = () => {
     downloadFile: (data: any, attributeName: string, disposition: 'inline' | 'attachment') => Promise<void>,
     extractFileNameFromToken: (token?: string | null, fallbackText?: string) => string,
-    uploadFile: (data: any, attributeName: string, files: any[], path: string) => Promise<any | undefined>,
+    uploadFile: (data: any, attributeName: string, files: any[], path: string) => Promise<any | void>,
     exportFile: (response: any) => void,
 };
 
@@ -53,7 +53,6 @@ export const fileHandling: FileHandlingHook = () => {
 
             if (response.headers['content-disposition'].includes('inline')) {
                 createDialog({
-                    id: `download-${fileName}`,
                     fullWidth: true,
                     maxWidth: 'lg',
                     onClose: (event: object, reason: string) => {
@@ -81,7 +80,7 @@ export const fileHandling: FileHandlingHook = () => {
                             </DialogTitle>
                             <DialogContent dividers>
                                 <Box>
-                                    <iframe title={fileName} src={url} width={'100%'} height={document.body.scrollHeight * 0.6} style={ { border: 0 } } />
+                                    <iframe src={url} width={'100%'} height={document.body.scrollHeight * 0.6} style={ { border: 0 } } />
                                 </Box>
                             </DialogContent>
                             <DialogActions>
@@ -105,7 +104,7 @@ export const fileHandling: FileHandlingHook = () => {
         }
     }
 
-    const uploadFile = async (data: any, attributeName: string, files: any[], path: string): Promise<any | undefined> => {
+    const uploadFile = async (data: any, attributeName: string, files: any[], path: string): Promise<any | void> => {
         const response = await accessServiceImpl.uploadFile(path, files[0]);
         try {
             if (response && response.status === 200) {

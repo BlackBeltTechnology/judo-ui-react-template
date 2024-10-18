@@ -175,7 +175,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
   {{# if (stringValueIsTrue useTableRowHighlighting) }}
     const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<TStored>>(rowHighlightingHookInterfaceKey);
-    const rowHighlighting = rowHighlightingHook?.();
+    const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
     const rowStylings: RowStylerConfigured<TStored>[] = useMemo(() => {
       return rowHighlighting ? rowHighlighting() : [];
     }, [rowHighlighting]);
@@ -217,7 +217,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
   const [rowModesModel, setRowModesModel] = useState<GridRowModesModel>({});
 
-  const isLoading = useMemo(() => isInternalLoading || isOwnerLoading, [isInternalLoading, isOwnerLoading]);
+  const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
   const selectedRows = useRef<TStored[]>([]);
   {{# if (stringValueIsTrue useTableContextMenus) }}
@@ -228,7 +228,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     };
   {{/ if }}
 
-  const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [tableColumns]);
+  const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [l10nLocale]);
 
   const getSelectedRows: () => T[] = useCallback(() => {
     if (tableHasSelectorColumn) {
@@ -240,7 +240,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     } else {
       return [];
     }
-  }, [selectionDiff, containerIsSelector, tableHasSelectorColumn]);
+  }, [selectionDiff, selectedRows.current]);
 
   const editActions = useMemo(() => [
     {
@@ -287,7 +287,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         }
       },
     },
-  ], [rowModesModel, onRowEditCanceled, uniqueId, data]);
+  ], [tableRowActions, rowModesModel, applyRowEdit]);
 
   const effectiveTableColumns = useMemo(() => {
     const cols = [
@@ -310,7 +310,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     }
     {{/ if }}
     return cols;
-  }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel, dataElementId, transferOperationsDisplayed, crudOperationsDisplayed, t{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
+  }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {
@@ -332,11 +332,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
   const pageSizeOptions = useMemo(() => {
     const opts: Set<number> = new Set([rowsPerPage, ...basePageSizeOptions]);
-    return Array.from(opts.values()).sort((a, b) => a - b);
-  }, [rowsPerPage]);
+      return Array.from(opts.values()).sort((a, b) => a - b);
+    }, [rowsPerPage]);
 
-  // really need this in case of eager table
-  const setPageSize = useCallback((newValue: number) => {
+    // really need this in case of eager table
+    const setPageSize = useCallback((newValue: number) => {
     setRowsPerPage(newValue);
     setItemStringified(rowsPerPageKey, newValue);
     setPage(0);
@@ -350,9 +350,9 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
        },
      };
     });
-  }, [setItemStringified, rowsPerPageKey]);
+  }, []);
 
-  const filterOptions = useMemo<FilterOption[]>(() => tableFilterOptions, [tableFilterOptions]);
+  const filterOptions = useMemo<FilterOption[]>(() => tableFilterOptions, [l10nLocale]);
 
   {{# if isUseInlineColumnFilters }}
     function handleFilterModelChange (newModel: GridFilterModel) {
@@ -401,8 +401,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       const strippedQueryCustomizer: S | QueryCustomizer<T> = {
         ...prevQueryCustomizer
       };
-      if (strippedQueryCustomizer._seek) {
-        strippedQueryCustomizer._seek.lastItem = undefined;
+      if (!!strippedQueryCustomizer._seek) {
+        delete strippedQueryCustomizer._seek.lastItem;
       }
       // we need to reset _seek so that previous configuration is erased
       return {
@@ -444,7 +444,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           return isRowSelectable(params.row, !allowSelectMultiple);
         }
       }
-    }, [allowSelectMultiple, containerIsRelationSelector, alreadySelected]);
+    }, []);
 
     handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
       if (!Array.isArray(selectionModel)) return;
@@ -535,7 +535,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
   async function fetchData() {
     if (!containerHasTable) {
-      if (ownerData?.__signedIdentifier) {
+      if (ownerData && ownerData.__signedIdentifier) {
         await fetching();
       }
     } else {
@@ -546,8 +546,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   useEffect(() => {
     fetchData();
     handleOnSelection(selectionModel);
-  // biome-ignore lint: we want this
-  }, [queryCustomizer, refreshCounter, handleOnSelection, selectionModel, fetchData]);
+  }, [queryCustomizer, refreshCounter]);
 
   let additionalToolbarActions: Record<string, ElementType>;
 

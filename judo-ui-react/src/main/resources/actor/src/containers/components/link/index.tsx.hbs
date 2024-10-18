@@ -84,7 +84,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       iconName: '{{ button.icon.iconName }}',
     },
   {{/ each }}
-  ], [readOnly, editMode, isDraft, {{# or button.actionDefinition.isUnsetAction button.actionDefinition.isRowDeleteAction }}isRequired, {{/ or }}disabled, {{# if button.actionDefinition.isOpenSelectorAction }}{{# if link.onBlur }}ownerData, {{/ if }}{{/ if }}actions, t]);
+  ], [readOnly, editMode, isDraft, disabled, ownerData, actions]);
 
   return (
     <SingleRelationInput

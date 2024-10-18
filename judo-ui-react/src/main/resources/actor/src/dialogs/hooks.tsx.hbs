@@ -32,7 +32,6 @@ export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElement
 
   return ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath, rootPageId }: {{ pageName page }}HookProps) => new Promise((resolve) => {
     createDialog({
-      id: `{{ pageName page }}-${new Date().toISOString()}`,
       {{# if page.dialogSize }}
           fullWidth: true,
           maxWidth: '{{ toLower page.dialogSize.name }}',

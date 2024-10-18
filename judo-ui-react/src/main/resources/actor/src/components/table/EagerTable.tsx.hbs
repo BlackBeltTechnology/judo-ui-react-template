@@ -155,7 +155,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
 
   {{# if (stringValueIsTrue useTableRowHighlighting) }}
     const { service: rowHighlightingHook } = useTrackService<TableRowHighlightingHook<TStored>>(rowHighlightingHookInterfaceKey);
-    const rowHighlighting = rowHighlightingHook?.();
+    const rowHighlighting = rowHighlightingHook && rowHighlightingHook();
     const rowStylings: RowStylerConfigured<TStored>[] = useMemo(() => {
       return rowHighlighting ? rowHighlighting() : [];
     }, [rowHighlighting]);
@@ -189,7 +189,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     ...mapAllFiltersToQueryCustomizerProperties(filters),
   });
 
-  const isLoading = useMemo(() => isInternalLoading || isOwnerLoading, [isInternalLoading, isOwnerLoading]);
+  const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
 
   const selectedRows = useRef<TStored[]>([]);
   {{# if (stringValueIsTrue useTableContextMenus) }}
@@ -200,7 +200,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     };
   {{/ if }}
 
-  const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [tableColumns]);
+  const columns = useMemo<GridColDef<TStored>[]>(() => tableColumns, [l10nLocale]);
 
   const getSelectedRows: () => T[] = useCallback(() => {
     if (tableHasSelectorColumn) {
@@ -208,7 +208,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     } else {
       return [];
     }
-  }, [tableHasSelectorColumn]);
+  }, [selectedRows.current]);
 
   const editActions = useMemo(() => [
     {
@@ -255,7 +255,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         }
       },
     },
-  ], [rowModesModel, onRowEditCanceled, uniqueId, data]);
+  ], [tableRowActions, rowModesModel, applyRowEdit]);
 
   const effectiveTableColumns = useMemo(() => {
     const cols = [
@@ -279,7 +279,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       }
     {{/ if }}
     return cols;
-  }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel, dataElementId, transferOperationsDisplayed, crudOperationsDisplayed, t{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
+  }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {
@@ -304,7 +304,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     return Array.from(opts.values()).sort((a, b) => a - b);
   }, [rowsPerPage]);
 
-  const filterOptions = useMemo<FilterOption[]>(() => tableFilterOptions, [tableFilterOptions]);
+  const filterOptions = useMemo<FilterOption[]>(() => tableFilterOptions, [l10nLocale]);
 
   {{# if isUseInlineColumnFilters }}
     function handleFilterModelChange (newModel: GridFilterModel) {
@@ -359,8 +359,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       const strippedQueryCustomizer: S | QueryCustomizer<T> = {
         ...prevQueryCustomizer
       };
-      if (strippedQueryCustomizer._seek) {
-        strippedQueryCustomizer._seek.lastItem = undefined;
+      if (!!strippedQueryCustomizer._seek) {
+        delete strippedQueryCustomizer._seek.lastItem;
       }
       // we need to reset _seek so that previous configuration is erased
       return {
@@ -382,7 +382,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     const newData = applyInMemoryFilters<T>(filters, dataElement ?? []);
     setData(newData);
     handleOnSelection(selectionModel);
-  }, [dataElement, filters, selectionModel, handleOnSelection]);
+  }, [dataElement, filters]);
 
   let additionalToolbarActions: Record<string, ElementType>;
 

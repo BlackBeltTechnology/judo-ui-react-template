@@ -16,7 +16,7 @@ export function Redirect() {
   const { service: useRedirectService } = useTrackService<RedirectServiceHook>(
     `(${OBJECTCLASS}=${REDIRECT_HOOK_INTERFACE_KEY})`,
   );
-  const redirect = useRedirectService?.();
+  const redirect = useRedirectService && useRedirectService();
 
   useEffect(() => {
     if (redirect) {

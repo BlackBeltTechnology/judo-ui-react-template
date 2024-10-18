@@ -65,7 +65,7 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
     return () => {
       window.removeEventListener('popstate', listener);
     };
-  }, []);
+  }, [breadcrumbItems]);
 
   const isBackDisabled = useMemo(() => {
     return breadcrumbItems.length === 0;
@@ -96,7 +96,7 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
         navigate(routeToDashboard());
       }
     }
-  }, [breadcrumbItems, navigate]);
+  }, [breadcrumbItems, nextBreadcrumbItem]);
 
   const judoNavigationContext = {
     externalNavigate: (to: string) => {
