@@ -10,8 +10,11 @@ import {
   GridEditBooleanCell,
   type GridRenderEditCellParams,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { AdapterDateFns } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 import { TRINARY_LOGIC } from '~/components-api/components/TrinaryLogic';
 import { MdiIcon } from '../MdiIcon';
+import { locales, useL10N } from '~/l10n/l10n-context';
 
 const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={ { popper: className } } />
@@ -64,6 +67,7 @@ export function BooleanSelectEditInputCell(props: GridRenderEditCellParams<any>)
 
 export function CellEditInput(props: GridRenderEditCellParams & { error?: string; cellEditorType: CellEditorType }) {
   const { error, cellEditorType, ...otherProps } = props;
+  const { locale } = useL10N();
 
   let EditComponent: any = GridEditInputCell;
 
@@ -76,8 +80,10 @@ export function CellEditInput(props: GridRenderEditCellParams & { error?: string
   }
 
   return (
-    <StyledTooltip open={!!error} title={error}>
-      <EditComponent {...otherProps} error={error !== null && error !== undefined} />
-    </StyledTooltip>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[locale]}>
+      <StyledTooltip open={!!error} title={error}>
+        <EditComponent {...otherProps} error={error !== null && error !== undefined} />
+      </StyledTooltip>
+    </LocalizationProvider>
   );
 }
