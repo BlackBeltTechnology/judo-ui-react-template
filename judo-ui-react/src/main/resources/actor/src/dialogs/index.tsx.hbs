@@ -192,7 +192,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         await {{ simpleActionDefinitionName action.actionDefinition }}();
       {{/ with }}
     };
-    const refresh = async (forced = false) => {
+    const refresh = useCallback(async (forced = false) => {
       if (!isDraft) {
         {{# if page.container.table }}
           setRefreshCounter((prev) => prev + 1);
@@ -207,7 +207,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           }
         {{/ if }}
       }
-    };
+    }, [isDraft{{# if page.container.view }}, editMode{{# if getRefreshActionDefinitionForContainer page.container }}, actions.{{ simpleActionDefinitionName refreshActionDefinition }}{{/ if }}{{/ if }}]);
     const produceDataAdjustedOwner = useCallback(() => {
       const copy = simpleCloneDeep(owner.current);
       setValue(copy, dataPath!, simpleCloneDeep(data));
@@ -286,7 +286,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{/ if }}
     {{/ each }}
 
-    const actions: {{ containerComponentName page.container }}DialogActions = {
+    const actions: {{ containerComponentName page.container }}DialogActions = useMemo(() => ({
       getPageTitle,
       {{# each page.actions as |action| }}
         {{ simpleActionDefinitionName action.actionDefinition }},
@@ -308,7 +308,29 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{/ each }}
       {{/ unless }}
       ...(customActions ?? {}),
-    };
+    }), [
+      getPageTitle,
+      {{# each page.actions as |action| }}
+        {{ simpleActionDefinitionName action.actionDefinition }},
+      {{/ each }}
+      {{# unless page.container.form }}
+        getMask,
+      {{/ unless }}
+      {{# unless page.container.table }}
+        {{# each page.container.links as |link| }}
+          get{{ firstToUpper link.relationType.name }}Mask,
+        {{/ each }}
+        {{# each page.container.tables as |table| }}
+          get{{ firstToUpper table.relationName }}Mask,
+        {{/ each }}
+        {{# each page.container.tables as |table| }}
+          {{# if table.isInlineEditable }}
+            apply{{ firstToUpper table.relationName }}RowEdit,
+          {{/ if }}
+        {{/ each }}
+      {{/ unless }}
+      customActions,
+    ]);
 
     // ViewModel setup
     const viewModel: {{ containerComponentName page.container }}ViewModel = {
