@@ -216,7 +216,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       icon: <MdiIcon path="pencil" />,
       isCRUD: true,
       isEditAction: true,
-      hidden: (row: any) => rowModesModel[row.__identifier]?.mode === GridRowModes.Edit,
+      hidden: (row: any) => rowModesModel[row.__identifier]?.mode === GridRowModes.Edit || !editable || row.__updateable === false,
       disabled: () => false,
       action: async (rowData: TStored) => {
         setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.Edit } });
@@ -241,15 +241,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
       disabled: () => false,
       action: async (rowData: TStored) => {
-        if (rowModesModel[rowData.__identifier!] && rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
-          const newRows = data.filter(d => d.__identifier !== rowData.__identifier!);
-          setData(newRows);
-          const copy = {...rowModesModel};
-          delete copy[rowData.__identifier!];
-          setRowModesModel(copy);
-        } else {
-          setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
-        }
+        setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
         if (typeof onRowEditCanceled === 'function') {
           onRowEditCanceled(rowData.__identifier!);
         }

@@ -583,68 +583,71 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
   const applyManyAggregationCompositionRowEdit = async (rowData: TransferObjectHStored): Promise<any> => {
     try {
-      await actorServiceForInlineEditTransferImpl.validateUpdateManyAggregationComposition(
-        { __signedIdentifier: signedIdentifier } as any,
-        rowData,
-      );
-      if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
-        const updatedList = [rowData, ...(data.manyAggregationComposition || [])];
-        storeDiff('manyAggregationComposition', updatedList);
-      } else {
-        // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
-        const updatedList = [...(data.manyAggregationComposition || [])];
-        const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+      let updatedList = [...(data.manyAggregationComposition || [])];
+      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      if (existingIndex > -1) {
         updatedList[existingIndex] = {
           ...rowData,
         };
-        storeDiff('manyAggregationComposition', updatedList);
+      } else {
+        updatedList.unshift(rowData);
       }
+      await actorServiceForInlineEditTransferImpl.validateUpdate({
+        ...data,
+        manyAggregationComposition: updatedList,
+      });
+      storeDiff('manyAggregationComposition', updatedList);
     } catch (error) {
       return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   const applyManyDerivedAggregationAssociationRowEdit = async (rowData: TransferObjectHStored): Promise<any> => {
     try {
-      await actorServiceForInlineEditTransferImpl.validateUpdateManyDerivedAggregationAssociation(
-        { __signedIdentifier: signedIdentifier } as any,
-        rowData,
-      );
-      if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
-        const updatedList = [rowData, ...(data.manyDerivedAggregationAssociation || [])];
-        storeDiff('manyDerivedAggregationAssociation', updatedList);
-      } else {
-        // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
-        const updatedList = [...(data.manyDerivedAggregationAssociation || [])];
-        const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+      let updatedList = [...(data.manyDerivedAggregationAssociation || [])];
+      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      if (existingIndex > -1) {
         updatedList[existingIndex] = {
           ...rowData,
         };
-        storeDiff('manyDerivedAggregationAssociation', updatedList);
+      } else {
+        updatedList.unshift(rowData);
       }
+      // derived eager table elements are updated on the instance, and not on the owner
+      setIsLoading(true);
+      await actorServiceForInlineEditTransferImpl.updateManyDerivedAggregationAssociation(owner.current, rowData);
+      showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
+      await refresh();
     } catch (error) {
       return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
     }
   };
   const applyManyDerivedAggregationCompositionRowEdit = async (rowData: TransferObjectHStored): Promise<any> => {
     try {
-      await actorServiceForInlineEditTransferImpl.validateUpdateManyDerivedAggregationComposition(
-        { __signedIdentifier: signedIdentifier } as any,
-        rowData,
-      );
-      if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
-        const updatedList = [rowData, ...(data.manyDerivedAggregationComposition || [])];
-        storeDiff('manyDerivedAggregationComposition', updatedList);
-      } else {
-        // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
-        const updatedList = [...(data.manyDerivedAggregationComposition || [])];
-        const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+      let updatedList = [...(data.manyDerivedAggregationComposition || [])];
+      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      if (existingIndex > -1) {
         updatedList[existingIndex] = {
           ...rowData,
         };
-        storeDiff('manyDerivedAggregationComposition', updatedList);
+      } else {
+        updatedList.unshift(rowData);
       }
+      // derived eager table elements are updated on the instance, and not on the owner
+      setIsLoading(true);
+      await actorServiceForInlineEditTransferImpl.updateManyDerivedAggregationComposition(owner.current, rowData);
+      showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
+      await refresh();
     } catch (error) {
       return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
     }
   };
 
