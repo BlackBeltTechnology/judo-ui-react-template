@@ -343,7 +343,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         <LazyTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
         uniqueId={`{{ createId table }}-${uniqueId}`}
         {{# if table.isInlineEditable }}
-        editable={ {{# if container.form }}true{{ else }}!editMode{{/ if }} }
+        editable={ {{# or container.form container.table }}true{{ else }}!editMode{{/ or }} }
         {{/ if }}
         {{# if (stringValueIsTrue useTableRowHighlighting) }}
         rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}}))`}

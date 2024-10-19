@@ -308,34 +308,6 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const manyAggregationAssociationClearAction = async () => {
     storeDiff('manyAggregationAssociation', []);
   };
-  // OpenCreateFormAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableCreateAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
-  const manyAggregationAssociationOpenCreateFormAction = async () => {
-    const itemIndex = (data.manyAggregationAssociation || []).length; // length gives next without -1-ing it
-    const {
-      result,
-      data: returnedData,
-      openCreated,
-    } = await openInlineEditTransferManyAggregationAssociationRelationFormPage({
-      ownerData: produceDataAdjustedOwner(),
-      ownerValidation: validate,
-      isDraft: true,
-      dataPath: `${dataPath ? dataPath + '.' : ''}manyAggregationAssociation[${itemIndex}]`,
-    });
-    if (result === 'submit' && !editMode) {
-      await actions.refreshAction!(processQueryCustomizer(getPageQueryCustomizer()));
-    } else if (result === 'submit-draft' && returnedData) {
-      const decoratedData = {
-        ...returnedData,
-        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
-      };
-      const newData = [...(data.manyAggregationAssociation || []), decoratedData];
-      storeDiff('manyAggregationAssociation', newData);
-      return;
-    }
-    if (openCreated && returnedData) {
-      await manyAggregationAssociationOpenPageAction(returnedData!);
-    }
-  };
   // FilterAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableFilterAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
   const manyAggregationAssociationFilterAction = async (
     id: string,
@@ -347,6 +319,16 @@ export default function ActorInlineEditTransferAccessViewPage() {
     return {
       filters: newFilters,
     };
+  };
+  // InlineCreateRowAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableInlineCreateRowAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
+  const manyAggregationAssociationInlineCreateRowAction = async (): Promise<TransferObjectH | undefined> => {
+    try {
+      const { data: result } = await actorServiceForInlineEditTransferImpl.getTemplateForManyAggregationAssociation();
+      return result;
+    } catch (error) {
+      console.error(error);
+      return undefined;
+    }
   };
   // RowDeleteAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
   const manyAggregationAssociationRowDeleteAction = async (target: TransferObjectHStored) => {
@@ -581,6 +563,29 @@ export default function ActorInlineEditTransferAccessViewPage() {
       ),
     );
   };
+  const applyManyAggregationAssociationRowEdit = async (rowData: TransferObjectHStored): Promise<any> => {
+    try {
+      // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+      let updatedList = [...(data.manyAggregationAssociation || [])];
+      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      if (existingIndex > -1) {
+        updatedList[existingIndex] = {
+          ...rowData,
+        };
+      } else {
+        updatedList.unshift(rowData);
+      }
+      await actorServiceForInlineEditTransferImpl.validateUpdate({
+        ...data,
+        manyAggregationAssociation: updatedList,
+      });
+      storeDiff('manyAggregationAssociation', updatedList);
+    } catch (error) {
+      return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const applyManyAggregationCompositionRowEdit = async (rowData: TransferObjectHStored): Promise<any> => {
     try {
       // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
@@ -662,8 +667,8 @@ export default function ActorInlineEditTransferAccessViewPage() {
     manyAggregationAssociationBulkDeleteAction,
     manyAggregationAssociationBulkRemoveAction,
     manyAggregationAssociationClearAction,
-    manyAggregationAssociationOpenCreateFormAction,
     manyAggregationAssociationFilterAction,
+    manyAggregationAssociationInlineCreateRowAction,
     manyAggregationAssociationRowDeleteAction,
     manyAggregationAssociationRemoveAction,
     manyAggregationAssociationOpenPageAction,
@@ -686,6 +691,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
     getManyAggregationCompositionMask,
     getManyDerivedAggregationAssociationMask,
     getManyDerivedAggregationCompositionMask,
+    applyManyAggregationAssociationRowEdit,
     applyManyAggregationCompositionRowEdit,
     applyManyDerivedAggregationAssociationRowEdit,
     applyManyDerivedAggregationCompositionRowEdit,

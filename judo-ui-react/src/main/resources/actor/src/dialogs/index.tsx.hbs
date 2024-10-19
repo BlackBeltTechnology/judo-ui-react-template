@@ -271,10 +271,10 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 const queryCustomizer: { _mask: string } = {
                   _mask: '{}',
                 };
-                await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData, queryCustomizer);
+                await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}rowData, queryCustomizer);
                 showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
               } else {
-                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData);
+                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}(rowData);
                 showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
               }
               await refresh();
@@ -303,12 +303,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{# each page.container.tables as |table| }}
           get{{ firstToUpper table.relationName }}Mask,
         {{/ each }}
-        {{# each page.container.tables as |table| }}
-          {{# if table.isInlineEditable }}
-            apply{{ firstToUpper table.relationName }}RowEdit,
-          {{/ if }}
-        {{/ each }}
       {{/ unless }}
+      {{# each page.container.tables as |table| }}
+        {{# if table.isInlineEditable }}
+          apply{{ firstToUpper table.relationName }}RowEdit,
+        {{/ if }}
+      {{/ each }}
       ...(customActions ?? {}),
     };
 
