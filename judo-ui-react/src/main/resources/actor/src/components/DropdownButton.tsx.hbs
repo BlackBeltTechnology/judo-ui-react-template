@@ -9,6 +9,7 @@ import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Tooltip from '@mui/material/Tooltip';
 import { useState, useRef, useEffect } from 'react';
 import type { ReactNode, KeyboardEvent, SyntheticEvent } from 'react';
 import { MdiIcon } from './MdiIcon';
@@ -18,6 +19,7 @@ interface DropdownMenuItem {
   disabled?: boolean;
   visible?: boolean;
   label?: string;
+  tooltip?: string;
   onClick?: () => void;
   startIcon?: ReactNode;
 }
@@ -112,22 +114,24 @@ export function DropdownButton({
                     .filter((menuItem) => menuItem.visible ?? true)
                     .map((menuItem, index) => {
                       return (
-                        <MenuItem
-                          key={menuItem.label ?? '' + index}
-                          id={menuItem.id}
-                          disabled={menuItem.disabled ?? false}
-                          onClick={(event) => {
-                            if (menuItem.onClick) {
-                              handleClose(event);
-                              menuItem.onClick();
-                            }
-                          }}
-                        >
-                          <ListItemIcon sx={ { minWidth: '0 !important', mr: 1 } }>
-                              {menuItem.startIcon}
-                          </ListItemIcon>
-                          <ListItemText>{menuItem.label}</ListItemText>
-                        </MenuItem>
+                        <Tooltip title={menuItem.tooltip}>
+                          <MenuItem
+                            key={menuItem.label ?? '' + index}
+                            id={menuItem.id}
+                            disabled={menuItem.disabled ?? false}
+                            onClick={(event) => {
+                              if (menuItem.onClick) {
+                                handleClose(event);
+                                menuItem.onClick();
+                              }
+                            }}
+                          >
+                            <ListItemIcon sx={ { minWidth: '0 !important', mr: 1 } }>
+                                {menuItem.startIcon}
+                            </ListItemIcon>
+                            <ListItemText>{menuItem.label}</ListItemText>
+                          </MenuItem>
+                        </Tooltip>
                       );
                     })}
                 </MenuList>

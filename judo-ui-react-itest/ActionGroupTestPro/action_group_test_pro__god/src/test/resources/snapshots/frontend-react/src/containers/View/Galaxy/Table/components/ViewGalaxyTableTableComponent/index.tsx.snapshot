@@ -62,7 +62,9 @@ import {
   type ServerError,
   TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   deserializeFilters,
+  extractRelationErrorList,
   getUpdatedRowsSelected,
+  isErrorNestedValidationError,
   mapAllFiltersToQueryCustomizerProperties,
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -115,7 +117,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       } catch (e: any) {
         if (e?.response?.status === 400) {
           const errorMap: Map<keyof ViewGalaxyStored, string> = new Map<keyof ViewGalaxyStored, string>();
-          const errorList = e.response.data as ServerError<ViewGalaxyStored>[];
+          const errorList = isErrorNestedValidationError(e, dataPath)
+            ? extractRelationErrorList<any, ViewGalaxyStored>(e.response.data, dataPath!)
+            : (e.response.data as ServerError<ViewGalaxyStored>[]);
           if (errorList && errorList.length && errorList[0].location) {
             validateWithNestedErrors(errorList, errorMap, t);
           }

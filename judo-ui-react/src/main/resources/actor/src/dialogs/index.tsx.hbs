@@ -31,6 +31,9 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
     simpleCloneDeep,
     getValue,
     setValue,
+    {{# if page.container.form }}
+    getErrorRelationKeyFromPayload,
+    {{/ if }}
   } from '~/utilities';
   import type {
     DialogResult,
@@ -239,41 +242,49 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     {{# each page.container.tables as |table| }}
       {{# if table.isInlineEditable }}
-        const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
+        const apply{{ firstToUpper table.relationName }}RowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
           try {
             {{# if table.isEager }}
-              if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
-                const updatedList = [rowData, ...(data.{{ table.relationName }} || [])];
-                storeDiff('{{ table.dataElement.name }}', updatedList);
-              } else {
-                // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
-                const updatedList = [...(data.{{ table.relationName }} || [])];
-                const existingIndex = updatedList.findIndex(r => r.__identifier === rowData.__identifier);
+              // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+              let updatedList = [...(data.{{ table.relationName }} || [])];
+              const existingIndex = updatedList.findIndex(r => r.__identifier === rowData.__identifier);
+              if (existingIndex > -1) {
                 updatedList[existingIndex] = {
                   ...rowData,
                 };
-                storeDiff('{{ table.dataElement.name }}', updatedList);
+              } else {
+                updatedList.unshift(rowData);
               }
+              {{# unless table.dataElement.isMemberTypeDerived }}
+                await validate({...data, {{ table.relationName }}: updatedList});
+                storeDiff('{{ table.relationName }}', updatedList);
+              {{ else }}
+                // derived eager table elements are updated on the instance, and not on the owner
+                setIsLoading(true);
+                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}(owner.current, rowData);
+                showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
+                await refresh();
+              {{/ unless }}
             {{ else }}
               setIsLoading(true);
               if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
                 const queryCustomizer: { _mask: string } = {
                   _mask: '{}',
                 };
-                await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData, queryCustomizer);
+                await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}rowData, queryCustomizer);
                 showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
               } else {
-                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData);
+                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}(rowData);
                 showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
               }
               await refresh();
             {{/ if }}
-          } catch(error) {
+          } catch(error: any) {
             return Promise.reject(error);
-          }{{# unless table.isEager }} finally {
+          } finally {
             setIsLoading(false);
-          }{{/ unless }}
-        };
+          }
+        }, [data, {{ getServiceImplForPage page }}]);
       {{/ if }}
     {{/ each }}
 
@@ -292,12 +303,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{# each page.container.tables as |table| }}
           get{{ firstToUpper table.relationName }}Mask,
         {{/ each }}
-        {{# each page.container.tables as |table| }}
-          {{# if table.isInlineEditable }}
-            apply{{ firstToUpper table.relationName }}RowEdit,
-          {{/ if }}
-        {{/ each }}
       {{/ unless }}
+      {{# each page.container.tables as |table| }}
+        {{# if table.isInlineEditable }}
+          apply{{ firstToUpper table.relationName }}RowEdit,
+        {{/ if }}
+      {{/ each }}
       ...(customActions ?? {}),
     };
 

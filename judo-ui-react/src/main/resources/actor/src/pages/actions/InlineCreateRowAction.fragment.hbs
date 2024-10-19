@@ -3,7 +3,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
   {{# with action.targetPageDefinition as |form| }}
     {{# with (getTemplateActionForForm form) as |templateAction| }}
       try {
-        const { data: result } = await {{ getServiceImplForPage page }}.getTemplate{{# if action.targetDataElement }}For{{ firstToUpper action.targetDataElement.name }}{{/ if }}();
+        const { data: result } = await {{ getServiceImplForPage page }}.getTemplate{{# unless page.container.isSelector }}{{# if action.targetDataElement }}For{{ firstToUpper action.targetDataElement.name }}{{/ if }}{{/ unless }}();
         return result;
       } catch(error) {
         console.error(error);
