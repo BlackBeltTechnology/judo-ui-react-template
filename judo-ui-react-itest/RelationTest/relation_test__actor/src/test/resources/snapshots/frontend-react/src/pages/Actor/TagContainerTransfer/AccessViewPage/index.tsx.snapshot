@@ -22,15 +22,15 @@ import type {
   TagContainerTransferTagContainerTransfer_View_EditPageProps,
 } from '~/containers/TagContainerTransfer/TagContainerTransfer_View_Edit/types';
 import { useTagContainerTransferManyAggregationCompostionRelationFormPage } from '~/dialogs/TagContainerTransfer/ManyAggregationCompostion/RelationFormPage/hooks';
-import { useTagContainerTransferManyAssociationAssiciationRelationFormPage } from '~/dialogs/TagContainerTransfer/ManyAssociationAssiciation/RelationFormPage/hooks';
+import { useTagContainerTransferManyAssociationAssociationRelationFormPage } from '~/dialogs/TagContainerTransfer/ManyAssociationAssociation/RelationFormPage/hooks';
 import { useTagContainerTransferManyAssociationCompositionRelationFormPage } from '~/dialogs/TagContainerTransfer/ManyAssociationComposition/RelationFormPage/hooks';
 import { useTagContainerTransferTagContainerTransfer_View_EditManyAggregationAssociationTableAddSelectorPage } from '~/dialogs/TagContainerTransfer/TagContainerTransfer_View_Edit/ManyAggregationAssociation/TableAddSelectorPage/hooks';
-import { useTagContainerTransferTagContainerTransfer_View_EditManyAssociationAssiciationTableAddSelectorPage } from '~/dialogs/TagContainerTransfer/TagContainerTransfer_View_Edit/ManyAssociationAssiciation/TableAddSelectorPage/hooks';
+import { useTagContainerTransferTagContainerTransfer_View_EditManyAssociationAssociationTableAddSelectorPage } from '~/dialogs/TagContainerTransfer/TagContainerTransfer_View_Edit/ManyAssociationAssociation/TableAddSelectorPage/hooks';
 import { useTagContainerTransferTagContainerTransfer_View_EditManyTransientTableAddSelectorPage } from '~/dialogs/TagContainerTransfer/TagContainerTransfer_View_Edit/ManyTransient/TableAddSelectorPage/hooks';
 import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
 import { routeToTagContainerTransferManyAggregationAssociationRelationViewPage } from '~/routes';
 import { routeToTagContainerTransferManyAggregationCompostionRelationViewPage } from '~/routes';
-import { routeToTagContainerTransferManyAssociationAssiciationRelationViewPage } from '~/routes';
+import { routeToTagContainerTransferManyAssociationAssociationRelationViewPage } from '~/routes';
 import { routeToTagContainerTransferManyAssociationCompositionRelationViewPage } from '~/routes';
 import { routeToTagContainerTransferManyDerivedAggregationAssociationRelationViewPage } from '~/routes';
 import { routeToTagContainerTransferManyDerivedAggregationCompostionRelationViewPage } from '~/routes';
@@ -150,7 +150,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
     '{field,manyAggregationAssociation{field},manyAggregationCompostion{field},manyDerivedAggregationAssociation{field},manyDerivedAggregationCompostion{field},manyTransient{field}}';
   const getManyAggregationAssociationMask = () => '{field}';
   const getManyAggregationCompostionMask = () => '{field}';
-  const getManyAssociationAssiciationMask = () => '{field}';
+  const getManyAssociationAssociationMask = () => '{field}';
   const getManyAssociationCompositionMask = () => '{field}';
   const getManyDerivedAggregationAssociationMask = () => '{field}';
   const getManyDerivedAggregationCompostionMask = () => '{field}';
@@ -193,14 +193,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
   // Dialog hooks
   const openTagContainerTransferTagContainerTransfer_View_EditManyAggregationAssociationTableAddSelectorPage =
     useTagContainerTransferTagContainerTransfer_View_EditManyAggregationAssociationTableAddSelectorPage();
-  const openTagContainerTransferTagContainerTransfer_View_EditManyAssociationAssiciationTableAddSelectorPage =
-    useTagContainerTransferTagContainerTransfer_View_EditManyAssociationAssiciationTableAddSelectorPage();
+  const openTagContainerTransferTagContainerTransfer_View_EditManyAssociationAssociationTableAddSelectorPage =
+    useTagContainerTransferTagContainerTransfer_View_EditManyAssociationAssociationTableAddSelectorPage();
   const openTagContainerTransferTagContainerTransfer_View_EditManyTransientTableAddSelectorPage =
     useTagContainerTransferTagContainerTransfer_View_EditManyTransientTableAddSelectorPage();
   const openTagContainerTransferManyAggregationCompostionRelationFormPage =
     useTagContainerTransferManyAggregationCompostionRelationFormPage();
-  const openTagContainerTransferManyAssociationAssiciationRelationFormPage =
-    useTagContainerTransferManyAssociationAssiciationRelationFormPage();
+  const openTagContainerTransferManyAssociationAssociationRelationFormPage =
+    useTagContainerTransferManyAssociationAssociationRelationFormPage();
   const openTagContainerTransferManyAssociationCompositionRelationFormPage =
     useTagContainerTransferManyAssociationCompositionRelationFormPage();
 
@@ -464,17 +464,17 @@ export default function ActorTagContainerTransferAccessViewPage() {
     );
   };
   // OpenAddSelectorAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableAddSelectorOpenPageAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationOpenAddSelectorAction = async () => {
+  const manyAssociationAssociationOpenAddSelectorAction = async () => {
     const { result, data: returnedData } =
-      await openTagContainerTransferTagContainerTransfer_View_EditManyAssociationAssiciationTableAddSelectorPage({
+      await openTagContainerTransferTagContainerTransfer_View_EditManyAssociationAssociationTableAddSelectorPage({
         ownerData: data,
-        alreadySelected: data.manyAssociationAssiciation ?? [],
+        alreadySelected: data.manyAssociationAssociation ?? [],
       });
     if (result === 'submit') {
       if (Array.isArray(returnedData) && returnedData.length) {
         try {
           setIsLoading(true);
-          await actorServiceForTagContainerTransferImpl.addManyAssociationAssiciation(owner.current, returnedData);
+          await actorServiceForTagContainerTransferImpl.addManyAssociationAssociation(owner.current, returnedData);
           await refresh();
         } catch (e) {
           console.error(e);
@@ -486,10 +486,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
   };
 
   // AutocompleteAddAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableAutocompleteAddAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationAutocompleteAddAction = async (values: TransferObjectBStored[]) => {
+  const manyAssociationAssociationAutocompleteAddAction = async (values: TransferObjectBStored[]) => {
     try {
       setIsLoading(true);
-      await actorServiceForTagContainerTransferImpl.addManyAssociationAssiciation(owner.current, values);
+      await actorServiceForTagContainerTransferImpl.addManyAssociationAssociation(owner.current, values);
       await refresh();
     } catch (error) {
       handleError(error);
@@ -499,11 +499,11 @@ export default function ActorTagContainerTransferAccessViewPage() {
     }
   };
   // AutocompleteRangeAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableAutocompleteRangeAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationAutocompleteRangeAction = async (
+  const manyAssociationAssociationAutocompleteRangeAction = async (
     queryCustomizer: TransferObjectBQueryCustomizer,
   ): Promise<TransferObjectBStored[]> => {
     try {
-      const { data: result } = await actorServiceForTagContainerTransferImpl.getRangeForManyAssociationAssiciation(
+      const { data: result } = await actorServiceForTagContainerTransferImpl.getRangeForManyAssociationAssociation(
         data,
         queryCustomizer,
       );
@@ -514,20 +514,20 @@ export default function ActorTagContainerTransferAccessViewPage() {
     }
   };
   // BulkDeleteAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableBulkDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationBulkDeleteAction = async (
+  const manyAssociationAssociationBulkDeleteAction = async (
     selectedRows: TransferObjectBStored[],
   ): Promise<DialogResult<Array<TransferObjectBStored>>> => {
     return new Promise((resolve) => {
       openCRUDDialog<TransferObjectBStored>({
         dialogTitle: t('judo.action.bulk-delete', { defaultValue: 'Delete' }),
         itemTitleFn: (item) =>
-          actions?.getManyAssociationAssiciationRowRepresentation
-            ? actions.getManyAssociationAssiciationRowRepresentation(item)
+          actions?.getManyAssociationAssociationRowRepresentation
+            ? actions.getManyAssociationAssociationRowRepresentation(item)
             : item.field!,
         selectedItems: selectedRows,
         action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
           try {
-            await actorServiceForTagContainerTransferImpl.deleteManyAssociationAssiciation(item);
+            await actorServiceForTagContainerTransferImpl.deleteManyAssociationAssociation(item);
             successHandler();
           } catch (error) {
             errorHandler(error);
@@ -554,20 +554,20 @@ export default function ActorTagContainerTransferAccessViewPage() {
     });
   };
   // BulkRemoveAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableBulkRemoveAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationBulkRemoveAction = async (
+  const manyAssociationAssociationBulkRemoveAction = async (
     selectedRows: TransferObjectBStored[],
   ): Promise<DialogResult<Array<TransferObjectBStored>>> => {
     return new Promise((resolve) => {
       openCRUDDialog<TransferObjectBStored>({
         dialogTitle: t('judo.action.bulk-remove', { defaultValue: 'Remove' }),
         itemTitleFn: (item) =>
-          actions?.getManyAssociationAssiciationRowRepresentation
-            ? actions.getManyAssociationAssiciationRowRepresentation(item)
+          actions?.getManyAssociationAssociationRowRepresentation
+            ? actions.getManyAssociationAssociationRowRepresentation(item)
             : item.field!,
         selectedItems: selectedRows,
         action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
           try {
-            await actorServiceForTagContainerTransferImpl.removeManyAssociationAssiciation(data, [item]);
+            await actorServiceForTagContainerTransferImpl.removeManyAssociationAssociation(data, [item]);
             successHandler();
           } catch (error) {
             errorHandler(error);
@@ -593,10 +593,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
     });
   };
   // ClearAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableClearAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationClearAction = async () => {
+  const manyAssociationAssociationClearAction = async () => {
     try {
       setIsLoading(true);
-      await actorServiceForTagContainerTransferImpl.setManyAssociationAssiciation(owner.current, []);
+      await actorServiceForTagContainerTransferImpl.setManyAssociationAssociation(owner.current, []);
       await refresh();
     } catch (e) {
       console.error(e);
@@ -605,12 +605,12 @@ export default function ActorTagContainerTransferAccessViewPage() {
     }
   };
   // OpenCreateFormAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableCreateAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationOpenCreateFormAction = async () => {
+  const manyAssociationAssociationOpenCreateFormAction = async () => {
     const {
       result,
       data: returnedData,
       openCreated,
-    } = await openTagContainerTransferManyAssociationAssiciationRelationFormPage({
+    } = await openTagContainerTransferManyAssociationAssociationRelationFormPage({
       ownerData: produceDataAdjustedOwner(),
       isDraft: false,
       dataPath: `${dataPath ? dataPath + '.' : ''}`,
@@ -622,16 +622,16 @@ export default function ActorTagContainerTransferAccessViewPage() {
         ...returnedData,
         __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
       };
-      const newData = [...(data.manyAssociationAssiciation || []), decoratedData];
-      storeDiff('manyAssociationAssiciation', newData);
+      const newData = [...(data.manyAssociationAssociation || []), decoratedData];
+      storeDiff('manyAssociationAssociation', newData);
       return;
     }
     if (openCreated && returnedData) {
-      await manyAssociationAssiciationOpenPageAction(returnedData!);
+      await manyAssociationAssociationOpenPageAction(returnedData!);
     }
   };
   // FilterAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableFilterAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationFilterAction = async (
+  const manyAssociationAssociationFilterAction = async (
     id: string,
     filterOptions: FilterOption[],
     model?: GridFilterModel,
@@ -643,17 +643,17 @@ export default function ActorTagContainerTransferAccessViewPage() {
     };
   };
   // RefreshAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableRefreshAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationRefreshAction = async (
+  const manyAssociationAssociationRefreshAction = async (
     queryCustomizer: TransferObjectBQueryCustomizer,
   ): Promise<JudoRestResponse<TransferObjectBStored[]>> => {
-    const result = await actorServiceForTagContainerTransferImpl.listManyAssociationAssiciation(
+    const result = await actorServiceForTagContainerTransferImpl.listManyAssociationAssociation(
       { __signedIdentifier: signedIdentifier } as any,
       queryCustomizer,
     );
     return result;
   };
   // RowDeleteAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationRowDeleteAction = async (target: TransferObjectBStored) => {
+  const manyAssociationAssociationRowDeleteAction = async (target: TransferObjectBStored) => {
     try {
       const confirmed = await openConfirmDialog(
         'row-delete-action',
@@ -663,7 +663,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
         t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
       );
       if (confirmed) {
-        await actorServiceForTagContainerTransferImpl.deleteManyAssociationAssiciation(target);
+        await actorServiceForTagContainerTransferImpl.deleteManyAssociationAssociation(target);
         showSuccessSnack(t('judo.action.delete.success', { defaultValue: 'Delete successful' }));
         await refresh();
       }
@@ -672,10 +672,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
     }
   };
   // RemoveAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableRowRemoveAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationRemoveAction = async (target: TransferObjectBStored) => {
+  const manyAssociationAssociationRemoveAction = async (target: TransferObjectBStored) => {
     try {
       setIsLoading(true);
-      await actorServiceForTagContainerTransferImpl.removeManyAssociationAssiciation(data, [target]);
+      await actorServiceForTagContainerTransferImpl.removeManyAssociationAssociation(data, [target]);
       await refresh();
     } catch (error) {
       handleError<TransferObjectB>(error, undefined, target);
@@ -684,10 +684,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
     }
   };
   // OpenPageAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
-  const manyAssociationAssiciationOpenPageAction = async (target: TransferObjectBStored, isDraftParam?: boolean) => {
+  const manyAssociationAssociationOpenPageAction = async (target: TransferObjectBStored, isDraftParam?: boolean) => {
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
-      routeToTagContainerTransferManyAssociationAssiciationRelationViewPage(
+      routeToTagContainerTransferManyAssociationAssociationRelationViewPage(
         ((target as TransferObjectBStored) || data).__signedIdentifier,
       ),
     );
@@ -1238,18 +1238,18 @@ export default function ActorTagContainerTransferAccessViewPage() {
     manyAggregationCompostionFilterAction,
     manyAggregationCompostionRowDeleteAction,
     manyAggregationCompostionOpenPageAction,
-    manyAssociationAssiciationOpenAddSelectorAction,
-    manyAssociationAssiciationAutocompleteAddAction,
-    manyAssociationAssiciationAutocompleteRangeAction,
-    manyAssociationAssiciationBulkDeleteAction,
-    manyAssociationAssiciationBulkRemoveAction,
-    manyAssociationAssiciationClearAction,
-    manyAssociationAssiciationOpenCreateFormAction,
-    manyAssociationAssiciationFilterAction,
-    manyAssociationAssiciationRefreshAction,
-    manyAssociationAssiciationRowDeleteAction,
-    manyAssociationAssiciationRemoveAction,
-    manyAssociationAssiciationOpenPageAction,
+    manyAssociationAssociationOpenAddSelectorAction,
+    manyAssociationAssociationAutocompleteAddAction,
+    manyAssociationAssociationAutocompleteRangeAction,
+    manyAssociationAssociationBulkDeleteAction,
+    manyAssociationAssociationBulkRemoveAction,
+    manyAssociationAssociationClearAction,
+    manyAssociationAssociationOpenCreateFormAction,
+    manyAssociationAssociationFilterAction,
+    manyAssociationAssociationRefreshAction,
+    manyAssociationAssociationRowDeleteAction,
+    manyAssociationAssociationRemoveAction,
+    manyAssociationAssociationOpenPageAction,
     manyAssociationCompositionBulkDeleteAction,
     manyAssociationCompositionOpenCreateFormAction,
     manyAssociationCompositionFilterAction,
@@ -1285,7 +1285,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
     getMask,
     getManyAggregationAssociationMask,
     getManyAggregationCompostionMask,
-    getManyAssociationAssiciationMask,
+    getManyAssociationAssociationMask,
     getManyAssociationCompositionMask,
     getManyDerivedAggregationAssociationMask,
     getManyDerivedAggregationCompostionMask,

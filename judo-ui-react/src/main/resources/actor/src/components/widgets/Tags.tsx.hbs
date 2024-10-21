@@ -6,6 +6,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
+import Chip from '@mui/material/Chip';
 import { debounce } from '@mui/material/utils';
 import clsx from 'clsx';
 import { type MouseEvent, type SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
@@ -134,8 +135,12 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
   const onChange = useCallback(
     (event: SyntheticEvent, value: (string | any)[], reason: string) => {
       if (typeof onValueChange === 'function') {
-        const added = value.filter(v => !values.some(vv => vv[identifierAttribute as keyof T] === v[identifierAttribute]));
-        const removed = values.filter(v => !value.some(vv => vv[identifierAttribute] === v[identifierAttribute as keyof T]));
+        const added = value.filter(
+          (v) => !values.some((vv) => vv[identifierAttribute as keyof T] === v[identifierAttribute as keyof T]),
+        );
+        const removed = values.filter(
+          (v) => !value.some((vv) => vv[identifierAttribute as keyof T] === v[identifierAttribute as keyof T]),
+        );
         onValueChange(value as any, added, removed);
       }
     },
@@ -201,6 +206,18 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
       } : undefined }
       onInputChange={onInputChange}
       onChange={onChange}
+      renderTags={(tagValue, getTagProps) =>
+        tagValue.map((option, index) => {
+          const { key, ...rest } = getTagProps({ index });
+          return (
+            <Chip
+              key={key}
+              label={option[autoCompleteAttribute]}
+              {...rest}
+            />
+          );
+        })
+      }
       renderInput={(params) => (
         <TextField
           {...params}
