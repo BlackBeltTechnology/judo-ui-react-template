@@ -106,8 +106,10 @@ export function TagContainerTransferTagContainerTransfer_View_EditManyAggregatio
               await actions.manyAggregationCompostionAutocompleteAddAction!(added);
             }
           } else if (Array.isArray(removed) && removed.length) {
-            if (actions.manyAggregationCompostionBulkDeleteAction) {
-              await actions.manyAggregationCompostionBulkDeleteAction!(removed);
+            if (actions.manyAggregationCompostionRemoveAction) {
+              for (let removedEntry of removed) {
+                await actions.manyAggregationCompostionRemoveAction!(removedEntry);
+              }
             }
           }
         }}

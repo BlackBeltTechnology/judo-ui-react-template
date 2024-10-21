@@ -93,14 +93,18 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
               }
             {{/ with }}
           } else if (Array.isArray(removed) && removed.length) {
-            {{# with (getBulkDeleteActionDefinitionForTable table) as |bulkDeleteActionDefinition| }}
-              if (actions.{{ simpleActionDefinitionName bulkDeleteActionDefinition }}) {
-                await actions.{{ simpleActionDefinitionName bulkDeleteActionDefinition }}!(removed);
+            {{# with (getRemoveActionDefinitionForTable table) as |removeActionDefinition| }}
+              if (actions.{{ simpleActionDefinitionName removeActionDefinition }}) {
+                for (let removedEntry of removed) {
+                  await actions.{{ simpleActionDefinitionName removeActionDefinition }}!(removedEntry);
+                }
               }
             {{ else }}
-              {{# with (getBulkRemoveActionDefinitionForTable table) as |bulkRemoveActionDefinition| }}
-                if (actions.{{ simpleActionDefinitionName bulkRemoveActionDefinition }}) {
-                  await actions.{{ simpleActionDefinitionName bulkRemoveActionDefinition }}!(removed);
+              {{# with (getRowDeleteActionDefinitionForTable table) as |rowDeleteActionDefinition| }}
+                if (actions.{{ simpleActionDefinitionName rowDeleteActionDefinition }}) {
+                  for (let removedEntry of removed) {
+                    await actions.{{ simpleActionDefinitionName rowDeleteActionDefinition }}!(removedEntry);
+                  }
                 }
               {{/ with }}
             {{/ with }}
