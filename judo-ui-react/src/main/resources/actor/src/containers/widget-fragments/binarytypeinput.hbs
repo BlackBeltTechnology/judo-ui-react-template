@@ -31,7 +31,7 @@
         attributeName="{{ child.attributeType.name }}"
         attributePath="{{ attributePath child.attributeType }}"
         disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
-        readonly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        readonly={actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : ({{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable())}
         {{# unless child.attributeType.isReadOnly }}
             deleteCallback={ async () => {
                 storeDiff('{{ child.attributeType.name }}', null);

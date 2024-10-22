@@ -131,7 +131,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
-                    readOnly: false || !isFormUpdateable(),
+                    readOnly: actions?.isNameReadonly
+                      ? actions.isNameReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable(),
                     startAdornment: (
                       <InputAdornment position="start">
                         <MdiIcon path="atom-variant" />
@@ -198,7 +200,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
-                    readOnly: false || !isFormUpdateable(),
+                    readOnly: actions?.isConstellationReadonly
+                      ? actions.isConstellationReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable(),
                     startAdornment: (
                       <InputAdornment position="start">
                         <MdiIcon path="star" />
@@ -268,7 +272,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
-                    readOnly: false || !isFormUpdateable(),
+                    readOnly: actions?.isMagnitudeReadonly
+                      ? actions.isMagnitudeReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable(),
                     startAdornment: (
                       <InputAdornment position="start">
                         <MdiIcon path="star-outline" />
@@ -302,7 +308,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
-                    readOnly: false || !isFormUpdateable(),
+                    readOnly: actions?.isOriginOfNameReadonly
+                      ? actions.isOriginOfNameReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable(),
                     startAdornment: (
                       <InputAdornment position="start">
                         <MdiIcon path="weather-night" />
@@ -359,7 +367,11 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
                   label={t('View.Galaxy.Form.discovered', { defaultValue: 'Discovered' }) as string}
                   value={data.discovered ?? null}
-                  readOnly={false || !isFormUpdateable()}
+                  readOnly={
+                    actions?.isDiscoveredReadonly
+                      ? actions.isDiscoveredReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable()
+                  }
                   disabled={
                     actions?.isDiscoveredDisabled ? actions.isDiscoveredDisabled(data, editMode, isLoading) : isLoading
                   }

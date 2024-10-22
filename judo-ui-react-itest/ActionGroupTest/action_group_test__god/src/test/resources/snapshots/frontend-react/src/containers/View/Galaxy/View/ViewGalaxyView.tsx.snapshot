@@ -247,7 +247,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                           }}
                                           InputLabelProps={{ shrink: true }}
                                           InputProps={{
-                                            readOnly: false || !isFormUpdateable(),
+                                            readOnly: actions?.isNameReadonly
+                                              ? actions.isNameReadonly(data, editMode, isLoading)
+                                              : false || !isFormUpdateable(),
                                             startAdornment: (
                                               <InputAdornment position="start">
                                                 <MdiIcon path="atom-variant" />
@@ -330,7 +332,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: false || !isFormUpdateable(),
+                                    readOnly: actions?.isConstellationReadonly
+                                      ? actions.isConstellationReadonly(data, editMode, isLoading)
+                                      : false || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="star-settings-outline" />
@@ -374,7 +378,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: false || !isFormUpdateable(),
+                                    readOnly: actions?.isMagnitudeReadonly
+                                      ? actions.isMagnitudeReadonly(data, editMode, isLoading)
+                                      : false || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="decagram-outline" />
@@ -452,7 +458,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: false || !isFormUpdateable(),
+                                    readOnly: actions?.isOriginOfNameReadonly
+                                      ? actions.isOriginOfNameReadonly(data, editMode, isLoading)
+                                      : false || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="weather-night" />
@@ -551,7 +559,11 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                     views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
                                     label={t('View.Galaxy.View.discovered', { defaultValue: 'Discovered' }) as string}
                                     value={data.discovered ?? null}
-                                    readOnly={false || !isFormUpdateable()}
+                                    readOnly={
+                                      actions?.isDiscoveredReadonly
+                                        ? actions.isDiscoveredReadonly(data, editMode, isLoading)
+                                        : false || !isFormUpdateable()
+                                    }
                                     disabled={
                                       actions?.isDiscoveredDisabled
                                         ? actions.isDiscoveredDisabled(data, editMode, isLoading)
@@ -654,7 +666,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: true || !isFormUpdateable(),
+                                    readOnly: actions?.isDarkMatterReadonly
+                                      ? actions.isDarkMatterReadonly(data, editMode, isLoading)
+                                      : true || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="chart-bubble" />
@@ -701,7 +715,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: true || !isFormUpdateable(),
+                                    readOnly: actions?.isIntergalacticDustReadonly
+                                      ? actions.isIntergalacticDustReadonly(data, editMode, isLoading)
+                                      : true || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="scatter-plot-outline" />
@@ -748,7 +764,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: true || !isFormUpdateable(),
+                                    readOnly: actions?.isInterstellarMediumReadonly
+                                      ? actions.isInterstellarMediumReadonly(data, editMode, isLoading)
+                                      : true || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="scatter-plot" />
