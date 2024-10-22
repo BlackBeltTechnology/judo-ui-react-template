@@ -99,7 +99,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
         icon={<MdiIcon path="{{ link.icon.iconName }}" />}
       {{/ if }}
       disabled={actions?.is{{ firstToUpper link.relationType.name }}Disabled ? actions.is{{ firstToUpper link.relationType.name }}Disabled(ownerData, editMode, isLoading) : disabled}
-      readOnly={readOnly}
+      readOnly={actions?.is{{ firstToUpper link.relationType.name }}Readonly ? actions.is{{ firstToUpper link.relationType.name }}Readonly(ownerData, editMode, isLoading) : readOnly}
       editMode={editMode}
       {{# unless link.isEager }}
       isEager={false}
