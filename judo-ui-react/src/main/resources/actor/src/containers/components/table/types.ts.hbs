@@ -22,6 +22,7 @@ export interface {{ componentName table }}ActionDefinitions {
   get{{ firstToUpper table.relationName }}Mask?: () => string;
   get{{ firstToUpper table.relationName }}RowRepresentation?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => string;
   apply{{ firstToUpper table.relationName }}RowEdit?: (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}) => Promise<any>;
+  remove{{ firstToUpper table.relationName }}RowEdit?: (rowId: string) => Promise<void>;
 {{# each table.tableActionDefinitions as |actionDefinition| }}
   {{# if actionDefinition.isFilterAction }}
     {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;

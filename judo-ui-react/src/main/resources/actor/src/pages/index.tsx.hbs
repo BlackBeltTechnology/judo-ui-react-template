@@ -240,7 +240,7 @@ export default function {{ pageName page }}() {
     {{/ if }}
     {{# each page.container.tables as |table| }}
       {{# if table.isInlineEditable }}
-        const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
+        const apply{{ firstToUpper table.relationName }}RowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
           try {
             {{# if table.isEager }}
               // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
@@ -287,7 +287,18 @@ export default function {{ pageName page }}() {
           } finally {
             setIsLoading(false);
           }
-        };
+        }, [data, {{ getServiceImplForPage page }}]);
+
+        const remove{{ firstToUpper table.relationName }}RowEdit = useCallback(async (rowId: string): Promise<void> => {
+          {{# if table.isEager }}
+            if (rowId.startsWith(draftIdentifierPrefix)) {
+              // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
+              const updatedList = [...(data.{{ table.relationName }} || [])].filter(r => r.__identifier !== rowId);
+              storeDiff('{{ table.relationName }}', updatedList);
+            }
+          {{/ if }}
+          // non-draft items are expected to be removed via explicit remove/delete row actions
+        }, [data, {{ getServiceImplForPage page }}]);
       {{/ if }}
     {{/ each }}
 
@@ -310,6 +321,7 @@ export default function {{ pageName page }}() {
       {{# each page.container.tables as |table| }}
         {{# if table.isInlineEditable }}
           apply{{ firstToUpper table.relationName }}RowEdit,
+          remove{{ firstToUpper table.relationName }}RowEdit,
         {{/ if }}
       {{/ each }}
       ...(customActions ?? {}),

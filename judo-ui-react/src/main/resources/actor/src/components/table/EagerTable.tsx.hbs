@@ -96,6 +96,7 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   editable?: boolean;
   applyRowEdit?: (rowData: TStored) => Promise<any>;
   onRowEditCanceled?: (rowId: string) => void;
+  onRowEditDeleted?: (rowId: string) => void;
 }
 
 export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: EagerTableProps<T, TStored>) {
@@ -136,6 +137,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     editable = false,
     applyRowEdit,
     onRowEditCanceled,
+    onRowEditDeleted,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -245,17 +247,32 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       tooltip: t('judo.action.undo', { defaultValue: 'Undo / Cancel' }),
       action: async (rowData: TStored) => {
         setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
-        if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
-          setData((prevData) => {
-            return prevData.filter(d => d.__identifier! !== rowData.__identifier!)
-          });
-        }
         if (typeof onRowEditCanceled === 'function') {
           onRowEditCanceled(rowData.__identifier!);
         }
       },
     },
-  ], [tableRowActions, rowModesModel, applyRowEdit]);
+    {
+      id: `${uniqueId}-row-delete`,
+      icon: <MdiIcon path="trash-can-outline" />,
+      isCRUD: true,
+      isEditAction: true,
+      hidden: (row: any) => !(row.__identifier.startsWith(draftIdentifierPrefix)),
+      disabled: () => false,
+      tooltip: t('judo.action.row-delete', { defaultValue: 'Delete' }),
+      action: async (rowData: TStored) => {
+        setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true } });
+        // this only updates the model of the table, not the owner
+        //setData((prevData) => {
+        //  return prevData.filter(d => d.__identifier! !== rowData.__identifier!)
+        //});
+        if (typeof onRowEditDeleted === 'function') {
+          // we should update the owner here
+          onRowEditDeleted(rowData.__identifier!);
+        }
+      },
+    },
+  ], [tableRowActions, rowModesModel, applyRowEdit, actions, ownerData]);
 
   const effectiveTableColumns = useMemo(() => {
     const cols = [

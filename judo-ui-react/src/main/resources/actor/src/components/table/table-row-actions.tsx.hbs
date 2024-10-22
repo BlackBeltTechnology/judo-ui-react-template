@@ -41,6 +41,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   ownerData?: any,
   options?: ColumnsActionsOptions,
 ): GridActionsColDef[] => {
+  const hasRowInEditMode = Object.values(rowModesModel).some((v) => v.mode === GridRowModes.Edit);
   const safeOptions: ColumnsActionsOptions = {
     crudOperationsDisplayed: options?.crudOperationsDisplayed ?? 2,
     transferOperationsDisplayed: options?.transferOperationsDisplayed ?? 2,
@@ -49,8 +50,8 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   const originalOperationActions = actions.filter((a) => !!a.action && !a.isCRUD);
   const keptCrudActions = originalCrudActions.splice(0, (findLastIndex<TableRowAction<any, any>>(actions, a => !!a.isEditAction) + 1) + (safeOptions.crudOperationsDisplayed || 0));
   const keptOperationActions = originalOperationActions.splice(0, safeOptions.transferOperationsDisplayed);
-  const splitActions = [...keptCrudActions, ...keptOperationActions];
-  const dropdownActions = [...originalCrudActions, ...originalOperationActions];
+  const splitActions = [...keptCrudActions, ...keptOperationActions].filter(a => hasRowInEditMode ? a.isEditAction : true);
+  const dropdownActions = [...originalCrudActions, ...originalOperationActions].filter(a => !hasRowInEditMode);
 
   if (splitActions.length === 0 && dropdownActions.length === 0) {
     return [];
