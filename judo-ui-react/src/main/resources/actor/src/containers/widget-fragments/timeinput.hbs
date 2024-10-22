@@ -51,7 +51,7 @@
         views={['hours', 'minutes', 'seconds']}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} ?? null }
-        readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        readOnly={actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : ({{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable())}
         disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
         {{# if child.onBlur }}
         onBlur={ () => {

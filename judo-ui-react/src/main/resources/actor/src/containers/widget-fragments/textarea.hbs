@@ -42,7 +42,7 @@
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {
-            readOnly: {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable(),
+            readOnly: actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : ({{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable()),
             {{# if child.icon }}
                 startAdornment: (
                     <InputAdornment position="start">

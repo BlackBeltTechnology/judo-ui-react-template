@@ -110,7 +110,9 @@ export default function PlanetView(props: PlanetViewProps) {
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
-                    readOnly: false || !isFormUpdateable(),
+                    readOnly: actions?.isNameReadonly
+                      ? actions.isNameReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable(),
                     startAdornment: (
                       <InputAdornment position="start">
                         <MdiIcon path="brightness-1" />

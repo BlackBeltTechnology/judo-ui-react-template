@@ -34,6 +34,7 @@
     {{# each (getInputsForContainer container) as |input| }}
       is{{ firstToUpper input.attributeType.name }}Required?: ({{{ inputModifierParams container false }}}) => boolean;
       is{{ firstToUpper input.attributeType.name }}Disabled?: ({{{ inputModifierParams container true }}}) => boolean;
+      is{{ firstToUpper input.attributeType.name }}Readonly?: ({{{ inputModifierParams container true }}}) => boolean;
     {{/ each}}
     {{# each (getElementsWithHiddenBy container) as |ve| }}
       is{{ safeName ve }}Hidden?: ({{{ inputModifierParams container false }}}) => boolean;
