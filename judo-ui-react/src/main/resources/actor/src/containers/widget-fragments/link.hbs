@@ -6,7 +6,7 @@
             ownerData={data}
             data={ data?.{{ child.dataElement.name }} }
             disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.relationType.isReadOnly }} }
-            readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() }
+            readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() || (actions?.is{{ firstToUpper child.dataElement.name }}Readonly ? actions.is{{ firstToUpper child.dataElement.name }}Readonly!(data, editMode, isLoading) : false) }
             editMode={editMode}
             validation={validation}
             actions={actions}
@@ -16,7 +16,7 @@
     {{/ if }}
     <{{ componentName child }}
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} false || isLoading }
-        readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() }
+        readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() || (actions?.is{{ firstToUpper child.dataElement.name }}Readonly ? actions.is{{ firstToUpper child.dataElement.name }}Readonly!(data, editMode, isLoading) : false) }
         ownerData={data}
         dataPath={dataPath ? (dataPath + '.{{ child.dataElement.name }}') : '{{ child.dataElement.name }}'}
         editMode={editMode}
