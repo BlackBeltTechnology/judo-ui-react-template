@@ -209,13 +209,13 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
       renderTags={(tagValue, getTagProps) =>
         tagValue.map((option, index) => {
           const { key, ...rest } = getTagProps({ index });
-          return (
-            <Chip
-              key={key}
-              label={option[autoCompleteAttribute]}
-              {...rest}
-            />
-          );
+          return <Chip
+            key={key}
+            label={option[autoCompleteAttribute]}
+            {...rest}
+            sx={ { cursor: (typeof onItemClick === 'function' && !editMode) ? 'pointer' : undefined } }
+            onClick={onChipClicked}
+          />;
         })
       }
       renderInput={(params) => (
@@ -261,10 +261,6 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
           } }
         />
       )}
-      ChipProps={ {
-        clickable: typeof onItemClick === 'function' && !editMode,
-        onClick: onChipClicked,
-      } }
     />
   );
 }
