@@ -578,7 +578,13 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 <Grid item xs={12} sm={12} md={4.0}>
                                   <ViewGalaxyViewAstronomerComponent
                                     disabled={false || isLoading}
-                                    readOnly={false || !isFormUpdateable()}
+                                    readOnly={
+                                      false ||
+                                      !isFormUpdateable() ||
+                                      (actions?.isAstronomerReadonly
+                                        ? actions.isAstronomerReadonly!(data, editMode, isLoading)
+                                        : false)
+                                    }
                                     ownerData={data}
                                     dataPath={dataPath ? dataPath + '.astronomer' : 'astronomer'}
                                     editMode={editMode}
