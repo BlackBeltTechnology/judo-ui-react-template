@@ -1,0 +1,273 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #application.pageContainers
+// Path expression: 'src/containers/'+#containerPath(#self)+'/'+#containerComponentName(#self)+'.tsx'
+// Template name: actor/src/containers/container.tsx
+// Template file: actor/src/containers/container.tsx.hbs
+
+import LoadingButton from '@mui/lab/LoadingButton';
+import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import Container from '@mui/material/Container';
+import Grid from '@mui/material/Grid';
+import IconButton from '@mui/material/IconButton';
+import InputAdornment from '@mui/material/InputAdornment';
+import TextField from '@mui/material/TextField';
+import Typography from '@mui/material/Typography';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+import { clsx } from 'clsx';
+import type { Dispatch, FC, SetStateAction } from 'react';
+import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { DropdownButton, MdiIcon, useJudoNavigation } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+import { useL10N } from '~/l10n/l10n-context';
+import type { EnumOption } from '~/utilities';
+import { isErrorOperationFault, useErrorHandler } from '~/utilities';
+
+import {} from '@mui/x-date-pickers';
+import type {} from '@mui/x-date-pickers';
+import { NumericInput } from '~/components/widgets';
+import { Tags } from '~/components/widgets';
+import { autoFocusRefDelay } from '~/config';
+import { useConfirmationBeforeChange } from '~/hooks';
+import type { MatterType } from '~/services/data-api/model/MatterType';
+import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
+import { VIEW_MATTER_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+import type { ViewMatterFormContainerHook } from './customization';
+import type { ViewMatterFormActionDefinitions, ViewMatterFormProps } from './types';
+
+// XMIID: God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormPageContainer
+// Name: View::Matter::Form
+export default function ViewMatterForm(props: ViewMatterFormProps) {
+  // Container props
+  const {
+    refreshCounter,
+    isLoading,
+    isDraft,
+    dataPath,
+    actions: pageActions,
+    data,
+    isFormUpdateable,
+    isFormDeleteable,
+    storeDiff,
+    editMode,
+    validation,
+    setValidation,
+    submit,
+  } = props;
+
+  // Container hooks
+  const { t } = useTranslation();
+  const { navigate, back } = useJudoNavigation();
+  const { locale: l10nLocale } = useL10N();
+  const { openConfirmDialog } = useConfirmDialog();
+
+  useConfirmationBeforeChange(
+    editMode,
+    t('judo.form.navigation.confirmation', {
+      defaultValue: 'You have potential unsaved changes in your form, are you sure you would like to navigate away?',
+    }),
+  );
+  // Pandino Container Action overrides
+  const { service: customContainerHook } = useTrackService<ViewMatterFormContainerHook>(
+    `(${OBJECTCLASS}=${VIEW_MATTER_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY})`,
+  );
+  const containerActions: ViewMatterFormActionDefinitions = customContainerHook?.(data, editMode, storeDiff) || {};
+  const actions = useMemo(() => ({ ...pageActions, ...containerActions }), [pageActions, containerActions]);
+  const typeOptions = useMemo<EnumOption<keyof typeof MatterType>[]>(
+    () => [
+      {
+        id: 'God/(esm/_zK1VMORqEeuSU8xLq1yYbw)/EnumerationTypeMember',
+        value: 'dark',
+        i18nKey: 'enumerations.MatterType.dark',
+        i18nDefaultValue: 'dark',
+      },
+      {
+        id: 'God/(esm/_0PAvAORqEeuSU8xLq1yYbw)/EnumerationTypeMember',
+        value: 'interstellarMedium',
+        i18nKey: 'enumerations.MatterType.interstellarMedium',
+        i18nDefaultValue: 'interstellarMedium',
+      },
+      {
+        id: 'God/(esm/_17vWkORqEeuSU8xLq1yYbw)/EnumerationTypeMember',
+        value: 'intergalacticDust',
+        i18nKey: 'enumerations.MatterType.intergalacticDust',
+        i18nDefaultValue: 'intergalacticDust',
+      },
+    ],
+    [],
+  );
+  const effectiveTypeOptions = useMemo<EnumOption<keyof typeof MatterType>[]>(() => {
+    if (actions.filterTypeOptions) {
+      return actions.filterTypeOptions(data, typeOptions);
+    }
+    return typeOptions;
+  }, [actions.filterTypeOptions]);
+  const autoFocusInputRef = useRef<any>(null);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (typeof autoFocusInputRef?.current?.focus === 'function') {
+        autoFocusInputRef.current.focus();
+      }
+    }, autoFocusRefDelay);
+
+    return () => clearTimeout(timeout);
+  }, []);
+
+  return (
+    <Grid container data-container-id="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormPageContainer">
+      <Grid item data-name="Form" xs={12} sm={12} md={36.0}>
+        <Grid container direction="row" spacing={2}>
+          <Grid item xs={12} sm={12}>
+            <Grid
+              id="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormVisualElement"
+              data-name="Form"
+              container
+              direction="column"
+              alignItems="stretch"
+              justifyContent="flex-start"
+              spacing={2}
+            >
+              <Grid item xs={12} sm={12}>
+                <Autocomplete
+                  id="God/(esm/_T4Q2kOq_EeuMzos2n42msw)/EnumerationTypeCombo"
+                  autoHighlight
+                  value={data.type || null}
+                  disabled={actions?.isTypeDisabled ? actions.isTypeDisabled(data, editMode, isLoading) : isLoading}
+                  readOnly={
+                    (actions?.isTypeReadonly ? actions.isTypeReadonly(data, editMode, isLoading) : false) ||
+                    !isFormUpdateable()
+                  }
+                  options={[
+                    ...effectiveTypeOptions.map((o) => ({
+                      label: t(o.i18nKey, { defaultValue: o.i18nDefaultValue }),
+                      value: o.value,
+                      key: o.id,
+                    })),
+                  ]}
+                  isOptionEqualToValue={(option) => option.value === data.type}
+                  getOptionKey={(option: any) => option.key}
+                  getOptionLabel={(option: any) => {
+                    if (typeof option === 'string') {
+                      const o = effectiveTypeOptions.find((o) => o.value === option)!;
+                      return t(o.i18nKey, { defaultValue: o.i18nDefaultValue });
+                    }
+                    return option.label;
+                  }}
+                  onChange={(_: any, newValue: { label: string; value: string | null; key: string } | null) => {
+                    storeDiff('type', newValue?.value || null);
+                  }}
+                  disableClearable={actions?.isTypeRequired ? actions.isTypeRequired(data, editMode) : false}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      name={'type'}
+                      required={actions?.isTypeRequired ? actions.isTypeRequired(data, editMode) : true}
+                      label={t('View.Matter.Form.type', { defaultValue: 'Type' }) as string}
+                      inputRef={autoFocusInputRef}
+                      error={!!validation.get('type')}
+                      helperText={validation.get('type')}
+                      InputLabelProps={{ shrink: true }}
+                      InputProps={{
+                        ...params.InputProps,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <MdiIcon path="chart-bubble" sx={{ mt: -2 }} />
+                          </InputAdornment>
+                        ),
+                      }}
+                      className={clsx({
+                        'JUDO-viewMode': !editMode,
+                        'JUDO-required': actions?.isTypeRequired ? actions.isTypeRequired(data, editMode) : true,
+                      })}
+                    />
+                  )}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={12}>
+                <NumericInput
+                  required={actions?.isMassRequired ? actions.isMassRequired(data, editMode) : false}
+                  name="mass"
+                  id="God/(esm/_T4dq4Oq_EeuMzos2n42msw)/MeasuredTypeInput"
+                  label={t('View.Matter.Form.mass', { defaultValue: 'Mass' }) as string}
+                  customInput={TextField}
+                  value={data.mass ?? ''}
+                  formatValue={true}
+                  decimalScale={2}
+                  className={clsx({
+                    'JUDO-viewMode': !editMode,
+                    'JUDO-required': false,
+                  })}
+                  disabled={actions?.isMassDisabled ? actions.isMassDisabled(data, editMode, isLoading) : isLoading}
+                  error={!!validation.get('mass')}
+                  helperText={validation.get('mass')}
+                  onValueChange={(values, sourceInfo) => {
+                    const newValue = values.floatValue === undefined ? null : values.floatValue;
+                    if (data.mass !== newValue) {
+                      storeDiff('mass', newValue);
+                    }
+                  }}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    readOnly: actions?.isMassReadonly
+                      ? actions.isMassReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable(),
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MdiIcon path="blur" />
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+
+              <Grid item xs={12} sm={12}>
+                <TextField
+                  required={actions?.isShortNoteRequired ? actions.isShortNoteRequired(data, editMode) : false}
+                  name="shortNote"
+                  id="God/(esm/_uN0FQFENEeyWtMpj61RngA)/StringTypeTextInput"
+                  label={t('View.Matter.Form.shortNote', { defaultValue: 'Short Note' }) as string}
+                  value={data.shortNote ?? ''}
+                  className={clsx({
+                    'JUDO-viewMode': !editMode,
+                    'JUDO-required': false,
+                  })}
+                  disabled={
+                    actions?.isShortNoteDisabled ? actions.isShortNoteDisabled(data, editMode, isLoading) : isLoading
+                  }
+                  error={!!validation.get('shortNote')}
+                  helperText={validation.get('shortNote')}
+                  onChange={(event) => {
+                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
+                    storeDiff('shortNote', realValue);
+                  }}
+                  InputLabelProps={{ shrink: true }}
+                  InputProps={{
+                    readOnly: actions?.isShortNoteReadonly
+                      ? actions.isShortNoteReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable(),
+                    startAdornment: (
+                      <InputAdornment position="start">
+                        <MdiIcon path="scatter-plot-outline" />
+                      </InputAdornment>
+                    ),
+                  }}
+                  inputProps={{
+                    maxLength: 127,
+                  }}
+                />
+              </Grid>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
+  );
+}
