@@ -1,0 +1,66 @@
+#!/bin/bash
+
+# Define the versions to use
+NVM_VERSION="0.40.1"            # Specify the desired NVM version
+DEFAULT_NODE_VERSION="{{ nodeVersion }}"  # Specify the default Node.js version to use if .nvmrc is not found
+PNPM_VERSION="{{ pnpmVersion }}"           # Specify the desired PNPM version
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+NC='\033[0m' # No Color
+
+# Determine the Node.js version to use
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -f "$SCRIPT_DIR/.nvmrc" ]; then
+    NODE_VERSION=$(cat "$SCRIPT_DIR/.nvmrc")
+    echo -e "${GREEN}.nvmrc file detected. Using Node.js version: $NODE_VERSION${NC}"
+else
+    NODE_VERSION=$DEFAULT_NODE_VERSION
+    echo -e "${YELLOW}.nvmrc file not found. Falling back to default Node.js version: $NODE_VERSION${NC}"
+fi
+
+# Step 1: Install NVM
+echo -e "${GREEN}Installing NVM (Node Version Manager) version $NVM_VERSION...${NC}"
+curl -o- "https://raw.githubusercontent.com/nvm-sh/nvm/v$NVM_VERSION/install.sh" | bash
+
+# Load NVM script into the current shell session
+export NVM_DIR="$HOME/.nvm"
+# shellcheck source=/dev/null
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+# Verify NVM installation
+if command -v nvm > /dev/null 2>&1; then
+    echo -e "${GREEN}NVM version $NVM_VERSION installed successfully!${NC}"
+else
+    echo -e "${RED}NVM installation failed! Exiting.${NC}"
+    exit 1
+fi
+
+# Step 2: Install the specified version of Node.js using NVM
+echo -e "${GREEN}Installing Node.js version $NODE_VERSION...${NC}"
+nvm install "$NODE_VERSION"
+nvm use "$NODE_VERSION"
+nvm alias default "$NODE_VERSION"
+
+# Verify Node.js installation
+if command -v node > /dev/null 2>&1; then
+    echo -e "${GREEN}Node.js $(node -v) installed successfully!${NC}"
+else
+    echo -e "${RED}Node.js installation failed! Exiting.${NC}"
+    exit 1
+fi
+
+# Step 3: Install PNPM globally
+echo -e "${GREEN}Installing PNPM version $PNPM_VERSION...${NC}"
+npm install -g pnpm@"$PNPM_VERSION"
+
+# Verify PNPM installation
+if command -v pnpm > /dev/null 2>&1; then
+    echo -e "${GREEN}PNPM $(pnpm -v) installed successfully!${NC}"
+else
+    echo -e "${RED}PNPM installation failed! Exiting.${NC}"
+    exit 1
+fi
+
+echo -e "${GREEN}Node.js and PNPM setup complete!${NC}"
