@@ -43,7 +43,7 @@ public class UiImportHelper {
             Map.entry("dateinput", Set.of("InputAdornment")),
             Map.entry("datetimeinput", Set.of("InputAdornment")),
             Map.entry("divider", Set.of("Divider")),
-            Map.entry("enumerationcombo", Set.of("TextField", "MenuItem", "InputAdornment")),
+            Map.entry("enumerationcombo", Set.of("Autocomplete", "TextField", "InputAdornment")),
             Map.entry("enumerationradio", Set.of("RadioGroup", "FormControlLabel", "Radio", "FormControl", "FormHelperText", "InputLabel")),
             Map.entry("formatted", Set.of("Typography")),
             Map.entry("label", Set.of("Typography")),
