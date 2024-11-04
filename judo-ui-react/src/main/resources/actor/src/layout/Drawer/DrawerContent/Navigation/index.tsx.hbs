@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
@@ -22,50 +22,57 @@ import { ScrollableMenu } from './ScrollableMenu';
 export const MENU_ITEMS_CUSTOMIZER_HOOK_INTERFACE_KEY = 'MenuItemsCustomizerHook';
 export type MenuItemsCustomizerHook = () => (items: NavItemType[]) => NavItemType[];
 
+const isHidden = (menuItem: NavItemType{{# if application.authentication }}, principal: {{ classDataName application.principal 'Stored' }}{{/ if }}): boolean => {
+  {{# if application.authentication }}
+  return menuItem.hiddenBy ? !!principal[menuItem.hiddenBy as keyof {{ classDataName application.principal 'Stored' }}] : false;
+  {{ else }}
+  return false;
+  {{/ if }}
+};
+const handleMenuItems = (source: NavItemType[], target: NavItemType[]{{# if application.authentication }}, principal: {{ classDataName application.principal 'Stored' }}{{/ if }}) => {
+  for (const item of source) {
+    if (!isHidden(item{{# if application.authentication }}, principal{{/ if }})) {
+      const clone: NavItemType = {
+        ...item,
+        children: Array.isArray(item.children) && item.children.length ? [] : undefined,
+      };
+      target.push(clone);
+
+      if (Array.isArray(item.children) && item.children.length) {
+        handleMenuItems(item.children, clone.children!{{# if application.authentication }}, principal{{/ if }});
+      }
+    }
+  }
+};
+const filterMenus = (source: NavItemType[]{{# if application.authentication }}, principal: ServicesUserTransferStored{{/ if }}) => {
+  const target: NavItemType[] = [];
+  handleMenuItems(source, target{{# if application.authentication }}, principal{{/ if }});
+  return target;
+};
+
 export const Navigation = () => {
+  {{# if application.authentication }}
+  const { principal } = usePrincipal();
+  {{/ if }}
   const theme = useTheme();
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
   const { menuOrientation, miniDrawer } = useConfig();
-  const { service: useMenuItemsCustomizer } = useTrackService<MenuItemsCustomizerHook>(`(${OBJECTCLASS}=${MENU_ITEMS_CUSTOMIZER_HOOK_INTERFACE_KEY})`);
+  const { service: useMenuItemsCustomizer } = useTrackService<MenuItemsCustomizerHook>(
+    `(${OBJECTCLASS}=${MENU_ITEMS_CUSTOMIZER_HOOK_INTERFACE_KEY})`,
+  );
   const menuItemsCustomizer = useMenuItemsCustomizer && useMenuItemsCustomizer();
-  const [menuItems, setMenuItems] = useState<NavItemType[]>(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus);
-
-  {{# if application.authentication }}
-    const { principal } = usePrincipal();
-
-    const isHidden = (menuItem: NavItemType): boolean => {
-      return menuItem.hiddenBy ? !!principal[menuItem.hiddenBy as keyof {{ classDataName application.principal 'Stored' }}] : false;
-    };
-  {{ else }}
-    const isHidden = (menuItem: NavItemType): boolean => false;
-  {{/ if }}
-
-  const handlerMenuItems = (source: NavItemType[], target: NavItemType[]) => {
-    for (const item of source) {
-      if (!isHidden(item)) {
-        const clone: NavItemType = {
-          ...item,
-          children: Array.isArray(item.children) && item.children.length ? [] : undefined,
-        };
-        target.push(clone);
-
-        if (Array.isArray(item.children) && item.children.length) {
-          handlerMenuItems(item.children, clone.children!);
-        }
-      }
-    }
-  };
+  const [menuItems, setMenuItems] = useState<NavItemType[]>(filterMenus(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus{{# if application.authentication }}, principal{{/ if }}));
 
   useEffect(() => {
     const filteredMenus: NavItemType[] = [];
-    handlerMenuItems(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus, filteredMenus);
+    handleMenuItems(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus, filteredMenus{{# if application.authentication }}, principal{{/ if }});
     setMenuItems(filteredMenus);
-  }, [{{# if application.authentication }}principal{{/ if }}]);
+  }, [{{# if application.authentication }}principal, {{/ if }}menuItemsCustomizer, setMenuItems]);
 
-  const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
-  let lastItemIndex = menuItems.length - 1;
+  const isHorizontal = useMemo(() => menuOrientation === MenuOrientation.HORIZONTAL && !downLG, [menuOrientation, downLG]);
+  let lastItemIndex = useMemo(() => menuItems.length - 1, [menuItems]);
 
-  const navGroups = menuItems.slice(0, lastItemIndex + 1).map((item) => {
+  const navGroups = useMemo(() => menuItems.slice(0, lastItemIndex + 1).map((item) => {
     switch (item.type) {
       case 'group':
         return (
@@ -80,7 +87,8 @@ export const Navigation = () => {
           </Typography>
         );
     }
-  });
+  }), [menuItems]);
+
   return (
     <Box
       sx={ {
