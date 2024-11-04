@@ -47,7 +47,7 @@
         <surefire-version>3.5.1</surefire-version>
         <ecore-xmi-version>2.2.3</ecore-xmi-version>
         <spring-expression-version>5.0.0.RELEASE</spring-expression-version>
-        <lombok-version>1.18.22</lombok-version>
+        <lombok-version>1.18.34</lombok-version>
         <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
         <maven-enforcer-plugin-version>3.3.0</maven-enforcer-plugin-version>
         <enforcer-checkfile-rules-version>1.0.0.20230622_151809_606ea50d_develop</enforcer-checkfile-rules-version>
@@ -62,6 +62,7 @@
         <surefire-version>3.5.1</surefire-version>
         <!--suppress UnresolvedMavenProperty -->
         <logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
+        <logback-version>1.5.12</logback-version>
 
         <!-- Code Quality-->
         <sonar-maven-plugin-version>3.9.1.2184</sonar-maven-plugin-version>
@@ -266,7 +267,7 @@
                     <dependency>
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok</artifactId>
-                        <version>1.18.24</version>
+                        <version>${lombok-version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -317,6 +318,14 @@
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
     <profiles>
         <profile>
             <id>sign-artifacts</id>
