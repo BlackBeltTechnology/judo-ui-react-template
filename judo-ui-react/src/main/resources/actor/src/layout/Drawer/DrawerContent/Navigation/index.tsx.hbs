@@ -44,7 +44,7 @@ const handleMenuItems = (source: NavItemType[], target: NavItemType[]{{# if appl
     }
   }
 };
-const filterMenus = (source: NavItemType[]{{# if application.authentication }}, principal: ServicesUserTransferStored{{/ if }}) => {
+const filterMenus = (source: NavItemType[]{{# if application.authentication }}, principal: {{ classDataName application.principal 'Stored' }}{{/ if }}) => {
   const target: NavItemType[] = [];
   handleMenuItems(source, target{{# if application.authentication }}, principal{{/ if }});
   return target;
