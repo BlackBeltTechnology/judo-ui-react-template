@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.isActionDefinitionCRUDCommand;
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
+import static hu.blackbelt.judo.ui.generator.react.UiTableHelper.isTableTag;
 import static java.util.Arrays.stream;
 
 @Log
@@ -514,6 +515,9 @@ public class UiWidgetHelper {
     }
 
     public static boolean displayTableHeading(Table table, PageContainer container) {
+        if (isTableTag(table)) {
+            return false;
+        }
         return elementHasIconOrLabel(table) && !container.isIsSelector() && !container.isTable();
     }
 
