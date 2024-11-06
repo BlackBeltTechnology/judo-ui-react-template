@@ -15,7 +15,7 @@
       id="{{ getXMIID child }}"
       autoHighlight
       value={data.{{ child.attributeType.name }} || null}
-      disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : isLoading}
+      disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
       readOnly={(actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : false) || !isFormUpdateable()}
       options={[
         ...effective{{ firstToUpper child.attributeType.name }}Options.map((o) => ({
