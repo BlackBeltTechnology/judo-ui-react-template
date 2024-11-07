@@ -67,7 +67,7 @@ export const Navigation = () => {
     const filteredMenus: NavItemType[] = [];
     handleMenuItems(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus, filteredMenus{{# if application.authentication }}, principal{{/ if }});
     setMenuItems(filteredMenus);
-  }, [{{# if application.authentication }}principal, {{/ if }}menuItemsCustomizer, setMenuItems]);
+  }, [{{# if application.authentication }}principal, {{/ if }}]);
 
   const isHorizontal = useMemo(() => menuOrientation === MenuOrientation.HORIZONTAL && !downLG, [menuOrientation, downLG]);
   let lastItemIndex = useMemo(() => menuItems.length - 1, [menuItems]);
