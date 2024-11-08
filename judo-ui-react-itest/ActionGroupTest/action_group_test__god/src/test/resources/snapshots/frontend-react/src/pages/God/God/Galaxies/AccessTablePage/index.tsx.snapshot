@@ -27,6 +27,7 @@ import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiab
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
 import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
+import { X_JUDO_COUNT_RECORDS } from '~/services/data-api/rest/headers';
 import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
 import { GodServiceForGalaxiesImpl } from '~/services/data-axios/GodServiceForGalaxiesImpl';
 import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
@@ -195,7 +196,7 @@ export default function GodGodGalaxiesAccessTablePage() {
     try {
       setIsLoading(true);
       setEditMode(false);
-      return godServiceForGalaxiesImpl.list(undefined, queryCustomizer);
+      return godServiceForGalaxiesImpl.list(undefined, queryCustomizer, { [X_JUDO_COUNT_RECORDS]: 'true' });
     } catch (error) {
       handleError(error);
       setLatestViewData(null);
