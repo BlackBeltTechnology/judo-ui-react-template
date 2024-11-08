@@ -1,7 +1,14 @@
 {{> fragment.header.hbs }}
 
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, type ChangeEvent } from 'react';
 import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import Pagination from '@mui/material/Pagination';
+import Typography from '@mui/material/Typography';
 import type {
   GridColDef,
   GridEventListener,
@@ -169,9 +176,9 @@ export const CardsContainer = <T extends GridValidRowModel,>(props: CardsContain
       };
       const { data: res, headers } = await fetch!(processedQueryCustomizer);
 
-      if (showTotalCount) {
+      // if (typeof showTotalCount === 'boolean' ? showTotalCount : true) {
         setTotalCount(headers[X_JUDO_COUNT] ? Number(headers[X_JUDO_COUNT]) : -1);
-      }
+      // }
 
       if (res.length > rowsPerPage) {
         setIsNextButtonEnabled(true);
@@ -199,5 +206,53 @@ export const CardsContainer = <T extends GridValidRowModel,>(props: CardsContain
     fetchData();
   }, [queryCustomizer, refreshCounter]);
 
-  return <Box>ID: {uniqueId}</Box>;
+  const onPageChange = useCallback((event: ChangeEvent<unknown>, page: number) => {
+    alert(page);
+  }, []);
+
+  const formatValue = useCallback((value: any) => {
+    if (value instanceof Date) {
+      return new Intl.DateTimeFormat(l10nLocale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).format(value);
+    }
+    if (value === undefined || value === null) {
+      return '';
+    }
+    return value.toString();
+  }, []);
+
+  return <Box>
+    <Typography>ID: {uniqueId}</Typography>
+    <Grid container spacing={2}>
+      <Grid item xs={12}>Filters</Grid>
+      <Grid item xs={12}>
+        <Grid container spacing={2} direction="row">
+          {data.map(d => (<Grid item sm={12} md={6} lg={6} xl={4} key={d.__identifier}>
+            <Card variant="outlined">
+              <CardContent>
+                {columns.map((k, idx) => (
+                  <Typography key={`${d.__identifier}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
+                    {formatValue(d[k.field])}
+                  </Typography>
+                ))}
+              </CardContent>
+              <CardActions>
+                <Button size="small" onClick={() => actions.openPageAction(d)}>Learn More</Button>
+              </CardActions>
+            </Card>
+          </Grid>))}
+        </Grid>
+      </Grid>
+      <Grid item xs={12}>
+        <Pagination count={Math.ceil(totalCount / pageLimit)} page={page} onChange={onPageChange} variant="outlined" shape="rounded" />
+      </Grid>
+    </Grid>
+  </Box>;
 };
