@@ -310,4 +310,8 @@ public class UiTableHelper {
     public static boolean isTableTag(Table table) {
         return TableRepresentation.TAG.equals(table.getRepresentationComponent());
     }
+
+    public static boolean isTableCard(Table table) {
+        return TableRepresentation.CARD.equals(table.getRepresentationComponent());
+    }
 }

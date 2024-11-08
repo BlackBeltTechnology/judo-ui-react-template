@@ -65,6 +65,12 @@ public class UiPageContainerHelper {
                 .collect(Collectors.toList());
     }
 
+    public static List<Table> getCardsForPageContainers(Application application) {
+        return application.getPageContainers().stream().flatMap(c -> ((List<Table>) c.getTables()).stream())
+                .filter(UiTableHelper::isTableCard)
+                .collect(Collectors.toList());
+    }
+
     public static String pageContainerActionDefinitionsName(PageContainer pageContainer) {
         return containerComponentName(pageContainer) + "ActionDefinitions";
     }
