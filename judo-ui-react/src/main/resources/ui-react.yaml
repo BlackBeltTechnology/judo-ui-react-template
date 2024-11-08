@@ -493,6 +493,10 @@ templates:
     pathExpression: "'src/components/widgets/TextWithTypeAhead.tsx'"
     templateName: actor/src/components/widgets/TextWithTypeAhead.tsx.hbs
 
+  - name: actor/src/components/widgets/CardsContainer.tsx
+    pathExpression: "'src/components/widgets/CardsContainer.tsx'"
+    templateName: actor/src/components/widgets/CardsContainer.tsx.hbs
+
   # Actor - src - components-api
 
   - name: actor/src/components-api/components/Action.ts
@@ -784,6 +788,26 @@ templates:
     factoryExpression: "#getTagsForPageContainers(#application)"
     pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #tagComponentName(#self) + '/types.ts'"
     templateName: actor/src/containers/components/tag/types.ts.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
+  - name: actor/src/containers/components/cards/index.tsx
+    factoryExpression: "#getCardsForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #cardsComponentName(#self) + '/index.tsx'"
+    templateName: actor/src/containers/components/cards/index.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
+  - name: actor/src/containers/components/cards/types.ts
+    factoryExpression: "#getCardsForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #cardsComponentName(#self) + '/types.ts'"
+    templateName: actor/src/containers/components/cards/types.ts.hbs
     templateContext:
       - name: container
         expression: "#self.pageContainer"
