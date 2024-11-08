@@ -207,6 +207,10 @@ public class UiWidgetHelper {
         return tableComponentName(table);
     }
 
+    public static String cardsComponentName(Table table) {
+        return tableComponentName(table);
+    }
+
     public static Column getFirstAutocompleteColumnForLink(Link link) {
         Optional<Column> column = link.getParts().stream()
                 .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
