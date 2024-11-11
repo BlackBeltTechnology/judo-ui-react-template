@@ -1,0 +1,21 @@
+import { type FC } from 'react';
+import type { ToolbarElementProps } from '~/components-api/components/CardsContainer';
+import { useL10N } from '~/l10n/l10n-context';
+import { useTranslation } from 'react-i18next';
+
+export const DefaultToolbar: FC<ToolbarElementProps<any>> = ({
+  columns,
+  filters,
+  handleFiltersChange,
+  sortModel,
+  handleSortModelChange,
+  refresh,
+  isLoading,
+}) => {
+  const { locale: l10nLocale } = useL10N();
+  const { t } = useTranslation();
+
+  return (
+    <div>{/* Default Toolbar */}</div>
+  );
+};

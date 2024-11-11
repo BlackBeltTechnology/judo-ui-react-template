@@ -1,0 +1,59 @@
+{{> fragment.header.hbs }}
+
+import { type FC, useCallback } from 'react';
+import Grid from '@mui/material/Grid';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import CardActions from '@mui/material/CardActions';
+import Button from '@mui/material/Button';
+import type {
+  GridColDef,
+  GridEventListener,
+  GridValidRowModel,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { useL10N } from '~/l10n/l10n-context';
+import { useTranslation } from 'react-i18next';
+import type { CardProps } from '~/components-api/components/CardsContainer';
+
+export const DefaultCard: FC<CardProps<any>> = ({ onRowClick, row, columns }) => {
+  const { locale: l10nLocale } = useL10N();
+  const { t } = useTranslation();
+
+  const formatValue = useCallback((value: any) => {
+    if (value instanceof Date) {
+      return new Intl.DateTimeFormat(l10nLocale, {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      }).format(value);
+    }
+    if (value === undefined || value === null) {
+      return '';
+    }
+    return value.toString();
+  }, []);
+
+  return (
+    <Grid item sm={12} md={6} lg={6} xl={4}>
+      <Card variant="outlined" sx={ { height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } }>
+        <CardContent>
+          {columns.map((k, idx) => (
+            <Typography key={`${row.__identifier}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
+              {formatValue(row[k.field])}
+            </Typography>
+          ))}
+        </CardContent>
+        <CardActions>
+          <Button size="small" onClick={() => onRowClick?.(row)}>
+            Learn More
+          </Button>
+        </CardActions>
+      </Card>
+    </Grid>
+  );
+};
