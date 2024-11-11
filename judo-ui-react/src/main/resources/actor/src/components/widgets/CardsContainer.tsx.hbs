@@ -1,0 +1,257 @@
+{{> fragment.header.hbs }}
+
+import Box from '@mui/material/Box';
+import Grid from '@mui/material/Grid';
+import TablePagination from '@mui/material/TablePagination';
+import type {
+  GridColDef,
+  GridEventListener,
+  GridFilterModel,
+  GridRowModel,
+  GridSortModel,
+  GridValidRowModel,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { useEffect, useMemo, useState, type FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import type { Filter, FilterOption } from '~/components-api';
+import type { CardProps, ToolbarElementProps } from '~/components-api/components/CardsContainer';
+import { basePageSizeOptions } from '~/config';
+import { useL10N } from '~/l10n/l10n-context';
+import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
+import type { FiltersSerializer } from '~/utilities';
+import { mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, useErrorHandler } from '~/utilities';
+import { type CardsFilterDefinition } from './CardsFilter';
+import { DefaultCard } from './DefaultCard';
+
+export interface CardsContainerProps<T extends GridValidRowModel> {
+  uniqueId: string;
+  defaultSortParams: GridSortModel;
+  pageLimit: number;
+  columns: GridColDef<T>[];
+  filterOptions: FilterOption[];
+  isOwnerLoading?: boolean;
+  actions: any;
+  onRowClick?: GridEventListener<'rowClick'>;
+  maskAction: () => string;
+  fetch: any;
+  refreshCounter: number;
+  relationName: string;
+  filtersSerializer: FiltersSerializer;
+  layout?: 'horizontal' | 'vertical';
+  ToolbarElement?: FC<ToolbarElementProps<T>>;
+  CardElement?: FC<CardProps<T>>;
+}
+
+export const CardsContainer = <T extends GridValidRowModel>(props: CardsContainerProps<T>) => {
+  const {
+    uniqueId,
+    defaultSortParams,
+    pageLimit,
+    columns,
+    filterOptions,
+    isOwnerLoading,
+    actions,
+    onRowClick,
+    maskAction,
+    fetch,
+    refreshCounter,
+    relationName,
+    filtersSerializer,
+    layout = 'horizontal',
+    ToolbarElement,
+    CardElement = DefaultCard,
+  } = props;
+
+  const { locale: l10nLocale } = useL10N();
+  const { t } = useTranslation();
+  const handleError = useErrorHandler();
+
+  const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
+  const [data, setData] = useState<GridRowModel<T>[]>([]);
+  const [sortModel, setSortModel] = useState<GridSortModel>(defaultSortParams);
+  const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] });
+  const [filters, setFilters] = useState<Filter[]>([]);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(pageLimit);
+  const [paginationModel, setPaginationModel] = useState({
+    pageSize: rowsPerPage,
+    page: 0,
+  });
+  const [queryCustomizer, setQueryCustomizer] = useState<QueryCustomizer<T>>({
+    _mask: maskAction(),
+    _seek: {
+      limit: rowsPerPage + 1,
+    },
+    _orderBy: sortModel.length
+      ? sortModel.map((s) => ({
+          attribute: s.field,
+          descending: s.sort === 'desc',
+        }))
+      : [],
+    ...mapAllFiltersToQueryCustomizerProperties(filters),
+  });
+
+  const [page, setPage] = useState<number>(0);
+  const [rowCount, setRowCount] = useState<number>(0);
+  const [lastItem, setLastItem] = useState<T>();
+  const [firstItem, setFirstItem] = useState<T>();
+  const [isNextButtonEnabled, setIsNextButtonEnabled] = useState<boolean>(true);
+
+  const isLoading = useMemo(() => isInternalLoading || !!isOwnerLoading, [isInternalLoading, isOwnerLoading]);
+
+  const pageSizeOptions = useMemo(() => {
+    const opts: Set<number> = new Set([rowsPerPage, ...basePageSizeOptions]);
+    return Array.from(opts.values()).sort((a, b) => a - b);
+  }, [rowsPerPage]);
+
+  const handleFiltersChange = (newFilters: Filter[]) => {
+    setPage(0);
+    setFilters(newFilters);
+
+    setQueryCustomizer((prevQueryCustomizer: QueryCustomizer<T>) => {
+      // remove previous filter values, so that we can always start with a clean slate
+      for (const name of columns.map((c) => c.field)) {
+        delete (prevQueryCustomizer as any)[name];
+      }
+      return {
+        ...prevQueryCustomizer,
+        _seek: {
+          limit: rowsPerPage + 1,
+        },
+        ...mapAllFiltersToQueryCustomizerProperties(newFilters),
+      };
+    });
+  };
+
+  async function fetching() {
+    setIsInternalLoading(true);
+
+    try {
+      const processedQueryCustomizer = {
+        ...processQueryCustomizer(queryCustomizer),
+        _mask: maskAction ? maskAction() : queryCustomizer._mask,
+      };
+      const { data: res, headers } = await fetch!(processedQueryCustomizer);
+
+
+      if (res.length > rowsPerPage) {
+        setIsNextButtonEnabled(true);
+        res.pop();
+      } else if (queryCustomizer._seek?.limit === rowsPerPage + 1) {
+        setIsNextButtonEnabled(false);
+      }
+
+      setData(res);
+      setFirstItem(res[0]);
+      setLastItem(res[res.length - 1]);
+      setRowCount(res.length || 0);
+    } catch (error) {
+      handleError(error);
+    } finally {
+      setIsInternalLoading(false);
+    }
+  }
+
+  async function fetchData() {
+    await fetching();
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, [queryCustomizer, refreshCounter]);
+
+  function handleSortModelChange(newModel: GridSortModel) {
+    setPage(0);
+    setSortModel(newModel);
+
+    const _orderBy = newModel.filter((m: any) => m.sort).map((m: any) => ({
+      attribute: m.field,
+      descending: m.sort === 'desc',
+    }));
+
+    setQueryCustomizer((prevQueryCustomizer) => {
+      const strippedQueryCustomizer: QueryCustomizer<T> = {
+        ...prevQueryCustomizer
+      };
+      if (!!strippedQueryCustomizer._seek) {
+        delete strippedQueryCustomizer._seek.lastItem;
+      }
+      // we need to reset _seek so that previous configuration is erased
+      return {
+        ...strippedQueryCustomizer,
+        _orderBy,
+        _seek: {
+          limit: rowsPerPage + 1,
+        },
+      };
+    });
+  }
+
+  async function handlePageChange(isNext: boolean) {
+    setQueryCustomizer((prevQueryCustomizer) => {
+      return {
+        ...prevQueryCustomizer,
+        _seek: {
+          limit: isNext ? rowsPerPage + 1 : rowsPerPage,
+          reverse: !isNext,
+          lastItem: isNext ? lastItem : firstItem,
+        },
+      };
+    });
+
+    setIsNextButtonEnabled(!isNext);
+  }
+
+  const CardItem = useMemo<FC<CardProps<T>>>(() => CardElement || DefaultCard, [CardElement]);
+
+  return (
+    <Box>
+      <Grid container spacing={2}>
+        {ToolbarElement ? <Grid item xs={layout === 'horizontal' ? 3 : 12}>
+          <ToolbarElement
+            columns={columns}
+            isLoading={isLoading}
+            refresh={fetching}
+            filterOptions={filterOptions}
+            filters={filters}
+            handleFiltersChange={handleFiltersChange}
+            sortModel={sortModel}
+            handleSortModelChange={handleSortModelChange}
+          />
+        </Grid> : null}
+        <Grid item xs={(layout === 'horizontal' && ToolbarElement) ? 9 : 12}>
+          <Grid container spacing={2} direction="row">
+            {data.map((d) => (
+              <CardItem key={d.__identifier} onRowClick={actions.openPageAction} row={d} columns={columns} />
+            ))}
+          </Grid>
+        </Grid>
+        <Grid item xs={12}>
+          <TablePagination
+            component="div"
+            count={-1}
+            page={page}
+            onPageChange={ (_, newPage) => {
+              let isNext = true;
+              if (newPage < page) {
+                isNext = false;
+              }
+              setPage(newPage);
+              handlePageChange(isNext);
+            } }
+            rowsPerPage={rowsPerPage}
+            rowsPerPageOptions={pageSizeOptions}
+            labelDisplayedRows={({ from, to }) =>
+              `${from}–${to}`
+            }
+            nextIconButtonProps={ {
+              disabled: !isNextButtonEnabled,
+            } }
+            backIconButtonProps={ {
+              disabled: page === 0,
+            } }
+          />
+        </Grid>
+      </Grid>
+    </Box>
+  );
+};

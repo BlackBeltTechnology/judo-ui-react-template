@@ -1,0 +1,71 @@
+{{> fragment.header.hbs }}
+
+import { type FC, useState, useCallback } from 'react';
+import Grid from '@mui/material/Grid';
+import Typography from '@mui/material/Typography';
+import Button from '@mui/material/Button';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Checkbox from '@mui/material/Checkbox';
+import { FilterType } from '~/components-api';
+import { useL10N } from '~/l10n/l10n-context';
+import { useTranslation } from 'react-i18next';
+
+export interface CardsFilterDefinition<T> {
+  type: FilterType;
+  field: keyof T;
+  label: string;
+  values: { value: any, label: string }[];
+}
+
+export const CardsFilter: FC<{ filterDefinitions: CardsFilterDefinition<any>[], onFiltersChanged?: (values: Record<string, any>) => void }> = ({ filterDefinitions, onFiltersChanged }) => {
+  const { locale: l10nLocale } = useL10N();
+  const { t } = useTranslation();
+
+  const [values, setValues] = useState<Record<string, any>>({});
+
+  const updateValue = useCallback((field: string, value: any) => {
+    const newValues = {
+      ...values,
+      [field]: values[field] === value ? null : value,
+    };
+    setValues(newValues);
+    onFiltersChanged?.(newValues);
+  }, [values]);
+
+  const clearFilters = useCallback(() => {
+    setValues({});
+    onFiltersChanged?.({});
+  }, [values]);
+
+  return (
+    <Grid container direction="row" spacing={2}>
+      <Grid item xs={12}>
+        <Typography variant="h4">
+          Filters
+        </Typography>
+        <Button variant={'text'} onClick={clearFilters} >Clear all</Button>
+      </Grid>
+      {filterDefinitions.map(d => (
+        <Grid item xs={12} key={d.field as string}>
+          <Typography variant="subtitle1">
+            {d.label}:
+          </Typography>
+          <FormGroup>
+            {d.values.map(v => (
+              <FormControlLabel
+                key={`${d.label}-${v.value}`}
+                control={<Checkbox
+                  size="small"
+                  checked={values[d.field as string] === v.value}
+                  onClick={() => updateValue(d.field as string, v.value)}
+                />}
+                label={v.label}
+              />
+            ))}
+          </FormGroup>
+        </Grid>
+      ))}
+    </Grid>
+  );
+};

@@ -1,0 +1,23 @@
+import type {
+  GridColDef,
+  GridValidRowModel,
+  GridSortModel,
+} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type { Filter, FilterOption } from '~/components-api';
+
+export interface CardProps<T extends GridValidRowModel> {
+  row: T;
+  columns: GridColDef<T>[];
+  onRowClick?: (row: T) => void;
+}
+
+export interface ToolbarElementProps<T extends GridValidRowModel> {
+  columns: GridColDef<T>[],
+  filterOptions: FilterOption[];
+  filters: Filter[];
+  handleFiltersChange: (newFilters: Filter[]) => void,
+  sortModel: GridSortModel,
+  handleSortModelChange: (newModel: GridSortModel) => void,
+  refresh: () => Promise<void>,
+  isLoading: boolean,
+}
