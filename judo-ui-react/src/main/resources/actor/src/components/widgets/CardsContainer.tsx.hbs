@@ -11,16 +11,16 @@ import type {
   GridSortModel,
   GridValidRowModel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Filter, FilterOption } from '~/components-api';
+import type { CardProps, ToolbarElementProps } from '~/components-api/components/CardsContainer';
 import { basePageSizeOptions } from '~/config';
 import { useL10N } from '~/l10n/l10n-context';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
-import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
 import type { FiltersSerializer } from '~/utilities';
 import { mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, useErrorHandler } from '~/utilities';
-import { CardsFilter, type CardsFilterDefinition } from './CardsFilter';
+import { type CardsFilterDefinition } from './CardsFilter';
 import { DefaultCard } from './DefaultCard';
 
 export interface CardsContainerProps<T extends GridValidRowModel> {
@@ -37,8 +37,9 @@ export interface CardsContainerProps<T extends GridValidRowModel> {
   refreshCounter: number;
   relationName: string;
   filtersSerializer: FiltersSerializer;
-  showTotalCount?: boolean;
   layout?: 'horizontal' | 'vertical';
+  ToolbarElement?: FC<ToolbarElementProps<T>>;
+  CardElement?: FC<CardProps<T>>;
 }
 
 export const CardsContainer = <T extends GridValidRowModel>(props: CardsContainerProps<T>) => {
@@ -56,8 +57,9 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
     refreshCounter,
     relationName,
     filtersSerializer,
-    showTotalCount,
-    layout = 'horizontal'
+    layout = 'horizontal',
+    ToolbarElement,
+    CardElement = DefaultCard,
   } = props;
 
   const { locale: l10nLocale } = useL10N();
@@ -65,7 +67,6 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
   const handleError = useErrorHandler();
 
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
-  const [totalCount, setTotalCount] = useState<number>(-1);
   const [data, setData] = useState<GridRowModel<T>[]>([]);
   const [sortModel, setSortModel] = useState<GridSortModel>(defaultSortParams);
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] });
@@ -131,7 +132,6 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
       };
       const { data: res, headers } = await fetch!(processedQueryCustomizer);
 
-      setTotalCount(headers[X_JUDO_COUNT] ? Number(headers[X_JUDO_COUNT]) : -1);
 
       if (res.length > rowsPerPage) {
         setIsNextButtonEnabled(true);
@@ -159,6 +159,33 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
     fetchData();
   }, [queryCustomizer, refreshCounter]);
 
+  function handleSortModelChange(newModel: GridSortModel) {
+    setPage(0);
+    setSortModel(newModel);
+
+    const _orderBy = newModel.filter((m: any) => m.sort).map((m: any) => ({
+      attribute: m.field,
+      descending: m.sort === 'desc',
+    }));
+
+    setQueryCustomizer((prevQueryCustomizer) => {
+      const strippedQueryCustomizer: QueryCustomizer<T> = {
+        ...prevQueryCustomizer
+      };
+      if (!!strippedQueryCustomizer._seek) {
+        delete strippedQueryCustomizer._seek.lastItem;
+      }
+      // we need to reset _seek so that previous configuration is erased
+      return {
+        ...strippedQueryCustomizer,
+        _orderBy,
+        _seek: {
+          limit: rowsPerPage + 1,
+        },
+      };
+    });
+  }
+
   async function handlePageChange(isNext: boolean) {
     setQueryCustomizer((prevQueryCustomizer) => {
       return {
@@ -174,28 +201,34 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
     setIsNextButtonEnabled(!isNext);
   }
 
-  const filterDefs: CardsFilterDefinition[] = [
-    { type: 'boolean', field: 'nakedEye', label: 'Naked Eye', values: [{ value: true, label: 'Yes' }, {  value: false, label: 'No' }] },
-    { type: 'string', field: 'constellation', label: 'Constellation', values: [{ value: 'Andromeda', label: 'Andromeda' }, { value: 'Corvus', label: 'Corvus' }, { value: 'Ursa Major', label: 'Ursa Major' }] },
-  ];
+  const CardItem = useMemo<FC<CardProps<T>>>(() => CardElement || DefaultCard, [CardElement]);
 
   return (
     <Box>
       <Grid container spacing={2}>
-        <Grid item xs={layout === 'horizontal' ? 3 : 12}>
-          <CardsFilter filterDefinitions={filterDefs} />
-        </Grid>
-        <Grid item xs={layout === 'horizontal' ? 9 : 12}>
+        {ToolbarElement ? <Grid item xs={layout === 'horizontal' ? 3 : 12}>
+          <ToolbarElement
+            columns={columns}
+            isLoading={isLoading}
+            refresh={fetching}
+            filterOptions={filterOptions}
+            filters={filters}
+            handleFiltersChange={handleFiltersChange}
+            sortModel={sortModel}
+            handleSortModelChange={handleSortModelChange}
+          />
+        </Grid> : null}
+        <Grid item xs={(layout === 'horizontal' && ToolbarElement) ? 9 : 12}>
           <Grid container spacing={2} direction="row">
             {data.map((d) => (
-              <DefaultCard key={d.__identifier} onRowClick={actions.openPageAction} row={d} columns={columns} />
+              <CardItem key={d.__identifier} onRowClick={actions.openPageAction} row={d} columns={columns} />
             ))}
           </Grid>
         </Grid>
         <Grid item xs={12}>
           <TablePagination
             component="div"
-            count={totalCount ?? -1}
+            count={-1}
             page={page}
             onPageChange={ (_, newPage) => {
               let isNext = true;
@@ -208,7 +241,7 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
             rowsPerPage={rowsPerPage}
             rowsPerPageOptions={pageSizeOptions}
             labelDisplayedRows={({ from, to }) =>
-              `${from}–${to}${totalCount !== undefined && totalCount > -1 ? ` / ${totalCount}` : ''}`
+              `${from}–${to}`
             }
             nextIconButtonProps={ {
               disabled: !isNextButtonEnabled,

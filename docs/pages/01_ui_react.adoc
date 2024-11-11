@@ -789,6 +789,111 @@ const SidekickGalaxiesComponent: FC<SidekickComponentProps<ViewGalaxyStored>> = 
 };
 ----
 
+=== Implementing Card Containers for Tables with Card representations
+
+We can model tables to represent cards. In case we did so, by default we will get a simplistic
+representation of cards. To specify how each card should look like (and other aspects as wel), we
+can register a configuration.
+
+The interface key for these hooks is the unique name of the table plus "_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY".
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import {
+  VIEW_GALAXY_TABLE_TABLE_COMPONENT_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY,
+  ViewGalaxyTableTableComponentCardsContainerConfigHook,
+} from '~/containers/View/Galaxy/Table/components/ViewGalaxyTableTableComponent/customization';
+import {CardProps, ToolbarElementProps } from '~/components-api/components/CardsContainer';
+import {ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import {CardsFilter, CardsFilterDefinition } from '~/components/widgets/CardsFilter';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import CardActions from '@mui/material/CardActions';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import { Filter, FilterType } from '~/components-api';
+import { _BooleanOperation, _StringOperation } from '~/services/data-api/common';
+import { mapCardsFiltersToFilters } from '~/utilities';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<ViewGalaxyTableTableComponentCardsContainerConfigHook>(
+      VIEW_GALAXY_TABLE_TABLE_COMPONENT_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY,
+      cardsConfigHook
+    );
+  }
+}
+
+const cardsConfigHook: ViewGalaxyTableTableComponentCardsContainerConfigHook = () => {
+  // We are returning a full configuration, but all of the attributes below are optional
+  return {
+    layout: 'horizontal',
+    ToolbarElement: CustomToolbar, // a valid React component implementing FC<ToolbarElementProps<T>>
+    CardElement: CustomCard, // a valid React component implementing FC<CardProps<T>>
+  };
+};
+
+function CustomToolbar({ handleFiltersChange }: ToolbarElementProps<ViewGalaxyStored>) {
+  // We can call other hooks here
+
+  const filterDefs: CardsFilterDefinition<ViewGalaxy>[] = [
+    {
+      type: FilterType.boolean, field: 'nakedEye', label: 'Naked Eye',
+      values: [
+        { value: true, label: 'Yes' },
+        { value: false, label: 'No' }
+      ],
+    },
+    {
+      type: FilterType.string, field: 'constellation', label: 'Constellation',
+      values: [
+        { value: 'Andromeda', label: 'Andromeda' },
+        { value: 'Corvus', label: 'Corvus' },
+        { value: 'Ursa Major', label: 'Ursa Major',
+        },
+      ],
+    },
+  ];
+
+  // We are using a built in component CardsFilter here, but we can implement anything
+  return (
+    <CardsFilter filterDefinitions={filterDefs} onFiltersChanged={(values: Record<string, any>) => {
+      const newFilters: Filter[] = mapCardsFiltersToFilters(filterDefs, values);
+      handleFiltersChange(newFilters);
+    }} />
+  );
+}
+
+function CustomCard({ row, columns, onRowClick }: CardProps<ViewGalaxyStored>) {
+  // We can call other hooks here
+
+  // Every custom Card component MUST be wrapped in a `<Grid item` with the appropriate `sm`, `md`, etc... values so that
+  // elements are handled properly on all devices.
+  return (
+    <Grid item sm={12} md={6} lg={4} xl={4}>
+      <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <CardContent>
+          {columns.map((k, idx) => (
+            <Typography key={`${row.__identifier}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
+              {row[k.field as keyof ViewGalaxyStored]?.toString()}
+            </Typography>
+          ))}
+        </CardContent>
+        <CardActions>
+          <Button size="small" onClick={() => onRowClick?.(row)}>
+            Learn More
+          </Button>
+        </CardActions>
+      </Card>
+    </Grid>
+  );
+}
+----
+
 === Implementing container actions
 
 Every container has a set of Actions. These are typically actions triggered by buttons, or visual lifecycle calculated

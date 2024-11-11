@@ -14,12 +14,7 @@ import type {
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { useL10N } from '~/l10n/l10n-context';
 import { useTranslation } from 'react-i18next';
-
-export interface CardProps<T extends GridValidRowModel> {
-  row: T;
-  columns: GridColDef<T>[];
-  onRowClick?: (row: T) => void;
-}
+import type { CardProps } from '~/components-api/components/CardsContainer';
 
 export const DefaultCard: FC<CardProps<any>> = ({ onRowClick, row, columns }) => {
   const { locale: l10nLocale } = useL10N();
@@ -45,7 +40,7 @@ export const DefaultCard: FC<CardProps<any>> = ({ onRowClick, row, columns }) =>
 
   return (
     <Grid item sm={12} md={6} lg={6} xl={4}>
-      <Card variant="outlined">
+      <Card variant="outlined" sx={ { height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } }>
         <CardContent>
           {columns.map((k, idx) => (
             <Typography key={`${row.__identifier}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
