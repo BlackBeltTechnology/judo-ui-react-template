@@ -16,7 +16,7 @@
       autoHighlight
       value={data.{{ child.attributeType.name }} || null}
       disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
-      readOnly={(actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : false) || !isFormUpdateable()}
+      readOnly={(actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : false) || {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable()}
       options={[
         ...effective{{ firstToUpper child.attributeType.name }}Options.map((o) => ({
           label: t(o.i18nKey, { defaultValue: o.i18nDefaultValue }),
