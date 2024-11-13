@@ -10,12 +10,13 @@ import type { Filter } from '~/components-api';
     {{ imp }}Stored,
   } from '~/services/data-api/model/{{ imp }}';
 {{/ each }}
-import type { CardProps, ToolbarElementProps } from '~/components-api/components/CardsContainer';
+import type { CardProps, ToolbarElementProps, ActionbarElementProps } from '~/components-api/components/CardsContainer';
 import type { {{ componentName table }}ActionDefinitions } from './types';
 
 export interface {{ componentName table }}CardsContainerConfig {
   layout?: 'horizontal' | 'vertical';
   ToolbarElement?: FC<ToolbarElementProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>,
+  ActionbarElement?: FC<ActionbarElementProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>,
   CardElement?: FC<CardProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>
 }
 

@@ -11,6 +11,15 @@ export interface CardProps<T extends GridValidRowModel> {
   onRowClick?: (row: T) => void;
 }
 
+export interface ActionbarElementProps<T extends GridValidRowModel> {
+  columns: GridColDef<T>[],
+  sortModel: GridSortModel,
+  handleSortModelChange: (newModel: GridSortModel) => void,
+  refresh: () => Promise<void>,
+  isLoading: boolean,
+  actions?: any,
+}
+
 export interface ToolbarElementProps<T extends GridValidRowModel> {
   columns: GridColDef<T>[],
   filterOptions: FilterOption[];
@@ -20,5 +29,5 @@ export interface ToolbarElementProps<T extends GridValidRowModel> {
   handleSortModelChange: (newModel: GridSortModel) => void,
   refresh: () => Promise<void>,
   isLoading: boolean,
-  actions?: any[],
+  actions?: any,
 }

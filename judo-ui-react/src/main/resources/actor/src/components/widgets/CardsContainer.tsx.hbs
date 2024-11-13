@@ -14,7 +14,7 @@ import type {
 import { useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Filter, FilterOption } from '~/components-api';
-import type { CardProps, ToolbarElementProps } from '~/components-api/components/CardsContainer';
+import type { CardProps, ToolbarElementProps, ActionbarElementProps } from '~/components-api/components/CardsContainer';
 import { basePageSizeOptions } from '~/config';
 import { useL10N } from '~/l10n/l10n-context';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
@@ -39,6 +39,7 @@ export interface CardsContainerProps<T extends GridValidRowModel> {
   filtersSerializer: FiltersSerializer;
   layout?: 'horizontal' | 'vertical';
   ToolbarElement?: FC<ToolbarElementProps<T>>;
+  ActionbarElement?: FC<ActionbarElementProps<T>>;
   CardElement?: FC<CardProps<T>>;
 }
 
@@ -59,6 +60,7 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
     filtersSerializer,
     layout = 'horizontal',
     ToolbarElement,
+    ActionbarElement,
     CardElement = DefaultCard,
   } = props;
 
@@ -221,6 +223,16 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
         </Grid> : null}
         <Grid item xs={(layout === 'horizontal' && ToolbarElement) ? 9 : 12}>
           <Grid container spacing={2} direction="row">
+            {ActionbarElement ? <Grid item xs={12}>
+                <ActionbarElement
+                  columns={columns}
+                  sortModel={sortModel}
+                  handleSortModelChange={handleSortModelChange}
+                  refresh={fetching}
+                  isLoading={isLoading}
+                  actions={actions}
+                />
+            </Grid> : null}
             {data.map((d) => (
               <CardItem key={d.__identifier} onRowClick={actions.openPageAction} row={d} columns={columns} />
             ))}
