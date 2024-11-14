@@ -1,0 +1,52 @@
+import type { SxProps } from '@mui/material/styles';
+import Box from '@mui/system/Box';
+import { type CSSProperties, useEffect, useMemo, useState } from 'react';
+import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { fileHandling } from '~/utilities/file-handling';
+
+export interface ImageDisplayProps {
+  token: string;
+  imageCSS?: CSSProperties;
+  sx?: SxProps;
+  fallbackUrl?: string;
+}
+
+export function ImageDisplay({ token, imageCSS, sx, fallbackUrl }: ImageDisplayProps) {
+  const { extractFileNameFromToken } = fileHandling();
+
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [altText, setAltText] = useState<string | null>(null);
+
+  const accessServiceImpl = useMemo(() => new AccessServiceImpl(judoAxiosProvider), []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await accessServiceImpl.downloadFile(token, 'inline');
+
+        if (response && response.status === 200) {
+          const fileType = response.headers['content-type'];
+          const url = window.URL.createObjectURL(new Blob([response.data], { type: fileType }));
+          setImageUrl(url);
+          setAltText(extractFileNameFromToken(token));
+        } else {
+          setImageUrl(null);
+          setAltText(null);
+        }
+      } catch (error) {
+        console.error(error);
+        setImageUrl(null);
+        setAltText(null);
+      }
+    })();
+  }, [token]);
+
+  const effectiveImageUrl: string | undefined = useMemo(() => imageUrl || fallbackUrl, [imageUrl, fallbackUrl]);
+
+  return (
+    <Box sx={sx}>
+      {effectiveImageUrl ? <img src={effectiveImageUrl} alt={altText as any} style={imageCSS} /> : null}
+    </Box>
+  );
+}
