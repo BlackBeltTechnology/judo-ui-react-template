@@ -182,6 +182,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         columns={columns}
         filterOptions={filterOptions}
         isOwnerLoading={isOwnerLoading}
+        {{# unless container.table }}
+          delayed={true}
+        {{/ unless }}
         actions={actions}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
           {{# if actionDefinition.isOpenPageAction }}
