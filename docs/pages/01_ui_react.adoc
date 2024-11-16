@@ -950,6 +950,64 @@ const containerLevelHook: ViewGalaxyViewContainerHook = () => {
 };
 ----
 
+=== Adding Custom buttons to container action bars
+
+In case we cannot model buttons on a container level which should call actions, we can add them via a component hook.
+
+> This feature should not be confused with the one above. In this case we can add extra visual elements,
+  while the above is about manually implementing the corresponding actions.
+
+*Locating interface keys:*
+
+- We should inspect the page / dialog in dev-tools, and search for the id of the container in the `src/containers` folder.
+- Afterwards look for a `const` ending in `CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY`
+
+*Registering implementations*
+
+Implementations can be registered in one central location: `src/custom/application-customizer.tsx`.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import { type BundleContext } from '@pandino/pandino-api';
+import {
+  SERVICES_AUTHOR_PRODUCT_AUTHOR_PRODUCT_TABLE_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY,
+  ServicesAuthorProductAuthorProduct_TableContainerExtraActionsComponentProps
+} from '~/containers/Services/AuthorProduct/AuthorProduct_Table/customization';
+import { MdiIcon } from '~/components';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Grid from '@mui/material/Grid';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(SERVICES_AUTHOR_PRODUCT_AUTHOR_PRODUCT_TABLE_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY, ExtraContainerButtons);
+  }
+}
+export function ExtraContainerButtons({ isLoading, actions,  }: ServicesAuthorProductAuthorProduct_TableContainerExtraActionsComponentProps) {
+  // we can call other hooks here
+
+  return (
+    <>
+      <Grid className="page-action" item>
+        <LoadingButton
+          loading={isLoading}
+          loadingPosition="start"
+          variant={'contained'}
+          onClick={() => actions?.createProductAction?.(null as any)}
+          disabled={isLoading}
+          startIcon={<MdiIcon path="file-document-plus-outline" />}
+        >
+          Create Product
+        </LoadingButton>
+      </Grid>
+    </>
+  );
+}
+----
+
+For the list of every prop available, we can check the `ServicesAuthorProductAuthorProduct_TableContainerExtraActionsComponentProps` interface
+as shown above.
+
 === How to locate actions
 
 Every action is implemented in Pages/Dialogs. The actions of Tables and Single Components which are inlined in a certain

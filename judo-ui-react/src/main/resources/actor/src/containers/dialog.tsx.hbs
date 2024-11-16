@@ -2,11 +2,9 @@
 
 import { lazy, Suspense{{# if (containerHasCreateAction container) }}, useRef, useState, useCallback{{/ if }} } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-{{# if (containerHasActionsWithCustomImplementation container) }}
-  import { OBJECTCLASS } from '@pandino/pandino-api';
-  import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
-  import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
-{{/ if }}
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -52,6 +50,7 @@ import { useConfirmDialog } from '~/components/dialog';
       {{/ each }}
     } from './customization';
   {{/ if }}
+  import { {{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
@@ -290,6 +289,22 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
               </Grid>
             )}
           {{/ each }}
+          <ComponentProxy
+            filter={`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
+            editMode={editMode}
+            {{# unless container.table }}
+            data={data}
+            validation={validation}
+            storeDiff={storeDiff}
+            submit={submit}
+            {{/ unless }}
+            {{# if container.isSelector }}
+            selectionDiff={selectionDiff}
+            {{/ if }}
+            isLoading={isLoading}
+            actions={actions}
+          >
+          </ComponentProxy>
         </DialogActions>
       {{/ unless }}
     </>
