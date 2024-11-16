@@ -2,11 +2,9 @@
 
 import { lazy, Suspense } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-{{# if (containerHasActionsWithCustomImplementation container) }}
-  import { OBJECTCLASS } from '@pandino/pandino-api';
-  import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
-  import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
-{{/ if }}
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
@@ -41,6 +39,7 @@ import { mainContainerPadding } from '~/theme';
       {{/ each }}
     } from './customization';
   {{/ if }}
+  import { {{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
@@ -118,7 +117,20 @@ export default function {{ containerComponentName container }}Page ({{# unless (
               </Grid>
             )}
           {{/ each }}
-          <div>{/* Placeholder */}</div>
+          <ComponentProxy
+            filter={`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
+            editMode={editMode}
+            {{# unless container.table }}
+            data={data}
+            validation={validation}
+            storeDiff={storeDiff}
+            submit={submit}
+            {{/ unless }}
+            isLoading={isLoading}
+            actions={actions}
+          >
+            <div>{/* Placeholder */}</div>
+          </ComponentProxy>
         </PageHeader>
         <Suspense>
           <Box sx={mainContainerPadding}>
