@@ -20,17 +20,22 @@ import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import Paper from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { Suspense, lazy, useCallback, useRef, useState } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
 import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
 
 import type { ViewGalaxyFormActionDefinitions, ViewGalaxyFormDialogActions, ViewGalaxyFormDialogProps } from './types';
+
+import { VIEW_GALAXY_FORM_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 
 const ViewGalaxyForm = lazy(() => import('~/containers/View/Galaxy/Form/ViewGalaxyForm'));
 
@@ -194,6 +199,16 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
             </Popper>
           </Grid>
         )}
+        <ComponentProxy
+          filter={`(${OBJECTCLASS}=${VIEW_GALAXY_FORM_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
+          editMode={editMode}
+          data={data}
+          validation={validation}
+          storeDiff={storeDiff}
+          submit={submit}
+          isLoading={isLoading}
+          actions={actions}
+        ></ComponentProxy>
       </DialogActions>
     </>
   );
