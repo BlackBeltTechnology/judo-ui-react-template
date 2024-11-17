@@ -478,7 +478,7 @@ export function mapCardsFiltersToFilters<T>(cardsFilters: CardsFilterDefinition<
           },
           filterBy: {
             value: values[key],
-            operator: def.type === FilterType.boolean ? _BooleanOperation.equals : _StringOperation.equal,
+            operator: def.operator ? def.operator : (def.type === FilterType.boolean ? _BooleanOperation.equals : _StringOperation.equal),
           },
         });
       }

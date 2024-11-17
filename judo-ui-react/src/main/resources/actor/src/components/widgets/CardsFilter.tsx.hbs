@@ -13,6 +13,7 @@ import { useTranslation } from 'react-i18next';
 
 export interface CardsFilterDefinition<T> {
   type: FilterType;
+  operator?: any;
   field: keyof T;
   label: string;
   values: { value: any, label: string }[];
@@ -31,20 +32,28 @@ export const CardsFilter: FC<{ filterDefinitions: CardsFilterDefinition<any>[], 
     };
     setValues(newValues);
     onFiltersChanged?.(newValues);
-  }, [values]);
+  }, [values, onFiltersChanged]);
 
   const clearFilters = useCallback(() => {
-    setValues({});
-    onFiltersChanged?.({});
+    // We need to explicitly null out values because our filter may refer to Transfer fields which are not in the list
+    // of columns. Other framework features rely on column info for e.g. queryCustomizer cleanup.
+    const newValues: Record<string, any> = {};
+    for (const key in values) {
+      newValues[key] = null;
+    }
+    setValues(newValues);
+    onFiltersChanged?.(newValues);
   }, [values]);
 
   return (
     <Grid container direction="row" spacing={2}>
       <Grid item xs={12}>
         <Typography variant="h4">
-          Filters
+          {t('judo.component.CardsContainer.Filter.filter', { defaultValue: 'Filter' })}
         </Typography>
-        <Button variant={'text'} onClick={clearFilters} >Clear all</Button>
+        <Button variant={'text'} onClick={clearFilters}>
+          {t('judo.component.CardsContainer.Filter.clearAll', { defaultValue: 'Filter' })}
+        </Button>
       </Grid>
       {filterDefinitions.map(d => (
         <Grid item xs={12} key={d.field as string}>
