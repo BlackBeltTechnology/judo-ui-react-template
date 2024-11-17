@@ -1,0 +1,41 @@
+import json
+import os
+
+def sync_translation_files(source_path, target_path):
+  # Prepend the paths with "public/i18n/"
+  source_path = os.path.join("public", "i18n", source_path)
+  target_path = os.path.join("public", "i18n", target_path)
+
+  # Load source and target JSON data
+  with open(source_path, 'r', encoding='utf-8') as source_file:
+    source_data = json.load(source_file)
+
+  with open(target_path, 'r', encoding='utf-8') as target_file:
+    target_data = json.load(target_file)
+
+  # Get the translations dictionary from each file
+  source_translations = source_data.get("translation", {})
+  target_translations = target_data.get("translation", {})
+
+  # Update target_translations based on source_translations
+  # Keep entries from the target if they exist in both; add new ones from the source
+  updated_translations = {
+    key: target_translations[key] if key in target_translations else source_translations[key]
+    for key in source_translations
+  }
+
+  # Create the updated target data structure with updated translations
+  updated_target_data = {"translation": updated_translations}
+
+  # Write the updated data back to the target file
+  with open(target_path, 'w', encoding='utf-8') as target_file:
+    json.dump(updated_target_data, target_file, indent=4, ensure_ascii=False)
+    target_file.write('\n')  # Ensure a single empty line at the end of the file
+
+def main():
+  sync_translation_files('system_default.json', 'system_hu-HU.json')
+  sync_translation_files('system_default.json', 'system_en-US.json')
+  sync_translation_files('application_default.json', 'application_{{ getDefaultLanguage application }}.json')
+
+if __name__ == "__main__":
+  main()
