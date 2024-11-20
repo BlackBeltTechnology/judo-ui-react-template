@@ -1,7 +1,9 @@
 import json
 import os
+import argparse
+from collections import OrderedDict
 
-def sync_translation_files(source_path, target_path):
+def sync_translation_files(source_path, target_path, delete_obsolete=False):
   # Prepend the paths with "public/i18n/"
   source_path = os.path.join("public", "i18n", source_path)
   target_path = os.path.join("public", "i18n", target_path)
@@ -17,12 +19,15 @@ def sync_translation_files(source_path, target_path):
   source_translations = source_data.get("translation", {})
   target_translations = target_data.get("translation", {})
 
-  # Update target_translations based on source_translations
-  # Keep entries from the target if they exist in both; add new ones from the source
-  updated_translations = {
-    key: target_translations[key] if key in target_translations else source_translations[key]
-    for key in source_translations
-  }
+  if not delete_obsolete:
+    updated_translations = merge_json_by_index(source_translations, target_translations)
+  else:
+    # Update target_translations based on source_translations
+    # Keep entries from the target if they exist in both; add new ones from the source
+    updated_translations = {
+      key: target_translations[key] if key in target_translations else source_translations[key]
+      for key in source_translations
+    }
 
   # Create the updated target data structure with updated translations
   updated_target_data = {"translation": updated_translations}
@@ -32,10 +37,36 @@ def sync_translation_files(source_path, target_path):
     json.dump(updated_target_data, target_file, indent=4, ensure_ascii=False)
     target_file.write('\n')  # Ensure a single empty line at the end of the file
 
+
+def merge_json_by_index(source, target):
+  result = OrderedDict()
+  source_keys = list(source.keys())
+  target_keys = list(target.keys())
+  max_len = max(len(source_keys), len(target_keys))
+
+  for i in range(max_len):
+    source_key = source_keys[i] if i < len(source_keys) else None
+    target_key = target_keys[i] if i < len(target_keys) else None
+
+    if source_key == target_key:
+      result[source_key] = target[target_key]
+
+    if source_key is not None and source_key not in target:
+      result[source_key] = source[source_key]
+
+    if target_key is not None and target_key not in source:
+      result[target_key] = target[target_key]
+
+  return result
+
 def main():
-  sync_translation_files('system_default.json', 'system_hu-HU.json')
-  sync_translation_files('system_default.json', 'system_en-US.json')
-  sync_translation_files('application_default.json', 'application_{{ getDefaultLanguage application }}.json')
+  parser = argparse.ArgumentParser(description="Sync translation JSON files.")
+  parser.add_argument("-d", "--delete-obsolete", action="store_true", help="Delete entries from the target that are no longer in the source")
+  args = parser.parse_args()
+
+  sync_translation_files('system_default.json', 'system_hu-HU.json', args.delete_obsolete)
+  sync_translation_files('system_default.json', 'system_en-US.json', args.delete_obsolete)
+  sync_translation_files('application_default.json', 'application_{{ getDefaultLanguage application }}.json', args.delete_obsolete)
 
 if __name__ == "__main__":
   main()
