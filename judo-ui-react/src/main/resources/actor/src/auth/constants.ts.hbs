@@ -1,6 +1,17 @@
 {{> fragment.header.hbs }}
 
+{{# if application.authentication }}
+import { type ReactNode } from 'react';
+import { type {{ classDataName application.principal 'Stored' }} } from '~/services/data-api/model/{{ classDataName application.principal '' }}';
+{{/ if }}
 import { endWithSlash } from '../utilities';
 
 const base = document.querySelector('base')!.getAttribute('href') as string;
 export const appBaseUri = endWithSlash(window.location.origin + base);
+{{# if application.authentication }}
+export const ACCESS_FILTER_COMPONENT_INTERFACE_KEY = 'AccessFilterComponent';
+export interface AccessFilterComponentProps {
+  principal: {{ classDataName application.principal 'Stored' }};
+  children?: ReactNode;
+}
+{{/ if }}

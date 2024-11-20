@@ -1232,6 +1232,52 @@ export class DefaultApplicationCustomizer implements ApplicationCustomizer {
 }
 ----
 
+=== Filtering access for logged in users
+
+If our application supports authentication, letting users access pages might need restrictions
+based on certain business criteria. In order to achieve this we can register a Component where
+we can implement the filtering logic and grant or block access.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import Grid from '@mui/material/Grid';
+import type { BundleContext } from '@pandino/pandino-api';
+import { ACCESS_FILTER_COMPONENT_INTERFACE_KEY, type AccessFilterComponentProps, AuthErrorBox } from '~/auth';
+import type { ApplicationCustomizer } from './interfaces';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(ACCESS_FILTER_COMPONENT_INTERFACE_KEY, AccessFilter);
+  }
+}
+
+const AccessFilter: FC<AccessFilterComponentProps> = ({ principal, children }) => {
+  // We may use any number of hooks here.
+  const { t } = useTranslation();
+
+  // Here we check if the logged in Principal has his/her `approved` property set to true.
+  // If so, we load the original children, if not, then we display a full screen error component.
+  return principal.approved ? children : <Grid
+    container
+    spacing={0}
+    direction="column"
+    alignItems="center"
+    justifyContent="center"
+    sx={{ minHeight: '100vh' }}
+  >
+    <Grid item xs={3}>
+      <AuthErrorBox
+        title={t('custom.title', { defaultValue: 'Access Denied' })}
+        message={t('custom.message', { defaultValue: 'You don\'t have access to this application' })}
+      />
+    </Grid>
+  </Grid>;
+};
+----
+
 === (Global) Hotkey support
 
 Currently you can wire in hotkeys for access-based actions, such as triggering create dialogs.

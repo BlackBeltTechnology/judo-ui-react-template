@@ -1,0 +1,64 @@
+import { useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
+{{# if application.authentication }}
+import { useAuth } from 'react-oidc-context';
+{{/ if }}
+import Typography from '@mui/material/Typography';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+
+export interface AuthErrorBoxProps {
+  title: string;
+  message: string;
+}
+
+export function AuthErrorBox({ title, message }: AuthErrorBoxProps) {
+  const { t } = useTranslation();
+  {{# if application.authentication }}
+  const { signoutRedirect, isAuthenticated } = useAuth();
+  const doLogout = useCallback(() => {
+    const redirectUrl = window.location.href.split('#')[0];
+    signoutRedirect({
+      post_logout_redirect_uri: redirectUrl,
+    });
+  }, [isAuthenticated]);
+  {{/ if }}
+
+  return (
+    <Box
+      display="flex"
+      flexDirection="column"
+      justifyContent="center"
+      alignItems="center"
+      textAlign="center"
+      sx={ {
+        backgroundColor: '#f8f9fa',
+        borderRadius: '8px',
+        padding: '2rem',
+        boxShadow: '0px 4px 10px rgba(0, 0, 0, 0.1)',
+      } }
+    >
+      <Typography variant="h4" color="error" gutterBottom>
+        {title}
+      </Typography>
+      <Typography variant="body1" color="textSecondary" gutterBottom>
+        {message}
+      </Typography>
+      {{# if application.authentication }}
+        <Box display={'flex'}>
+          <Button variant="text" color="primary" onClick={doLogout} sx={ { marginTop: '1rem' } }>
+            {t('judo.security.logout', { defaultValue: 'Logout' })}
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={() => window.location.reload()}
+            sx={ { marginTop: '1rem' } }
+          >
+            {t('judo.error.boundary.reload-page', { defaultValue: 'Reload Page' })}
+          </Button>
+        </Box>
+      {{/ if }}
+    </Box>
+  );
+}
