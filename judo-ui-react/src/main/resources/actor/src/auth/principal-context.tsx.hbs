@@ -1,58 +1,72 @@
 {{> fragment.header.hbs }}
 
 {{# if application.authentication }}
-    import { createContext, useContext, useState, useEffect, useMemo } from 'react';
-    import type { ReactNode } from 'react';
-    import { useAuth } from 'react-oidc-context';
-    import { type JudoRestResponse } from '~/services/data-api/rest/requestResponse';
-    import { type {{ classDataName application.principal 'Stored' }} } from '~/services/data-api/model/{{ classDataName application.principal '' }}';
-    import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
-    import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+  import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+  import type { ReactNode } from 'react';
+  import { useAuth } from 'react-oidc-context';
+  import { type {{ classDataName application.principal 'Stored' }} } from '~/services/data-api/model/{{ classDataName application.principal '' }}';
+  import { type JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+  import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
+  import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+  import { type AxiosError } from 'axios';
 
-    export interface PrincipalContext {
-        principal: {{ classDataName application.principal 'Stored' }};
-        setPrincipal: (principal: {{ classDataName application.principal 'Stored' }}) => void;
-        getPrincipal: () => Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>>;
-    }
+  export interface PrincipalContext {
+    principal: {{ classDataName application.principal 'Stored' }};
+    setPrincipal: (principal: {{ classDataName application.principal 'Stored' }}) => void;
+    getPrincipal: () => Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>>;
+    errorCode?: string | null;
+  }
 
-    const PrincipalContext = createContext<PrincipalContext>({} as unknown as PrincipalContext);
+  export interface RestErrorData {
+    code: string;
+    level: string;
+    details: Record<string, any>;
+  }
 
-    export const PrincipalProvider = ({ children }: { children: ReactNode }) => {
-        const accessServiceImpl = useMemo(() => new AccessServiceImpl(judoAxiosProvider), []);
-        const [principal, setPrincipal] = useState<{{ classDataName application.principal 'Stored' }}>({} as unknown as {{ classDataName application.principal 'Stored' }});
-        const { isAuthenticated } = useAuth();
+  const PrincipalContext = createContext<PrincipalContext>({} as unknown as PrincipalContext);
 
-        const fetchData = async () => {
-            try {
-                const { data } = await accessServiceImpl.getPrincipal();
-                setPrincipal({ ...data });
-            } catch (e) {
-                console.error(e);
-            }
-        };
+  export const PrincipalProvider = ({ children }: { children: ReactNode }) => {
+    const accessServiceImpl = useMemo(() => new AccessServiceImpl(judoAxiosProvider), []);
+    const [principal, setPrincipal] = useState<{{ classDataName application.principal 'Stored' }}>({} as unknown as ServicesUserTransferStored);
+    const [errorCode, setErrorCode] = useState<string | null>(null);
+    const { isAuthenticated } = useAuth();
 
-        const getPrincipal = (): Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>> => accessServiceImpl.getPrincipal();
-
-        useEffect(() => {
-            if (isAuthenticated) {
-                fetchData();
-            } else {
-                setPrincipal({} as unknown as {{ classDataName application.principal 'Stored' }});
-            }
-        }, [isAuthenticated]);
-
-        return (
-            <PrincipalContext.Provider value={ { principal, setPrincipal, getPrincipal } }>
-                {children}
-            </PrincipalContext.Provider>
-        );
+    const fetchData = async () => {
+      try {
+        const { data } = await accessServiceImpl.getPrincipal();
+        setPrincipal({ ...data });
+      } catch (e: unknown) {
+        const axiosError = e as AxiosError;
+        if (axiosError?.response?.status === 403) {
+          setErrorCode((axiosError?.response?.data as RestErrorData).code);
+          console.error(e);
+        } else {
+          // Other error codes may be handled in the future
+          console.error(e);
+        }
+      }
     };
 
-    export const usePrincipal = () => {
-        const { principal, setPrincipal, getPrincipal } = useContext(PrincipalContext);
+    const getPrincipal = (): Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>> => accessServiceImpl.getPrincipal();
 
-        return { principal, setPrincipal, getPrincipal };
-    };
+    useEffect(() => {
+      if (isAuthenticated) {
+        fetchData();
+      } else {
+        setPrincipal({} as unknown as ServicesUserTransferStored);
+      }
+    }, [isAuthenticated]);
+
+    return (
+      <PrincipalContext.Provider value={ { principal, setPrincipal, getPrincipal, errorCode } }>{children}</PrincipalContext.Provider>
+    );
+  };
+
+  export const usePrincipal = () => {
+    const { principal, setPrincipal, getPrincipal, errorCode } = useContext(PrincipalContext);
+
+    return { principal, setPrincipal, getPrincipal, errorCode };
+  };
 {{ else }}
     // nothing to export, application has no Principal
     export default {};
