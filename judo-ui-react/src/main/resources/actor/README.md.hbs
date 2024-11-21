@@ -88,20 +88,13 @@ If we modify the model in a way where we add new elements or remove previous one
 our translations by hand.
 
 To counter this we provide a sync script `sync-translations.py`, which can update our tracked translations according
-to model changes.
+to model changes. Don't worry, translations related to existing elements won't be modified, only new ones will be added
+and removed ones will be cleaned up.
 
 > The script will run for both application and system translations as well
 
 ```bash
 python3 sync-translations.py
-```
-
-### Removing obsolete entries
-
-We can provide a `-d` flag to remove entries from the target files which are no longer present in the defaults:
-
-```bash
-python3 sync-translations.py -d
 ```
 
 ## Other
