@@ -22,22 +22,24 @@ export function ImageDisplay({ token, imageCSS, sx, fallbackUrl }: ImageDisplayP
 
   useEffect(() => {
     (async () => {
-      try {
-        const response = await accessServiceImpl.downloadFile(token, 'inline');
+      if (token) {
+        try {
+          const response = await accessServiceImpl.downloadFile(token, 'inline');
 
-        if (response && response.status === 200) {
-          const fileType = response.headers['content-type'];
-          const url = window.URL.createObjectURL(new Blob([response.data], { type: fileType }));
-          setImageUrl(url);
-          setAltText(extractFileNameFromToken(token));
-        } else {
+          if (response && response.status === 200) {
+            const fileType = response.headers['content-type'];
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: fileType }));
+            setImageUrl(url);
+            setAltText(extractFileNameFromToken(token));
+          } else {
+            setImageUrl(null);
+            setAltText(null);
+          }
+        } catch (error) {
+          console.error(error);
           setImageUrl(null);
           setAltText(null);
         }
-      } catch (error) {
-        console.error(error);
-        setImageUrl(null);
-        setAltText(null);
       }
     })();
   }, [token]);

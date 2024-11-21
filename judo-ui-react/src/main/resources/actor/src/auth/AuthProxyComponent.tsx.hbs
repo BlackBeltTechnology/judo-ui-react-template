@@ -1,0 +1,22 @@
+import type { FC, ReactNode } from 'react';
+{{# if application.authentication }}
+import { useTrackComponent } from '@pandino/react-hooks';
+{{/ if }}
+
+interface AuthProxyComponentProps {
+  filter: string;
+  children?: ReactNode;
+  [prop: string]: any;
+}
+
+export const AuthProxyComponent: FC<AuthProxyComponentProps> = ({ filter, children, ...other }) => {
+  {{# if application.authentication }}
+  const ExternalComponent = useTrackComponent<any>(filter);
+
+  if (ExternalComponent) {
+    return <ExternalComponent {...other} children={children} />;
+  }
+  {{/ if }}
+
+  return <>{children}</>;
+};
