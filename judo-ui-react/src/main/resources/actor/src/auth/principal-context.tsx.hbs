@@ -27,7 +27,7 @@
 
   export const PrincipalProvider = ({ children }: { children: ReactNode }) => {
     const accessServiceImpl = useMemo(() => new AccessServiceImpl(judoAxiosProvider), []);
-    const [principal, setPrincipal] = useState<{{ classDataName application.principal 'Stored' }}>({} as unknown as ServicesUserTransferStored);
+    const [principal, setPrincipal] = useState<{{ classDataName application.principal 'Stored' }}>({} as unknown as {{ classDataName application.principal 'Stored' }});
     const [errorCode, setErrorCode] = useState<string | null>(null);
     const { isAuthenticated } = useAuth();
 
@@ -53,7 +53,7 @@
       if (isAuthenticated) {
         fetchData();
       } else {
-        setPrincipal({} as unknown as ServicesUserTransferStored);
+        setPrincipal({} as unknown as {{ classDataName application.principal 'Stored' }});
       }
     }, [isAuthenticated]);
 
