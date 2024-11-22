@@ -1,21 +1,21 @@
 {{> fragment.header.hbs }}
 
-import type { FC } from 'react';
-import type { Theme } from '@mui/material/styles';
 import Grid from '@mui/material/Grid';
+import type { Theme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { OBJECTCLASS } from '@pandino/pandino-api';
-import { useTrackService } from '@pandino/react-hooks';
+import { FRAMEWORK_SERVICE_UTILS, OBJECTCLASS, type ServiceUtils } from '@pandino/pandino-api';
+import { useBundleContext } from '@pandino/react-hooks';
+import type { FC } from 'react';
+import { MenuOrientation } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import { useConfig } from '~/hooks';
-import { MenuOrientation } from '~/config';
+import { HorizontalBar } from '~/layout/Drawer/HorizontalBar';
+import { DrawerHeader } from '../../Drawer/DrawerHeader';
+import { Customization } from './Customization';
+import { MobileSection } from './MobileSection';
 {{# if application.authentication }}
 import { Profile } from './Profile';
 {{/ if }}
-import { MobileSection } from './MobileSection';
-import { DrawerHeader } from '../../Drawer/DrawerHeader';
-import { Customization } from './Customization';
-import { HorizontalBar } from '~/layout/Drawer/HorizontalBar';
 
 const AppBarExtraComponentsFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=AppBarExtraComponents))`;
 
@@ -26,8 +26,18 @@ export interface AppBarExtraComponentsDefinition {
 export type AppBarExtraComponentsHook = () => AppBarExtraComponentsDefinition;
 
 export const HeaderContent = () => {
-  const { /*i18n, */menuOrientation } = useConfig();
-  const { service: appBarExtraComponentsHook } = useTrackService<AppBarExtraComponentsHook>(AppBarExtraComponentsFilter);
+  const { /*i18n, */ menuOrientation } = useConfig();
+  const { bundleContext } = useBundleContext();
+  const serviceUtilsRef = bundleContext.getServiceReference<ServiceUtils>(FRAMEWORK_SERVICE_UTILS)!;
+  const serviceUtils = bundleContext.getService(serviceUtilsRef)!;
+  const refs = bundleContext.getServiceReferences(undefined, AppBarExtraComponentsFilter);
+  const ref = serviceUtils.getBestServiceReference(refs);
+  let appBarExtraComponentsHook: AppBarExtraComponentsHook | undefined;
+
+  if (ref) {
+    appBarExtraComponentsHook = bundleContext.getService<AppBarExtraComponentsHook>(ref);
+  }
+
   const appBarExtraComponentsDefinition: AppBarExtraComponentsDefinition | undefined = appBarExtraComponentsHook?.();
   const appBarExtraSpaceClaim: number = appBarExtraComponentsDefinition?.spaceRequired ?? 1;
 
