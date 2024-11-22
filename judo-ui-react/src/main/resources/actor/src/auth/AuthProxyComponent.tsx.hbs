@@ -1,7 +1,6 @@
 import type { FC, ReactNode } from 'react';
-{{# if application.authentication }}
-import { useTrackComponent } from '@pandino/react-hooks';
-{{/ if }}
+import { useBundleContext } from '@pandino/react-hooks';
+import { FRAMEWORK_SERVICE_UTILS, type ServiceUtils } from '@pandino/pandino-api';
 
 interface AuthProxyComponentProps {
   filter: string;
@@ -11,9 +10,14 @@ interface AuthProxyComponentProps {
 
 export const AuthProxyComponent: FC<AuthProxyComponentProps> = ({ filter, children, ...other }) => {
   {{# if application.authentication }}
-  const ExternalComponent = useTrackComponent<any>(filter);
+  const { bundleContext } = useBundleContext();
+  const serviceUtilsRef = bundleContext.getServiceReference<ServiceUtils>(FRAMEWORK_SERVICE_UTILS)!;
+  const serviceUtils = bundleContext.getService(serviceUtilsRef)!;
+  const refs = bundleContext.getServiceReferences(undefined, filter);
+  const ref = serviceUtils.getBestServiceReference(refs);
 
-  if (ExternalComponent) {
+  if (ref) {
+    const ExternalComponent = bundleContext.getService<any>(ref);
     return <ExternalComponent {...other} children={children} />;
   }
   {{/ if }}

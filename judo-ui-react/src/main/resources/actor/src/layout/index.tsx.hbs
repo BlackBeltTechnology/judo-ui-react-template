@@ -34,7 +34,6 @@ export const Layout = () => {
   const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
 
   {{# if application.authentication }}
-  const principalLoaded = () => principal && principal.__signedIdentifier;
   const errorCodeAndTitleMapping: Record<string, string> = {
     AUTHENTICATED_ENTITY_NOT_FOUND: t('judo.error.security.authenticatedEntityNotFoundTitle', { defaultValue: 'User not found' }),
   };
@@ -45,7 +44,7 @@ export const Layout = () => {
 
   return (
     {{# if application.authentication }}
-    principalLoaded() ? (
+    principal?.__signedIdentifier ? (
     <AuthProxyComponent filter={`(${OBJECTCLASS}=${ACCESS_FILTER_COMPONENT_INTERFACE_KEY})`} principal={principal}>
     {{/ if }}
     <Box sx={ { display: 'flex', width: '100%' } }>
