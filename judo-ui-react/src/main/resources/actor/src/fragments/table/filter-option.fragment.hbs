@@ -6,7 +6,7 @@
   {{# if (isAttributeTypeEnumeration filter.attributeType) }}
   enumValues: [
     {{# each filter.attributeType.dataType.members as |member| }}
-    '{{ member.name }}',
+    { value: '{{ member.name }}', label: t('enumerations.{{ restParamName filter.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) },
     {{/ each }}
   ],
   {{/ if }}
