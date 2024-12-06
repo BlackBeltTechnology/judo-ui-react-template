@@ -11,6 +11,9 @@
             actions={actions}
         >
     {{/ if }}
+    {{# if (hasTooltipText child) }}
+    <Box display="flex" alignItems="center">
+    {{/ if }}
     <NumericInput
         required={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})}
         name="{{ child.attributeType.name }}"
@@ -57,6 +60,10 @@
             {{/ if }}
         } }
     />
+    {{# if (hasTooltipText child) }}
+      {{> actor/src/fragments/container/input-tooltip.fragment.hbs input=child }}
+    </Box>
+    {{/ if }}
     {{# if child.customImplementation }}
         </ComponentProxy>
     {{/ if }}

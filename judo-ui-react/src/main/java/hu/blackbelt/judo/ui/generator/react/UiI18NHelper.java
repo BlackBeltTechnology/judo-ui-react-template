@@ -314,6 +314,13 @@ public class UiI18NHelper {
                 }
             });
 
+            List<VisualElement> inputsWithLabel = new ArrayList<>();
+            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Input input && input.getTooltipText() != null && !input.getTooltipText().isEmpty(), inputsWithLabel);
+
+            inputsWithLabel.forEach(i -> {
+                translations.put(getTranslationKeyForVisualElement(i) + ".tooltip", ((Input) i).getTooltipText());
+            });
+
             List<VisualElement> flexElements = new ArrayList<>();
             collectVisualElementsMatchingCondition(container, (v) -> v instanceof Flex flex && elementHasLabel(flex) && !(v instanceof PageContainer), flexElements);
             flexElements.forEach(f -> {
