@@ -66,7 +66,7 @@ public class UiImportHelper {
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
 
-        SortedSet<String> imports = new TreeSet<>(Set.of("Button", "ButtonGroup", "IconButton"));
+        SortedSet<String> imports = new TreeSet<>(Set.of("Button", "ButtonGroup", "IconButton", "Tooltip"));
 
         muiMaterialWidgetImportPairs.forEach((key, value) -> {
             if (uniqueVisualElementNames.contains(key)) {

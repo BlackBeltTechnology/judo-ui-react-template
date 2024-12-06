@@ -30,6 +30,8 @@ import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.simpleActionDefinitionName;
+import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.getPagesForDialogs;
+import static hu.blackbelt.judo.ui.generator.react.UiPageHelper.getPagesForRouting;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.componentName;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.firstToLower;
@@ -123,5 +125,17 @@ public class UiPandinoHelper {
         Set<VisualElement> elements = new LinkedHashSet<>();
         collectVisualElementsMatchingCondition(container, e -> e.getHiddenBy() != null, elements);
         return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<PageContainer> containersWithDefaultImplementation(Application application) {
+        return application.getPageContainers().stream().filter(PageContainer::isGenerateVisualPropertiesHook).collect(Collectors.toList());
+    }
+
+    public static List<PageDefinition> pagesWithCustomActions(Application application) {
+        return getPagesForRouting(application).stream().filter(PageDefinition::isGenerateActionsHook).collect(Collectors.toList());
+    }
+
+    public static List<PageDefinition> dialogsWithCustomActions(Application application) {
+        return getPagesForDialogs(application).stream().filter(PageDefinition::isGenerateActionsHook).collect(Collectors.toList());
     }
 }

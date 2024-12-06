@@ -93,6 +93,11 @@ templates:
     templateName: actor/public/favicon-32x32.png
     copy: true
 
+  - name: actor/public/judo-ai-background.png
+    pathExpression: "'public/judo-ai-background.png'"
+    templateName: actor/public/judo-ai-background.png
+    copy: true
+
   - name: actor/public/judo-color-logo.png
     pathExpression: "'public/judo-color-logo.png'"
     templateName: actor/public/judo-color-logo.png
@@ -299,7 +304,7 @@ templates:
     templateName: actor/src/custom/interfaces.ts.hbs
 
   - name: actor/src/custom/default-page-hook-registration.ts
-    factoryExpression: "#getPagesForRouting(#application)"
+    factoryExpression: "#pagesWithCustomActions(#application)"
     pathExpression: "'src/custom/hooks/pages/register' + #pageName(#self) + 'ActionsHook.ts.default'"
     templateName: actor/src/custom/default-page-hook-registration.ts.hbs
     templateContext:
@@ -307,7 +312,7 @@ templates:
         expression: "#self"
 
   - name: actor/src/custom/default-page-hook-registration.ts
-    factoryExpression: "#getPagesForDialogs(#application)"
+    factoryExpression: "#dialogsWithCustomActions(#application)"
     pathExpression: "'src/custom/hooks/dialogs/register' + #pageName(#self) + 'ActionsHook.ts.default'"
     templateName: actor/src/custom/default-page-hook-registration.ts.hbs
     templateContext:
@@ -315,7 +320,7 @@ templates:
         expression: "#self"
 
   - name: actor/src/custom/default-container-hook-registration.ts
-    factoryExpression: "#application.pageContainers"
+    factoryExpression: "#containersWithDefaultImplementation(#application)"
     pathExpression: "'src/custom/hooks/containers/register' + #containerName(#self) + 'ActionsHook.ts.default'"
     templateName: actor/src/custom/default-container-hook-registration.ts.hbs
     templateContext:

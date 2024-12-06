@@ -145,6 +145,11 @@ public class UiGeneralHelper {
         return logo == null ? "judo-color-logo.png" : logo;
     }
 
+    public static String getApplicationIcon(Application application) {
+        String icon = application.getIcon();
+        return icon == null ? "judo-icon.webp" : icon;
+    }
+
     public static EObject eContainer(EObject eObject) {
         return eObject.eContainer();
     }
