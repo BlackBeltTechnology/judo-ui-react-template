@@ -314,10 +314,10 @@ public class UiI18NHelper {
                 }
             });
 
-            List<VisualElement> inputsWithLabel = new ArrayList<>();
-            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Input input && input.getTooltipText() != null && !input.getTooltipText().isEmpty(), inputsWithLabel);
+            List<VisualElement> inputsWithTooltips = new ArrayList<>();
+            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Input input && input.getTooltipText() != null && !input.getTooltipText().isEmpty(), inputsWithTooltips);
 
-            inputsWithLabel.forEach(i -> {
+            inputsWithTooltips.forEach(i -> {
                 translations.put(getTranslationKeyForVisualElement(i) + ".tooltip", ((Input) i).getTooltipText());
             });
 
