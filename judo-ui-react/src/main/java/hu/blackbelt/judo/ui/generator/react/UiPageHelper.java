@@ -529,4 +529,12 @@ public class UiPageHelper {
                 && relationType.getIsRefreshable()
                 && (relationType.getIsMemberTypeAccess() || relationType.getIsRelationKindAssociation());
     }
+
+    public static String getAppTitle(Application application) {
+        String title = application.getTitle();
+        if (title != null && !title.isEmpty()) {
+            return title;
+        }
+        return application.getModelName();
+    }
 }

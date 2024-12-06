@@ -15,8 +15,8 @@ export interface UseLogoProps {
 export function useLogoProps(): UseLogoProps {
   const defaults: UseLogoProps = {
     imgSrc: '{{ getApplicationLogo application }}',
-    iconSrc: 'judo-icon.webp',
-    subTitle: '{{ application.modelName }}',
+    iconSrc: '{{ getApplicationIcon application }}',
+    subTitle: '{{ getAppTitle application }}',
   };
   const { service: useCustomLogoProps } = useTrackService<CustomLogoPropsHook>(`(${OBJECTCLASS}=${CUSTOM_LOGO_PROPS_HOOK_INTERFACE_KEY})`);
   const getCustomLogoProps = useCustomLogoProps && useCustomLogoProps();

@@ -550,4 +550,8 @@ public class UiWidgetHelper {
 
         return "text";
     }
+
+    public static boolean hasTooltipText(Input input) {
+        return input.getTooltipText() != null && !input.getTooltipText().trim().isEmpty();
+    }
 }
