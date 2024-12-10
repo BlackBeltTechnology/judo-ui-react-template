@@ -335,6 +335,14 @@ templates:
       - name: container
         expression: "#self"
 
+  - name: actor/src/custom/sub-theme-hook-registration.tsx.hbs
+    factoryExpression: "#getSubThemes(#application)"
+    pathExpression: "'src/custom/hooks/sub-themes/register' + #firstToUpper(#toSafeCamelCase(#self)) + 'SubThemeHook.tsx.default'"
+    templateName: actor/src/custom/sub-theme-hook-registration.tsx.hbs
+    templateContext:
+      - name: subTheme
+        expression: "#self"
+
   # Actor - src - auth
 
   - name: actor/src/auth/index.tsx
@@ -620,6 +628,10 @@ templates:
   - name: actor/src/theme/palette.ts
     pathExpression: "'src/theme/palette.ts'"
     templateName: actor/src/theme/palette.ts.hbs
+
+  - name: actor/src/theme/SubThemeWrapper.tsx
+    pathExpression: "'src/theme/SubThemeWrapper.tsx'"
+    templateName: actor/src/theme/SubThemeWrapper.tsx.hbs
 
   - name: actor/src/theme/types.ts
     pathExpression: "'src/theme/types.ts'"

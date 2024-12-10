@@ -153,4 +153,33 @@ public class UiGeneralHelper {
     public static EObject eContainer(EObject eObject) {
         return eObject.eContainer();
     }
+
+    public static String toSafeCamelCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        StringBuilder result = new StringBuilder();
+        boolean toUpperCase = false;
+        boolean lastWasDelimiter = true;
+
+        for (char c : input.toCharArray()) {
+            if (c == '-' || c == '_' || c == ' ') {
+                if (!lastWasDelimiter) {
+                    toUpperCase = true;
+                    lastWasDelimiter = true;
+                }
+            } else {
+                if (toUpperCase) {
+                    result.append(Character.toUpperCase(c));
+                    toUpperCase = false;
+                } else {
+                    result.append(Character.toLowerCase(c));
+                }
+                lastWasDelimiter = false;
+            }
+        }
+
+        return result.toString();
+    }
 }
