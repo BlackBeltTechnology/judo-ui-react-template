@@ -182,4 +182,8 @@ public class UiGeneralHelper {
 
         return result.toString();
     }
+
+    public static String escapeString(String input) {
+        return input.replaceAll("\n", "\\\\n");
+    }
 }
