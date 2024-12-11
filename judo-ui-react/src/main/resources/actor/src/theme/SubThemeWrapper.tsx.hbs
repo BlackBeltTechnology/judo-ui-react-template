@@ -1,0 +1,27 @@
+import { type FC, type ReactNode } from 'react';
+import { ThemeProvider, createTheme, useTheme, type Theme } from '@mui/material';
+import { deepmerge } from '@mui/utils';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+
+export const SUB_THEME_HOOK_INTERFACE_KEY = 'SubThemeHook';
+
+export type SubThemeHook = (parentTheme: Theme, data?: any) => Partial<Theme>;
+
+export interface SubThemeWrapperProps {
+  subTheme: string;
+  data?: any;
+  children: ReactNode;
+}
+
+export const SubThemeWrapper: FC<SubThemeWrapperProps> = ({ subTheme, data, children }) => {
+  const parentTheme = useTheme();
+  const { service: useSubTheme } = useTrackService<SubThemeHook>(
+    `(&(${OBJECTCLASS}=${SUB_THEME_HOOK_INTERFACE_KEY})(name=${subTheme})`,
+  );
+  const subThemeProps = useSubTheme ? useSubTheme(parentTheme, data) : {};
+
+  const customTheme = createTheme(deepmerge(parentTheme, subThemeProps));
+
+  return <ThemeProvider theme={customTheme}>{children}</ThemeProvider>;
+};

@@ -151,6 +151,65 @@ const redirectHook: RedirectServiceHook = () => {
 If for whatever reason the data's owning View fails it's refresh request, the `getLatestViewData()` method return `null`
 ====
 
+== Theming
+
+=== Implementing sub-themes
+
+Modelers may define custom "sub-themes" for every visual elements. These sub-theme names can be assigned to any number
+of elements on any type of screen.
+
+> Regardless of where and how many we define, the same corresponding hook will be used
+
+Each sub-theme will bring a hook, which we can implement.
+
+*Example:*
+
+__src/custom/hooks/sub-themes/registerTestSubThemeHook.tsx__
+[source,typescriptjsx]
+----
+import { type Theme, alpha } from '@mui/material';
+import type { BundleContext } from '@pandino/pandino-api';
+import { type SubThemeHook, SUB_THEME_HOOK_INTERFACE_KEY } from '~/theme/SubThemeWrapper';
+
+/**
+ * Sub Theme Name: nested
+ *
+ * Notes:
+ * Don't forget to remove unused hooks, and related imports afterwards to reduce build time and bundle size!
+ */
+export function registerNestedSubThemeHook(context: BundleContext) {
+  context.registerService<SubThemeHook>(SUB_THEME_HOOK_INTERFACE_KEY, nestedSubTheme, {
+    name: 'nested',
+  });
+}
+
+const nestedSubTheme = (parentTheme: Theme, data?: any) => {
+  // You can calculate styling variables here, or use other hooks as well.
+
+  return {
+    components: {
+      // Define component styling for components here, e.g.:
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            background: alpha(parentTheme.palette.secondary.main, 0.97),
+            color: parentTheme.palette.common.white,
+          },
+        },
+      },
+    },
+  };
+};
+----
+
+In case we define a sub-theme for a Group or tabs, the theme properties will propagate down the
+component hierarchy.
+
+The deeper we define a sub-theme, the higher its precedence will be.
+
+Any number of any nesting level is possible with sub-themes, but keep in mind if you use calculated
+settings based on e.g. page data, it may have a negative impact on performance.
+
 == Opt-in features
 
 === Generate pro+ MUI code
