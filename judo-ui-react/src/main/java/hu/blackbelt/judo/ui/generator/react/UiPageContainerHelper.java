@@ -413,6 +413,11 @@ public class UiPageContainerHelper {
         return acc.stream().anyMatch(VisualElement::isCustomImplementation);
     }
 
+    public static boolean containerHasSubTheme(PageContainer container) {
+        List<VisualElement> acc = collectElementsOfType(container, new ArrayList<>(), VisualElement.class);
+        return acc.stream().anyMatch(e -> e.getSubTheme() != null && !e.getSubTheme().isBlank());
+    }
+
     public static boolean containerHasAssociationButton(PageContainer container) {
         List<Button> acc = collectElementsOfType(container, new ArrayList<>(), Button.class);
         return acc.stream().anyMatch(b -> b.getActionDefinition().getIsOpenPageAction());
@@ -541,6 +546,16 @@ public class UiPageContainerHelper {
             }
         }
         return containers;
+    }
+
+    public static Set<String> getSubThemes(Application app) {
+        Set<String> subThemes = new HashSet<>();
+        for (PageContainer container : app.getPageContainers()) {
+            Set<VisualElement> elements = new HashSet<>();
+            collectVisualElementsMatchingCondition(container, (v) -> v.getSubTheme() != null && !v.getSubTheme().isBlank(), elements);
+            subThemes.addAll(elements.stream().map(VisualElement::getSubTheme).collect(Collectors.toSet()));
+        }
+        return subThemes;
     }
 
     public static String getProxyPropsForCustomImplementation(VisualElement element) {
