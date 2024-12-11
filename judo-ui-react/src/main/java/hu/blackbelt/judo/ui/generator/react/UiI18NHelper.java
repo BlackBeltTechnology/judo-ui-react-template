@@ -315,10 +315,10 @@ public class UiI18NHelper {
             });
 
             List<VisualElement> inputsWithTooltips = new ArrayList<>();
-            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Input input && input.getTooltipText() != null && !input.getTooltipText().isEmpty(), inputsWithTooltips);
+            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Input input && input.getTooltipText() != null && !input.getTooltipText().isBlank(), inputsWithTooltips);
 
             inputsWithTooltips.forEach(i -> {
-                translations.put(getTranslationKeyForVisualElement(i) + ".tooltip", ((Input) i).getTooltipText());
+                translations.put(getTranslationKeyForVisualElement(i) + ".tooltip", ((Input) i).getTooltipText().replaceAll("\n", "\\\\n"));
             });
 
             List<VisualElement> flexElements = new ArrayList<>();
