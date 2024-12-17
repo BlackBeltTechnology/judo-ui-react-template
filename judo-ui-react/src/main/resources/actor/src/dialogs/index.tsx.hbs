@@ -387,7 +387,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         if (rootPageId && dataPath && isDraft) {
           subscriptionRef.current = subscribe(`${rootPageId}:refreshed`, async (freshRootData: any) => {
             const copy = simpleCloneDeep(getValue<{{ dialogDataType page }}>(freshRootData, dataPath!)!);
-            setData(copy);
+            if (copy !== undefined && copy !== null) {
+              // There are edge cases, e.g. when a row is opened in a dialog and an operation causes the row
+              // to be removed from the original table. In cases when the instance coming from a relation
+              // effectively gets removed we cannot null out our local data, because it results in the page crashing.
+              setData(copy);
+            }
           });
         }
 
