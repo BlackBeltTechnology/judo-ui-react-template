@@ -86,6 +86,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
             showDropdownIcon={false}
             menuItems={dropdownActions.filter(a => !a.hidden(params.row)).map((action) => ({
               id: action.id,
+              key: action.id,
               label: action.label,
               startIcon: action.icon,
               onClick: () => action.action!(params.row),
