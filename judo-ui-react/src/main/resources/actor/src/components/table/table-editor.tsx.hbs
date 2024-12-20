@@ -8,6 +8,7 @@ import {
   GridEditDateCell,
   GridEditInputCell,
   GridEditBooleanCell,
+  GridEditSingleSelectCell,
   type GridRenderEditCellParams,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { AdapterDateFns } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}/AdapterDateFns';
@@ -25,7 +26,7 @@ const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   },
 }));
 
-export type CellEditorType = 'text' | 'boolean' | 'optionalBoolean' | 'date';
+export type CellEditorType = 'text' | 'boolean' | 'optionalBoolean' | 'date' | 'singleSelect';
 
 export function BooleanSelectEditInputCell(props: GridRenderEditCellParams<any>) {
   const { id, value, field, api, error } = props;
@@ -77,12 +78,16 @@ export function CellEditInput(props: GridRenderEditCellParams & { error?: string
     EditComponent = GridEditBooleanCell;
   } else if (cellEditorType === 'optionalBoolean') {
     EditComponent = BooleanSelectEditInputCell;
+  } else if (cellEditorType === 'singleSelect') {
+    EditComponent = GridEditSingleSelectCell;
   }
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={locales[locale]}>
       <StyledTooltip open={!!error} title={error}>
-        <EditComponent {...otherProps} error={error !== null && error !== undefined} />
+        <div style={ { display: 'flex', width: '100%' } }>
+          <EditComponent {...otherProps} error={error !== null && error !== undefined} />
+        </div>
       </StyledTooltip>
     </LocalizationProvider>
   );
