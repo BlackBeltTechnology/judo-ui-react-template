@@ -1,0 +1,25 @@
+import { type FC } from 'react';
+import type { BundleContext } from '@pandino/pandino-api';
+import { useTranslation } from 'react-i18next';
+import { GUEST_PAGE_INTERFACE_KEY } from '~/auth/Auth';
+
+/**
+ * Name: Guest Page
+ *
+ * Notes:
+ * Don't forget to remove unused hooks, and related imports afterwards to reduce build time and bundle size!
+ */
+export function registerGuestPage(context: BundleContext) {
+  context.registerService<FC<any>>(GUEST_PAGE_INTERFACE_KEY, GuestPage);
+}
+
+const GuestPage: FC<any> = () => {
+  // call other hooks here
+  const { t } = useTranslation();
+
+  return (
+    <>
+      {/* implement component here */}
+    </>
+  );
+};

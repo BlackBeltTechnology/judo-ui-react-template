@@ -4,17 +4,26 @@ import type { ReactNode } from 'react';
 import { useEffect } from 'react';
 import { useAuth, hasAuthParams } from 'react-oidc-context';
 import { useTranslation } from 'react-i18next';
+{{# if application.supportGuestAccess }}
+import { Box, Button, Container, Paper, Typography } from '@mui/material';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy } from '@pandino/react-hooks';
+{{/ if }}
+
+export const GUEST_PAGE_INTERFACE_KEY = 'GuestPage';
 
 export const Auth = ({ children }: { children?: ReactNode }) => {
   const { isAuthenticated, isLoading, activeNavigator, signinRedirect, events } = useAuth();
   const { t } = useTranslation();
 
+  {{# unless application.supportGuestAccess }}
   // automatically sign-in
   useEffect(() => {
     if (!hasAuthParams() && !isAuthenticated && !activeNavigator && !isLoading) {
       signinRedirect();
     }
   }, [isAuthenticated, activeNavigator, isLoading, signinRedirect]);
+  {{/ unless }}
 
   useEffect(() => {
     // workaround for oidc redirect issue where query string params are filled before the hash...
@@ -25,6 +34,7 @@ export const Auth = ({ children }: { children?: ReactNode }) => {
     }
   }, [isAuthenticated, activeNavigator, isLoading]);
 
+  {{# unless application.supportGuestAccess }}
   useEffect(() => {
     return events.addAccessTokenExpired(() => {
       const res = confirm(t('judo.security.session-expired', { defaultValue: 'Session expired. The application must be reloaded in order to refresh it.' }) as string)
@@ -33,13 +43,33 @@ export const Auth = ({ children }: { children?: ReactNode }) => {
       }
     });
   }, [events]);
+  {{/ unless }}
 
   if (activeNavigator) {
     return <div>Signing you in/out...</div>;
   }
 
   if (!isAuthenticated) {
-    return <div>Unable to log in</div>;
+    {{# unless application.supportGuestAccess }}
+      return <div>Unable to log in</div>;
+    {{ else }}
+      return (
+        <ComponentProxy filter={`(${OBJECTCLASS}=${GUEST_PAGE_INTERFACE_KEY})`}>
+          <Box>
+            <Container maxWidth="md" sx={ { mt: 4 } }>
+              <Paper elevation={3} sx={ { p: 4, textAlign: 'center' } }>
+                <Typography variant="h2" gutterBottom sx={ { mb: 2 } }>
+                  {{ application.modelName }}
+                </Typography>
+                <Button variant="contained" color="primary" onClick={() => signinRedirect()}>
+                  {t('judo.guest-page.login-register', { defaultValue: 'Login / Register' })}
+                </Button>
+              </Paper>
+            </Container>
+          </Box>
+        </ComponentProxy>
+      );
+    {{/ unless }}
   }
 
   return (

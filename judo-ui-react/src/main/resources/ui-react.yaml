@@ -335,6 +335,13 @@ templates:
       - name: container
         expression: "#self"
 
+  - name: actor/src/custom/default-guest-page-hook-registration.tsx
+    pathExpression: "'src/custom/hooks/default-guest-page-hook-registration.tsx.default'"
+    templateName: actor/src/custom/default-guest-page-hook-registration.tsx.hbs
+    templateContext:
+      - name: application
+        expression: "#application"
+
   - name: actor/src/custom/sub-theme-hook-registration.tsx.hbs
     factoryExpression: "#getSubThemes(#application)"
     pathExpression: "'src/custom/hooks/sub-themes/register' + #firstToUpper(#toSafeCamelCase(#self)) + 'SubThemeHook.tsx.default'"

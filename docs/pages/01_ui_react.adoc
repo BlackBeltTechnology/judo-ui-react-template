@@ -607,6 +607,15 @@ triggers an exception!
 > Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
   the use-case above.
 
+=== Implementing Guest page for unauthenticated users
+
+Given we have set the `supportGuestAccess` property to true for an actor, the application will not
+redirect users immediately if they are not logged in yet. Instead by default the application will display
+a simplified page with a login/registration link in it.
+
+Of course we can re-implement this page as we see fit, we just need to copy the `src/custom/hooks/default-guest-page-hook-registration.tsx.default`
+file and remove the ".default" suffix. Once this is done, we can use the registration function to register our implementation.
+
 === Implementing the default Dashboard
 
 If not modelled, every application gets a fallback/default Dashboard page with a simple greeting.
