@@ -540,7 +540,7 @@ public class UiWidgetHelper {
         if (dataType instanceof DateType || dataType instanceof TimestampType) {
             return "date";
         } else if (dataType instanceof EnumerationType) {
-            return "text";
+            return "singleSelect";
         } else if (dataType instanceof BooleanType) {
             if (!column.getAttributeType().isIsRequired()) {
                 return "optionalBoolean";
