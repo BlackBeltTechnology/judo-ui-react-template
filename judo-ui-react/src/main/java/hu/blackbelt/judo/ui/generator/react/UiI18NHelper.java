@@ -79,24 +79,6 @@ public class UiI18NHelper {
         }
     }
 
-    private static List<String> collectUp(VisualElement element, List<String> acc) {
-        List<String> accReal = acc != null ? acc : new ArrayList<>();
-
-        accReal.add(element.getName());
-
-        if (element.eContainer() instanceof Container) {
-            collectUp((VisualElement) element.eContainer(), accReal);
-        }
-
-        if (element.eContainer() instanceof TabController) {
-            for (Tab tab: ((TabController) element.eContainer()).getTabs()) {
-                collectUp(tab.getElement(), accReal);
-            }
-        }
-
-        return accReal;
-    }
-
     public static Map<String, String> i18nMenuTreeLabels(Application app) {
         Map<String, String> collector = new HashMap<>();
 
@@ -126,10 +108,6 @@ public class UiI18NHelper {
         return locale.split("-")[0];
     }
 
-    public static String getI18NKeyForNamedElement(NamedElement namedElement) {
-        return stream(namedElement.getName().split("::")).map(org.springframework.util.StringUtils::capitalize).collect(Collectors.joining("."));
-    }
-
     public static String getTranslationKeyForVisualElement(VisualElement element) {
         if (hasSystemTranslation(element)) {
             return getSystemTranslationForVisualElement(element);
@@ -150,6 +128,8 @@ public class UiI18NHelper {
         String bare = target.getName();
         if (tokenNeedsPrefix(target)) {
             if (element instanceof Column column && column.eContainer() instanceof Table table && !table.getPageContainer().isTable()) {
+                bare = root + "." + table.getDataElement().getName() + "." + target.getName();
+            } else if (element instanceof Button button && button.eContainer() instanceof ButtonGroup buttonGroup && buttonGroup.eContainer() instanceof Table table) {
                 bare = root + "." + table.getDataElement().getName() + "." + target.getName();
             } else {
                 bare = root + "." + target.getName();
