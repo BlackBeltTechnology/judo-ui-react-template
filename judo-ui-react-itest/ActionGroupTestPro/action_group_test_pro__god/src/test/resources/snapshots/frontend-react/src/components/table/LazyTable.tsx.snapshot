@@ -340,7 +340,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const onColumnsChanged = () => {
     // Handles column resizing and re-ordering
     // skip selector column
-    const newOrder: PersistedColumnInfo[] = gridColumnDefinitionsSelector(apiRef)
+    const newOrder: PersistedColumnInfo[] = gridColumnDefinitionsSelector(apiRef as unknown as any)
       .filter((c) => c.field !== '__check__')
       .map((current, idx) => ({ field: current.field, index: idx, width: current.computedWidth }));
     setItemStringified(columnStateKey, newOrder);
@@ -655,12 +655,12 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         data={data}
       />
       <StripedDataGrid
-        apiRef={apiRef}
+        apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         initialState={{ pinnedColumns: { right: ['actions'] } }}
         pageSizeOptions={pageSizeOptions}
         sx={{
-          // overflow: 'hidden',
+          overflow: 'hidden',
           display: 'grid',
           border: (theme) => (props.validationError ? `2px solid ${theme.palette.error.main}` : undefined),
         }}
@@ -751,7 +751,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                       }
 
                       if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
-                        apiRef.current.showFilterPanel();
+                        apiRef.current!.showFilterPanel();
                       } else {
                         let processedQueryCustomizer = {
                           ...processQueryCustomizer(queryCustomizer),
