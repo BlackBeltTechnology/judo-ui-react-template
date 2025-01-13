@@ -338,6 +338,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
         {{/ if }}
+        {{# if table.actionColumnWidth }}actionsColumnWidth={ {{ table.actionColumnWidth }} } {{/ if }}
         />
       {{ else }}
         <LazyTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
@@ -420,6 +421,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
         {{/ if }}
+        {{# if table.actionColumnWidth }}actionsColumnWidth={ {{ table.actionColumnWidth }} } {{/ if }}
         />
       {{/ if }}
     </div>
