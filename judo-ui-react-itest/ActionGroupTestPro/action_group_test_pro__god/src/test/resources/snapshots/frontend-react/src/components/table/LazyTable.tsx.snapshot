@@ -117,6 +117,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   editable?: boolean;
   applyRowEdit?: (rowData: TStored) => Promise<any>;
   onRowEditCanceled?: (rowId: string) => void;
+  actionsColumnWidth?: number;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
@@ -164,6 +165,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     editable = false,
     applyRowEdit,
     onRowEditCanceled,
+    actionsColumnWidth,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -310,7 +312,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         rowModesModel,
         getSelectedRows,
         ownerData,
-        { crudOperationsDisplayed, transferOperationsDisplayed },
+        { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth },
       ),
     ];
     if (columnState.length) {

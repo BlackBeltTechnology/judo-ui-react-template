@@ -62,7 +62,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
       field: 'actions',
       sortable: false,
       disableColumnMenu: true,
-      minWidth: calculateMinWidth(splitActions, editable),
+      minWidth: options?.actionsColumnWidth || calculateMinWidth(splitActions, editable),
       headerName: t('judo.pages.table.column.actions', { defaultValue: 'Actions' }) as string,
       type: 'actions',
       getActions: (params: GridRowParams) => [
