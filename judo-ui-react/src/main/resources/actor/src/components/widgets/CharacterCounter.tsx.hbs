@@ -1,0 +1,21 @@
+import { type FC } from 'react';
+import Typography from '@mui/material/Typography';
+
+export interface CharacterCounterProps {
+  current: number;
+  max: number;
+}
+
+export const CharacterCounter: FC<CharacterCounterProps> = ({ current, max }) => {
+  const isWarning = current >= 0.75 * max;
+
+  return (
+    <Typography
+      variant="caption"
+      color={isWarning ? "error" : "textSecondary"}
+      sx={ { alignSelf: "flex-end", marginTop: "4px" } }
+    >
+      {`${current}/${max}`}
+    </Typography>
+  );
+};
