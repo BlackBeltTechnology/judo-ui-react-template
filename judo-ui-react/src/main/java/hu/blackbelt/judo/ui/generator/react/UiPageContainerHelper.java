@@ -491,6 +491,11 @@ public class UiPageContainerHelper {
                 .anyMatch(t -> ((Table) t).isShowTotalCount());
     }
 
+    public static boolean containerHasTextAreaWithCountCharacters(PageContainer container) {
+        return collectElementsOfType(container, new ArrayList<>(), TextArea.class)
+                .stream().anyMatch(TextArea::isCountCharacters);
+    }
+
     public static boolean containerButtonHasDisabledConditions(Button button, PageContainer container) {
         return !containerButtonGroupButtonDisabledConditions(button, container).isEmpty();
     }
