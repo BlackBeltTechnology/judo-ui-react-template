@@ -382,7 +382,7 @@ public class UiWidgetHelper {
             return result += "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";
         }
         if (container.isView()) {
-            if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsRemoveAction()) {
+            if (button.getActionDefinition().getIsOpenAddSelectorAction() || button.getActionDefinition().getIsOpenSetSelectorAction() || button.getActionDefinition().getIsRemoveAction()) {
                 return result += "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + ") : false)";
             }
             if (button.getActionDefinition().getIsBulkRemoveAction()) {
