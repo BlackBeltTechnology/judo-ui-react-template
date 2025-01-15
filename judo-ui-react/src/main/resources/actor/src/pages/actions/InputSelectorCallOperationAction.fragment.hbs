@@ -35,8 +35,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{# if operation.output }}
           {{# if action.targetPageDefinition.openInDialog }}
             await open{{ pageName action.targetPageDefinition }}({
+              {{# if (isPageDataElementUnmappedSingle action.targetPageDefinition) }}
               ownerData: produceDataAdjustedOwner(),
               data: result,
+              {{ else }}
+              ownerData: result,
+              {{/ if }}
             });
           {{ else }}
             navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
