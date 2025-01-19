@@ -33,6 +33,7 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { PageContainerTransition } from '~/theme/animations';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewGalaxyTableViewModel, ViewGalaxyTableViewModelContext } from './context';
 import type { ViewGalaxyTableActionsHook } from './customization';
 import { GOD_GOD_GALAXIES_ACCESS_TABLE_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -61,6 +62,7 @@ export default function GodGodGalaxiesAccessTablePage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);

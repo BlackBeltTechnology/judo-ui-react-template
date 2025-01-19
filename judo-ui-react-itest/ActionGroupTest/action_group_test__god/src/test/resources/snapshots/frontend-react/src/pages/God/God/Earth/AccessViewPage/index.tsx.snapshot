@@ -44,6 +44,7 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { PageContainerTransition } from '~/theme/animations';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewPlanetViewViewModel, ViewPlanetViewViewModelContext } from './context';
 import type { ViewPlanetViewActionsHook } from './customization';
 import { GOD_GOD_EARTH_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -72,6 +73,7 @@ export default function GodGodEarthAccessViewPage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -461,6 +463,8 @@ export default function GodGodEarthAccessViewPage() {
       const { data: result } = await godServiceForEarthImpl.chooseTheMessiah(data);
       if (customActions?.postCreaturesChooseTheMessiahForPlanetAction) {
         await customActions.postCreaturesChooseTheMessiahForPlanetAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
@@ -494,6 +498,8 @@ export default function GodGodEarthAccessViewPage() {
       const { data: result } = await godServiceForEarthImpl.hateGodForCreatures(target!);
       if (customActions?.postCreaturesHateGodForCreatureAction) {
         await customActions.postCreaturesHateGodForCreatureAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
@@ -514,6 +520,8 @@ export default function GodGodEarthAccessViewPage() {
       const { data: result } = await godServiceForEarthImpl.loveGodForCreatures(target!);
       if (customActions?.postCreaturesLoveGodForCreatureAction) {
         await customActions.postCreaturesLoveGodForCreatureAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
