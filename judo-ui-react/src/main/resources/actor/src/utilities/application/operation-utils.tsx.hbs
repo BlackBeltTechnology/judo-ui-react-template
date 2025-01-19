@@ -27,7 +27,7 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
   {{/ if }}
 {{/ each }}
 
-export type AccessName = {{# each (getAccessPages application) as |page| }}{{# if page.container.view }}'{{ page.dataElement.name }}'{{# unless @last}} | {{/ unless}}{{/ if }}{{/ each }}
+export type AccessName = {{# each (getAccessPages application) as |page| }}{{# if page.container.view }}'{{ page.dataElement.name }}' | {{/ if }}{{/ each }}unknown;
 
 export interface ProcessProps {
   actor: string;
