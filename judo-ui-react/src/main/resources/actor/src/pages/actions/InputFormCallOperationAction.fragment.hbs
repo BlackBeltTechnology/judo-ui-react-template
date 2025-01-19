@@ -20,6 +20,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       );
     {{# if operation.output }}
     } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+      await onSubmit(result);
       await processRedirect(result);
     {{/ if }}
     } else {
