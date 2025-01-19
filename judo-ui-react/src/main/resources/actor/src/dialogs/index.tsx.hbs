@@ -35,6 +35,7 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
     getErrorRelationKeyFromPayload,
     {{/ if }}
   } from '~/utilities';
+  import { useOperationUtils } from '~/utilities/application';
   import type {
     DialogResult,
   } from '~/utilities';
@@ -103,6 +104,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const { openConfirmDialog } = useConfirmDialog();
     const { setLatestViewData } = useViewData();
     const { publish, subscribe } = useEventBus();
+    const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
     const subscriptionRef = useRef<any>(null);
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();

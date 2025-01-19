@@ -29,8 +29,7 @@ import java.util.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getActionOperationOutputClassType;
-import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.isPageDataElementUnmappedSingle;
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerIsRefreshable;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
@@ -536,5 +535,36 @@ public class UiPageHelper {
             return title;
         }
         return application.getModelName();
+    }
+
+    public static List<PageDefinition> getAccessPages(Application application) {
+        return application.getPages().stream()
+                .filter(p -> p.getDataElement() instanceof RelationType relationType
+                        && relationType.isIsAccess()
+                        && !(isSingleAccessPage(p))
+                )
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
+
+    public static List<String> getAccessServices(Application application) {
+        Set<String> services = getAccessPages(application).stream()
+                .map(UiPageHelper::getServiceClassForPage)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return services.stream().sorted().collect(Collectors.toList());
+    }
+
+    public static List<Action> getAccessTableOperationActions(PageDefinition pageDefinition) {
+        Table table = (Table) pageDefinition.getContainer().getTables().get(0);
+        return table.getTableActionButtonGroup().getButtons().stream()
+                .filter(b -> isOperationInputForm(b.getActionDefinition()))
+                .map(b -> getActionForActionDefinition(b.getActionDefinition(), pageDefinition))
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .toList();
+    }
+
+    public static Action getAccessCreateActionForFormPage(PageDefinition pageDefinition) {
+        return pageDefinition.getActions().stream().filter(Action::getIsCreateAction).findFirst().orElse(null);
     }
 }

@@ -62,6 +62,7 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import {
   type TagContainerTransferTagContainerTransfer_View_EditViewModel,
   TagContainerTransferTagContainerTransfer_View_EditViewModelContext,
@@ -104,6 +105,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
   const { exportFile } = fileHandling();
 
   // State section
