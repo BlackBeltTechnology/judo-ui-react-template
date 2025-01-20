@@ -536,4 +536,12 @@ public class UiActionsHelper {
                 || actionDefinition instanceof BulkDeleteActionDefinition
                 || actionDefinition instanceof BulkRemoveActionDefinition;
     }
+
+    public static Action getActionForActionDefinition(ActionDefinition actionDefinition, PageDefinition page) {
+        return page.getActions().stream().filter(a -> a.getActionDefinition().equals(actionDefinition)).findFirst().orElse(null);
+    }
+
+    public static boolean isOperationInputForm(ActionDefinition actionDefinition) {
+        return actionDefinition instanceof OpenOperationInputFormActionDefinition;
+    }
 }

@@ -1300,6 +1300,74 @@ export class DefaultApplicationCustomizer implements ApplicationCustomizer {
 }
 ----
 
+=== Customizing the flow of operations based on runtime data
+
+Given we would like to drive the flow of operations once they are complete based on runtime data,
+we could register an `OperationFlowManager` where we can configure what should happen.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { OPERATION_FLOW_MANAGER_INTERFACE_KEY, OperationFlowManager } from '~/utilities/application';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<OperationFlowManager>(OPERATION_FLOW_MANAGER_INTERFACE_KEY, operationFlowManager);
+  }
+}
+
+const operationFlowManager: OperationFlowManager = {
+  shouldUseCustomFlow: (input) => {
+    // We are configuring the flow manager to trigger for every operation where the output is one of the
+    // following entity types
+    return ['entities.Context', 'entities.Subject'].includes(input?.__entityType || '');
+  },
+  handleResult: (input) => {
+    // This method is expected to return:
+    // interface ProcessProps {
+    //   actor: string;
+    //   access: string;
+    //   filterRecords?: Record<string, any>;
+    //   operation?: string;
+    // }
+    const test  = input as any;
+    const { actor, access, idName, idValue, operation } = test;
+    // If the `idName` and `idValue` properties are set, that means that we are expecting to redirect to
+    // an access view based on those filters
+    if (idName && idValue) {
+      return {
+        filterRecords: {
+          [idName]: [
+            {
+              operator: 'equal',
+              value: idValue,
+            }
+          ],
+        },
+        access,
+        actor,
+      };
+    }
+    // If the `operation` property is set, we are expected to call that operation
+    if (operation) {
+      return {
+        operation,
+        access,
+        actor,
+      };
+    }
+    // Otherwise, we open a CRUD create form
+    return {
+      access,
+      actor,
+    };
+    // If we don't return anything, the custom flow will pass through.
+  },
+};
+----
+
 === Filtering access for logged in users
 
 If our application supports authentication, letting users access pages might need restrictions

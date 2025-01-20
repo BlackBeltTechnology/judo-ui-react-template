@@ -51,6 +51,7 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewGalaxyViewViewModel, ViewGalaxyViewViewModelContext } from './context';
 import type { ViewGalaxyViewActionsHook } from './customization';
 import { GOD_GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -82,6 +83,7 @@ export default function GodGodGalaxiesAccessViewPage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
   const { exportFile } = fileHandling();
 
   // State section
