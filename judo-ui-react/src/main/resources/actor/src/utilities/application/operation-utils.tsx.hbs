@@ -68,7 +68,7 @@ export function useOperationUtils() {
     {{/ if }}
   {{/ each }}
 
-  const processRedirect: (response: JudoStored<any>) => Promise<void> = useCallback(async (response) => {
+  const processRedirect: (response: JudoStored<any>, onComplete?: () => Promise<void>) => Promise<void> = useCallback(async (response, onComplete) => {
     if (!handleResult) {
       return;
     }
@@ -131,6 +131,9 @@ export function useOperationUtils() {
                   ownerData: null,
                 });
                 if (result === 'submit' && returnedData) {
+                  if (onComplete) {
+                    await onComplete();
+                  }
                   await processRedirect(returnedData);
                 }
               }
