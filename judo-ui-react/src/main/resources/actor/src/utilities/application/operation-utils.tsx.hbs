@@ -1,0 +1,148 @@
+{{> fragment.header.hbs }}
+
+import { useMemo, useCallback } from 'react';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+import { useJudoNavigation } from '~/components';
+import { JudoStored } from '~/services/data-api/common';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+{{# each (getAccessServices application) as |service| }}
+  import { {{ service }} } from '~/services/data-axios/{{ service }}';
+{{/ each }}
+{{# each (getAccessPages application) as |page| }}
+  {{# if page.container.view }}
+    {{# if page.openInDialog }}
+      import { use{{ pageName page }} } from '~/dialogs/{{ pagePath page }}/hooks';
+    {{ else }}
+      import { routeTo{{ pageName page }} } from '~/routes';
+    {{/ if }}
+  {{/ if }}
+  {{# if page.container.form }}
+    import { use{{ pageName page }} } from '~/dialogs/{{ pagePath page }}/hooks';
+  {{/ if }}
+  {{# if page.container.table }}
+    {{# each (getAccessTableOperationActions page) as |action| }}
+      import { use{{ pageName action.targetPageDefinition }} } from '~/dialogs/{{ pagePath action.targetPageDefinition }}/hooks';
+    {{/ each }}
+  {{/ if }}
+{{/ each }}
+
+export type AccessName = {{# each (getAccessPages application) as |page| }}{{# if page.container.view }}'{{ page.dataElement.name }}' | {{/ if }}{{/ each }}unknown;
+
+export interface ProcessProps {
+  actor: string;
+  access: string;
+  filterRecords?: Record<string, any>;
+  operation?: string;
+}
+
+export type ResultHandler = (input: JudoStored<any>) => ProcessProps;
+
+export const OPERATION_FLOW_MANAGER_INTERFACE_KEY = 'OperationFlowManager';
+
+export interface OperationFlowManager {
+  handleResult: ResultHandler;
+  shouldUseCustomFlow?: (input?: JudoStored<any>) => boolean;
+}
+
+export function useOperationUtils() {
+  const { navigate } = useJudoNavigation();
+  const { service: operationFlowManager } = useTrackService<OperationFlowManager>(`(${OBJECTCLASS}=${OPERATION_FLOW_MANAGER_INTERFACE_KEY})`);
+  const { handleResult, shouldUseCustomFlow } = (operationFlowManager || {}) as Partial<OperationFlowManager>;
+  {{# each (getAccessServices application) as |service| }}
+    const {{ firstToLower service }} = useMemo(() => new {{ service }}(judoAxiosProvider), []);
+  {{/ each }}
+  {{# each (getAccessPages application) as |page| }}
+    {{# if page.container.view }}
+      {{# if page.openInDialog }}
+        const open{{ pageName page }} = use{{ pageName page }}();
+      {{/ if }}
+    {{/ if }}
+    {{# if page.container.form }}
+      const open{{ pageName page }} = use{{ pageName page }}();
+    {{/ if }}
+    {{# if page.container.table }}
+      {{# each (getAccessTableOperationActions page) as |action| }}
+        const open{{ pageName action.targetPageDefinition }} = use{{ pageName action.targetPageDefinition }}();
+      {{/ each }}
+    {{/ if }}
+  {{/ each }}
+
+  const processRedirect: (response: JudoStored<any>) => Promise<void> = useCallback(async (response) => {
+    if (!handleResult) {
+      return;
+    }
+    const { actor, access, filterRecords, operation } = handleResult(response);
+    // View case
+    if (filterRecords) {
+      {{# each (getAccessPages application) as |page| }}
+        {{# if page.container.view }}
+          if (access === '{{ page.dataElement.name }}') {
+            const { data } = await {{ firstToLower(getServiceImplForPage page) }}.list(undefined, {
+              _mask: '{}',
+              ...filterRecords,
+            });
+            {{# if page.openInDialog }}
+              await open{{ pageName page }}({
+                ownerData: data[0],
+              });
+            {{ else }}
+              navigate(routeTo{{ pageName page }}(data[0].__signedIdentifier));
+            {{/ if }}
+          }
+        {{/ if }}
+      {{/ each }}
+    } else if (typeof operation === 'undefined') {
+      // Create case
+      {{# each (getAccessPages application) as |page| }}
+        {{# if page.container.form }}
+          if (access === '{{ page.dataElement.name }}') {
+            const {
+              result,
+              data: returnedData,
+              openCreated,
+            } = await open{{ pageName page }}({
+              ownerData: null,
+              isDraft: false,
+              dataPath: '',
+            });
+            if (result === 'submit' && openCreated && returnedData) {
+              {{# with (getAccessCreateActionForFormPage page) as |createAction| }}
+                {{# if createAction.targetPageDefinition.openInDialog }}
+                  await open{{ pageName createAction.targetPageDefinition }}({
+                    ownerData: returnedData
+                  });
+                {{ else }}
+                  navigate(routeTo{{ pageName createAction.targetPageDefinition }}(returnedData.__signedIdentifier));
+                {{/ if }}
+              {{/ with }}
+            }
+          }
+        {{/ if }}
+      {{/ each }}
+    } else if (operation) {
+      // Custom Operation case
+      {{# each (getAccessPages application) as |page| }}
+        {{# if page.container.table }}
+          if (access === '{{ page.dataElement.name }}') {
+            {{# each (getAccessTableOperationActions page) as |action| }}
+              if (operation === '{{ action.targetDataElement.name }}') {
+                const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
+                  ownerData: null,
+                });
+                if (result === 'submit' && returnedData) {
+                  await processRedirect(returnedData);
+                }
+              }
+            {{/ each }}
+          }
+        {{/ if }}
+      {{/ each }}
+    }
+  }, [handleResult]);
+
+  return {
+    processRedirect,
+    shouldUseCustomFlow,
+  };
+}

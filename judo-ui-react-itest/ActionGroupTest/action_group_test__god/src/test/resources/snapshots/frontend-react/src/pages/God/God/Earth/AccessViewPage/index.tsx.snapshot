@@ -44,6 +44,7 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { PageContainerTransition } from '~/theme/animations';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewPlanetViewViewModel, ViewPlanetViewViewModelContext } from './context';
 import type { ViewPlanetViewActionsHook } from './customization';
 import { GOD_GOD_EARTH_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -72,6 +73,7 @@ export default function GodGodEarthAccessViewPage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -251,6 +253,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.bang(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postBangForPlanetAction) {
         await customActions.postBangForPlanetAction(target!);
       } else {
@@ -288,6 +291,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.endWar(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postEndWarForPlanetAction) {
         await customActions.postEndWarForPlanetAction(target!);
       } else {
@@ -316,6 +320,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.startWar(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postStartWarForPlanetAction) {
         await customActions.postStartWarForPlanetAction(target!);
       } else {
@@ -335,6 +340,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.createLife(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postCreateLifeForPlanetAction) {
         await customActions.postCreateLifeForPlanetAction(target!);
       } else {
@@ -354,6 +360,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.destroyLife(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postDestroyLifeForPlanetAction) {
         await customActions.postDestroyLifeForPlanetAction(target!);
       } else {
@@ -459,8 +466,11 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       const { data: result } = await godServiceForEarthImpl.chooseTheMessiah(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postCreaturesChooseTheMessiahForPlanetAction) {
         await customActions.postCreaturesChooseTheMessiahForPlanetAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
@@ -492,8 +502,11 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       const { data: result } = await godServiceForEarthImpl.hateGodForCreatures(target!);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postCreaturesHateGodForCreatureAction) {
         await customActions.postCreaturesHateGodForCreatureAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
@@ -512,8 +525,11 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       const { data: result } = await godServiceForEarthImpl.loveGodForCreatures(target!);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postCreaturesLoveGodForCreatureAction) {
         await customActions.postCreaturesLoveGodForCreatureAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,

@@ -186,4 +186,8 @@ public class UiGeneralHelper {
     public static String escapeString(String input) {
         return input.replaceAll("\n", "\\\\n");
     }
+
+    public static boolean elementHasAnnotation(NamedElement element, String annotation) {
+        return element != null && element.getAnnotations().stream().anyMatch(a -> a.getName().equals(annotation));
+    }
 }

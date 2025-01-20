@@ -49,6 +49,7 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewStarViewViewModel, ViewStarViewViewModelContext } from './context';
 import type { ViewStarViewActionsHook } from './customization';
 import { VIEW_GALAXY_STARS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -85,6 +86,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   const { openConfirmDialog } = useConfirmDialog();
   const { setLatestViewData } = useViewData();
   const { publish, subscribe } = useEventBus();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
   const subscriptionRef = useRef<any>(null);
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
