@@ -42,7 +42,7 @@ export const OPERATION_FLOW_MANAGER_INTERFACE_KEY = 'OperationFlowManager';
 
 export interface OperationFlowManager {
   handleResult: ResultHandler;
-  shouldUseCustomFlow: (input?: JudoStored<any>) => boolean;
+  shouldUseCustomFlow?: (input?: JudoStored<any>) => boolean;
 }
 
 export function useOperationUtils() {
@@ -69,7 +69,7 @@ export function useOperationUtils() {
   {{/ each }}
 
   const processRedirect: (response: JudoStored<any>) => Promise<void> = useCallback(async (response) => {
-    if (!handleResult || !shouldUseCustomFlow || !shouldUseCustomFlow(response)) {
+    if (!handleResult) {
       return;
     }
     const { actor, access, filterRecords, operation } = handleResult(response);

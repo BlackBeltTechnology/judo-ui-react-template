@@ -6,6 +6,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
       {{# unless operation.isStatic }}ownerData, {{/ unless }}selectionDiff[0]
     );
+    {{> actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs operation=operation action=action }}
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
         {{# if action.actionDefinition.targetType }}target!,{{/ if }}

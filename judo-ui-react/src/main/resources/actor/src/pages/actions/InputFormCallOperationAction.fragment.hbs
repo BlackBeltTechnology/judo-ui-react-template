@@ -11,6 +11,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{# unless operation.isStatic }}produceDataAdjustedOwner(),{{/ unless }}
       data
     );
+    {{> actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs operation=operation action=action }}
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
         {{# if action.actionDefinition.targetType }}target!,{{/ if }}
