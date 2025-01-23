@@ -95,7 +95,16 @@ export const filtersSerializer: FiltersSerializer = {
 // XMIID: God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable
 // Name: Table
 export function ViewMatterTableTableComponent(props: ViewMatterTableTableComponentProps) {
-  const { uniqueId, actions, dataPath, refreshCounter, isOwnerLoading, isDraft, validationError } = props;
+  const {
+    uniqueId,
+    actions,
+    dataPath,
+    refreshCounter,
+    isOwnerLoading,
+    isDraft,
+    validationError,
+    annotations = [],
+  } = props;
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY}))`;
 
   const { openConfirmDialog } = useConfirmDialog();

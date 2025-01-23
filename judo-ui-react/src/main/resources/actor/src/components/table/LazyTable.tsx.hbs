@@ -109,6 +109,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   applyRowEdit?: (rowData: TStored) => Promise<any>;
   onRowEditCanceled?: (rowId: string) => void;
   actionsColumnWidth?: number;
+  annotations?: string[];
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: LazyTableProps<T, TStored>) {
@@ -158,6 +159,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     applyRowEdit,
     onRowEditCanceled,
     actionsColumnWidth,
+    annotations = [],
   } = props;
 
   const apiRef = useGridApiRef();
@@ -629,6 +631,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           onFilterModelChange={handleFilterModelChange}
         {{/ if }}
         data={data}
+        boundAttributeName={relationName}
+        annotations={annotations}
       />
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
