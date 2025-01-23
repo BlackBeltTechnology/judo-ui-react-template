@@ -5,7 +5,7 @@
     {{/ if }}
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
             ownerData={data}
             data={ data?.{{ child.dataElement.name }} }
             disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.relationType.isReadOnly }} }
@@ -15,6 +15,8 @@
             actions={actions}
             isLoading={isLoading}
             isDraft={isDraft}
+            boundAttributeName={'{{ child.dataElement.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
         >
     {{/ if }}
     <{{ componentName child }}
@@ -32,6 +34,7 @@
         validationError={validation.get('{{ child.dataElement.name }}')}
         actions={actions}
         submit={submit}
+        annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
     />
     {{# if child.customImplementation }}
         </ComponentProxy>

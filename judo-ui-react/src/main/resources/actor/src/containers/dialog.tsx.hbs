@@ -187,6 +187,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                     {{/ if }}
                     isLoading={isLoading}
                     actions={actions}
+                    annotations={[{{# each (getAnnotationNamesForElement button) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
                   >
                 {{/ if }}
                 <LoadingButton
@@ -303,6 +304,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
             {{/ if }}
             isLoading={isLoading}
             actions={actions}
+            annotations={[{{# each (getAnnotationNamesForElement container) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
           >
           </ComponentProxy>
         </DialogActions>
