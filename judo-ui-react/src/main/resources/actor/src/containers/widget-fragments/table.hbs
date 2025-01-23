@@ -5,10 +5,12 @@
     {{/ if }}
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
             ownerData={data}
             isOwnerLoading={isLoading}
             actions={actions}
+            boundAttributeName={'{{ child.dataElement.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
             {{# unless container.table }}
               editMode={editMode}
               isFormUpdateable={isFormUpdateable}
@@ -55,6 +57,7 @@
                     {{/ unless }}
                     refreshCounter={refreshCounter}
                     isOwnerLoading={isLoading}
+                    annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
                 />
                 {{ else }}
                 <{{ componentName child }}
@@ -69,6 +72,7 @@
                     isFormUpdateable={isFormUpdateable}
                     storeDiff={storeDiff}
                     refreshCounter={refreshCounter}
+                    annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
                 />
                 {{/ unless }}
             </Grid>

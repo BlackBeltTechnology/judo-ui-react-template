@@ -74,6 +74,12 @@ public class ReactStoredVariableHelper extends StaticMethodValueResolver {
         }
     }
 
+    public static synchronized String getCustomComponentAnnotationPrefix() {
+        String prefix = (String) ThreadLocalContextHolder.getVariable("customComponentAnnotationPrefix");
+
+        return prefix == null ? "use" : prefix;
+    }
+
     public static synchronized Boolean isUseInlineColumnFilters() {
         if (!isMUILicensed()) {
             return false;

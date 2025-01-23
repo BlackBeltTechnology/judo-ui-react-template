@@ -12,6 +12,7 @@ export interface AssociationBaseProps {
   variant?: 'text' | 'contained' | 'outlined';
   editMode?: boolean;
   children?: ReactNode;
+  annotations?: string[];
 }
 
 export interface AssociationButtonProps extends AssociationBaseProps {
@@ -29,6 +30,7 @@ export function AssociationButton({
   fetchCall,
   navigateAction,
   children,
+  annotations = [],
 }: AssociationButtonProps) {
   const { t } = useTranslation();
   const [data, setData] = useState<JudoIdentifiable<any> | null>(null);
