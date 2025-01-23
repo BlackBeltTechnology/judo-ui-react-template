@@ -81,6 +81,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                     {{/ unless }}
                     isLoading={isLoading}
                     actions={actions}
+                    annotations={[{{# each (getAnnotationNamesForElement button) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
                   >
                 {{/ if }}
                 <LoadingButton
@@ -128,6 +129,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
             {{/ unless }}
             isLoading={isLoading}
             actions={actions}
+            annotations={[{{# each (getAnnotationNamesForElement container) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
           >
             <div>{/* Placeholder */}</div>
           </ComponentProxy>

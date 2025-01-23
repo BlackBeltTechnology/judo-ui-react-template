@@ -44,6 +44,7 @@ export interface TagsProps<P, T> {
   refreshCounter?: number;
   isOwnerLoading?: boolean;
   onAsyncLoad?: (queryCustomizer: QueryCustomizer<T>) => Promise<T[]>;
+  annotations?: string[];
 }
 
 /**
@@ -79,6 +80,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     refreshCounter,
     isOwnerLoading = false,
     onAsyncLoad,
+    annotations = [],
   } = props;
   const [options, setOptions] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(isOwnerLoading);

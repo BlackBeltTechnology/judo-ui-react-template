@@ -5,13 +5,15 @@
     {{/ if }}
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
             data={data}
             validation={validation}
             editMode={editMode}
             storeDiff={storeDiff}
             isLoading={isLoading}
             actions={actions}
+            boundAttributeName={'{{ child.attributeType.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
         >
     {{/ if }}
     <Grid container direction="row" alignItems="center" {{# if child.icon }}spacing={2}{{/ if }}>
