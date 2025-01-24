@@ -499,6 +499,78 @@ class CustomL10NProvider implements L10NTranslationProvider {
 }
 ----
 
+=== Utilizing a single component declaration to handle multiple visual elements
+
+The framework supports modelers to declare any number of annotations with any names.
+
+The frontend generator can utilize these annotations to wire in custom components for
+visual elements with certain annotations.
+
+The modeler and developer should agree on an annotation prefix which is required by the
+generator to detect what to use for component wiring. This prefix is only relevant for the UI generator.
+
+Let's say the default is fine: `use` (if not, the generator can be configured via the `customComponentAnnotationPrefix` property).
+
+Everything coming after the prefix will be utilized by the UI generator.
+
+If e.g. we would like to handle textareas with our custom `FancyText` component in
+multiple places of our application we should do the following:
+
+- Create the annotation `useFancyText` in our model with class type: `hu.blackbelt.judo.meta.esm.ui.VisualElement`
+- Annotate every visual property with this where ever we would like to use FancyText
+- Check the "Custom Implementation" checkbox also everywhere where we placed the annotation
+
+Register our custom component which will handle the display logic for every annotated component:
+
+The registration **MUST** contain the `componentImplementation` configuration, in our case with the `FancyText` value.
+
+> The prefix is stripped internally in the generator and generated code-base.
+
+*application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { ApplicationCustomizer, AttributeBasedProxyProps, GenericProxyProps } from './interfaces';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from './custom-element-types';
+import { ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import { ViewGalaxyViewActionDefinitions } from '~/containers/View/Galaxy/View/types';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, FancyText, {
+      componentImplementation: 'FancyText',
+    });
+  }
+}
+
+const FancyText = ({ data, storeDiff, annotations, boundAttributeName }: GenericProxyProps<ViewGalaxyStored, ViewGalaxyViewActionDefinitions> & AttributeBasedProxyProps<ViewGalaxyStored>) => {
+  return (
+    <>
+      <p>{boundAttributeName} :: {JSON.stringify(annotations)}</p>
+      <textarea
+        style={{ width: '100%', color: 'pink' }}
+        rows={4}
+        name={'ohSoFancy'}
+        value={data[boundAttributeName] as string}
+        onChange={(evt) => storeDiff(boundAttributeName, evt.target.value) }
+      />
+    </>
+  );
+};
+----
+
+**Notes:**
+
+- `GenericProxyProps` can be defined with `<any, any>` of course to make it super generic
+- `AttributeBasedProxyProps` can also be defined with `<any>`
+- The `annotations` property will contain every annotation the captured component has
+- The `boundAttributeName` contains the property name in the owner payload which the `useFancyText` annotation has been
+  applied to
+- Defining multiple `use` annotations on the same visual property will yield chaotic results, it's not advised
+
+> The initially declared annotation `useFancyText` will be available as-is in the `annotations` list. The prefix
+  is not stripped here since the list contains actual modeled values.
+
 === Implementing a custom visual element
 
 Every Visual element implementation can be replaced by a custom one, given in the model the `customImplementation`

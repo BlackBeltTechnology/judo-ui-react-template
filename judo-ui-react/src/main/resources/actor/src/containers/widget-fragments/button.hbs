@@ -12,6 +12,7 @@
       storeDiff={storeDiff}
       isLoading={isLoading}
       actions={actions}
+      annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
     >
   {{/ if }}
   {{# or child.actionDefinition.isCallOperationAction child.actionDefinition.isOpenFormAction child.actionDefinition.isOpenSelectorAction }}
