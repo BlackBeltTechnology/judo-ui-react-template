@@ -80,13 +80,9 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         isLoading,
         editMode,
         refreshCounter,
-        {{# if container.isSelector }}
-          selectionDiff,
-          setSelectionDiff,
-        {{/ if }}
-        {{# if container.isRelationSelector }}
-          alreadySelected,
-        {{/ if }}
+        selectionDiff,
+        setSelectionDiff,
+        alreadySelected,
         {{# unless container.table }}
           data,
           isFormUpdateable,
@@ -142,13 +138,9 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
               dataPath={dataPath}
               refreshCounter={refreshCounter}
               isLoading={isLoading}
-              {{# if container.isSelector }}
-                selectionDiff={selectionDiff}
-                setSelectionDiff={setSelectionDiff}
-              {{/ if }}
-              {{# if container.isRelationSelector }}
-                alreadySelected={alreadySelected}
-              {{/ if }}
+              selectionDiff={selectionDiff}
+              setSelectionDiff={setSelectionDiff}
+              alreadySelected={alreadySelected}
               {{# unless container.table }}
                 data={data}
                 editMode={editMode}
@@ -182,9 +174,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                     storeDiff={storeDiff}
                     submit={submit}
                     {{/ unless }}
-                    {{# if container.isSelector }}
                     selectionDiff={selectionDiff}
-                    {{/ if }}
                     isLoading={isLoading}
                     actions={actions}
                     annotations={[{{# each (getAnnotationNamesForElement button) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
@@ -218,7 +208,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
                       {{ else }}
                         {{# if (isActionAddOrSet actionDefinition) }}
-                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff);
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff || []);
                         {{ else }}
                           {{# if actionDefinition.isCreateAction }}
                             await actions.{{ simpleActionDefinitionName actionDefinition }}!({{# if actionDefinition.autoOpenAfterCreate }}true{{/ if }});
@@ -299,9 +289,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
             storeDiff={storeDiff}
             submit={submit}
             {{/ unless }}
-            {{# if container.isSelector }}
             selectionDiff={selectionDiff}
-            {{/ if }}
             isLoading={isLoading}
             actions={actions}
             annotations={[{{# each (getAnnotationNamesForElement container) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
