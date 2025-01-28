@@ -1,3 +1,5 @@
+{{> fragment.header.hbs }}
+
 {{# unless (containerIsEmptyDashboard page.container) }}
   import type { Dispatch, SetStateAction } from 'react';
   {{# each (getApiImportsForPage page) as |imp| }}
@@ -8,6 +10,9 @@
   {{/ each }}
   import type { {{ containerComponentName page.container }}DialogActions } from '~/containers/{{ containerPath page.container }}/types';
   import type { DialogResultReason } from '~/utilities';
+
+  // XMIID: {{ getXMIID page }}
+  // Name: {{ page.name }}
 
   export type {{ containerComponentName page.container }}DialogActionsExtended = {{ containerComponentName page.container }}DialogActions & {
     {{# each (getAllCallOperationActions page) as |action| }}
@@ -27,8 +32,8 @@
   export interface {{ pageName page }}Props {
     ownerData: any;
     {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: {{ classDataName (getReferenceClassType page) '' }};{{/ and }}
-    {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
-    {{# unless page.container.isSelector }}templateDataOverride?: {{# if page.container.view }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{ else }}Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ if }};{{/ unless }}
+    {{# if page.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
+    {{# unless page.isSelector }}templateDataOverride?: {{# if page.container.view }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{ else }}Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ if }};{{/ unless }}
     isDraft?: boolean;
     ownerValidation?: (target: any) => Promise<void>;
     onClose: () => Promise<void>;

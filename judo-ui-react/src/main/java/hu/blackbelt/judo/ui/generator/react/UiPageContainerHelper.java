@@ -511,13 +511,13 @@ public class UiPageContainerHelper {
             }
         }
         if (button.getActionDefinition().getIsSetAction() || button.getActionDefinition().getIsAddAction()) {
-            return "!selectionDiff.length";
+            return "!(selectionDiff?.length)";
         }
         segments.add("isLoading");
 
-        if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+        if (container.isTable() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
             if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
-                segments.add("!selectionDiff.length");
+                segments.add("!(selectionDiff?.length)");
             }
         }
 

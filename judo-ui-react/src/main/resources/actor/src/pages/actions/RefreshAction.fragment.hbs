@@ -1,65 +1,78 @@
 // RefreshAction: {{ getXMIID action }}
-{{# if action.targetDataElement }}
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{ else }} | null{{/ if }}>> => {
-  const result = await {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
-  {{# if page.container.view }}
-    {{# if (isRefreshPageInitializer action page) }}
-    if (!isDraft) {
-      owner.current = result.data;
-    }
-    {{/ if }}
-  {{/ if }}
-  return result;
-}
+{{# if page.isSelector }}
+  const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}[]>> => {
+    {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+      try {
+        return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+      } catch (error: any) {
+        handleError(error);
+        return Promise.resolve({ data: [], headers: error.response?.headers, status: error.response?.status, statusText: 'fallback', config: { headers: error.response?.headers } });
+      }
+    {{/ with }}
+  };
 {{ else }}
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>> => {
-  try {
-    setIsLoading(true);
-    setEditMode(false);
-    {{# if page.container.table }}
-      {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
-      {{# if (pageHasSignedId page) }}
-        {{# unless page.openInDialog }}
-          setRouterPageData({ __signedIdentifier: signedIdentifier } as any);
-        {{/ unless }}
-      {{/ if }}
-      return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
-      {{/ with }}
-    {{ else }}
-      const response = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
-      const { data: result } = response;
+  {{# if action.targetDataElement }}
+  const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{ else }} | null{{/ if }}>> => {
+    const result = await {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
+    {{# if page.container.view }}
       {{# if (isRefreshPageInitializer action page) }}
       if (!isDraft) {
-        owner.current = result;
+        owner.current = result.data;
       }
       {{/ if }}
-      setData(result);
-      setLatestViewData(result);
-      {{# if (pageIsRootStateOwner page) }}
-        publish('{{ getXMIID page }}:refreshed', result);
-      {{/ if }}
-      {{# unless page.openInDialog }}
-        {{# if page.container.view }}
-          setRouterPageData(result);
-        {{/ if }}
-      {{/ unless }}
-      if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
-        await customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(result{{# unless page.container.table }}, storeDiff, setValidation{{/ unless }});
-      }
-      return response;
     {{/ if }}
-  } catch (error) {
-    handleError(error);
-    setLatestViewData(null);
-    {{# unless page.openInDialog }}
-      setRouterPageData(null);
-    {{/ unless }}
-    return Promise.reject(error);
-  } finally {
-    setIsLoading(false);
-    {{# if page.container.view }}
-    setRefreshCounter((prevCounter) => prevCounter + 1);
-    {{/ if }}
+    return result;
   }
-};
+  {{ else }}
+  const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>> => {
+    try {
+      setIsLoading(true);
+      setEditMode(false);
+      {{# if page.container.table }}
+        {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+        {{# if (pageHasSignedId page) }}
+          {{# unless page.openInDialog }}
+            setRouterPageData({ __signedIdentifier: signedIdentifier } as any);
+          {{/ unless }}
+        {{/ if }}
+        return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+        {{/ with }}
+      {{ else }}
+        const response = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
+        const { data: result } = response;
+        {{# if (isRefreshPageInitializer action page) }}
+        if (!isDraft) {
+          owner.current = result;
+        }
+        {{/ if }}
+        setData(result);
+        setLatestViewData(result);
+        {{# if (pageIsRootStateOwner page) }}
+          publish('{{ getXMIID page }}:refreshed', result);
+        {{/ if }}
+        {{# unless page.openInDialog }}
+          {{# if page.container.view }}
+            setRouterPageData(result);
+          {{/ if }}
+        {{/ unless }}
+        if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
+          await customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(result{{# unless page.container.table }}, storeDiff, setValidation{{/ unless }});
+        }
+        return response;
+      {{/ if }}
+    } catch (error) {
+      handleError(error);
+      setLatestViewData(null);
+      {{# unless page.openInDialog }}
+        setRouterPageData(null);
+      {{/ unless }}
+      return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
+      {{# if page.container.view }}
+      setRefreshCounter((prevCounter) => prevCounter + 1);
+      {{/ if }}
+    }
+  };
 {{/ if }}
+{{/if}}

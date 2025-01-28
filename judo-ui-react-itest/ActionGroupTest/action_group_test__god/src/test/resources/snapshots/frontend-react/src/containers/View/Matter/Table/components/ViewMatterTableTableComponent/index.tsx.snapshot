@@ -65,6 +65,7 @@ import {
   extractRelationErrorList,
   getUpdatedRowsSelected,
   isErrorNestedValidationError,
+  isRowSelectable,
   mapAllFiltersToQueryCustomizerProperties,
   processQueryCustomizer,
   randomUtils,
@@ -103,6 +104,9 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     isOwnerLoading,
     isDraft,
     validationError,
+    selectionDiff,
+    setSelectionDiff,
+    alreadySelected,
     annotations = [],
   } = props;
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY}))`;
@@ -114,6 +118,11 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
   const rowValidation = useRef<Map<string, Map<keyof ViewMatterStored, string>>>(
     new Map<string, Map<keyof ViewMatterStored, string>>(),
   );
+  const isSelector = useMemo<boolean>(
+    () => Array.isArray(selectionDiff) && Array.isArray(setSelectionDiff),
+    [selectionDiff, setSelectionDiff],
+  );
+  const isRelationSelector = useMemo<boolean>(() => Array.isArray(alreadySelected), [alreadySelected]);
 
   const applyRowEdit = useCallback(
     async (rowData: ViewMatterStored) => {
@@ -279,6 +288,25 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         isFormUpdateable?: () => boolean,
         rowModesModel?: GridRowModesModel,
       ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'inlineCreateRowAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableInlineCreateButton',
+      startIcon: 'note-add',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'View.Matter.Table.InlineCreate', defaultValue: 'Create' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean =>
+        (rowModesModel ? Object.keys(rowModesModel).every((k) => rowModesModel[k].mode !== GridRowModes.Edit) : true) &&
+        true,
       isBulk: false,
     },
     {
@@ -470,7 +498,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         refreshCounter={refreshCounter}
         toolBarActions={toolBarActions}
         additionalToolbarButtons={actions?.AdditionalToolbarButtons}
-        tableHasSelectorColumn={true}
+        tableHasSelectorColumn={isSelector || isRelationSelector}
         enabledByName=""
         relationName=""
         filtersSerializer={filtersSerializer}

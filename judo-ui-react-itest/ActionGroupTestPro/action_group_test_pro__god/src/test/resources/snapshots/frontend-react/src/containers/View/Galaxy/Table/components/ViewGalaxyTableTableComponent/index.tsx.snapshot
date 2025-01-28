@@ -65,6 +65,7 @@ import {
   extractRelationErrorList,
   getUpdatedRowsSelected,
   isErrorNestedValidationError,
+  isRowSelectable,
   mapAllFiltersToQueryCustomizerProperties,
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -106,6 +107,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     isOwnerLoading,
     isDraft,
     validationError,
+    selectionDiff,
+    setSelectionDiff,
+    alreadySelected,
     annotations = [],
   } = props;
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY}))`;
@@ -117,6 +121,11 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
   const rowValidation = useRef<Map<string, Map<keyof ViewGalaxyStored, string>>>(
     new Map<string, Map<keyof ViewGalaxyStored, string>>(),
   );
+  const isSelector = useMemo<boolean>(
+    () => Array.isArray(selectionDiff) && Array.isArray(setSelectionDiff),
+    [selectionDiff, setSelectionDiff],
+  );
+  const isRelationSelector = useMemo<boolean>(() => Array.isArray(alreadySelected), [alreadySelected]);
 
   const applyRowEdit = useCallback(
     async (rowData: ViewGalaxyStored) => {
@@ -447,6 +456,25 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       isBulk: false,
     },
     {
+      name: 'inlineCreateRowAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableInlineCreateButton',
+      startIcon: 'note-add',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'View.Galaxy.Table.InlineCreate', defaultValue: 'Create' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewGalaxyStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean =>
+        (rowModesModel ? Object.keys(rowModesModel).every((k) => rowModesModel[k].mode !== GridRowModes.Edit) : true) &&
+        true,
+      isBulk: false,
+    },
+    {
       name: 'openAddSelectorAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableAddSelectorButton',
       startIcon: 'attachment-plus',
@@ -732,7 +760,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         refreshCounter={refreshCounter}
         toolBarActions={toolBarActions}
         additionalToolbarButtons={actions?.AdditionalToolbarButtons}
-        tableHasSelectorColumn={true}
+        tableHasSelectorColumn={isSelector || isRelationSelector}
         enabledByName=""
         relationName=""
         filtersSerializer={filtersSerializer}

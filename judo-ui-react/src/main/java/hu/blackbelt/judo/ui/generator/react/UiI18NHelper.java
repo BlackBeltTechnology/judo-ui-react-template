@@ -195,9 +195,6 @@ public class UiI18NHelper {
     }
 
     private static boolean tokenNeedsPrefix(VisualElement visualElement) {
-        if (visualElement instanceof Table table && table.isIsSelectorTable()) {
-            return true;
-        }
         return !visualElement.getName().contains("::") || visualElement.getName().split("(::)").length < 3;
     }
 

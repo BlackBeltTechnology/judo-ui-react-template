@@ -1,3 +1,5 @@
+{{> fragment.header.hbs }}
+
 {{# unless (containerIsEmptyDashboard container) }}
   import type { Dispatch, SetStateAction } from 'react';
   import type {
@@ -18,6 +20,9 @@
   {{# each container.links as |link| }}
     import type { {{ componentName link }}ActionDefinitions } from './components/{{ componentName link }}/types';
   {{/ each }}
+
+  // XMIID: {{ getXMIID container }}
+  // Name: {{ container.name }}
 
   export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
     getPageTitle?: ({{# unless container.table }}data: {{ classDataName container.dataElement '' }}{{/ unless }}) => string;
@@ -67,11 +72,17 @@
 
   export interface {{ containerComponentName container }}PageProps {
     {{# unless (containerIsEmptyDashboard container) }}
+      ownerData: any; // This is only here to maintain consistency in the container API. At the time of writing, not used for table pages.
       actions: {{ containerComponentName container }}PageActions;
       isLoading: boolean;
       editMode: boolean;
       refreshCounter: number;
       dataPath?: string;
+      {{# if container.table }}
+        alreadySelected?: {{ classDataName container.dataElement 'Stored' }}[];
+        selectionDiff?: {{ classDataName container.dataElement 'Stored' }}[];
+        setSelectionDiff?: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
+      {{/if}}
       {{# unless container.table }}
         data: {{ classDataName container.dataElement 'Stored' }};
         isFormUpdateable: () => boolean;
@@ -111,11 +122,9 @@
       isLoading: boolean;
       editMode: boolean;
       refreshCounter: number;
-      {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
-      {{# if container.isSelector }}
-        selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
-        setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
-      {{/ if }}
+      alreadySelected?: {{ classDataName container.dataElement 'Stored' }}[];
+      selectionDiff?: {{ classDataName container.dataElement 'Stored' }}[];
+      setSelectionDiff?: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
       {{# unless container.table }}
         data: {{ classDataName container.dataElement 'Stored' }};
         isFormUpdateable: () => boolean;
@@ -138,11 +147,9 @@ export interface {{ containerComponentName container }}Props {
     isLoading: boolean;
     actions: {{ pageContainerActionDefinitionTypeName container }};
     dataPath?: string;
-    {{# if container.isSelector }}
-      selectionDiff: {{ classDataName container.dataElement 'Stored' }}[];
-      setSelectionDiff: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
-    {{/ if }}
-    {{# if container.isRelationSelector }}alreadySelected: {{ classDataName container.dataElement 'Stored' }}[];{{/ if }}
+    selectionDiff?: {{ classDataName container.dataElement 'Stored' }}[];
+    setSelectionDiff?: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
+    alreadySelected?: {{ classDataName container.dataElement 'Stored' }}[];
     {{# unless container.table }}
       data: {{ classDataName container.dataElement 'Stored' }};
       isFormUpdateable: () => boolean;
