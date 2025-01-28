@@ -567,4 +567,10 @@ public class UiPageHelper {
     public static Action getAccessCreateActionForFormPage(PageDefinition pageDefinition) {
         return pageDefinition.getActions().stream().filter(Action::getIsCreateAction).findFirst().orElse(null);
     }
+
+    public static boolean allowSelectMultipleForPage(PageDefinition pageDefinition) {
+        Action actionToCheck = pageDefinition.getActions().stream().filter(Action::getIsAddAction).findFirst().orElse(null);
+        Set<Button> buttonsToCheck = pageDefinition.getContainer().getActionButtonGroup().getButtons().stream().filter(b -> b.getActionDefinition().getIsAddAction()).collect(Collectors.toSet());
+        return actionToCheck != null && buttonsToCheck.stream().anyMatch(b -> b.getActionDefinition().equals(actionToCheck.getActionDefinition()));
+    }
 }

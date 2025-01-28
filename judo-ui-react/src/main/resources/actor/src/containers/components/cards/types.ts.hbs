@@ -80,9 +80,8 @@ export interface {{ componentName table }}Props {
   validationError?: string;
   selectionDiff?: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
   setSelectionDiff?: Dispatch<SetStateAction<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
-
   alreadySelected?: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
-
+  allowSelectMultiple?: boolean;
   {{# unless container.table }}
   ownerData: {{ classDataName container.dataElement 'Stored' }};
   editMode: boolean;

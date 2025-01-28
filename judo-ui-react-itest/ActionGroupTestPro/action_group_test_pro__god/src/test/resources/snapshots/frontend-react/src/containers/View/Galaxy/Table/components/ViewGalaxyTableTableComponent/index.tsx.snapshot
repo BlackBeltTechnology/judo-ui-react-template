@@ -111,6 +111,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     setSelectionDiff,
     alreadySelected,
     annotations = [],
+    allowSelectMultiple = true,
   } = props;
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY}))`;
 
@@ -121,10 +122,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
   const rowValidation = useRef<Map<string, Map<keyof ViewGalaxyStored, string>>>(
     new Map<string, Map<keyof ViewGalaxyStored, string>>(),
   );
-  const isSelector = useMemo<boolean>(
-    () => Array.isArray(selectionDiff) && Array.isArray(setSelectionDiff),
-    [selectionDiff, setSelectionDiff],
-  );
+  const isSelector = useMemo<boolean>(() => Array.isArray(selectionDiff), [selectionDiff]);
   const isRelationSelector = useMemo<boolean>(() => Array.isArray(alreadySelected), [alreadySelected]);
 
   const applyRowEdit = useCallback(
@@ -733,7 +731,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     <div id="God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable" data-table-name="Table">
       <LazyTable<ViewGalaxyStored, ViewGalaxyStored, ViewGalaxyQueryCustomizer>
         uniqueId={`God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable-${uniqueId}`}
-        dataProp={[]}
+        dataProp={isSelector ? [] : []}
         defaultSortParamsForTable={[
           { field: 'name', sort: 'asc' },
           { field: 'magnitude', sort: 'desc' },
@@ -745,9 +743,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
+        allowSelectMultiple={allowSelectMultiple}
         dataElementId={'God/(esm/_YTkpoE7rEeycO-gUAWxcVg)/ClassType'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
+        containerIsSelector={isSelector}
+        containerIsRelationSelector={isRelationSelector}
+        alreadySelected={alreadySelected}
         onRowClick={
           actions.openPageAction
             ? async (params: GridRowParams<ViewGalaxyStored>) => await actions.openPageAction!(params.row, false)
@@ -766,6 +768,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         filtersSerializer={filtersSerializer}
         applyRowEdit={applyRowEdit}
         onRowEditCanceled={onRowEditCanceled}
+        selectionDiff={selectionDiff}
+        setSelectionDiff={setSelectionDiff}
       />
     </div>
   );

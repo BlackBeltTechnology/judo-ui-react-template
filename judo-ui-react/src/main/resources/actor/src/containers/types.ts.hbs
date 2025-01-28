@@ -82,7 +82,8 @@
         alreadySelected?: {{ classDataName container.dataElement 'Stored' }}[];
         selectionDiff?: {{ classDataName container.dataElement 'Stored' }}[];
         setSelectionDiff?: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
-      {{/if}}
+        allowSelectMultiple?: boolean;
+      {{/ if }}
       {{# unless container.table }}
         data: {{ classDataName container.dataElement 'Stored' }};
         isFormUpdateable: () => boolean;
@@ -125,6 +126,7 @@
       alreadySelected?: {{ classDataName container.dataElement 'Stored' }}[];
       selectionDiff?: {{ classDataName container.dataElement 'Stored' }}[];
       setSelectionDiff?: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
+      allowSelectMultiple?: boolean;
       {{# unless container.table }}
         data: {{ classDataName container.dataElement 'Stored' }};
         isFormUpdateable: () => boolean;
@@ -147,9 +149,12 @@ export interface {{ containerComponentName container }}Props {
     isLoading: boolean;
     actions: {{ pageContainerActionDefinitionTypeName container }};
     dataPath?: string;
+    {{# if container.table }}
     selectionDiff?: {{ classDataName container.dataElement 'Stored' }}[];
     setSelectionDiff?: Dispatch<SetStateAction<{{ classDataName container.dataElement 'Stored' }}[]>>;
     alreadySelected?: {{ classDataName container.dataElement 'Stored' }}[];
+    allowSelectMultiple?: boolean;
+    {{/ if }}
     {{# unless container.table }}
       data: {{ classDataName container.dataElement 'Stored' }};
       isFormUpdateable: () => boolean;
