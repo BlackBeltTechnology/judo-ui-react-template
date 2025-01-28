@@ -64,11 +64,8 @@ import { useL10N } from '~/l10n/l10n-context';
 import {
   TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   randomUtils,
-  {{# if container.isSelector }}
   isRowSelectable,
-  {{ else }}
   getUpdatedRowsSelected,
-  {{/ if }}
   {{# if table.isEager }}
   applyInMemoryFilters,
   {{/ if }}
@@ -123,19 +120,16 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     isOwnerLoading,
     isDraft,
     validationError,
-    {{# if container.isSelector }}
     selectionDiff,
     setSelectionDiff,
-    {{/ if }}
-    {{# if container.isRelationSelector }}
     alreadySelected,
-    {{/ if }}
     {{# unless container.table }}
     ownerData,
     editMode,
     isFormUpdateable,
     {{/ unless }}
     annotations = [],
+    allowSelectMultiple = true,
   } = props;
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY }))`;
 
@@ -151,6 +145,8 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const { downloadFile, extractFileNameFromToken } = fileHandling();
   {{/ if }}
   const rowValidation = useRef<Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>>(new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>());
+  const isSelector = useMemo<boolean>(() => Array.isArray(selectionDiff), [selectionDiff]);
+  const isRelationSelector = useMemo<boolean>(() => Array.isArray(alreadySelected), [alreadySelected]);
 
   const applyRowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {
     try {
@@ -281,7 +277,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}}))`}
         {{/ if }}
         {{# with (getReferenceClassType table) as |classType| }}
-        dataProp={ {{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }} }
+        dataProp={isSelector ? [] : ({{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }})}
         {{/ with }}
         defaultSortParamsForTable={ {{{ getDefaultSortParamsForTable table }}} }
         tablePageLimit={ {{ calculateTablePageLimit table }} }
@@ -291,38 +287,26 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
-        {{# if table.allowSelectMultiple }}
-        allowSelectMultiple={ true }
-        {{/ if }}
+        allowSelectMultiple={allowSelectMultiple}
         dataElementId={ '{{ createId table.dataElement }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
-        {{# if container.isSelector }}
-        containerIsSelector={ true }
-        {{/ if }}
         {{# unless (checkboxSelectionEnabled table) }}
         checkboxSelection={ false }
         {{/ unless }}
-        {{# if container.isRelationSelector }}
-        containerIsRelationSelector={ true }
-        {{/ if }}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
         onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if table.isEager }}true{{ else }}false{{/ if }}) : undefined }
         {{/ if }}
         {{/ each }}
         sidekickComponentFilter={sidekickComponentFilter}
-        {{# if table.isSelectorTable }}
-        isSelectorTable={ true }
-        {{/ if }}
+        isSelectorTable={isSelector}
         {{# if container.table }}
         containerHasTable={ true }
         {{/ if }}
         toolBarActions={toolBarActions}
         additionalToolbarButtons={actions?.{{ table.relationType.name }}AdditionalToolbarButtons}
-        {{# if (tableHasSelectorColumn table) }}
-        tableHasSelectorColumn={ true }
-        {{/ if }}
+        tableHasSelectorColumn={isSelector || isRelationSelector}
         {{# unless container.table }}
         isFormUpdateable={isFormUpdateable}
         ownerData={ownerData}
@@ -335,10 +319,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         filtersSerializer={filtersSerializer}
         applyRowEdit={applyRowEdit}
         onRowEditCanceled={onRowEditCanceled}
-        {{# if container.isSelector }}
-        selectionDiff={selectionDiff}
-        setSelectionDiff={setSelectionDiff}
-        {{/ if }}
         {{# if table.actionColumnWidth }}actionsColumnWidth={ {{ table.actionColumnWidth }} } {{/ if }}
         />
       {{ else }}
@@ -351,7 +331,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}}))`}
         {{/ if }}
         {{# with (getReferenceClassType table) as |classType| }}
-        dataProp={ {{# if table.isSelectorTable }}[]{{ else }}{{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }}{{/ if }} }
+        dataProp={isSelector ? [] : ({{# if table.isEager }}ownerData?.{{ table.dataElement.name }} || []{{ else }}[]{{/ if }})}
         {{/ with }}
         defaultSortParamsForTable={ {{{ getDefaultSortParamsForTable table }}} }
         tablePageLimit={ {{ calculateTablePageLimit table }} }
@@ -361,22 +341,16 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
-        {{# if table.allowSelectMultiple }}
-        allowSelectMultiple={ true }
-        {{/ if }}
+        allowSelectMultiple={allowSelectMultiple}
         {{# unless (checkboxSelectionEnabled table) }}
         checkboxSelection={ false }
         {{/ unless }}
         dataElementId={ '{{ createId table.dataElement }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
-        {{# if container.isSelector }}
-        containerIsSelector={ true }
-        {{/ if }}
-        {{# if container.isRelationSelector }}
-        containerIsRelationSelector={ true }
+        containerIsSelector={isSelector}
+        containerIsRelationSelector={isRelationSelector}
         alreadySelected={alreadySelected}
-        {{/ if }}
         {{# if table.showTotalCount }}
         showTotalCount={ true }
         {{/ if }}
@@ -393,21 +367,14 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         hasRefreshAction={ true }
         {{/ if }}
         maskAction={actions.get{{ firstToUpper table.relationName }}Mask!}
-        {{# if container.isSelector }}
-        {{# with (getRangeActionDefinitionForTable table) as |actionDefinition| }}
-        fetch={ actions.{{ simpleActionDefinitionName actionDefinition }} }
-        {{/ with }}
-        {{ else }}
+
         {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}
         fetch={ actions.{{ simpleActionDefinitionName actionDefinition }} }
         {{/ with }}
-        {{/ if }}
         refreshCounter={refreshCounter}
         toolBarActions={toolBarActions}
         additionalToolbarButtons={actions?.{{ table.relationType.name }}AdditionalToolbarButtons}
-        {{# if (tableHasSelectorColumn table) }}
-        tableHasSelectorColumn={ true }
-        {{/ if }}
+        tableHasSelectorColumn={isSelector || isRelationSelector}
         {{# unless container.table }}
         isFormUpdateable={isFormUpdateable}
         ownerData={ownerData}
@@ -418,10 +385,8 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         filtersSerializer={filtersSerializer}
         applyRowEdit={applyRowEdit}
         onRowEditCanceled={onRowEditCanceled}
-        {{# if container.isSelector }}
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
-        {{/ if }}
         {{# if table.actionColumnWidth }}actionsColumnWidth={ {{ table.actionColumnWidth }} } {{/ if }}
         />
       {{/ if }}

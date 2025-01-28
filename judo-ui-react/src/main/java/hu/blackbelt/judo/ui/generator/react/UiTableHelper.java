@@ -217,7 +217,7 @@ public class UiTableHelper {
     }
 
     public static Integer calculateTablePageLimit(Table table) {
-        Integer defaultValue = table.isIsSelectorTable() ? table.getSelectorRowsPerPage() : table.getRowsPerPage();
+        Integer defaultValue = table.getRowsPerPage();
 
         return defaultValue != null ? defaultValue : 10;
     }
@@ -252,10 +252,6 @@ public class UiTableHelper {
 
     public static boolean tableHasBulkOperations(Table table) {
         return !getBulkOperationActionDefinitionsForTable(table).isEmpty();
-    }
-
-    public static boolean tableHasSelectorColumn(Table table) {
-        return table.isIsSelectorTable() || tableHasBulkOperations(table);
     }
 
     public static Column getFirstTitleColumnForTable(Table table) {

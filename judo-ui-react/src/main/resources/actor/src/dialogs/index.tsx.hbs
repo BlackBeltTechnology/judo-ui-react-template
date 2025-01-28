@@ -76,8 +76,8 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
   const {
     ownerData,
     {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output,{{/ and }}
-    {{# if page.container.isRelationSelector }}alreadySelected,{{/ if }}
-    {{# unless page.container.isSelector }}templateDataOverride,{{/ unless }}
+    {{# if page.isRelationSelector }}alreadySelected,{{/ if }}
+    {{# unless page.isSelector }}templateDataOverride,{{/ unless }}
     ownerValidation,
     isDraft,
     {{# unless page.container.table}}maskRequest,{{/ unless }}
@@ -115,7 +115,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>({{ dialogDataInitialValue page }} as {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }});
-    {{# if page.container.isSelector }}
+    {{# if page.isSelector }}
       const [selectionDiff, setSelectionDiff] = useState<{{ dialogDataType page }}[]>([]);
     {{/ if }}
     {{# unless page.container.table }}
@@ -329,7 +329,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       refresh,
       refreshCounter,
       submit,
-      {{# if page.container.isRelationSelector }}
+      {{# if page.isRelationSelector }}
       alreadySelected,
       {{/ if }}
       {{# unless page.container.table }}
@@ -340,11 +340,11 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         isFormUpdateable,
         isFormDeleteable,
       {{/ unless }}
-      {{# if page.container.isSelector }}
+      {{# if page.isSelector }}
         selectionDiff,
         setSelectionDiff,
       {{/ if }}
-      {{# unless page.container.isSelector }}
+      {{# unless page.isSelector }}
         templateDataOverride,
       {{/ unless }}
       isDraft,
@@ -425,11 +425,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
               formFor={'{{ safeName page }}'}
             {{/ if }}
             {{# unless (containerIsEmptyDashboard page.container) }}
-              {{# if page.container.isSelector }}
+              {{# if page.isSelector }}
                 selectionDiff={selectionDiff}
                 setSelectionDiff={setSelectionDiff}
+                allowSelectMultiple={ {{{ boolValue (allowSelectMultipleForPage page) }}} }
               {{/ if }}
-              {{# if page.container.isRelationSelector }}
+              {{# if page.isRelationSelector }}
                 alreadySelected={alreadySelected}
               {{/ if }}
               {{# unless page.container.table }}

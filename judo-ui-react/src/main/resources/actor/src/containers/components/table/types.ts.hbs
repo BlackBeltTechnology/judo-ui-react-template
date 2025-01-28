@@ -1,3 +1,5 @@
+{{> fragment.header.hbs }}
+
 import type { ElementType, Dispatch, SetStateAction } from 'react';
 import type {
   GridFilterModel,
@@ -32,17 +34,13 @@ export interface {{ componentName table }}ActionDefinitions {
       {{# if actionDefinition.isExportAction }}
         {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<void>;
       {{ else }}
-        {{# if actionDefinition.isSelectorRangeAction }}
-          {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+        {{# if actionDefinition.isInlineCreateRowAction }}
+          {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<{{ classDataName (getReferenceClassType table) '' }} | undefined>;
         {{ else }}
-          {{# if actionDefinition.isInlineCreateRowAction }}
-            {{ simpleActionDefinitionName actionDefinition }}?: () => Promise<{{ classDataName (getReferenceClassType table) '' }} | undefined>;
+          {{# if actionDefinition.isBulk }}
+            {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
           {{ else }}
-            {{# if actionDefinition.isBulk }}
-              {{ simpleActionDefinitionName actionDefinition }}?: (selectedRows: {{ classDataName (getReferenceClassType table) 'Stored' }}[]) => Promise<DialogResult<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
-            {{ else }}
-              {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
-            {{/ if }}
+            {{ simpleActionDefinitionName actionDefinition }}?: ({{# if actionDefinition.targetType }}target: {{ classDataName actionDefinition.targetType 'Stored' }}{{/ if }}) => Promise<void>;
           {{/ if }}
         {{/ if }}
       {{/ if }}
@@ -75,13 +73,11 @@ export interface {{ componentName table }}Props {
   isOwnerLoading?: boolean;
   isDraft?: boolean;
   validationError?: string;
-  {{# if container.isSelector }}
-  selectionDiff: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
-  setSelectionDiff: Dispatch<SetStateAction<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
-  {{/ if }}
-  {{# if container.isRelationSelector }}
-  alreadySelected: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
-  {{/ if }}
+  selectionDiff?: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
+  setSelectionDiff?: Dispatch<SetStateAction<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
+
+  alreadySelected?: {{ classDataName (getReferenceClassType table) 'Stored' }}[];
+
   {{# unless container.table }}
   ownerData: {{ classDataName container.dataElement 'Stored' }};
   editMode: boolean;
@@ -92,4 +88,5 @@ export interface {{ componentName table }}Props {
   handleRowEditStop?: GridEventListener<'rowEditStop'>;
   processRowUpdate?: (newRow: GridRowModel) => void;
   annotations?: string[];
+  allowSelectMultiple?: boolean;
 }
