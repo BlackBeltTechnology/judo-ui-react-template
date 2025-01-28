@@ -182,7 +182,7 @@ public class UiPageHelper {
             }
         }
 
-        if (pageDefinition.getContainer().isIsSelector()) {
+        if (pageDefinition.isIsSelector()) {
             if (pageDefinition.getDataElement() instanceof OperationType operationType) {
                 if (operationType.getInput() != null) {
                     res.add(operationType.getInput().getTarget());
@@ -367,7 +367,7 @@ public class UiPageHelper {
     }
 
     public static List<PageContainer> getPageContainersToGenerate(Application application) {
-        return application.getPageContainers().stream().filter(c -> !c.isForm() && !c.isIsSelector()).toList();
+        return application.getPages().stream().filter(c -> !c.getContainer().isForm() && !c.isIsSelector()).map(PageDefinition::getContainer).toList();
     }
 
     public static boolean isPageForOperationParameterType(PageDefinition page) {
@@ -403,7 +403,7 @@ public class UiPageHelper {
     }
 
     public static String dialogBareDataType(PageDefinition page) {
-        if (page.getContainer().isIsSelector()) {
+        if (page.isIsSelector()) {
             if (page.getDataElement() instanceof OperationType operationType) {
                 return classDataName(operationType.getInput().getTarget(), "");
             } else if (page.getDataElement() instanceof RelationType relationType) {
@@ -497,7 +497,7 @@ public class UiPageHelper {
             if (!pageDefinition.getContainer().isTable()) {
                 params.add("storeDiff");
             }
-            if (pageDefinition.getContainer().isIsSelector()) {
+            if (pageDefinition.isIsSelector()) {
                 params.add("selectionDiff");
             }
             if (containerIsRefreshable(pageDefinition.getContainer())) {
@@ -511,7 +511,7 @@ public class UiPageHelper {
             if (!pageDefinition.getContainer().isTable()) {
                 params.add("storeDiff");
             }
-            if (pageDefinition.getContainer().isIsSelector()) {
+            if (pageDefinition.isIsSelector()) {
                 params.add("selectionDiff");
             }
             if (containerIsRefreshable(pageDefinition.getContainer())) {
