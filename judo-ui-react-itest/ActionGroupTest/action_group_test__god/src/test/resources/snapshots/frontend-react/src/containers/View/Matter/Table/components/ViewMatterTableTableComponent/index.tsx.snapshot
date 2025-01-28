@@ -65,6 +65,7 @@ import {
   extractRelationErrorList,
   getUpdatedRowsSelected,
   isErrorNestedValidationError,
+  isRowSelectable,
   mapAllFiltersToQueryCustomizerProperties,
   processQueryCustomizer,
   randomUtils,
@@ -103,7 +104,11 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     isOwnerLoading,
     isDraft,
     validationError,
+    selectionDiff,
+    setSelectionDiff,
+    alreadySelected,
     annotations = [],
+    allowSelectMultiple = true,
   } = props;
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY}))`;
 
@@ -114,6 +119,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
   const rowValidation = useRef<Map<string, Map<keyof ViewMatterStored, string>>>(
     new Map<string, Map<keyof ViewMatterStored, string>>(),
   );
+  const isSelector = useMemo<boolean>(() => Array.isArray(selectionDiff), [selectionDiff]);
+  const isRelationSelector = useMemo<boolean>(() => Array.isArray(alreadySelected), [alreadySelected]);
 
   const applyRowEdit = useCallback(
     async (rowData: ViewMatterStored) => {
@@ -282,6 +289,25 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
       isBulk: false,
     },
     {
+      name: 'inlineCreateRowAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableInlineCreateButton',
+      startIcon: 'note-add',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'View.Matter.Table.InlineCreate', defaultValue: 'Create' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean =>
+        (rowModesModel ? Object.keys(rowModesModel).every((k) => rowModesModel[k].mode !== GridRowModes.Edit) : true) &&
+        true,
+      isBulk: false,
+    },
+    {
       name: 'openAddSelectorAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableAddSelectorButton',
       startIcon: 'attachment-plus',
@@ -445,7 +471,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
       <LazyTable<ViewMatterStored, ViewMatterStored, ViewMatterQueryCustomizer>
         uniqueId={`God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable-${uniqueId}`}
         rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component=ViewMatterTableTableComponent))`}
-        dataProp={[]}
+        dataProp={isSelector ? [] : []}
         defaultSortParamsForTable={[]}
         tablePageLimit={10}
         tableColumns={columns}
@@ -454,9 +480,13 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
+        allowSelectMultiple={allowSelectMultiple}
         dataElementId={'God/(esm/_D0eC0Oq_EeuMzos2n42msw)/ClassType'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
+        containerIsSelector={isSelector}
+        containerIsRelationSelector={isRelationSelector}
+        alreadySelected={alreadySelected}
         showTotalCount={true}
         onRowClick={
           actions.openPageAction
@@ -470,12 +500,14 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         refreshCounter={refreshCounter}
         toolBarActions={toolBarActions}
         additionalToolbarButtons={actions?.AdditionalToolbarButtons}
-        tableHasSelectorColumn={true}
+        tableHasSelectorColumn={isSelector || isRelationSelector}
         enabledByName=""
         relationName=""
         filtersSerializer={filtersSerializer}
         applyRowEdit={applyRowEdit}
         onRowEditCanceled={onRowEditCanceled}
+        selectionDiff={selectionDiff}
+        setSelectionDiff={setSelectionDiff}
       />
     </div>
   );

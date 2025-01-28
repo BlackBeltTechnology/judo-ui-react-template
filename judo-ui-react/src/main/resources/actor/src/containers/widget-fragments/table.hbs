@@ -40,20 +40,17 @@
                     uniqueId={'{{ getXMIID child }}'}
                     actions={actions}
                     dataPath={dataPath ? (dataPath + '.{{ child.dataElement.name }}') : '{{ child.dataElement.name }}'}
-                    {{# if container.isSelector }}
-                      selectionDiff={selectionDiff}
-                      setSelectionDiff={setSelectionDiff}
-                    {{/ if }}
-                    {{# if container.isRelationSelector }}
-                      alreadySelected={alreadySelected}
+                    {{# if container.table }}
+                    selectionDiff={selectionDiff}
+                    setSelectionDiff={setSelectionDiff}
+                    alreadySelected={alreadySelected}
+                    allowSelectMultiple={allowSelectMultiple}
                     {{/ if }}
                     {{# unless container.table }}
                         ownerData={data}
                         editMode={editMode}
                         isFormUpdateable={isFormUpdateable}
-                        {{# unless child.isSelectorTable }}
-                            validationError={validation.get('{{ child.dataElement.name }}')}
-                        {{/ unless }}
+                        validationError={validation.get('{{ child.dataElement.name }}')}
                     {{/ unless }}
                     refreshCounter={refreshCounter}
                     isOwnerLoading={isLoading}

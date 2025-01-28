@@ -119,7 +119,7 @@ export default function {{ pageName page }}() {
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{ {{# if (pageHasSignedId page) }}__signedIdentifier: signedIdentifier{{/ if }} } as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
-    {{# if page.container.isSelector }}
+    {{# if page.isSelector }}
       const [selectionDiff, setSelectionDiff] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}[]>([]);
     {{/ if }}
     {{# unless page.container.table }}
@@ -319,6 +319,7 @@ export default function {{ pageName page }}() {
 
     // ViewModel setup
     const viewModel: {{ containerComponentName page.container }}ViewModel = {
+      ownerData: null,
       actions,
       isLoading,
       setIsLoading,
@@ -335,7 +336,7 @@ export default function {{ pageName page }}() {
         isFormUpdateable,
         isFormDeleteable,
       {{/ unless }}
-      {{# if page.container.isSelector }}
+      {{# if page.isSelector }}
         selectionDiff,
       {{/ if }}
     };
@@ -379,13 +380,14 @@ export default function {{ pageName page }}() {
           <div id="{{ getXMIID page }}" data-page-name="{{ page.name }}" />
           <PageContainerTransition>
             <{{ containerComponentName page.container }}PageContainer
+              ownerData={null}
               actions={actions}
               dataPath={dataPath}
               isLoading={isLoading}
               editMode={editMode}
               refreshCounter={refreshCounter}
               {{# unless (containerIsEmptyDashboard page.container) }}
-                {{# if page.container.isSelector }}
+                {{# if page.isSelector }}
                   selectionDiff={selectionDiff}
                   setSelectionDiff={setSelectionDiff}
                 {{/ if }}

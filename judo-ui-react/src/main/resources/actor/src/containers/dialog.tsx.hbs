@@ -80,12 +80,11 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         isLoading,
         editMode,
         refreshCounter,
-        {{# if container.isSelector }}
-          selectionDiff,
-          setSelectionDiff,
-        {{/ if }}
-        {{# if container.isRelationSelector }}
-          alreadySelected,
+        {{# if container.table }}
+        selectionDiff,
+        setSelectionDiff,
+        alreadySelected,
+        allowSelectMultiple,
         {{/ if }}
         {{# unless container.table }}
           data,
@@ -142,12 +141,11 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
               dataPath={dataPath}
               refreshCounter={refreshCounter}
               isLoading={isLoading}
-              {{# if container.isSelector }}
-                selectionDiff={selectionDiff}
-                setSelectionDiff={setSelectionDiff}
-              {{/ if }}
-              {{# if container.isRelationSelector }}
-                alreadySelected={alreadySelected}
+              {{# if container.table }}
+              selectionDiff={selectionDiff}
+              setSelectionDiff={setSelectionDiff}
+              alreadySelected={alreadySelected}
+              allowSelectMultiple={allowSelectMultiple}
               {{/ if }}
               {{# unless container.table }}
                 data={data}
@@ -182,7 +180,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                     storeDiff={storeDiff}
                     submit={submit}
                     {{/ unless }}
-                    {{# if container.isSelector }}
+                    {{# if container.table }}
                     selectionDiff={selectionDiff}
                     {{/ if }}
                     isLoading={isLoading}
@@ -218,7 +216,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
                       {{ else }}
                         {{# if (isActionAddOrSet actionDefinition) }}
-                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff);
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff || []);
                         {{ else }}
                           {{# if actionDefinition.isCreateAction }}
                             await actions.{{ simpleActionDefinitionName actionDefinition }}!({{# if actionDefinition.autoOpenAfterCreate }}true{{/ if }});
@@ -299,7 +297,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
             storeDiff={storeDiff}
             submit={submit}
             {{/ unless }}
-            {{# if container.isSelector }}
+            {{# if container.table }}
             selectionDiff={selectionDiff}
             {{/ if }}
             isLoading={isLoading}

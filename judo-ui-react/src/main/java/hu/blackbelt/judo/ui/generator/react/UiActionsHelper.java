@@ -78,7 +78,17 @@ public class UiActionsHelper {
 
         target.addAll(actionDefinitionMap.values());
 
-        SortedSet<ActionDefinition> sorted = new TreeSet<>(Comparator.comparing(NamedElement::getFQName));
+        SortedSet<ActionDefinition> sorted = new TreeSet<>(
+                Comparator.comparing((ActionDefinition ad) -> {
+                    if (ad instanceof CallOperationActionDefinition) {
+                        // For CallOperationActionDefinition, use the parent's data element for uniqueness
+                        return ((Button) ad.eContainer()).getDataElement().getFQName();
+                    } else {
+                        // For other ActionDefinitions, use the FQName for uniqueness
+                        return ad.getFQName();
+                    }
+                })
+        );
 
         sorted.addAll(target);
         sorted.addAll(actionDefinitions);
@@ -95,7 +105,7 @@ public class UiActionsHelper {
             res += "openCreated?: boolean";
         } else if (actionDefinition.getTargetType() != null) {
             String targetName = classDataName(actionDefinition.getTargetType(), "Stored");
-            if (container.isIsRelationSelector()) {
+            if (container.isTable()) {
                 res += "selected: " + targetName + "[]";
             } else if (actionDefinition.getIsOpenPageAction()) {
                 res += "target: " + targetName + ", isDraft?: boolean";

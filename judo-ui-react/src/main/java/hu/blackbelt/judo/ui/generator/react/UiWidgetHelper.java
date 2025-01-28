@@ -522,7 +522,7 @@ public class UiWidgetHelper {
         if (isTableTag(table)) {
             return false;
         }
-        return elementHasIconOrLabel(table) && !container.isIsSelector() && !container.isTable();
+        return elementHasIconOrLabel(table) && !container.isTable();
     }
 
     public static boolean shouldRenderConfirmationCondition(Button button) {
