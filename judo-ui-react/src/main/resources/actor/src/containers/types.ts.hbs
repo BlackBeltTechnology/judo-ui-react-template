@@ -72,6 +72,7 @@
 
   export interface {{ containerComponentName container }}PageProps {
     {{# unless (containerIsEmptyDashboard container) }}
+      ownerData: any; // This is only here to maintain consistency in the container API. At the time of writing, not used for table pages.
       actions: {{ containerComponentName container }}PageActions;
       isLoading: boolean;
       editMode: boolean;

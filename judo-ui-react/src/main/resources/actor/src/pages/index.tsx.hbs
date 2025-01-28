@@ -319,6 +319,7 @@ export default function {{ pageName page }}() {
 
     // ViewModel setup
     const viewModel: {{ containerComponentName page.container }}ViewModel = {
+      ownerData: null,
       actions,
       isLoading,
       setIsLoading,
@@ -379,6 +380,7 @@ export default function {{ pageName page }}() {
           <div id="{{ getXMIID page }}" data-page-name="{{ page.name }}" />
           <PageContainerTransition>
             <{{ containerComponentName page.container }}PageContainer
+              ownerData={null}
               actions={actions}
               dataPath={dataPath}
               isLoading={isLoading}

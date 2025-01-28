@@ -1,6 +1,6 @@
 // RefreshAction: {{ getXMIID action }}
 {{# if page.isSelector }}
-  const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName (getReferenceClassType page) 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName (getReferenceClassType page) 'Stored' }}[]>> => {
+  const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}[]>> => {
     {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
       try {
         return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
