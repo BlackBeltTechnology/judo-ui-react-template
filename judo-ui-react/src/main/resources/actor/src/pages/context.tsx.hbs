@@ -1,3 +1,5 @@
+{{> fragment.header.hbs }}
+
 import { createContext, useContext } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 {{# unless (containerIsEmptyDashboard page.container) }}
@@ -8,7 +10,7 @@ export interface {{ containerComponentName page.container }}ViewModel{{# unless 
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   setEditMode: Dispatch<SetStateAction<boolean>>;
   refresh: () => Promise<void>;
-  {{# if page.container.isSelector }}
+  {{# if page.isSelector }}
   selectionDiff: {{ classDataName (getReferenceClassType page) 'Stored' }}[];
   {{/ if }}
 };
