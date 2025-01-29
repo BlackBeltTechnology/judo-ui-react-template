@@ -16,7 +16,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
-import type { ViewPlanetViewPageActions, ViewPlanetViewPageProps } from '~/containers/View/Planet/View/types';
+import type {
+  AvailableContainerAction,
+  ViewPlanetViewPageActions,
+  ViewPlanetViewPageProps,
+} from '~/containers/View/Planet/View/types';
 import { useViewPlanetViewCreateChaosForInstanceInputForm } from '~/dialogs/View/Planet/View/CreateChaosForInstance/Input/Form/hooks';
 import { useViewPlanetViewCreateCreatureInputForm } from '~/dialogs/View/Planet/View/CreateCreature/Input/Form/hooks';
 import { useViewPlanetViewCreateStaticChaosInputForm } from '~/dialogs/View/Planet/View/CreateStaticChaos/Input/Form/hooks';
@@ -49,6 +53,16 @@ import { type ViewPlanetViewViewModel, ViewPlanetViewViewModelContext } from './
 import type { ViewPlanetViewActionsHook } from './customization';
 import { GOD_GOD_EARTH_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewPlanetViewPageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'View::Planet::View::Back',
+  'View::Planet::View::Cancel',
+  'View::Planet::View::Delete',
+  'View::Planet::View::Refresh',
+  'View::Planet::View::Update',
+  'View::Planet::View::group::createLife::TableOperation',
+  'View::Planet::View::group::destroyLife::TableOperation',
+]);
 
 const ViewPlanetViewPageContainer = lazy(() => import('~/containers/View/Planet/View/ViewPlanetViewPageContainer'));
 
@@ -619,6 +633,7 @@ export default function GodGodEarthAccessViewPage() {
   const viewModel: ViewPlanetViewViewModel = {
     ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -670,6 +685,7 @@ export default function GodGodEarthAccessViewPage() {
           <ViewPlanetViewPageContainer
             ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

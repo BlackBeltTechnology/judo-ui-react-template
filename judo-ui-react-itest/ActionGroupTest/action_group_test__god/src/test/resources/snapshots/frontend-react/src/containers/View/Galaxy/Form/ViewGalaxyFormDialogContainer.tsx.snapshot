@@ -33,7 +33,12 @@ import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGal
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
 
-import type { ViewGalaxyFormActionDefinitions, ViewGalaxyFormDialogActions, ViewGalaxyFormDialogProps } from './types';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyFormActionDefinitions,
+  ViewGalaxyFormDialogActions,
+  ViewGalaxyFormDialogProps,
+} from './types';
 
 import { VIEW_GALAXY_FORM_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 
@@ -51,6 +56,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
     ownerData,
     onClose,
     actions,
+    actionsRequested,
     dataPath,
     isLoading,
     editMode,
@@ -110,7 +116,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
         </Suspense>
       </DialogContent>
       <DialogActions>
-        {editMode && actions.backAction && (
+        {editMode && actions.backAction && actionsRequested.has('View::Galaxy::Form::Back') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormBackButton"
@@ -127,7 +133,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
             </LoadingButton>
           </Grid>
         )}
-        {editMode && actions.createAction && (
+        {editMode && actions.createAction && actionsRequested.has('View::Galaxy::Form::Create') && (
           <Grid className="page-action" item>
             <ButtonGroup
               disabled={isLoading}

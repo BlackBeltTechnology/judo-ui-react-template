@@ -18,6 +18,7 @@ import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
 import type {
+  AvailableContainerAction,
   InlineEditTransferInlineEditTransfer_View_EditPageActions,
   InlineEditTransferInlineEditTransfer_View_EditPageProps,
 } from '~/containers/InlineEditTransfer/InlineEditTransfer_View_Edit/types';
@@ -49,6 +50,14 @@ import {
 import type { InlineEditTransferInlineEditTransfer_View_EditActionsHook } from './customization';
 import { ACTOR_INLINE_EDIT_TRANSFER_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { InlineEditTransferInlineEditTransfer_View_EditPageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Back',
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Cancel',
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Delete',
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Refresh',
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Update',
+]);
 
 const InlineEditTransferInlineEditTransfer_View_EditPageContainer = lazy(
   () =>
@@ -704,6 +713,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const viewModel: InlineEditTransferInlineEditTransfer_View_EditViewModel = {
     ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -747,6 +757,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
           <InlineEditTransferInlineEditTransfer_View_EditPageContainer
             ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

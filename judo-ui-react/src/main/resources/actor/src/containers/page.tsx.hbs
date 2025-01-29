@@ -30,6 +30,7 @@ import { mainContainerPadding } from '~/theme';
     {{ containerComponentName container }}ActionDefinitions,
     {{ containerComponentName container }}PageActions,
     {{ containerComponentName container }}PageProps,
+    AvailableContainerAction,
   } from './types';
 
   {{# if (containerHasActionsWithCustomImplementation container) }}
@@ -53,7 +54,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { ownerData, actions, dataPath, isLoading, editMode, refreshCounter{{# if container.table }}, alreadySelected, selectionDiff, setSelectionDiff{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
+    const { ownerData, actions, actionsRequested, dataPath, isLoading, editMode, refreshCounter{{# if container.table }}, alreadySelected, selectionDiff, setSelectionDiff{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
     const isDraft = false; // currently no page can be opened as draft, but we need this variable anyway
     {{# if container.view }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
@@ -67,7 +68,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
       <>
         <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}>
           {{# each container.actionButtonGroup.buttons as |button| }}
-            { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
+            { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
               <Grid className="page-action" item>
                 {{# if button.customImplementation }}
                   <ComponentProxy

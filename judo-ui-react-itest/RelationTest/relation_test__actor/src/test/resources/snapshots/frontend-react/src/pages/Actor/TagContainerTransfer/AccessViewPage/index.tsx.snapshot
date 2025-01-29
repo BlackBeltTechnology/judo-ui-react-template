@@ -18,6 +18,7 @@ import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
 import type {
+  AvailableContainerAction,
   TagContainerTransferTagContainerTransfer_View_EditPageActions,
   TagContainerTransferTagContainerTransfer_View_EditPageProps,
 } from '~/containers/TagContainerTransfer/TagContainerTransfer_View_Edit/types';
@@ -70,6 +71,14 @@ import {
 import type { TagContainerTransferTagContainerTransfer_View_EditActionsHook } from './customization';
 import { ACTOR_TAG_CONTAINER_TRANSFER_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { TagContainerTransferTagContainerTransfer_View_EditPageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Back',
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Cancel',
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Delete',
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Refresh',
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Update',
+]);
 
 const TagContainerTransferTagContainerTransfer_View_EditPageContainer = lazy(
   () =>
@@ -1301,6 +1310,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
   const viewModel: TagContainerTransferTagContainerTransfer_View_EditViewModel = {
     ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -1344,6 +1354,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
           <TagContainerTransferTagContainerTransfer_View_EditPageContainer
             ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

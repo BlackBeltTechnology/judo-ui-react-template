@@ -16,7 +16,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
-import type { ViewGalaxyTablePageActions, ViewGalaxyTablePageProps } from '~/containers/View/Galaxy/Table/types';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyTablePageActions,
+  ViewGalaxyTablePageProps,
+} from '~/containers/View/Galaxy/Table/types';
 import { useGodGodGalaxiesAccessFormPage } from '~/dialogs/God/God/Galaxies/AccessFormPage/hooks';
 import { useViewGalaxyTableCreateDarkMatterInputForm } from '~/dialogs/View/Galaxy/Table/CreateDarkMatter/Input/Form/hooks';
 import { useViewGalaxyTableCreateIntergalacticDustInputForm } from '~/dialogs/View/Galaxy/Table/CreateIntergalacticDust/Input/Form/hooks';
@@ -38,6 +42,8 @@ import { type ViewGalaxyTableViewModel, ViewGalaxyTableViewModelContext } from '
 import type { ViewGalaxyTableActionsHook } from './customization';
 import { GOD_GOD_GALAXIES_ACCESS_TABLE_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyTablePageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set(['View::Galaxy::Table::Back']);
 
 const ViewGalaxyTablePageContainer = lazy(() => import('~/containers/View/Galaxy/Table/ViewGalaxyTablePageContainer'));
 
@@ -272,6 +278,7 @@ export default function GodGodGalaxiesAccessTablePage() {
   const viewModel: ViewGalaxyTableViewModel = {
     ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -293,6 +300,7 @@ export default function GodGodGalaxiesAccessTablePage() {
           <ViewGalaxyTablePageContainer
             ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

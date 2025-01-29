@@ -24,7 +24,12 @@ import { mainContainerPadding } from '~/theme';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
 
-import type { PlanetViewActionDefinitions, PlanetViewPageActions, PlanetViewPageProps } from './types';
+import type {
+  AvailableContainerAction,
+  PlanetViewActionDefinitions,
+  PlanetViewPageActions,
+  PlanetViewPageProps,
+} from './types';
 
 import { PLANET_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 
@@ -39,6 +44,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
   const {
     ownerData,
     actions,
+    actionsRequested,
     dataPath,
     isLoading,
     editMode,
@@ -59,7 +65,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
   return (
     <>
       <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle(data) : ''}>
-        {!editMode && actions.backAction && (
+        {!editMode && actions.backAction && actionsRequested.has('Planet::View::Back') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewBackButton"
@@ -76,7 +82,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!isDraft && actions.refreshAction && (
+        {!isDraft && actions.refreshAction && actionsRequested.has('Planet::View::Refresh') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewRefreshButton"
@@ -93,24 +99,27 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!editMode && (isFormDeleteable() || isDraft) && actions.deleteAction && (
-          <Grid className="page-action" item>
-            <LoadingButton
-              id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewDeleteButton"
-              loading={isLoading}
-              loadingPosition="start"
-              variant={'contained'}
-              startIcon={<MdiIcon path="delete_forever" />}
-              disabled={isLoading || editMode}
-              onClick={async () => {
-                actions.deleteAction!();
-              }}
-            >
-              <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
-            </LoadingButton>
-          </Grid>
-        )}
-        {editMode && actions.cancelAction && (
+        {!editMode &&
+          (isFormDeleteable() || isDraft) &&
+          actions.deleteAction &&
+          actionsRequested.has('Planet::View::Delete') && (
+            <Grid className="page-action" item>
+              <LoadingButton
+                id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewDeleteButton"
+                loading={isLoading}
+                loadingPosition="start"
+                variant={'contained'}
+                startIcon={<MdiIcon path="delete_forever" />}
+                disabled={isLoading || editMode}
+                onClick={async () => {
+                  actions.deleteAction!();
+                }}
+              >
+                <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
+              </LoadingButton>
+            </Grid>
+          )}
+        {editMode && actions.cancelAction && actionsRequested.has('Planet::View::Cancel') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewCancelButton"
@@ -127,7 +136,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {editMode && actions.updateAction && (
+        {editMode && actions.updateAction && actionsRequested.has('Planet::View::Update') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewUpdateButton"

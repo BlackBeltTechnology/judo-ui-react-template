@@ -573,4 +573,13 @@ public class UiPageHelper {
         Set<Button> buttonsToCheck = pageDefinition.getContainer().getActionButtonGroup().getButtons().stream().filter(b -> b.getActionDefinition().getIsAddAction()).collect(Collectors.toSet());
         return actionToCheck != null && buttonsToCheck.stream().anyMatch(b -> b.getActionDefinition().equals(actionToCheck.getActionDefinition()));
     }
+
+    public static List<String> getPageContainerMatchingActionNames(PageDefinition pageDefinition) {
+        List<ActionDefinition> containerButtonActionDefinitions = pageDefinition.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).toList();
+        return pageDefinition.getActions().stream()
+                .filter(a -> containerButtonActionDefinitions.contains(a.getActionDefinition()))
+                .map(a -> a.getActionDefinition().getName())
+                .sorted()
+                .toList();
+    }
 }

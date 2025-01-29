@@ -24,7 +24,12 @@ import { mainContainerPadding } from '~/theme';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
 
-import type { ViewGalaxyViewActionDefinitions, ViewGalaxyViewPageActions, ViewGalaxyViewPageProps } from './types';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyViewActionDefinitions,
+  ViewGalaxyViewPageActions,
+  ViewGalaxyViewPageProps,
+} from './types';
 
 import { VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 
@@ -39,6 +44,7 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
   const {
     ownerData,
     actions,
+    actionsRequested,
     dataPath,
     isLoading,
     editMode,
@@ -59,7 +65,7 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
   return (
     <>
       <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle(data) : ''}>
-        {!editMode && actions.backAction && (
+        {!editMode && actions.backAction && actionsRequested.has('View::Galaxy::View::Back') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton"
@@ -76,7 +82,7 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!isDraft && actions.refreshAction && (
+        {!isDraft && actions.refreshAction && actionsRequested.has('View::Galaxy::View::Refresh') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton"
@@ -93,24 +99,27 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!editMode && (isFormDeleteable() || isDraft) && actions.deleteAction && (
-          <Grid className="page-action" item>
-            <LoadingButton
-              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
-              loading={isLoading}
-              loadingPosition="start"
-              variant={'contained'}
-              startIcon={<MdiIcon path="delete_forever" />}
-              disabled={isLoading || editMode}
-              onClick={async () => {
-                actions.deleteAction!();
-              }}
-            >
-              <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
-            </LoadingButton>
-          </Grid>
-        )}
-        {editMode && actions.cancelAction && (
+        {!editMode &&
+          (isFormDeleteable() || isDraft) &&
+          actions.deleteAction &&
+          actionsRequested.has('View::Galaxy::View::Delete') && (
+            <Grid className="page-action" item>
+              <LoadingButton
+                id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
+                loading={isLoading}
+                loadingPosition="start"
+                variant={'contained'}
+                startIcon={<MdiIcon path="delete_forever" />}
+                disabled={isLoading || editMode}
+                onClick={async () => {
+                  actions.deleteAction!();
+                }}
+              >
+                <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
+              </LoadingButton>
+            </Grid>
+          )}
+        {editMode && actions.cancelAction && actionsRequested.has('View::Galaxy::View::Cancel') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton"
@@ -127,7 +136,7 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {editMode && actions.updateAction && (
+        {editMode && actions.updateAction && actionsRequested.has('View::Galaxy::View::Update') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton"

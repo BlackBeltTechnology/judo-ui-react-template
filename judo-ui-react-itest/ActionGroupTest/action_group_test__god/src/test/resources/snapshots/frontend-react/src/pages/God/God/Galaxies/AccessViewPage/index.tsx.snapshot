@@ -17,7 +17,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
-import type { ViewGalaxyViewPageActions, ViewGalaxyViewPageProps } from '~/containers/View/Galaxy/View/types';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyViewPageActions,
+  ViewGalaxyViewPageProps,
+} from '~/containers/View/Galaxy/View/types';
 import { useViewGalaxyAstronomerRelationFormPage } from '~/dialogs/View/Galaxy/Astronomer/RelationFormPage/hooks';
 import { useViewGalaxyStarsRelationFormPage } from '~/dialogs/View/Galaxy/Stars/RelationFormPage/hooks';
 import { useViewGalaxyStarsRelationViewPage } from '~/dialogs/View/Galaxy/Stars/RelationViewPage/hooks';
@@ -56,6 +60,14 @@ import { type ViewGalaxyViewViewModel, ViewGalaxyViewViewModelContext } from './
 import type { ViewGalaxyViewActionsHook } from './customization';
 import { GOD_GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyViewPageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'View::Galaxy::View::Back',
+  'View::Galaxy::View::Cancel',
+  'View::Galaxy::View::Delete',
+  'View::Galaxy::View::Refresh',
+  'View::Galaxy::View::Update',
+]);
 
 const ViewGalaxyViewPageContainer = lazy(() => import('~/containers/View/Galaxy/View/ViewGalaxyViewPageContainer'));
 
@@ -564,6 +576,7 @@ export default function GodGodGalaxiesAccessViewPage() {
   const viewModel: ViewGalaxyViewViewModel = {
     ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -607,6 +620,7 @@ export default function GodGodGalaxiesAccessViewPage() {
           <ViewGalaxyViewPageContainer
             ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

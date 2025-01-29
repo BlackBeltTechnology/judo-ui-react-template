@@ -21,9 +21,13 @@
     import type { {{ componentName link }}ActionDefinitions } from './components/{{ componentName link }}/types';
   {{/ each }}
 
+  // Containers contain the sum total of buttons for every page/dialog which embeds them. Therefore we use
+  // a subset of this set to pick which action should be displayed. If the owner page/dialog does not provide an action
+  // implementation, then the corresponding buttons will not be displayed even if they are requested.
+  export type AvailableContainerAction = {{# each container.actionButtonGroup.buttons as |button| }}'{{ button.actionDefinition.name }}'{{# unless @last}} | {{/ unless}}{{/each}}
+
   // XMIID: {{ getXMIID container }}
   // Name: {{ container.name }}
-
   export interface {{ pageContainerActionDefinitionTypeName container }}{{# if (containerHasRelationComponents container) }} extends {{# each (getContainerActionsExtends container) as |ext| }}{{ ext }}{{# unless @last}},{{/ unless}}{{/ each }}{{/ if }} {
     getPageTitle?: ({{# unless container.table }}data: {{ classDataName container.dataElement '' }}{{/ unless }}) => string;
     {{# each (getContainerOwnActionDefinitions container) as |actionDefinition| }}
@@ -78,6 +82,7 @@
       editMode: boolean;
       refreshCounter: number;
       dataPath?: string;
+      actionsRequested: Set<AvailableContainerAction>;
       {{# if container.table }}
         alreadySelected?: {{ classDataName container.dataElement 'Stored' }}[];
         selectionDiff?: {{ classDataName container.dataElement 'Stored' }}[];
@@ -120,6 +125,7 @@
     {{# unless (containerIsEmptyDashboard container) }}
       actions: {{ containerComponentName container }}DialogActions;
       dataPath?: string;
+      actionsRequested: Set<AvailableContainerAction>;
       isLoading: boolean;
       editMode: boolean;
       refreshCounter: number;

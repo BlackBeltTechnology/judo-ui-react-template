@@ -617,4 +617,8 @@ public class UiPageContainerHelper {
         }
         return false;
     }
+
+    public static List<PageDefinition> getContainerUsers(PageContainer container, Application application) {
+        return application.getPages().stream().filter(p -> p.getContainer().equals(container)).toList();
+    }
 }

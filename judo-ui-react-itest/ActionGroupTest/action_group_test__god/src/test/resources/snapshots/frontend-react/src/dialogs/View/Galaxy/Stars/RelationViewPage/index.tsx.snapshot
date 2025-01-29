@@ -16,7 +16,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
-import type { ViewStarViewDialogActions, ViewStarViewDialogProps } from '~/containers/View/Star/View/types';
+import type {
+  AvailableContainerAction,
+  ViewStarViewDialogActions,
+  ViewStarViewDialogProps,
+} from '~/containers/View/Star/View/types';
 import { useViewStarPlanetsRelationFormPage } from '~/dialogs/View/Star/Planets/RelationFormPage/hooks';
 import { useViewStarViewLastObservationLinkSetSelectorPage } from '~/dialogs/View/Star/View/LastObservation/LinkSetSelectorPage/hooks';
 import { useViewStarViewObservationsTableAddSelectorPage } from '~/dialogs/View/Star/View/Observations/TableAddSelectorPage/hooks';
@@ -54,6 +58,14 @@ import { type ViewStarViewViewModel, ViewStarViewViewModelContext } from './cont
 import type { ViewStarViewActionsHook } from './customization';
 import { VIEW_GALAXY_STARS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyStarsRelationViewPageProps, ViewStarViewDialogActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'View::Star::View::Back',
+  'View::Star::View::Cancel',
+  'View::Star::View::Delete',
+  'View::Star::View::Refresh',
+  'View::Star::View::Update',
+]);
 
 const ViewStarViewDialogContainer = lazy(() => import('~/containers/View/Star/View/ViewStarViewDialogContainer'));
 
@@ -630,6 +642,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   const viewModel: ViewStarViewViewModel = {
     onClose,
     actions,
+    actionsRequested: requestedContainerActions,
     ownerData,
     isLoading,
     setIsLoading,
@@ -695,6 +708,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
           ownerData={ownerData}
           onClose={onClose}
           actions={actions}
+          actionsRequested={requestedContainerActions}
           dataPath={dataPath}
           isLoading={isLoading}
           editMode={editMode}

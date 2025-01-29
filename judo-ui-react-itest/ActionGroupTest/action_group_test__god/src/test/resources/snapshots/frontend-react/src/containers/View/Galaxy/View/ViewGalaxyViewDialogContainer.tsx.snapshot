@@ -26,7 +26,12 @@ import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGal
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
 
-import type { ViewGalaxyViewActionDefinitions, ViewGalaxyViewDialogActions, ViewGalaxyViewDialogProps } from './types';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyViewActionDefinitions,
+  ViewGalaxyViewDialogActions,
+  ViewGalaxyViewDialogProps,
+} from './types';
 
 import { VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 
@@ -42,6 +47,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
     ownerData,
     onClose,
     actions,
+    actionsRequested,
     dataPath,
     isLoading,
     editMode,
@@ -97,7 +103,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
         </Suspense>
       </DialogContent>
       <DialogActions>
-        {!editMode && actions.backAction && (
+        {!editMode && actions.backAction && actionsRequested.has('View::Galaxy::View::Back') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton"
@@ -114,7 +120,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!isDraft && actions.refreshAction && (
+        {!isDraft && actions.refreshAction && actionsRequested.has('View::Galaxy::View::Refresh') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton"
@@ -131,24 +137,27 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!editMode && (isFormDeleteable() || isDraft) && actions.deleteAction && (
-          <Grid className="page-action" item>
-            <LoadingButton
-              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
-              loading={isLoading}
-              loadingPosition="start"
-              variant={'contained'}
-              disabled={isLoading || editMode}
-              startIcon={<MdiIcon path="delete_forever" />}
-              onClick={async () => {
-                actions.deleteAction!();
-              }}
-            >
-              <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
-            </LoadingButton>
-          </Grid>
-        )}
-        {editMode && actions.cancelAction && (
+        {!editMode &&
+          (isFormDeleteable() || isDraft) &&
+          actions.deleteAction &&
+          actionsRequested.has('View::Galaxy::View::Delete') && (
+            <Grid className="page-action" item>
+              <LoadingButton
+                id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
+                loading={isLoading}
+                loadingPosition="start"
+                variant={'contained'}
+                disabled={isLoading || editMode}
+                startIcon={<MdiIcon path="delete_forever" />}
+                onClick={async () => {
+                  actions.deleteAction!();
+                }}
+              >
+                <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
+              </LoadingButton>
+            </Grid>
+          )}
+        {editMode && actions.cancelAction && actionsRequested.has('View::Galaxy::View::Cancel') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton"
@@ -165,7 +174,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
             </LoadingButton>
           </Grid>
         )}
-        {editMode && actions.updateAction && (
+        {editMode && actions.updateAction && actionsRequested.has('View::Galaxy::View::Update') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton"
