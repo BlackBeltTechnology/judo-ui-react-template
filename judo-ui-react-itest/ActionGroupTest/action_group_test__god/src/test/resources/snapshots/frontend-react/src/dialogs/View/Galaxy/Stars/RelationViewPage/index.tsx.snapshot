@@ -45,6 +45,7 @@ import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse'
 import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { ViewGalaxyServiceForStarsImpl } from '~/services/data-axios/ViewGalaxyServiceForStarsImpl';
 import {
+  fileHandling,
   getValue,
   isErrorNestedValidationError,
   processQueryCustomizer,
@@ -103,6 +104,8 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
   const [createDialog, closeDialog] = useDialog();
+
+  // Ref section
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -663,12 +666,14 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
 
   // Effect section
   useEffect(() => {
-    if (!isDraft) {
-      actions.refreshAction!(getPageQueryCustomizer());
-    }
-    if (templateDataOverride) {
-      setData((prevData) => ({ ...prevData, ...templateDataOverride }));
-    }
+    (async () => {
+      if (!isDraft) {
+        await actions.refreshAction!(getPageQueryCustomizer());
+      }
+      if (templateDataOverride) {
+        setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+      }
+    })();
   }, []);
 
   useEffect(() => {

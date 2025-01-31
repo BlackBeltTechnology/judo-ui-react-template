@@ -318,7 +318,9 @@ public class UiActionsHelper {
     public static String refreshActionDataParameter(Action action) {
         PageDefinition pageDefinition = (PageDefinition) action.eContainer();
         if (pageDefinition.isOpenInDialog()) {
-            if (isRefreshPageInitializer(action, pageDefinition)) {
+            if (isSingleAccessPage(pageDefinition)) {
+                return "owner.current";
+            } else if (isRefreshPageInitializer(action, pageDefinition)) {
                 return "ownerData";
             }
             return "data";
