@@ -554,4 +554,28 @@ public class UiWidgetHelper {
     public static boolean hasTooltipText(Input input) {
         return input.getTooltipText() != null && !input.getTooltipText().trim().isEmpty();
     }
+
+    public static List<NavigationItem> getMenuDialogs(Application application) {
+        List<NavigationItem> items = new ArrayList<>();
+        for (NavigationItem item: application.getNavigationController().getItems()) {
+            items.addAll(extractDialogItems(item));
+        }
+        return items.stream().sorted(Comparator.comparing(NavigationItem::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<NavigationItem> extractDialogItems(NavigationItem item) {
+        List<NavigationItem> items = new ArrayList<>();
+        for (NavigationItem nested: item.getItems()) {
+            if (nested.getTarget().isOpenInDialog()) {
+                items.add(nested);
+            }
+            if (nested.getItems().size() > 0) {
+                items.addAll(extractDialogItems(nested));
+            }
+        }
+        if (item.getTarget().isOpenInDialog()) {
+            items.add(item);
+        }
+        return items;
+    }
 }
