@@ -6,6 +6,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -85,6 +86,9 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                     annotations={[{{# each (getAnnotationNamesForElement button) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
                   >
                 {{/ if }}
+                {{# if button.tooltipText }}
+                  <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
+                {{/ if }}
                 <LoadingButton
                   id="{{ getXMIID button }}"
                   loading={isLoading}
@@ -113,6 +117,9 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                 >
                   <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
                 </LoadingButton>
+                {{# if button.tooltipText }}
+                  </Tooltip>
+                {{/ if }}
                 {{# if button.customImplementation }}
                 </ComponentProxy>
                 {{/ if }}

@@ -16,6 +16,9 @@
     >
   {{/ if }}
   {{# or child.actionDefinition.isCallOperationAction child.actionDefinition.isOpenFormAction child.actionDefinition.isOpenSelectorAction }}
+    {{# if child.tooltipText }}
+    <Tooltip title={t('{{ getTranslationKeyForVisualElement child }}.tooltip', { defaultValue: '{{ child.tooltipText }}' }) as string}>
+    {{/ if }}
     <LoadingButton
       id="{{ getXMIID child }}"
       loading={isLoading}
@@ -36,6 +39,9 @@
     >
       { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
     </LoadingButton>
+    {{# if child.tooltipText }}
+    </Tooltip>
+    {{/ if }}
   {{/ or }}
 
   {{# if child.actionDefinition.isOpenPageAction }}

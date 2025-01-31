@@ -89,6 +89,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
               key: action.id,
               label: action.label,
               startIcon: action.icon,
+              tooltip: action.tooltip,
               onClick: () => action.action!(params.row),
               disabled: action.disabled ? action.disabled(params.row, isLoading, isRowInEditMode(params.row, rowModesModel), getSelectedRows, ownerData) : false,
             }))}
