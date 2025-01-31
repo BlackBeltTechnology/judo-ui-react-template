@@ -31,6 +31,7 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
     simpleCloneDeep,
     getValue,
     setValue,
+    fileHandling,
     {{# if page.container.form }}
     getErrorRelationKeyFromPayload,
     {{/ if }}
@@ -111,6 +112,14 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();
     const [createDialog, closeDialog] = useDialog();
+    {{# if (hasExportAction page) }}
+    const { exportFile } = fileHandling();
+    {{/ if }}
+
+    // Ref section
+    {{# if (isSingleAccessPage page) }}
+        const singletonHost = useRef<{ __signedIdentifier: string }>({} as unknown as { __signedIdentifier: string });
+    {{/ if }}
 
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -243,7 +252,14 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# each page.actions as |action| }}
       {{> (getActionTemplate action) }}
     {{/ each }}
-
+    {{# if (isSingleAccessPage page) }}
+      const getSingletonPayload = async (): Promise<JudoIdentifiable<any>> => {
+        const { data: sp } = await {{ getServiceImplForPage page }}.refreshFor{{ firstToUpper page.dataElement.name }}({
+          _mask: '{}',
+        });
+        return sp;
+      }
+    {{/ if }}
     {{# each page.container.tables as |table| }}
       {{# if table.isInlineEditable }}
         const apply{{ firstToUpper table.relationName }}RowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
@@ -355,20 +371,32 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     // Effect section
     useEffect(() => {
-      {{# if (pageShouldInitialize page) }}
-        {{# if page.container.view }}
-          if (!isDraft) {
-            actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
-          }
-        {{ else }}
-          actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
+      (async () => {
+        {{# if (pageShouldInitialize page) }}
+          {{# if (isSingleAccessPage page) }}
+            const res = await getSingletonPayload();
+            if (res?.__signedIdentifier) {
+              singletonHost.current = res;
+              owner.current = res;
+            } else {
+              navigate('*');
+              return;
+            }
+          {{/ if }}
+          {{# if page.container.view }}
+            if (!isDraft) {
+              await actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
+            }
+          {{ else }}
+            await actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
+          {{/ if }}
         {{/ if }}
-      {{/ if }}
-      {{# unless page.container.table }}
-        if (templateDataOverride) {
-          setData((prevData) => ({ ...prevData, ...templateDataOverride }));
-        }
-      {{/ unless }}
+        {{# unless page.container.table }}
+          if (templateDataOverride) {
+            setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+          }
+        {{/ unless }}
+      })();
     }, []);
 
     {{# if (pageIsRootStateOwner page) }}

@@ -15,7 +15,7 @@ import { useConfig } from '~/hooks';
 import { MenuOrientation } from '~/config';
 import { NavGroup } from './NavGroup';
 import { NavItem } from './NavItem';
-import { menus } from './menu-items';
+import { useMenus } from './menu-items';
 import { NavItemType } from './NavItem';
 import { ScrollableMenu } from './ScrollableMenu';
 
@@ -61,6 +61,7 @@ export const Navigation = () => {
     `(${OBJECTCLASS}=${MENU_ITEMS_CUSTOMIZER_HOOK_INTERFACE_KEY})`,
   );
   const menuItemsCustomizer = useMenuItemsCustomizer && useMenuItemsCustomizer();
+  const menus = useMenus();
   const [menuItems, setMenuItems] = useState<NavItemType[]>(filterMenus(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus{{# if application.authentication }}, principal{{/ if }}));
 
   useEffect(() => {
