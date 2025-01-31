@@ -215,6 +215,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{# if button.icon }}
       startIcon: "{{ button.icon.iconName }}",
       {{/ if }}
+      {{# if button.tooltipText }}
+        tooltip: t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string,
+      {{/ if }}
       variant: {{{ variantForButton button }}},
       hiddenBy: {{# if button.hiddenBy }}true{{ else }}false{{/ if }},
       label: { 'translationKey': '{{ getTranslationKeyForVisualElement button }}', 'defaultValue': '{{ button.label }}' },
@@ -241,6 +244,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{/ if }}
       {{# if button.icon }}
       icon: <MdiIcon path="{{ button.icon.iconName }}" />,
+      {{/ if }}
+      {{# if button.tooltipText }}
+      tooltip: t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string,
       {{/ if }}
       {{# if (isRowActionCRUD button.actionDefinition) }}
       isCRUD: true,

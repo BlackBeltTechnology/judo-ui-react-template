@@ -18,6 +18,9 @@
     {{/ if }}
     {{# each (featuredButtonsForButtonGroup child) as |button| }}
       {{# if button.hiddenBy }}{ !data.{{ button.hiddenBy.name }} && {{/ if }}
+      {{# if button.tooltipText }}
+      <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
+      {{/ if }}
         <LoadingButton
           id="{{ getXMIID button }}"
           loading={isLoading}
@@ -37,6 +40,9 @@
         >
           { t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) }
         </LoadingButton>
+        {{# if button.tooltipText }}
+        </Tooltip>
+        {{/ if }}
       {{# if button.hiddenBy }} }{{/ if }}
     {{/ each }}
     {{# if (displayDropdownForButtonGroup child) }}
@@ -51,6 +57,9 @@
             {
               id: '{{ getXMIID button }}',
               label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
+              {{# if button.tooltipText }}
+              tooltip: t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string,
+              {{/ if }}
               onClick: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
                 {{# unless (isParameterOpenerButton button) }}
                   {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}

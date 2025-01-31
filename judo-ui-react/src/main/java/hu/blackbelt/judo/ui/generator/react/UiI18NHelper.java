@@ -241,6 +241,9 @@ public class UiI18NHelper {
                 if (v instanceof Button button && button.getConfirmation() != null) {
                     translations.put(getTranslationKeyForVisualElement(v) + ".confirmation", button.getConfirmation().getConfirmationMessage());
                 }
+                if (v instanceof Button b && b.getTooltipText() != null && !b.getTooltipText().isBlank()) {
+                    translations.put(getTranslationKeyForVisualElement(b) + ".tooltip", b.getTooltipText().replaceAll("\n", "\\\\n"));
+                }
                 if (v instanceof TabController tabController) {
                     tabController.getTabs().forEach(t -> {
                         translations.put(getTranslationKeyForVisualElement(t.getElement()), t.getElement().getLabel());
@@ -256,6 +259,9 @@ public class UiI18NHelper {
                                 return;
                             }
                             translations.put(getTranslationKeyForVisualElement(b), b.getLabel());
+                            if (b.getTooltipText() != null && !b.getTooltipText().isBlank()) {
+                                translations.put(getTranslationKeyForVisualElement(b) + ".tooltip", b.getTooltipText().replaceAll("\n", "\\\\n"));
+                            }
                             if (b.getConfirmation() != null) {
                                 translations.put(getTranslationKeyForVisualElement(b) + ".confirmation", b.getConfirmation().getConfirmationMessage());
                             }
@@ -267,6 +273,9 @@ public class UiI18NHelper {
                                 return;
                             }
                             translations.put(getTranslationKeyForVisualElement(b), b.getLabel());
+                            if (b.getTooltipText() != null && !b.getTooltipText().isBlank()) {
+                                translations.put(getTranslationKeyForVisualElement(b) + ".tooltip", b.getTooltipText().replaceAll("\n", "\\\\n"));
+                            }
                         });
                     }
                 }
@@ -287,6 +296,9 @@ public class UiI18NHelper {
                             return;
                         }
                         translations.put(getTranslationKeyForVisualElement(button), button.getLabel());
+                        if (button.getTooltipText() != null && !button.getTooltipText().isBlank()) {
+                            translations.put(getTranslationKeyForVisualElement(button) + ".tooltip", button.getTooltipText().replaceAll("\n", "\\\\n"));
+                        }
                     });
                 }
             });
