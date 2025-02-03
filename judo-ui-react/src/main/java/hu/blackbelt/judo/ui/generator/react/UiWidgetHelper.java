@@ -573,7 +573,7 @@ public class UiWidgetHelper {
                 items.addAll(extractDialogItems(nested));
             }
         }
-        if (item.getTarget().isOpenInDialog()) {
+        if (item.getTarget() != null && item.getTarget().isOpenInDialog()) {
             items.add(item);
         }
         return items;
