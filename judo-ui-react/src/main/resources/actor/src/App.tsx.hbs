@@ -8,7 +8,9 @@ import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { SnackbarProvider, closeSnackbar } from 'notistack';
-import { BreadcrumbProvider, MdiIcon } from './components';
+import { useTrackService } from '@pandino/react-hooks';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { BreadcrumbProvider, MdiIcon, NAVIGATION_INTERCEPTOR_INTERFACE_KEY, type NavigationInterceptorHook, stringifyPath } from './components';
 import { DialogProvider } from './components/dialog';
 import { Layout } from './layout';
 import { ScrollToTop } from './layout/ScrollToTop';
@@ -19,6 +21,17 @@ import { PrincipalProvider } from './auth';
 
 function App() {
   const location = useLocation();
+  const { service: navigationInterceptor } = useTrackService<NavigationInterceptorHook>(
+    `(${OBJECTCLASS}=${NAVIGATION_INTERCEPTOR_INTERFACE_KEY})`,
+  );
+  const customInit = navigationInterceptor
+    ? navigationInterceptor({ stringifyPath }).onBeforeInitialLoad : () => {};
+
+  useEffect(() => {
+    if (customInit) {
+      customInit();
+    }
+  }, []);
 
   return (
     {{# if application.backgroundImage }}

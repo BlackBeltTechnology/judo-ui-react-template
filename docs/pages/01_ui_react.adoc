@@ -719,6 +719,68 @@ const CustomDashboard: FC = () => {
 };
 ----
 
+
+=== Sticky Search params
+
+Given we would like to add special search params to navigation and/or when the application is loaded, we can register a
+hook to achieve this.
+
+The `NavigationInterceptorHook` has two methods:
+
+- decorateNavigation: `(to: string | Partial<Path>) => string`
+- onBeforeInitialLoad?: `() => void`
+
+The `decorateNavigation` function will be used as a decorator to modify every navigation call
+
+The `onBeforeInitialLoad` function is call on the initial page load.
+
+The hook also has a function property `stringifyPath` which can be used to convert a `Partial<Path>` to a `string` if
+needed.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { useLocation, useNavigate, type Path } from 'react-router-dom';
+import type { ApplicationCustomizer } from './interfaces';
+import { NAVIGATION_INTERCEPTOR_INTERFACE_KEY, type NavigationInterceptorHook } from '~/components/CustomBreadcrumb';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    // register your implementations here
+    context.registerService<NavigationInterceptorHook>(NAVIGATION_INTERCEPTOR_INTERFACE_KEY, navigationInterceptor);
+  }
+}
+
+const navigationInterceptor: NavigationInterceptorHook = ({ stringifyPath }) => {
+  const SEACRH_PARAM = 'tenant';
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  return {
+    decorateNavigation: (to: string | Partial<Path>) => {
+      const token = window.sessionStorage.getItem(SEACRH_PARAM)!;
+      const url = new URL(typeof to === 'string' ? to : stringifyPath(to), window.location.origin);
+      const searchParams = new URLSearchParams(url.search);
+      searchParams.set(SEACRH_PARAM, token);
+      return `${url.pathname}?${searchParams.toString()}`;
+    },
+    onBeforeInitialLoad: () => {
+      const token = window.sessionStorage.getItem(SEACRH_PARAM) || 'abc';
+      const searchParams = new URLSearchParams(window.location.search);
+      if (!searchParams.has(SEACRH_PARAM)) {
+        window.sessionStorage.setItem(SEACRH_PARAM, token);
+        searchParams.set(SEACRH_PARAM, token);
+        navigate(`${location.pathname}?${searchParams.toString()}${location.hash}`, {
+          replace: true,
+        });
+      }
+    },
+  };
+};
+----
+
 === Adding custom routes
 
 Adding custom routes can be done via adding the `src/extra-routes.tsx` to the generator-ignore files and filling the
