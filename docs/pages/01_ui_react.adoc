@@ -97,6 +97,19 @@ public/18n/application_default_extra.fragment.hbs
 
 == Hooks
 
+=== usePrincipal
+
+The `usePrincipal()` hook can be used to obtain information and/or manipulate Principal data.
+
+*API:*
+
+- `principal: JudoStored<unknown>`: The current data of the logged in Principal
+- `getPrincipal: () => Promise<JudoRestResponse<unknown>>` / `setPrincipal(data: JudoStored<unknown>)`: Can be used to fetch or update the data on the UI
+- `refreshPrincipal: () => Promise<void>`: refreshes and updates the Principal data
+
+> Setting / Refreshing Principal data automatically refreshes most of the UI tree including e.g. the menu, and the active
+screen since it's Context is in a very high position in the component tree.
+
 === useViewData
 
 The `useViewData()` hook can be used to obtain the data of page/dialog's.
