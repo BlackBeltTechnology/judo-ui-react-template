@@ -564,6 +564,17 @@ public class UiPageHelper {
                 .toList();
     }
 
+    public static List<PageDefinition> getAccessTableOperationActionPages(Application application) {
+        Set<String> store = new HashSet<>();
+        List<PageDefinition> pages = getAccessPages(application).stream().filter(p -> p.getContainer().isTable()).toList();
+        Set<Action> collected = pages.stream()
+                .flatMap(p -> getAccessTableOperationActions(p).stream()).collect(Collectors.toSet());
+        return collected.stream().map(Action::getTargetPageDefinition)
+                .filter(targetPageDefinition -> store.add(pageName(targetPageDefinition)))
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .toList();
+    }
+
     public static Action getAccessCreateActionForFormPage(PageDefinition pageDefinition) {
         return pageDefinition.getActions().stream().filter(Action::getIsCreateAction).findFirst().orElse(null);
     }
