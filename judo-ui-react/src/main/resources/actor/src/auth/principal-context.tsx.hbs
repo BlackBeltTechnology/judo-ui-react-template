@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 {{# if application.authentication }}
-  import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+  import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
   import type { ReactNode } from 'react';
   import { useAuth } from 'react-oidc-context';
   import { type {{ classDataName application.principal 'Stored' }} } from '~/services/data-api/model/{{ classDataName application.principal '' }}';
@@ -14,6 +14,7 @@
     principal: {{ classDataName application.principal 'Stored' }};
     setPrincipal: (principal: {{ classDataName application.principal 'Stored' }}) => void;
     getPrincipal: () => Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>>;
+    refreshPrincipal: () => Promise<void>;
     errorCode?: string | null;
   }
 
@@ -31,7 +32,7 @@
     const [errorCode, setErrorCode] = useState<string | null>(null);
     const { isAuthenticated } = useAuth();
 
-    const fetchData = async () => {
+    const refreshPrincipal = useCallback(async () => {
       try {
         const { data } = await accessServiceImpl.getPrincipal();
         setPrincipal({ ...data });
@@ -45,27 +46,27 @@
           console.error(e);
         }
       }
-    };
+    }, [principal, errorCode]);
 
     const getPrincipal = (): Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>> => accessServiceImpl.getPrincipal();
 
     useEffect(() => {
       if (isAuthenticated) {
-        fetchData();
+        refreshPrincipal();
       } else {
         setPrincipal({} as unknown as {{ classDataName application.principal 'Stored' }});
       }
     }, [isAuthenticated]);
 
     return (
-      <PrincipalContext.Provider value={ { principal, setPrincipal, getPrincipal, errorCode } }>{children}</PrincipalContext.Provider>
+      <PrincipalContext.Provider value={ { principal, setPrincipal, getPrincipal, refreshPrincipal, errorCode } }>{children}</PrincipalContext.Provider>
     );
   };
 
   export const usePrincipal = () => {
-    const { principal, setPrincipal, getPrincipal, errorCode } = useContext(PrincipalContext);
+    const { principal, setPrincipal, getPrincipal, refreshPrincipal, errorCode } = useContext(PrincipalContext);
 
-    return { principal, setPrincipal, getPrincipal, errorCode };
+    return { principal, setPrincipal, getPrincipal, refreshPrincipal, errorCode };
   };
 {{ else }}
     // nothing to export, application has no Principal

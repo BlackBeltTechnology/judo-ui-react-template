@@ -20,11 +20,9 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
   {{# if page.container.form }}
     import { use{{ pageName page }} } from '~/dialogs/{{ pagePath page }}/hooks';
   {{/ if }}
-  {{# if page.container.table }}
-    {{# each (getAccessTableOperationActions page) as |action| }}
-      import { use{{ pageName action.targetPageDefinition }} } from '~/dialogs/{{ pagePath action.targetPageDefinition }}/hooks';
-    {{/ each }}
-  {{/ if }}
+{{/ each }}
+{{# each (getAccessTableOperationActionPages application) as |page| }}
+  import { use{{ pageName page }} } from '~/dialogs/{{ pagePath page }}/hooks';
 {{/ each }}
 
 export type AccessName = {{# each (getAccessPages application) as |page| }}{{# if page.container.view }}'{{ page.dataElement.name }}' | {{/ if }}{{/ each }}unknown;
@@ -63,7 +61,8 @@ export function useOperationUtils() {
     {{/ if }}
     {{# if page.container.table }}
       {{# each (getAccessTableOperationActions page) as |action| }}
-        const open{{ pageName action.targetPageDefinition }} = use{{ pageName action.targetPageDefinition }}();
+        // action name: {{ action.name }}
+        const open{{ firstToUpper page.relationType.name }}{{ pageName action.targetPageDefinition }} = use{{ pageName action.targetPageDefinition }}();
       {{/ each }}
     {{/ if }}
   {{/ each }}
@@ -127,7 +126,7 @@ export function useOperationUtils() {
           if (access === '{{ page.dataElement.name }}') {
             {{# each (getAccessTableOperationActions page) as |action| }}
               if (operation === '{{ action.targetDataElement.name }}') {
-                const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
+                const { result, data: returnedData } = await open{{ firstToUpper page.relationType.name }}{{ pageName action.targetPageDefinition }}({
                   ownerData: null,
                 });
                 if (result === 'submit' && returnedData) {
