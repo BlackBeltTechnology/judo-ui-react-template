@@ -1,15 +1,15 @@
 {{> fragment.header.hbs }}
 
 import Breadcrumbs from '@mui/material/Breadcrumbs';
-import Typography from '@mui/material/Typography';
 import Link from '@mui/material/Link';
-import { useState, useContext, createContext, useMemo, useEffect, useCallback } from 'react';
-import type { ReactNode } from 'react';
-import { useLocation, useNavigate, Link as RouterLink } from 'react-router-dom';
-import type { Path, To } from 'react-router-dom';
+import Typography from '@mui/material/Typography';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import type { Path, To } from 'react-router-dom';
 import { routeToDashboard } from '~/routes';
 import { StackableDialogProvider } from './dialog/StackableDialogProvider';
 
@@ -37,6 +37,7 @@ interface JudoNavigationProviderContext {
   externalNavigate: (to: string) => void;
   clearNavigate: (to: To) => void;
   navigate: (to: To) => void;
+  navigateBackTo: (item: BreadcrumbItem) => void;
   back: () => void;
   isBackDisabled: boolean;
   setTitle: JudoNavigationSetTitle;
@@ -45,6 +46,7 @@ interface JudoNavigationProviderContext {
 interface BreadcrumbItem {
   key: string;
   path: To;
+  fromPath?: string,
   label?: string | null;
 }
 
@@ -129,12 +131,24 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
 
       navigate(decorator(to));
     },
+    navigateBackTo: (item: BreadcrumbItem) => {
+      const idx = breadcrumbItems.indexOf(item);
+      if (idx >= 0) {
+        setBreadcrumbItems(breadcrumbItems.slice(0, idx));
+        setNextBreadcrumbItem({
+          key: breadcrumbItems.length + '.' + item.path.toString(),
+          path: item.path,
+        });
+
+        navigate(decorator(item.path));
+      }
+    },
     navigate: (to: To) => {
       if (nextBreadcrumbItem.label === null) {
         console.warn('Page title has not been set!');
       }
 
-      setBreadcrumbItems([...breadcrumbItems, nextBreadcrumbItem]);
+      setBreadcrumbItems([...breadcrumbItems, { ...nextBreadcrumbItem, fromPath: location.pathname }]);
       setNextBreadcrumbItem({
         key: breadcrumbItems.length + '.' + to.toString(),
         path: to,
@@ -166,24 +180,25 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
 
 export const CustomBreadcrumb = () => {
   const breadcrumbItems = useContext(BreadcrumbContextState);
+  const { navigateBackTo } = useJudoNavigation();
   const { t } = useTranslation();
   const { service: navigationInterceptor } = useTrackService<NavigationInterceptorHook>(`(${OBJECTCLASS}=${NAVIGATION_INTERCEPTOR_INTERFACE_KEY})`);
   const decorator = navigationInterceptor ? navigationInterceptor({ stringifyPath }).decorateNavigation : (to: string | Partial<Path>) => to;
 
   return (
     <Breadcrumbs id="application-breadcrumb" maxItems={5} separator="/">
-        {{# if ( hasDashboard application ) }}
-            <Link component={RouterLink} to={decorator(routeToDashboard())} sx={ { textDecoration: 'none' } }>
-                <Typography>{ t('judo.breadcrumb.home', { defaultValue: 'Home' }) }</Typography>
-            </Link>
-        {{ else }}
-            <Typography>{ t('judo.breadcrumb.home', { defaultValue: 'Home' }) }</Typography>
-        {{/ if }}
-      {breadcrumbItems.map(({ label, key }, index) => {
+      {{# if ( hasDashboard application ) }}
+        <Link component={RouterLink} to={decorator(routeToDashboard())} sx={ { textDecoration: 'none', color: 'secondary.main' } }>
+          <Typography>{ t('judo.breadcrumb.home', { defaultValue: 'Home' }) }</Typography>
+        </Link>
+      {{ else }}
+        <Typography>{ t('judo.breadcrumb.home', { defaultValue: 'Home' }) }</Typography>
+      {{/ if }}
+      {breadcrumbItems.map((item) => {
         return (
-          <Typography color="text.primary" key={key}>
-            {label || ''}
-          </Typography>
+          <Link key={item.key} component={RouterLink} to={decorator(item.fromPath!)} onClick={() => navigateBackTo(item)} sx={ { textDecoration: 'none', color: 'secondary.main' } }>
+            <Typography>{item.label || ''}</Typography>
+          </Link>
         );
       })}
     </Breadcrumbs>
