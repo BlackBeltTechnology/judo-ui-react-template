@@ -71,7 +71,9 @@
             }
             {{/ if }}
         } }
+        {{# unless child.isReadOnly }}
         {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {})}
+        {{/ unless }}
     />
     {{# if (hasTooltipText child) }}
       {{> actor/src/fragments/container/input-tooltip.fragment.hbs input=child }}
