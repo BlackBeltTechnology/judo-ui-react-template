@@ -67,7 +67,7 @@ export const useJudoNavigation = () => {
 const delayed = (fn: () => void, delay = 0) => {
   // At the time of writing there are certain cases where navigation is ignored by the router. Such as after closing certain
   // dialogs until we figure out why this is a delay solves the navigation issue.
-  window.setTimeout(fn, 0);
+  window.setTimeout(fn, delay);
 };
 
 export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
