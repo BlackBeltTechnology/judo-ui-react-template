@@ -64,6 +64,12 @@ export const useJudoNavigation = () => {
   return context;
 };
 
+const delayed = (fn: () => void, delay = 0) => {
+  // At the time of writing there are certain cases where navigation is ignored by the router. Such as after closing certain
+  // dialogs until we figure out why this is a delay solves the navigation issue.
+  window.setTimeout(fn, delay);
+};
+
 export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,7 +109,7 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
       });
 
       if (triggerNavigation) {
-        navigate(decorator(lastItem.path));
+        delayed(() => navigate(decorator(lastItem.path)));
       }
     } else {
       setBreadcrumbItems([]);
@@ -113,7 +119,7 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
       });
 
       if (triggerNavigation) {
-        navigate(decorator(routeToDashboard()));
+        delayed(() => navigate(decorator(routeToDashboard())));
       }
     }
   }, [breadcrumbItems, nextBreadcrumbItem]);
@@ -129,7 +135,7 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
         path: to,
       });
 
-      navigate(decorator(to));
+      delayed(() => navigate(decorator(to)));
     },
     navigateBackTo: (item: BreadcrumbItem) => {
       const idx = breadcrumbItems.indexOf(item);
@@ -140,7 +146,7 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
           path: item.path,
         });
 
-        navigate(decorator(item.path));
+        delayed(() => navigate(decorator(item.path)));
       }
     },
     navigate: (to: To) => {
@@ -154,7 +160,7 @@ export const BreadcrumbProvider = ({ children }: BreadcrumbProviderProps) => {
         path: to,
       });
 
-      navigate(decorator(to));
+      delayed(() => navigate(decorator(to)));
     },
     back: () => {
       breadCrumbBack(true);
