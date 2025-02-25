@@ -319,8 +319,7 @@ public class UiTableHelper {
                 }
                 return false;
             } else if (page.getDataElement() instanceof RelationType relationType) {
-                RelationType nested = relationType.getTarget().getRelations().stream().filter(r -> r.getName().equals(table.getRelationName())).findFirst().orElse(null);
-                return nested != null && nested.getIsUpdatable();
+                return relationType.getTarget().getRelations().stream().anyMatch(r -> r.getName().equals(table.getRelationName()) && r.getIsUpdatable());
             }
             return false;
         }
