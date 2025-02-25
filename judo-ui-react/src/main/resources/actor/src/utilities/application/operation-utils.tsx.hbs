@@ -111,7 +111,7 @@ export function useOperationUtils() {
                   await open{{ pageName createAction.targetPageDefinition }}({
                     ownerData: returnedData
                   });
-                {{ else }}
+                {{ else if createAction.targetPageDefinition }}
                   navigate(routeTo{{ pageName createAction.targetPageDefinition }}(returnedData.__signedIdentifier));
                 {{/ if }}
               {{/ with }}
