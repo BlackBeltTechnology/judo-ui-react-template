@@ -261,7 +261,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       }
     {{/ if }}
     {{# each page.container.tables as |table| }}
-      {{# if table.isInlineEditable }}
+      {{# if (isTableEffectiveInlineEditable page table) }}
         const apply{{ firstToUpper table.relationName }}RowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
           try {
             {{# if table.isEager }}
@@ -325,7 +325,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{/ each }}
       {{/ unless }}
       {{# each page.container.tables as |table| }}
-        {{# if table.isInlineEditable }}
+        {{# if (isTableEffectiveInlineEditable page table) }}
           apply{{ firstToUpper table.relationName }}RowEdit,
         {{/ if }}
       {{/ each }}
