@@ -310,4 +310,20 @@ public class UiTableHelper {
     public static boolean isTableCard(Table table) {
         return TableRepresentation.CARD.equals(table.getRepresentationComponent());
     }
+
+    public static boolean isTableEffectiveInlineEditable(PageDefinition page, Table table) {
+        if (table.isIsInlineEditable()) {
+            if (table.getRelationName() == null || table.getRelationName().isEmpty()) {
+                if (page.getDataElement() instanceof RelationType relationType) {
+                    return relationType.getIsUpdatable();
+                }
+                return false;
+            } else if (page.getDataElement() instanceof RelationType relationType) {
+                RelationType nested = relationType.getTarget().getRelations().stream().filter(r -> r.getName().equals(table.getRelationName())).findFirst().orElse(null);
+                return nested != null && nested.getIsUpdatable();
+            }
+            return false;
+        }
+        return false;
+    }
 }
