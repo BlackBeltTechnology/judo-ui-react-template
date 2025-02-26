@@ -259,6 +259,7 @@ export default function {{ pageName page }}() {
               }
               {{# unless table.dataElement.isMemberTypeDerived }}
                 await {{ getServiceImplForPage page }}.validateUpdate(
+                  {{# unless page.dataElement.isAccess }}null as any, {{/ unless }}
                   {
                     ...data,
                     {{ table.relationName }}: updatedList,
