@@ -313,6 +313,10 @@ public class UiTableHelper {
 
     public static boolean isTableEffectiveInlineEditable(PageDefinition page, Table table) {
         if (table.isIsInlineEditable()) {
+            if (table.isIsEager()) {
+                // in case of eager tables we operate on the owner
+                return page.getDataElement() instanceof RelationType relationType && relationType.getIsUpdatable();
+            }
             return isTableUpdatable(table, page);
         }
         return false;
@@ -330,18 +334,12 @@ public class UiTableHelper {
     }
 
     public static boolean isTableUpdatable(Table table, PageDefinition page) {
-        if (table.isIsInlineEditable()) {
-            RelationType relationType = getRelationForTable(table, page);
-            return relationType != null && relationType.getIsUpdatable();
-        }
-        return false;
+        RelationType relationType = getRelationForTable(table, page);
+        return relationType != null && relationType.getIsUpdatable();
     }
 
     public static boolean isTableCreatable(Table table, PageDefinition page) {
-        if (table.isIsInlineEditable()) {
-            RelationType relationType = getRelationForTable(table, page);
-            return relationType != null && relationType.getIsCreatable();
-        }
-        return false;
+        RelationType relationType = getRelationForTable(table, page);
+        return relationType != null && relationType.getIsCreatable();
     }
 }
