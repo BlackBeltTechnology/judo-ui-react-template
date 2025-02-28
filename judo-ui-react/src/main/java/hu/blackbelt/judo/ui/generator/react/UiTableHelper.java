@@ -313,15 +313,34 @@ public class UiTableHelper {
 
     public static boolean isTableEffectiveInlineEditable(PageDefinition page, Table table) {
         if (table.isIsInlineEditable()) {
-            if (table.getRelationName() == null || table.getRelationName().isEmpty()) {
-                if (page.getDataElement() instanceof RelationType relationType) {
-                    return relationType.getIsUpdatable();
-                }
-                return false;
-            } else if (page.getDataElement() instanceof RelationType relationType) {
-                return relationType.getTarget().getRelations().stream().anyMatch(r -> r.getName().equals(table.getRelationName()) && r.getIsUpdatable());
+            return isTableUpdatable(table, page);
+        }
+        return false;
+    }
+
+    public static RelationType getRelationForTable(Table table, PageDefinition page) {
+        if (table.getRelationName() == null || table.getRelationName().isEmpty()) {
+            if (page.getDataElement() instanceof RelationType relationType) {
+                return relationType;
             }
-            return false;
+        } else if (page.getDataElement() instanceof RelationType relationType) {
+            return relationType.getTarget().getRelations().stream().filter(r -> r.getName().equals(table.getRelationName())).findFirst().orElse(null);
+        }
+        return null;
+    }
+
+    public static boolean isTableUpdatable(Table table, PageDefinition page) {
+        if (table.isIsInlineEditable()) {
+            RelationType relationType = getRelationForTable(table, page);
+            return relationType != null && relationType.getIsUpdatable();
+        }
+        return false;
+    }
+
+    public static boolean isTableCreatable(Table table, PageDefinition page) {
+        if (table.isIsInlineEditable()) {
+            RelationType relationType = getRelationForTable(table, page);
+            return relationType != null && relationType.getIsCreatable();
         }
         return false;
     }
