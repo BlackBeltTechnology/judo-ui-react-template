@@ -288,11 +288,16 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             {{ else }}
               setIsLoading(true);
               if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+                {{# if (isTableCreatable table page) }}
                 const queryCustomizer: { _mask: string } = {
                   _mask: '{}',
                 };
                 await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}rowData, queryCustomizer);
                 showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
+                {{ else }}
+                // We should never land on this path since the button should be disabled for relations which are not creatable
+                alert('Creating elements on this table is not supported!');
+                {{/ if }}
               } else {
                 await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}(rowData);
                 showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
