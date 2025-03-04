@@ -23,7 +23,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
         {{# if link.isEager }}
           storeDiff('{{ link.dataElement.name }}', returnedData[0]);
         {{ else }}
-          await {{ getServiceImplForPage page }}.set{{ firstToUpper link.dataElement.name }}(data, returnedData[0]);
+          await {{ getServiceImplForPage page }}.set{{# if action.actionDefinition.isContainedRelationAction }}{{ firstToUpper link.dataElement.name }}{{/ if }}(data, returnedData[0]);
           await refresh();
         {{/ if }}
         return returnedData[0];
