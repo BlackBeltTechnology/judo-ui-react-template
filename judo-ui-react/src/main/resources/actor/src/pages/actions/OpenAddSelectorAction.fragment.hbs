@@ -24,7 +24,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
         {{ else }}
           try {
             setIsLoading(true);
-            await {{ getServiceImplForPage page }}.add{{ firstToUpper action.targetDataElement.name }}(
+            await {{ getServiceImplForPage page }}.add{{# if action.actionDefinition.isContainedRelationAction }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}(
               owner.current,
               returnedData
             );
