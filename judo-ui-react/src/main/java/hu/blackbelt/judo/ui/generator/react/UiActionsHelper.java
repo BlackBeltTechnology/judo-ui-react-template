@@ -261,12 +261,23 @@ public class UiActionsHelper {
 
     public static String getServiceMethodSuffix(Action action) {
         String suffix = "";
-        if (action.getOwnerDataElement() instanceof OperationType) {
+        if (action.getIsSelectorRangeAction() || isActionMappedToRangeFromRefresh(action) || isActionDefinedOnTablePage(action)) {
+            return suffix;
+        } else if (action.getOwnerDataElement() instanceof OperationType) {
             suffix += "On" + firstToUpper(action.getOwnerDataElement().getName());
         } else if (action.getOwnerDataElement() instanceof RelationType) {
             suffix += "For" + firstToUpper(action.getOwnerDataElement().getName());
         }
         return suffix;
+    }
+
+    public static boolean isActionMappedToRangeFromRefresh(Action action) {
+        // Actions represented visually as "Refresh" on selector dialogs call range operations in the background
+        return action.getIsRefreshAction() && action.eContainer() instanceof PageDefinition pd && pd.isIsRelationSelector();
+    }
+
+    public static boolean isActionDefinedOnTablePage(Action action) {
+        return action.eContainer() instanceof PageDefinition pd && pd.getContainer().isTable() && !pd.isOpenInDialog();
     }
 
     public static boolean isPageDataElementUnmappedSingle(PageDefinition pageDefinition) {
