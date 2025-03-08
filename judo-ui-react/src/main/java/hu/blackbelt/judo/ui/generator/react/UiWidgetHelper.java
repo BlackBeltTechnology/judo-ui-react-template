@@ -566,7 +566,7 @@ public class UiWidgetHelper {
     public static List<NavigationItem> extractDialogItems(NavigationItem item) {
         List<NavigationItem> items = new ArrayList<>();
         for (NavigationItem nested: item.getItems()) {
-            if (nested.getTarget().isOpenInDialog()) {
+            if (nested.getTarget() != null && nested.getTarget().isOpenInDialog()) {
                 items.add(nested);
             }
             if (nested.getItems().size() > 0) {
