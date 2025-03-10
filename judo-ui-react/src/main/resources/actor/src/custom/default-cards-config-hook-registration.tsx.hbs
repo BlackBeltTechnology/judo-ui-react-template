@@ -1,0 +1,90 @@
+import { type FC } from 'react';
+import type { BundleContext } from '@pandino/pandino-api';
+import { useTranslation } from 'react-i18next';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import CardActions from '@mui/material/CardActions';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import { type Filter, FilterType } from '~/components-api';
+import type { ActionbarElementProps, CardProps, ToolbarElementProps } from '~/components-api/components/CardsContainer';
+import { CardsFilter, type CardsFilterDefinition } from '~/components/widgets/CardsFilter';
+import { useJudoNavigation } from '~/components';
+import { useViewData } from '~/hooks';
+import { mapCardsFiltersToFilters } from '~/utilities';
+import { type {{ componentName card }}CardsContainerConfigHook, {{ camelCaseNameToInterfaceKey (componentName card) }}_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY } from '~/containers/{{ containerPath card.pageContainer}}/components/{{ cardsComponentName card }}/customization';
+import { type {{ classDataName (getReferenceClassType card) 'Stored' }} } from '~/services/data-api/model/{{ classDataName (getReferenceClassType card) '' }}';
+
+/**
+ * XMIID: {{ getXMIID card }}
+ * Name: {{ card.name }}
+ *
+ * Notes:
+ * Don't forget to remove unused hooks, and related imports afterwards to reduce build time and bundle size!
+ */
+export function register{{ componentName card }}CardsContainerConfig(context: BundleContext) {
+  context.registerService<{{ componentName card }}CardsContainerConfigHook>({{ camelCaseNameToInterfaceKey (componentName card) }}_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY, {{ firstToLower (componentName card) }}CardsContainerConfig);
+}
+
+const {{ firstToLower (componentName card) }}CardsContainerConfig: {{ componentName card }}CardsContainerConfigHook = () => {
+  // call other hooks here
+  const { t } = useTranslation();
+  const { navigate, back } = useJudoNavigation();
+  const { getLatestViewData } = useViewData();
+
+  return {
+    // layout: 'horizontal',
+    // showPagination: true,
+    // ToolbarElement: {{ componentName card }}Toolbar,
+    // ActionbarElement: {{ componentName card }}ActionBar,
+    CardElement: {{ componentName card }}Card,
+  };
+};
+
+const {{ componentName card }}ActionBar: FC<ActionbarElementProps<{{ classDataName (getReferenceClassType card) 'Stored' }}>> = (props) => {
+  const { actions, columns, isLoading, refresh, handleSortModelChange, sortModel} = props;
+
+  return (
+    <div>{/* Implement your ActionBar here */}</div>
+  );
+};
+
+const {{ componentName card }}Toolbar: FC<ToolbarElementProps<{{ classDataName (getReferenceClassType card) 'Stored' }}>> = ({ handleFiltersChange }: ToolbarElementProps<{{ classDataName (getReferenceClassType card) 'Stored' }}>) => {
+  // We can call other hooks here
+  const filterDefs: CardsFilterDefinition<{{ classDataName (getReferenceClassType card) 'Stored' }}>[] = [];
+
+  // We are using a built in component CardsFilter here, but we can implement anything
+  return (
+    <CardsFilter filterDefinitions={filterDefs} onFiltersChanged={(values: Record<string, any>) => {
+      const newFilters: Filter[] = mapCardsFiltersToFilters(filterDefs, values);
+      handleFiltersChange(newFilters);
+    }} />
+  );
+};
+
+const {{ componentName card }}Card: FC<CardProps<{{ classDataName (getReferenceClassType card) 'Stored' }}>> = ({ row, columns, onRowClick }: CardProps<{{ classDataName (getReferenceClassType card) 'Stored' }}>) => {
+  // We can call other hooks here
+
+  // Every custom Card component MUST be wrapped in a `<Grid item` with the appropriate `sm`, `md`, etc... values so that
+  // elements are handled properly on all devices.
+  return (
+    <Grid item sm={12} md={6} lg={4} xl={4}>
+      <Card variant="outlined" sx={ { height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } }>
+        <CardContent>
+          {/* Here we are dynamically iterating over all columns, but we could manually handle the ones we are interested in of course. */}
+          {columns.map((k, idx) => (
+            <Typography key={`${row.__identifier}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
+              {row[k.field as keyof {{ classDataName (getReferenceClassType card) 'Stored' }}]?.toString()}
+            </Typography>
+          ))}
+        </CardContent>
+        <CardActions>
+          <Button size="small" onClick={() => onRowClick?.(row)}>
+            Learn More
+          </Button>
+        </CardActions>
+      </Card>
+    </Grid>
+  );
+};

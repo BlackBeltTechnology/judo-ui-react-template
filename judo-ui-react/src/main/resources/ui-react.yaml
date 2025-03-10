@@ -335,6 +335,16 @@ templates:
       - name: container
         expression: "#self"
 
+  - name: actor/src/custom/default-cards-config-hook-registration.tsx
+    factoryExpression: "#getTablesWithCardRepresentations(#application)"
+    pathExpression: "'src/custom/hooks/components/cards/register' + #componentName(#self) + 'ConfigurationHook.tsx.default'"
+    templateName: actor/src/custom/default-cards-config-hook-registration.tsx.hbs
+    templateContext:
+      - name: card
+        expression: "#self"
+      - name: application
+        expression: "#application"
+
   - name: actor/src/custom/default-guest-page-hook-registration.tsx
     pathExpression: "'src/custom/hooks/default-guest-page-hook-registration.tsx.default'"
     templateName: actor/src/custom/default-guest-page-hook-registration.tsx.hbs
