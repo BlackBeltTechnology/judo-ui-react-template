@@ -578,4 +578,10 @@ public class UiWidgetHelper {
         }
         return items;
     }
+
+    public static List<Table> getTablesWithCardRepresentations(Application application) {
+        return application.getTables().stream()
+                .filter(t -> ((Table) t).getRepresentationComponent().equals(TableRepresentation.CARD))
+                .sorted(Comparator.comparing(NamedElement::getFQName)).toList();
+    }
 }
