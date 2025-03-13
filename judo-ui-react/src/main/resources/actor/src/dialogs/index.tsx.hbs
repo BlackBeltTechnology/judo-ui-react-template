@@ -299,7 +299,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 alert('Creating elements on this table is not supported!');
                 {{/ if }}
               } else {
-                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}(rowData);
+                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# if table.relationName }}owner.current, {{/ if }}rowData);
                 showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
               }
               await refresh();
