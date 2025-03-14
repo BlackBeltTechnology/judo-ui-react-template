@@ -241,7 +241,7 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
                 />
             </Grid> : null}
             {data.map((d) => (
-              <CardItem key={d.__identifier} onRowClick={actions.openPageAction} row={d} columns={columns} />
+              <CardItem key={d.__identifier} onRowClick={(row) => onRowClick?.({ row, columns, id: d.__identifier }, null as any, null as any)} row={d} columns={columns} />
             ))}
           </Grid>
         </Grid>
