@@ -76,6 +76,7 @@
         className={clsx({
           'JUDO-viewMode': !editMode,
           'JUDO-required': actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : {{ boolValue child.attributeType.isRequired }},
+          'JUDO-readOnly': (actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : false) || {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable()
         })}
       />}
     />
