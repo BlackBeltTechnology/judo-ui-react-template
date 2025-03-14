@@ -54,7 +54,7 @@
       {{# if child.preFetchActionDefinition }}fetchCall={ actions.{{ simpleActionDefinitionName child.preFetchActionDefinition }} }{{/ if }}
     >
       { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
-      <MdiIcon path="arrow-right" />
+      <MdiIcon path="{{# if child.icon }}{{ child.icon.iconName }}{{ else }}arrow-right{{/ if }}" />
     </AssociationButton>
   {{/ if }}
   {{# if child.customImplementation }}
