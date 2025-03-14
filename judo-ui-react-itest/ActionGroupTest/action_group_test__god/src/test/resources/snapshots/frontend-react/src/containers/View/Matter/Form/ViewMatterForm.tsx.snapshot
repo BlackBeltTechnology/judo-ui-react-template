@@ -187,6 +187,10 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                       className={clsx({
                         'JUDO-viewMode': !editMode,
                         'JUDO-required': actions?.isTypeRequired ? actions.isTypeRequired(data, editMode) : true,
+                        'JUDO-readOnly':
+                          (actions?.isTypeReadonly ? actions.isTypeReadonly(data, editMode, isLoading) : false) ||
+                          false ||
+                          !isFormUpdateable(),
                       })}
                     />
                   )}
