@@ -21,7 +21,13 @@ import type { Filter, FilterOption } from '~/components-api';
 import type { CardProps, ToolbarElementProps } from '~/components-api/components/CardsContainer';
 import type { DialogResult } from '~/utilities';
 
-export interface {{ componentName table }}ActionDefinitions {
+export interface {{ componentName table }}RowActionDefinitions {
+{{# each table.rowActionDefinitions as |actionDefinition| }}
+  {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}{{# if actionDefinition.isOpenPageAction }}, isDraft?: boolean{{/ if }}) => Promise<void>;
+{{/ each }}
+}
+
+export interface {{ componentName table }}ActionDefinitions extends {{ componentName table }}RowActionDefinitions {
   get{{ firstToUpper table.relationName }}Mask?: () => string;
   get{{ firstToUpper table.relationName }}RowRepresentation?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}) => string;
   apply{{ firstToUpper table.relationName }}RowEdit?: (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}) => Promise<any>;
@@ -51,9 +57,6 @@ export interface {{ componentName table }}ActionDefinitions {
       {{/ if }}
     {{/ if }}
   {{/ if }}
-{{/ each }}
-{{# each table.rowActionDefinitions as |actionDefinition| }}
-  {{ simpleActionDefinitionName actionDefinition }}?: (row: {{ classDataName (getReferenceClassType table) 'Stored' }}{{# if actionDefinition.isOpenPageAction }}, isDraft?: boolean{{/ if }}) => Promise<void>;
 {{/ each }}
   {{ table.relationType.name }}AdditionalToolbarButtons?: (
     {{# with (getReferenceClassType table) as |classType| }}
@@ -92,6 +95,6 @@ export interface {{ componentName table }}Props {
   handleRowEditStop?: GridEventListener<'rowEditStop'>;
   processRowUpdate?: (newRow: GridRowModel) => void;
   ToolbarElement?: FC<ToolbarElementProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>;
-  CardElement?: FC<CardProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>;
+  CardElement?: FC<CardProps<{{ classDataName (getReferenceClassType table) 'Stored' }}, {{ componentName table }}RowActionDefinitions>>;
   annotations?: string[];
 }
