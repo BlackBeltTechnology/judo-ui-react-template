@@ -13,14 +13,14 @@ import type { Filter } from '~/components-api';
   } from '~/services/data-api/model/{{ imp }}';
 {{/ each }}
 import type { CardProps, ToolbarElementProps, ActionbarElementProps } from '~/components-api/components/CardsContainer';
-import type { {{ componentName table }}ActionDefinitions } from './types';
+import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}RowActionDefinitions } from './types';
 
 export interface {{ componentName table }}CardsContainerConfig {
   layout?: 'horizontal' | 'vertical';
   showPagination?: boolean;
   ToolbarElement?: FC<ToolbarElementProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>,
   ActionbarElement?: FC<ActionbarElementProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>,
-  CardElement?: FC<CardProps<{{ classDataName (getReferenceClassType table) 'Stored' }}>>
+  CardElement?: FC<CardProps<{{ classDataName (getReferenceClassType table) 'Stored' }}, {{ componentName table }}RowActionDefinitions>>
 }
 
 export const {{ camelCaseNameToInterfaceKey (componentName table) }}_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY = '{{ camelCaseNameToInterfaceKey (componentName table) }}_CARDS_CONTAINER_CONFIG_HOOK';

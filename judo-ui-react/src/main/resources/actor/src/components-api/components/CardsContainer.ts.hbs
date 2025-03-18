@@ -5,10 +5,11 @@ import type {
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { Filter, FilterOption } from '~/components-api';
 
-export interface CardProps<T extends GridValidRowModel> {
+export interface CardProps<T extends GridValidRowModel, A> {
   row: T;
   columns: GridColDef<T>[];
   onRowClick?: (row: T) => void;
+  actions: A;
 }
 
 export interface ActionbarElementProps<T extends GridValidRowModel> {

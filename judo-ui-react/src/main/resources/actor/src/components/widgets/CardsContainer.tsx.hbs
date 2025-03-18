@@ -23,7 +23,7 @@ import { mapAllFiltersToQueryCustomizerProperties, processQueryCustomizer, useEr
 import { type CardsFilterDefinition } from './CardsFilter';
 import { DefaultCard } from './DefaultCard';
 
-export interface CardsContainerProps<T extends GridValidRowModel> {
+export interface CardsContainerProps<T extends GridValidRowModel, A> {
   uniqueId: string;
   defaultSortParams: GridSortModel;
   pageLimit: number;
@@ -42,10 +42,10 @@ export interface CardsContainerProps<T extends GridValidRowModel> {
   showPagination?: boolean;
   ToolbarElement?: FC<ToolbarElementProps<T>>;
   ActionbarElement?: FC<ActionbarElementProps<T>>;
-  CardElement?: FC<CardProps<T>>;
+  CardElement?: FC<CardProps<T, A>>;
 }
 
-export const CardsContainer = <T extends GridValidRowModel>(props: CardsContainerProps<T>) => {
+export const CardsContainer = <T extends GridValidRowModel>(props: CardsContainerProps<T, any>) => {
   const {
     uniqueId,
     defaultSortParams,
@@ -210,7 +210,7 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
     setIsNextButtonEnabled(!isNext);
   }
 
-  const CardItem = useMemo<FC<CardProps<T>>>(() => CardElement || DefaultCard, [CardElement]);
+  const CardItem = useMemo<FC<CardProps<T, any>>>(() => CardElement || DefaultCard, [CardElement]);
 
   return (
     <Box>
@@ -241,7 +241,7 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
                 />
             </Grid> : null}
             {data.map((d) => (
-              <CardItem key={d.__identifier} onRowClick={(row) => onRowClick?.({ row, columns, id: d.__identifier }, null as any, null as any)} row={d} columns={columns} />
+              <CardItem key={d.__identifier} onRowClick={(row) => onRowClick?.({ row, columns, id: d.__identifier }, null as any, null as any)} row={d} columns={columns} actions={actions} />
             ))}
           </Grid>
         </Grid>
