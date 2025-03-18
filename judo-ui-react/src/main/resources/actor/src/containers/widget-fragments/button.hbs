@@ -49,12 +49,12 @@
       id="{{ getXMIID child }}"
       variant={ {{{ variantForButton child }}} }
       editMode={editMode}
+      startIcon={ <MdiIcon path="{{# if child.icon }}{{ child.icon.iconName }}{{ else }}arrow-right{{/ if }}" /> }
       navigateAction={ actions.{{ simpleActionDefinitionName child.actionDefinition }} }
       refreshCounter={refreshCounter}
       {{# if child.preFetchActionDefinition }}fetchCall={ actions.{{ simpleActionDefinitionName child.preFetchActionDefinition }} }{{/ if }}
     >
       { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
-      <MdiIcon path="{{# if child.icon }}{{ child.icon.iconName }}{{ else }}arrow-right{{/ if }}" />
     </AssociationButton>
   {{/ if }}
   {{# if child.customImplementation }}
