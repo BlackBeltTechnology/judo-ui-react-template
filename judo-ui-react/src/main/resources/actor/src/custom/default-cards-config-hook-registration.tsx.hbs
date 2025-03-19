@@ -14,6 +14,7 @@ import { useJudoNavigation } from '~/components';
 import { useViewData } from '~/hooks';
 import { mapCardsFiltersToFilters } from '~/utilities';
 import { type {{ componentName card }}CardsContainerConfigHook, {{ camelCaseNameToInterfaceKey (componentName card) }}_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY } from '~/containers/{{ containerPath card.pageContainer}}/components/{{ cardsComponentName card }}/customization';
+import { type {{ componentName card }}RowActionDefinitions } from '~/containers/{{ containerPath card.pageContainer}}/components/{{ cardsComponentName card }}/types';
 import { type {{ classDataName (getReferenceClassType card) 'Stored' }} } from '~/services/data-api/model/{{ classDataName (getReferenceClassType card) '' }}';
 
 /**
@@ -63,7 +64,7 @@ const {{ componentName card }}Toolbar: FC<ToolbarElementProps<{{ classDataName (
   );
 };
 
-const {{ componentName card }}Card: FC<CardProps<{{ classDataName (getReferenceClassType card) 'Stored' }}>> = ({ row, columns, onRowClick }: CardProps<{{ classDataName (getReferenceClassType card) 'Stored' }}>) => {
+const {{ componentName card }}Card: FC<CardProps<{{ classDataName (getReferenceClassType card) 'Stored' }}, {{ componentName card }}RowActionDefinitions>> = ({ row, columns, onRowClick, actions }) => {
   // We can call other hooks here
 
   // Every custom Card component MUST be wrapped in a `<Grid item` with the appropriate `sm`, `md`, etc... values so that
