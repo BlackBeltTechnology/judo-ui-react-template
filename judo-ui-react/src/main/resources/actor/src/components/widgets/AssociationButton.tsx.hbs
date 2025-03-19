@@ -10,6 +10,7 @@ import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse'
 export interface AssociationBaseProps {
   id: string;
   variant?: 'text' | 'contained' | 'outlined';
+  startIcon?: ReactNode;
   editMode?: boolean;
   children?: ReactNode;
   annotations?: string[];
@@ -26,6 +27,7 @@ export function AssociationButton({
   id,
   variant,
   editMode,
+  startIcon,
   refreshCounter,
   fetchCall,
   navigateAction,
@@ -59,6 +61,7 @@ export function AssociationButton({
     <Button
       id={id}
       variant={variant ?? 'text'}
+      startIcon={startIcon}
       onClick={navigateAction ? () => navigateAction!(data) : undefined}
       disabled={!navigateAction || isLoading || editMode || (fetchCall && !data?.__signedIdentifier)}
     >
