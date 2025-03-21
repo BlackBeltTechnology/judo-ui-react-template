@@ -27,6 +27,7 @@ import lombok.extern.java.Log;
 
 import java.util.*;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
@@ -211,7 +212,7 @@ public class UiPageHelper {
     }
 
     public static List<PageDefinition> getRelatedPages(PageDefinition pageDefinition) {
-        Set<PageDefinition> res = new HashSet<>();
+        Map<String, PageDefinition> res = new HashMap<>();
         try {
             // a.getTargetPageDefinition() != null check is for the case where the target view is not present because it was most likely empty
             List<Action> actions = pageDefinition.getActions()
@@ -219,7 +220,7 @@ public class UiPageHelper {
                     .filter(a -> a.getIsOpenPageAction() && a.getTargetPageDefinition() != null && !a.getTargetPageDefinition().isOpenInDialog())
                     .toList();
             for (Action action: actions) {
-                res.add(action.getTargetPageDefinition());
+                res.put(action.getTargetPageDefinition().getFQName(), action.getTargetPageDefinition());
             }
             List<Action> actionsForMappedNavigation = pageDefinition.getActions()
                     .stream()
@@ -231,7 +232,7 @@ public class UiPageHelper {
                     )
                     .toList();
             for (Action action: actionsForMappedNavigation) {
-                res.add(action.getTargetPageDefinition());
+                res.put(action.getTargetPageDefinition().getFQName(), action.getTargetPageDefinition());
             }
             List<Action> actionsForCreateAndNavigate = pageDefinition.getActions()
                     .stream()
@@ -241,37 +242,39 @@ public class UiPageHelper {
                     )
                     .toList();
             for (Action action: actionsForCreateAndNavigate) {
-                res.add(action.getTargetPageDefinition());
+                res.put(action.getTargetPageDefinition().getFQName(), action.getTargetPageDefinition());
             }
 
             for (AccessBasedNavigation a: getAccessBasedNavigationsForOperations(pageDefinition)) {
                 if (!a.getPageDefinition().isOpenInDialog()) {
-                    res.add(a.getPageDefinition());
+                    res.put(a.getPageDefinition().getFQName(), a.getPageDefinition());
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return res.stream()
-                .sorted(Comparator.comparing(NamedElement::getFQName))
-                .toList();
+        return res.keySet().stream().sorted(Comparator.comparing(Function.identity()))
+                .map(k -> res.get(k))
+                .collect(Collectors.toList());
     }
 
     public static List<PageDefinition> getRelatedDialogs(PageDefinition pageDefinition, Boolean skipSelf) {
-        Set<PageDefinition> res = new HashSet<>();
+        Map<String, PageDefinition> res = new HashMap<>();
         try {
             for (Action action : pageDefinition.getActions().stream().filter(a -> a.getTargetPageDefinition() != null && a.getTargetPageDefinition().isOpenInDialog() && (!skipSelf || !a.getTargetPageDefinition().equals(pageDefinition))).toList()) {
-                res.add(action.getTargetPageDefinition());
+                res.put(action.getTargetPageDefinition().getFQName(), action.getTargetPageDefinition());
             }
             for (AccessBasedNavigation a: getAccessBasedNavigationsForOperations(pageDefinition)) {
                 if (a.getPageDefinition().isOpenInDialog()) {
-                    res.add(a.getPageDefinition());
+                    res.put(a.getPageDefinition().getFQName(), a.getPageDefinition());
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+        return res.keySet().stream().sorted(Comparator.comparing(Function.identity()))
+                .map(k -> res.get(k))
+                .collect(Collectors.toList());
     }
 
     public static String getServiceClassForPage(PageDefinition pageDefinition) {
