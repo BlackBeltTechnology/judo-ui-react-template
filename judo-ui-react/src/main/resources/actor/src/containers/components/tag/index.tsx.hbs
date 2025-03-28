@@ -81,6 +81,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         readOnly={ {{ boolValue table.relationType.isReadOnly }} || !isFormUpdateable() }
         {{# with (getFirstAutocompleteColumnForTable table) as |column| }}
         autoCompleteAttribute="{{ column.attributeType.name }}"
+        {{# if (isColumnBinary column) }}
+        isBinary="true"
+        {{/ if }}
         {{/ with }}
         onAutoCompleteSearch={ hasRangeCapability ? async (searchText, preparedQueryCustomizer) => {
           const values = await (actions as any)[createActionName('{{ table.relationName }}', 'AutocompleteRangeAction')](preparedQueryCustomizer);
