@@ -229,15 +229,15 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                   }
                 }}
               >
-                <MdiIcon path="delete-forever" sx={{ mr: 0.5 }} />
+                <MdiIcon path="delete-forever" sx={ { mr: 0.5 } } />
               </Button>
               );
             }
             return (
-              <ButtonGroup key={key} size="small" variant="outlined" sx={{ marginRight: 1}}>
+              <ButtonGroup key={key} size="small" variant="outlined" sx={ { marginRight: 1} }>
                 <Button
                   id={`${id}-download`}
-                  startIcon={<MdiIcon path="file-document-outline" mimeType={{ type: '*', subType: '*' }} />}
+                  startIcon={<MdiIcon path="file-document-outline" mimeType={ { type: '*', subType: '*' } } />}
                   onClick={(event: any) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -257,7 +257,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                     downloadFile(option, autoCompleteAttribute as string, 'inline');
                   }}
                 >
-                  <MdiIcon path="eye" sx={{ mr: 0.5 }} />
+                  <MdiIcon path="eye" sx={ { mr: 0.5 } } />
                 </Button>
                 <Button
                   id={`${id}-view`}
@@ -267,20 +267,19 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                     downloadFile(option, autoCompleteAttribute as string, 'attachment');
                   }}
                 >
-                  <MdiIcon path="download" sx={{ mr: 0.5 }} />
+                  <MdiIcon path="download" sx={ { mr: 0.5 } } />
                 </Button>
                 { deleteButton }
               </ButtonGroup>
             );
           } else {
-            return (
-	          return <Chip
+            return (<Chip
 	            key={key}
 	            label={option[autoCompleteAttribute]}
 	            {...rest}
 	            sx={ { cursor: (typeof onItemClick === 'function' && !editMode) ? 'pointer' : undefined } }
 	            onClick={onChipClicked}
-	          />;
+	          />
             );
           }
         })
