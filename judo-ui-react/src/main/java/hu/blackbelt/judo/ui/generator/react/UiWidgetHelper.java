@@ -213,14 +213,18 @@ public class UiWidgetHelper {
 
     public static Column getFirstAutocompleteColumnForLink(Link link) {
         Optional<Column> column = link.getParts().stream()
-                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .filter(c -> (c.getAttributeType().getDataType() instanceof StringType ||
+                        c.getAttributeType().getDataType() instanceof BinaryType) &&
+                        !c.getAttributeType().getIsMemberTypeTransient())
                 .findFirst();
         return column.orElse(null);
     }
 
     public static Column getFirstAutocompleteColumnForTable(Table table) {
         Optional<Column> column = table.getColumns().stream()
-                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .filter(c -> (c.getAttributeType().getDataType() instanceof StringType ||
+                        c.getAttributeType().getDataType() instanceof BinaryType) &&
+                        !c.getAttributeType().getIsMemberTypeTransient())
                 .findFirst();
         return column.orElse(null);
     }
