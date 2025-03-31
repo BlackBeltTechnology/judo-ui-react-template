@@ -13,6 +13,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.springframework.util.StringUtils;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
@@ -435,7 +436,8 @@ public class UiPageContainerHelper {
     public static List<Input> getInputsForContainer(PageContainer container) {
         Set<VisualElement> elements = new LinkedHashSet<>();
         collectVisualElementsMatchingCondition(container, e -> e instanceof Input, elements);
-        return elements.stream().map(e -> ((Input) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+        var fqNameRestricted = elements.stream().collect(Collectors.toMap(k -> k.getName(), Function.identity(), (first, second) -> first));
+        return fqNameRestricted.values().stream().map(e -> ((Input) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
     public static List<Input> getEnumsForContainer(PageContainer container) {
