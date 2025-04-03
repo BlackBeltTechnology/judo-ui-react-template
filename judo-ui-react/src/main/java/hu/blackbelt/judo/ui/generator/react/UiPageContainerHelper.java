@@ -436,7 +436,7 @@ public class UiPageContainerHelper {
     public static List<Input> getInputsForContainer(PageContainer container) {
         Set<VisualElement> elements = new LinkedHashSet<>();
         collectVisualElementsMatchingCondition(container, e -> e instanceof Input, elements);
-        var fqNameRestricted = elements.stream().collect(Collectors.toMap(k -> k.getName(), Function.identity(), (first, second) -> first));
+        var fqNameRestricted = elements.stream().map(v -> (Input) v).collect(Collectors.toMap(k -> k.getAttributeType().getName(), Function.identity(), (first, second) -> first));
         return fqNameRestricted.values().stream().map(e -> ((Input) e)).sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
     }
 
