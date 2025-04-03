@@ -1,0 +1,62 @@
+{{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
+<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.subTheme }}
+      <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
+    {{/ if }}
+    {{# if child.customImplementation }}
+        <ComponentProxy
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
+            data={data}
+            validation={validation}
+            editMode={editMode}
+            storeDiff={storeDiff}
+            isLoading={isLoading}
+            actions={actions}
+            boundAttributeName={'{{ child.attributeType.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
+        >
+    {{/ if }}
+    <FormControl
+        fullWidth={ true }
+        sx={ { mt: '10px' } }
+        className='MuiTextField-root'
+        disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
+        error={validation.has('{{ child.attributeType.name }}')}
+    >
+        <InputLabel id="{{ getXMIID child }}" shrink={true} size={'small'}>
+            { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }{{# if child.attributeType.isRequired }} *{{/ if }}
+        </InputLabel>
+        <ToggleButtonGroup
+            id="{{ getXMIID child }}"
+            value={ data.{{ child.attributeType.name }} || '' }
+        >
+            {effective{{ firstToUpper child.attributeType.name }}Options.map((o) => (
+                <ToggleButton
+                    key={o.id}
+                    id={o.id}
+                    value={o.value || ''}
+                    disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable())}
+                    onClick={ (event) => {
+                        storeDiff('{{ child.attributeType.name }}', o.value);
+                        {{# if child.onBlur }}
+                        if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
+                            const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: o.value };
+                            actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, submit);
+                        }
+                        {{/ if }}
+                    } }
+                >
+                  {t(o.i18nKey, { defaultValue: o.i18nDefaultValue })}
+                </ToggleButton>
+            ))}
+        </ToggleButtonGroup>
+        { (validation.has('{{ child.attributeType.name }}'){{# if child.attributeType.isRequired }} && !data.{{ child.attributeType.name }}{{/ if }}) && <FormHelperText>{validation.get('{{ child.attributeType.name }}')}</FormHelperText> }
+    </FormControl>
+    {{# if child.customImplementation }}
+        </ComponentProxy>
+    {{/ if }}
+    {{# if child.subTheme }}
+      </SubThemeWrapper>
+    {{/ if }}
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}
