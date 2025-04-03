@@ -18,12 +18,12 @@
     {{/ if }}
     <FormControl
         fullWidth={ true }
-        sx={ { mt: '10px' } }
+        sx={ { mt: '18px' } }
         className='MuiTextField-root'
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
         error={validation.has('{{ child.attributeType.name }}')}
     >
-        <InputLabel id="{{ getXMIID child }}" shrink={true} size={'small'}>
+        <InputLabel id="{{ getXMIID child }}" shrink={true} size={'small'} sx={ { mt: '-8px'} } >
             { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }{{# if child.attributeType.isRequired }} *{{/ if }}
         </InputLabel>
         <ToggleButtonGroup

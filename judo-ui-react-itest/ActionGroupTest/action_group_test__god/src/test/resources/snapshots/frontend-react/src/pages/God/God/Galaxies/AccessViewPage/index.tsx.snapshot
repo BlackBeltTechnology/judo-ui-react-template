@@ -130,13 +130,13 @@ export default function GodGodGalaxiesAccessViewPage() {
   const getPageQueryCustomizer: () => ViewGalaxyQueryCustomizer = () => ({
     _mask: actions.getMask
       ? actions.getMask!()
-      : '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}',
+      : '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,gender,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}',
   });
 
   // Masks
   const getMask = () =>
-    '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}';
-  const getAstronomerMask = () => '{born,name,derivedMessage{message},messages{message},singleMessage{message}}';
+    '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,gender,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}';
+  const getAstronomerMask = () => '{born,gender,name,derivedMessage{message},messages{message},singleMessage{message}}';
   const getStarsMask = () =>
     '{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name,punished,rewarded}}}';
 
