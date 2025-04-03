@@ -440,7 +440,7 @@ public class UiPageContainerHelper {
 
     public static List<Input> getEnumsForContainer(PageContainer container) {
         Set<VisualElement> elements = new LinkedHashSet<>();
-        collectVisualElementsMatchingCondition(container, e -> e instanceof EnumerationCombo || e instanceof EnumerationRadio, elements);
+        collectVisualElementsMatchingCondition(container, e -> e instanceof EnumerationCombo || e instanceof EnumerationRadio || e instanceof EnumerationToggleButtonbar, elements);
         return elements.stream()
                 .map(e -> ((Input) e))
                 .sorted(Comparator.comparing(NamedElement::getFQName))
