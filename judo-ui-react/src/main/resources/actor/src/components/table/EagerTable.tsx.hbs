@@ -465,6 +465,21 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     setRowModesModel({ ...rowModesModel, [error.message]: { mode: GridRowModes.Edit } });
   }, [rowModesModel]);
 
+
+  const fallbackFilter: Filter = buildFilter(FilterType.string, _StringOperation.like, 'name', '');
+  const [nameFilter, setNameFilter] = useState<Filter>(filters?.find(f => f.filterOption.attributeName === 'name') || fallbackFilter);
+
+  const updateNameFilter = (value: string) => {
+    setNameFilter((prevNameFilter) => {
+      return {
+        ...prevNameFilter,
+        filterBy: {
+          ...prevNameFilter.filterBy,
+          value,
+        },
+      };
+    });
+  }
   return (
     <>
       <ComponentProxy
@@ -481,6 +496,26 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         boundAttributeName={relationName}
         annotations={annotations}
       />
+
+      <Grid container sx={{ mb: 2 }}>
+        <Grid item xs={6}>
+          <TextField
+            variant="standard"
+            value={nameFilter.filterBy.value}
+            onChange={(event) => {
+              updateNameFilter(event.target.value);
+            }}
+          />
+        </Grid>
+        <Grid item xs={6}>
+          <Button onClick={() => {
+            onFiltersChange([
+              nameFilter,
+            ]);
+          }}>Apply</Button>
+        </Grid>
+      </Grid>
+
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
