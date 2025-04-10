@@ -30,6 +30,7 @@ import {
   StripedDataGrid,
   columnsActionCalculator,
   RowHighlightLegend,
+  FixedTableFilters
 } from '~/components/table';
 import { useConfirmDialog } from '~/components/dialog';
 import { basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
@@ -56,7 +57,7 @@ import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import { CustomTablePagination } from '~/components';
-import { MdiIcon } from '../MdiIcon';
+import { MdiIcon } from '~/components/MdiIcon';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -637,6 +638,14 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         boundAttributeName={relationName}
         annotations={annotations}
       />
+      <FixedTableFilters
+        filters={filters}
+        ownerData={ownerData}
+        filtersSerializer={filtersSerializer}
+        tableFilterOptions={tableFilterOptions}
+        onFiltersChange={handleFiltersChange}
+      >
+      </FixedTableFilters>
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }

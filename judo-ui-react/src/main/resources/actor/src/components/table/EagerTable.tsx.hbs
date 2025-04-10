@@ -28,7 +28,7 @@ import {
   StripedDataGrid,
   columnsActionCalculator,
 } from '~/components/table';
-import { RowHighlightLegend } from '~/components/table';
+import { RowHighlightLegend, FixedTableFilters } from '~/components/table';
 import { useConfirmDialog } from '~/components/dialog';
 import { basePageSizeOptions, baseTableConfig } from '~/config';
 import { useDataStore } from '~/hooks';
@@ -51,7 +51,7 @@ from '~/utilities';
 import type { TableRowAction, FiltersSerializer, DialogResultReason{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
-import { MdiIcon } from '../MdiIcon';
+import { MdiIcon } from '~/components/MdiIcon';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -466,20 +466,6 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   }, [rowModesModel]);
 
 
-  const fallbackFilter: Filter = buildFilter(FilterType.string, _StringOperation.like, 'name', '');
-  const [nameFilter, setNameFilter] = useState<Filter>(filters?.find(f => f.filterOption.attributeName === 'name') || fallbackFilter);
-
-  const updateNameFilter = (value: string) => {
-    setNameFilter((prevNameFilter) => {
-      return {
-        ...prevNameFilter,
-        filterBy: {
-          ...prevNameFilter.filterBy,
-          value,
-        },
-      };
-    });
-  }
   return (
     <>
       <ComponentProxy
@@ -496,26 +482,14 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         boundAttributeName={relationName}
         annotations={annotations}
       />
-
-      <Grid container sx={{ mb: 2 }}>
-        <Grid item xs={6}>
-          <TextField
-            variant="standard"
-            value={nameFilter.filterBy.value}
-            onChange={(event) => {
-              updateNameFilter(event.target.value);
-            }}
-          />
-        </Grid>
-        <Grid item xs={6}>
-          <Button onClick={() => {
-            onFiltersChange([
-              nameFilter,
-            ]);
-          }}>Apply</Button>
-        </Grid>
-      </Grid>
-
+      <FixedTableFilters
+        filters={filters}
+        ownerData={ownerData}
+        filtersSerializer={filtersSerializer}
+        tableFilterOptions={tableFilterOptions}
+        onFiltersChange={handleFiltersChange}
+      >
+      </FixedTableFilters>
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }

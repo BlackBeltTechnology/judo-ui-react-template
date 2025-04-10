@@ -32,9 +32,10 @@ import { ElementType, MouseEvent, useCallback, useEffect, useMemo, useRef, useSt
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { Filter, FilterOption } from '~/components-api';
+import { MdiIcon } from '~/components/MdiIcon';
 import { useConfirmDialog } from '~/components/dialog';
 import { ContextMenu, ContextMenuApi, StripedDataGrid, columnsActionCalculator } from '~/components/table';
-import { RowHighlightLegend } from '~/components/table';
+import { FixedTableFilters, RowHighlightLegend } from '~/components/table';
 import { basePageSizeOptions, baseTableConfig } from '~/config';
 import { useDataStore } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
@@ -54,7 +55,6 @@ import {
   processQueryCustomizer,
 } from '~/utilities';
 import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
-import { MdiIcon } from '../MdiIcon';
 
 interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -485,6 +485,13 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         boundAttributeName={relationName}
         annotations={annotations}
       />
+      <FixedTableFilters
+        filters={filters}
+        ownerData={ownerData}
+        filtersSerializer={filtersSerializer}
+        tableFilterOptions={tableFilterOptions}
+        onFiltersChange={handleFiltersChange}
+      ></FixedTableFilters>
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}

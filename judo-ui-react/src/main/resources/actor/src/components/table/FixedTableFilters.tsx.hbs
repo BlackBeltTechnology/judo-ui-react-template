@@ -1,0 +1,53 @@
+{{> fragment.header.hbs }}
+
+import { Grid } from '@mui/material';
+import { GridValidRowModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import { Filter, FilterOption } from '~/components-api';
+import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
+import {
+  type FiltersSerializer,
+  getOperationFromFilterOperationType,
+} from '~/utilities';
+import { SingleValueFilterComponent } from '~/components/table/SingleValueFilterComponent';
+
+interface FixedTableFiltersProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
+  tableFilterOptions: FilterOption[];
+  filters: Filter[];
+  ownerData?: any;
+  filtersSerializer: FiltersSerializer;
+  onFiltersChange: (newFilters: Filter[]) => void;
+}
+
+export function FixedTableFilters<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
+  props: FixedTableFiltersProps<T, TStored>,
+) {
+  const { tableFilterOptions, filters, ownerData, filtersSerializer, onFiltersChange } = props;
+  const fixedTableFilterOptions = tableFilterOptions.filter(f => f.alwaysShown);
+
+  if (fixedTableFilterOptions.length > 0) {
+    return (
+      <>
+        <Grid container>
+          <Grid item xs={12}>
+            <Grid container spacing={2}>
+              {fixedTableFilterOptions.map((f) => (
+                <SingleValueFilterComponent
+                  key={f.id}
+                  attributeName={f.attributeName as keyof T}
+                  filterType={f.filterType}
+                  operator={getOperationFromFilterOperationType(f, f.defaultOperationType)}
+                  filters={filters}
+                  onFiltersChange={onFiltersChange}
+                  label={f.label ?? ''}
+                  col={f.col ?? 3}
+                />
+              ))}
+            </Grid>
+          </Grid>
+        </Grid>
+      </>
+    );
+  } else {
+    return (<></>)
+  }
+}
