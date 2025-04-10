@@ -14,6 +14,18 @@ type FilterBy = {
   operator: Operation;
 };
 
+export enum _FilterOperationType {
+  EQUAL = 'equal',
+  NOT_EQUAL = 'notEqual',
+  IS_EMPTY = 'isEmpty',
+  IS_NOT_EMPTY = 'isNotEmpty',
+  LESS = 'lessThan',
+  LESS_OR_EQUAL = 'lessOrEqual',
+  GREATER = 'greaterThan',
+  GREATER_OR_EQUAL = 'greaterOrEqual',
+  LIKE = 'like',
+}
+
 export const getOperationEnumValue = (filter: Filter, operator: string) => {
   switch (filter.filterOption.filterType) {
     case FilterType.boolean:
@@ -33,6 +45,48 @@ export const getOperationEnumValue = (filter: Filter, operator: string) => {
     case FilterType.trinaryLogic:
       return _BooleanOperation[operator as keyof typeof _BooleanOperation];
   }
+};
+
+export const getOperation = (filterOption: FilterOption, operator: string) => {
+  switch (filterOption.filterType) {
+    case FilterType.boolean:
+      return _BooleanOperation[operator as keyof typeof _BooleanOperation];
+    case FilterType.date:
+      return _NumericOperation[operator as keyof typeof _NumericOperation];
+    case FilterType.dateTime:
+      return _NumericOperation[operator as keyof typeof _NumericOperation];
+    // case FilterType.time:
+    //   return _NumericOperation[operator as keyof typeof _NumericOperation];
+    case FilterType.enumeration:
+      return _EnumerationOperation[operator as keyof typeof _BooleanOperation];
+    case FilterType.numeric:
+      return _NumericOperation[operator as keyof typeof _NumericOperation];
+    case FilterType.string:
+      return _StringOperation[operator as keyof typeof _StringOperation];
+    case FilterType.trinaryLogic:
+      return _BooleanOperation[operator as keyof typeof _BooleanOperation];
+  }
+};
+
+export const getOperationFromFilterOperationType = (filterOption: FilterOption, opType?: string): Operation => {
+  if (opType == undefined) {
+    return getOperationFromFilterOperationType(filterOption, _FilterOperationType.EQUAL);
+  }
+  const type: string | undefined = _FilterOperationType[opType as keyof typeof _FilterOperationType]
+  let op = type;
+  if (
+    filterOption.filterType === FilterType.boolean ||
+    filterOption.filterType === FilterType.trinaryLogic ||
+    filterOption.filterType === FilterType.enumeration
+  ) {
+    if (type === _FilterOperationType.EQUAL) {
+      op = 'equals';
+    } else if (type === _FilterOperationType.NOT_EQUAL) {
+      op = 'notEquals';
+    }
+  }
+  const operation = getOperation(filterOption, op);
+  return operation;
 };
 
 export const getDefaultOperator = (filterType: FilterType) => {
