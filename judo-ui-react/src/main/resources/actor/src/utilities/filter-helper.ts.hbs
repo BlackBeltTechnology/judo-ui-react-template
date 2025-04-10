@@ -72,8 +72,8 @@ export const getOperationFromFilterOperationType = (filterOption: FilterOption, 
   if (opType == undefined) {
     return getOperationFromFilterOperationType(filterOption, _FilterOperationType.EQUAL);
   }
-  const type = (opType || '') as _FilterOperationType;
-  let op = opType;
+  const type: string | undefined = _FilterOperationType[opType as keyof typeof _FilterOperationType]
+  let op = type;
   if (
     filterOption.filterType === FilterType.boolean ||
     filterOption.filterType === FilterType.trinaryLogic ||
