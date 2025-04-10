@@ -45,10 +45,12 @@ import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomTablePagination } from '~/components';
 import { Filter, FilterOption } from '~/components-api';
+import { MdiIcon } from '~/components/MdiIcon';
 import { useConfirmDialog } from '~/components/dialog';
 import {
   ContextMenu,
   ContextMenuApi,
+  FixedTableFilters,
   RowHighlightLegend,
   StripedDataGrid,
   columnsActionCalculator,
@@ -76,7 +78,6 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
-import { MdiIcon } from '../MdiIcon';
 
 interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -663,6 +664,13 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         boundAttributeName={relationName}
         annotations={annotations}
       />
+      <FixedTableFilters
+        filters={filters}
+        ownerData={ownerData}
+        filtersSerializer={filtersSerializer}
+        tableFilterOptions={tableFilterOptions}
+        onFiltersChange={handleFiltersChange}
+      ></FixedTableFilters>
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
