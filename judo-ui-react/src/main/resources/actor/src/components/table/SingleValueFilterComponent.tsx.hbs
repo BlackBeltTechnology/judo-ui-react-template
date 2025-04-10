@@ -35,12 +35,19 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
         f.filterOption.attributeName === attributeName &&
         f.filterOption.filterType === filterType &&
         f.filterBy.operator === operator,
-      ) || fallbackFilter,
-    );
+    ) || fallbackFilter,
+  );
 
-  const updateFilter = useCallback((value: any) => {
-    setFilter(buildFilter(filterType, operator, attributeName as string, value));
-  }, [filterType, operator, attributeName]);
+  const updateFilter = useCallback(
+    (value: any) => {
+      if (typeof value === "string" && value === '') {
+        setFilter(buildFilter(filterType, operator, attributeName as string, null));
+      } else {
+        setFilter(buildFilter(filterType, operator, attributeName as string, value));
+      }
+    },
+    [filterType, operator, attributeName],
+  );
 
   useEffect(() => {
     const newArr = filters?.filter(
@@ -55,9 +62,9 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
     onFiltersChange(newArr);
   }, [filter]);
 
-  const [inputValue, setInputValue] = useState<any>(
-    filter.filterBy.value !== undefined ? filter.filterBy.value : null
-  );
+  const [inputValue, setInputValue] = useState<any>(() => {
+    return filter.filterBy.value !== undefined ? filter.filterBy.value : null
+  });
   const inputValueRef = useRef(inputValue);
 
   // Keep the ref updated with the latest inputValue
