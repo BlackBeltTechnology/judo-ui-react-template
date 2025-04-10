@@ -122,6 +122,9 @@ public class UiI18NHelper {
         if (element instanceof Filter filter) {
             // we do not want to have dedicated keys for filters
             target = ((Table) filter.eContainer()).getColumns().stream().filter(c -> c.getAttributeType().equals(filter.getAttributeType())).findFirst().orElse(null);
+            if (target == null) {
+                target = element;
+            }
         }
 
         assert target != null;
@@ -130,6 +133,8 @@ public class UiI18NHelper {
             if (element instanceof Column column && column.eContainer() instanceof Table table && !table.getPageContainer().isTable()) {
                 bare = root + "." + table.getDataElement().getName() + "." + target.getName();
             } else if (element instanceof Button button && button.eContainer() instanceof ButtonGroup buttonGroup && buttonGroup.eContainer() instanceof Table table) {
+                bare = root + "." + table.getDataElement().getName() + "." + target.getName();
+            } else if (target instanceof Filter filter && element.eContainer() instanceof Table table) {
                 bare = root + "." + table.getDataElement().getName() + "." + target.getName();
             } else {
                 bare = root + "." + target.getName();
