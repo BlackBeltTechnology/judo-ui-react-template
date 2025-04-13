@@ -67,7 +67,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
   return (
     {{# unless (containerIsEmptyDashboard container) }}
       <>
-        <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}>
+        <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''} {{# if (titleIcon container) }}icon='{{ titleIcon container}}'{{/ if}}>
           {{# each container.actionButtonGroup.buttons as |button| }}
             { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
               <Grid className="page-action" item>

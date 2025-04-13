@@ -497,6 +497,9 @@ public class UiWidgetHelper {
     }
 
     public static boolean elementHasIcon(VisualElement element) {
+        if (element.eContainer() instanceof PageContainer) {
+            return false;
+        }
         return element.getIcon() != null && element.getIcon().getIconName() != null && !element.getIcon().getIconName().trim().isBlank();
     }
 
