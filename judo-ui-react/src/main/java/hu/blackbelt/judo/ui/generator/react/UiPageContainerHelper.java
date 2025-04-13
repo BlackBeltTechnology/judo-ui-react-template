@@ -48,6 +48,17 @@ public class UiPageContainerHelper {
         return container.getPageActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRefreshAction());
     }
 
+    public static String titleIcon(PageContainer container) {
+        if (container instanceof PageContainer &&
+                container.getChildren().size() > 0 &&
+                container.getChildren().get(0) instanceof Flex &&
+                (container.getChildren().get(0)).getIcon() != null) {
+            return (container.getChildren().get(0)).getIcon().getIconName();
+        } else {
+            return null;
+        }
+    }
+
     public static List<Link> getLinksForPageContainers(Application application) {
         return application.getPageContainers().stream().flatMap(c -> ((List<Link>) c.getLinks()).stream())
                 .collect(Collectors.toList());

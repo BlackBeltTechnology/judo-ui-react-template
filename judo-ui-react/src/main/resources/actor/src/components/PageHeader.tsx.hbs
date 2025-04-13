@@ -11,13 +11,15 @@ import type { ReactNode } from 'react';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH, MenuOrientation } from '~/config';
 import { useConfig } from '~/hooks';
 import { CustomBreadcrumb, useJudoNavigation } from './CustomBreadcrumb';
+import { MdiIcon } from '~/components';
 
 interface PageHeaderProps {
   title: string;
+  icon?: string;
   children: ReactNode;
 }
 
-export const PageHeader = ({ title, children }: PageHeaderProps) => {
+export const PageHeader = ({ title, icon, children }: PageHeaderProps) => {
   const { setTitle } = useJudoNavigation();
   const { container, miniDrawer, menuOrientation } = useConfig();
   const [scrolled, setScrolled] = useState<boolean>(false);
@@ -83,9 +85,14 @@ export const PageHeader = ({ title, children }: PageHeaderProps) => {
           <Grid item xs={12}>
             <Grid container alignItems="center" justifyContent="space-between" spacing={1}>
               <Grid item>
-                <Typography id="application-page-header-title" component="span" color="text.primary" variant="h3">
-                  {title}
-                </Typography>
+                <Box sx={ { display: 'flex', alignItems: 'center', gap: 2 } }>
+                  { icon && (
+                    <MdiIcon path="account" iconSize='1.8rem' />
+                  )}
+                  <Typography id="application-page-header-title" component="span" color="text.primary" variant="h3">
+                    {title}
+                  </Typography>
+                </Box>
               </Grid>
               <Grid item>
                 <Grid container direction="row" alignItems="center" spacing={1}>
