@@ -6,6 +6,7 @@ import { mapIcon, mapMimeTypeIcon } from '../utilities/icons';
 export interface MdiIconProps {
   className?: string;
   path: string;
+  iconSize?: string;
   rotate?: 45 | 90 | 135 | 180 | 225 | 270 | 315;
   flip?: 'h' | 'v';
   spin?: boolean;
@@ -18,12 +19,12 @@ export interface MdiIconProps {
 }
 
 export const MdiIcon = (props: MdiIconProps) => {
-  const { className, path, rotate, flip, spin, color, mimeType, sx } = props;
+  const { className, path, iconSize, rotate, flip, spin, color, mimeType, sx } = props;
   const mappedPath = mimeType ? mapMimeTypeIcon(mimeType.type, mimeType.subType, mapIcon(path)) : mapIcon(path);
   const style = {
     color,
     width: '1rem',
-    fontSize: 'large',
+    fontSize: `${iconSize ?? 'large'}`,
     height: '1rem',
     lineHeight: '1rem',
   };
