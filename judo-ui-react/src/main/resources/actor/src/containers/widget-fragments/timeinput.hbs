@@ -61,16 +61,18 @@
         value={ data.{{ child.attributeType.name }} ?? null }
         readOnly={actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : ({{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable())}
         disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
-        {{# if child.onBlur }}
-        onBlur={ () => {
-            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
-                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(data, storeDiff, editMode, submit);
-            }
-        } }
-        {{/ if }}
-        onChange={ (newValue?: Date | null) => {
+        onChange={ (newValue: Date | null) => {
             storeDiff('{{ child.attributeType.name }}', newValue);
+            {{# if child.onBlur }}
+            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
+                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: newValue{{# if child.attributeType.isRequired }}!{{/ if }} };
+                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, submit);
+            }
+            {{/ if }}
         } }
+        {{# unless child.isReadOnly }}
+        {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {})}
+        {{/ unless }}
         />
     {{# if (hasTooltipText child) }}
       {{> actor/src/fragments/container/input-tooltip.fragment.hbs input=child }}
