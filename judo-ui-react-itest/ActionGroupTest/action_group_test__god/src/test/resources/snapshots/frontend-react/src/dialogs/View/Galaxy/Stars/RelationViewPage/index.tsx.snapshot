@@ -251,7 +251,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
         onSubmit(data, 'delete');
       }
     } catch (error) {
-      handleError(error, undefined, data);
+      handleError(error, { actionId: 'God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewDeleteAction' }, data);
     }
   };
   // RefreshAction: God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewRefreshAction
@@ -271,7 +271,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
       }
       return response;
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewRefreshAction' });
       setLatestViewData(null);
       return Promise.reject(error);
     } finally {
@@ -294,7 +294,12 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
           // relation form has no remaining error(s), proceed with submission
           onSubmit(data, 'submit-draft');
         } else {
-          handleError<ViewStar>(error, { setValidation }, owner.current, dataPath!);
+          handleError<ViewStar>(
+            error,
+            { setValidation, actionId: 'God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewUpdateAction' },
+            owner.current,
+            dataPath!,
+          );
         }
       } finally {
         setIsLoading(false);
@@ -312,7 +317,11 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
         await actions.refreshAction!(getPageQueryCustomizer());
       }
     } catch (error) {
-      handleError<ViewStar>(error, { setValidation }, data);
+      handleError<ViewStar>(
+        error,
+        { setValidation, actionId: 'God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewUpdateAction' },
+        data,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -325,7 +334,10 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
       const { data: result } = await viewGalaxyServiceForStarsImpl.getRangeForLastObservation(data, queryCustomizer);
       return result;
     } catch (error: any) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkAutocompleteRangeAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)',
+      });
       return Promise.resolve([]);
     }
   };
@@ -334,7 +346,10 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     try {
       storeDiff('lastObservation', selected);
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkAutocompleteSetAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)',
+      });
       return Promise.reject(error);
     }
   };
@@ -513,7 +528,14 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
         storeDiff('planets', newList);
       }
     } catch (error) {
-      handleError<ViewPlanet>(error, undefined, target);
+      handleError<ViewPlanet>(
+        error,
+        {
+          actionId:
+            'God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)

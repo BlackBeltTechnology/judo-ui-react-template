@@ -39,6 +39,6 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
       {{/ if }}
     }
   } catch(error) {
-    handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, undefined, target);
+    handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, { actionId: '{{ getXMIID action }}' }, target);
   }
 };

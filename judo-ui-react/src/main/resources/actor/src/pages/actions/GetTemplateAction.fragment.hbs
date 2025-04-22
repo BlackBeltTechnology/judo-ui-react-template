@@ -19,7 +19,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
     }
     return response;
   } catch (error) {
-    handleError(error);
+    handleError(error, { actionId: '{{ getXMIID action }}' });
     return Promise.reject(error);
   } finally {
     setIsLoading(false);

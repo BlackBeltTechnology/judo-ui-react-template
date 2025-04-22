@@ -1,0 +1,32 @@
+{{> fragment.header.hbs }}
+
+import type { BundleContext } from '@pandino/pandino-api';
+import { ERROR_HANDLER_INTERCEPTOR_INTERFACE_KEY, type ErrorHandlerInterceptorHook, type ErrorHandlingOption } from '~/utilities/error-handling';
+import { useTranslation } from 'react-i18next';
+import { useSnacks } from '~/hooks/useSnacks';
+
+export function registerErrorHandlerInterceptorHook(context: BundleContext) {
+  context.registerService<ErrorHandlerInterceptorHook>(ERROR_HANDLER_INTERCEPTOR_INTERFACE_KEY, hook);
+}
+
+/**
+ * Notes:
+ * Don't forget to remove unused hooks, and related imports afterwards to reduce build time and bundle size!
+ */
+const hook: ErrorHandlerInterceptorHook = () => {
+  const { t } = useTranslation();
+  const { showErrorSnack } = useSnacks();
+
+  return {
+    shouldInterceptError: (error: any, options?: ErrorHandlingOption<any>) => {
+      console.error(error);
+      console.log(options?.actionId);
+      return options?.actionId === 'something';
+    },
+    interceptError: (error: any, options?: ErrorHandlingOption<any>, payload?: unknown, dataPath?: string) => {
+      showErrorSnack('No idea what happened', {
+        autoHideDuration: 3000,
+      });
+    },
+  };
+};
