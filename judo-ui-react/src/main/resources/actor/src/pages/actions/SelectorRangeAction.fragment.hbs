@@ -4,7 +4,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
   try {
     return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
   } catch (error: any) {
-    handleError(error);
+    handleError(error, { actionId: '{{ getXMIID action }}' });
     return Promise.resolve({ data: [], headers: error.response?.headers, status: error.response?.status, statusText: 'fallback', config: { headers: error.response?.headers } });
   }
   {{/ with }}
