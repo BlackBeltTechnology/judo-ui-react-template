@@ -9,7 +9,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
       await refresh();
     {{/ if }}
   } catch (error) {
-    handleError(error);
+    handleError(error, { actionId: '{{ getXMIID action }}' });
     return Promise.reject(error);
   }
   {{/ with }}

@@ -60,7 +60,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{/ if }}
     }
   } catch (error) {
-    handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, owner.current, dataPath);
+    handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation, actionId: '{{ getXMIID action }}' }, owner.current, dataPath);
   } finally {
     setIsLoading(false);
   }

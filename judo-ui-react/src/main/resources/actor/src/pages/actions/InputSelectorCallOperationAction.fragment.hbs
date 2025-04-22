@@ -54,7 +54,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{/ if }}
     }
   } catch (error) {
-    handleError(error);
+    handleError(error, { actionId: '{{ getXMIID action }}' });
   } finally {
     setIsLoading(false);
   }
