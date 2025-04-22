@@ -17,7 +17,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
           // relation form has no remaining error(s), proceed with submission
           onSubmit(data, 'submit-draft');
         } else {
-          handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, owner.current, dataPath!);
+          handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation, actionId: '{{ getXMIID action }}' }, owner.current, dataPath!);
         }
       } finally {
         setIsLoading(false);
@@ -42,7 +42,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
       {{/ and }}
     }
   } catch (error) {
-    handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, data);
+    handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation, actionId: '{{ getXMIID action }}' }, data);
   } finally {
     setIsLoading(false);
   }
