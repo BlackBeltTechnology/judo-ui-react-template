@@ -553,6 +553,17 @@ public class UiPageContainerHelper {
                 .collect(Collectors.toList());
     }
 
+    public static boolean containerHasNotReadOnlyTimeInput(PageContainer container) {
+        return !getNotReadOnlyTimeInputs(container).isEmpty();
+    }
+
+    public static List<VisualElement> getNotReadOnlyTimeInputs(PageContainer container) {
+        return collectElementsOfType(container, new ArrayList<>(), TimeInput.class).stream()
+                .filter(i -> !i.isIsReadOnly())
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
+
     public static Set<PageContainer> getPageContainersWithCustomImplementations(Application app) {
         Set<PageContainer> containers = new HashSet<>();
         for (PageContainer container : app.getPageContainers()) {
