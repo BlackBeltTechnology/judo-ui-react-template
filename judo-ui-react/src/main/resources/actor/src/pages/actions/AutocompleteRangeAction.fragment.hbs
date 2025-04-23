@@ -5,7 +5,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     const { data: result } = await {{ getServiceImplForPage page }}.getRange{{# if (isActionOnOperationInput action) }}On{{ firstToUpper (getOperationNameForActionOnInput action) }}{{/ if }}For{{ firstToUpper link.dataElement.name }}(data, queryCustomizer);
     return result;
   } catch (error: any) {
-    handleError(error);
+    handleError(error, { actionId: '{{ getXMIID action }}' });
     return Promise.resolve([]);
   }
   {{/ with }}
@@ -14,7 +14,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
     const { data: result } = await {{ getServiceImplForPage page }}.getRange{{# if (isActionOnOperationInput action) }}On{{ firstToUpper (getOperationNameForActionOnInput action) }}{{/ if }}For{{ firstToUpper table.relationName }}(data, queryCustomizer);
     return result;
   } catch (error: any) {
-    handleError(error);
+    handleError(error, { actionId: '{{ getXMIID action }}' });
     return Promise.resolve([]);
   }
   {{/ with }}

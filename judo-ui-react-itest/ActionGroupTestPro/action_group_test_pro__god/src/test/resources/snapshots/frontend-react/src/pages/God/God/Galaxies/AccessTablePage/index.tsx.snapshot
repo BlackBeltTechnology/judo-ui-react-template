@@ -181,7 +181,11 @@ export default function GodGodGalaxiesAccessTablePage() {
         setRefreshCounter((prev) => prev + 1);
       }
     } catch (error) {
-      handleError<ViewGalaxy>(error, undefined, target);
+      handleError<ViewGalaxy>(
+        error,
+        { actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableRowDeleteAction' },
+        target,
+      );
     }
   };
   // FilterAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableTableFilterAction
@@ -205,7 +209,7 @@ export default function GodGodGalaxiesAccessTablePage() {
       setEditMode(false);
       return godServiceForGalaxiesImpl.list(undefined, queryCustomizer);
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableTableRefreshAction' });
       setLatestViewData(null);
       setRouterPageData(null);
       return Promise.reject(error);

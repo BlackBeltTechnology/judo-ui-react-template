@@ -1,0 +1,45 @@
+{{> fragment.header.hbs }}
+
+import { useCallback } from 'react';
+import type { BundleContext } from '@pandino/pandino-api';
+import { ERROR_HANDLER_INTERCEPTOR_INTERFACE_KEY, type ErrorHandlerInterceptorHook, type ErrorHandlingOption } from '~/utilities/error-handling';
+import { useFaultDialog } from '~/components/dialog';
+import { useTranslation } from 'react-i18next';
+import { useSnacks } from '~/hooks/useSnacks';
+
+export function registerErrorHandlerInterceptorHook(context: BundleContext) {
+  context.registerService<ErrorHandlerInterceptorHook>(ERROR_HANDLER_INTERCEPTOR_INTERFACE_KEY, hook);
+}
+
+/**
+ * Notes:
+ * Don't forget to remove unused hooks, and related imports afterwards to reduce build time and bundle size!
+ */
+const hook: ErrorHandlerInterceptorHook = () => {
+  const { t } = useTranslation();
+  const { showErrorSnack } = useSnacks();
+  const openFaultDialog = useFaultDialog();
+
+  // Only extract use-case checks to functions if you plan to add multiple. This way
+  // they can be re-used in checks and interceptions as well.
+  const isSomethingError = useCallback((error: any, options?: ErrorHandlingOption<any>) => {
+    return options?.actionId === 'something';
+  }, []);
+
+  return {
+    shouldInterceptError: (error: any, options?: ErrorHandlingOption<any>) => {
+      console.error(error);
+      console.log(options?.actionId);
+      return isSomethingError(error, options);
+    },
+    interceptError: (error: any, options?: ErrorHandlingOption<any>, payload?: unknown, dataPath?: string) => {
+      // This check is only necessary if we plan to handle multiple scenarios.
+      if (isSomethingError(error, options)) {
+        showErrorSnack('No idea what happened', {
+          autoHideDuration: 3000,
+        });
+      }
+      // Other cases can go here if any.
+    },
+  };
+};

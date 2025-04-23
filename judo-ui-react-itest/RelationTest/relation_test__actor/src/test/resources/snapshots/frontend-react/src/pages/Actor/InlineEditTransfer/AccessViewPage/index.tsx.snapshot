@@ -216,7 +216,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
         navigateBack();
       }
     } catch (error) {
-      handleError(error, undefined, data);
+      handleError(error, { actionId: 'Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewDeleteAction' }, data);
     }
   };
   // RefreshAction: Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewRefreshAction
@@ -243,7 +243,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
       }
       return response;
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewRefreshAction' });
       setLatestViewData(null);
       setRouterPageData(null);
       return Promise.reject(error);
@@ -264,7 +264,11 @@ export default function ActorInlineEditTransferAccessViewPage() {
         await actions.refreshAction!(getPageQueryCustomizer());
       }
     } catch (error) {
-      handleError<InlineEditTransfer>(error, { setValidation }, data);
+      handleError<InlineEditTransfer>(
+        error,
+        { setValidation, actionId: 'Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewUpdateAction' },
+        data,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -358,7 +362,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
         storeDiff('manyAggregationAssociation', newList);
       }
     } catch (error) {
-      handleError<TransferObjectH>(error, undefined, target);
+      handleError<TransferObjectH>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // RemoveAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowRemoveAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -435,7 +446,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
         storeDiff('manyAggregationComposition', newList);
       }
     } catch (error) {
-      handleError<TransferObjectH>(error, undefined, target);
+      handleError<TransferObjectH>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_3BEYwISbEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_3BEYwISbEe-FwPSSWSnNlQ)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -493,7 +511,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
         storeDiff('manyDerivedAggregationAssociation', newList);
       }
     } catch (error) {
-      handleError<TransferObjectH>(error, undefined, target);
+      handleError<TransferObjectH>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_tRN9YISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_tRN9YISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -556,7 +581,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
         storeDiff('manyDerivedAggregationComposition', newList);
       }
     } catch (error) {
-      handleError<TransferObjectH>(error, undefined, target);
+      handleError<TransferObjectH>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_eMz_gIScEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_eMz_gIScEe-FwPSSWSnNlQ)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
