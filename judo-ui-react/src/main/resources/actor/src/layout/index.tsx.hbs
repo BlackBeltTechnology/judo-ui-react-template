@@ -1,88 +1,100 @@
 {{> fragment.header.hbs }}
 
-import { Outlet } from 'react-router-dom';
-import { useTheme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
-{{# if application.authentication }}
 import Grid from '@mui/material/Grid';
-import Typography from '@mui/material/Typography';
-import Button from '@mui/material/Button';
-import { useTranslation } from 'react-i18next';
-import { usePrincipal, AuthErrorBox, ACCESS_FILTER_COMPONENT_INTERFACE_KEY, AuthProxyComponent } from "~/auth";
 import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTranslation } from 'react-i18next';
+import { Outlet } from 'react-router-dom';
+{{# if application.authentication }}
+import { ACCESS_FILTER_COMPONENT_INTERFACE_KEY, AuthErrorBox, AuthProxyComponent, usePrincipal } from '~/auth';
 {{/ if }}
-import { useConfig } from '~/hooks';
-import { MenuOrientation, DRAWER_WIDTH } from '~/config';
-import { density } from '~/theme';
-import { Drawer } from './Drawer';
-import { Header } from './Header';
-import { Footer } from './Footer';
+import { DRAWER_WIDTH } from '~/config';
+import { BottomMenu } from '~/layout/BottomMenu';
+import { Drawer } from '~/layout/Drawer';
+import { Footer } from '~/layout/Footer';
+import { Header } from '~/layout/Header';
+import { useLayoutHelper } from '~/utilities/layout-helper';
 
 export const Layout = () => {
-  const theme = useTheme();
-  const matchDownXL = useMediaQuery(theme.breakpoints.down('xl'));
-  const downLG = useMediaQuery(theme.breakpoints.down('lg'));
-  {{# if application.authentication }}
   const { t } = useTranslation();
+  {{# if application.authentication }}
   const { principal, errorCode } = usePrincipal();
   {{/ if }}
 
-  const { container, miniDrawer, menuOrientation, onChangeMiniDrawer } = useConfig();
+  const { container, headerPresented, horizontalMenuPresented, bottomMenu } = useLayoutHelper();
 
-  const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
-
+  const { marginTop } = useLayoutHelper();
   {{# if application.authentication }}
   const errorCodeAndTitleMapping: Record<string, string> = {
-    AUTHENTICATED_ENTITY_NOT_FOUND: t('judo.error.security.authenticatedEntityNotFoundTitle', { defaultValue: 'User not found' }),
+    AUTHENTICATED_ENTITY_NOT_FOUND: t('judo.error.security.authenticatedEntityNotFoundTitle', {
+      defaultValue: 'User not found',
+    }),
   };
   const errorCodeAndMessageMapping: Record<string, string> = {
-    AUTHENTICATED_ENTITY_NOT_FOUND: t('judo.error.security.authenticatedEntityNotFoundMessage', { defaultValue: 'Processing of your account is still in progress.' }),
+    AUTHENTICATED_ENTITY_NOT_FOUND: t('judo.error.security.authenticatedEntityNotFoundMessage', {
+      defaultValue: 'Processing of your account is still in progress.',
+    }),
   };
   {{/ if }}
-
   return (
     {{# if application.authentication }}
     principal?.__signedIdentifier ? (
     <AuthProxyComponent filter={`(${OBJECTCLASS}=${ACCESS_FILTER_COMPONENT_INTERFACE_KEY})`} principal={principal}>
     {{/ if }}
-    <Box sx={ { display: 'flex', width: '100%' } }>
-      <Header />
-      {!isHorizontal ? <Drawer /> : null}
+      <Box sx={ { display: 'flex', width: '100%' } }>
+        {headerPresented ? <Header /> : null}
+        {!horizontalMenuPresented ? <Drawer /> : null}
 
-      <Box component="main" sx={ { width: `calc(100% - ${DRAWER_WIDTH}px)`, flexGrow: 1, p: { xs: 2, sm: 3 } } }>
-        <Container
-          maxWidth={container ? 'xl' : false}
-          sx={ {
-            ...(container && { px: { xs: 0, sm: 2 } }),
-            position: 'relative',
-            minHeight: 'calc(100vh - 110px)',
-            display: 'flex',
-            flexDirection: 'column',
-            mt: density.mainMarginTop ?? 12,
-          } }
+        <Box
+          component="main"
+          sx={ { width: `calc(100% - ${DRAWER_WIDTH}px)`, flexGrow: 1, p: { xs: 1, sm: 1, md: 1, lg: 2, xl: 4 } } }
         >
-          <Outlet />
-          <Footer />
-        </Container>
+          <Container
+            maxWidth={container ? 'xl' : false}
+            sx={ {
+              ...(container && { px: { xs: 0, sm: 0, md: 0, lg: 2, xl: 4 } }),
+              position: 'relative',
+              minHeight: 'calc(100vh - 110px)',
+              display: 'flex',
+              flexDirection: 'column',
+              mt: `${marginTop}rem`,
+            } }
+          >
+            <Outlet />
+            {bottomMenu && <BottomMenu />}
+            <Footer />
+          </Container>
+        </Box>
       </Box>
-    </Box>
-    {{# if application.authentication }}
+   {{# if application.authentication }}
     </AuthProxyComponent>
-    ) : (
-      <Grid container spacing={0} direction="column" alignItems="center" justifyContent="center" sx={ { minHeight: '100vh' } }>
-        <Grid item xs={3}>
-          {errorCode
-            ? (<AuthErrorBox
-                title={errorCodeAndTitleMapping[errorCode] || t('judo.error.security.unknown', { defaultValue: 'An unknown error occurred!' })}
-                message={errorCodeAndMessageMapping[errorCode] || t('judo.error.security.unknown.message', { defaultValue: 'Please contact the system administrators.' })}
-              />)
-            : (<span>{t('judo.security.loading-principal', { defaultValue: 'Loading principal data...' })}</span>)
-          }
-        </Grid>
+  ) : (
+    <Grid
+      container
+      spacing={0}
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      sx={ { minHeight: '100vh' } }
+    >
+      <Grid item xs={3}>
+        {errorCode ? (
+          <AuthErrorBox
+            title={
+              errorCodeAndTitleMapping[errorCode] ||
+              t('judo.error.security.unknown', { defaultValue: 'An unknown error occurred!' })
+            }
+            message={
+              errorCodeAndMessageMapping[errorCode] ||
+              t('judo.error.security.unknown.message', { defaultValue: 'Please contact the system administrators.' })
+            }
+          />
+        ) : (
+          <span>{t('judo.security.loading-principal', { defaultValue: 'Loading principal data...' })}</span>
+        )}
       </Grid>
-    )
+    </Grid>
     {{/ if }}
   );
 };
