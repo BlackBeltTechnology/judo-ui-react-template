@@ -13,8 +13,8 @@ const initialState: CustomizationProps = {
   onChangeMode: (mode: ThemeMode) => {},
   onChangeMiniDrawer: (miniDrawer: boolean) => {},
   onChangeMenuOrientation: (menuOrientation: MenuOrientation) => {},
+  onChangeHeader: (header: boolean) => {},
 };
-
 
 const ConfigContext = createContext(initialState);
 
@@ -28,42 +28,49 @@ function ConfigProvider({ children }: ConfigProviderProps) {
   const onChangeContainer = () => {
     setConfig({
       ...config,
-      container: !config.container
+      container: !config.container,
     });
   };
 
   const onChangeLocalization = (lang: I18n) => {
     setConfig({
       ...config,
-      i18n: lang
+      i18n: lang,
     });
   };
 
   const onChangeMode = (mode: ThemeMode) => {
     setConfig({
       ...config,
-      mode
+      mode,
     });
   };
 
   const onChangeDirection = (direction: ThemeDirection) => {
     setConfig({
       ...config,
-      themeDirection: direction
+      themeDirection: direction,
     });
   };
 
   const onChangeMiniDrawer = (miniDrawer: boolean) => {
     setConfig({
       ...config,
-      miniDrawer
+      miniDrawer,
     });
   };
 
   const onChangeMenuOrientation = (layout: MenuOrientation) => {
     setConfig({
       ...config,
-      menuOrientation: layout
+      menuOrientation: layout,
+    });
+  };
+
+  const onChangeHeader = (header: boolean) => {
+    setConfig({
+      ...config,
+      header,
     });
   };
 
@@ -77,6 +84,7 @@ function ConfigProvider({ children }: ConfigProviderProps) {
         onChangeDirection,
         onChangeMiniDrawer,
         onChangeMenuOrientation,
+        onChangeHeader,
       } }
     >
       {children}
