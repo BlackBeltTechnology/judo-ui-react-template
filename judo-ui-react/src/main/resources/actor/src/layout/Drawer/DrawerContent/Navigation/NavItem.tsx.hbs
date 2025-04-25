@@ -1,19 +1,19 @@
 {{> fragment.header.hbs }}
 
-import { forwardRef } from 'react';
-import type { ForwardRefExoticComponent, RefAttributes, ReactNode } from 'react';
-import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { useTheme } from '@mui/material/styles';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
-import Tooltip from "@mui/material/Tooltip";
+import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
-import { useConfig } from '~/hooks';
-import { MenuOrientation, ThemeMode } from '~/config';
+import { forwardRef } from 'react';
+import type { ForwardRefExoticComponent, ReactNode, RefAttributes } from 'react';
+import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 import { MdiIcon, useJudoNavigation } from '~/components';
+import { MenuOrientation, ThemeMode } from '~/config';
+import { useConfig } from '~/hooks';
 
 export type NavItemType = {
   id: string;
@@ -64,14 +64,14 @@ export const NavItem = ({ item, level }: NavItemProps) => {
       {...props}
       to={item.url!}
       ref={ref}
-      onClick={ (e) => {
+      onClick={(e) => {
         // menu item-based navigations should always clear the breadcrumbs
         e.preventDefault();
         e.stopPropagation();
         if (typeof item.onClick === 'function') {
           try {
             item.onClick();
-          } catch(e) {
+          } catch (e) {
             console.error(e);
           }
         } else if (item.url!.startsWith('http')) {
@@ -86,7 +86,14 @@ export const NavItem = ({ item, level }: NavItemProps) => {
   return (
     <>
       {menuOrientation === MenuOrientation.VERTICAL || downLG ? (
-        <Tooltip title={miniDrawer && level !== undefined && level <= 1 ? (t(`menuTree.${item.title}`, { defaultValue: item.title })) : undefined} placement="right">
+        <Tooltip
+          title={
+            miniDrawer && level !== undefined && level <= 1
+              ? t(`menuTree.${item.title}`, { defaultValue: item.title })
+              : undefined
+          }
+          placement="right"
+        >
           <ListItemButton
             component={LinkComponent}
             disabled={item.disabled}
@@ -170,7 +177,7 @@ export const NavItem = ({ item, level }: NavItemProps) => {
           )}
           <ListItemText
             primary={
-              <Typography fontWeight="inherit" variant="inherit" color="inherit">
+              <Typography fontWeight="inherit" variant="inherit" color="inherit" noWrap>
                 {t(`menuTree.${item.title}`, { defaultValue: item.title })}
               </Typography>
             }
