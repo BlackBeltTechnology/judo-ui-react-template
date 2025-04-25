@@ -18,282 +18,44 @@ import { paletteThemeLight, paletteThemeDark } from './palette';
 import { density } from './density';
 import { typography } from './typography';
 
-const baseTheme = (paletteTheme: Theme) => createTheme(
-  paletteTheme,
-  {
-    spacing: (factor: number) => `${density.spacingMultiplier * factor}rem`,
-    typography: {
-      ...typography,
-      button: {
-        fontSize: `${density.fontSize}rem`,
-        textTransform: 'none',
-      },
-    },
-    mixins: {
-      MuiDataGrid: {
-        // workaround for mui pro grid issue, otherwise this should not be required
-        containerBackground: paletteTheme.palette.background.paper,
-      },
-    },
+const breakpoints = createBreakpoints({});
+
+const baseTheme = (
+  paletteTheme: Theme,
+  scaleXs: number,
+  scaleSm: number,
+  scaleMd: number,
+  scaleLg: number,
+  scaleXl: number,
+): Theme => {
+  return createTheme(
+    paletteTheme,
+    {
+      {{> actor/src/theme/index.ts.theme-options.fragment.hbs }}
     components: {
-      MuiAppBar: {
-        styleOverrides: {
-          colorPrimary: {
-            backgroundColor: paletteTheme.palette.background.default,
-          },
-        },
-      },
-      MuiButton: {
-        defaultProps: {
-          variant: 'contained',
-          size: density.buttonSize,
-        },
-        styleOverrides: {
-          root: {
-            borderRadius: density.borderRadius,
-          },
-        },
-      },
-      MuiChip: {
-        styleOverrides: {
-          root: {
-            height: '28px',
-          },
-        },
-      },
-      MuiLoadingButton: {
-        defaultProps: {
-          variant: 'contained',
-          size: density.buttonSize,
-        },
-        styleOverrides: {
-          root: {
-            borderRadius: density.borderRadius,
-          },
-        },
-      },
-      MuiTab: {
-        styleOverrides: {
-          root: {
-            '&.JUDO-nestedError': {
-              color: paletteTheme.palette.error.main,
-            },
-          },
-        },
-      },
-      MuiFormControl: {
-        styleOverrides: {
-          root: {
-            margin: 0,
-          },
-        },
-      },
-      MuiFormControlLabel: {
-        styleOverrides: {
-          root: {
-            '&.checkbox > .MuiFormControlLabel-label': {
-              fontSize: `${density.fontSize}rem`,
-            },
-          },
-        },
-      },
-      MuiDialogTitle: {
-        styleOverrides: {
-          root: {
-            fontSize: '1rem',
-            fontWeight: 500
-          }
-        }
-      },
-      MuiDialogContent: {
-        styleOverrides: {
-          root: {
-            backgroundColor: paletteTheme.palette.background.default,
-          },
-        },
-      },
-      MuiFormLabel: {
-        styleOverrides: {
-          asterisk: { color: 'red' },
-          root: {
-            '&.Mui-required': {
-              fontWeight: 900,
-            },
-          },
-        },
-      },
+      {{> actor/src/theme/index.ts.mui-app-bar.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-button.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-chip.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-tab.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-form-control.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-dialog.fragment.hbs }}
       {{> actor/src/theme/index.ts.mui-input-base.fragment.hbs }}
-      MuiInputLabel: {
-        styleOverrides: {
-          root: {
-            color: paletteTheme.palette.subtitleColor.main,
-            fontWeight: 500,
-            '&.Mui-focused': {
-              color: paletteTheme.palette.subtitleColor.main,
-            },
-          },
-        },
-      },
       {{> actor/src/theme/index.ts.mui-text-field.fragment.hbs }}
-      MuiAutocomplete: {
-        defaultProps: {
-          fullWidth: true,
-          variant: 'filled',
-          color: 'secondary',
-        },
-        styleOverrides: {
-          root: {
-            '.AggregationInputButtonGroup': {
-              position: 'absolute',
-              top: 'calc(50% - 14px)', // MUI internals have the same burned in values...
-              right: 8,
-            },
-            '.AggregationInputButtonGroup .AggregationInputLoading': {
-              margin: 'auto 0',
-            },
-            '.TagsButtonGroup': {
-              position: 'absolute',
-              top: 'calc(50% - 14px)', // MUI internals have the same burned in values...
-              right: 8,
-            },
-            '.TagsButtonGroup .TagsLoading': {
-              margin: 'auto 0',
-            },
-            '.MuiInputBase-root.MuiInputBase-formControl.MuiAutocomplete-inputRoot': {
-              paddingRight: '85px',
-            },
-            '.JUDO-readOnly .MuiInputBase-root:before': {
-              border: 0,
-            },
-            '.JUDO-readOnly .MuiInputBase-root .MuiAutocomplete-endAdornment': {
-              visibility: 'hidden',
-            },
-          },
-        },
-      },
-      MuiRadio: {
-        defaultProps: {
-          color: 'secondary',
-        },
-      },
-      MuiSelect: {
-        styleOverrides: {
-          filled: {
-            '&:focus': {
-              backgroundColor: 'transparent',
-            },
-          },
-        },
-      },
+      {{> actor/src/theme/index.ts.mui-autocomplete.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-radio.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-select.fragment.hbs }}
       {{> actor/src/theme/index.ts.mui-data-grid.fragment.hbs }}
       {{# if isMUILicensePlanPro }}
           {{> actor/src/theme/index.ts.mui-data-grid-pro.fragment.hbs }}
       {{/ if }}
-      MuiPaper: {
-        styleOverrides: {
-          rounded: {
-            boxShadow: '0px 0px 8px 1px rgba(0,0,0,0.05)',
-            borderRadius: density.borderRadius,
-          },
-          {{# if application.backgroundImage }}
-          root: {
-            background: alpha(paletteTheme.palette.background.default, 0.97),
-          },
-          {{/ if }}
-        },
-      },
-      MuiDrawer: {
-        styleOverrides: {
-          paper: {
-            border: 'none',
-            boxShadow: '0px 0px 8px 1px rgba(0,0,0,0.05)',
-          },
-        },
-      },
-      MuiButtonGroup: {
-        defaultProps: {
-          size: density.buttonSize,
-        },
-      },
-      MuiIconButton: {
-        defaultProps: {
-          size: density.buttonSize,
-        },
-      },
-      MuiTooltip: {
-        styleOverrides: {
-          tooltip: {
-            borderRadius: 4,
-          },
-        },
-      },
-      MuiDivider: {
-        styleOverrides: {
-          root: {
-            backgroundColor: 'rgb(255,255,255,0.15)',
-          },
-          middle: {
-            marginTop: 8,
-            marginBottom: 8,
-          },
-        },
-      },
-      MuiList: {
-        styleOverrides: {
-          root: {
-            '.MuiListSubheader-root': {
-              color: paletteTheme.palette.subtitleColor.main,
-            },
-          },
-        },
-        defaultProps: {
-          dense: density.isListDense,
-        },
-      },
-      MuiListItemText: {
-        styleOverrides: {
-          root: {
-            '> span': {
-              fontSize: `${density.fontSize}rem`,
-            },
-          },
-        },
-      },
-      MuiListItemIcon: {
-        styleOverrides: {
-          root: {
-            color: 'inherit',
-            minWidth: '34px',
-            // marginRight: paletteTheme.spacing(2),
-          },
-        },
-      },
-      MuiAvatar: {
-        styleOverrides: {
-          root: {
-            width: 32,
-            height: 32,
-          },
-        },
-      },
-      MuiCard: {
-        styleOverrides: {
-          root: {
-            width: '100%',
-            length: '100%',
-          },
-        },
-      },
-      MuiCardContent: {
-        styleOverrides: {
-          root: {
-            padding: density.cardContentPadding ?? 16,
-            '&:last-child': {
-              paddingBottom: density.cardContentPadding ?? 16,
-            },
-          },
-        },
-      },
+      {{> actor/src/theme/index.ts.mui-paper.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-drawer.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-tooltip.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-divider.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-list.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-avatar.fragment.hbs }}
+      {{> actor/src/theme/index.ts.mui-card.fragment.hbs }}
+      {{> actor/src/theme/index.ts.extra-components.fragment.hbs }}
     },
   },
   {{ muiTranslationToken (getDefaultLanguage application) 'ForMaterial' }},

@@ -1,39 +1,32 @@
 {{> fragment.header.hbs }}
 
+import type { AppBarProps } from '@mui/material';
+import AppBar from '@mui/material/AppBar';
+import IconButton from '@mui/material/IconButton';
+import Toolbar from '@mui/material/Toolbar';
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { useTheme } from '@mui/material/styles';
-import AppBar from '@mui/material/AppBar';
-import Toolbar from '@mui/material/Toolbar';
-import useMediaQuery from '@mui/material/useMediaQuery';
-import IconButton from '@mui/material/IconButton';
-import type { AppBarProps } from '@mui/material';
-import { useConfig } from '~/hooks';
-import { MenuOrientation, ThemeMode, DRAWER_WIDTH } from '~/config';
 import { MdiIcon } from '~/components';
-import { AppBarStyled } from './AppBarStyled';
-import { HeaderContent } from './HeaderContent';
+import { DRAWER_WIDTH, MenuOrientation } from '~/config';
+import { useConfig } from '~/hooks';
+import { AppBarStyled } from '~/layout/Header/AppBarStyled';
+import { HeaderContent } from '~/layout/Header/HeaderContent';
 
 export const Header = () => {
   const theme = useTheme();
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
   const { menuOrientation, miniDrawer, onChangeMiniDrawer } = useConfig();
 
-  const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL && !downLG;
+  const isHorizontal = menuOrientation === MenuOrientation.HORIZONTAL;
 
   const headerContent = useMemo(() => <HeaderContent />, []);
-
-  const iconBackColorOpen = theme.palette.mode === ThemeMode.DARK ? 'grey.200' : 'grey.300';
-  const iconBackColor = theme.palette.mode === ThemeMode.DARK ? 'background.default' : 'grey.100';
 
   const mainHeader: ReactNode = (
     <Toolbar>
       {!isHorizontal ? (
-        <IconButton
-          aria-label="open drawer"
-          color="secondary"
-          onClick={() => onChangeMiniDrawer(!miniDrawer)}
-        >
+        <IconButton aria-label="open drawer" color="secondary" onClick={() => onChangeMiniDrawer(!miniDrawer)}>
           {!miniDrawer ? <MdiIcon path="menu-open" /> : <MdiIcon path="menu" />}
         </IconButton>
       ) : null}
@@ -48,8 +41,12 @@ export const Header = () => {
     sx: {
       borderBottom: `1px solid ${theme.palette.divider}`,
       zIndex: 1200,
-      width: isHorizontal ? '100%' : !miniDrawer ? `calc(100% - ${DRAWER_WIDTH}px)` : { xs: '100%', lg: 'calc(100% - 60px)' }
-    }
+      width: isHorizontal
+        ? '100%'
+        : !miniDrawer
+          ? `calc(100% - ${DRAWER_WIDTH}px)`
+          : { xs: '100%', lg: 'calc(100% - 60px)' },
+    },
   };
 
   return (
