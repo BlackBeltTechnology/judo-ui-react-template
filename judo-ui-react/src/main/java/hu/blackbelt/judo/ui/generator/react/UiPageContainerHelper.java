@@ -320,6 +320,16 @@ public class UiPageContainerHelper {
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getHiddenBy() != null).map(i -> i.getHiddenBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getEnabledBy() != null).map(i -> i.getEnabledBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getRequiredBy() != null).map(i -> i.getRequiredBy().getName()).collect(Collectors.toSet()));
+        attributeNames.addAll(AllVisualElements.stream()
+                .filter(e -> e instanceof InputValueConstraint)
+                .map(e -> (InputValueConstraint) e)
+                .filter(e -> e.getMinValueBy() != null)
+                .map(i -> i.getMinValueBy().getName()).collect(Collectors.toSet()));
+        attributeNames.addAll(AllVisualElements.stream()
+                .filter(e -> e instanceof InputValueConstraint)
+                .map(e -> (InputValueConstraint) e)
+                .filter(e -> e.getMaxValueBy() != null)
+                .map(i -> i.getMaxValueBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(buttons.stream()
                 .map(v -> (Button) v)
                 .filter(e -> e.getConfirmation() != null && e.getConfirmation().getConfirmationCondition() != null)
