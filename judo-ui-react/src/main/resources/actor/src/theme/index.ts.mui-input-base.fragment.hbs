@@ -5,7 +5,22 @@ MuiInputBase: {
   },
   styleOverrides: {
     root: {
-      fontSize: `${density.fontSize}rem`,
+      [breakpoints.down('sm')]: {
+        fontSize: `${density.fontSize * scaleXs}rem`,
+      },
+      [breakpoints.between('sm', 'md')]: {
+        fontSize: `${density.fontSize * scaleSm}rem`,
+      },
+      [breakpoints.between('md', 'lg')]: {
+        fontSize: `${density.fontSize * scaleMd}rem`,
+      },
+      [breakpoints.between('lg', 'xl')]: {
+        fontSize: `${density.fontSize * scaleLg}rem`,
+      },
+      [breakpoints.up('xl')]: {
+        fontSize: `${density.fontSize * scaleXl}rem`,
+      },
+
       '.MuiIconButton-root': {
         color: paletteTheme.palette.secondary.main,
       },
@@ -21,4 +36,16 @@ MuiInputBase: {
     },
   },
 },
+MuiInputLabel: {
+  styleOverrides: {
+    root: {
+      color: paletteTheme.palette.subtitleColor.main,
+      fontWeight: 500,
+      '&.Mui-focused': {
+        color: paletteTheme.palette.subtitleColor.main,
+      },
+    },
+  },
+},
+
 // End of 'actor/src/theme/index.ts.mui-input-base.fragment.hbs'
