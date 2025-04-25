@@ -9,7 +9,7 @@ import Popper from '@mui/material/Popper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
-import { useRef, useState } from 'react';
+import { useRef, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useJudoNavigation } from '~/components';
 import { ThemeMode } from '~/config';
@@ -140,7 +140,7 @@ export const HeaderProfile = () => {
                   },
                 } }
               >
-                <ProfilePopup {{# if application.authentication }}openProfilePage={openProfilePage}{{/ if }} />
+                <ProfilePopup {{# if application.authentication }}{{# if application.profilePage }}openProfilePage={openProfilePage}{{/ if }}{{/ if }} />
               </Paper>
             </Transitions>
           )}

@@ -16,7 +16,10 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+{{# if application.authentication }}
 import { usePrincipal } from '~/auth';
+import { {{ classDataName application.principal 'Stored' }} } from '~/services/data-api/model/{{ classDataName application.principal '' }}';
+{{/ if }}
 import { useJudoNavigation } from '~/components';
 import { MdiIcon } from '~/components/MdiIcon';
 import { ThemeMode } from '~/config';
@@ -27,20 +30,26 @@ import {
 import { NavCollapse } from '~/layout/Drawer/DrawerContent/Navigation/NavCollapse';
 import { NavItem, NavItemType } from '~/layout/Drawer/DrawerContent/Navigation/NavItem';
 import { useMenus } from '~/layout/Drawer/DrawerContent/Navigation/menu-items';
-import { ServiceServicePrincipalUserStored } from '~/services/data-api/model/ServiceServicePrincipalUser';
 import { BottomProfile } from './BottomProfile';
 
-const isHidden = (menuItem: NavItemType, principal: ServiceServicePrincipalUserStored): boolean => {
-  return menuItem.hiddenBy ? !!principal[menuItem.hiddenBy as keyof ServiceServicePrincipalUserStored] : false;
+{{# if application.authentication }}
+const isHidden = (menuItem: NavItemType, principal: {{ classDataName application.principal 'Stored' }}): boolean => {
+  return menuItem.hiddenBy ? !!principal[menuItem.hiddenBy as keyof {{ classDataName application.principal 'Stored' }}] : false;
 };
+{{/ if }}
 
 const handleMenuItems = (
   source: NavItemType[],
   target: NavItemType[],
-  principal: ServiceServicePrincipalUserStored,
+  {{# if application.authentication }}
+  principal: {{ classDataName application.principal 'Stored' }},
+  {{/ if }}
+
 ) => {
   for (const item of source) {
+    {{# if application.authentication }}
     if (!isHidden(item, principal)) {
+    {{/ if }}
       const clone: NavItemType = {
         ...item,
         children: Array.isArray(item.children) && item.children.length ? [] : undefined,
@@ -48,20 +57,24 @@ const handleMenuItems = (
       target.push(clone);
 
       if (Array.isArray(item.children) && item.children.length) {
-        handleMenuItems(item.children, clone.children!, principal);
+        handleMenuItems(item.children, clone.children!{{# if application.authentication }}, principal{{/ if }});
       }
+    {{# if application.authentication }}
     }
+    {{/ if }}
   }
 };
 
-const filterMenus = (source: NavItemType[], principal: ServiceServicePrincipalUserStored) => {
+const filterMenus = (source: NavItemType[]{{# if application.authentication }}, principal: {{ classDataName application.principal 'Stored' }}{{/ if }}) => {
   const target: NavItemType[] = [];
-  handleMenuItems(source, target, principal);
+  handleMenuItems(source, target{{# if application.authentication }}, principal{{/ if }});
   return target;
 };
 
 export const BottomMenu = () => {
+  {{# if application.authentication }}
   const { principal } = usePrincipal();
+  {{/ if }}
   const { t } = useTranslation();
   const theme = useTheme();
   const { clearNavigate, externalNavigate } = useJudoNavigation();
@@ -73,7 +86,7 @@ export const BottomMenu = () => {
   const menuItemsCustomizer = useMenuItemsCustomizer && useMenuItemsCustomizer();
   const menus = useMenus();
   const [bottomMenuItems, setBottomMenuItems] = useState<NavItemType[]>(
-    filterMenus(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus, principal),
+    filterMenus(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus{{# if application.authentication }}, principal{{/ if }}),
   );
 
   const [selectedBottomMenuItem, setSelectedBottomMenuItem] = useState<NavItemType | undefined>();
@@ -83,9 +96,9 @@ export const BottomMenu = () => {
 
   useEffect(() => {
     const filteredMenus: NavItemType[] = [];
-    handleMenuItems(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus, filteredMenus, principal);
+    handleMenuItems(menuItemsCustomizer ? menuItemsCustomizer(menus) : menus, filteredMenus{{# if application.authentication }}, principal{{/ if }});
     setBottomMenuItems(filteredMenus);
-  }, [principal]);
+  }, [{{# if application.authentication }}principal{{/ if }}]);
 
   let lastItemIndex = useMemo(() => bottomMenuItems.length - 1, [bottomMenuItems]);
 
