@@ -34,8 +34,7 @@ const isHidden = (menuItem: NavItemType{{# if application.authentication }}, pri
 };
 const handleMenuItems = (
   source: NavItemType[],
-  target: NavItemType[],
-  {{# if application.authentication }}, 
+  target: NavItemType[]{{# if application.authentication }},
   principal: {{ classDataName application.principal 'Stored' }},
   {{/ if }}
 ) => {
@@ -48,7 +47,7 @@ const handleMenuItems = (
       target.push(clone);
 
       if (Array.isArray(item.children) && item.children.length) {
-        handleMenuItems(item.children, clone.children!, principal);
+        handleMenuItems(item.children, clone.children!{{# if application.authentication }}, principal{{/ if }});
       }
     }
   }

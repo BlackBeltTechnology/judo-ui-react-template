@@ -11,7 +11,6 @@ import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { useCallback, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from 'react-oidc-context';
 import { useJudoNavigation } from '~/components';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH, ThemeMode } from '~/config';
 import { useConfig, useHeroProps } from '~/hooks';
@@ -37,10 +36,6 @@ export const BottomProfile = () => {
   const theme = useTheme();
   const heroProps = useHeroProps();
   const { navigate } = useJudoNavigation();
-  const openProfilePage = async () => {
-    setOpen(false);
-    navigate(routeToServiceUserUserProfileAccessViewPage());
-  };
   const { downLG } = useLayoutHelper();
 
   const anchorRef = useRef<any>(null);
@@ -79,15 +74,6 @@ export const BottomProfile = () => {
       });
     }, [isAuthenticated]);
   {{/ if }}
-
-
-
-  const doLogout = useCallback(() => {
-    const redirectUrl = window.location.href.split('#')[0];
-    signoutRedirect({
-      post_logout_redirect_uri: redirectUrl,
-    });
-  }, [isAuthenticated]);
 
   const handleToggle = (event: React.MouseEvent<HTMLElement>) => {
     setOpen((prevOpen) => !prevOpen);
@@ -167,7 +153,7 @@ export const BottomProfile = () => {
             } }
           >
             <ClickAwayListener onClickAway={handleClose}>
-              <ProfilePopup openProfilePage={openProfilePage} />
+              <ProfilePopup  {{# if application.authentication }}{{# if application.profilePage }}openProfilePage={openProfilePage}{{/ if }}{{/ if }} />
             </ClickAwayListener>
           </Paper>
         </Box>
