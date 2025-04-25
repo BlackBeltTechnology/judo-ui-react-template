@@ -41,7 +41,6 @@ export const DrawerProfile = () => {
   const anchorRef = useRef<any>(null);
   const [open, setOpen] = useState(false);
   const { miniDrawer, mode, onChangeMode } = useConfig();
-  const { signoutRedirect, isAuthenticated } = useAuth();
 
   {{# if application.authentication }}
     {{# if application.profilePage }}
@@ -75,18 +74,6 @@ export const DrawerProfile = () => {
       });
     }, [isAuthenticated]);
   {{/ if }}
-
-
-  const openProfilePage = async () => {
-    setOpen(false);
-    navigate(routeToServiceUserUserProfileAccessViewPage());
-  };
-  const doLogout = useCallback(() => {
-    const redirectUrl = window.location.href.split('#')[0];
-    signoutRedirect({
-      post_logout_redirect_uri: redirectUrl,
-    });
-  }, [isAuthenticated]);
 
   const handleToggle = (event: React.MouseEvent<HTMLElement>) => {
     setOpen((prevOpen) => !prevOpen);
@@ -169,6 +156,8 @@ export const DrawerProfile = () => {
                   />
                 </IconButton>
               </Tooltip>
+              {{# if application.authentication }}
+                {{# if application.profilePage }}
               <Tooltip title={t('judo.profile.profile', { defaultValue: 'Profile' })} placement="top">
                 <IconButton
                   aria-label={t('judo.profile.profile', { defaultValue: 'Profile' })}
@@ -182,6 +171,8 @@ export const DrawerProfile = () => {
                   <MdiIcon path="logout" sx={ { fontSize: '1.4rem' } } />
                 </IconButton>
               </Tooltip>
+              {{/ if }}
+            {{/ if }}
             </Stack>
           </Grid>
         </Grid>
@@ -242,7 +233,7 @@ export const DrawerProfile = () => {
             } }
           >
             <ClickAwayListener onClickAway={handleClose}>
-              <ProfilePopup openProfilePage={openProfilePage} />
+              <ProfilePopup {{# if application.authentication }}{{# if application.profilePage }}openProfilePage={openProfilePage}{{/ if }}{{/ if }} />
             </ClickAwayListener>
           </Paper>
         </Box>
