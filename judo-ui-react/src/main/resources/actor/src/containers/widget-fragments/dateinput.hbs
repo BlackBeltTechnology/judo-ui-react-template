@@ -23,12 +23,6 @@
         {{# if (shouldElementHaveAutoFocus child) }}
             inputRef={autoFocusInputRef}
         {{/ if }}
-        {{# if child.minValueBy }}
-          minDate={data.{{ child.minValueBy.name }} ? data.{{ child.minValueBy.name }} : undefined }
-        {{/if}}
-        {{# if child.maxValueBy }}
-          maxDate={data.{{ child.maxValueBy.name }} ? data.{{ child.maxValueBy.name }} : undefined }
-        {{/if}}
         slotProps={ {
             textField: {
                 id: '{{ getXMIID child }}',
@@ -54,25 +48,25 @@
             setValidation((prevValidation) => {
                 const copy = new Map<keyof {{ classDataName container.dataElement '' }}, string>(prevValidation);
                 if (newError === 'invalidDate') {
-                copy.set(
-                  '{{ child.attributeType.name }}',
-                  (t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
-                    defaultValue: 'Value does not match the pattern requirements.',
-                  }) as string),
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
+                      defaultValue: 'Value does not match the pattern requirements.',
+                    }) as string),
                   );
                 }{{# if child.minValueBy }} else if (newError === 'minDate' && data.{{ child.minValueBy.name }}) {
                   copy.set(
                     '{{ child.attributeType.name }}',
-                    (t('judo.error.validation-failed.TODO_CREATE_MESSAGE_FOR_THIS', {
+                    (t('judo.error.validation-failed.MIN_DATE_VALIDATION_FAILED', {
                       defaultValue: 'The selected date must be after the minimum allowed date.',
                     }) as string),
                   );
                 }{{/ if }} {{# if child.maxValueBy }} else if (newError === 'maxDate' && data.{{ child.maxValueBy.name }}) {
                   copy.set(
-                  '{{ child.attributeType.name }}',
-                  (t('judo.error.validation-failed.TODO_CREATE_MESSAGE_FOR_THIS', {
-                    defaultValue: 'The selected date must be before the maximum allowed date.',
-                  }) as string),
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MAX_DATE_VALIDATION_FAILED', {
+                      defaultValue: 'The selected date must be before the maximum allowed date.',
+                    }) as string),
                   );
                 }{{/ if }} else {
                   copy.set('{{ child.attributeType.name }}', '');
@@ -99,7 +93,14 @@
             {{/ if }}
         } }
         {{# unless child.isReadOnly }}
-        {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {})}
+        {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {
+          {{# if child.minValueBy }}
+            minDate: data.{{ child.minValueBy.name }} ? data.{{ child.minValueBy.name }} : undefined,
+          {{/if}}
+          {{# if child.maxValueBy }}
+            maxDate: data.{{ child.maxValueBy.name }} ? data.{{ child.maxValueBy.name }} : undefined,
+          {{/if}}
+        })}
         {{/ unless }}
     />
     {{# if (hasTooltipText child) }}

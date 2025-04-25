@@ -549,14 +549,24 @@ public class UiPageContainerHelper {
         return (elementHasIconOrLabel(flex) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
     }
 
-    public static boolean containerHasDateOrDateTimeInput(PageContainer container) {
-        return !getDateOrDateTimeInputs(container).isEmpty();
+    public static boolean containerHasDateInputs(PageContainer container) {
+        return !getDateInputs(container).isEmpty();
     }
 
-    public static List<VisualElement> getDateOrDateTimeInputs(PageContainer container) {
-        List<Input> inputs = new ArrayList<>();
-        inputs.addAll(collectElementsOfType(container, new ArrayList<>(), DateInput.class));
-        inputs.addAll(collectElementsOfType(container, new ArrayList<>(), DateTimeInput.class));
+    public static boolean containerHasDateTimeInputs(PageContainer container) {
+        return !getDateTimeInputs(container).isEmpty();
+    }
+
+    public static List<VisualElement> getDateInputs(PageContainer container) {
+        return getDateOrDateTimeInputs(container, DateInput.class);
+    }
+
+    public static List<VisualElement> getDateTimeInputs(PageContainer container) {
+        return getDateOrDateTimeInputs(container, DateTimeInput.class);
+    }
+
+    public static <T extends Input> List<VisualElement> getDateOrDateTimeInputs(PageContainer container, Class<T> clazz) {
+        List<Input> inputs = new ArrayList<>(collectElementsOfType(container, new ArrayList<>(), clazz));
         return inputs.stream()
                 .filter(i -> !i.isIsReadOnly())
                 .sorted(Comparator.comparing(NamedElement::getFQName))
