@@ -9,7 +9,7 @@ import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon, useJudoNavigation } from '~/components';
 import { DRAWER_WIDTH, MINI_DRAWER_WIDTH, ThemeMode } from '~/config';
@@ -36,7 +36,6 @@ export const DrawerProfile = () => {
   const { t } = useTranslation();
   const theme = useTheme();
   const heroProps = useHeroProps();
-  const { navigate } = useJudoNavigation();
   const { downLG } = useLayoutHelper();
   const anchorRef = useRef<any>(null);
   const [open, setOpen] = useState(false);
