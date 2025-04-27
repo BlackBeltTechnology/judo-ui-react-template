@@ -98,10 +98,10 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
               //       setInputValue(!(inputValue ?? false))
               //     }} />
               //   }
-              //   label={filter.filterOption.label ?? filter.filterOption.attributeName}
+              //   label={label ?? filter.filterOption.attributeName}
               // />
               <TrinaryLogicCombobox
-                label={filter.filterOption.label ?? filter.filterOption.attributeName}
+                label={label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 onChange={(newValue: any) => setInputValue(newValue)}
               />
@@ -110,7 +110,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.date:
             return (
               <DatePicker
-                label={filter.filterOption.label ?? filter.filterOption.attributeName}
+                label={label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 views={['year', 'month', 'day']}
                 onChange={(newValue) => setInputValue(newValue)}
@@ -131,7 +131,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.dateTime:
             return (
               <DateTimePicker
-                label={filter.filterOption.label ?? filter.filterOption.attributeName}
+                label={label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 ampm={false}
                 ampmInClock={false}
@@ -154,7 +154,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.enumeration:
             return (
               <TextField
-                label={filter.filterOption.label ?? filter.filterOption.attributeName}
+                label={label ?? filter.filterOption.attributeName}
                 variant="standard"
                 value={inputValue ?? null}
                 select
@@ -170,7 +170,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.numeric:
             return (
               <TextField
-                label={filter.filterOption.label ?? filter.filterOption.attributeName}
+                label={label ?? filter.filterOption.attributeName}
                 type="number"
                 variant="standard"
                 value={inputValue ?? null}
@@ -190,7 +190,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.string:
             return (
               <TextField
-                label={filter.filterOption.label ?? filter.filterOption.attributeName}
+                label={label ?? filter.filterOption.attributeName}
                 value={inputValue ?? ''}
                 variant="standard"
                 onChange={(event) => setInputValue(event.target.value)}
@@ -206,7 +206,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.trinaryLogic:
             return (
               <TrinaryLogicCombobox
-                label={filter.filterOption.label ?? filter.filterOption.attributeName}
+                label={label ?? filter.filterOption.attributeName}
                 value={inputValue ?? ''}
                 onChange={(newValue: any) => setInputValue(newValue)}
               />
