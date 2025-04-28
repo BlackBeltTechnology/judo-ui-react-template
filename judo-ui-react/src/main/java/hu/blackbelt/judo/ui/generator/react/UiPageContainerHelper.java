@@ -320,6 +320,16 @@ public class UiPageContainerHelper {
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getHiddenBy() != null).map(i -> i.getHiddenBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getEnabledBy() != null).map(i -> i.getEnabledBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(AllVisualElements.stream().filter(e -> e.getRequiredBy() != null).map(i -> i.getRequiredBy().getName()).collect(Collectors.toSet()));
+        attributeNames.addAll(AllVisualElements.stream()
+                .filter(e -> e instanceof InputValueConstraint)
+                .map(e -> (InputValueConstraint) e)
+                .filter(e -> e.getMinValueBy() != null)
+                .map(i -> i.getMinValueBy().getName()).collect(Collectors.toSet()));
+        attributeNames.addAll(AllVisualElements.stream()
+                .filter(e -> e instanceof InputValueConstraint)
+                .map(e -> (InputValueConstraint) e)
+                .filter(e -> e.getMaxValueBy() != null)
+                .map(i -> i.getMaxValueBy().getName()).collect(Collectors.toSet()));
         attributeNames.addAll(buttons.stream()
                 .map(v -> (Button) v)
                 .filter(e -> e.getConfirmation() != null && e.getConfirmation().getConfirmationCondition() != null)
@@ -539,14 +549,24 @@ public class UiPageContainerHelper {
         return (elementHasIconOrLabel(flex) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
     }
 
-    public static boolean containerHasDateOrDateTimeInput(PageContainer container) {
-        return !getDateOrDateTimeInputs(container).isEmpty();
+    public static boolean containerHasDateInputs(PageContainer container) {
+        return !getDateInputs(container).isEmpty();
     }
 
-    public static List<VisualElement> getDateOrDateTimeInputs(PageContainer container) {
-        List<Input> inputs = new ArrayList<>();
-        inputs.addAll(collectElementsOfType(container, new ArrayList<>(), DateInput.class));
-        inputs.addAll(collectElementsOfType(container, new ArrayList<>(), DateTimeInput.class));
+    public static boolean containerHasDateTimeInputs(PageContainer container) {
+        return !getDateTimeInputs(container).isEmpty();
+    }
+
+    public static List<VisualElement> getDateInputs(PageContainer container) {
+        return getDateOrDateTimeInputs(container, DateInput.class);
+    }
+
+    public static List<VisualElement> getDateTimeInputs(PageContainer container) {
+        return getDateOrDateTimeInputs(container, DateTimeInput.class);
+    }
+
+    public static <T extends Input> List<VisualElement> getDateOrDateTimeInputs(PageContainer container, Class<T> clazz) {
+        List<Input> inputs = new ArrayList<>(collectElementsOfType(container, new ArrayList<>(), clazz));
         return inputs.stream()
                 .filter(i -> !i.isIsReadOnly())
                 .sorted(Comparator.comparing(NamedElement::getFQName))

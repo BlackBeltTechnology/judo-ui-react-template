@@ -47,9 +47,30 @@
             // https://mui.com/x/react-date-pickers/validation/#show-the-error
             setValidation((prevValidation) => {
                 const copy = new Map<keyof {{ classDataName container.dataElement '' }}, string>(prevValidation);
-                copy.set('{{ child.attributeType.name }}', newError === 'invalidDate' ? t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
-                    defaultValue: 'Value does not match the pattern requirements.',
-                }) as string : '');
+                if (newError === 'invalidDate') {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
+                      defaultValue: 'Value does not match the pattern requirements.',
+                    }) as string),
+                  );
+                }{{# if child.minValueBy }} else if (newError === 'minDate' && data.{{ child.minValueBy.name }}) {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MIN_DATE_VALIDATION_FAILED', {
+                      defaultValue: 'The selected date must be after the minimum allowed date.',
+                    }) as string),
+                  );
+                }{{/ if }} {{# if child.maxValueBy }} else if (newError === 'maxDate' && data.{{ child.maxValueBy.name }}) {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MAX_DATE_VALIDATION_FAILED', {
+                      defaultValue: 'The selected date must be before the maximum allowed date.',
+                    }) as string),
+                  );
+                }{{/ if }} else {
+                  copy.set('{{ child.attributeType.name }}', '');
+                }
                 return copy;
             });
         } }
@@ -72,7 +93,14 @@
             {{/ if }}
         } }
         {{# unless child.isReadOnly }}
-        {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {})}
+        {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {
+          {{# if child.minValueBy }}
+            minDate: data.{{ child.minValueBy.name }} ? data.{{ child.minValueBy.name }} : undefined,
+          {{/if}}
+          {{# if child.maxValueBy }}
+            maxDate: data.{{ child.maxValueBy.name }} ? data.{{ child.maxValueBy.name }} : undefined,
+          {{/if}}
+        })}
         {{/ unless }}
     />
     {{# if (hasTooltipText child) }}
