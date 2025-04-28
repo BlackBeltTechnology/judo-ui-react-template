@@ -53,9 +53,44 @@
             // https://mui.com/x/react-date-pickers/validation/#show-the-error
             setValidation((prevValidation) => {
                 const copy = new Map<keyof {{ classDataName container.dataElement '' }}, string>(prevValidation);
-                copy.set('{{ child.attributeType.name }}', newError === 'invalidDate' ? t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
-                    defaultValue: 'Value does not match the pattern requirements.',
-                }) as string : '');
+                if (newError === 'invalidDate') {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
+                      defaultValue: 'Value does not match the pattern requirements.',
+                    }) as string),
+                  );
+                }{{# if child.minValueBy }} else if (newError === 'minDate' && data.{{ child.minValueBy.name }}) {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MIN_DATE_VALIDATION_FAILED', {
+                      defaultValue: 'The selected timestamp must be after the minimum allowed timestamp.',
+                    }) as string),
+                  );
+                }{{/ if }} {{# if child.maxValueBy }} else if (newError === 'maxDate' && data.{{ child.maxValueBy.name }}) {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MAX_DATE_VALIDATION_FAILED', {
+                      defaultValue: 'The selected timestamp must be before the maximum allowed timestamp.',
+                    }) as string),
+                  );
+                }{{/ if }} {{# if child.minValueBy }} else if (newError === 'minTime' && data.{{ child.minValueBy.name }}) {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MIN_TIME_VALIDATION_FAILED', {
+                      defaultValue: 'The selected timestamp must be after the minimum allowed timestamp.',
+                    }) as string),
+                  );
+                }{{/ if }} {{# if child.maxValueBy }} else if (newError === 'maxTime' && data.{{ child.maxValueBy.name }}) {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MAX_TIME_VALIDATION_FAILED', {
+                      defaultValue: 'The selected timestamp must be before the maximum allowed timestamp.',
+                    }) as string),
+                  );
+                }{{/ if }} else {
+                  copy.set('{{ child.attributeType.name }}', '');
+                }
                 return copy;
             });
         } }
@@ -73,6 +108,16 @@
             }
             {{/ if }}
         } }
+        {{# unless child.isReadOnly }}
+        {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {
+            {{# if child.minValueBy }}
+              minDateTime: data.{{ child.minValueBy.name }} ? data.{{ child.minValueBy.name }} : undefined,
+            {{/if}}
+            {{# if child.maxValueBy }}
+              maxDateTime: data.{{ child.maxValueBy.name }} ? data.{{ child.maxValueBy.name }} : undefined,
+            {{/if}}
+        })}
+        {{/ unless }}
     />
     {{# if (hasTooltipText child) }}
       {{> actor/src/fragments/container/input-tooltip.fragment.hbs input=child }}
