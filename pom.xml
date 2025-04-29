@@ -42,26 +42,26 @@
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
 
-        <slf4j-version>2.0.7</slf4j-version>
+        <slf4j-version>2.0.16</slf4j-version>
         <log4j.configuration>log4j.properties</log4j.configuration>
-        <surefire-version>3.0.0-M5</surefire-version>
         <ecore-xmi-version>2.2.3</ecore-xmi-version>
         <spring-expression-version>5.0.0.RELEASE</spring-expression-version>
-        <lombok-version>1.18.22</lombok-version>
+        <lombok-version>1.18.34</lombok-version>
         <frontend-maven-plugin-version>1.12.1</frontend-maven-plugin-version>
         <maven-enforcer-plugin-version>3.3.0</maven-enforcer-plugin-version>
         <enforcer-checkfile-rules-version>1.0.0.20230622_151809_606ea50d_develop</enforcer-checkfile-rules-version>
 
-        <node-version>18.14.2</node-version>
-        <pnpm-version>8.9.2</pnpm-version>
+        <node-version>22.11.0</node-version>
+        <pnpm-version>9.12.3</pnpm-version>
 
-        <judo-meta-ui-version>1.1.0.20240924_131344_9b264a1d_develop</judo-meta-ui-version>
-        <judo-generator-commons-version>1.0.0.20240923_095240_119ac3cd_develop</judo-generator-commons-version>
-        <judo-ui-typescript-rest-version>1.0.0.20241018_172421_24e62e7f_bugfix_JNG_5962_aggregation_validation</judo-ui-typescript-rest-version>
+        <judo-meta-ui-version>1.1.0.20250410_200506_c0a18648_develop</judo-meta-ui-version>
+        <judo-generator-commons-version>1.0.0.20241127_150150_30b65e30_develop</judo-generator-commons-version>
+        <judo-ui-typescript-rest-version>1.0.0.20250304_212745_9a1eb453_bugfix_JNG_6026_fix_service_method_suffix_generation</judo-ui-typescript-rest-version>
 
-        <surefire-version>3.0.0-M7</surefire-version>
+        <surefire-version>3.5.1</surefire-version>
         <!--suppress UnresolvedMavenProperty -->
         <logback-test-config>${maven.multiModuleProjectDirectory}/logback-test.xml</logback-test-config>
+        <logback-version>1.5.12</logback-version>
 
         <!-- Code Quality-->
         <sonar-maven-plugin-version>3.9.1.2184</sonar-maven-plugin-version>
@@ -69,7 +69,7 @@
         <sonar.java.coveragePlugin>jacoco</sonar.java.coveragePlugin>
         <sonar.language>java</sonar.language>
         <sonar.java.source>${maven.compiler.source}</sonar.java.source>
-        <jacoco.version>0.8.8</jacoco.version>
+        <jacoco.version>0.8.12</jacoco.version>
 
         <!-- Disable javadoc errors -->
         <doclint>none</doclint>
@@ -266,7 +266,7 @@
                     <dependency>
                         <groupId>org.projectlombok</groupId>
                         <artifactId>lombok</artifactId>
-                        <version>1.18.24</version>
+                        <version>${lombok-version}</version>
                     </dependency>
                 </dependencies>
             </plugin>
@@ -317,6 +317,14 @@
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback-version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
     <profiles>
         <profile>
             <id>sign-artifacts</id>

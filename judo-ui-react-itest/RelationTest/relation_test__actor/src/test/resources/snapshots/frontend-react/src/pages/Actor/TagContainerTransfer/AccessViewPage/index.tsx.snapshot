@@ -18,6 +18,7 @@ import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
 import type {
+  AvailableContainerAction,
   TagContainerTransferTagContainerTransfer_View_EditPageActions,
   TagContainerTransferTagContainerTransfer_View_EditPageProps,
 } from '~/containers/TagContainerTransfer/TagContainerTransfer_View_Edit/types';
@@ -62,6 +63,7 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import {
   type TagContainerTransferTagContainerTransfer_View_EditViewModel,
   TagContainerTransferTagContainerTransfer_View_EditViewModelContext,
@@ -69,6 +71,14 @@ import {
 import type { TagContainerTransferTagContainerTransfer_View_EditActionsHook } from './customization';
 import { ACTOR_TAG_CONTAINER_TRANSFER_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { TagContainerTransferTagContainerTransfer_View_EditPageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Back',
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Cancel',
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Delete',
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Refresh',
+  'TagContainerTransfer::TagContainerTransfer_View_Edit::Update',
+]);
 
 const TagContainerTransferTagContainerTransfer_View_EditPageContainer = lazy(
   () =>
@@ -104,6 +114,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
   const { exportFile } = fileHandling();
 
   // State section
@@ -236,7 +247,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
         navigateBack();
       }
     } catch (error) {
-      handleError(error, undefined, data);
+      handleError(error, { actionId: 'Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewDeleteAction' }, data);
     }
   };
   // RefreshAction: Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewRefreshAction
@@ -263,7 +274,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
       }
       return response;
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewRefreshAction' });
       setLatestViewData(null);
       setRouterPageData(null);
       return Promise.reject(error);
@@ -284,7 +295,11 @@ export default function ActorTagContainerTransferAccessViewPage() {
         await actions.refreshAction!(getPageQueryCustomizer());
       }
     } catch (error) {
-      handleError<TagContainerTransfer>(error, { setValidation }, data);
+      handleError<TagContainerTransfer>(
+        error,
+        { setValidation, actionId: 'Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewUpdateAction' },
+        data,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -308,7 +323,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
     try {
       storeDiff('manyAggregationAssociation', [...(data.manyAggregationAssociation || []), ...values]);
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'Actor/(esm/_2vWG8IF3Ee-M3fhNedgt-g)/TabularReferenceTableAutocompleteAddAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+      });
       return Promise.reject(error);
     } finally {
     }
@@ -324,7 +342,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
       );
       return result;
     } catch (error: any) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'Actor/(esm/_2vWG8IF3Ee-M3fhNedgt-g)/TabularReferenceTableAutocompleteRangeAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+      });
       return Promise.resolve([]);
     }
   };
@@ -450,7 +471,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
         storeDiff('manyAggregationCompostion', newList);
       }
     } catch (error) {
-      handleError<TransferObjectE>(error, undefined, target);
+      handleError<TransferObjectE>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
@@ -492,7 +520,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
       await actorServiceForTagContainerTransferImpl.addManyAssociationAssociation(owner.current, values);
       await refresh();
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableAutocompleteAddAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+      });
       return Promise.reject(error);
     } finally {
       setIsLoading(false);
@@ -509,7 +540,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
       );
       return result;
     } catch (error: any) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableAutocompleteRangeAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+      });
       return Promise.resolve([]);
     }
   };
@@ -668,7 +702,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError<TransferObjectB>(error, undefined, target);
+      handleError<TransferObjectB>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // RemoveAction: Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableRowRemoveAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
@@ -678,7 +719,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
       await actorServiceForTagContainerTransferImpl.removeManyAssociationAssociation(data, [target]);
       await refresh();
     } catch (error) {
-      handleError<TransferObjectB>(error, undefined, target);
+      handleError<TransferObjectB>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_XlpxEIYXEe-coskv_PjoTA)/TabularReferenceTableRowRemoveAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -796,7 +844,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError<TransferObjectD>(error, undefined, target);
+      handleError<TransferObjectD>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_2vB94IF3Ee-M3fhNedgt-g)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_2vB94IF3Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
@@ -869,7 +924,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
         storeDiff('manyDerivedAggregationAssociation', newList);
       }
     } catch (error) {
-      handleError<TransferObjectC>(error, undefined, target);
+      handleError<TransferObjectC>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_I-WYkIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_I-WYkIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
@@ -932,7 +994,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
         storeDiff('manyDerivedAggregationCompostion', newList);
       }
     } catch (error) {
-      handleError<TransferObjectE>(error, undefined, target);
+      handleError<TransferObjectE>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_I-mQMIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_I-mQMIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
@@ -1028,7 +1097,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError<TransferObjectB>(error, undefined, target);
+      handleError<TransferObjectB>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_I-MnkIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_I-MnkIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
@@ -1121,7 +1197,14 @@ export default function ActorTagContainerTransferAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError<TransferObjectD>(error, undefined, target);
+      handleError<TransferObjectD>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_I-e7cIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_I-e7cIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
@@ -1155,7 +1238,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
     try {
       storeDiff('manyTransient', [...(data.manyTransient || []), ...values]);
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'Actor/(esm/_I-DdoIF5Ee-M3fhNedgt-g)/TabularReferenceTableAutocompleteAddAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+      });
       return Promise.reject(error);
     } finally {
     }
@@ -1171,7 +1257,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
       );
       return result;
     } catch (error: any) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'Actor/(esm/_I-DdoIF5Ee-M3fhNedgt-g)/TabularReferenceTableAutocompleteRangeAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)',
+      });
       return Promise.resolve([]);
     }
   };
@@ -1297,7 +1386,9 @@ export default function ActorTagContainerTransferAccessViewPage() {
 
   // ViewModel setup
   const viewModel: TagContainerTransferTagContainerTransfer_View_EditViewModel = {
+    ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -1339,7 +1430,9 @@ export default function ActorTagContainerTransferAccessViewPage() {
         />
         <PageContainerTransition>
           <TagContainerTransferTagContainerTransfer_View_EditPageContainer
+            ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

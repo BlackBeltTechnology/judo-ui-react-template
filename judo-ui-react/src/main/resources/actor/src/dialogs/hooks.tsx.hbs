@@ -1,3 +1,5 @@
+{{> fragment.header.hbs }}
+
 import { lazy, Suspense } from 'react';
 import { useDialog } from '~/components/dialog';
 import type { DialogResult } from '~/utilities';
@@ -8,8 +10,8 @@ import type { DialogResult } from '~/utilities';
 interface {{ pageName page }}HookProps {
   ownerData: any;
   {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: {{ classDataName (getReferenceClassType page) '' }};{{/ and }}
-  {{# if page.container.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
-  {{# unless page.container.isSelector }}templateDataOverride?: {{# if page.container.view }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{ else }}Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ if }};{{/ unless }}
+  {{# if page.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
+  {{# unless page.isSelector }}templateDataOverride?: {{# if page.container.view }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{ else }}Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ if }};{{/ unless }}
   ownerValidation?: (target: any) => Promise<void>;
   isDraft?: boolean;
   {{# unless page.container.table}}
@@ -19,7 +21,7 @@ interface {{ pageName page }}HookProps {
   rootPageId?: string;
 }
 
-export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath, rootPageId }: {{ pageName page }}HookProps) => Promise<DialogResult<
+export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath, rootPageId }: {{ pageName page }}HookProps) => Promise<DialogResult<
   {{# if (pageHasOutputTarget page) }}
     {{# if (pageHasOutputTarget page) }}{{ classDataName (getPageOutputTarget page) 'Stored' }}{{ else }}void{{/ if }}
   {{ else }}
@@ -30,7 +32,7 @@ export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElement
 
   const {{ pageName page }} = lazy(() => import('~/dialogs/{{ pagePath page }}'));
 
-  return ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.container.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.container.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath, rootPageId }: {{ pageName page }}HookProps) => new Promise((resolve) => {
+  return ({ ownerData{{# and (isPageDataElementUnmappedSingle page) page.container.view }}, data{{/ and }}{{# if page.isRelationSelector }}, alreadySelected{{/ if }}{{# unless page.isSelector }}, templateDataOverride{{/ unless }}, ownerValidation, isDraft{{# unless page.container.table}}, maskRequest{{/ unless }}, dataPath, rootPageId }: {{ pageName page }}HookProps) => new Promise((resolve) => {
     createDialog({
       {{# if page.dialogSize }}
           fullWidth: true,
@@ -49,10 +51,10 @@ export const use{{ pageName page }} = (): ({ ownerData{{# and (isPageDataElement
           <{{ pageName page }}
             ownerData={ownerData}
             {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data={data}{{/ and }}
-            {{# if page.container.isRelationSelector}}
+            {{# if page.isRelationSelector}}
             alreadySelected={alreadySelected}
             {{/ if }}
-            {{# unless page.container.isSelector }}
+            {{# unless page.isSelector }}
             templateDataOverride={templateDataOverride}
             {{/ unless }}
             isDraft={isDraft}

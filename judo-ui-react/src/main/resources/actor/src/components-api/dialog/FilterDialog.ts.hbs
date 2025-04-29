@@ -2,12 +2,20 @@
 
 import { _BooleanOperation, _EnumerationOperation, _NumericOperation, _StringOperation } from '~/services/data-api/common/operations';
 
+export interface FilterEnumValue {
+  value: string;
+  label: string;
+}
+
 export interface FilterOption {
   id: string;
   attributeName: string;
   label?: string;
   filterType: FilterType;
-  enumValues?: Array<string>;
+  enumValues?: Array<FilterEnumValue>;
+  alwaysShown?: boolean;
+  col?: number;
+  defaultOperationType?: string;
 }
 
 export enum FilterType {

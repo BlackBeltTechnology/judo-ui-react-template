@@ -1,4 +1,8 @@
 templates:
+  - name: actor/setup-node-env.sh
+    pathExpression: "'setup-node-env.sh'"
+    templateName: actor/setup-node-env.sh.hbs
+
   - name: actor/biome.json
     pathExpression: "'biome.json'"
     templateName: actor/biome.json.hbs
@@ -65,6 +69,13 @@ templates:
     pathExpression: "'index.html'"
     templateName: actor/index.html.hbs
 
+  - name: actor/sync-translations.py
+    pathExpression: "'sync-translations.py'"
+    templateName: actor/sync-translations.py.hbs
+    templateContext:
+      - name: application
+        expression: "#application"
+
   # Actor - public
 
   - name: actor/public/favicon.ico
@@ -80,6 +91,11 @@ templates:
   - name: actor/public/favicon-32x32.png
     pathExpression: "'public/favicon-32x32.png'"
     templateName: actor/public/favicon-32x32.png
+    copy: true
+
+  - name: actor/public/judo-ai-background.png
+    pathExpression: "'public/judo-ai-background.png'"
+    templateName: actor/public/judo-ai-background.png
     copy: true
 
   - name: actor/public/judo-color-logo.png
@@ -268,6 +284,9 @@ templates:
   - name: actor/src/config/layout.ts
     pathExpression: "'src/config/layout.ts'"
     templateName: actor/src/config/layout.ts.hbs
+    templateContext:
+      - name: application
+        expression: "#application"
 
   # Actor - src - custom
 
@@ -286,9 +305,13 @@ templates:
   - name: actor/src/custom/interfaces.ts
     pathExpression: "'src/custom/interfaces.ts'"
     templateName: actor/src/custom/interfaces.ts.hbs
+    
+  - name: actor/src/custom/default-error-handler-interceptor.ts
+    pathExpression: "'src/custom/hooks/register-error-handler-interceptor.ts.default'"
+    templateName: actor/src/custom/default-error-handler-interceptor.ts.hbs
 
   - name: actor/src/custom/default-page-hook-registration.ts
-    factoryExpression: "#getPagesForRouting(#application)"
+    factoryExpression: "#pagesWithCustomActions(#application)"
     pathExpression: "'src/custom/hooks/pages/register' + #pageName(#self) + 'ActionsHook.ts.default'"
     templateName: actor/src/custom/default-page-hook-registration.ts.hbs
     templateContext:
@@ -296,7 +319,7 @@ templates:
         expression: "#self"
 
   - name: actor/src/custom/default-page-hook-registration.ts
-    factoryExpression: "#getPagesForDialogs(#application)"
+    factoryExpression: "#dialogsWithCustomActions(#application)"
     pathExpression: "'src/custom/hooks/dialogs/register' + #pageName(#self) + 'ActionsHook.ts.default'"
     templateName: actor/src/custom/default-page-hook-registration.ts.hbs
     templateContext:
@@ -304,7 +327,7 @@ templates:
         expression: "#self"
 
   - name: actor/src/custom/default-container-hook-registration.ts
-    factoryExpression: "#application.pageContainers"
+    factoryExpression: "#containersWithDefaultImplementation(#application)"
     pathExpression: "'src/custom/hooks/containers/register' + #containerName(#self) + 'ActionsHook.ts.default'"
     templateName: actor/src/custom/default-container-hook-registration.ts.hbs
     templateContext:
@@ -317,6 +340,31 @@ templates:
     templateName: actor/src/custom/default-container-with-custom-implementations-hook-registration.tsx.hbs
     templateContext:
       - name: container
+        expression: "#self"
+
+  - name: actor/src/custom/default-cards-config-hook-registration.tsx
+    factoryExpression: "#getTablesWithCardRepresentations(#application)"
+    pathExpression: "'src/custom/hooks/components/cards/register' + #componentName(#self) + 'ConfigurationHook.tsx.default'"
+    templateName: actor/src/custom/default-cards-config-hook-registration.tsx.hbs
+    templateContext:
+      - name: card
+        expression: "#self"
+      - name: application
+        expression: "#application"
+
+  - name: actor/src/custom/default-guest-page-hook-registration.tsx
+    pathExpression: "'src/custom/hooks/default-guest-page-hook-registration.tsx.default'"
+    templateName: actor/src/custom/default-guest-page-hook-registration.tsx.hbs
+    templateContext:
+      - name: application
+        expression: "#application"
+
+  - name: actor/src/custom/sub-theme-hook-registration.tsx.hbs
+    factoryExpression: "#getSubThemes(#application)"
+    pathExpression: "'src/custom/hooks/sub-themes/register' + #firstToUpper(#toSafeCamelCase(#self)) + 'SubThemeHook.tsx.default'"
+    templateName: actor/src/custom/sub-theme-hook-registration.tsx.hbs
+    templateContext:
+      - name: subTheme
         expression: "#self"
 
   # Actor - src - auth
@@ -332,6 +380,14 @@ templates:
   - name: actor/src/auth/Auth.tsx
     pathExpression: "'src/auth/Auth.tsx'"
     templateName: actor/src/auth/Auth.tsx.hbs
+
+  - name: actor/src/auth/AuthErrorBox.tsx
+    pathExpression: "'src/auth/AuthErrorBox.tsx'"
+    templateName: actor/src/auth/AuthErrorBox.tsx.hbs
+
+  - name: actor/src/auth/AuthProxyComponent.tsx
+    pathExpression: "'src/auth/AuthProxyComponent.tsx'"
+    templateName: actor/src/auth/AuthProxyComponent.tsx.hbs
 
   - name: actor/src/auth/axiosInterceptor.ts
     pathExpression: "'src/auth/axiosInterceptor.ts'"
@@ -382,6 +438,10 @@ templates:
   - name: actor/src/components/SimpleBar.tsx
     pathExpression: "'src/components/SimpleBar.tsx'"
     templateName: actor/src/components/SimpleBar.tsx.hbs
+
+  - name: actor/src/components/TooltipContent.tsx
+    pathExpression: "'src/components/TooltipContent.tsx'"
+    templateName: actor/src/components/TooltipContent.tsx.hbs
 
   # Actor - src - components - dialog
 
@@ -455,6 +515,14 @@ templates:
     pathExpression: "'src/components/table/table-row-actions.tsx'"
     templateName: actor/src/components/table/table-row-actions.tsx.hbs
 
+  - name: actor/src/components/table/FixedTableFilters.tsx
+    pathExpression: "'src/components/table/FixedTableFilters.tsx'"
+    templateName: actor/src/components/table/FixedTableFilters.tsx.hbs
+
+  - name: actor/src/components/table/SingleValueFilterComponent.tsx
+    pathExpression: "'src/components/table/SingleValueFilterComponent.tsx'"
+    templateName: actor/src/components/table/SingleValueFilterComponent.tsx.hbs
+
   # Actor - src - components - widgets
 
   - name: actor/src/components/widgets/index.tsx
@@ -489,6 +557,30 @@ templates:
     pathExpression: "'src/components/widgets/TextWithTypeAhead.tsx'"
     templateName: actor/src/components/widgets/TextWithTypeAhead.tsx.hbs
 
+  - name: actor/src/components/widgets/CardsContainer.tsx
+    pathExpression: "'src/components/widgets/CardsContainer.tsx'"
+    templateName: actor/src/components/widgets/CardsContainer.tsx.hbs
+
+  - name: actor/src/components/widgets/CardsFilter.tsx
+    pathExpression: "'src/components/widgets/CardsFilter.tsx'"
+    templateName: actor/src/components/widgets/CardsFilter.tsx.hbs
+
+  - name: actor/src/components/widgets/CharacterCounter.tsx
+    pathExpression: "'src/components/widgets/CharacterCounter.tsx'"
+    templateName: actor/src/components/widgets/CharacterCounter.tsx.hbs
+
+  - name: actor/src/components/widgets/DefaultCard.tsx
+    pathExpression: "'src/components/widgets/DefaultCard.tsx'"
+    templateName: actor/src/components/widgets/DefaultCard.tsx.hbs
+
+  - name: actor/src/components/widgets/DefaultToolbar.tsx
+    pathExpression: "'src/components/widgets/DefaultToolbar.tsx'"
+    templateName: actor/src/components/widgets/DefaultToolbar.tsx.hbs
+
+  - name: actor/src/components/widgets/ImageDisplay.tsx
+    pathExpression: "'src/components/widgets/ImageDisplay.tsx'"
+    templateName: actor/src/components/widgets/ImageDisplay.tsx.hbs
+
   # Actor - src - components-api
 
   - name: actor/src/components-api/components/Action.ts
@@ -498,6 +590,10 @@ templates:
   - name: actor/src/components-api/components/ActionGroup.ts
     pathExpression: "'src/components-api/components/ActionGroup.ts'"
     templateName: actor/src/components-api/components/ActionGroup.ts.hbs
+
+  - name: actor/src/components-api/components/CardsContainer.ts
+    pathExpression: "'src/components-api/components/CardsContainer.ts'"
+    templateName: actor/src/components-api/components/CardsContainer.ts.hbs
 
   - name: actor/src/components-api/components/Button.ts
     pathExpression: "'src/components-api/components/Button.ts'"
@@ -572,6 +668,10 @@ templates:
   - name: actor/src/theme/palette.ts
     pathExpression: "'src/theme/palette.ts'"
     templateName: actor/src/theme/palette.ts.hbs
+
+  - name: actor/src/theme/SubThemeWrapper.tsx
+    pathExpression: "'src/theme/SubThemeWrapper.tsx'"
+    templateName: actor/src/theme/SubThemeWrapper.tsx.hbs
 
   - name: actor/src/theme/types.ts
     pathExpression: "'src/theme/types.ts'"
@@ -655,6 +755,10 @@ templates:
   - name: actor/src/utilities/application/interfaces.ts
     pathExpression: "'src/utilities/application/interfaces.ts'"
     templateName: actor/src/utilities/application/interfaces.ts.hbs
+
+  - name: actor/src/utilities/application/operation-utils.tsx
+    pathExpression: "'src/utilities/application/operation-utils.tsx'"
+    templateName: actor/src/utilities/application/operation-utils.tsx.hbs
 
   - name: actor/src/utilities/application/change-application.ts
     pathExpression: "'src/utilities/application/change-application.ts'"
@@ -780,6 +884,36 @@ templates:
     factoryExpression: "#getTagsForPageContainers(#application)"
     pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #tagComponentName(#self) + '/types.ts'"
     templateName: actor/src/containers/components/tag/types.ts.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
+  - name: actor/src/containers/components/cards/index.tsx
+    factoryExpression: "#getCardsForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #cardsComponentName(#self) + '/index.tsx'"
+    templateName: actor/src/containers/components/cards/index.tsx.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
+  - name: actor/src/containers/components/cards/types.ts
+    factoryExpression: "#getCardsForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #cardsComponentName(#self) + '/types.ts'"
+    templateName: actor/src/containers/components/cards/types.ts.hbs
+    templateContext:
+      - name: container
+        expression: "#self.pageContainer"
+      - name: table
+        expression: "#self"
+
+  - name: actor/src/containers/components/cards/customization.ts
+    factoryExpression: "#getCardsForPageContainers(#application)"
+    pathExpression: "'src/containers/' + #containerPath(#self.pageContainer) + '/components/' + #cardsComponentName(#self) + '/customization.ts'"
+    templateName: actor/src/containers/components/cards/customization.ts.hbs
     templateContext:
       - name: container
         expression: "#self.pageContainer"

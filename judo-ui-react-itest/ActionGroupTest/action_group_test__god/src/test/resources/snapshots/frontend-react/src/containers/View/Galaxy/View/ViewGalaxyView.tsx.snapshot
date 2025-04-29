@@ -24,6 +24,7 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy } from '@pandino/react-hooks';
@@ -32,7 +33,7 @@ import { clsx } from 'clsx';
 import type { Dispatch, FC, SetStateAction } from 'react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DropdownButton, MdiIcon, useJudoNavigation } from '~/components';
+import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import type { CustomFormVisualElementProps } from '~/custom';
@@ -171,6 +172,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                         validationError={validation.get('stars')}
                                         refreshCounter={refreshCounter}
                                         isOwnerLoading={isLoading}
+                                        annotations={[]}
                                       />
                                     </Grid>
                                   </Grid>
@@ -247,7 +249,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                           }}
                                           InputLabelProps={{ shrink: true }}
                                           InputProps={{
-                                            readOnly: false || !isFormUpdateable(),
+                                            readOnly: actions?.isNameReadonly
+                                              ? actions.isNameReadonly(data, editMode, isLoading)
+                                              : false || !isFormUpdateable(),
                                             startAdornment: (
                                               <InputAdornment position="start">
                                                 <MdiIcon path="atom-variant" />
@@ -330,7 +334,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: false || !isFormUpdateable(),
+                                    readOnly: actions?.isConstellationReadonly
+                                      ? actions.isConstellationReadonly(data, editMode, isLoading)
+                                      : false || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="star-settings-outline" />
@@ -374,7 +380,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: false || !isFormUpdateable(),
+                                    readOnly: actions?.isMagnitudeReadonly
+                                      ? actions.isMagnitudeReadonly(data, editMode, isLoading)
+                                      : false || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="decagram-outline" />
@@ -443,7 +451,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                       : isLoading
                                   }
                                   multiline
-                                  minRows={2.0}
+                                  rows={2.0}
                                   error={!!validation.get('originOfName')}
                                   helperText={validation.get('originOfName')}
                                   onChange={(event) => {
@@ -452,7 +460,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: false || !isFormUpdateable(),
+                                    readOnly: actions?.isOriginOfNameReadonly
+                                      ? actions.isOriginOfNameReadonly(data, editMode, isLoading)
+                                      : false || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="weather-night" />
@@ -478,6 +488,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                           storeDiff={storeDiff}
                           isLoading={isLoading}
                           actions={actions}
+                          annotations={[]}
                         >
                           <Card id="God/(esm/_0LmPoBMbEe2_DOUDKkB20Q)/GroupVisualElement" data-name="Discoverer">
                             <CardContent>
@@ -551,7 +562,11 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                     views={['year', 'month', 'day', 'hours', 'minutes', 'seconds']}
                                     label={t('View.Galaxy.View.discovered', { defaultValue: 'Discovered' }) as string}
                                     value={data.discovered ?? null}
-                                    readOnly={false || !isFormUpdateable()}
+                                    readOnly={
+                                      actions?.isDiscoveredReadonly
+                                        ? actions.isDiscoveredReadonly(data, editMode, isLoading)
+                                        : false || !isFormUpdateable()
+                                    }
                                     disabled={
                                       actions?.isDiscoveredDisabled
                                         ? actions.isDiscoveredDisabled(data, editMode, isLoading)
@@ -566,7 +581,13 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 <Grid item xs={12} sm={12} md={4.0}>
                                   <ViewGalaxyViewAstronomerComponent
                                     disabled={false || isLoading}
-                                    readOnly={false || !isFormUpdateable()}
+                                    readOnly={
+                                      false ||
+                                      !isFormUpdateable() ||
+                                      (actions?.isAstronomerReadonly
+                                        ? actions.isAstronomerReadonly!(data, editMode, isLoading)
+                                        : false)
+                                    }
                                     ownerData={data}
                                     dataPath={dataPath ? dataPath + '.astronomer' : 'astronomer'}
                                     editMode={editMode}
@@ -576,6 +597,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                     validationError={validation.get('astronomer')}
                                     actions={actions}
                                     submit={submit}
+                                    annotations={[]}
                                   />
                                 </Grid>
                               </Grid>
@@ -610,16 +632,16 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               justifyContent="flex-start"
                               spacing={2}
                             >
-                              <Grid item xs={12} sm={12} md={3.0}>
+                              <Grid item xs={12} sm={12} md={2.0}>
                                 <AssociationButton
                                   id="God/(esm/_8A3hoE7tEeycO-gUAWxcVg)/TabularReferenceFieldButton"
                                   variant={undefined}
                                   editMode={editMode}
+                                  startIcon={<MdiIcon path="chart-bubble" />}
                                   navigateAction={actions.matterOpenPageAction}
                                   refreshCounter={refreshCounter}
                                 >
                                   {t('judo.action.open-page', { defaultValue: 'Matter' })}
-                                  <MdiIcon path="arrow-right" />
                                 </AssociationButton>
                               </Grid>
 
@@ -654,7 +676,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: true || !isFormUpdateable(),
+                                    readOnly: actions?.isDarkMatterReadonly
+                                      ? actions.isDarkMatterReadonly(data, editMode, isLoading)
+                                      : true || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="chart-bubble" />
@@ -701,7 +725,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: true || !isFormUpdateable(),
+                                    readOnly: actions?.isIntergalacticDustReadonly
+                                      ? actions.isIntergalacticDustReadonly(data, editMode, isLoading)
+                                      : true || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="scatter-plot-outline" />
@@ -748,7 +774,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
-                                    readOnly: true || !isFormUpdateable(),
+                                    readOnly: actions?.isInterstellarMediumReadonly
+                                      ? actions.isInterstellarMediumReadonly(data, editMode, isLoading)
+                                      : true || !isFormUpdateable(),
                                     startAdornment: (
                                       <InputAdornment position="start">
                                         <MdiIcon path="scatter-plot" />

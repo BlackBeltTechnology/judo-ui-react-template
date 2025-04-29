@@ -97,6 +97,19 @@ public/18n/application_default_extra.fragment.hbs
 
 == Hooks
 
+=== usePrincipal
+
+The `usePrincipal()` hook can be used to obtain information and/or manipulate Principal data.
+
+*API:*
+
+- `principal: JudoStored<unknown>`: The current data of the logged in Principal
+- `getPrincipal: () => Promise<JudoRestResponse<unknown>>` / `setPrincipal(data: JudoStored<unknown>)`: Can be used to fetch or update the data on the UI
+- `refreshPrincipal: () => Promise<void>`: refreshes and updates the Principal data
+
+> Setting / Refreshing Principal data automatically refreshes most of the UI tree including e.g. the menu, and the active
+screen since it's Context is in a very high position in the component tree.
+
 === useViewData
 
 The `useViewData()` hook can be used to obtain the data of page/dialog's.
@@ -150,6 +163,65 @@ const redirectHook: RedirectServiceHook = () => {
 ====
 If for whatever reason the data's owning View fails it's refresh request, the `getLatestViewData()` method return `null`
 ====
+
+== Theming
+
+=== Implementing sub-themes
+
+Modelers may define custom "sub-themes" for every visual elements. These sub-theme names can be assigned to any number
+of elements on any type of screen.
+
+> Regardless of where and how many we define, the same corresponding hook will be used
+
+Each sub-theme will bring a hook, which we can implement.
+
+*Example:*
+
+__src/custom/hooks/sub-themes/registerTestSubThemeHook.tsx__
+[source,typescriptjsx]
+----
+import { type Theme, alpha } from '@mui/material';
+import type { BundleContext } from '@pandino/pandino-api';
+import { type SubThemeHook, SUB_THEME_HOOK_INTERFACE_KEY } from '~/theme/SubThemeWrapper';
+
+/**
+ * Sub Theme Name: nested
+ *
+ * Notes:
+ * Don't forget to remove unused hooks, and related imports afterwards to reduce build time and bundle size!
+ */
+export function registerNestedSubThemeHook(context: BundleContext) {
+  context.registerService<SubThemeHook>(SUB_THEME_HOOK_INTERFACE_KEY, nestedSubTheme, {
+    name: 'nested',
+  });
+}
+
+const nestedSubTheme = (parentTheme: Theme, data?: any) => {
+  // You can calculate styling variables here, or use other hooks as well.
+
+  return {
+    components: {
+      // Define component styling for components here, e.g.:
+      MuiPaper: {
+        styleOverrides: {
+          root: {
+            background: alpha(parentTheme.palette.secondary.main, 0.97),
+            color: parentTheme.palette.common.white,
+          },
+        },
+      },
+    },
+  };
+};
+----
+
+In case we define a sub-theme for a Group or tabs, the theme properties will propagate down the
+component hierarchy.
+
+The deeper we define a sub-theme, the higher its precedence will be.
+
+Any number of any nesting level is possible with sub-themes, but keep in mind if you use calculated
+settings based on e.g. page data, it may have a negative impact on performance.
 
 == Opt-in features
 
@@ -440,6 +512,78 @@ class CustomL10NProvider implements L10NTranslationProvider {
 }
 ----
 
+=== Utilizing a single component declaration to handle multiple visual elements
+
+The framework supports modelers to declare any number of annotations with any names.
+
+The frontend generator can utilize these annotations to wire in custom components for
+visual elements with certain annotations.
+
+The modeler and developer should agree on an annotation prefix which is required by the
+generator to detect what to use for component wiring. This prefix is only relevant for the UI generator.
+
+Let's say the default is fine: `use` (if not, the generator can be configured via the `customComponentAnnotationPrefix` property).
+
+Everything coming after the prefix will be utilized by the UI generator.
+
+If e.g. we would like to handle textareas with our custom `FancyText` component in
+multiple places of our application we should do the following:
+
+- Create the annotation `useFancyText` in our model with class type: `hu.blackbelt.judo.meta.esm.ui.VisualElement`
+- Annotate every visual property with this where ever we would like to use FancyText
+- Check the "Custom Implementation" checkbox also everywhere where we placed the annotation
+
+Register our custom component which will handle the display logic for every annotated component:
+
+The registration **MUST** contain the `componentImplementation` configuration, in our case with the `FancyText` value.
+
+> The prefix is stripped internally in the generator and generated code-base.
+
+*application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { ApplicationCustomizer, AttributeBasedProxyProps, GenericProxyProps } from './interfaces';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from './custom-element-types';
+import { ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import { ViewGalaxyViewActionDefinitions } from '~/containers/View/Galaxy/View/types';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY, FancyText, {
+      componentImplementation: 'FancyText',
+    });
+  }
+}
+
+const FancyText = ({ data, storeDiff, annotations, boundAttributeName }: GenericProxyProps<ViewGalaxyStored, ViewGalaxyViewActionDefinitions> & AttributeBasedProxyProps<ViewGalaxyStored>) => {
+  return (
+    <>
+      <p>{boundAttributeName} :: {JSON.stringify(annotations)}</p>
+      <textarea
+        style={{ width: '100%', color: 'pink' }}
+        rows={4}
+        name={'ohSoFancy'}
+        value={data[boundAttributeName] as string}
+        onChange={(evt) => storeDiff(boundAttributeName, evt.target.value) }
+      />
+    </>
+  );
+};
+----
+
+**Notes:**
+
+- `GenericProxyProps` can be defined with `<any, any>` of course to make it super generic
+- `AttributeBasedProxyProps` can also be defined with `<any>`
+- The `annotations` property will contain every annotation the captured component has
+- The `boundAttributeName` contains the property name in the owner payload which the `useFancyText` annotation has been
+  applied to
+- Defining multiple `use` annotations on the same visual property will yield chaotic results, it's not advised
+
+> The initially declared annotation `useFancyText` will be available as-is in the `annotations` list. The prefix
+  is not stripped here since the list contains actual modeled values.
+
 === Implementing a custom visual element
 
 Every Visual element implementation can be replaced by a custom one, given in the model the `customImplementation`
@@ -548,6 +692,15 @@ triggers an exception!
 > Of course our custom components can be placed / imported from anywhere in the source code. We just simplified it in
   the use-case above.
 
+=== Implementing Guest page for unauthenticated users
+
+Given we have set the `supportGuestAccess` property to true for an actor, the application will not
+redirect users immediately if they are not logged in yet. Instead by default the application will display
+a simplified page with a login/registration link in it.
+
+Of course we can re-implement this page as we see fit, we just need to copy the `src/custom/hooks/default-guest-page-hook-registration.tsx.default`
+file and remove the ".default" suffix. Once this is done, we can use the registration function to register our implementation.
+
 === Implementing the default Dashboard
 
 If not modelled, every application gets a fallback/default Dashboard page with a simple greeting.
@@ -576,6 +729,68 @@ const CustomDashboard: FC = () => {
   return (
     <h1>Our custom dashboard</h1>
   );
+};
+----
+
+
+=== Sticky Search params
+
+Given we would like to add special search params to navigation and/or when the application is loaded, we can register a
+hook to achieve this.
+
+The `NavigationInterceptorHook` has two methods:
+
+- decorateNavigation: `(to: string | Partial<Path>) => string`
+- onBeforeInitialLoad?: `() => void`
+
+The `decorateNavigation` function will be used as a decorator to modify every navigation call
+
+The `onBeforeInitialLoad` function is call on the initial page load.
+
+The hook also has a function property `stringifyPath` which can be used to convert a `Partial<Path>` to a `string` if
+needed.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import { useLocation, useNavigate, type Path } from 'react-router-dom';
+import type { ApplicationCustomizer } from './interfaces';
+import { NAVIGATION_INTERCEPTOR_INTERFACE_KEY, type NavigationInterceptorHook } from '~/components/CustomBreadcrumb';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    // register your implementations here
+    context.registerService<NavigationInterceptorHook>(NAVIGATION_INTERCEPTOR_INTERFACE_KEY, navigationInterceptor);
+  }
+}
+
+const navigationInterceptor: NavigationInterceptorHook = ({ stringifyPath }) => {
+  const SEACRH_PARAM = 'tenant';
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  return {
+    decorateNavigation: (to: string | Partial<Path>) => {
+      const token = window.sessionStorage.getItem(SEACRH_PARAM)!;
+      const url = new URL(typeof to === 'string' ? to : stringifyPath(to), window.location.origin);
+      const searchParams = new URLSearchParams(url.search);
+      searchParams.set(SEACRH_PARAM, token);
+      return `${url.pathname}?${searchParams.toString()}`;
+    },
+    onBeforeInitialLoad: () => {
+      const token = window.sessionStorage.getItem(SEACRH_PARAM) || 'abc';
+      const searchParams = new URLSearchParams(window.location.search);
+      if (!searchParams.has(SEACRH_PARAM)) {
+        window.sessionStorage.setItem(SEACRH_PARAM, token);
+        searchParams.set(SEACRH_PARAM, token);
+        navigate(`${location.pathname}?${searchParams.toString()}${location.hash}`, {
+          replace: true,
+        });
+      }
+    },
+  };
 };
 ----
 
@@ -789,6 +1004,111 @@ const SidekickGalaxiesComponent: FC<SidekickComponentProps<ViewGalaxyStored>> = 
 };
 ----
 
+=== Implementing Card Containers for Tables with Card representations
+
+We can model tables to represent cards. In case we did so, by default we will get a simplistic
+representation of cards. To specify how each card should look like (and other aspects as wel), we
+can register a configuration.
+
+The interface key for these hooks is the unique name of the table plus "_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY".
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import {
+  VIEW_GALAXY_TABLE_TABLE_COMPONENT_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY,
+  ViewGalaxyTableTableComponentCardsContainerConfigHook,
+} from '~/containers/View/Galaxy/Table/components/ViewGalaxyTableTableComponent/customization';
+import {CardProps, ToolbarElementProps } from '~/components-api/components/CardsContainer';
+import {ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import {CardsFilter, CardsFilterDefinition } from '~/components/widgets/CardsFilter';
+import Card from '@mui/material/Card';
+import CardContent from '@mui/material/CardContent';
+import Typography from '@mui/material/Typography';
+import CardActions from '@mui/material/CardActions';
+import Button from '@mui/material/Button';
+import Grid from '@mui/material/Grid';
+import { Filter, FilterType } from '~/components-api';
+import { _BooleanOperation, _StringOperation } from '~/services/data-api/common';
+import { mapCardsFiltersToFilters } from '~/utilities';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<ViewGalaxyTableTableComponentCardsContainerConfigHook>(
+      VIEW_GALAXY_TABLE_TABLE_COMPONENT_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY,
+      cardsConfigHook
+    );
+  }
+}
+
+const cardsConfigHook: ViewGalaxyTableTableComponentCardsContainerConfigHook = () => {
+  // We are returning a full configuration, but all of the attributes below are optional
+  return {
+    layout: 'horizontal',
+    ToolbarElement: CustomToolbar, // a valid React component implementing FC<ToolbarElementProps<T>>
+    CardElement: CustomCard, // a valid React component implementing FC<CardProps<T>>
+  };
+};
+
+function CustomToolbar({ handleFiltersChange }: ToolbarElementProps<ViewGalaxyStored>) {
+  // We can call other hooks here
+
+  const filterDefs: CardsFilterDefinition<ViewGalaxy>[] = [
+    {
+      type: FilterType.boolean, field: 'nakedEye', label: 'Naked Eye',
+      values: [
+        { value: true, label: 'Yes' },
+        { value: false, label: 'No' }
+      ],
+    },
+    {
+      type: FilterType.string, field: 'constellation', label: 'Constellation',
+      values: [
+        { value: 'Andromeda', label: 'Andromeda' },
+        { value: 'Corvus', label: 'Corvus' },
+        { value: 'Ursa Major', label: 'Ursa Major',
+        },
+      ],
+    },
+  ];
+
+  // We are using a built in component CardsFilter here, but we can implement anything
+  return (
+    <CardsFilter filterDefinitions={filterDefs} onFiltersChanged={(values: Record<string, any>) => {
+      const newFilters: Filter[] = mapCardsFiltersToFilters(filterDefs, values);
+      handleFiltersChange(newFilters);
+    }} />
+  );
+}
+
+function CustomCard({ row, columns, onRowClick }: CardProps<ViewGalaxyStored>) {
+  // We can call other hooks here
+
+  // Every custom Card component MUST be wrapped in a `<Grid item` with the appropriate `sm`, `md`, etc... values so that
+  // elements are handled properly on all devices.
+  return (
+    <Grid item sm={12} md={6} lg={4} xl={4}>
+      <Card variant="outlined" sx={{ height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <CardContent>
+          {columns.map((k, idx) => (
+            <Typography key={`${row.__identifier}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
+              {row[k.field as keyof ViewGalaxyStored]?.toString()}
+            </Typography>
+          ))}
+        </CardContent>
+        <CardActions>
+          <Button size="small" onClick={() => onRowClick?.(row)}>
+            Learn More
+          </Button>
+        </CardActions>
+      </Card>
+    </Grid>
+  );
+}
+----
+
 === Implementing container actions
 
 Every container has a set of Actions. These are typically actions triggered by buttons, or visual lifecycle calculated
@@ -844,6 +1164,64 @@ const containerLevelHook: ViewGalaxyViewContainerHook = () => {
   };
 };
 ----
+
+=== Adding Custom buttons to container action bars
+
+In case we cannot model buttons on a container level which should call actions, we can add them via a component hook.
+
+> This feature should not be confused with the one above. In this case we can add extra visual elements,
+  while the above is about manually implementing the corresponding actions.
+
+*Locating interface keys:*
+
+- We should inspect the page / dialog in dev-tools, and search for the id of the container in the `src/containers` folder.
+- Afterwards look for a `const` ending in `CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY`
+
+*Registering implementations*
+
+Implementations can be registered in one central location: `src/custom/application-customizer.tsx`.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import { type BundleContext } from '@pandino/pandino-api';
+import {
+  SERVICES_AUTHOR_PRODUCT_AUTHOR_PRODUCT_TABLE_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY,
+  ServicesAuthorProductAuthorProduct_TableContainerExtraActionsComponentProps
+} from '~/containers/Services/AuthorProduct/AuthorProduct_Table/customization';
+import { MdiIcon } from '~/components';
+import LoadingButton from '@mui/lab/LoadingButton';
+import Grid from '@mui/material/Grid';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(SERVICES_AUTHOR_PRODUCT_AUTHOR_PRODUCT_TABLE_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY, ExtraContainerButtons);
+  }
+}
+export function ExtraContainerButtons({ isLoading, actions,  }: ServicesAuthorProductAuthorProduct_TableContainerExtraActionsComponentProps) {
+  // we can call other hooks here
+
+  return (
+    <>
+      <Grid className="page-action" item>
+        <LoadingButton
+          loading={isLoading}
+          loadingPosition="start"
+          variant={'contained'}
+          onClick={() => actions?.createProductAction?.(null as any)}
+          disabled={isLoading}
+          startIcon={<MdiIcon path="file-document-plus-outline" />}
+        >
+          Create Product
+        </LoadingButton>
+      </Grid>
+    </>
+  );
+}
+----
+
+For the list of every prop available, we can check the `ServicesAuthorProductAuthorProduct_TableContainerExtraActionsComponentProps` interface
+as shown above.
 
 === How to locate actions
 
@@ -1067,6 +1445,124 @@ export class DefaultApplicationCustomizer implements ApplicationCustomizer {
     });
   }
 }
+----
+
+=== Customizing the flow of operations based on runtime data
+
+Given we would like to drive the flow of operations once they are complete based on runtime data,
+we could register an `OperationFlowManager` where we can configure what should happen.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import type { BundleContext } from '@pandino/pandino-api';
+import type { ApplicationCustomizer } from './interfaces';
+import { OPERATION_FLOW_MANAGER_INTERFACE_KEY, OperationFlowManager } from '~/utilities/application';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService<OperationFlowManager>(OPERATION_FLOW_MANAGER_INTERFACE_KEY, operationFlowManager);
+  }
+}
+
+const operationFlowManager: OperationFlowManager = {
+  shouldUseCustomFlow: (input) => {
+    // We are configuring the flow manager to trigger for every operation where the output is one of the
+    // following entity types
+    return ['entities.Context', 'entities.Subject'].includes(input?.__entityType || '');
+  },
+  handleResult: (input) => {
+    // This method is expected to return:
+    // interface ProcessProps {
+    //   actor: string;
+    //   access: string;
+    //   filterRecords?: Record<string, any>;
+    //   operation?: string;
+    // }
+    const test  = input as any;
+    const { actor, access, idName, idValue, operation } = test;
+    // If the `idName` and `idValue` properties are set, that means that we are expecting to redirect to
+    // an access view based on those filters
+    if (idName && idValue) {
+      return {
+        filterRecords: {
+          [idName]: [
+            {
+              operator: 'equal',
+              value: idValue,
+            }
+          ],
+        },
+        access,
+        actor,
+      };
+    }
+    // If the `operation` property is set, we are expected to call that operation
+    if (operation) {
+      return {
+        operation,
+        access,
+        actor,
+      };
+    }
+    // Otherwise, we open a CRUD create form
+    return {
+      access,
+      actor,
+    };
+    // If we don't return anything, the custom flow will pass through.
+  },
+};
+----
+
+=== Filtering access for logged in users
+
+If our application supports authentication, letting users access pages might need restrictions
+based on certain business criteria. In order to achieve this we can register a Component where
+we can implement the filtering logic and grant or block access.
+
+*src/custom/application-customizer.tsx:*
+[source,typescriptjsx]
+----
+import { type FC } from 'react';
+import { useTranslation } from 'react-i18next';
+import Grid from '@mui/material/Grid';
+import type { BundleContext } from '@pandino/pandino-api';
+import { ACCESS_FILTER_COMPONENT_INTERFACE_KEY, type AccessFilterComponentProps, AuthErrorBox } from '~/auth';
+import type { ApplicationCustomizer } from './interfaces';
+
+export class DefaultApplicationCustomizer implements ApplicationCustomizer {
+  async customize(context: BundleContext): Promise<void> {
+    context.registerService(ACCESS_FILTER_COMPONENT_INTERFACE_KEY, AccessFilter);
+  }
+}
+
+const AccessFilter: FC<AccessFilterComponentProps> = ({ principal, children }) => {
+  // We may use any number of hooks here.
+  const { t } = useTranslation();
+
+  // Here we check if the logged in Principal has his/her `approved` property set to true.
+  // If so, we load the original children, if not, then we display a full screen error component.
+  return principal.approved ? (
+    <>{children}</>
+  ) : (
+    <Grid
+      container
+      spacing={0}
+      direction="column"
+      alignItems="center"
+      justifyContent="center"
+      sx={{ minHeight: '100vh' }}
+    >
+      <Grid item xs={3}>
+        <AuthErrorBox
+          title={t('custom.title', { defaultValue: 'Access Denied' })}
+          message={t('custom.message', { defaultValue: "You don't have access to this application" })}
+        />
+      </Grid>
+    </Grid>
+  );
+};
 ----
 
 === (Global) Hotkey support

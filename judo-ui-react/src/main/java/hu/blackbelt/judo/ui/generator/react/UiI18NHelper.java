@@ -79,24 +79,6 @@ public class UiI18NHelper {
         }
     }
 
-    private static List<String> collectUp(VisualElement element, List<String> acc) {
-        List<String> accReal = acc != null ? acc : new ArrayList<>();
-
-        accReal.add(element.getName());
-
-        if (element.eContainer() instanceof Container) {
-            collectUp((VisualElement) element.eContainer(), accReal);
-        }
-
-        if (element.eContainer() instanceof TabController) {
-            for (Tab tab: ((TabController) element.eContainer()).getTabs()) {
-                collectUp(tab.getElement(), accReal);
-            }
-        }
-
-        return accReal;
-    }
-
     public static Map<String, String> i18nMenuTreeLabels(Application app) {
         Map<String, String> collector = new HashMap<>();
 
@@ -126,10 +108,6 @@ public class UiI18NHelper {
         return locale.split("-")[0];
     }
 
-    public static String getI18NKeyForNamedElement(NamedElement namedElement) {
-        return stream(namedElement.getName().split("::")).map(org.springframework.util.StringUtils::capitalize).collect(Collectors.joining("."));
-    }
-
     public static String getTranslationKeyForVisualElement(VisualElement element) {
         if (hasSystemTranslation(element)) {
             return getSystemTranslationForVisualElement(element);
@@ -144,12 +122,19 @@ public class UiI18NHelper {
         if (element instanceof Filter filter) {
             // we do not want to have dedicated keys for filters
             target = ((Table) filter.eContainer()).getColumns().stream().filter(c -> c.getAttributeType().equals(filter.getAttributeType())).findFirst().orElse(null);
+            if (target == null) {
+                target = element;
+            }
         }
 
         assert target != null;
         String bare = target.getName();
         if (tokenNeedsPrefix(target)) {
             if (element instanceof Column column && column.eContainer() instanceof Table table && !table.getPageContainer().isTable()) {
+                bare = root + "." + table.getDataElement().getName() + "." + target.getName();
+            } else if (element instanceof Button button && button.eContainer() instanceof ButtonGroup buttonGroup && buttonGroup.eContainer() instanceof Table table) {
+                bare = root + "." + table.getDataElement().getName() + "." + target.getName();
+            } else if (target instanceof Filter filter && element.eContainer() instanceof Table table) {
                 bare = root + "." + table.getDataElement().getName() + "." + target.getName();
             } else {
                 bare = root + "." + target.getName();
@@ -215,9 +200,6 @@ public class UiI18NHelper {
     }
 
     private static boolean tokenNeedsPrefix(VisualElement visualElement) {
-        if (visualElement instanceof Table table && table.isIsSelectorTable()) {
-            return true;
-        }
         return !visualElement.getName().contains("::") || visualElement.getName().split("(::)").length < 3;
     }
 
@@ -264,6 +246,9 @@ public class UiI18NHelper {
                 if (v instanceof Button button && button.getConfirmation() != null) {
                     translations.put(getTranslationKeyForVisualElement(v) + ".confirmation", button.getConfirmation().getConfirmationMessage());
                 }
+                if (v instanceof Button b && b.getTooltipText() != null && !b.getTooltipText().isBlank()) {
+                    translations.put(getTranslationKeyForVisualElement(b) + ".tooltip", b.getTooltipText().replaceAll("\n", "\\\\n"));
+                }
                 if (v instanceof TabController tabController) {
                     tabController.getTabs().forEach(t -> {
                         translations.put(getTranslationKeyForVisualElement(t.getElement()), t.getElement().getLabel());
@@ -279,6 +264,9 @@ public class UiI18NHelper {
                                 return;
                             }
                             translations.put(getTranslationKeyForVisualElement(b), b.getLabel());
+                            if (b.getTooltipText() != null && !b.getTooltipText().isBlank()) {
+                                translations.put(getTranslationKeyForVisualElement(b) + ".tooltip", b.getTooltipText().replaceAll("\n", "\\\\n"));
+                            }
                             if (b.getConfirmation() != null) {
                                 translations.put(getTranslationKeyForVisualElement(b) + ".confirmation", b.getConfirmation().getConfirmationMessage());
                             }
@@ -290,6 +278,9 @@ public class UiI18NHelper {
                                 return;
                             }
                             translations.put(getTranslationKeyForVisualElement(b), b.getLabel());
+                            if (b.getTooltipText() != null && !b.getTooltipText().isBlank()) {
+                                translations.put(getTranslationKeyForVisualElement(b) + ".tooltip", b.getTooltipText().replaceAll("\n", "\\\\n"));
+                            }
                         });
                     }
                 }
@@ -310,8 +301,18 @@ public class UiI18NHelper {
                             return;
                         }
                         translations.put(getTranslationKeyForVisualElement(button), button.getLabel());
+                        if (button.getTooltipText() != null && !button.getTooltipText().isBlank()) {
+                            translations.put(getTranslationKeyForVisualElement(button) + ".tooltip", button.getTooltipText().replaceAll("\n", "\\\\n"));
+                        }
                     });
                 }
+            });
+
+            List<VisualElement> inputsWithTooltips = new ArrayList<>();
+            collectVisualElementsMatchingCondition(container, (v) -> v instanceof Input input && input.getTooltipText() != null && !input.getTooltipText().isBlank(), inputsWithTooltips);
+
+            inputsWithTooltips.forEach(i -> {
+                translations.put(getTranslationKeyForVisualElement(i) + ".tooltip", ((Input) i).getTooltipText().replaceAll("\n", "\\\\n"));
             });
 
             List<VisualElement> flexElements = new ArrayList<>();

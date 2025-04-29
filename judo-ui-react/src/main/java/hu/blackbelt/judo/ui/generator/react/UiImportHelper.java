@@ -43,8 +43,9 @@ public class UiImportHelper {
             Map.entry("dateinput", Set.of("InputAdornment")),
             Map.entry("datetimeinput", Set.of("InputAdornment")),
             Map.entry("divider", Set.of("Divider")),
-            Map.entry("enumerationcombo", Set.of("TextField", "MenuItem", "InputAdornment")),
+            Map.entry("enumerationcombo", Set.of("Autocomplete", "TextField", "InputAdornment")),
             Map.entry("enumerationradio", Set.of("RadioGroup", "FormControlLabel", "Radio", "FormControl", "FormHelperText", "InputLabel")),
+            Map.entry("enumerationtogglebuttonbar", Set.of("ToggleButtonGroup", "FormControlLabel", "ToggleButton", "FormControl", "FormHelperText", "InputLabel")),
             Map.entry("formatted", Set.of("Typography")),
             Map.entry("label", Set.of("Typography")),
             Map.entry("flex", Set.of("Typography")),
@@ -66,7 +67,7 @@ public class UiImportHelper {
                 .map(String::toLowerCase)
                 .collect(Collectors.toSet());
 
-        SortedSet<String> imports = new TreeSet<>(Set.of("Button", "ButtonGroup", "IconButton"));
+        SortedSet<String> imports = new TreeSet<>(Set.of("Button", "ButtonGroup", "IconButton", "Tooltip"));
 
         muiMaterialWidgetImportPairs.forEach((key, value) -> {
             if (uniqueVisualElementNames.contains(key)) {

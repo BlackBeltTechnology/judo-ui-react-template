@@ -78,7 +78,17 @@ public class UiActionsHelper {
 
         target.addAll(actionDefinitionMap.values());
 
-        SortedSet<ActionDefinition> sorted = new TreeSet<>(Comparator.comparing(NamedElement::getFQName));
+        SortedSet<ActionDefinition> sorted = new TreeSet<>(
+                Comparator.comparing((ActionDefinition ad) -> {
+                    if (ad instanceof CallOperationActionDefinition) {
+                        // For CallOperationActionDefinition, use the parent's data element for uniqueness
+                        return ((Button) ad.eContainer()).getDataElement().getFQName();
+                    } else {
+                        // For other ActionDefinitions, use the FQName for uniqueness
+                        return ad.getFQName();
+                    }
+                })
+        );
 
         sorted.addAll(target);
         sorted.addAll(actionDefinitions);
@@ -95,7 +105,7 @@ public class UiActionsHelper {
             res += "openCreated?: boolean";
         } else if (actionDefinition.getTargetType() != null) {
             String targetName = classDataName(actionDefinition.getTargetType(), "Stored");
-            if (container.isIsRelationSelector()) {
+            if (container.isTable()) {
                 res += "selected: " + targetName + "[]";
             } else if (actionDefinition.getIsOpenPageAction()) {
                 res += "target: " + targetName + ", isDraft?: boolean";
@@ -251,12 +261,23 @@ public class UiActionsHelper {
 
     public static String getServiceMethodSuffix(Action action) {
         String suffix = "";
-        if (action.getOwnerDataElement() instanceof OperationType) {
+        if (action.getIsSelectorRangeAction() || isActionMappedToRangeFromRefresh(action) || isActionDefinedOnTablePage(action)) {
+            return suffix;
+        } else if (action.getOwnerDataElement() instanceof OperationType) {
             suffix += "On" + firstToUpper(action.getOwnerDataElement().getName());
         } else if (action.getOwnerDataElement() instanceof RelationType) {
             suffix += "For" + firstToUpper(action.getOwnerDataElement().getName());
         }
         return suffix;
+    }
+
+    public static boolean isActionMappedToRangeFromRefresh(Action action) {
+        // Actions represented visually as "Refresh" on selector dialogs call range operations in the background
+        return action.getIsRefreshAction() && action.eContainer() instanceof PageDefinition pd && pd.isIsRelationSelector();
+    }
+
+    public static boolean isActionDefinedOnTablePage(Action action) {
+        return action.eContainer() instanceof PageDefinition pd && pd.getContainer().isTable() && !pd.isOpenInDialog();
     }
 
     public static boolean isPageDataElementUnmappedSingle(PageDefinition pageDefinition) {
@@ -308,7 +329,9 @@ public class UiActionsHelper {
     public static String refreshActionDataParameter(Action action) {
         PageDefinition pageDefinition = (PageDefinition) action.eContainer();
         if (pageDefinition.isOpenInDialog()) {
-            if (isRefreshPageInitializer(action, pageDefinition)) {
+            if (isSingleAccessPage(pageDefinition)) {
+                return "owner.current";
+            } else if (isRefreshPageInitializer(action, pageDefinition)) {
                 return "ownerData";
             }
             return "data";
@@ -535,5 +558,13 @@ public class UiActionsHelper {
                 || actionDefinition instanceof RowDeleteActionDefinition
                 || actionDefinition instanceof BulkDeleteActionDefinition
                 || actionDefinition instanceof BulkRemoveActionDefinition;
+    }
+
+    public static Action getActionForActionDefinition(ActionDefinition actionDefinition, PageDefinition page) {
+        return page.getActions().stream().filter(a -> a.getActionDefinition().equals(actionDefinition)).findFirst().orElse(null);
+    }
+
+    public static boolean isOperationInputForm(ActionDefinition actionDefinition) {
+        return actionDefinition instanceof OpenOperationInputFormActionDefinition;
     }
 }

@@ -1,15 +1,23 @@
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.subTheme }}
+      <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
+    {{/ if }}
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
             data={data}
             validation={validation}
             editMode={editMode}
             storeDiff={storeDiff}
             isLoading={isLoading}
             actions={actions}
+            boundAttributeName={'{{ child.attributeType.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
         >
+    {{/ if }}
+    {{# if (hasTooltipText child) }}
+    <Box display="flex" alignItems="center">
     {{/ if }}
     <DatePicker
         {{# if (shouldElementHaveAutoFocus child) }}
@@ -52,7 +60,7 @@
         views={['year', 'month', 'day']}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
         value={ data.{{ child.attributeType.name }} ?? null }
-        readOnly={ {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() }
+        readOnly={actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : ({{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable())}
         disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
         onChange={ (newValue?: Date | null) => {
             storeDiff('{{ child.attributeType.name }}', newValue);
@@ -63,10 +71,19 @@
             }
             {{/ if }}
         } }
+        {{# unless child.isReadOnly }}
         {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {})}
+        {{/ unless }}
     />
+    {{# if (hasTooltipText child) }}
+      {{> actor/src/fragments/container/input-tooltip.fragment.hbs input=child }}
+    </Box>
+    {{/ if }}
     {{# if child.customImplementation }}
         </ComponentProxy>
+    {{/ if }}
+    {{# if child.subTheme }}
+      </SubThemeWrapper>
     {{/ if }}
 </Grid>
 {{# if child.hiddenBy }} } {{/ if }}

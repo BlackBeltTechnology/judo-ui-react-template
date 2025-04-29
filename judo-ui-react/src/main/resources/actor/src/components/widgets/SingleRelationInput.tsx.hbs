@@ -45,6 +45,7 @@ interface SingleRelationInputProps<T> {
   refreshCounter?: number;
   isEager?: boolean;
   refreshAction?: () => Promise<T | null>;
+  annotations?: string[];
 }
 
 export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
@@ -67,6 +68,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   buttonProps,
   refreshAction,
   refreshCounter,
+  annotations = [],
 }: SingleRelationInputProps<T>) => {
   const [options, setOptions] = useState<T[]>([]);
   const [loading, setLoading] = useState(false);

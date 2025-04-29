@@ -1,6 +1,9 @@
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} {{# neq (calculateSize child) 12.0 }}sm={ {{ calculateSize child }} }{{/ neq }}>
   <Box sx={ { display: 'flex', gap: 1 } }>
+    {{# if child.subTheme }}
+      <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
+    {{/ if }}
     {{# if child.customImplementation }}
       <ComponentProxy
         filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
@@ -10,10 +13,14 @@
         storeDiff={storeDiff}
         isLoading={isLoading}
         actions={actions}
+        annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
       >
     {{/ if }}
     {{# each (featuredButtonsForButtonGroup child) as |button| }}
       {{# if button.hiddenBy }}{ !data.{{ button.hiddenBy.name }} && {{/ if }}
+      {{# if button.tooltipText }}
+      <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
+      {{/ if }}
         <LoadingButton
           id="{{ getXMIID button }}"
           loading={isLoading}
@@ -33,6 +40,9 @@
         >
           { t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) }
         </LoadingButton>
+        {{# if button.tooltipText }}
+        </Tooltip>
+        {{/ if }}
       {{# if button.hiddenBy }} }{{/ if }}
     {{/ each }}
     {{# if (displayDropdownForButtonGroup child) }}
@@ -47,6 +57,9 @@
             {
               id: '{{ getXMIID button }}',
               label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
+              {{# if button.tooltipText }}
+              tooltip: t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string,
+              {{/ if }}
               onClick: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
                 {{# unless (isParameterOpenerButton button) }}
                   {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
@@ -71,6 +84,9 @@
     {{/ if }}
     {{# if child.customImplementation }}
     </ComponentProxy>
+    {{/ if }}
+    {{# if child.subTheme }}
+      </SubThemeWrapper>
     {{/ if }}
   </Box>
 </Grid>

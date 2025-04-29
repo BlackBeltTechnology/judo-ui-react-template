@@ -21,17 +21,18 @@ package hu.blackbelt.judo.ui.generator.react;
  */
 
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
-import hu.blackbelt.judo.meta.ui.Application;
-import hu.blackbelt.judo.meta.ui.NamedElement;
-import hu.blackbelt.judo.meta.ui.NavigationItem;
+import hu.blackbelt.judo.meta.ui.*;
 import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 import org.eclipse.emf.ecore.EObject;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
+import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.getCustomComponentAnnotationPrefix;
+import static hu.blackbelt.judo.ui.generator.react.UiPandinoHelper.getCustomizationComponentInterfaceKey;
 import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.getXMIID;
 import static java.util.Arrays.stream;
 
@@ -145,7 +146,94 @@ public class UiGeneralHelper {
         return logo == null ? "judo-color-logo.png" : logo;
     }
 
+    public static String getApplicationIcon(Application application) {
+        String icon = application.getIcon();
+        return icon == null ? "judo-icon.webp" : icon;
+    }
+
     public static EObject eContainer(EObject eObject) {
         return eObject.eContainer();
+    }
+
+    public static String toSafeCamelCase(String input) {
+        if (input == null || input.isEmpty()) {
+            return input;
+        }
+
+        StringBuilder result = new StringBuilder();
+        boolean toUpperCase = false;
+        boolean lastWasDelimiter = true;
+
+        for (char c : input.toCharArray()) {
+            if (c == '-' || c == '_' || c == ' ') {
+                if (!lastWasDelimiter) {
+                    toUpperCase = true;
+                    lastWasDelimiter = true;
+                }
+            } else {
+                if (toUpperCase) {
+                    result.append(Character.toUpperCase(c));
+                    toUpperCase = false;
+                } else {
+                    result.append(Character.toLowerCase(c));
+                }
+                lastWasDelimiter = false;
+            }
+        }
+
+        return result.toString();
+    }
+
+    public static String escapeString(String input) {
+        return input.replaceAll("\n", "\\\\n");
+    }
+
+    public static boolean elementHasAnnotation(NamedElement element, String annotation) {
+        return element != null && element.getAnnotations().stream().anyMatch(a -> a.getName().equals(annotation));
+    }
+
+    public static boolean elementHasAnnotationStartingWith(NamedElement element, String prefix) {
+        return element != null && getAnnotationNameStartingWith(element, prefix) != null;
+    }
+
+    public static String getAnnotationNameStartingWith(NamedElement element, String prefix) {
+        if (element == null) {
+            return null;
+        }
+        return element.getAnnotations().stream()
+                .filter(a -> a.getName().startsWith(prefix))
+                .map(Annotation::getName)
+                .sorted()
+                .findFirst()
+                .orElse(null);
+    }
+
+    public static String attributeBasedComponentProxyFilters(VisualElement child) {
+        String annotationPrefix = getCustomComponentAnnotationPrefix();
+        // Direct component implementations will always take precedence.
+        String base = "(component=${" + getCustomizationComponentInterfaceKey(child) + "})";
+        if (elementHasAnnotationStartingWith(child, annotationPrefix)) {
+            // Or, if defined use a specific implementation
+            String full = getAnnotationNameStartingWith(child, annotationPrefix);
+            String parameterName = full.substring(annotationPrefix.length());
+            return "(|" + base + "(componentImplementation=" + parameterName + "))";
+        }
+        return base;
+    }
+
+    public static List<String> getAnnotationNamesForElement(NamedElement element) {
+        return element.getAnnotations().stream()
+                .map(Annotation::getName)
+                .collect(Collectors.toSet())
+                .stream()
+                .sorted()
+                .toList();
+    }
+    
+    public static String menuLayout(Application application) {
+        if (application.getDefaultMenuLayout().equals(MenuLayout.HORIZONTAL)) {
+            return "MenuOrientation.HORIZONTAL";
+        }
+        return "MenuOrientation.VERTICAL";
     }
 }

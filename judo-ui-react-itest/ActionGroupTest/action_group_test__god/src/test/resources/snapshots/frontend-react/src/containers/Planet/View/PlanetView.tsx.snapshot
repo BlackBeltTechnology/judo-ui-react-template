@@ -15,6 +15,7 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
+import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
@@ -22,7 +23,7 @@ import { clsx } from 'clsx';
 import type { Dispatch, FC, SetStateAction } from 'react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { DropdownButton, MdiIcon, useJudoNavigation } from '~/components';
+import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { useL10N } from '~/l10n/l10n-context';
 import { isErrorOperationFault, useErrorHandler } from '~/utilities';
@@ -110,7 +111,9 @@ export default function PlanetView(props: PlanetViewProps) {
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
-                    readOnly: false || !isFormUpdateable(),
+                    readOnly: actions?.isNameReadonly
+                      ? actions.isNameReadonly(data, editMode, isLoading)
+                      : false || !isFormUpdateable(),
                     startAdornment: (
                       <InputAdornment position="start">
                         <MdiIcon path="brightness-1" />

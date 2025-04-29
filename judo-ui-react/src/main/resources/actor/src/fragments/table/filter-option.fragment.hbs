@@ -6,8 +6,11 @@
   {{# if (isAttributeTypeEnumeration filter.attributeType) }}
   enumValues: [
     {{# each filter.attributeType.dataType.members as |member| }}
-    '{{ member.name }}',
+    { value: '{{ member.name }}', label: t('enumerations.{{ restParamName filter.attributeType.dataType }}.{{ member.name }}', { defaultValue: '{{ member.name }}' }) },
     {{/ each }}
   ],
   {{/ if }}
+  alwaysShown: {{# if filter.alwaysShown }}true{{ else }}false{{/ if}},
+  col: {{ filter.col }},
+  defaultOperationType: {{# if filter.defaultOperation }}'{{ filter.defaultOperation }}'{{ else }}undefined{{/ if}}
 },

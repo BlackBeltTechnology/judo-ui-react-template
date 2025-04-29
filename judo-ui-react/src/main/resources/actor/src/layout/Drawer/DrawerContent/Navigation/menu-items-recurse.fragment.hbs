@@ -2,7 +2,11 @@
     id: '{{ createId item }}',
     type: '{{ getMenuType item isRoot }}',
     {{# unless (isNavItemAGroup item) }}
-        url: '{{ getPageRoute item.target }}',
+        {{# if item.target.openInDialog }}
+            onClick: () => open{{ pageName item.target }}({ ownerData: null as any }),
+        {{ else }}
+            url: '{{ getPageRoute item.target }}',
+        {{/if}}
     {{/ unless }}
     {{# if item.icon }}
         icon: '{{ item.icon.iconName }}',

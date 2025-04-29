@@ -13,17 +13,28 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
+import Tooltip from '@mui/material/Tooltip';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { Suspense, lazy } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
 import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
 
-import type { ViewGalaxyViewActionDefinitions, ViewGalaxyViewDialogActions, ViewGalaxyViewDialogProps } from './types';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyViewActionDefinitions,
+  ViewGalaxyViewDialogActions,
+  ViewGalaxyViewDialogProps,
+} from './types';
+
+import { VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 
 const ViewGalaxyView = lazy(() => import('~/containers/View/Galaxy/View/ViewGalaxyView'));
 
@@ -37,6 +48,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
     ownerData,
     onClose,
     actions,
+    actionsRequested,
     dataPath,
     isLoading,
     editMode,
@@ -92,7 +104,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
         </Suspense>
       </DialogContent>
       <DialogActions>
-        {!editMode && actions.backAction && (
+        {!editMode && actions.backAction && actionsRequested.has('View::Galaxy::View::Back') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton"
@@ -109,7 +121,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!isDraft && actions.refreshAction && (
+        {!isDraft && actions.refreshAction && actionsRequested.has('View::Galaxy::View::Refresh') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton"
@@ -126,24 +138,27 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!editMode && (isFormDeleteable() || isDraft) && actions.deleteAction && (
-          <Grid className="page-action" item>
-            <LoadingButton
-              id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
-              loading={isLoading}
-              loadingPosition="start"
-              variant={'contained'}
-              disabled={isLoading || editMode}
-              startIcon={<MdiIcon path="delete_forever" />}
-              onClick={async () => {
-                actions.deleteAction!();
-              }}
-            >
-              <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
-            </LoadingButton>
-          </Grid>
-        )}
-        {editMode && actions.cancelAction && (
+        {!editMode &&
+          (isFormDeleteable() || isDraft) &&
+          actions.deleteAction &&
+          actionsRequested.has('View::Galaxy::View::Delete') && (
+            <Grid className="page-action" item>
+              <LoadingButton
+                id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
+                loading={isLoading}
+                loadingPosition="start"
+                variant={'contained'}
+                disabled={isLoading || editMode}
+                startIcon={<MdiIcon path="delete_forever" />}
+                onClick={async () => {
+                  actions.deleteAction!();
+                }}
+              >
+                <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
+              </LoadingButton>
+            </Grid>
+          )}
+        {editMode && actions.cancelAction && actionsRequested.has('View::Galaxy::View::Cancel') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton"
@@ -160,7 +175,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
             </LoadingButton>
           </Grid>
         )}
-        {editMode && actions.updateAction && (
+        {editMode && actions.updateAction && actionsRequested.has('View::Galaxy::View::Update') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton"
@@ -181,6 +196,17 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
             </LoadingButton>
           </Grid>
         )}
+        <ComponentProxy
+          filter={`(${OBJECTCLASS}=${VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
+          editMode={editMode}
+          data={data}
+          validation={validation}
+          storeDiff={storeDiff}
+          submit={submit}
+          isLoading={isLoading}
+          actions={actions}
+          annotations={[]}
+        ></ComponentProxy>
       </DialogActions>
     </>
   );

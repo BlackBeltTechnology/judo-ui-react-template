@@ -27,10 +27,10 @@ import lombok.extern.java.Log;
 
 import java.util.*;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getActionOperationOutputClassType;
-import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.isPageDataElementUnmappedSingle;
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.*;
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerIsRefreshable;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.collectVisualElementsMatchingCondition;
 import static hu.blackbelt.judo.ui.generator.react.UiWidgetHelper.getReferenceClassType;
@@ -183,7 +183,7 @@ public class UiPageHelper {
             }
         }
 
-        if (pageDefinition.getContainer().isIsSelector()) {
+        if (pageDefinition.isIsSelector()) {
             if (pageDefinition.getDataElement() instanceof OperationType operationType) {
                 if (operationType.getInput() != null) {
                     res.add(operationType.getInput().getTarget());
@@ -212,7 +212,7 @@ public class UiPageHelper {
     }
 
     public static List<PageDefinition> getRelatedPages(PageDefinition pageDefinition) {
-        Set<PageDefinition> res = new HashSet<>();
+        Map<String, PageDefinition> res = new HashMap<>();
         try {
             // a.getTargetPageDefinition() != null check is for the case where the target view is not present because it was most likely empty
             List<Action> actions = pageDefinition.getActions()
@@ -220,7 +220,7 @@ public class UiPageHelper {
                     .filter(a -> a.getIsOpenPageAction() && a.getTargetPageDefinition() != null && !a.getTargetPageDefinition().isOpenInDialog())
                     .toList();
             for (Action action: actions) {
-                res.add(action.getTargetPageDefinition());
+                res.put(action.getTargetPageDefinition().getFQName(), action.getTargetPageDefinition());
             }
             List<Action> actionsForMappedNavigation = pageDefinition.getActions()
                     .stream()
@@ -232,7 +232,7 @@ public class UiPageHelper {
                     )
                     .toList();
             for (Action action: actionsForMappedNavigation) {
-                res.add(action.getTargetPageDefinition());
+                res.put(action.getTargetPageDefinition().getFQName(), action.getTargetPageDefinition());
             }
             List<Action> actionsForCreateAndNavigate = pageDefinition.getActions()
                     .stream()
@@ -242,37 +242,39 @@ public class UiPageHelper {
                     )
                     .toList();
             for (Action action: actionsForCreateAndNavigate) {
-                res.add(action.getTargetPageDefinition());
+                res.put(action.getTargetPageDefinition().getFQName(), action.getTargetPageDefinition());
             }
 
             for (AccessBasedNavigation a: getAccessBasedNavigationsForOperations(pageDefinition)) {
                 if (!a.getPageDefinition().isOpenInDialog()) {
-                    res.add(a.getPageDefinition());
+                    res.put(a.getPageDefinition().getFQName(), a.getPageDefinition());
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return res.stream()
-                .sorted(Comparator.comparing(NamedElement::getFQName))
-                .toList();
+        return res.keySet().stream().sorted(Comparator.comparing(Function.identity()))
+                .map(k -> res.get(k))
+                .collect(Collectors.toList());
     }
 
     public static List<PageDefinition> getRelatedDialogs(PageDefinition pageDefinition, Boolean skipSelf) {
-        Set<PageDefinition> res = new HashSet<>();
+        Map<String, PageDefinition> res = new HashMap<>();
         try {
             for (Action action : pageDefinition.getActions().stream().filter(a -> a.getTargetPageDefinition() != null && a.getTargetPageDefinition().isOpenInDialog() && (!skipSelf || !a.getTargetPageDefinition().equals(pageDefinition))).toList()) {
-                res.add(action.getTargetPageDefinition());
+                res.put(action.getTargetPageDefinition().getFQName(), action.getTargetPageDefinition());
             }
             for (AccessBasedNavigation a: getAccessBasedNavigationsForOperations(pageDefinition)) {
                 if (a.getPageDefinition().isOpenInDialog()) {
-                    res.add(a.getPageDefinition());
+                    res.put(a.getPageDefinition().getFQName(), a.getPageDefinition());
                 }
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        return res.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+        return res.keySet().stream().sorted(Comparator.comparing(Function.identity()))
+                .map(k -> res.get(k))
+                .collect(Collectors.toList());
     }
 
     public static String getServiceClassForPage(PageDefinition pageDefinition) {
@@ -368,7 +370,7 @@ public class UiPageHelper {
     }
 
     public static List<PageContainer> getPageContainersToGenerate(Application application) {
-        return application.getPageContainers().stream().filter(c -> !c.isForm() && !c.isIsSelector()).toList();
+        return application.getPages().stream().filter(c -> !c.getContainer().isForm() && !c.isIsSelector()).map(PageDefinition::getContainer).toList();
     }
 
     public static boolean isPageForOperationParameterType(PageDefinition page) {
@@ -404,7 +406,7 @@ public class UiPageHelper {
     }
 
     public static String dialogBareDataType(PageDefinition page) {
-        if (page.getContainer().isIsSelector()) {
+        if (page.isIsSelector()) {
             if (page.getDataElement() instanceof OperationType operationType) {
                 return classDataName(operationType.getInput().getTarget(), "");
             } else if (page.getDataElement() instanceof RelationType relationType) {
@@ -498,7 +500,7 @@ public class UiPageHelper {
             if (!pageDefinition.getContainer().isTable()) {
                 params.add("storeDiff");
             }
-            if (pageDefinition.getContainer().isIsSelector()) {
+            if (pageDefinition.isIsSelector()) {
                 params.add("selectionDiff");
             }
             if (containerIsRefreshable(pageDefinition.getContainer())) {
@@ -512,7 +514,7 @@ public class UiPageHelper {
             if (!pageDefinition.getContainer().isTable()) {
                 params.add("storeDiff");
             }
-            if (pageDefinition.getContainer().isIsSelector()) {
+            if (pageDefinition.isIsSelector()) {
                 params.add("selectionDiff");
             }
             if (containerIsRefreshable(pageDefinition.getContainer())) {
@@ -528,5 +530,70 @@ public class UiPageHelper {
                 && pageDefinition.getDataElement() instanceof RelationType relationType
                 && relationType.getIsRefreshable()
                 && (relationType.getIsMemberTypeAccess() || relationType.getIsRelationKindAssociation());
+    }
+
+    public static String getAppTitle(Application application) {
+        String title = application.getTitle();
+        if (title != null && !title.isEmpty()) {
+            return title;
+        }
+        return application.getModelName();
+    }
+
+    public static List<PageDefinition> getAccessPages(Application application) {
+        return application.getPages().stream()
+                .filter(p -> p.getDataElement() instanceof RelationType relationType
+                        && relationType.isIsAccess()
+                        && !(isSingleAccessPage(p))
+                )
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
+
+    public static List<String> getAccessServices(Application application) {
+        Set<String> services = getAccessPages(application).stream()
+                .map(UiPageHelper::getServiceClassForPage)
+                .collect(Collectors.toCollection(LinkedHashSet::new));
+
+        return services.stream().sorted().collect(Collectors.toList());
+    }
+
+    public static List<Action> getAccessTableOperationActions(PageDefinition pageDefinition) {
+        Table table = (Table) pageDefinition.getContainer().getTables().get(0);
+        return table.getTableActionButtonGroup().getButtons().stream()
+                .filter(b -> isOperationInputForm(b.getActionDefinition()))
+                .map(b -> getActionForActionDefinition(b.getActionDefinition(), pageDefinition))
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .toList();
+    }
+
+    public static List<PageDefinition> getAccessTableOperationActionPages(Application application) {
+        Set<String> store = new HashSet<>();
+        List<PageDefinition> pages = getAccessPages(application).stream().filter(p -> p.getContainer().isTable()).toList();
+        Set<Action> collected = pages.stream()
+                .flatMap(p -> getAccessTableOperationActions(p).stream()).collect(Collectors.toSet());
+        return collected.stream().map(Action::getTargetPageDefinition)
+                .filter(targetPageDefinition -> store.add(pageName(targetPageDefinition)))
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .toList();
+    }
+
+    public static Action getAccessCreateActionForFormPage(PageDefinition pageDefinition) {
+        return pageDefinition.getActions().stream().filter(Action::getIsCreateAction).findFirst().orElse(null);
+    }
+
+    public static boolean allowSelectMultipleForPage(PageDefinition pageDefinition) {
+        Action actionToCheck = pageDefinition.getActions().stream().filter(Action::getIsAddAction).findFirst().orElse(null);
+        Set<Button> buttonsToCheck = pageDefinition.getContainer().getActionButtonGroup().getButtons().stream().filter(b -> b.getActionDefinition().getIsAddAction()).collect(Collectors.toSet());
+        return actionToCheck != null && buttonsToCheck.stream().anyMatch(b -> b.getActionDefinition().equals(actionToCheck.getActionDefinition()));
+    }
+
+    public static List<String> getPageContainerMatchingActionNames(PageDefinition pageDefinition) {
+        List<ActionDefinition> containerButtonActionDefinitions = pageDefinition.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).toList();
+        return pageDefinition.getActions().stream()
+                .filter(a -> containerButtonActionDefinitions.contains(a.getActionDefinition()))
+                .map(a -> a.getActionDefinition().getName())
+                .sorted()
+                .toList();
     }
 }

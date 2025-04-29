@@ -16,7 +16,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
-import type { ViewGalaxyTablePageActions, ViewGalaxyTablePageProps } from '~/containers/View/Galaxy/Table/types';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyTablePageActions,
+  ViewGalaxyTablePageProps,
+} from '~/containers/View/Galaxy/Table/types';
 import { useGodGodGalaxiesAccessFormPage } from '~/dialogs/God/God/Galaxies/AccessFormPage/hooks';
 import { useViewGalaxyTableCreateDarkMatterInputForm } from '~/dialogs/View/Galaxy/Table/CreateDarkMatter/Input/Form/hooks';
 import { useViewGalaxyTableCreateIntergalacticDustInputForm } from '~/dialogs/View/Galaxy/Table/CreateIntergalacticDust/Input/Form/hooks';
@@ -33,10 +37,13 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { PageContainerTransition } from '~/theme/animations';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewGalaxyTableViewModel, ViewGalaxyTableViewModelContext } from './context';
 import type { ViewGalaxyTableActionsHook } from './customization';
 import { GOD_GOD_GALAXIES_ACCESS_TABLE_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyTablePageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set(['View::Galaxy::Table::Back']);
 
 const ViewGalaxyTablePageContainer = lazy(() => import('~/containers/View/Galaxy/Table/ViewGalaxyTablePageContainer'));
 
@@ -61,6 +68,7 @@ export default function GodGodGalaxiesAccessTablePage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -173,7 +181,11 @@ export default function GodGodGalaxiesAccessTablePage() {
         setRefreshCounter((prev) => prev + 1);
       }
     } catch (error) {
-      handleError<ViewGalaxy>(error, undefined, target);
+      handleError<ViewGalaxy>(
+        error,
+        { actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableRowDeleteAction' },
+        target,
+      );
     }
   };
   // FilterAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableTableFilterAction
@@ -197,7 +209,7 @@ export default function GodGodGalaxiesAccessTablePage() {
       setEditMode(false);
       return godServiceForGalaxiesImpl.list(undefined, queryCustomizer);
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTableTableRefreshAction' });
       setLatestViewData(null);
       setRouterPageData(null);
       return Promise.reject(error);
@@ -268,7 +280,9 @@ export default function GodGodGalaxiesAccessTablePage() {
 
   // ViewModel setup
   const viewModel: ViewGalaxyTableViewModel = {
+    ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -288,7 +302,9 @@ export default function GodGodGalaxiesAccessTablePage() {
         />
         <PageContainerTransition>
           <ViewGalaxyTablePageContainer
+            ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

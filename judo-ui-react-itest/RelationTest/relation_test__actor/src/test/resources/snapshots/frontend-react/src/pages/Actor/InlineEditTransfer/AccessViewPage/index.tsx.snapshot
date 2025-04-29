@@ -18,6 +18,7 @@ import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
 import type {
+  AvailableContainerAction,
   InlineEditTransferInlineEditTransfer_View_EditPageActions,
   InlineEditTransferInlineEditTransfer_View_EditPageProps,
 } from '~/containers/InlineEditTransfer/InlineEditTransfer_View_Edit/types';
@@ -41,6 +42,7 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { PageContainerTransition } from '~/theme/animations';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import {
   type InlineEditTransferInlineEditTransfer_View_EditViewModel,
   InlineEditTransferInlineEditTransfer_View_EditViewModelContext,
@@ -48,6 +50,14 @@ import {
 import type { InlineEditTransferInlineEditTransfer_View_EditActionsHook } from './customization';
 import { ACTOR_INLINE_EDIT_TRANSFER_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { InlineEditTransferInlineEditTransfer_View_EditPageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Back',
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Cancel',
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Delete',
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Refresh',
+  'InlineEditTransfer::InlineEditTransfer_View_Edit::Update',
+]);
 
 const InlineEditTransferInlineEditTransfer_View_EditPageContainer = lazy(
   () =>
@@ -83,6 +93,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -120,20 +131,20 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const getPageQueryCustomizer: () => InlineEditTransferQueryCustomizer = () => ({
     _mask: actions.getMask
       ? actions.getMask!()
-      : '{field,manyAggregationAssociation{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr},manyAggregationComposition{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr},manyDerivedAggregationAssociation{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr},manyDerivedAggregationComposition{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr}}',
+      : '{field,manyAggregationAssociation{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr},manyAggregationComposition{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr},manyDerivedAggregationAssociation{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr},manyDerivedAggregationComposition{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr}}',
   });
 
   // Masks
   const getMask = () =>
-    '{field,manyAggregationAssociation{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr},manyAggregationComposition{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr},manyDerivedAggregationAssociation{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr},manyDerivedAggregationComposition{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr}}';
+    '{field,manyAggregationAssociation{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr},manyAggregationComposition{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr},manyDerivedAggregationAssociation{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr},manyDerivedAggregationComposition{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr}}';
   const getManyAggregationAssociationMask = () =>
-    '{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr}';
+    '{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr}';
   const getManyAggregationCompositionMask = () =>
-    '{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr}';
+    '{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr}';
   const getManyDerivedAggregationAssociationMask = () =>
-    '{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr}';
+    '{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr}';
   const getManyDerivedAggregationCompositionMask = () =>
-    '{booleanAttr,dateAttr,doubleAttr,emailAttr,intAttr,stringAttr,timestampAttr}';
+    '{booleanAttr,dateAttr,doubleAttr,emailAttr,grade,intAttr,stringAttr,timestampAttr}';
 
   // Private actions
   const submit = async () => {
@@ -205,7 +216,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
         navigateBack();
       }
     } catch (error) {
-      handleError(error, undefined, data);
+      handleError(error, { actionId: 'Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewDeleteAction' }, data);
     }
   };
   // RefreshAction: Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewRefreshAction
@@ -232,7 +243,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
       }
       return response;
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewRefreshAction' });
       setLatestViewData(null);
       setRouterPageData(null);
       return Promise.reject(error);
@@ -253,7 +264,11 @@ export default function ActorInlineEditTransferAccessViewPage() {
         await actions.refreshAction!(getPageQueryCustomizer());
       }
     } catch (error) {
-      handleError<InlineEditTransfer>(error, { setValidation }, data);
+      handleError<InlineEditTransfer>(
+        error,
+        { setValidation, actionId: 'Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewUpdateAction' },
+        data,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -347,7 +362,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
         storeDiff('manyAggregationAssociation', newList);
       }
     } catch (error) {
-      handleError<TransferObjectH>(error, undefined, target);
+      handleError<TransferObjectH>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // RemoveAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowRemoveAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -424,7 +446,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
         storeDiff('manyAggregationComposition', newList);
       }
     } catch (error) {
-      handleError<TransferObjectH>(error, undefined, target);
+      handleError<TransferObjectH>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_3BEYwISbEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_3BEYwISbEe-FwPSSWSnNlQ)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -482,7 +511,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
         storeDiff('manyDerivedAggregationAssociation', newList);
       }
     } catch (error) {
-      handleError<TransferObjectH>(error, undefined, target);
+      handleError<TransferObjectH>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_tRN9YISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_tRN9YISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -545,7 +581,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
         storeDiff('manyDerivedAggregationComposition', newList);
       }
     } catch (error) {
-      handleError<TransferObjectH>(error, undefined, target);
+      handleError<TransferObjectH>(
+        error,
+        {
+          actionId:
+            'Actor/(esm/_eMz_gIScEe-FwPSSWSnNlQ)/TabularReferenceTableRowDeleteAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: Actor/(esm/_eMz_gIScEe-FwPSSWSnNlQ)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -764,7 +807,9 @@ export default function ActorInlineEditTransferAccessViewPage() {
 
   // ViewModel setup
   const viewModel: InlineEditTransferInlineEditTransfer_View_EditViewModel = {
+    ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -806,7 +851,9 @@ export default function ActorInlineEditTransferAccessViewPage() {
         />
         <PageContainerTransition>
           <InlineEditTransferInlineEditTransfer_View_EditPageContainer
+            ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

@@ -16,7 +16,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
-import type { ViewStarViewDialogActions, ViewStarViewDialogProps } from '~/containers/View/Star/View/types';
+import type {
+  AvailableContainerAction,
+  ViewStarViewDialogActions,
+  ViewStarViewDialogProps,
+} from '~/containers/View/Star/View/types';
 import { useViewStarPlanetsRelationFormPage } from '~/dialogs/View/Star/Planets/RelationFormPage/hooks';
 import { useViewStarViewLastObservationLinkSetSelectorPage } from '~/dialogs/View/Star/View/LastObservation/LinkSetSelectorPage/hooks';
 import { useViewStarViewObservationsTableAddSelectorPage } from '~/dialogs/View/Star/View/Observations/TableAddSelectorPage/hooks';
@@ -41,6 +45,7 @@ import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse'
 import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { ViewGalaxyServiceForStarsImpl } from '~/services/data-axios/ViewGalaxyServiceForStarsImpl';
 import {
+  fileHandling,
   getValue,
   isErrorNestedValidationError,
   processQueryCustomizer,
@@ -49,10 +54,19 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewStarViewViewModel, ViewStarViewViewModelContext } from './context';
 import type { ViewStarViewActionsHook } from './customization';
 import { VIEW_GALAXY_STARS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyStarsRelationViewPageProps, ViewStarViewDialogActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'View::Star::View::Back',
+  'View::Star::View::Cancel',
+  'View::Star::View::Delete',
+  'View::Star::View::Refresh',
+  'View::Star::View::Update',
+]);
 
 const ViewStarViewDialogContainer = lazy(() => import('~/containers/View/Star/View/ViewStarViewDialogContainer'));
 
@@ -85,10 +99,13 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   const { openConfirmDialog } = useConfirmDialog();
   const { setLatestViewData } = useViewData();
   const { publish, subscribe } = useEventBus();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
   const subscriptionRef = useRef<any>(null);
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
   const [createDialog, closeDialog] = useDialog();
+
+  // Ref section
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -234,7 +251,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
         onSubmit(data, 'delete');
       }
     } catch (error) {
-      handleError(error, undefined, data);
+      handleError(error, { actionId: 'God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewDeleteAction' }, data);
     }
   };
   // RefreshAction: God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewRefreshAction
@@ -254,7 +271,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
       }
       return response;
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewRefreshAction' });
       setLatestViewData(null);
       return Promise.reject(error);
     } finally {
@@ -277,7 +294,12 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
           // relation form has no remaining error(s), proceed with submission
           onSubmit(data, 'submit-draft');
         } else {
-          handleError<ViewStar>(error, { setValidation }, owner.current, dataPath!);
+          handleError<ViewStar>(
+            error,
+            { setValidation, actionId: 'God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewUpdateAction' },
+            owner.current,
+            dataPath!,
+          );
         }
       } finally {
         setIsLoading(false);
@@ -295,7 +317,11 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
         await actions.refreshAction!(getPageQueryCustomizer());
       }
     } catch (error) {
-      handleError<ViewStar>(error, { setValidation }, data);
+      handleError<ViewStar>(
+        error,
+        { setValidation, actionId: 'God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureViewUpdateAction' },
+        data,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -308,7 +334,10 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
       const { data: result } = await viewGalaxyServiceForStarsImpl.getRangeForLastObservation(data, queryCustomizer);
       return result;
     } catch (error: any) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkAutocompleteRangeAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)',
+      });
       return Promise.resolve([]);
     }
   };
@@ -317,7 +346,10 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     try {
       storeDiff('lastObservation', selected);
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_mNkDMNYvEe61sPEiAs6Ysw)/TabularReferenceFieldLinkAutocompleteSetAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)',
+      });
       return Promise.reject(error);
     }
   };
@@ -496,7 +528,14 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
         storeDiff('planets', newList);
       }
     } catch (error) {
-      handleError<ViewPlanet>(error, undefined, target);
+      handleError<ViewPlanet>(
+        error,
+        {
+          actionId:
+            'God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
@@ -512,7 +551,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   ): Promise<DialogResult<Array<ViewPlanetStored>>> => {
     return new Promise((resolve) => {
       openCRUDDialog<ViewPlanetStored>({
-        dialogTitle: t('View.Star.View.endWar', { defaultValue: 'EndWar' }),
+        dialogTitle: t('View.Star.View.planets.endWar', { defaultValue: 'EndWar' }),
         itemTitleFn: (item) =>
           actions?.getPlanetsRowRepresentation ? actions.getPlanetsRowRepresentation(item) : item.name!,
         selectedItems: selectedRows,
@@ -554,7 +593,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   ): Promise<DialogResult<Array<ViewPlanetStored>>> => {
     return new Promise((resolve) => {
       openCRUDDialog<ViewPlanetStored>({
-        dialogTitle: t('View.Star.View.startWar', { defaultValue: 'StartWar' }),
+        dialogTitle: t('View.Star.View.planets.startWar', { defaultValue: 'StartWar' }),
         itemTitleFn: (item) =>
           actions?.getPlanetsRowRepresentation ? actions.getPlanetsRowRepresentation(item) : item.name!,
         selectedItems: selectedRows,
@@ -628,6 +667,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   const viewModel: ViewStarViewViewModel = {
     onClose,
     actions,
+    actionsRequested: requestedContainerActions,
     ownerData,
     isLoading,
     setIsLoading,
@@ -648,12 +688,14 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
 
   // Effect section
   useEffect(() => {
-    if (!isDraft) {
-      actions.refreshAction!(getPageQueryCustomizer());
-    }
-    if (templateDataOverride) {
-      setData((prevData) => ({ ...prevData, ...templateDataOverride }));
-    }
+    (async () => {
+      if (!isDraft) {
+        await actions.refreshAction!(getPageQueryCustomizer());
+      }
+      if (templateDataOverride) {
+        setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+      }
+    })();
   }, []);
 
   useEffect(() => {
@@ -665,7 +707,12 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     if (rootPageId && dataPath && isDraft) {
       subscriptionRef.current = subscribe(`${rootPageId}:refreshed`, async (freshRootData: any) => {
         const copy = simpleCloneDeep(getValue<ViewStarStored>(freshRootData, dataPath!)!);
-        setData(copy);
+        if (copy !== undefined && copy !== null) {
+          // There are edge cases, e.g. when a row is opened in a dialog and an operation causes the row
+          // to be removed from the original table. In cases when the instance coming from a relation
+          // effectively gets removed we cannot null out our local data, because it results in the page crashing.
+          setData(copy);
+        }
       });
     }
 
@@ -688,6 +735,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
           ownerData={ownerData}
           onClose={onClose}
           actions={actions}
+          actionsRequested={requestedContainerActions}
           dataPath={dataPath}
           isLoading={isLoading}
           editMode={editMode}

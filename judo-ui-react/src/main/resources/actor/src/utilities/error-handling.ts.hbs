@@ -2,14 +2,13 @@
 
 import type { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
+import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
-import type { SnackbarMessage, OptionsObject, SnackbarKey } from 'notistack';
+import type { OptionsObject } from 'notistack';
 import { useFaultDialog } from '~/components/dialog';
 import { useSnacks } from '~/hooks';
 import { exists } from './helper';
 import { toastConfig } from '../config';
-
-type EnqueueSnackbarCallback = (message: SnackbarMessage, options?: OptionsObject | undefined) => SnackbarKey;
 
 export interface ErrorHandlingOption<T> {
   /**
@@ -17,6 +16,11 @@ export interface ErrorHandlingOption<T> {
    * form field name and validation error message. Should be called only once per error handler call!
    */
   setValidation?: Dispatch<SetStateAction<Map<keyof T, string>>>;
+
+  /**
+   * The XMIId of the action which threw the error
+   */
+  actionId?: string;
 }
 
 export interface ServerError<T> {
@@ -41,6 +45,15 @@ export interface ErrorProcessResult<T> {
   validation?: Map<keyof T, string>;
 }
 
+export type ErrorHandlerFn = <T, >(error: any, options?: ErrorHandlingOption<T>, payload?: T, dataPath?: string) => void;
+
+export type ErrorHandlerInterceptorHook = () => ErrorHandlerInterceptor;
+
+export interface ErrorHandlerInterceptor {
+  shouldInterceptError: (error: any, options?: ErrorHandlingOption<any>) => boolean;
+  interceptError: ErrorHandlerFn;
+}
+
 export const getErrorRelationKeyFromPayload = <T,>(error: ServerError<T>): keyof T | undefined => {
   const split = error.location.split(/\[|\./).filter((e) => e.length);
   return split.length > 1 ? (split[0] as keyof T) : undefined;
@@ -54,12 +67,20 @@ export const extractRelationErrorList = <T,R>(errorList: ServerError<T>[], relat
   }));
 }
 
-export const useErrorHandler = () => {
+export const ERROR_HANDLER_INTERCEPTOR_INTERFACE_KEY = 'ErrorHandlerInterceptor';
+
+export const useErrorHandler = <T,>(): ErrorHandlerFn => {
   const { t } = useTranslation();
   const { showErrorSnack } = useSnacks();
   const openFaultDialog = useFaultDialog();
+  const { service: errorHandlerInterceptorHook } = useTrackService<ErrorHandlerInterceptorHook>(`(${OBJECTCLASS}=${ERROR_HANDLER_INTERCEPTOR_INTERFACE_KEY})`);
+  const interceptor = errorHandlerInterceptorHook?.();
 
-  return <T>(error: any, options?: ErrorHandlingOption<T>, payload?: T, dataPath?: string) => {
+  return (error, options, payload, dataPath) => {
+    if (interceptor?.shouldInterceptError(error, options)) {
+      return interceptor.interceptError(error, options, payload, dataPath);
+    }
+
     console.error(error);
     const errorResults: ErrorProcessResult<T> = {
       errorToastConfig: {
@@ -151,6 +172,7 @@ export const useErrorHandler = () => {
     }
 
     if (typeof options?.setValidation === 'function' && errorResults.validation) {
+      // @ts-ignore types are the same, no idea why TS doesn't like it
       options?.setValidation(errorResults.validation);
     }
   };

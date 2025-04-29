@@ -31,10 +31,12 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
     simpleCloneDeep,
     getValue,
     setValue,
+    fileHandling,
     {{# if page.container.form }}
     getErrorRelationKeyFromPayload,
     {{/ if }}
   } from '~/utilities';
+  import { useOperationUtils } from '~/utilities/application';
   import type {
     DialogResult,
   } from '~/utilities';
@@ -44,7 +46,7 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
   {{# each (getRelatedDialogs page false) as |relatedDialog| }}
     import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
   {{/ each }}
-  import type { {{ containerComponentName page.container }}DialogActions, {{ containerComponentName page.container }}DialogProps } from '~/containers/{{ containerPath page.container }}/types';
+  import type { {{ containerComponentName page.container }}DialogActions, {{ containerComponentName page.container }}DialogProps, AvailableContainerAction } from '~/containers/{{ containerPath page.container }}/types';
   {{# each (getApiImportsForPage page) as |imp| }}
     import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/services/data-api/model/{{ classDataName imp '' }}';
     import type { {{ classDataName imp 'QueryCustomizer' }} } from '~/services/data-api/rest/{{ classDataName imp 'QueryCustomizer' }}';
@@ -66,6 +68,8 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
+  export const requestedContainerActions: Set<AvailableContainerAction> = new Set([{{# each (getPageContainerMatchingActionNames page) as |actionName| }}'{{ actionName }}'{{# unless @last}}, {{/ unless}}{{/each}}]);
+
   const {{ containerComponentName page.container }}DialogContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}DialogContainer'));
 {{/ unless }}
 
@@ -75,8 +79,8 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
   const {
     ownerData,
     {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output,{{/ and }}
-    {{# if page.container.isRelationSelector }}alreadySelected,{{/ if }}
-    {{# unless page.container.isSelector }}templateDataOverride,{{/ unless }}
+    {{# if page.isRelationSelector }}alreadySelected,{{/ if }}
+    {{# unless page.isSelector }}templateDataOverride,{{/ unless }}
     ownerValidation,
     isDraft,
     {{# unless page.container.table}}maskRequest,{{/ unless }}
@@ -103,17 +107,26 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const { openConfirmDialog } = useConfirmDialog();
     const { setLatestViewData } = useViewData();
     const { publish, subscribe } = useEventBus();
+    const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
     const subscriptionRef = useRef<any>(null);
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();
     const [createDialog, closeDialog] = useDialog();
+    {{# if (hasExportAction page) }}
+    const { exportFile } = fileHandling();
+    {{/ if }}
+
+    // Ref section
+    {{# if (isSingleAccessPage page) }}
+        const singletonHost = useRef<{ __signedIdentifier: string }>({} as unknown as { __signedIdentifier: string });
+    {{/ if }}
 
     // State section
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [data, setData] = useState<{{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }}>({{ dialogDataInitialValue page }} as {{ dialogDataType page }}{{# if page.container.table }}[]{{/ if }});
-    {{# if page.container.isSelector }}
+    {{# if page.isSelector }}
       const [selectionDiff, setSelectionDiff] = useState<{{ dialogDataType page }}[]>([]);
     {{/ if }}
     {{# unless page.container.table }}
@@ -239,9 +252,16 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# each page.actions as |action| }}
       {{> (getActionTemplate action) }}
     {{/ each }}
-
+    {{# if (isSingleAccessPage page) }}
+      const getSingletonPayload = async (): Promise<JudoIdentifiable<any>> => {
+        const { data: sp } = await {{ getServiceImplForPage page }}.refreshFor{{ firstToUpper page.dataElement.name }}({
+          _mask: '{}',
+        });
+        return sp;
+      }
+    {{/ if }}
     {{# each page.container.tables as |table| }}
-      {{# if table.isInlineEditable }}
+      {{# if (isTableEffectiveInlineEditable page table) }}
         const apply{{ firstToUpper table.relationName }}RowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
           try {
             {{# if table.isEager }}
@@ -268,13 +288,18 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             {{ else }}
               setIsLoading(true);
               if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+                {{# if (isTableCreatable table page) }}
                 const queryCustomizer: { _mask: string } = {
                   _mask: '{}',
                 };
                 await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}rowData, queryCustomizer);
                 showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
+                {{ else }}
+                // We should never land on this path since the button should be disabled for relations which are not creatable
+                alert('Creating elements on this table is not supported!');
+                {{/ if }}
               } else {
-                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}(rowData);
+                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# if table.relationName }}owner.current, {{/ if }}rowData);
                 showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
               }
               await refresh();
@@ -316,7 +341,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         {{/ each }}
       {{/ unless }}
       {{# each page.container.tables as |table| }}
-        {{# if table.isInlineEditable }}
+        {{# if (isTableEffectiveInlineEditable page table) }}
           apply{{ firstToUpper table.relationName }}RowEdit,
           remove{{ firstToUpper table.relationName }}RowEdit,
         {{/ if }}
@@ -331,6 +356,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       {{/ if }}
       onClose,
       actions,
+      actionsRequested: requestedContainerActions,
       ownerData,
       isLoading,
       setIsLoading,
@@ -339,7 +365,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       refresh,
       refreshCounter,
       submit,
-      {{# if page.container.isRelationSelector }}
+      {{# if page.isRelationSelector }}
       alreadySelected,
       {{/ if }}
       {{# unless page.container.table }}
@@ -350,11 +376,11 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         isFormUpdateable,
         isFormDeleteable,
       {{/ unless }}
-      {{# if page.container.isSelector }}
+      {{# if page.isSelector }}
         selectionDiff,
         setSelectionDiff,
       {{/ if }}
-      {{# unless page.container.isSelector }}
+      {{# unless page.isSelector }}
         templateDataOverride,
       {{/ unless }}
       isDraft,
@@ -362,20 +388,32 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
 
     // Effect section
     useEffect(() => {
-      {{# if (pageShouldInitialize page) }}
-        {{# if page.container.view }}
-          if (!isDraft) {
-            actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
-          }
-        {{ else }}
-          actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
+      (async () => {
+        {{# if (pageShouldInitialize page) }}
+          {{# if (isSingleAccessPage page) }}
+            const res = await getSingletonPayload();
+            if (res?.__signedIdentifier) {
+              singletonHost.current = res;
+              owner.current = res;
+            } else {
+              navigate('*');
+              return;
+            }
+          {{/ if }}
+          {{# if page.container.view }}
+            if (!isDraft) {
+              await actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
+            }
+          {{ else }}
+            await actions.{{ simpleActionDefinitionName page.container.onInit }}!({{# if page.container.view }}getPageQueryCustomizer(){{/ if }});
+          {{/ if }}
         {{/ if }}
-      {{/ if }}
-      {{# unless page.container.table }}
-        if (templateDataOverride) {
-          setData((prevData) => ({ ...prevData, ...templateDataOverride }));
-        }
-      {{/ unless }}
+        {{# unless page.container.table }}
+          if (templateDataOverride) {
+            setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+          }
+        {{/ unless }}
+      })();
     }, []);
 
     {{# if (pageIsRootStateOwner page) }}
@@ -399,7 +437,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         if (rootPageId && dataPath && isDraft) {
           subscriptionRef.current = subscribe(`${rootPageId}:refreshed`, async (freshRootData: any) => {
             const copy = simpleCloneDeep(getValue<{{ dialogDataType page }}>(freshRootData, dataPath!)!);
-            setData(copy);
+            if (copy !== undefined && copy !== null) {
+              // There are edge cases, e.g. when a row is opened in a dialog and an operation causes the row
+              // to be removed from the original table. In cases when the instance coming from a relation
+              // effectively gets removed we cannot null out our local data, because it results in the page crashing.
+              setData(copy);
+            }
           });
         }
 
@@ -422,6 +465,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
             ownerData={ownerData}
             onClose={onClose}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}
@@ -430,11 +474,12 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
               formFor={'{{ safeName page }}'}
             {{/ if }}
             {{# unless (containerIsEmptyDashboard page.container) }}
-              {{# if page.container.isSelector }}
+              {{# if page.isSelector }}
                 selectionDiff={selectionDiff}
                 setSelectionDiff={setSelectionDiff}
+                allowSelectMultiple={ {{{ boolValue (allowSelectMultipleForPage page) }}} }
               {{/ if }}
-              {{# if page.container.isRelationSelector }}
+              {{# if page.isRelationSelector }}
                 alreadySelected={alreadySelected}
               {{/ if }}
               {{# unless page.container.table }}

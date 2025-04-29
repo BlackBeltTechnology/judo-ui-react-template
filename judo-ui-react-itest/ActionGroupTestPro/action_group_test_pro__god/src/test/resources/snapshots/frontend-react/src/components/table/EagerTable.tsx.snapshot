@@ -6,7 +6,10 @@
 // Template name: actor/src/components/table/EagerTable.tsx
 // Template file: actor/src/components/table/EagerTable.tsx.hbs
 
-import { Box, Button, Typography } from '@mui/material';
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import Tooltip from '@mui/material/Tooltip';
+import Typography from '@mui/material/Typography';
 import {
   GridColDef,
   GridEventListener,
@@ -29,9 +32,10 @@ import { ElementType, MouseEvent, useCallback, useEffect, useMemo, useRef, useSt
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { Filter, FilterOption } from '~/components-api';
+import { MdiIcon } from '~/components/MdiIcon';
 import { useConfirmDialog } from '~/components/dialog';
 import { ContextMenu, ContextMenuApi, StripedDataGrid, columnsActionCalculator } from '~/components/table';
-import { RowHighlightLegend } from '~/components/table';
+import { FixedTableFilters, RowHighlightLegend } from '~/components/table';
 import { basePageSizeOptions, baseTableConfig } from '~/config';
 import { useDataStore } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
@@ -51,7 +55,6 @@ import {
   processQueryCustomizer,
 } from '~/utilities';
 import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
-import { MdiIcon } from '../MdiIcon';
 
 interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -88,6 +91,8 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   editable?: boolean;
   applyRowEdit?: (rowData: TStored) => Promise<any>;
   onRowEditCanceled?: (rowId: string) => void;
+  actionsColumnWidth?: number;
+  annotations?: string[];
 }
 
 export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
@@ -127,6 +132,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     editable = false,
     applyRowEdit,
     onRowEditCanceled,
+    actionsColumnWidth,
+    annotations = [],
   } = props;
 
   const apiRef = useGridApiRef();
@@ -292,7 +299,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const onColumnsChanged = () => {
     // Handles column resizing and re-ordering
     // skip selector column
-    const newOrder: PersistedColumnInfo[] = gridColumnDefinitionsSelector(apiRef)
+    const newOrder: PersistedColumnInfo[] = gridColumnDefinitionsSelector(apiRef as unknown as any)
       .filter((c) => c.field !== '__check__')
       .map((current, idx) => ({ field: current.field, index: idx, width: current.computedWidth }));
     setItemStringified(columnStateKey, newOrder);
@@ -475,14 +482,23 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         filterModel={filterModel}
         onFilterModelChange={handleFilterModelChange}
         data={data}
+        boundAttributeName={relationName}
+        annotations={annotations}
       />
+      <FixedTableFilters
+        filters={filters}
+        ownerData={ownerData}
+        filtersSerializer={filtersSerializer}
+        tableFilterOptions={tableFilterOptions}
+        onFiltersChange={handleFiltersChange}
+      ></FixedTableFilters>
       <StripedDataGrid
-        apiRef={apiRef}
+        apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         initialState={{ pinnedColumns: { right: ['actions'] } }}
         pageSizeOptions={pageSizeOptions}
         sx={{
-          // overflow: 'hidden',
+          overflow: 'hidden',
           display: 'grid',
           border: (theme) => (props.validationError ? `2px solid ${theme.palette.error.main}` : undefined),
         }}
@@ -538,97 +554,98 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
                   isFormUpdateable,
                   rowModesModel,
                 ) ? (
-                  <Button
-                    key={toolBarAction.id}
-                    id={toolBarAction.id}
-                    startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
-                    variant={toolBarAction.variant}
-                    onClick={async () => {
-                      if (
-                        toolBarAction.confirmation &&
-                        (typeof toolBarAction.confirmationCondition === 'undefined' ||
-                          toolBarAction.confirmationCondition === true)
-                      ) {
-                        const result = await openConfirmDialog(
-                          toolBarAction.id,
-                          toolBarAction.confirmation,
-                          t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
-                        );
-
-                        if (!result) {
-                          return;
-                        }
-                      }
-                      if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
-                        const templateResult: T | undefined = await actions[toolBarAction.name]!();
-                        const id = `${draftIdentifierPrefix}${uuidv4()}`;
-                        setData((oldRows) => [
-                          { ...(templateResult || {}), __identifier: id } as unknown as T,
-                          ...oldRows,
-                        ]);
-                        setRowModesModel((oldModel) => ({
-                          ...oldModel,
-                          [id]: { mode: GridRowModes.Edit },
-                        }));
-                      }
-                      if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
-                        apiRef.current.showFilterPanel();
-                      } else {
-                        let processedQueryCustomizer = {
-                          ...processQueryCustomizer(queryCustomizer),
-                        };
+                  <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
+                    <Button
+                      id={toolBarAction.id}
+                      startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
+                      variant={toolBarAction.variant}
+                      onClick={async () => {
                         if (
-                          toolBarActions.find(
-                            (tbAction: ToolBarActionProps<T>) =>
-                              tbAction.name === calculateActionName(relationName, 'refreshAction'),
-                          )
+                          toolBarAction.confirmation &&
+                          (typeof toolBarAction.confirmationCondition === 'undefined' ||
+                            toolBarAction.confirmationCondition === true)
                         ) {
-                          processedQueryCustomizer = {
-                            ...processedQueryCustomizer,
-                            _mask: maskAction ? maskAction() : queryCustomizer._mask,
-                          };
-                        }
+                          const result = await openConfirmDialog(
+                            toolBarAction.id,
+                            toolBarAction.confirmation,
+                            t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+                          );
 
-                        if (toolBarAction.name === calculateActionName(relationName, 'exportAction')) {
-                          processedQueryCustomizer = {
-                            ...processedQueryCustomizer,
-                            _seek: undefined,
-                          };
+                          if (!result) {
+                            return;
+                          }
                         }
-
-                        if (
-                          toolBarAction.name === calculateActionName(relationName, 'refreshAction') ||
-                          toolBarAction.name === calculateActionName(relationName, 'exportAction') ||
-                          toolBarAction.name === calculateActionName(relationName, 'selectorRangeAction')
-                        ) {
-                          actions[toolBarAction.name]!(processedQueryCustomizer);
+                        if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
+                          const templateResult: T | undefined = await actions[toolBarAction.name]!();
+                          const id = `${draftIdentifierPrefix}${uuidv4()}`;
+                          setData((oldRows) => [
+                            { ...(templateResult || {}), __identifier: id } as unknown as T,
+                            ...oldRows,
+                          ]);
+                          setRowModesModel((oldModel) => ({
+                            ...oldModel,
+                            [id]: { mode: GridRowModes.Edit },
+                          }));
+                        }
+                        if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
+                          apiRef.current!.showFilterPanel();
                         } else {
-                          if (toolBarAction.isBulk) {
-                            const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
-                            const reason: DialogResultReason = bulkResult;
-                            if (reason === 'submit' || reason === 'delete') {
-                              handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
-                            }
+                          let processedQueryCustomizer = {
+                            ...processQueryCustomizer(queryCustomizer),
+                          };
+                          if (
+                            toolBarActions.find(
+                              (tbAction: ToolBarActionProps<T>) =>
+                                tbAction.name === calculateActionName(relationName, 'refreshAction'),
+                            )
+                          ) {
+                            processedQueryCustomizer = {
+                              ...processedQueryCustomizer,
+                              _mask: maskAction ? maskAction() : queryCustomizer._mask,
+                            };
+                          }
+
+                          if (toolBarAction.name === calculateActionName(relationName, 'exportAction')) {
+                            processedQueryCustomizer = {
+                              ...processedQueryCustomizer,
+                              _seek: undefined,
+                            };
+                          }
+
+                          if (
+                            toolBarAction.name === calculateActionName(relationName, 'refreshAction') ||
+                            toolBarAction.name === calculateActionName(relationName, 'exportAction') ||
+                            toolBarAction.name === calculateActionName(relationName, 'selectorRangeAction')
+                          ) {
+                            actions[toolBarAction.name]!(processedQueryCustomizer);
                           } else {
-                            if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
-                              await actions[toolBarAction.name]!();
-                              handleOnSelection([]);
+                            if (toolBarAction.isBulk) {
+                              const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
+                              const reason: DialogResultReason = bulkResult;
+                              if (reason === 'submit' || reason === 'delete') {
+                                handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                              }
                             } else {
-                              await actions[toolBarAction.name]!();
+                              if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
+                                await actions[toolBarAction.name]!();
+                                handleOnSelection([]);
+                              } else {
+                                await actions[toolBarAction.name]!();
+                              }
                             }
                           }
                         }
-                      }
-                    }}
-                    disabled={isLoading}
-                  >
-                    {t(`${toolBarAction.label['translationKey']}`, {
-                      defaultValue: `${toolBarAction.label['defaultValue']}`,
-                    })}
-                    {toolBarAction.name === calculateActionName(relationName, 'filterAction') && filters.length
-                      ? ` (${filters.length})`
-                      : ''}
-                  </Button>
+                      }}
+                      disabled={isLoading}
+                    >
+                      {t(`${toolBarAction.label['translationKey']}`, {
+                        defaultValue: `${toolBarAction.label['defaultValue']}`,
+                      })}
+                      {toolBarAction.name === calculateActionName(relationName, 'filterAction') && filters.length
+                        ? ` (${filters.length})`
+                        : ''}
+                    </Button>
+                  </Tooltip>
                 ) : null,
               )}
               {<AdditionalToolbarActions />}

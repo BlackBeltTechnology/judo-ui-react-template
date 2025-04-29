@@ -2,12 +2,11 @@
 
 import { lazy, Suspense } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-{{# if (containerHasActionsWithCustomImplementation container) }}
-  import { OBJECTCLASS } from '@pandino/pandino-api';
-  import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
-  import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
-{{/ if }}
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import Box from '@mui/material/Box';
+import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -32,6 +31,7 @@ import { mainContainerPadding } from '~/theme';
     {{ containerComponentName container }}ActionDefinitions,
     {{ containerComponentName container }}PageActions,
     {{ containerComponentName container }}PageProps,
+    AvailableContainerAction,
   } from './types';
 
   {{# if (containerHasActionsWithCustomImplementation container) }}
@@ -41,6 +41,7 @@ import { mainContainerPadding } from '~/theme';
       {{/ each }}
     } from './customization';
   {{/ if }}
+  import { {{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
@@ -54,7 +55,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { actions, dataPath, isLoading, editMode, refreshCounter{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
+    const { ownerData, actions, actionsRequested, dataPath, isLoading, editMode, refreshCounter{{# if container.table }}, alreadySelected, selectionDiff, setSelectionDiff{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
     const isDraft = false; // currently no page can be opened as draft, but we need this variable anyway
     {{# if container.view }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
@@ -66,9 +67,9 @@ export default function {{ containerComponentName container }}Page ({{# unless (
   return (
     {{# unless (containerIsEmptyDashboard container) }}
       <>
-        <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}>
+        <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''} {{# if (titleIcon container) }}icon='{{ titleIcon container}}'{{/ if}}>
           {{# each container.actionButtonGroup.buttons as |button| }}
-            { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
+            { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
               <Grid className="page-action" item>
                 {{# if button.customImplementation }}
                   <ComponentProxy
@@ -82,7 +83,11 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                     {{/ unless }}
                     isLoading={isLoading}
                     actions={actions}
+                    annotations={[{{# each (getAnnotationNamesForElement button) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
                   >
+                {{/ if }}
+                {{# if button.tooltipText }}
+                  <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
                 <LoadingButton
                   id="{{ getXMIID button }}"
@@ -112,13 +117,30 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                 >
                   <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
                 </LoadingButton>
+                {{# if button.tooltipText }}
+                  </Tooltip>
+                {{/ if }}
                 {{# if button.customImplementation }}
                 </ComponentProxy>
                 {{/ if }}
               </Grid>
             )}
           {{/ each }}
-          <div>{/* Placeholder */}</div>
+          <ComponentProxy
+            filter={`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
+            editMode={editMode}
+            {{# unless container.table }}
+            data={data}
+            validation={validation}
+            storeDiff={storeDiff}
+            submit={submit}
+            {{/ unless }}
+            isLoading={isLoading}
+            actions={actions}
+            annotations={[{{# each (getAnnotationNamesForElement container) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
+          >
+            <div>{/* Placeholder */}</div>
+          </ComponentProxy>
         </PageHeader>
         <Suspense>
           <Box sx={mainContainerPadding}>

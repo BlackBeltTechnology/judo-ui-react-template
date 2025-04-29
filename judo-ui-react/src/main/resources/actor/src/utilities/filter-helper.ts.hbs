@@ -5,6 +5,7 @@ import { GridLogicOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }
 import { isEqual, compareAsc } from 'date-fns';
 import type { Filter, FilterOption, Operation } from '../components-api';
 import { FilterType } from '../components-api';
+import { CardsFilterDefinition } from '../components/widgets/CardsFilter';
 import type { Serializer } from '~/services/data-api/common/Serializer';
 import { simpleCloneDeep, ucFirst } from './helper';
 
@@ -12,6 +13,18 @@ type FilterBy = {
   value: any;
   operator: Operation;
 };
+
+export enum _FilterOperationType {
+  EQUAL = 'equal',
+  NOT_EQUAL = 'notEqual',
+  IS_EMPTY = 'isEmpty',
+  IS_NOT_EMPTY = 'isNotEmpty',
+  LESS = 'lessThan',
+  LESS_OR_EQUAL = 'lessOrEqual',
+  GREATER = 'greaterThan',
+  GREATER_OR_EQUAL = 'greaterOrEqual',
+  LIKE = 'like',
+}
 
 export const getOperationEnumValue = (filter: Filter, operator: string) => {
   switch (filter.filterOption.filterType) {
@@ -32,6 +45,48 @@ export const getOperationEnumValue = (filter: Filter, operator: string) => {
     case FilterType.trinaryLogic:
       return _BooleanOperation[operator as keyof typeof _BooleanOperation];
   }
+};
+
+export const getOperation = (filterOption: FilterOption, operator: string) => {
+  switch (filterOption.filterType) {
+    case FilterType.boolean:
+      return _BooleanOperation[operator as keyof typeof _BooleanOperation];
+    case FilterType.date:
+      return _NumericOperation[operator as keyof typeof _NumericOperation];
+    case FilterType.dateTime:
+      return _NumericOperation[operator as keyof typeof _NumericOperation];
+    // case FilterType.time:
+    //   return _NumericOperation[operator as keyof typeof _NumericOperation];
+    case FilterType.enumeration:
+      return _EnumerationOperation[operator as keyof typeof _BooleanOperation];
+    case FilterType.numeric:
+      return _NumericOperation[operator as keyof typeof _NumericOperation];
+    case FilterType.string:
+      return _StringOperation[operator as keyof typeof _StringOperation];
+    case FilterType.trinaryLogic:
+      return _BooleanOperation[operator as keyof typeof _BooleanOperation];
+  }
+};
+
+export const getOperationFromFilterOperationType = (filterOption: FilterOption, opType?: string): Operation => {
+  if (opType == undefined) {
+    return getOperationFromFilterOperationType(filterOption, _FilterOperationType.EQUAL);
+  }
+  const type: string | undefined = _FilterOperationType[opType as keyof typeof _FilterOperationType]
+  let op = type;
+  if (
+    filterOption.filterType === FilterType.boolean ||
+    filterOption.filterType === FilterType.trinaryLogic ||
+    filterOption.filterType === FilterType.enumeration
+  ) {
+    if (type === _FilterOperationType.EQUAL) {
+      op = 'equals';
+    } else if (type === _FilterOperationType.NOT_EQUAL) {
+      op = 'notEquals';
+    }
+  }
+  const operation = getOperation(filterOption, op);
+  return operation;
 };
 
 export const getDefaultOperator = (filterType: FilterType) => {
@@ -453,6 +508,34 @@ export function mapFilterModelToFilters(filterModel: GridFilterModel, filterOpti
         break;
       default:
         console.warn(`Unsupported filter item: ${JSON.stringify(item, null, 4)}`);
+    }
+  }
+
+  return filters;
+}
+
+export function mapCardsFiltersToFilters<T>(cardsFilters: CardsFilterDefinition<T>[], values: Record<string, any>): Filter[] {
+  const filters: Filter[] = [];
+
+  for (const def of cardsFilters) {
+    if (values.hasOwnProperty(def.field)) {
+      if (def.type === FilterType.boolean || def.type === FilterType.string) {
+        const key = def.field as string;
+        filters.push({
+          id: `id-${key}`,
+          operationId: `eq-${key}`,
+          valueId: `v-${key}`,
+          filterOption: {
+            id: `o-${key}`,
+            attributeName: key,
+            filterType: def.type,
+          },
+          filterBy: {
+            value: values[key],
+            operator: def.operator ? def.operator : (def.type === FilterType.boolean ? _BooleanOperation.equals : _StringOperation.equal),
+          },
+        });
+      }
     }
   }
 

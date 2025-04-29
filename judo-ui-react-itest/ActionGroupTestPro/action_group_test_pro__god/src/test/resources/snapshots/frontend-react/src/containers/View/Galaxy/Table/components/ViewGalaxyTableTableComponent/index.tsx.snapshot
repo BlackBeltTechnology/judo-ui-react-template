@@ -65,6 +65,7 @@ import {
   extractRelationErrorList,
   getUpdatedRowsSelected,
   isErrorNestedValidationError,
+  isRowSelectable,
   mapAllFiltersToQueryCustomizerProperties,
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -98,7 +99,20 @@ export const filtersSerializer: FiltersSerializer = {
 // XMIID: God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable
 // Name: Table
 export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableComponentProps) {
-  const { uniqueId, actions, dataPath, refreshCounter, isOwnerLoading, isDraft, validationError } = props;
+  const {
+    uniqueId,
+    actions,
+    dataPath,
+    refreshCounter,
+    isOwnerLoading,
+    isDraft,
+    validationError,
+    selectionDiff,
+    setSelectionDiff,
+    alreadySelected,
+    annotations = [],
+    allowSelectMultiple = true,
+  } = props;
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY}))`;
 
   const { openConfirmDialog } = useConfirmDialog();
@@ -108,6 +122,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
   const rowValidation = useRef<Map<string, Map<keyof ViewGalaxyStored, string>>>(
     new Map<string, Map<keyof ViewGalaxyStored, string>>(),
   );
+  const isSelector = useMemo<boolean>(() => Array.isArray(selectionDiff), [selectionDiff]);
+  const isRelationSelector = useMemo<boolean>(() => Array.isArray(alreadySelected), [alreadySelected]);
 
   const applyRowEdit = useCallback(
     async (rowData: ViewGalaxyStored) => {
@@ -438,6 +454,25 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       isBulk: false,
     },
     {
+      name: 'inlineCreateRowAction',
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableInlineCreateButton',
+      startIcon: 'note-add',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'View.Galaxy.Table.InlineCreate', defaultValue: 'Create' },
+      enabled: (
+        data: ViewGalaxyStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewGalaxyStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean =>
+        (rowModesModel ? Object.keys(rowModesModel).every((k) => rowModesModel[k].mode !== GridRowModes.Edit) : true) &&
+        true,
+      isBulk: false,
+    },
+    {
       name: 'openAddSelectorAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableAddSelectorButton',
       startIcon: 'attachment-plus',
@@ -569,7 +604,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKM0T0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
-      label: t('View.Galaxy.Table.createDarkMatter', { defaultValue: 'CreateDarkMatter' }) as string,
+      label: t('View.Galaxy.Table.View.Galaxy.createDarkMatter', { defaultValue: 'CreateDarkMatter' }) as string,
       icon: <MdiIcon path="chevron_right" />,
       hidden: (row: ViewGalaxyStored) => false,
       disabled: (
@@ -587,7 +622,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKz4T0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
-      label: t('View.Galaxy.Table.createIntergalacticDust', { defaultValue: 'CreateIntergalacticDust' }) as string,
+      label: t('View.Galaxy.Table.View.Galaxy.createIntergalacticDust', {
+        defaultValue: 'CreateIntergalacticDust',
+      }) as string,
       icon: <MdiIcon path="chevron_right" />,
       hidden: (row: ViewGalaxyStored) => false,
       disabled: (
@@ -605,7 +642,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKz4z0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
-      label: t('View.Galaxy.Table.createInterstellarMedium', { defaultValue: 'CreateInterstellarMedium' }) as string,
+      label: t('View.Galaxy.Table.View.Galaxy.createInterstellarMedium', {
+        defaultValue: 'CreateInterstellarMedium',
+      }) as string,
       icon: <MdiIcon path="chevron_right" />,
       hidden: (row: ViewGalaxyStored) => false,
       disabled: (
@@ -629,6 +668,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'name',
       label: t('View.Galaxy.Table.name', { defaultValue: 'Name' }) as string,
       filterType: FilterType.string,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
 
     {
@@ -636,6 +678,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'real',
       label: t('View.Galaxy.Table.real', { defaultValue: 'Real' }) as string,
       filterType: FilterType.trinaryLogic,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
 
     {
@@ -643,6 +688,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'constellation',
       label: t('View.Galaxy.Table.constellation', { defaultValue: 'Constellation' }) as string,
       filterType: FilterType.string,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
 
     {
@@ -650,6 +698,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'magnitude',
       label: t('View.Galaxy.Table.magnitude', { defaultValue: 'Magnitude' }) as string,
       filterType: FilterType.numeric,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
 
     {
@@ -657,6 +708,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'nakedEye',
       label: t('View.Galaxy.Table.nakedEye', { defaultValue: 'Naked Eye' }) as string,
       filterType: FilterType.trinaryLogic,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
 
     {
@@ -664,6 +718,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'darkMatter',
       label: t('View.Galaxy.Table.darkMatter', { defaultValue: 'Dark Matter' }) as string,
       filterType: FilterType.numeric,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
 
     {
@@ -671,6 +728,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'intergalacticDust',
       label: t('View.Galaxy.Table.intergalacticDust', { defaultValue: 'Intergalactic Dust' }) as string,
       filterType: FilterType.numeric,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
 
     {
@@ -678,6 +738,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'interstellarMedium',
       label: t('View.Galaxy.Table.interstellarMedium', { defaultValue: 'Interstellar Medium' }) as string,
       filterType: FilterType.numeric,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
 
     {
@@ -685,6 +748,9 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
       attributeName: 'discovered',
       label: t('View.Galaxy.Table.discovered', { defaultValue: 'Discovered' }) as string,
       filterType: FilterType.dateTime,
+      alwaysShown: false,
+      col: 4.0,
+      defaultOperationType: 'EQUAL',
     },
   ];
 
@@ -692,7 +758,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     <div id="God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable" data-table-name="Table">
       <LazyTable<ViewGalaxyStored, ViewGalaxyStored, ViewGalaxyQueryCustomizer>
         uniqueId={`God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable-${uniqueId}`}
-        dataProp={[]}
+        dataProp={isSelector ? [] : []}
         defaultSortParamsForTable={[
           { field: 'name', sort: 'asc' },
           { field: 'magnitude', sort: 'desc' },
@@ -704,9 +770,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         isOwnerLoading={isOwnerLoading}
         validationError={validationError}
         actions={actions}
+        allowSelectMultiple={allowSelectMultiple}
         dataElementId={'God/(esm/_YTkpoE7rEeycO-gUAWxcVg)/ClassType'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
+        containerIsSelector={isSelector}
+        containerIsRelationSelector={isRelationSelector}
+        alreadySelected={alreadySelected}
         onRowClick={
           actions.openPageAction
             ? async (params: GridRowParams<ViewGalaxyStored>) => await actions.openPageAction!(params.row, false)
@@ -719,12 +789,14 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         refreshCounter={refreshCounter}
         toolBarActions={toolBarActions}
         additionalToolbarButtons={actions?.AdditionalToolbarButtons}
-        tableHasSelectorColumn={true}
+        tableHasSelectorColumn={isSelector || isRelationSelector}
         enabledByName=""
         relationName=""
         filtersSerializer={filtersSerializer}
         applyRowEdit={applyRowEdit}
         onRowEditCanceled={onRowEditCanceled}
+        selectionDiff={selectionDiff}
+        setSelectionDiff={setSelectionDiff}
       />
     </div>
   );

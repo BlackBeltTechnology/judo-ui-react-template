@@ -17,7 +17,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
-import type { ViewGalaxyViewPageActions, ViewGalaxyViewPageProps } from '~/containers/View/Galaxy/View/types';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyViewPageActions,
+  ViewGalaxyViewPageProps,
+} from '~/containers/View/Galaxy/View/types';
 import { useViewGalaxyAstronomerRelationFormPage } from '~/dialogs/View/Galaxy/Astronomer/RelationFormPage/hooks';
 import { useViewGalaxyStarsRelationFormPage } from '~/dialogs/View/Galaxy/Stars/RelationFormPage/hooks';
 import { useViewGalaxyStarsRelationViewPage } from '~/dialogs/View/Galaxy/Stars/RelationViewPage/hooks';
@@ -51,10 +55,19 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewGalaxyViewViewModel, ViewGalaxyViewViewModelContext } from './context';
 import type { ViewGalaxyViewActionsHook } from './customization';
 import { GOD_GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyViewPageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'View::Galaxy::View::Back',
+  'View::Galaxy::View::Cancel',
+  'View::Galaxy::View::Delete',
+  'View::Galaxy::View::Refresh',
+  'View::Galaxy::View::Update',
+]);
 
 const ViewGalaxyViewPageContainer = lazy(() => import('~/containers/View/Galaxy/View/ViewGalaxyViewPageContainer'));
 
@@ -82,6 +95,7 @@ export default function GodGodGalaxiesAccessViewPage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
   const { exportFile } = fileHandling();
 
   // State section
@@ -116,13 +130,13 @@ export default function GodGodGalaxiesAccessViewPage() {
   const getPageQueryCustomizer: () => ViewGalaxyQueryCustomizer = () => ({
     _mask: actions.getMask
       ? actions.getMask!()
-      : '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}',
+      : '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,gender,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}',
   });
 
   // Masks
   const getMask = () =>
-    '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}';
-  const getAstronomerMask = () => '{born,name,derivedMessage{message},messages{message},singleMessage{message}}';
+    '{constellation,darkMatter,discovered,intergalacticDust,interstellarMedium,magnitude,nakedEye,name,originOfName,real,astronomer{born,gender,name,derivedMessage{message},messages{message},singleMessage{message}},stars{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name}}}}';
+  const getAstronomerMask = () => '{born,gender,name,derivedMessage{message},messages{message},singleMessage{message}}';
   const getStarsMask = () =>
     '{name,lastObservation{date,name},observations{date,name},planets{habitable,inhabited,name,peaceful,creatures{id,name,punished,rewarded}}}';
 
@@ -203,7 +217,7 @@ export default function GodGodGalaxiesAccessViewPage() {
         navigateBack();
       }
     } catch (error) {
-      handleError(error, undefined, data);
+      handleError(error, { actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewDeleteAction' }, data);
     }
   };
   // RefreshAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewRefreshAction
@@ -230,7 +244,7 @@ export default function GodGodGalaxiesAccessViewPage() {
       }
       return response;
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewRefreshAction' });
       setLatestViewData(null);
       setRouterPageData(null);
       return Promise.reject(error);
@@ -251,7 +265,11 @@ export default function GodGodGalaxiesAccessViewPage() {
         await actions.refreshAction!(getPageQueryCustomizer());
       }
     } catch (error) {
-      handleError<ViewGalaxy>(error, { setValidation }, data);
+      handleError<ViewGalaxy>(
+        error,
+        { setValidation, actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewUpdateAction' },
+        data,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -264,7 +282,10 @@ export default function GodGodGalaxiesAccessViewPage() {
       const { data: result } = await godServiceForGalaxiesImpl.getRangeForAstronomer(data, queryCustomizer);
       return result;
     } catch (error: any) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_conRARMcEe2_DOUDKkB20Q)/TabularReferenceFieldLinkAutocompleteRangeAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
       return Promise.resolve([]);
     }
   };
@@ -273,7 +294,10 @@ export default function GodGodGalaxiesAccessViewPage() {
     try {
       storeDiff('astronomer', selected);
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_conRARMcEe2_DOUDKkB20Q)/TabularReferenceFieldLinkAutocompleteSetAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
       return Promise.reject(error);
     }
   };
@@ -318,7 +342,14 @@ export default function GodGodGalaxiesAccessViewPage() {
         storeDiff('astronomer', null);
       }
     } catch (error) {
-      handleError<ViewAstronomer>(error, undefined, target);
+      handleError<ViewAstronomer>(
+        error,
+        {
+          actionId:
+            'God/(esm/_conRARMcEe2_DOUDKkB20Q)/TabularReferenceFieldLinkDeleteAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenSelectorAction: God/(esm/_conRARMcEe2_DOUDKkB20Q)/TabularReferenceFieldLinkSetSelectorOpenPageAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
@@ -440,7 +471,14 @@ export default function GodGodGalaxiesAccessViewPage() {
         storeDiff('stars', newList);
       }
     } catch (error) {
-      handleError<ViewStar>(error, undefined, target);
+      handleError<ViewStar>(
+        error,
+        {
+          actionId:
+            'God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // OpenPageAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
@@ -560,7 +598,9 @@ export default function GodGodGalaxiesAccessViewPage() {
 
   // ViewModel setup
   const viewModel: ViewGalaxyViewViewModel = {
+    ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -602,7 +642,9 @@ export default function GodGodGalaxiesAccessViewPage() {
         />
         <PageContainerTransition>
           <ViewGalaxyViewPageContainer
+            ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

@@ -10,18 +10,29 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
+import Tooltip from '@mui/material/Tooltip';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { Suspense, lazy } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon, PageHeader, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import type { Planet, PlanetStored } from '~/services/data-api/model/Planet';
 import type { PlanetQueryCustomizer } from '~/services/data-api/rest/PlanetQueryCustomizer';
 import { mainContainerPadding } from '~/theme';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
 
-import type { PlanetViewActionDefinitions, PlanetViewPageActions, PlanetViewPageProps } from './types';
+import type {
+  AvailableContainerAction,
+  PlanetViewActionDefinitions,
+  PlanetViewPageActions,
+  PlanetViewPageProps,
+} from './types';
+
+import { PLANET_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 
 const PlanetView = lazy(() => import('~/containers/Planet/View/PlanetView'));
 
@@ -32,7 +43,9 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
   const { t } = useTranslation();
   const { navigate, back } = useJudoNavigation();
   const {
+    ownerData,
     actions,
+    actionsRequested,
     dataPath,
     isLoading,
     editMode,
@@ -53,7 +66,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
   return (
     <>
       <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle(data) : ''}>
-        {!editMode && actions.backAction && (
+        {!editMode && actions.backAction && actionsRequested.has('Planet::View::Back') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewBackButton"
@@ -70,7 +83,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!isDraft && actions.refreshAction && (
+        {!isDraft && actions.refreshAction && actionsRequested.has('Planet::View::Refresh') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewRefreshButton"
@@ -87,24 +100,27 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!editMode && (isFormDeleteable() || isDraft) && actions.deleteAction && (
-          <Grid className="page-action" item>
-            <LoadingButton
-              id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewDeleteButton"
-              loading={isLoading}
-              loadingPosition="start"
-              variant={'contained'}
-              startIcon={<MdiIcon path="delete_forever" />}
-              disabled={isLoading || editMode}
-              onClick={async () => {
-                actions.deleteAction!();
-              }}
-            >
-              <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
-            </LoadingButton>
-          </Grid>
-        )}
-        {editMode && actions.cancelAction && (
+        {!editMode &&
+          (isFormDeleteable() || isDraft) &&
+          actions.deleteAction &&
+          actionsRequested.has('Planet::View::Delete') && (
+            <Grid className="page-action" item>
+              <LoadingButton
+                id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewDeleteButton"
+                loading={isLoading}
+                loadingPosition="start"
+                variant={'contained'}
+                startIcon={<MdiIcon path="delete_forever" />}
+                disabled={isLoading || editMode}
+                onClick={async () => {
+                  actions.deleteAction!();
+                }}
+              >
+                <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
+              </LoadingButton>
+            </Grid>
+          )}
+        {editMode && actions.cancelAction && actionsRequested.has('Planet::View::Cancel') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewCancelButton"
@@ -121,7 +137,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        {editMode && actions.updateAction && (
+        {editMode && actions.updateAction && actionsRequested.has('Planet::View::Update') && (
           <Grid className="page-action" item>
             <LoadingButton
               id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewUpdateButton"
@@ -138,7 +154,19 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
-        <div>{/* Placeholder */}</div>
+        <ComponentProxy
+          filter={`(${OBJECTCLASS}=${PLANET_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
+          editMode={editMode}
+          data={data}
+          validation={validation}
+          storeDiff={storeDiff}
+          submit={submit}
+          isLoading={isLoading}
+          actions={actions}
+          annotations={[]}
+        >
+          <div>{/* Placeholder */}</div>
+        </ComponentProxy>
       </PageHeader>
       <Suspense>
         <Box sx={mainContainerPadding}>

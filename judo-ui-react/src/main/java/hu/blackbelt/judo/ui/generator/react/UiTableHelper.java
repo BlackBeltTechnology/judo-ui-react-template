@@ -217,7 +217,7 @@ public class UiTableHelper {
     }
 
     public static Integer calculateTablePageLimit(Table table) {
-        Integer defaultValue = table.isIsSelectorTable() ? table.getSelectorRowsPerPage() : table.getRowsPerPage();
+        Integer defaultValue = table.getRowsPerPage();
 
         return defaultValue != null ? defaultValue : 10;
     }
@@ -252,10 +252,6 @@ public class UiTableHelper {
 
     public static boolean tableHasBulkOperations(Table table) {
         return !getBulkOperationActionDefinitionsForTable(table).isEmpty();
-    }
-
-    public static boolean tableHasSelectorColumn(Table table) {
-        return table.isIsSelectorTable() || tableHasBulkOperations(table);
     }
 
     public static Column getFirstTitleColumnForTable(Table table) {
@@ -309,5 +305,41 @@ public class UiTableHelper {
 
     public static boolean isTableTag(Table table) {
         return TableRepresentation.TAG.equals(table.getRepresentationComponent());
+    }
+
+    public static boolean isTableCard(Table table) {
+        return TableRepresentation.CARD.equals(table.getRepresentationComponent());
+    }
+
+    public static boolean isTableEffectiveInlineEditable(PageDefinition page, Table table) {
+        if (table.isIsInlineEditable()) {
+            if (table.isIsEager()) {
+                // in case of eager tables we operate on the owner
+                return page.getDataElement() instanceof RelationType relationType && relationType.getIsUpdatable();
+            }
+            return isTableUpdatable(table, page);
+        }
+        return false;
+    }
+
+    public static RelationType getRelationForTable(Table table, PageDefinition page) {
+        if (table.getRelationName() == null || table.getRelationName().isEmpty()) {
+            if (page.getDataElement() instanceof RelationType relationType) {
+                return relationType;
+            }
+        } else if (page.getDataElement() instanceof RelationType relationType) {
+            return relationType.getTarget().getRelations().stream().filter(r -> r.getName().equals(table.getRelationName())).findFirst().orElse(null);
+        }
+        return null;
+    }
+
+    public static boolean isTableUpdatable(Table table, PageDefinition page) {
+        RelationType relationType = getRelationForTable(table, page);
+        return relationType != null && relationType.getIsUpdatable();
+    }
+
+    public static boolean isTableCreatable(Table table, PageDefinition page) {
+        RelationType relationType = getRelationForTable(table, page);
+        return relationType != null && relationType.getIsCreatable();
     }
 }

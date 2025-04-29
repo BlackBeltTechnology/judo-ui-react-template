@@ -1,22 +1,27 @@
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.subTheme }}
+      <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
+    {{/ if }}
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
             ownerData={data}
             data={ data?.{{ child.dataElement.name }} }
             disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.relationType.isReadOnly }} }
-            readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() }
+            readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() || (actions?.is{{ firstToUpper child.dataElement.name }}Readonly ? actions.is{{ firstToUpper child.dataElement.name }}Readonly!(data, editMode, isLoading) : false) }
             editMode={editMode}
             validation={validation}
             actions={actions}
             isLoading={isLoading}
             isDraft={isDraft}
+            boundAttributeName={'{{ child.dataElement.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
         >
     {{/ if }}
     <{{ componentName child }}
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} false || isLoading }
-        readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() }
+        readOnly={ {{ boolValue child.relationType.isReadOnly }} || !isFormUpdateable() || (actions?.is{{ firstToUpper child.dataElement.name }}Readonly ? actions.is{{ firstToUpper child.dataElement.name }}Readonly!(data, editMode, isLoading) : false) }
         ownerData={data}
         dataPath={dataPath ? (dataPath + '.{{ child.dataElement.name }}') : '{{ child.dataElement.name }}'}
         editMode={editMode}
@@ -29,9 +34,13 @@
         validationError={validation.get('{{ child.dataElement.name }}')}
         actions={actions}
         submit={submit}
+        annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
     />
     {{# if child.customImplementation }}
         </ComponentProxy>
+    {{/ if }}
+    {{# if child.subTheme }}
+      </SubThemeWrapper>
     {{/ if }}
 </Grid>
 {{# if child.hiddenBy }} } {{/ if }}

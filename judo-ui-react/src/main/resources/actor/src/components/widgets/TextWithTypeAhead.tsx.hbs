@@ -25,6 +25,7 @@ interface TextWithTypeAheadProps {
   onChange: (target?: string | null) => void;
   onBlur?: (event: any) => void;
   maxLength?: number;
+  annotations?: string[];
 }
 
 export const TextWithTypeAhead = ({
@@ -43,6 +44,7 @@ export const TextWithTypeAhead = ({
   onChange,
   onBlur,
   maxLength,
+  annotations = [],
 }: TextWithTypeAheadProps) => {
   const [options, setOptions] = useState<string[]>([]);
   const [loading, setLoading] = useState(false);
@@ -136,6 +138,7 @@ export const TextWithTypeAhead = ({
       onInputChange={onInputChange}
       onChange={ (event, target) => {
         setValue(target);
+        onChange(target);
         handleSearch(target);
       } }
     />

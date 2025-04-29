@@ -16,7 +16,11 @@ import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
 import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
-import type { ViewPlanetViewPageActions, ViewPlanetViewPageProps } from '~/containers/View/Planet/View/types';
+import type {
+  AvailableContainerAction,
+  ViewPlanetViewPageActions,
+  ViewPlanetViewPageProps,
+} from '~/containers/View/Planet/View/types';
 import { useViewPlanetViewCreateChaosForInstanceInputForm } from '~/dialogs/View/Planet/View/CreateChaosForInstance/Input/Form/hooks';
 import { useViewPlanetViewCreateCreatureInputForm } from '~/dialogs/View/Planet/View/CreateCreature/Input/Form/hooks';
 import { useViewPlanetViewCreateStaticChaosInputForm } from '~/dialogs/View/Planet/View/CreateStaticChaos/Input/Form/hooks';
@@ -44,10 +48,21 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { PageContainerTransition } from '~/theme/animations';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import type { DialogResult } from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
 import { type ViewPlanetViewViewModel, ViewPlanetViewViewModelContext } from './context';
 import type { ViewPlanetViewActionsHook } from './customization';
 import { GOD_GOD_EARTH_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewPlanetViewPageActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'View::Planet::View::Back',
+  'View::Planet::View::Cancel',
+  'View::Planet::View::Delete',
+  'View::Planet::View::Refresh',
+  'View::Planet::View::Update',
+  'View::Planet::View::group::createLife::TableOperation',
+  'View::Planet::View::group::destroyLife::TableOperation',
+]);
 
 const ViewPlanetViewPageContainer = lazy(() => import('~/containers/View/Planet/View/ViewPlanetViewPageContainer'));
 
@@ -72,6 +87,7 @@ export default function GodGodEarthAccessViewPage() {
   const { publish, subscribe } = useEventBus();
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -196,7 +212,7 @@ export default function GodGodEarthAccessViewPage() {
         navigateBack();
       }
     } catch (error) {
-      handleError(error, undefined, data);
+      handleError(error, { actionId: 'God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewDeleteAction' }, data);
     }
   };
   // RefreshAction: God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewRefreshAction
@@ -220,7 +236,7 @@ export default function GodGodEarthAccessViewPage() {
       }
       return response;
     } catch (error) {
-      handleError(error);
+      handleError(error, { actionId: 'God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewRefreshAction' });
       setLatestViewData(null);
       setRouterPageData(null);
       return Promise.reject(error);
@@ -241,7 +257,11 @@ export default function GodGodEarthAccessViewPage() {
         await actions.refreshAction!(getPageQueryCustomizer());
       }
     } catch (error) {
-      handleError<ViewPlanet>(error, { setValidation }, data);
+      handleError<ViewPlanet>(
+        error,
+        { setValidation, actionId: 'God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewUpdateAction' },
+        data,
+      );
     } finally {
       setIsLoading(false);
     }
@@ -251,6 +271,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.bang(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postBangForPlanetAction) {
         await customActions.postBangForPlanetAction(target!);
       } else {
@@ -260,7 +281,10 @@ export default function GodGodEarthAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_bkGTMNAmEe65Ld16OAb1kw)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -288,6 +312,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.endWar(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postEndWarForPlanetAction) {
         await customActions.postEndWarForPlanetAction(target!);
       } else {
@@ -297,7 +322,10 @@ export default function GodGodEarthAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_a1neIFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -316,6 +344,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.startWar(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postStartWarForPlanetAction) {
         await customActions.postStartWarForPlanetAction(target!);
       } else {
@@ -325,7 +354,10 @@ export default function GodGodEarthAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_a1pTUFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -335,6 +367,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.createLife(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postCreateLifeForPlanetAction) {
         await customActions.postCreateLifeForPlanetAction(target!);
       } else {
@@ -344,7 +377,10 @@ export default function GodGodEarthAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_a1m3EFDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -354,6 +390,7 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       await godServiceForEarthImpl.destroyLife(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postDestroyLifeForPlanetAction) {
         await customActions.postDestroyLifeForPlanetAction(target!);
       } else {
@@ -363,7 +400,10 @@ export default function GodGodEarthAccessViewPage() {
         await refresh();
       }
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_a1m3EVDkEeyjf_w6-3_EHA)/OperationFormCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -440,7 +480,14 @@ export default function GodGodEarthAccessViewPage() {
         storeDiff('creatures', newList);
       }
     } catch (error) {
-      handleError<ViewCreature>(error, undefined, target);
+      handleError<ViewCreature>(
+        error,
+        {
+          actionId:
+            'God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowDeleteAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+        },
+        target,
+      );
     }
   };
   // RemoveAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowRemoveAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
@@ -459,8 +506,11 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       const { data: result } = await godServiceForEarthImpl.chooseTheMessiah(data);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postCreaturesChooseTheMessiahForPlanetAction) {
         await customActions.postCreaturesChooseTheMessiahForPlanetAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
@@ -469,7 +519,10 @@ export default function GodGodEarthAccessViewPage() {
         navigate(routeToViewPlanetViewChooseTheMessiahOutputView(result.__signedIdentifier));
       }
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_ZggBoT0wEe-oxNmZsPxMmA)/OperationFormTableTableCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -492,8 +545,11 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       const { data: result } = await godServiceForEarthImpl.hateGodForCreatures(target!);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postCreaturesHateGodForCreatureAction) {
         await customActions.postCreaturesHateGodForCreatureAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
@@ -502,7 +558,10 @@ export default function GodGodEarthAccessViewPage() {
         navigate(routeToViewPlanetViewHateGodOutputView(result.__signedIdentifier));
       }
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_a2C4QT0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -512,8 +571,11 @@ export default function GodGodEarthAccessViewPage() {
     try {
       setIsLoading(true);
       const { data: result } = await godServiceForEarthImpl.loveGodForCreatures(target!);
+      // To define a custom operation output handler, create the `actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs` file
       if (customActions?.postCreaturesLoveGodForCreatureAction) {
         await customActions.postCreaturesLoveGodForCreatureAction(target!, result);
+      } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+        await processRedirect(result);
       } else {
         showSuccessSnack(
           t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string,
@@ -522,7 +584,10 @@ export default function GodGodEarthAccessViewPage() {
         navigate(routeToViewPlanetViewLoveGodOutputView(result.__signedIdentifier));
       }
     } catch (error) {
-      handleError(error);
+      handleError(error, {
+        actionId:
+          'God/(esm/_a2C4Qz0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)',
+      });
     } finally {
       setIsLoading(false);
     }
@@ -548,7 +613,7 @@ export default function GodGodEarthAccessViewPage() {
     }
   };
   // OpenOperationInputSelectorAction: God/(esm/_a2C4RT0wEe-oxNmZsPxMmA)/OperationFormTableRowCallAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
-  const creaturesTalkToGodAction = async (target?: ViewPlanetStored) => {
+  const creaturesTalkToGodAction = async (target?: ViewCreatureStored) => {
     const { result, data: returnedData } =
       await openViewPlanetViewGroup_2RightCreaturesTalkToGodRelationTableCallSelector({
         ownerData: target!,
@@ -601,7 +666,9 @@ export default function GodGodEarthAccessViewPage() {
 
   // ViewModel setup
   const viewModel: ViewPlanetViewViewModel = {
+    ownerData: null,
     actions,
+    actionsRequested: requestedContainerActions,
     isLoading,
     setIsLoading,
     refreshCounter,
@@ -651,7 +718,9 @@ export default function GodGodEarthAccessViewPage() {
         />
         <PageContainerTransition>
           <ViewPlanetViewPageContainer
+            ownerData={null}
             actions={actions}
+            actionsRequested={requestedContainerActions}
             dataPath={dataPath}
             isLoading={isLoading}
             editMode={editMode}

@@ -1,0 +1,23 @@
+import { type FC } from 'react';
+import Typography from '@mui/material/Typography';
+
+interface TooltipContentProps {
+  text: string;
+}
+
+export const TooltipContent: FC<TooltipContentProps> = ({ text }) => {
+  const lines = text
+    .replace(/\\n|\n/g, "\n")
+    .split("\n")
+    .filter((line) => line.trim() !== "");
+
+  return (
+    <>
+      {lines.map((line, index) => (
+        <Typography variant="body2" key={index}>
+          {line}
+        </Typography>
+      ))}
+    </>
+  );
+};

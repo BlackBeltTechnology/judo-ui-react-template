@@ -2,7 +2,7 @@
 
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
-import { createTheme } from '@mui/material/styles';
+import { {{# if application.backgroundImage }}alpha, {{/ if }}createTheme } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
 import StyledEngineProvider from '@mui/material/StyledEngineProvider';
 import { amber, deepOrange, grey } from '@mui/material/colors';
@@ -162,6 +162,12 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
             '.MuiInputBase-root.MuiInputBase-formControl.MuiAutocomplete-inputRoot': {
               paddingRight: '85px',
             },
+            '.JUDO-readOnly .MuiInputBase-root:before': {
+              border: 0,
+            },
+            '.JUDO-readOnly .MuiInputBase-root .MuiAutocomplete-endAdornment': {
+              visibility: 'hidden',
+            },
           },
         },
       },
@@ -189,6 +195,11 @@ const baseTheme = (paletteTheme: Theme) => createTheme(
             boxShadow: '0px 0px 8px 1px rgba(0,0,0,0.05)',
             borderRadius: density.borderRadius,
           },
+          {{# if application.backgroundImage }}
+          root: {
+            background: alpha(paletteTheme.palette.background.default, 0.97),
+          },
+          {{/ if }}
         },
       },
       MuiDrawer: {

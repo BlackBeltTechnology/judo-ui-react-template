@@ -1,68 +1,94 @@
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.subTheme }}
+      <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
+    {{/ if }}
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
             data={data}
             validation={validation}
             editMode={editMode}
             storeDiff={storeDiff}
             isLoading={isLoading}
             actions={actions}
+            boundAttributeName={'{{ child.attributeType.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
         >
     {{/ if }}
-    <TextField
+    {{# if (hasTooltipText child) }}
+    <Box display="flex" alignItems="center">
+    {{/ if }}
+    <Autocomplete
+      id="{{ getXMIID child }}"
+      autoHighlight
+      value={data.{{ child.attributeType.name }} || null}
+      disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
+      readOnly={(actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : false) || {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable()}
+      options={[
+        ...effective{{ firstToUpper child.attributeType.name }}Options.map((o) => ({
+          label: t(o.i18nKey, { defaultValue: o.i18nDefaultValue }),
+          value: o.value,
+          key: o.id,
+        }))
+      ]}
+      isOptionEqualToValue={ (option) => option.value === data.{{ child.attributeType.name }} }
+      getOptionKey={(option: any) => option.key }
+      getOptionLabel={(option: any) => {
+        if (typeof option === 'string') {
+          const o = effective{{ firstToUpper child.attributeType.name }}Options.find(o => o.value === option)!;
+          return t(o.i18nKey, { defaultValue: o.i18nDefaultValue })
+        }
+        return option.label;
+      } }
+      onChange={(_: any, newValue: { label: string, value: string | null, key: string } | null) => {
+        storeDiff('{{ child.attributeType.name }}', newValue?.value || null);
+      }}
+      disableClearable={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : false}
+      renderInput={(params) => <TextField
+        {...params}
+        name={'{{ child.attributeType.name }}'}
         required={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})}
-        name="{{ child.attributeType.name }}"
-        id="{{ getXMIID child }}"
-        {{# if (shouldElementHaveAutoFocus child) }}
-            inputRef={autoFocusInputRef}
-        {{/ if }}
         label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
-        value={ data.{{ child.attributeType.name }} || '' }
-        className={ clsx({
-            'JUDO-viewMode': !editMode,
-            'JUDO-required': {{ boolValue child.attributeType.isRequired }},
-        }) }
-        disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
+        {{# if (shouldElementHaveAutoFocus child) }}
+          inputRef={autoFocusInputRef}
+        {{/ if }}
+        {{# if child.onBlur }}
+          onBlur={ () => {
+            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
+              actions.on{{ firstToUpper child.attributeType.name }}BlurAction(data, storeDiff, editMode, submit);
+            }
+          } }
+        {{/ if }}
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
-        {{# if child.onBlur }}
-        onBlur={ () => {
-            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
-                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(data, storeDiff, editMode, submit);
-            }
-        } }
-        {{/ if }}
-        onChange={ (event) => {
-            storeDiff('{{ child.attributeType.name }}', event.target.value);
-        } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {
-            readOnly: {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable(),
-            {{# if child.icon }}
-                startAdornment: (
-                    <InputAdornment position="start">
-                        <MdiIcon path="{{ child.icon.iconName }}" />
-                    </InputAdornment>
-                ),
-            {{/ if }}
+          ...params.InputProps,
+          {{# if child.icon }}
+          startAdornment: (
+            <InputAdornment position="start">
+              <MdiIcon path="{{ child.icon.iconName }}" sx={ { mt: -2 } } />
+            </InputAdornment>
+          ),
+          {{/ if }}
         } }
-        select
-    >
-        {!(actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})) && (
-          <MenuItem id="{{ getXMIID child }}-null" value={null as any}>
-              <em>{t('enumerations.{{ restParamName child.attributeType.dataType }}._null', { defaultValue: 'None' })}</em>
-          </MenuItem>
-        )}
-        {effective{{ firstToUpper child.attributeType.name }}Options.map((o) => (
-            <MenuItem key={o.id} id={o.id} value={o.value as any}>
-                {t(o.i18nKey, { defaultValue: o.i18nDefaultValue })}
-            </MenuItem>
-        ))}
-    </TextField>
+        className={clsx({
+          'JUDO-viewMode': !editMode,
+          'JUDO-required': actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : {{ boolValue child.attributeType.isRequired }},
+          'JUDO-readOnly': (actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : false) || {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable()
+        })}
+      />}
+    />
+    {{# if (hasTooltipText child) }}
+      {{> actor/src/fragments/container/input-tooltip.fragment.hbs input=child }}
+    </Box>
+    {{/ if }}
     {{# if child.customImplementation }}
         </ComponentProxy>
+    {{/ if }}
+    {{# if child.subTheme }}
+      </SubThemeWrapper>
     {{/ if }}
 </Grid>
 {{# if child.hiddenBy }} } {{/ if }}

@@ -1,16 +1,27 @@
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+    {{# if child.subTheme }}
+      <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
+    {{/ if }}
     {{# if child.customImplementation }}
         <ComponentProxy
-            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey child ~}} }))`}
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
             data={data}
             validation={validation}
             editMode={editMode}
             storeDiff={storeDiff}
             isLoading={isLoading}
             actions={actions}
+            boundAttributeName={'{{ child.attributeType.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
         >
     {{/ if }}
+    {{# if (hasTooltipText child) }}
+    <Box display="flex" alignItems="center">
+    {{/ if }}
+    {{# and child.countCharacters child.attributeType.dataType.maxLength }}
+    <Box display="flex" flexDirection="column" alignItems="flex-end" width="100%">
+    {{/ and }}
     <TextField
         required={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})}
         name="{{ child.attributeType.name }}"
@@ -26,7 +37,7 @@
         }) }
         disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
         multiline
-        minRows={ {{ child.row }} }
+        rows={ {{ child.row }} }
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
         {{# if child.onBlur }}
@@ -42,7 +53,7 @@
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {
-            readOnly: {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable(),
+            readOnly: actions?.is{{ firstToUpper child.attributeType.name }}Readonly ? actions.is{{ firstToUpper child.attributeType.name }}Readonly(data, editMode, isLoading) : ({{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable()),
             {{# if child.icon }}
                 startAdornment: (
                     <InputAdornment position="start">
@@ -57,8 +68,19 @@
         } }
         {{/ if }}
     />
+    {{# and child.countCharacters child.attributeType.dataType.maxLength }}
+    <CharacterCounter current={(data.{{ child.attributeType.name }} ?? '').length} max={ {{ child.attributeType.dataType.maxLength }} } />
+    </Box>
+    {{/ and }}
+    {{# if (hasTooltipText child) }}
+      {{> actor/src/fragments/container/input-tooltip.fragment.hbs input=child }}
+    </Box>
+    {{/ if }}
     {{# if child.customImplementation }}
         </ComponentProxy>
+    {{/ if }}
+    {{# if child.subTheme }}
+      </SubThemeWrapper>
     {{/ if }}
 </Grid>
 {{# if child.hiddenBy }} } {{/ if }}

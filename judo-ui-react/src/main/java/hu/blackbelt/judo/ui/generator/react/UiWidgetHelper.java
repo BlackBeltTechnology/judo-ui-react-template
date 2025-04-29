@@ -34,6 +34,7 @@ import java.util.stream.Collectors;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.isActionDefinitionCRUDCommand;
 import static hu.blackbelt.judo.ui.generator.react.UiPageContainerHelper.containerComponentName;
+import static hu.blackbelt.judo.ui.generator.react.UiTableHelper.isTableTag;
 import static java.util.Arrays.stream;
 
 @Log
@@ -206,16 +207,24 @@ public class UiWidgetHelper {
         return tableComponentName(table);
     }
 
+    public static String cardsComponentName(Table table) {
+        return tableComponentName(table);
+    }
+
     public static Column getFirstAutocompleteColumnForLink(Link link) {
         Optional<Column> column = link.getParts().stream()
-                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .filter(c -> (c.getAttributeType().getDataType() instanceof StringType ||
+                        c.getAttributeType().getDataType() instanceof BinaryType) &&
+                        !c.getAttributeType().getIsMemberTypeTransient())
                 .findFirst();
         return column.orElse(null);
     }
 
     public static Column getFirstAutocompleteColumnForTable(Table table) {
         Optional<Column> column = table.getColumns().stream()
-                .filter(c -> c.getAttributeType().getDataType() instanceof StringType && !c.getAttributeType().getIsMemberTypeTransient())
+                .filter(c -> (c.getAttributeType().getDataType() instanceof StringType ||
+                        c.getAttributeType().getDataType() instanceof BinaryType) &&
+                        !c.getAttributeType().getIsMemberTypeTransient())
                 .findFirst();
         return column.orElse(null);
     }
@@ -377,7 +386,7 @@ public class UiWidgetHelper {
             return result += "!editMode && (isFormUpdateable ? isFormUpdateable() : false)";
         }
         if (container.isView()) {
-            if (button.getActionDefinition().getIsOpenSelectorAction() || button.getActionDefinition().getIsRemoveAction()) {
+            if (button.getActionDefinition().getIsOpenAddSelectorAction() || button.getActionDefinition().getIsOpenSetSelectorAction() || button.getActionDefinition().getIsRemoveAction()) {
                 return result += "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + ") : false)";
             }
             if (button.getActionDefinition().getIsBulkRemoveAction()) {
@@ -488,6 +497,9 @@ public class UiWidgetHelper {
     }
 
     public static boolean elementHasIcon(VisualElement element) {
+        if (element.eContainer() instanceof PageContainer) {
+            return false;
+        }
         return element.getIcon() != null && element.getIcon().getIconName() != null && !element.getIcon().getIconName().trim().isBlank();
     }
 
@@ -514,7 +526,10 @@ public class UiWidgetHelper {
     }
 
     public static boolean displayTableHeading(Table table, PageContainer container) {
-        return elementHasIconOrLabel(table) && !container.isIsSelector() && !container.isTable();
+        if (isTableTag(table)) {
+            return false;
+        }
+        return elementHasIconOrLabel(table) && !container.isTable();
     }
 
     public static boolean shouldRenderConfirmationCondition(Button button) {
@@ -532,7 +547,7 @@ public class UiWidgetHelper {
         if (dataType instanceof DateType || dataType instanceof TimestampType) {
             return "date";
         } else if (dataType instanceof EnumerationType) {
-            return "text";
+            return "singleSelect";
         } else if (dataType instanceof BooleanType) {
             if (!column.getAttributeType().isIsRequired()) {
                 return "optionalBoolean";
@@ -541,5 +556,39 @@ public class UiWidgetHelper {
         }
 
         return "text";
+    }
+
+    public static boolean hasTooltipText(Input input) {
+        return input.getTooltipText() != null && !input.getTooltipText().trim().isEmpty();
+    }
+
+    public static List<NavigationItem> getMenuDialogs(Application application) {
+        List<NavigationItem> items = new ArrayList<>();
+        for (NavigationItem item: application.getNavigationController().getItems()) {
+            items.addAll(extractDialogItems(item));
+        }
+        return items.stream().sorted(Comparator.comparing(NavigationItem::getFQName)).collect(Collectors.toList());
+    }
+
+    public static List<NavigationItem> extractDialogItems(NavigationItem item) {
+        List<NavigationItem> items = new ArrayList<>();
+        for (NavigationItem nested: item.getItems()) {
+            if (nested.getTarget() != null && nested.getTarget().isOpenInDialog()) {
+                items.add(nested);
+            }
+            if (nested.getItems().size() > 0) {
+                items.addAll(extractDialogItems(nested));
+            }
+        }
+        if (item.getTarget() != null && item.getTarget().isOpenInDialog()) {
+            items.add(item);
+        }
+        return items;
+    }
+
+    public static List<Table> getTablesWithCardRepresentations(Application application) {
+        return application.getTables().stream()
+                .filter(t -> ((Table) t).getRepresentationComponent().equals(TableRepresentation.CARD))
+                .sorted(Comparator.comparing(NamedElement::getFQName)).toList();
     }
 }

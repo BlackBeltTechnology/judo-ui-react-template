@@ -2,11 +2,10 @@
 
 import { lazy, Suspense{{# if (containerHasCreateAction container) }}, useRef, useState, useCallback{{/ if }} } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
-{{# if (containerHasActionsWithCustomImplementation container) }}
-  import { OBJECTCLASS } from '@pandino/pandino-api';
-  import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
-  import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
-{{/ if }}
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -43,6 +42,7 @@ import { useConfirmDialog } from '~/components/dialog';
     {{ containerComponentName container }}ActionDefinitions,
     {{ containerComponentName container }}DialogActions,
     {{ containerComponentName container }}DialogProps,
+    AvailableContainerAction,
   } from './types';
 
   {{# if (containerHasActionsWithCustomImplementation container) }}
@@ -52,6 +52,7 @@ import { useConfirmDialog } from '~/components/dialog';
       {{/ each }}
     } from './customization';
   {{/ if }}
+  import { {{ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 {{/ unless }}
 
 {{# unless (containerIsEmptyDashboard container) }}
@@ -77,16 +78,16 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
       onClose
       {{# unless (containerIsEmptyDashboard container) }},
         actions,
+        actionsRequested,
         dataPath,
         isLoading,
         editMode,
         refreshCounter,
-        {{# if container.isSelector }}
-          selectionDiff,
-          setSelectionDiff,
-        {{/ if }}
-        {{# if container.isRelationSelector }}
-          alreadySelected,
+        {{# if container.table }}
+        selectionDiff,
+        setSelectionDiff,
+        alreadySelected,
+        allowSelectMultiple,
         {{/ if }}
         {{# unless container.table }}
           data,
@@ -143,12 +144,11 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
               dataPath={dataPath}
               refreshCounter={refreshCounter}
               isLoading={isLoading}
-              {{# if container.isSelector }}
-                selectionDiff={selectionDiff}
-                setSelectionDiff={setSelectionDiff}
-              {{/ if }}
-              {{# if container.isRelationSelector }}
-                alreadySelected={alreadySelected}
+              {{# if container.table }}
+              selectionDiff={selectionDiff}
+              setSelectionDiff={setSelectionDiff}
+              alreadySelected={alreadySelected}
+              allowSelectMultiple={allowSelectMultiple}
               {{/ if }}
               {{# unless container.table }}
                 data={data}
@@ -166,7 +166,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         </DialogContent>
         <DialogActions>
           {{# each container.actionButtonGroup.buttons as |button| }}
-            { {{# if button.actionDefinition.isInputFormCallOperationAction }}formFor === '{{ safeName (getCallerPageForOperationFormCallButton button application) }}' && {{/ if }}{{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && (
+            { {{# if button.actionDefinition.isInputFormCallOperationAction }}formFor === '{{ safeName (getCallerPageForOperationFormCallButton button application) }}' && {{/ if }}{{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
               <Grid className="page-action" item>
                 {{# if button.actionDefinition.isCreateAction }}
                 {{# unless button.actionDefinition.autoOpenAfterCreate }}
@@ -183,12 +183,16 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                     storeDiff={storeDiff}
                     submit={submit}
                     {{/ unless }}
-                    {{# if container.isSelector }}
+                    {{# if container.table }}
                     selectionDiff={selectionDiff}
                     {{/ if }}
                     isLoading={isLoading}
                     actions={actions}
+                    annotations={[{{# each (getAnnotationNamesForElement button) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
                   >
+                {{/ if }}
+                {{# if button.tooltipText }}
+                  <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
                 <LoadingButton
                   id="{{ getXMIID button }}"
@@ -218,7 +222,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(queryCustomizer));
                       {{ else }}
                         {{# if (isActionAddOrSet actionDefinition) }}
-                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff);
+                          await actions.{{ simpleActionDefinitionName actionDefinition }}!(selectionDiff || []);
                         {{ else }}
                           {{# if actionDefinition.isCreateAction }}
                             await actions.{{ simpleActionDefinitionName actionDefinition }}!({{# if actionDefinition.autoOpenAfterCreate }}true{{/ if }});
@@ -252,6 +256,9 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                     {{/ if }}
                   {{/ if }}
                 </LoadingButton>
+                {{# if button.tooltipText }}
+                  </Tooltip>
+                {{/ if }}
                 {{# if button.customImplementation }}
                   </ComponentProxy>
                 {{/ if }}
@@ -290,6 +297,23 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
               </Grid>
             )}
           {{/ each }}
+          <ComponentProxy
+            filter={`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
+            editMode={editMode}
+            {{# unless container.table }}
+            data={data}
+            validation={validation}
+            storeDiff={storeDiff}
+            submit={submit}
+            {{/ unless }}
+            {{# if container.table }}
+            selectionDiff={selectionDiff}
+            {{/ if }}
+            isLoading={isLoading}
+            actions={actions}
+            annotations={[{{# each (getAnnotationNamesForElement container) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
+          >
+          </ComponentProxy>
         </DialogActions>
       {{/ unless }}
     </>

@@ -11,6 +11,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{# unless operation.isStatic }}produceDataAdjustedOwner(),{{/ unless }}
       data
     );
+    {{> actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs operation=operation action=action }}
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
         {{# if action.actionDefinition.targetType }}target!,{{/ if }}
@@ -18,6 +19,10 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         onSubmit,
         onClose
       );
+    {{# if operation.output }}
+    } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+      await processRedirect(result, async () => await onSubmit(result));
+    {{/ if }}
     } else {
       showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
       await onSubmit({{# if operation.output }}result{{/ if }});
@@ -55,7 +60,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{/ if }}
     }
   } catch (error) {
-    handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation }, owner.current, dataPath);
+    handleError<{{ classDataName (getReferenceClassType page) '' }}>(error, { setValidation, actionId: '{{ getXMIID action }}' }, owner.current, dataPath);
   } finally {
     setIsLoading(false);
   }

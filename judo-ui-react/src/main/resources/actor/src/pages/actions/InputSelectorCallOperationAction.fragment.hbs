@@ -6,12 +6,17 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
       {{# unless operation.isStatic }}ownerData, {{/ unless }}selectionDiff[0]
     );
+    {{> actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs operation=operation action=action }}
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
         {{# if action.actionDefinition.targetType }}target!,{{/ if }}
         {{# if operation.output }}result,{{/ if }}
         {{# if page.openInDialog }}onClose{{/ if }}
       );
+    {{# if operation.output }}
+    } else if (shouldUseCustomFlow && shouldUseCustomFlow(result)) {
+      await processRedirect(result, async () => await onSubmit(result));
+    {{/ if }}
     } else {
       showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
       await onSubmit({{# if operation.output }}result{{/ if }});
@@ -35,8 +40,12 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{# if operation.output }}
           {{# if action.targetPageDefinition.openInDialog }}
             await open{{ pageName action.targetPageDefinition }}({
+              {{# if (isPageDataElementUnmappedSingle action.targetPageDefinition) }}
               ownerData: produceDataAdjustedOwner(),
               data: result,
+              {{ else }}
+              ownerData: result,
+              {{/ if }}
             });
           {{ else }}
             navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
@@ -45,7 +54,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{/ if }}
     }
   } catch (error) {
-    handleError(error);
+    handleError(error, { actionId: '{{ getXMIID action }}' });
   } finally {
     setIsLoading(false);
   }

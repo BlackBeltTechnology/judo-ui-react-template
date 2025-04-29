@@ -36,6 +36,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
     setValue,
     {{# if (hasExportAction page) }}fileHandling,{{/ if }}
   } from '~/utilities';
+  import { useOperationUtils } from '~/utilities/application';
   import type {
     DialogResult,
   } from '~/utilities';
@@ -46,7 +47,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   {{# each (getRelatedDialogs page false) as |relatedDialog| }}
     import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
   {{/ each }}
-  import type { {{ containerComponentName page.container }}PageActions, {{ containerComponentName page.container }}PageProps } from '~/containers/{{ containerPath page.container }}/types';
+  import type { {{ containerComponentName page.container }}PageActions, {{ containerComponentName page.container }}PageProps, AvailableContainerAction } from '~/containers/{{ containerPath page.container }}/types';
   {{# each (getApiImportsForPage page) as |imp| }}
     import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/services/data-api/model/{{ classDataName imp '' }}';
     import type { {{ classDataName imp 'QueryCustomizer' }} } from '~/services/data-api/rest/{{ classDataName imp 'QueryCustomizer' }}';
@@ -72,6 +73,8 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
 {{/ if }}
 
 {{# unless (containerIsEmptyDashboard page.container) }}
+  export const requestedContainerActions: Set<AvailableContainerAction> = new Set([{{# each (getPageContainerMatchingActionNames page) as |actionName| }}'{{ actionName }}'{{# unless @last}}, {{/ unless}}{{/each}}]);
+
   const {{ containerComponentName page.container }}PageContainer = lazy(() => import('~/containers/{{ containerPath page.container }}/{{ containerComponentName page.container }}PageContainer'));
 {{/ unless }}
 
@@ -108,6 +111,7 @@ export default function {{ pageName page }}() {
     const { publish, subscribe } = useEventBus();
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();
+    const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
     {{# if (hasExportAction page) }}
     const { exportFile } = fileHandling();
     {{/ if }}
@@ -117,7 +121,7 @@ export default function {{ pageName page }}() {
     const [editMode, setEditMode] = useState<boolean>({{# if page.container.form }}true{{ else }}false{{/ if }});
     const [refreshCounter, setRefreshCounter] = useState<number>(0);
     const [data, setData] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}{{# if page.container.table }}[]{{/ if }}>({{# if page.container.table }}[]{{ else }}{ {{# if (pageHasSignedId page) }}__signedIdentifier: signedIdentifier{{/ if }} } as {{ classDataName (getReferenceClassType page) 'Stored' }}{{/ if }});
-    {{# if page.container.isSelector }}
+    {{# if page.isSelector }}
       const [selectionDiff, setSelectionDiff] = useState<{{ classDataName (getReferenceClassType page) 'Stored' }}[]>([]);
     {{/ if }}
     {{# unless page.container.table }}
@@ -239,8 +243,7 @@ export default function {{ pageName page }}() {
       }
     {{/ if }}
     {{# each page.container.tables as |table| }}
-      {{# if table.isInlineEditable }}
-        const apply{{ firstToUpper table.relationName }}RowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
+        const apply{{ firstToUpper table.relationName }}RowEdit = async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}): Promise<any> => {
           try {
             {{# if table.isEager }}
               // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
@@ -255,6 +258,7 @@ export default function {{ pageName page }}() {
               }
               {{# unless table.dataElement.isMemberTypeDerived }}
                 await {{ getServiceImplForPage page }}.validateUpdate(
+                  {{# unless page.dataElement.isAccess }}null as any, {{/ unless }}
                   {
                     ...data,
                     {{ table.relationName }}: updatedList,
@@ -271,11 +275,16 @@ export default function {{ pageName page }}() {
             {{ else }}
               setIsLoading(true);
               if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+                {{# if (isTableCreatable table page) }}
                 const queryCustomizer: { _mask: string } = {
                   _mask: '{}',
                 };
                 await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData, queryCustomizer);
                 showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
+                {{ else }}
+                // We should never land on this path since the button should be disabled for relations which are not creatable
+                alert('Creating elements on this table is not supported!');
+                {{/ if }}
               } else {
                 await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}{ __signedIdentifier: signedIdentifier } as any, {{/ unless }}rowData);
                 showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
@@ -319,7 +328,7 @@ export default function {{ pageName page }}() {
         {{/ each }}
       {{/ unless }}
       {{# each page.container.tables as |table| }}
-        {{# if table.isInlineEditable }}
+        {{# if (isTableEffectiveInlineEditable page table) }}
           apply{{ firstToUpper table.relationName }}RowEdit,
           remove{{ firstToUpper table.relationName }}RowEdit,
         {{/ if }}
@@ -329,7 +338,9 @@ export default function {{ pageName page }}() {
 
     // ViewModel setup
     const viewModel: {{ containerComponentName page.container }}ViewModel = {
+      ownerData: null,
       actions,
+      actionsRequested: requestedContainerActions,
       isLoading,
       setIsLoading,
       refreshCounter,
@@ -345,7 +356,7 @@ export default function {{ pageName page }}() {
         isFormUpdateable,
         isFormDeleteable,
       {{/ unless }}
-      {{# if page.container.isSelector }}
+      {{# if page.isSelector }}
         selectionDiff,
       {{/ if }}
     };
@@ -389,13 +400,15 @@ export default function {{ pageName page }}() {
           <div id="{{ getXMIID page }}" data-page-name="{{ page.name }}" />
           <PageContainerTransition>
             <{{ containerComponentName page.container }}PageContainer
+              ownerData={null}
               actions={actions}
+              actionsRequested={requestedContainerActions}
               dataPath={dataPath}
               isLoading={isLoading}
               editMode={editMode}
               refreshCounter={refreshCounter}
               {{# unless (containerIsEmptyDashboard page.container) }}
-                {{# if page.container.isSelector }}
+                {{# if page.isSelector }}
                   selectionDiff={selectionDiff}
                   setSelectionDiff={setSelectionDiff}
                 {{/ if }}

@@ -48,6 +48,17 @@ public class UiPageContainerHelper {
         return container.getPageActionDefinitions().stream().anyMatch(a -> ((ActionDefinition) a).getIsRefreshAction());
     }
 
+    public static String titleIcon(PageContainer container) {
+        if (container instanceof PageContainer &&
+                container.getChildren().size() > 0 &&
+                container.getChildren().get(0) instanceof Flex &&
+                (container.getChildren().get(0)).getIcon() != null) {
+            return (container.getChildren().get(0)).getIcon().getIconName();
+        } else {
+            return null;
+        }
+    }
+
     public static List<Link> getLinksForPageContainers(Application application) {
         return application.getPageContainers().stream().flatMap(c -> ((List<Link>) c.getLinks()).stream())
                 .collect(Collectors.toList());
@@ -62,6 +73,12 @@ public class UiPageContainerHelper {
     public static List<Table> getTagsForPageContainers(Application application) {
         return application.getPageContainers().stream().flatMap(c -> ((List<Table>) c.getTables()).stream())
                 .filter(UiTableHelper::isTableTag)
+                .collect(Collectors.toList());
+    }
+
+    public static List<Table> getCardsForPageContainers(Application application) {
+        return application.getPageContainers().stream().flatMap(c -> ((List<Table>) c.getTables()).stream())
+                .filter(UiTableHelper::isTableCard)
                 .collect(Collectors.toList());
     }
 
@@ -407,6 +424,11 @@ public class UiPageContainerHelper {
         return acc.stream().anyMatch(VisualElement::isCustomImplementation);
     }
 
+    public static boolean containerHasSubTheme(PageContainer container) {
+        List<VisualElement> acc = collectElementsOfType(container, new ArrayList<>(), VisualElement.class);
+        return acc.stream().anyMatch(e -> e.getSubTheme() != null && !e.getSubTheme().isBlank());
+    }
+
     public static boolean containerHasAssociationButton(PageContainer container) {
         List<Button> acc = collectElementsOfType(container, new ArrayList<>(), Button.class);
         return acc.stream().anyMatch(b -> b.getActionDefinition().getIsOpenPageAction());
@@ -429,7 +451,7 @@ public class UiPageContainerHelper {
 
     public static List<Input> getEnumsForContainer(PageContainer container) {
         Set<VisualElement> elements = new LinkedHashSet<>();
-        collectVisualElementsMatchingCondition(container, e -> e instanceof EnumerationCombo || e instanceof EnumerationRadio, elements);
+        collectVisualElementsMatchingCondition(container, e -> e instanceof EnumerationCombo || e instanceof EnumerationRadio || e instanceof EnumerationToggleButtonbar, elements);
         return elements.stream()
                 .map(e -> ((Input) e))
                 .sorted(Comparator.comparing(NamedElement::getFQName))
@@ -480,6 +502,11 @@ public class UiPageContainerHelper {
                 .anyMatch(t -> ((Table) t).isShowTotalCount());
     }
 
+    public static boolean containerHasTextAreaWithCountCharacters(PageContainer container) {
+        return collectElementsOfType(container, new ArrayList<>(), TextArea.class)
+                .stream().anyMatch(TextArea::isCountCharacters);
+    }
+
     public static boolean containerButtonHasDisabledConditions(Button button, PageContainer container) {
         return !containerButtonGroupButtonDisabledConditions(button, container).isEmpty();
     }
@@ -495,13 +522,13 @@ public class UiPageContainerHelper {
             }
         }
         if (button.getActionDefinition().getIsSetAction() || button.getActionDefinition().getIsAddAction()) {
-            return "!selectionDiff.length";
+            return "!(selectionDiff?.length)";
         }
         segments.add("isLoading");
 
-        if (container.isIsSelector() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
+        if (container.isTable() && button.getActionDefinition() instanceof CallOperationActionDefinition callOperationActionDefinition) {
             if (!callOperationActionDefinition.getOperation().getInput().isIsOptional()) {
-                segments.add("!selectionDiff.length");
+                segments.add("!(selectionDiff?.length)");
             }
         }
 
@@ -526,6 +553,17 @@ public class UiPageContainerHelper {
                 .collect(Collectors.toList());
     }
 
+    public static boolean containerHasNotReadOnlyTimeInput(PageContainer container) {
+        return !getNotReadOnlyTimeInputs(container).isEmpty();
+    }
+
+    public static List<VisualElement> getNotReadOnlyTimeInputs(PageContainer container) {
+        return collectElementsOfType(container, new ArrayList<>(), TimeInput.class).stream()
+                .filter(i -> !i.isIsReadOnly())
+                .sorted(Comparator.comparing(NamedElement::getFQName))
+                .collect(Collectors.toList());
+    }
+
     public static Set<PageContainer> getPageContainersWithCustomImplementations(Application app) {
         Set<PageContainer> containers = new HashSet<>();
         for (PageContainer container : app.getPageContainers()) {
@@ -535,6 +573,16 @@ public class UiPageContainerHelper {
             }
         }
         return containers;
+    }
+
+    public static Set<String> getSubThemes(Application app) {
+        Set<String> subThemes = new HashSet<>();
+        for (PageContainer container : app.getPageContainers()) {
+            Set<VisualElement> elements = new HashSet<>();
+            collectVisualElementsMatchingCondition(container, (v) -> v.getSubTheme() != null && !v.getSubTheme().isBlank(), elements);
+            subThemes.addAll(elements.stream().map(VisualElement::getSubTheme).collect(Collectors.toSet()));
+        }
+        return subThemes;
     }
 
     public static String getProxyPropsForCustomImplementation(VisualElement element) {
@@ -590,5 +638,9 @@ public class UiPageContainerHelper {
             }
         }
         return false;
+    }
+
+    public static List<PageDefinition> getContainerUsers(PageContainer container, Application application) {
+        return application.getPages().stream().filter(p -> p.getContainer().equals(container)).toList();
     }
 }
