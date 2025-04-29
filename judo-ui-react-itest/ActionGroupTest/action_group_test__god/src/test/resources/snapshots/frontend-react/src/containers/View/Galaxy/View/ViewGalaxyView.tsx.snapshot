@@ -548,14 +548,16 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                       // https://mui.com/x/react-date-pickers/validation/#show-the-error
                                       setValidation((prevValidation) => {
                                         const copy = new Map<keyof ViewGalaxy, string>(prevValidation);
-                                        copy.set(
-                                          'discovered',
-                                          newError === 'invalidDate'
-                                            ? (t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
-                                                defaultValue: 'Value does not match the pattern requirements.',
-                                              }) as string)
-                                            : '',
-                                        );
+                                        if (newError === 'invalidDate') {
+                                          copy.set(
+                                            'discovered',
+                                            t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
+                                              defaultValue: 'Value does not match the pattern requirements.',
+                                            }) as string,
+                                          );
+                                        } else {
+                                          copy.set('discovered', '');
+                                        }
                                         return copy;
                                       });
                                     }}
@@ -575,6 +577,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                     onChange={(newValue: Date | null) => {
                                       storeDiff('discovered', newValue);
                                     }}
+                                    {...(actions.getDiscoveredValidationProps
+                                      ? actions.getDiscoveredValidationProps(data)
+                                      : {})}
                                   />
                                 </Grid>
 
