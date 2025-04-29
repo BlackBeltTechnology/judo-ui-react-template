@@ -26,7 +26,6 @@ import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 
 import java.util.*;
-import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 

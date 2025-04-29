@@ -46,9 +46,32 @@
             // https://mui.com/x/react-date-pickers/validation/#show-the-error
             setValidation((prevValidation) => {
                 const copy = new Map<keyof {{ classDataName container.dataElement '' }}, string>(prevValidation);
-                copy.set('{{ child.attributeType.name }}', newError === 'invalidDate' ? t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
-                    defaultValue: 'Value does not match the pattern requirements.',
-                }) as string : '');
+                if (newError === 'invalidDate') {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.PATTERN_VALIDATION_FAILED', {
+                      defaultValue: 'Value does not match the pattern requirements.',
+                    }) as string),
+                  );
+                }{{# if child.minValueBy }} else if (newError === 'minTime' && data.{{ child.minValueBy.name }}) {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MIN_TIME_VALIDATION_FAILED', {
+                      defaultValue: 'The selected time must be after the minimum allowed time.',
+                      minTime: new Intl.DateTimeFormat(l10nLocale, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(data.{{ child.minValueBy.name }})
+                    }) as string),
+                  );
+                }{{/ if }} {{# if child.maxValueBy }} else if (newError === 'maxTime' && data.{{ child.maxValueBy.name }}) {
+                  copy.set(
+                    '{{ child.attributeType.name }}',
+                    (t('judo.error.validation-failed.MAX_TIME_VALIDATION_FAILED', {
+                      defaultValue: 'The selected time must be before the maximum allowed time.',
+                      maxTime: new Intl.DateTimeFormat(l10nLocale, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(data.{{ child.maxValueBy.name }})
+                    }) as string),
+                  );
+                }{{/ if }} else {
+                  copy.set('{{ child.attributeType.name }}', '');
+                }
                 return copy;
             });
         } }
@@ -71,7 +94,14 @@
             {{/ if }}
         } }
         {{# unless child.isReadOnly }}
-        {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {})}
+        {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {
+            {{# if child.minValueBy }}
+              minTime: data.{{ child.minValueBy.name }} ? data.{{ child.minValueBy.name }} : undefined,
+            {{/if}}
+            {{# if child.maxValueBy }}
+              maxTime: data.{{ child.maxValueBy.name }} ? data.{{ child.maxValueBy.name }} : undefined,
+            {{/if}}
+        })}
         {{/ unless }}
         />
     {{# if (hasTooltipText child) }}
