@@ -1,6 +1,8 @@
 {{> fragment.header.hbs }}
 
-import { Divider, IconButton, styled } from '@mui/material';
+import Divider from '@mui/material/Divider';
+import IconButton from '@mui/material/IconButton';
+import { styled } from '@mui/material';
 import Box from '@mui/material/Box';
 import MuiDrawer from '@mui/material/Drawer';
 import { useTheme } from '@mui/material/styles';
@@ -20,7 +22,7 @@ export interface DrawerProps {
 
 const BottomSection = styled('div')({
   marginTop: 'auto',
-  paddingBotttom: '16px',
+  //paddingBottom: '16px',
   position: 'relative',
   bottom: 0,
   left: 0,
@@ -47,34 +49,19 @@ const ToggleButton = styled(IconButton)(({ theme }) => ({
 export const Drawer = ({ window }: DrawerProps) => {
   const theme = useTheme();
   const { miniDrawer, onChangeMiniDrawer } = useConfig();
-  const { downSM, downMD, downLG, isXs, isSm, isMd, isLg, isXl } = useLayoutHelper();
 
-  const [size, setSize] = useState<string | undefined>(undefined);
+  const { downSM, isXs, isSm, isMd, isLg, isXl } = useLayoutHelper();
+  const [setSize] = useState<string | undefined>(undefined);
   const prevSizeRef = useRef<string | undefined>(undefined);
 
-  const getSize = useCallback(() => {
+  const size = useMemo<string | undefined>(() => {
     if (isXs) return 'xs';
     if (isSm) return 'sm';
     if (isMd) return 'md';
     if (isLg) return 'lg';
     if (isXl) return 'xl';
+    return undefined;
   }, [isXs, isSm, isMd, isLg, isXl]);
-
-  useEffect(() => {
-    setSize(getSize());
-  }, [getSize]);
-
-  useEffect(() => {
-    // console.log("Change: "  + prevSizeRef.current + " => " + size );
-    if (prevSizeRef.current && prevSizeRef.current == 'md' && size == 'sm') {
-      onChangeMiniDrawer(true);
-    } else if (prevSizeRef.current && prevSizeRef.current == 'lg' && size == 'md') {
-      onChangeMiniDrawer(true);
-    } else if (prevSizeRef.current && prevSizeRef.current == 'md' && size == 'lg') {
-      onChangeMiniDrawer(false);
-    }
-    prevSizeRef.current = size;
-  }, [size]);
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
