@@ -9,7 +9,19 @@ const requiredByRecord: Record<string, boolean> = {
   {{/ each }}
 };
 
-const validationResult = passesLocalValidation<{{ classDataName (getReferenceClassType page) '' }}>(data, requiredByRecord, t, setValidation);
+const dateTimes: (keyof {{ classDataName (getReferenceClassType page) '' }})[] = [
+{{# each (getReadOnlyDateInputs page.container) as |child| }}
+  '{{ child.attributeType.name }}',
+{{/ each }}
+{{# each (getReadOnlyDateTimeInputs page.container) as |child| }}
+  '{{ child.attributeType.name }}',
+{{/ each }}
+{{# each (getNotReadOnlyTimeInputs page.container) as |child| }}
+  '{{ child.attributeType.name }}',
+{{/ each }}
+];
+
+const validationResult = passesLocalValidation<{{ classDataName (getReferenceClassType page) '' }}>(data, requiredByRecord, dateTimes, t, validation, setValidation);
 
 if (!validationResult) {
   return;

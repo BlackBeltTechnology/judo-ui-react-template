@@ -4,7 +4,14 @@ import type { Dispatch, SetStateAction } from 'react';
 import { format, parse } from 'date-fns';
 import type { TFunction } from 'i18next';
 
-export function passesLocalValidation<T>(data: T, requiredByRecord: Record<string, boolean>, t: TFunction<string, any>, setValidation: Dispatch<SetStateAction<Map<keyof T, string>>>): boolean {
+export function passesLocalValidation<T>(
+    data: T,
+    requiredByRecord: Record<string, boolean>,
+    dateTimeAttributes: (keyof T)[],
+    t: TFunction<string, any>,
+    validation: Map<keyof T, string>,
+    setValidation: Dispatch<SetStateAction<Map<keyof T, string>>>
+): boolean {
   const failsRequired = (input: any): boolean => input === null || input === undefined || input === '';
   const errorList: string[] = [];
   for (const attr in requiredByRecord) {
@@ -23,6 +30,12 @@ export function passesLocalValidation<T>(data: T, requiredByRecord: Record<strin
       return copy;
     });
     return false;
+  }
+  for (const attr of dateTimeAttributes) {
+    const message = validation.get(attr as keyof T);
+    if (message !== null && message !== undefined && message !== '') {
+      return false;
+    }
   }
   return true;
 }
