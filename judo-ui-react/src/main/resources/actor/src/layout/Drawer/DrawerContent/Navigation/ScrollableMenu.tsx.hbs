@@ -1,7 +1,9 @@
-import type { FC, ReactNode } from 'react';
-import { useState, useRef, useEffect, useCallback } from 'react';
-import IconButton from '@mui/material/IconButton';
+{{> fragment.header.hbs }}
+
 import Box from '@mui/material/Box';
+import IconButton from '@mui/material/IconButton';
+import type { FC, ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { MdiIcon } from '~/components';
 
 interface ScrollableMenuProps {
@@ -37,11 +39,11 @@ export const ScrollableMenu: FC<ScrollableMenuProps> = ({ children }) => {
       style={ {
         display: 'flex',
         alignItems: 'center',
-        width: '100%'
+        width: '100%',
       } }
     >
       <div style={ { flex: '0 0 auto', padding: '10px', marginRight: '5px' } }>
-        <IconButton sx={ {visibility: !showLeftButton ? 'hidden' : 'visible'} } onClick={() => scrollContent(-1)}>
+        <IconButton sx={ { visibility: !showLeftButton ? 'hidden' : 'visible' } } onClick={() => scrollContent(-1)}>
           <MdiIcon path="chevron-left" />
         </IconButton>
       </div>
@@ -55,9 +57,7 @@ export const ScrollableMenu: FC<ScrollableMenuProps> = ({ children }) => {
           scrollBehavior: 'smooth',
         } }
       >
-        <Box sx={ { display: 'flex', flexDirection: 'row', alignItems: 'center' } }>
-          {children}
-        </Box>
+        <Box sx={ { display: 'flex', flexDirection: 'row', alignItems: 'center' } }>{children}</Box>
       </div>
       <div style={ { flex: '0 0 auto', padding: '10px', marginLeft: '5px' } }>
         <IconButton sx={ { visibility: !showRightButton ? 'hidden' : 'visible' } } onClick={() => scrollContent(1)}>
