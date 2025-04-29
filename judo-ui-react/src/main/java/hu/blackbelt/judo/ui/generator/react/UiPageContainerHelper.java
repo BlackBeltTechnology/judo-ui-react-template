@@ -550,22 +550,22 @@ public class UiPageContainerHelper {
     }
 
     public static boolean containerHasDateInputs(PageContainer container) {
-        return !getReadOnlyDateInputs(container).isEmpty();
+        return !getNotReadOnlyDateInputs(container).isEmpty();
     }
 
     public static boolean containerHasDateTimeInputs(PageContainer container) {
-        return !getReadOnlyDateTimeInputs(container).isEmpty();
+        return !getNotReadOnlyDateTimeInputs(container).isEmpty();
     }
 
-    public static List<VisualElement> getReadOnlyDateInputs(PageContainer container) {
-        return getReadOnlyInputs(container, DateInput.class);
+    public static List<VisualElement> getNotReadOnlyDateInputs(PageContainer container) {
+        return getNotReadOnlyInputs(container, DateInput.class);
     }
 
-    public static List<VisualElement> getReadOnlyDateTimeInputs(PageContainer container) {
-        return getReadOnlyInputs(container, DateTimeInput.class);
+    public static List<VisualElement> getNotReadOnlyDateTimeInputs(PageContainer container) {
+        return getNotReadOnlyInputs(container, DateTimeInput.class);
     }
 
-    public static <T extends Input> List<VisualElement> getReadOnlyInputs(PageContainer container, Class<T> clazz) {
+    public static <T extends Input> List<VisualElement> getNotReadOnlyInputs(PageContainer container, Class<T> clazz) {
         List<Input> inputs = new ArrayList<>(collectElementsOfType(container, new ArrayList<>(), clazz));
         return inputs.stream()
                 .filter(i -> !i.isIsReadOnly())

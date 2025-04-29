@@ -48,10 +48,10 @@
     {{# each (getElementsWithHiddenBy container) as |ve| }}
       is{{ safeName ve }}Hidden?: ({{{ inputModifierParams container false }}}) => boolean;
     {{/ each }}
-    {{# each (getReadOnlyDateInputs container) as |ve| }}
+    {{# each (getNotReadOnlyDateInputs container) as |ve| }}
       get{{ firstToUpper ve.attributeType.name }}ValidationProps?: (data: {{ classDataName container.dataElement '' }}) => BaseDateValidationProps;
     {{/ each }}
-    {{# each (getReadOnlyDateTimeInputs container) as |ve| }}
+    {{# each (getNotReadOnlyDateTimeInputs container) as |ve| }}
       get{{ firstToUpper ve.attributeType.name }}ValidationProps?: (data: {{ classDataName container.dataElement '' }}) => BaseDateTimeValidationProps;
     {{/ each }}
     {{# each (getNotReadOnlyTimeInputs container) as |ve| }}
