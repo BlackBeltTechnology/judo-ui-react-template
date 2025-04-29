@@ -10,10 +10,10 @@ const requiredByRecord: Record<string, boolean> = {
 };
 
 const dateTimes: (keyof {{ classDataName (getReferenceClassType page) '' }})[] = [
-{{# each (getDateInputs page.container) as |child| }}
+{{# each (getReadOnlyDateInputs page.container) as |child| }}
   '{{ child.attributeType.name }}',
 {{/ each }}
-{{# each (getDateTimeInputs page.container) as |child| }}
+{{# each (getReadOnlyDateTimeInputs page.container) as |child| }}
   '{{ child.attributeType.name }}',
 {{/ each }}
 {{# each (getNotReadOnlyTimeInputs page.container) as |child| }}
