@@ -1,20 +1,18 @@
 {{> fragment.header.hbs }}
 
-import {
-  AppBar,
-  BottomNavigation,
-  BottomNavigationAction,
-  Box,
-  List,
-  Popover,
-  Typography,
-  styled,
-} from '@mui/material';
-import { AppBarProps } from '@mui/material/AppBar';
+import AppBar from '@mui/material/AppBar';
+import BottomNavigation from '@mui/material/BottomNavigation';
+import BottomNavigationAction from '@mui/material/BottomNavigationAction';
+import Box from '@mui/material/Box';
+import List from '@mui/material/List';
+import Popover from '@mui/material/Popover';
+import Typography from '@mui/material/Typography';
+import { styled } from '@mui/material';
+import { type AppBarProps } from '@mui/material/AppBar';
 import { useTheme } from '@mui/system';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 {{# if application.authentication }}
 import { usePrincipal } from '~/auth';
@@ -93,6 +91,8 @@ export const BottomMenu = () => {
   const [selectedBottomOther, setSelectedBottomOther] = useState<boolean>(false);
 
   const [subMenuItems, setSubMenuItems] = useState<JSX.Element[] | undefined>();
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState(0);
 
   useEffect(() => {
     const filteredMenus: NavItemType[] = [];
@@ -102,7 +102,7 @@ export const BottomMenu = () => {
 
   let lastItemIndex = useMemo(() => bottomMenuItems.length - 1, [bottomMenuItems]);
 
-  const handlePerform = (event: React.MouseEvent<HTMLElement>, item: NavItemType) => {
+  const handlePerform = useCallback((event: React.MouseEvent<HTMLElement>, item: NavItemType) => {
     console.log(item.title);
     event.preventDefault();
     event.stopPropagation();
@@ -117,7 +117,7 @@ export const BottomMenu = () => {
     } else {
       clearNavigate(item.url!);
     }
-  };
+  }, [externalNavigate, clearNavigate]);
 
   const popupMenuItemAction = (item: NavItemType) => {
     switch (item.type) {
@@ -156,7 +156,10 @@ export const BottomMenu = () => {
     }
   };
 
-  const handlePopupOpen = (event: React.MouseEvent<HTMLElement>, item: NavItemType) => {
+  const [mouseX, setMouseX] = useState(0);
+  const [mouseY, setMouseY] = useState(0);
+
+  const handlePopupOpen = useCallback((event: React.MouseEvent<HTMLElement>, item: NavItemType) => {
     setMouseX(event.clientX);
     setMouseY(event.clientY);
     setSelectedBottomMenuItem(item);
@@ -167,9 +170,9 @@ export const BottomMenu = () => {
       }),
     );
     setOpen(true);
-  };
+  },[setMouseX, setMouseY, setSelectedBottomMenuItem, setSelectedBottomOther, setSubMenuItems, setOpen]);
 
-  const handleOtherPopupOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleOtherPopupOpen = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setMouseX(event.clientX);
     setMouseY(event.clientY);
     setSelectedBottomMenuItem(undefined);
@@ -180,17 +183,14 @@ export const BottomMenu = () => {
       }),
     ]);
     setOpen(true);
-  };
+  },[setMouseX, setMouseY, setSelectedBottomMenuItem, setSelectedBottomOther, setSubMenuItems, setOpen]);
 
-  const handleClose = () => {
+  const handleClose = useCallback(() => {
     setOpen(false);
     setSubMenuItems(undefined);
     setSelectedBottomMenuItem(undefined);
     setSelectedBottomOther(false);
-  };
-
-  const [mouseX, setMouseX] = useState(0);
-  const [mouseY, setMouseY] = useState(0);
+  }, [setOpen, setSubMenuItems, setSelectedBottomMenuItem, setSelectedBottomOther]);
 
   const itemAction = (item: NavItemType) => {
     switch (item.type) {
@@ -199,8 +199,6 @@ export const BottomMenu = () => {
           <BottomNavigationAction
             aria-describedby="submenu"
             showLabel={true}
-            key={item.id + 'NavAction'}
-            id={item.id + 'NavAction'}
             onClick={(event) => {
               handlePopupOpen(event, item);
             } }
@@ -212,7 +210,6 @@ export const BottomMenu = () => {
       case 'item':
         return (
           <BottomNavigationAction
-            key={item.id + 'NavAction'}
             onClick={(event) => handlePerform(event, item)}
             icon={<MdiIcon path={item.icon ?? 'dots-vertical'} />}
             label={t(`menuTree.${item.title}`, { defaultValue: item.title })}
@@ -232,11 +229,7 @@ export const BottomMenu = () => {
       <BottomNavigationAction
         aria-describedby="submenu"
         showLabel={true}
-        key={'_OtherNavAction'}
-        id={'_OtheNavAction'}
-        onClick={(event) => {
-          handleOtherPopupOpen(event);
-        } }
+        onClick={handleOtherPopupOpen}
         icon={<MdiIcon path={'dots-vertical'} />}
         label={t(`menuTree.other`, { defaultValue: 'Other' })}
       ></BottomNavigationAction>
@@ -264,9 +257,6 @@ export const BottomMenu = () => {
     }
   }, [bottomMenuItems]);
 
-  const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(0);
-
   const appBar: AppBarProps = {
     position: 'fixed',
     style: { top: 'auto', bottom: 0, backgroundColor: 'primary' },
@@ -279,7 +269,7 @@ export const BottomMenu = () => {
     button: {
       fontWeight: 'bold',
       backgroundColor: theme.palette.primary.main,
-      color: '#ffffff',
+      color: theme.palette.common.white,
     },
   }));
 
@@ -291,7 +281,6 @@ export const BottomMenu = () => {
           sx={ {
             backgroundColor: `${theme.palette.primary.main}`,
           } }
-          value={value}
           onChange={(event, newValue) => {
             setValue(newValue);
           } }
