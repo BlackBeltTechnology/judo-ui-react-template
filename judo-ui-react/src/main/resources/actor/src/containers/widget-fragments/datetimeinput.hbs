@@ -65,6 +65,7 @@
                     '{{ child.attributeType.name }}',
                     (t('judo.error.validation-failed.MIN_DATE_VALIDATION_FAILED', {
                       defaultValue: 'The selected timestamp must be after the minimum allowed timestamp.',
+                      minDate: new Intl.DateTimeFormat(l10nLocale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(data.{{ child.minValueBy.name }})
                     }) as string),
                   );
                 }{{/ if }} {{# if child.maxValueBy }} else if (newError === 'maxDate' && data.{{ child.maxValueBy.name }}) {
@@ -72,6 +73,7 @@
                     '{{ child.attributeType.name }}',
                     (t('judo.error.validation-failed.MAX_DATE_VALIDATION_FAILED', {
                       defaultValue: 'The selected timestamp must be before the maximum allowed timestamp.',
+                      maxDate: new Intl.DateTimeFormat(l10nLocale, { year: 'numeric', month: '2-digit', day: '2-digit' }).format(data.{{ child.maxValueBy.name }})
                     }) as string),
                   );
                 }{{/ if }} {{# if child.minValueBy }} else if (newError === 'minTime' && data.{{ child.minValueBy.name }}) {
@@ -79,6 +81,7 @@
                     '{{ child.attributeType.name }}',
                     (t('judo.error.validation-failed.MIN_TIME_VALIDATION_FAILED', {
                       defaultValue: 'The selected timestamp must be after the minimum allowed timestamp.',
+                      minTime: new Intl.DateTimeFormat(l10nLocale, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(data.{{ child.minValueBy.name }})
                     }) as string),
                   );
                 }{{/ if }} {{# if child.maxValueBy }} else if (newError === 'maxTime' && data.{{ child.maxValueBy.name }}) {
@@ -86,6 +89,7 @@
                     '{{ child.attributeType.name }}',
                     (t('judo.error.validation-failed.MAX_TIME_VALIDATION_FAILED', {
                       defaultValue: 'The selected timestamp must be before the maximum allowed timestamp.',
+                      maxTime: new Intl.DateTimeFormat(l10nLocale, { hour: '2-digit', minute: '2-digit', second: '2-digit' }).format(data.{{ child.maxValueBy.name }})
                     }) as string),
                   );
                 }{{/ if }} else {
