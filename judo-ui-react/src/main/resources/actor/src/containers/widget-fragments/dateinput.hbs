@@ -97,10 +97,10 @@
         {{# unless child.isReadOnly }}
         {...(actions.get{{ firstToUpper child.attributeType.name }}ValidationProps ? actions.get{{ firstToUpper child.attributeType.name }}ValidationProps(data) : {
           {{# if child.minValueBy }}
-            minDate: data?.{{ child.minValueBy.name }},
+            minDate: data?.{{ child.minValueBy.name }} ?? undefined,
           {{/if}}
           {{# if child.maxValueBy }}
-            maxDate: data?.{{ child.maxValueBy.name }},
+            maxDate: data?.{{ child.maxValueBy.name }} ?? undefined,
           {{/if}}
         })}
         {{/ unless }}
