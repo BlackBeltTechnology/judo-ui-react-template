@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 
-import { Grid, Popover } from '@mui/material';
+import Grid from '@mui/material/Grid';
+import Popover from '@mui/material/Popover';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import ButtonBase from '@mui/material/ButtonBase';
@@ -52,17 +53,17 @@ export const BottomProfile = () => {
           return sp;
         }
         const open{{ pageName application.profilePage }} = use{{ pageName application.profilePage }}();
-        const openProfilePage = async () => {
+        const openProfilePage = useCallback(async () => {
           const profileData = await getSingletonPayload();
           setOpen(false);
           await open{{ pageName application.profilePage }}(profileData);
-        };
+        }, [open{{ pageName application.profilePage }}, setOpen]);
       {{ else }}
         const { navigate } = useJudoNavigation();
-        const openProfilePage = async () => {
+        const openProfilePage = useCallback(async () => {
           setOpen(false);
-          navigate(routeTo{{ pageName application.profilePage }}());
-        };
+          navigate(routeToServiceUserUserProfileAccessViewPage());
+        }, [navigate, setOpen]);
       {{/ if }}
     {{/ if }}
     const { signoutRedirect, isAuthenticated } = useAuth();
@@ -71,27 +72,27 @@ export const BottomProfile = () => {
       signoutRedirect({
         post_logout_redirect_uri: redirectUrl,
       });
-    }, [isAuthenticated]);
+    }, [isAuthenticated, signoutRedirect]);
   {{/ if }}
 
-  const handleToggle = (event: React.MouseEvent<HTMLElement>) => {
+  const handleToggle = useCallback((event: React.MouseEvent<HTMLElement>) => {
     setOpen((prevOpen) => !prevOpen);
-  };
+  }, [setOpen]);
 
-  const handleClose = (event: MouseEvent | TouchEvent) => {
+  const handleClose = useCallback((event: MouseEvent | TouchEvent) => {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
     setOpen(false);
-  };
+  }, [anchorRef, setOpen]);
 
-  const handleToggleThememode = (event: React.MouseEvent<HTMLElement>) => {
+  const handleToggleThememode = useCallback((event: React.MouseEvent<HTMLElement>) => {
     if (mode == ThemeMode.DARK) {
       onChangeMode(ThemeMode.LIGHT);
     } else {
       onChangeMode(ThemeMode.DARK);
     }
-  };
+  }, [onChangeMode]);
 
   const iconBackColorOpen = theme.palette.mode === ThemeMode.DARK ? 'grey.200' : 'grey.300';
 

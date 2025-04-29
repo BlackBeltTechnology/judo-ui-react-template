@@ -39,16 +39,16 @@ export const HeaderContent = () => {
   const appBarExtraComponentsDefinition: AppBarExtraComponentsDefinition | undefined = appBarExtraComponentsHook?.();
   const appBarExtraSpaceClaim: number = appBarExtraComponentsDefinition?.spaceRequired ?? 1;
 
-  const { downLG, horizontalMenuPresented } = useLayoutHelper();
+  const { downLG, isMenuOrientationHorizontal } = useLayoutHelper();
 
   return (
     <Grid container alignItems="center">
-      {horizontalMenuPresented && (
+      {isMenuOrientationHorizontal && (
         <Grid item xs={2}>
           <DrawerHeader open={true} />
         </Grid>
       )}
-      {horizontalMenuPresented && (
+      {isMenuOrientationHorizontal && (
         <Grid item xs={8 - appBarExtraSpaceClaim}>
           <HorizontalBar />
         </Grid>
