@@ -25,7 +25,21 @@ MuiDialogContent: {
   styleOverrides: {
     root: {
       backgroundColor: paletteTheme.palette.background.default,
-      padding: 4,
+      [breakpoints.down('sm')]: {
+        padding: `${scaleXs}rem`,
+      },
+      [breakpoints.between('sm', 'md')]: {
+        padding: `${scaleSm}rem`,
+      },
+      [breakpoints.between('md', 'lg')]: {
+        padding: `${scaleMd}rem`,
+      },
+      [breakpoints.between('lg', 'xl')]: {
+        padding: `${scaleLg}rem`,
+      },
+      [breakpoints.up('xl')]: {
+        padding: `${scaleXl}rem`,
+      },
     },
   },
 },
