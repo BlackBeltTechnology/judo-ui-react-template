@@ -1,21 +1,19 @@
 {{> fragment.header.hbs }}
 
 import Grid from '@mui/material/Grid';
-import type { Theme } from '@mui/material/styles';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import { FRAMEWORK_SERVICE_UTILS, OBJECTCLASS, type ServiceUtils } from '@pandino/pandino-api';
 import { useBundleContext } from '@pandino/react-hooks';
 import type { FC } from 'react';
 import { MenuOrientation } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import { useConfig } from '~/hooks';
+import { DrawerHeader } from '~/layout/Drawer/DrawerHeader';
 import { HorizontalBar } from '~/layout/Drawer/HorizontalBar';
-import { DrawerHeader } from '../../Drawer/DrawerHeader';
-import { Customization } from './Customization';
-import { MobileSection } from './MobileSection';
+import { Customization } from '~/layout/Header/HeaderContent/Customization';
 {{# if application.authentication }}
-import { Profile } from './Profile';
+import { HeaderProfile } from '~/layout/Header/HeaderContent/HeaderProfile';
 {{/ if }}
+import { useLayoutHelper } from '~/utilities/layout-helper';
 
 const AppBarExtraComponentsFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=AppBarExtraComponents))`;
 
@@ -41,16 +39,16 @@ export const HeaderContent = () => {
   const appBarExtraComponentsDefinition: AppBarExtraComponentsDefinition | undefined = appBarExtraComponentsHook?.();
   const appBarExtraSpaceClaim: number = appBarExtraComponentsDefinition?.spaceRequired ?? 1;
 
-  const downLG = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
+  const { downLG, isMenuOrientationHorizontal } = useLayoutHelper();
 
   return (
     <Grid container alignItems="center">
-      {menuOrientation === MenuOrientation.HORIZONTAL && !downLG && (
+      {isMenuOrientationHorizontal && (
         <Grid item xs={2}>
           <DrawerHeader open={true} />
         </Grid>
       )}
-      {!downLG && menuOrientation === MenuOrientation.HORIZONTAL && (
+      {isMenuOrientationHorizontal && (
         <Grid item xs={8 - appBarExtraSpaceClaim}>
           <HorizontalBar />
         </Grid>
@@ -61,9 +59,8 @@ export const HeaderContent = () => {
           {appBarExtraComponentsDefinition && <appBarExtraComponentsDefinition.Component />}
           <Customization />
           {{# if application.authentication }}
-            {!downLG && <Profile />}
+          <HeaderProfile />
           {{/ if }}
-          {downLG && <MobileSection />}
         </Grid>
       </Grid>
     </Grid>

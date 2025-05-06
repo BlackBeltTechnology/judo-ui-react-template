@@ -1,0 +1,42 @@
+// To override this block, please create the 'actor/src/theme/index.ts.theme-options.fragment.hbs' file
+spacing: (factor: number) => `${density.spacingMultiplier * factor}rem`,
+typography: {
+  ...typography(
+    getDefaultFontName(),
+    scaleXs * density.fontSize,
+    scaleSm * density.fontSize,
+    scaleMd * density.fontSize,
+    scaleLg * density.fontSize,
+    scaleXl * density.fontSize,
+  ),
+  button: {
+    [breakpoints.down('sm')]: {
+      fontSize: `${0.9 * density.fontSize * scaleXs}rem`,
+      lineHeight: `${1.15 * density.fontSize * scaleXs}rem`,
+    },
+    [breakpoints.between('sm', 'md')]: {
+      fontSize: `${0.9 * density.fontSize * scaleSm}rem`,
+      lineHeight: `${1.35 * density.fontSize * scaleXs}rem`,
+    },
+    [breakpoints.between('md', 'lg')]: {
+      fontSize: `${0.9 * density.fontSize * scaleMd}rem`,
+      lineHeight: `${1.65 * density.fontSize * scaleXs}rem`,
+    },
+    [breakpoints.between('lg', 'xl')]: {
+      fontSize: `${0.9 * density.fontSize * scaleLg}rem`,
+      lineHeight: `${1.75 * density.fontSize * scaleXs}rem`,
+    },
+    [breakpoints.up('xl')]: {
+      fontSize: `${0.9 * density.fontSize * scaleXl}rem`,
+      lineHeight: `${2 * density.fontSize * scaleXs}rem`,
+    },
+    textTransform: 'none',
+  },
+},
+mixins: {
+  MuiDataGrid: {
+    // workaround for mui pro grid issue, otherwise this should not be required
+    containerBackground: paletteTheme.palette.background.paper,
+  },
+},
+// End of 'actor/src/theme/index.ts.theme-options.fragment.hbs'
