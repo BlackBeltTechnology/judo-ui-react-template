@@ -134,7 +134,7 @@ public class UiI18NHelper {
                 bare = root + "." + table.getDataElement().getName() + "." + target.getName();
             } else if (element instanceof Button button && button.eContainer() instanceof ButtonGroup buttonGroup && buttonGroup.eContainer() instanceof Table table) {
                 bare = root + "." + table.getDataElement().getName() + "." + target.getName();
-            } else if (target instanceof Filter filter && element.eContainer() instanceof Table table) {
+            } else if (element instanceof Filter && element.eContainer() instanceof Table table && !table.getPageContainer().isTable()) {
                 bare = root + "." + table.getDataElement().getName() + "." + target.getName();
             } else {
                 bare = root + "." + target.getName();
@@ -270,6 +270,20 @@ public class UiI18NHelper {
                             if (b.getConfirmation() != null) {
                                 translations.put(getTranslationKeyForVisualElement(b) + ".confirmation", b.getConfirmation().getConfirmationMessage());
                             }
+                        });
+                    }
+                    if (table.getFilters() != null) {
+                        table.getFilters().forEach(f -> {
+                            if (hasSystemTranslation(f)) {
+                                return;
+                            }
+                            if (f.eContainer() instanceof Table t) {
+                                Optional<Column> column = t.getColumns().stream().filter(c -> c.getAttributeType().equals(f.getAttributeType())).findFirst();
+                                if (column.isPresent()) {
+                                    return;
+                                }
+                            }
+                            translations.put(getTranslationKeyForVisualElement(f), f.getLabel());
                         });
                     }
                     if (table.getRowActionButtonGroup() != null) {
