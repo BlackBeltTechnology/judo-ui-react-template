@@ -27,7 +27,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
   label,
   col,
 }) => {
-  const fallbackFilter: Filter = buildFilter(filterType, operator, attributeName as string, null);
+  const fallbackFilter: Filter = buildFilter(filterType, operator, attributeName as string, null, label);
 
   const [filter, setFilter] = useState<Filter>(
     filters?.find(
@@ -41,9 +41,9 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
   const updateFilter = useCallback(
     (value: any) => {
       if (typeof value === "string" && value === '') {
-        setFilter(buildFilter(filterType, operator, attributeName as string, null));
+        setFilter(buildFilter(filterType, operator, attributeName as string, null, label));
       } else {
-        setFilter(buildFilter(filterType, operator, attributeName as string, value));
+        setFilter(buildFilter(filterType, operator, attributeName as string, value, label));
       }
     },
     [filterType, operator, attributeName],
@@ -98,10 +98,10 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
               //       setInputValue(!(inputValue ?? false))
               //     }} />
               //   }
-              //   label={label ?? filter.filterOption.attributeName}
+              //   label={filter.filterOption.label ?? filter.filterOption.attributeName}
               // />
               <TrinaryLogicCombobox
-                label={label ?? filter.filterOption.attributeName}
+                label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 onChange={(newValue: any) => setInputValue(newValue)}
               />
@@ -110,7 +110,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.date:
             return (
               <DatePicker
-                label={label ?? filter.filterOption.attributeName}
+                label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 views={['year', 'month', 'day']}
                 onChange={(newValue) => setInputValue(newValue)}
@@ -131,7 +131,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.dateTime:
             return (
               <DateTimePicker
-                label={label ?? filter.filterOption.attributeName}
+                label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 ampm={false}
                 ampmInClock={false}
@@ -154,7 +154,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.enumeration:
             return (
               <TextField
-                label={label ?? filter.filterOption.attributeName}
+                label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 variant="standard"
                 value={inputValue ?? null}
                 select
@@ -170,7 +170,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.numeric:
             return (
               <TextField
-                label={label ?? filter.filterOption.attributeName}
+                label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 type="number"
                 variant="standard"
                 value={inputValue ?? null}
@@ -190,7 +190,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.string:
             return (
               <TextField
-                label={label ?? filter.filterOption.attributeName}
+                label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? ''}
                 variant="standard"
                 onChange={(event) => setInputValue(event.target.value)}
@@ -206,7 +206,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.trinaryLogic:
             return (
               <TrinaryLogicCombobox
-                label={label ?? filter.filterOption.attributeName}
+                label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? ''}
                 onChange={(newValue: any) => setInputValue(newValue)}
               />
