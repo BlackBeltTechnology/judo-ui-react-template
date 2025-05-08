@@ -599,9 +599,9 @@ export function mapFilterToFilterModel(filter: Filter): GridFilterItem {
  }
 }
 
-export type FilterBuilder = <T>(filterType: FilterType, operator: Operation, attributeName: keyof T, value: any) => Filter;
+export type FilterBuilder = <T>(filterType: FilterType, operator: Operation, attributeName: keyof T, value: any, label?: string) => Filter;
 
-export const buildFilter: FilterBuilder = (filterType, operator, attributeName, value, label?): Filter => {
+export const buildFilter: FilterBuilder = (filterType, operator, attributeName, value, label): Filter => {
   const randomized = uuidv1();
   return {
     id: randomized + '-id',
@@ -615,7 +615,7 @@ export const buildFilter: FilterBuilder = (filterType, operator, attributeName, 
       attributeName: attributeName as string,
       id: randomized + '-filter-option',
       filterType,
-      label?,
+      label,
     },
   };
 };
