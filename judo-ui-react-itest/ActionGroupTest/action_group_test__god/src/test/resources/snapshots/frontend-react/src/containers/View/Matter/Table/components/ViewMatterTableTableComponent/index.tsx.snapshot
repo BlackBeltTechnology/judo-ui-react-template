@@ -494,11 +494,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         containerIsRelationSelector={isRelationSelector}
         alreadySelected={alreadySelected}
         showTotalCount={true}
-        onRowClick={
-          actions.openPageAction
-            ? async (params: GridRowParams<ViewMatterStored>) => await actions.openPageAction!(params.row, false)
-            : undefined
-        }
+        onRowClick={actions.openPageAction}
+        containerIsForm={false}
         sidekickComponentFilter={sidekickComponentFilter}
         containerHasTable={true}
         maskAction={actions.getMask!}

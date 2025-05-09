@@ -20,6 +20,7 @@ import {
   GridRowModel,
   GridRowModes,
   GridRowModesModel,
+  GridRowParams,
   GridRowSelectionModel,
   GridSortModel,
   GridToolbarContainer,
@@ -72,7 +73,7 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   dataElementId: string;
   crudOperationsDisplayed: number;
   transferOperationsDisplayed: number;
-  onRowClick?: GridEventListener<'rowClick'>;
+  onRowClick?: (row: TStored, isDraft?: boolean) => Promise<void>;
   dataElement?: any;
   isSelectorTable?: boolean;
   editMode?: boolean;
@@ -93,6 +94,7 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   onRowEditCanceled?: (rowId: string) => void;
   actionsColumnWidth?: number;
   annotations?: string[];
+  containerIsForm: boolean;
 }
 
 export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
@@ -134,6 +136,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     onRowEditCanceled,
     actionsColumnWidth,
     annotations = [],
+    containerIsForm,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -534,7 +537,11 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         rowSelectionModel={selectionModel}
         onRowSelectionModelChange={handleOnSelection}
         keepNonExistentRowsSelected
-        onRowClick={onRowClick}
+        onRowClick={async (params: GridRowParams<TStored>) => {
+          return !(rowModesModel[params.row.__identifier]?.mode === GridRowModes.Edit) && onRowClick
+            ? await onRowClick(params.row, containerIsForm)
+            : undefined;
+        }}
         sortModel={sortModel}
         onSortModelChange={handleSortModelChange}
         filterModel={filterModel}
