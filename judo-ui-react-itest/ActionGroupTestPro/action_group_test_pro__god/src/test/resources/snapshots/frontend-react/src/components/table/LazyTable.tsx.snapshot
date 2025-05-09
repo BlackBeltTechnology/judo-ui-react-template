@@ -97,7 +97,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   transferOperationsDisplayed: number;
   containerIsSelector?: boolean;
   containerIsRelationSelector?: boolean;
-  onRowClick?: GridEventListener<'rowClick'>;
+  onRowClick?: (row: TStored, isDraft?: boolean) => Promise<void>;
   setSelectionDiff?: Dispatch<SetStateAction<TStored[]>>;
   alreadySelected?: JudoStored<TStored>[];
   containerHasTable?: boolean;
@@ -123,6 +123,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   onRowEditCanceled?: (rowId: string) => void;
   actionsColumnWidth?: number;
   annotations?: string[];
+  containerIsForm: boolean;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
@@ -172,6 +173,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     onRowEditCanceled,
     actionsColumnWidth,
     annotations = [],
+    containerIsForm,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -714,7 +716,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         rowSelectionModel={selectionModel}
         onRowSelectionModelChange={handleOnSelection}
         keepNonExistentRowsSelected
-        onRowClick={onRowClick}
+        onRowClick={async (params: GridRowParams<TStored>) => {
+          return !(rowModesModel[params.row.__identifier]?.mode === GridRowModes.Edit) && onRowClick
+            ? await onRowClick(params.row, containerIsForm)
+            : undefined;
+        }}
         sortModel={sortModel}
         onSortModelChange={handleSortModelChange}
         filterModel={filterModel}
