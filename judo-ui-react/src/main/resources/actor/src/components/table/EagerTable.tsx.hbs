@@ -81,7 +81,7 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   dataElementId: string;
   crudOperationsDisplayed: number;
   transferOperationsDisplayed: number;
-  onRowClick?: (row: T, isDraft?: boolean) => Promise<void>;
+  onRowClick?: (row: TStored, isDraft?: boolean) => Promise<void>;
   dataElement?: any;
   isSelectorTable?: boolean;
   editMode?: boolean;
@@ -553,7 +553,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         rowSelectionModel={selectionModel}
         onRowSelectionModelChange={handleOnSelection}
         keepNonExistentRowsSelected
-        onRowClick={async (params: GridRowParams<T>) => {
+        onRowClick={async (params: GridRowParams<TStored>) => {
           return (!(rowModesModel[params.row.__identifier]?.mode === GridRowModes.Edit) && onRowClick) ? (await onRowClick(params.row, containerIsForm)) : undefined
         } }
         sortModel={sortModel}
