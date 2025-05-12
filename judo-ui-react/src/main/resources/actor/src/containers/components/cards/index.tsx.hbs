@@ -54,7 +54,7 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
     {{ imp }}QueryCustomizer,
   } from '~/services/data-api/rest/{{ imp }}QueryCustomizer';
 {{/ each }}
-{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
+{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) (tableHasTimeColumn table) }}
 import { useL10N } from '~/l10n/l10n-context';
 {{/ or }}
 import {
@@ -129,7 +129,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   {{# unless table.isEager }}
   const handleError = useErrorHandler();
   {{/ unless }}
-  {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}
+  {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) (tableHasTimeColumn table) }}
   const { locale: l10nLocale } = useL10N();
   {{/ or }}
   {{# if (tableHasBinaryColumn table) }}
@@ -162,7 +162,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{ column.name }}Column,
       {{/ if }}
     {{/ each }}
-  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) }}l10nLocale{{/ or }}]);
+  ], [{{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) (tableHasTimeColumn table)}}l10nLocale{{/ or }}]);
 
   const filterOptions: FilterOption[] = [
     {{# each table.filters as |filter| }}
