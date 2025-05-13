@@ -1,4 +1,4 @@
-{ {> fragment.header.hbs } }
+{{> fragment.header.hbs }}
 
 import { styled } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -62,7 +62,7 @@ export const Drawer = ({ window }: DrawerProps) => {
     } else if (prevSizeRef.current && (prevSizeRef.current == 'md' || prevSizeRef.current == 'sm' || prevSizeRef.current == 'xs') && (size == 'lg' || size == 'xl')) {
       onChangeMiniDrawer(false);
     } else if (!prevSizeRef.current && (size == 'sm' || size == 'xs')) {
-      onChangeMiniDrawer(false);
+      onChangeMiniDrawer(true);
     }
     prevSizeRef.current = size;
   }, [size]);
