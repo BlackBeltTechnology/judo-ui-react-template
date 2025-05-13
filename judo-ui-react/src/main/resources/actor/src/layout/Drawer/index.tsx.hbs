@@ -1,12 +1,12 @@
-{{> fragment.header.hbs }}
+{ {> fragment.header.hbs } }
 
-import Divider from '@mui/material/Divider';
-import IconButton from '@mui/material/IconButton';
 import { styled } from '@mui/material';
 import Box from '@mui/material/Box';
+import Divider from '@mui/material/Divider';
 import MuiDrawer from '@mui/material/Drawer';
+import IconButton from '@mui/material/IconButton';
 import { useTheme } from '@mui/material/styles';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { MdiIcon } from '~/components';
 import { DRAWER_WIDTH, ThemeMode } from '~/config';
 import { useConfig } from '~/hooks';
@@ -50,18 +50,22 @@ export const Drawer = ({ window }: DrawerProps) => {
   const theme = useTheme();
   const { miniDrawer, onChangeMiniDrawer } = useConfig();
 
-  const { downSM, isXs, isSm, isMd, isLg, isXl } = useLayoutHelper();
-  const [setSize] = useState<string | undefined>(undefined);
+  const {size, downSM, isXs, isSm, isMd, isLg, isXl } = useLayoutHelper();
   const prevSizeRef = useRef<string | undefined>(undefined);
 
-  const size = useMemo<string | undefined>(() => {
-    if (isXs) return 'xs';
-    if (isSm) return 'sm';
-    if (isMd) return 'md';
-    if (isLg) return 'lg';
-    if (isXl) return 'xl';
-    return undefined;
-  }, [isXs, isSm, isMd, isLg, isXl]);
+  useEffect(() => {
+    console.log('Change: ' + prevSizeRef.current + ' => ' + size);
+    if (prevSizeRef.current && (prevSizeRef.current == 'md' || prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl')  && (size == 'sm' || size == 'xs')) {
+      onChangeMiniDrawer(true);
+    } else if (prevSizeRef.current && (prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') && size == 'md') {
+      onChangeMiniDrawer(true);
+    } else if (prevSizeRef.current && (prevSizeRef.current == 'md' || prevSizeRef.current == 'sm' || prevSizeRef.current == 'xs') && (size == 'lg' || size == 'xl')) {
+      onChangeMiniDrawer(false);
+    } else if (!prevSizeRef.current && (size == 'sm' || size == 'xs')) {
+      onChangeMiniDrawer(false);
+    }
+    prevSizeRef.current = size;
+  }, [size]);
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
@@ -72,6 +76,7 @@ export const Drawer = ({ window }: DrawerProps) => {
     <Box component="nav" sx={ { flexShrink: { md: 0 }, zIndex: 1200 } } aria-label="mailbox folders">
       {!downSM ? (
         <MiniDrawerStyled variant="permanent" open={!miniDrawer}>
+          {!isXs && !isSm ? (
           <ToggleButton onClick={() => onChangeMiniDrawer(!miniDrawer)} size="medium">
             {miniDrawer ? (
               <MdiIcon path="chevron-right" sx={ { fontSize: 16 } } />
@@ -79,6 +84,8 @@ export const Drawer = ({ window }: DrawerProps) => {
               <MdiIcon path="chevron-left" sx={ { fontSize: 16 } } />
             )}
           </ToggleButton>
+          ) : (<></>)}
+
           {drawerHeader}
           {drawerContent}
 
