@@ -302,7 +302,8 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{/ unless }}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
-        onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if table.isEager }}true{{ else }}false{{/ if }}) : undefined }
+        onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        containerIsForm={ true }
         {{/ if }}
         {{/ each }}
         sidekickComponentFilter={sidekickComponentFilter}
@@ -362,7 +363,8 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{/ if }}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
-        onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (params: GridRowParams<{{ classDataName (getReferenceClassType table) 'Stored' }}>) => await actions.{{ simpleActionDefinitionName actionDefinition }}!(params.row, {{# if container.form }}true{{ else }}false{{/ if }}) : undefined }
+        onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} }
+        containerIsForm={ {{# if container.form }}true{{ else }}false{{/ if }} }
         {{/ if }}
         {{/ each }}
         sidekickComponentFilter={sidekickComponentFilter}

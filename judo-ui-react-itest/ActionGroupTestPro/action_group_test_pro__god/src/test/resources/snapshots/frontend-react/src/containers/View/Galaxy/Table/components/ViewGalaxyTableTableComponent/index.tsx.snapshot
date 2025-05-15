@@ -777,11 +777,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         containerIsSelector={isSelector}
         containerIsRelationSelector={isRelationSelector}
         alreadySelected={alreadySelected}
-        onRowClick={
-          actions.openPageAction
-            ? async (params: GridRowParams<ViewGalaxyStored>) => await actions.openPageAction!(params.row, false)
-            : undefined
-        }
+        onRowClick={actions.openPageAction}
+        containerIsForm={false}
         sidekickComponentFilter={sidekickComponentFilter}
         containerHasTable={true}
         maskAction={actions.getMask!}
