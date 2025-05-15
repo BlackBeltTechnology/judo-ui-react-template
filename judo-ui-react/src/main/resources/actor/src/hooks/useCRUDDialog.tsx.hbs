@@ -71,12 +71,6 @@ export const useCRUDDialog: UseCRUDDialog = () => {
 
 export type ItemStatus = 'success' | 'error' | 'in-progress';
 
-const iconMapping: Record<ItemStatus, ReactNode> = {
-  'in-progress': <MdiIcon path='minus' />,
-  success: <MdiIcon path='check-circle' color='green' />,
-  error: <MdiIcon path='close-circle' color='red' />,
-};
-
 export type QueueItem = { id: string, title: string, status: ItemStatus, data: any, error?: any };
 
 export type CRUDDialogProps = {
@@ -97,6 +91,12 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
   const [progress, setProgress] = useState<number>(0);
   const [queue, setQueue] = useState<Array<QueueItem>>([...queueItems]);
   const progressMultiplier = useMemo(() => Math.round(MAX_PROGRESS / queueItems.length), [queueItems]);
+
+  const iconMapping: Record<ItemStatus, ReactNode> = {
+    'in-progress': <MdiIcon path='minus' />,
+    success: <MdiIcon path='check-circle' color='green' />,
+    error: <MdiIcon path='close-circle' color='red' />,
+  };
 
   const updateQueueItem = useCallback(
     (queueItem: QueueItem, status: ItemStatus, error?: any) => {
