@@ -3,12 +3,28 @@
 {{# each (getMenuDialogs application) as |item| }}
   import { use{{ pageName item.target }} } from '~/dialogs/{{ pagePath item.target }}/hooks';
 {{/ each }}
+{{# each (getMenuOperationOwnerTypes application) as |item| }}
+  import { {{ classDataName item 'Stored' }} } from '~/services/data-api/model/{{ classDataName item '' }}';
+  import { {{ serviceClassName item }}Impl } from '~/services/data-axios/{{ serviceClassName item }}Impl';
+{{/ each }}
+import { useErrorHandler } from '~/utilities';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { useMemo } from 'react';
 
 import { NavItemType } from './NavItem';
 
 export const useMenus = (): NavItemType[] => {
+  const handleError = useErrorHandler();
+  {{# each (getMenuOperationOwnerTypes application) as |item| }}
+  const {{ firstToLower (serviceClassName item) }}Impl = useMemo(() => new {{ serviceClassName item }}Impl(judoAxiosProvider), []);
+  {{/ each }}
+
   {{# each (getMenuDialogs application) as |item| }}
   const open{{ pageName item.target }} = use{{ pageName item.target }}();
+  {{/ each }}
+
+  {{# each application.navigationController.actions as |action| }}
+    {{> (getActionTemplate action) }}
   {{/ each }}
 
   return [

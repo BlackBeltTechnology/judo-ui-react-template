@@ -1,0 +1,28 @@
+// ParameterlessCallOperationAction: {{ getXMIID action }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
+  {{# with action.actionDefinition.operation as |operation| }}
+  try {
+    {{# if operation.output }}const { data: result } = {{/ if }}await {{ firstToLower (serviceClassName action.ownerDataElement) }}Impl.{{ operation.name }}{{# if action.actionDefinition.isContainedRelationAction }}{{ operationCallSuffix action }}{{/ if }}(
+      {{# if page.container.table }}
+        {{# unless operation.isStatic }}
+          target!
+        {{/ unless }}
+      {{ else }}
+        {{# unless operation.isStatic }}
+          {{# if (actionShouldUseDataAsParam action) }}
+            data
+          {{ else }}
+            {{# if action.actionDefinition.targetType }}
+              target!
+            {{ else }}
+              data
+            {{/ if }}
+          {{/ if }}
+        {{/ unless }}
+      {{/ if }}
+    );
+  } catch (error) {
+    handleError(error, { actionId: '{{ getXMIID action }}' });
+  }
+  {{/ with }}
+};

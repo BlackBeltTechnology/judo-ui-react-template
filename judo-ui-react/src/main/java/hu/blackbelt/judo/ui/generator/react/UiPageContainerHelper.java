@@ -93,7 +93,8 @@ public class UiPageContainerHelper {
     public static String simpleActionDefinitionName(ActionDefinition actionDefinition) {
         String relationName = "";
 
-        if (!getPageContainerForActionDefinition(actionDefinition).isTable()) {
+        PageContainer pageContainer = getPageContainerForActionDefinition(actionDefinition);
+        if (pageContainer != null && !pageContainer.isTable()) {
             Link link = getLinkParentForActionDefinition(actionDefinition);
             Table table = getTableParentForActionDefinition(actionDefinition);
             EObject container = actionDefinition.eContainer();
