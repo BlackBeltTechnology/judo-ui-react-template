@@ -1,0 +1,14 @@
+{{> fragment.header.hbs }}
+
+import { useMemo } from "react";
+import { createEvalExpr, type EvalExpr } from "@judo/idem";
+import { addDays, differenceInDays, differenceInSeconds, parseISO, subDays } from "date-fns";
+
+export const useIdemExpression = (): EvalExpr => {
+  const evalExpr = useMemo<EvalExpr>(
+    () => createEvalExpr({ dateFunctions: { addDays, subDays, parseISO, differenceInDays, differenceInSeconds } }),
+    [],
+  );
+
+  return evalExpr;
+};
