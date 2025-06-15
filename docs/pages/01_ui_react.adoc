@@ -51,6 +51,30 @@ If we would only like to add dependencies:
 If we would like to add extra scripts:
 - `package.json.scripts.extra.fragment.hbs`
 
+== Expression language
+
+The JUDO Toolbox provides a custom expression language which can be used to evaluate business expressions at runtime.
+
+For this we use https://www.npmjs.com/package/@judo/idem
+
+The framework provides a React hook which can be used to access this functionality.
+
+[source,typescriptjsx]
+----
+import { useState } from 'react';
+import { useIdemExpression } from '~/hooks/useIdemExpression';
+
+export const MyComponent = () => {
+    const idemExpr = useIdemExpression();
+    
+    const [data, setData] = useState<{ name: string }>({ name: 'John' });
+    
+    return (
+      <pre>{idemExpr('\'Hello: \' + self.name', { self: data }) as string}</pre>
+    );
+};
+----
+
 == Navigation
 
 JUDO applications utilize the `react-router-dom` package for routing. However given that we provide additional features
