@@ -23,9 +23,13 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.Action;
 import hu.blackbelt.judo.meta.ui.Application;
+import hu.blackbelt.judo.meta.ui.NavigationItem;
+import hu.blackbelt.judo.meta.ui.PageDefinition;
 import hu.blackbelt.judo.meta.ui.data.*;
 import lombok.extern.java.Log;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,5 +46,27 @@ public class MenuHelper {
                 .stream()
                 .map(Action::getOwnerDataElement)
                 .collect(Collectors.toSet());
+    }
+
+    public static List<PageDefinition> getAllTargetPage(Application application) {
+        return application.getNavigationController()
+                .getActions()
+                .stream()
+                .filter(action -> action.getTargetPageDefinition() != null &&
+                        action.getTargetPageDefinition().isOpenInDialog())
+                .map(Action::getTargetPageDefinition)
+                .toList();
+    }
+
+    public static List<String> getAllRoutesFromMenuActions(Application application) {
+        return application.getNavigationController()
+                .getActions()
+                .stream()
+                .filter(action -> action.getTargetPageDefinition() != null &&
+                        action.getTargetDataElement() instanceof OperationType &&
+                        ((OperationType) action.getTargetDataElement()).getOutput() != null &&
+                        !action.getTargetPageDefinition().isOpenInDialog())
+                .map(action -> "routeTo" + UiPageHelper.pageName(action.getTargetPageDefinition()))
+                .toList();
     }
 }

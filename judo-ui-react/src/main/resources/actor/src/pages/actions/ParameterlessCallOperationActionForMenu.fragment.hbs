@@ -21,6 +21,23 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
         {{/ unless }}
       {{/ if }}
     );
+    {{> actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs operation=operation action=action }}
+      showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
+
+      {{# if operation.output }}
+        {{# if action.targetPageDefinition.openInDialog }}
+          await open{{ pageName action.targetPageDefinition }}({
+          {{# and (isPageDataElementUnmappedSingle action.targetPageDefinition) action.targetPageDefinition.container.view }}
+            ownerData: produceDataAdjustedOwner(),
+            data: result,
+          {{ else }}
+            ownerData: result,
+          {{/ and }}
+          });
+        {{ else }}
+          navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
+        {{/ if }}
+      {{/ if }}
   } catch (error) {
     handleError(error, { actionId: '{{ getXMIID action }}' });
   }

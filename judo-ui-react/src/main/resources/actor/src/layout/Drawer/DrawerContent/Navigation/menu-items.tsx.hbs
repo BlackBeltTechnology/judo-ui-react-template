@@ -7,14 +7,32 @@
   import { {{ classDataName item 'Stored' }} } from '~/services/data-api/model/{{ classDataName item '' }}';
   import { {{ serviceClassName item }}Impl } from '~/services/data-axios/{{ serviceClassName item }}Impl';
 {{/ each }}
+import {
+{{# each (getAllRoutesFromMenuActions application) as |route| }}
+  {{ route }},
+{{/ each }}
+} from '~/routes';
+{{# each (getAllTargetPage application) as |relatedDialog| }}
+import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
+{{/ each }}
+
 import { useErrorHandler } from '~/utilities';
 import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { useMemo } from 'react';
-
+import { useSnacks, useEventBus } from '~/hooks';
 import { NavItemType } from './NavItem';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router';
 
 export const useMenus = (): NavItemType[] => {
   const handleError = useErrorHandler();
+  const { showSuccessSnack, showErrorSnack } = useSnacks();
+  const { publish, subscribe } = useEventBus();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  {{# each (getAllTargetPage application) as |pageDefinition| }}
+    const open{{ pageName pageDefinition }} = use{{ pageName pageDefinition }}();
+  {{/ each }}
   {{# each (getMenuOperationOwnerTypes application) as |item| }}
   const {{ firstToLower (serviceClassName item) }}Impl = useMemo(() => new {{ serviceClassName item }}Impl(judoAxiosProvider), []);
   {{/ each }}
