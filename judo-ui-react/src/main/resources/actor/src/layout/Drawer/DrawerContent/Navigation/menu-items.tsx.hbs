@@ -12,7 +12,7 @@ import {
   {{ route }},
 {{/ each }}
 } from '~/routes';
-{{# each (getAllTargetPage application) as |relatedDialog| }}
+{{# each (getAllTargetPageOpenInDialog application) as |relatedDialog| }}
 import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
 {{/ each }}
 
@@ -30,7 +30,7 @@ export const useMenus = (): NavItemType[] => {
   const { publish, subscribe } = useEventBus();
   const { t } = useTranslation();
   const navigate = useNavigate();
-  {{# each (getAllTargetPage application) as |pageDefinition| }}
+  {{# each (getAllTargetPageOpenInDialog application) as |pageDefinition| }}
     const open{{ pageName pageDefinition }} = use{{ pageName pageDefinition }}();
   {{/ each }}
   {{# each (getMenuOperationOwnerTypes application) as |item| }}

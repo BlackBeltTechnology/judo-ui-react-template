@@ -48,7 +48,17 @@ public class MenuHelper {
                 .collect(Collectors.toSet());
     }
 
-    public static List<PageDefinition> getAllTargetPage(Application application) {
+    public static List<PageDefinition> getAllTargetPageOpenInDialog(Application application) {
+        return application.getNavigationController()
+                .getActions()
+                .stream()
+                .filter(action -> action.getTargetPageDefinition() != null &&
+                        action.getTargetPageDefinition().isOpenInDialog())
+                .map(Action::getTargetPageDefinition)
+                .toList();
+    }
+
+    public static List<PageDefinition> getAllInputPage(Application application) {
         return application.getNavigationController()
                 .getActions()
                 .stream()
