@@ -334,6 +334,14 @@ templates:
       - name: container
         expression: "#self"
 
+  - name: actor/src/custom/menu-hook-registration.ts
+    factoryExpression: "#pagesWithCustomActions(#application)"
+    pathExpression: "'src/custom/hooks/registerMenuActionsHook.ts.default'"
+    templateName: actor/src/custom/menu-hook-registration.ts.hbs
+    templateContext:
+      - name: application
+        expression: "#application"
+
   - name: actor/src/custom/default-container-with-custom-implementations-hook-registration.tsx
     factoryExpression: "#getPageContainersWithCustomImplementations(#application)"
     pathExpression: "'src/custom/hooks/custom-implementations/register' + #containerName(#self) + 'CustomImplementations.tsx.default'"
@@ -969,6 +977,20 @@ templates:
     templateContext:
       - name: page
         expression: "#self"
+
+  - name: actor/src/layout/Drawer/DrawerContent/Navigation/menuTypes.ts
+    pathExpression: "'src/layout/Drawer/DrawerContent/Navigation/menuTypes.ts'"
+    templateName: actor/src/layout/Drawer/DrawerContent/Navigation/menuTypes.ts.hbs
+    templateContext:
+      - name: application
+        expression: "#application"
+
+  - name: actor/src/layout/Drawer/DrawerContent/Navigation/menuCustomization.ts
+    pathExpression: "'src/layout/Drawer/DrawerContent/Navigation/menuCustomization.ts'"
+    templateName: actor/src/layout/Drawer/DrawerContent/Navigation/menuCustomization.ts.hbs
+    templateContext:
+      - name: application
+        expression: "#application"
 
   # Actor - src - dialogs
 

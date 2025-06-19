@@ -23,6 +23,11 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
       {{/ if }}
     );
     {{> actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs operation=operation action=action }}
+    if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
+      await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
+        {{# if operation.output }}result,{{/ if }}
+      );
+    } else {  
       showSuccessSnack(t('judo.action.operation.success', { defaultValue: 'Operation executed successfully' }) as string);
 
       {{# if operation.output }}
@@ -39,6 +44,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
           navigate(routeTo{{ pageName action.targetPageDefinition }}(result.__signedIdentifier));
         {{/ if }}
       {{/ if }}
+    }
   } catch (error) {
     handleError(error, { actionId: '{{ getXMIID action }}' });
   }

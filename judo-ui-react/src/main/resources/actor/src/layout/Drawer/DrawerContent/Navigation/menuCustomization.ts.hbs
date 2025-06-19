@@ -1,0 +1,10 @@
+{{> fragment.header.hbs }}
+
+{{# if (applicationHasMenuOperations application) }}
+  import { MenuPageActions } from './menuTypes';
+
+  export const MENU_ACTIONS_HOOK_INTERFACE_KEY = 'MENU_ACTIONS_HOOK';
+  export type MenuActionsHook = () => MenuPageActions;
+{{ else }}
+  export const _ = 'placeholder';
+{{/ if }}

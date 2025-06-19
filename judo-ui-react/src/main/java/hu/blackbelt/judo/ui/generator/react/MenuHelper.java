@@ -79,4 +79,21 @@ public class MenuHelper {
                 .map(action -> "routeTo" + UiPageHelper.pageName(action.getTargetPageDefinition()))
                 .toList();
     }
+
+    public static boolean applicationHasMenuOperations(Application application) {
+        return !application.getNavigationController().getActions().isEmpty();
+    }
+
+    public static boolean actionHasOutput(Action action) {
+        return (action.getTargetDataElement() instanceof OperationType) && ((OperationType) action.getTargetDataElement()).getOutput() != null;
+    }
+
+    public static List<ClassType> getAllOutputTypes(Application application) {
+        return application.getNavigationController()
+                .getActions()
+                .stream()
+                .filter(MenuHelper::actionHasOutput)
+                .map(action -> ((OperationType) action.getTargetDataElement()).getOutput().getTarget())
+                .toList();
+    }
 }

@@ -23,6 +23,10 @@ import { useSnacks, useEventBus } from '~/hooks';
 import { NavItemType } from './NavItem';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
+import { useTrackService } from '@pandino/react-hooks';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { MENU_ACTIONS_HOOK_INTERFACE_KEY, MenuActionsHook } from './menuCustomization';
+import { MenuPageActions } from './menuTypes';
 
 export const useMenus = (): NavItemType[] => {
   const handleError = useErrorHandler();
@@ -30,6 +34,12 @@ export const useMenus = (): NavItemType[] => {
   const { publish, subscribe } = useEventBus();
   const { t } = useTranslation();
   const navigate = useNavigate();
+
+  const { service: customActionsHook } = useTrackService<MenuActionsHook>(
+    `(${OBJECTCLASS}=${MENU_ACTIONS_HOOK_INTERFACE_KEY})`,
+  );
+  const customActions: MenuPageActions | undefined = customActionsHook?.();
+
   {{# each (getAllTargetPageOpenInDialog application) as |pageDefinition| }}
     const open{{ pageName pageDefinition }} = use{{ pageName pageDefinition }}();
   {{/ each }}
