@@ -1,0 +1,11 @@
+
+// OpenOperationInputSelectorAction: {{ getXMIID action }}
+const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+  if (customActions?.{{ simpleActionDefinitionName action.actionDefinition }}) {
+    customActions.{{ simpleActionDefinitionName action.actionDefinition }}();
+  } else {
+    const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
+      ownerData: undefined,
+    });
+  }
+};

@@ -1,0 +1,20 @@
+{{> fragment.header.hbs }}
+
+{{# each (getAllOutputTypes application) as |class| }}
+  import type { {{ classDataName class 'Stored' }} } from '~/services/data-api/model/{{ classDataName class '' }}';
+{{/ each }}
+
+{{# if (applicationHasMenuOperations application) }}
+  export type MenuPageActions = {
+    {{# each application.navigationController.actions as |action| }}
+      {{ simpleActionDefinitionName action.actionDefinition }}?: () => Promise<void>;
+      {{# unless (actionHasInput action) }}
+        post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}?: (
+          {{# if (actionHasOutput action) }}result: {{ classDataName action.targetDataElement.output.target 'Stored' }}{{/ if }}
+        ) => Promise<void>;
+      {{/ unless }}
+    {{/ each }}
+  };
+{{ else }}
+  export const _ = 'placeholder';
+{{/ if }}
