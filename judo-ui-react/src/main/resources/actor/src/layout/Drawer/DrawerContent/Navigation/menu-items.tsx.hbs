@@ -1,34 +1,36 @@
 {{> fragment.header.hbs }}
 
+import { NavItemType } from './NavItem';
 {{# each (getMenuDialogs application) as |item| }}
   import { use{{ pageName item.target }} } from '~/dialogs/{{ pagePath item.target }}/hooks';
 {{/ each }}
-{{# each (getMenuOperationOwnerTypes application) as |item| }}
-  import { {{ classDataName item 'Stored' }} } from '~/services/data-api/model/{{ classDataName item '' }}';
-  import { {{ serviceClassName item }}Impl } from '~/services/data-axios/{{ serviceClassName item }}Impl';
-{{/ each }}
-import {
-{{# each (getAllRoutesFromMenuActions application) as |route| }}
-  {{ route }},
-{{/ each }}
-} from '~/routes';
-{{# each (getAllTargetPageOpenInDialog application) as |relatedDialog| }}
-import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
-{{/ each }}
-
-import { useErrorHandler } from '~/utilities';
-import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
-import { useMemo } from 'react';
-import { useSnacks, useEventBus } from '~/hooks';
-import { NavItemType } from './NavItem';
-import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router';
-import { useTrackService } from '@pandino/react-hooks';
-import { OBJECTCLASS } from '@pandino/pandino-api';
-import { MENU_ACTIONS_HOOK_INTERFACE_KEY, MenuActionsHook } from './menuCustomization';
-import { MenuPageActions } from './menuTypes';
+{{# if (applicationHasMenuOperations application) }}
+  {{# each (getMenuOperationOwnerTypes application) as |item| }}
+    import { {{ classDataName item 'Stored' }} } from '~/services/data-api/model/{{ classDataName item '' }}';
+    import { {{ serviceClassName item }}Impl } from '~/services/data-axios/{{ serviceClassName item }}Impl';
+  {{/ each }}
+  import {
+  {{# each (getAllRoutesFromMenuActions application) as |route| }}
+    {{ route }},
+  {{/ each }}
+  } from '~/routes';
+  {{# each (getAllTargetPageOpenInDialog application) as |relatedDialog| }}
+  import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
+  {{/ each }}
+  import { useErrorHandler } from '~/utilities';
+  import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+  import { useMemo } from 'react';
+  import { useSnacks, useEventBus } from '~/hooks';
+  import { useTranslation } from 'react-i18next';
+  import { useNavigate } from 'react-router';
+  import { useTrackService } from '@pandino/react-hooks';
+  import { OBJECTCLASS } from '@pandino/pandino-api';
+  import { MENU_ACTIONS_HOOK_INTERFACE_KEY, MenuActionsHook } from './menuCustomization';
+  import { MenuPageActions } from './menuTypes';
+{{/ if }}
 
 export const useMenus = (): NavItemType[] => {
+{{# if (applicationHasMenuOperations application) }}
   const handleError = useErrorHandler();
   const { showSuccessSnack, showErrorSnack } = useSnacks();
   const { publish, subscribe } = useEventBus();
@@ -54,6 +56,7 @@ export const useMenus = (): NavItemType[] => {
   {{# each application.navigationController.actions as |action| }}
     {{> (getActionTemplate action) }}
   {{/ each }}
+{{/ if }}
 
   return [
     {{# each application.navigationController.items as |item| }}
