@@ -1,7 +1,11 @@
 
 // OpenOperationInputFormAction: {{ getXMIID action }}
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, {{/ if}}isDraft?: boolean, ownerValidation?: (target: any) => Promise<void>) => {
-  const { result, data: returnedData } = await open{{ actionTargetPageName action }}({
-    ownerData: undefined,
-  });
+const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+  if (customActions?.{{ simpleActionDefinitionName action.actionDefinition }}) {
+    customActions.{{ simpleActionDefinitionName action.actionDefinition }}();
+  } else {
+    const { result, data: returnedData } = await open{{ actionTargetPageName action }}({
+      ownerData: undefined,
+    });
+  }
 };

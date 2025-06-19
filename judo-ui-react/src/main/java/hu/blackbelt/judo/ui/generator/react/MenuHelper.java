@@ -23,18 +23,15 @@ package hu.blackbelt.judo.ui.generator.react;
 import hu.blackbelt.judo.generator.commons.annotations.TemplateHelper;
 import hu.blackbelt.judo.meta.ui.Action;
 import hu.blackbelt.judo.meta.ui.Application;
-import hu.blackbelt.judo.meta.ui.NavigationItem;
 import hu.blackbelt.judo.meta.ui.PageDefinition;
-import hu.blackbelt.judo.meta.ui.data.*;
+import hu.blackbelt.judo.meta.ui.data.ClassType;
+import hu.blackbelt.judo.meta.ui.data.DataElement;
+import hu.blackbelt.judo.meta.ui.data.OperationType;
 import lombok.extern.java.Log;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.serviceClassName;
-import static hu.blackbelt.judo.ui.generator.typescript.rest.commons.UiCommonsHelper.serviceRelationName;
 
 @Log
 @TemplateHelper
@@ -86,6 +83,10 @@ public class MenuHelper {
 
     public static boolean actionHasOutput(Action action) {
         return (action.getTargetDataElement() instanceof OperationType) && ((OperationType) action.getTargetDataElement()).getOutput() != null;
+    }
+
+    public static boolean actionHasInput(Action action) {
+        return (action.getTargetDataElement() instanceof OperationType) && ((OperationType) action.getTargetDataElement()).getInput() != null;
     }
 
     public static List<ClassType> getAllOutputTypes(Application application) {
