@@ -119,14 +119,6 @@ public class UiI18NHelper {
         String root = element.getPageContainer().getName();
         VisualElement target = element;
 
-        if (element instanceof Filter filter) {
-            // we do not want to have dedicated keys for filters
-            target = ((Table) filter.eContainer()).getColumns().stream().filter(c -> c.getAttributeType().equals(filter.getAttributeType())).findFirst().orElse(null);
-            if (target == null) {
-                target = element;
-            }
-        }
-
         assert target != null;
         String bare = target.getName();
         if (tokenNeedsPrefix(target)) {
@@ -256,6 +248,9 @@ public class UiI18NHelper {
                 }
                 if (v instanceof Table table) {
                     table.getColumns().forEach(c -> {
+                        translations.put(getTranslationKeyForVisualElement(c), c.getLabel());
+                    });
+                    table.getFilters().forEach(c -> {
                         translations.put(getTranslationKeyForVisualElement(c), c.getLabel());
                     });
                     if (table.getTableActionButtonGroup() != null) {
