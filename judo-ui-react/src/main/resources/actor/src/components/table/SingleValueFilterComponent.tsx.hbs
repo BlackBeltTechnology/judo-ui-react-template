@@ -1,12 +1,13 @@
 {{> fragment.header.hbs }}
 
+import { Autocomplete } from '@mui/material';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
 import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { DatePicker, DateTimePicker } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
-import { Filter, FilterType, Operation } from '~/components-api';
+import { Filter, FilterEnumValue, FilterType, Operation } from '~/components-api';
 import { buildFilter } from '~/utilities';
 import { MdiIcon } from '~/components/MdiIcon';
 import { TrinaryLogicCombobox } from '~/components/widgets';
@@ -19,6 +20,8 @@ export interface SingleValueFilterComponentProps<T> {
   attributeName: keyof T;
   label: string;
   col: number;
+  icon: string;
+  enumValues?: Array<FilterEnumValue>;
 }
 
 export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>> = ({
@@ -29,8 +32,10 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
   attributeName,
   label,
   col,
+  icon,
+  enumValues,
 }) => {
-  const fallbackFilter: Filter = buildFilter(filterType, operator, attributeName as string, null, label);
+  const fallbackFilter: Filter = buildFilter(filterType, operator, attributeName as string, null, label, icon);
 
   const [filter, setFilter] = useState<Filter>(
     filters?.find(
@@ -44,9 +49,9 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
   const updateFilter = useCallback(
     (value: any) => {
       if (typeof value === "string" && value === '') {
-        setFilter(buildFilter(filterType, operator, attributeName as string, null, label));
+        setFilter(buildFilter(filterType, operator, attributeName as string, null, label, icon, enumValues));
       } else {
-        setFilter(buildFilter(filterType, operator, attributeName as string, value, label));
+        setFilter(buildFilter(filterType, operator, attributeName as string, value, label, icon, enumValues));
       }
     },
     [filterType, operator, attributeName],
@@ -107,6 +112,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 onChange={(newValue: any) => setInputValue(newValue)}
+                icon={filter.filterOption.icon}
               />
 
             );
@@ -123,7 +129,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                     InputProps: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <MdiIcon path="calendar_month" />
+                          <MdiIcon path={filter.filterOption.icon || 'calendar_month'} />
                         </InputAdornment>
                       ),
                     },
@@ -146,7 +152,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                     InputProps: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <MdiIcon path="calendar-range" />
+                          <MdiIcon path={filter.filterOption.icon || 'calendar-range'} />
                         </InputAdornment>
                       ),
                     },
@@ -156,19 +162,37 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
             );
           case FilterType.enumeration:
             return (
-              <TextField
-                label={filter.filterOption.label ?? filter.filterOption.attributeName}
-                variant="standard"
+              <Autocomplete 
                 value={inputValue ?? null}
-                select
-                onChange={(event) => setInputValue(event.target.value)}
-              >
-                {filter.filterOption.enumValues?.map((item) => (
-                  <MenuItem key={item.value} value={item.value}>
-                    {item.label}
-                  </MenuItem>
-                ))}
-              </TextField>
+                onChange={(_: any, newValue: { label: string; value: string | null; key: string } | null) => setInputValue(newValue?.value)}
+                renderInput={ (params) => {
+                  return (
+                    <TextField
+                      {...params}
+                      label={filter.filterOption.label ?? filter.filterOption.attributeName}
+                      variant="standard"
+                      InputProps={ {
+                        ...params.InputProps,
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <MdiIcon path={filter.filterOption.icon || 'format-list-numbered'} />
+                          </InputAdornment>
+                        )
+                      } }
+                    />
+                  );
+                } } 
+                options={filter.filterOption.enumValues 
+                  ? filter.filterOption.enumValues?.map(item => {
+                    return {
+                      value: item.value,
+                      key: item.value,
+                      label: item.label
+                    }
+                  }) 
+                  : []
+                }
+              />
             );
           case FilterType.numeric:
             return (
@@ -184,7 +208,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 InputProps={ {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <MdiIcon path="numbers" />
+                      <MdiIcon path={filter.filterOption.icon || 'numeric'} />
                     </InputAdornment>
                   ),
                 } }
@@ -200,7 +224,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 InputProps={ {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <MdiIcon path="abc" />
+                      <MdiIcon path={filter.filterOption.icon || 'format-size'} />
                     </InputAdornment>
                   ),
                 } }
@@ -212,6 +236,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? ''}
                 onChange={(newValue: any) => setInputValue(newValue)}
+                icon={filter.filterOption.icon}
               />
             );
         }
