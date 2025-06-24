@@ -24,6 +24,7 @@ export const TrinaryLogicCombobox = ({
   onChange,
   className,
   annotations = [],
+  icon,
 }: TrinaryLogicProps) => {
   const { t } = useTranslation();
   const onChangeHandler = onChange
@@ -55,7 +56,7 @@ export const TrinaryLogicCombobox = ({
         readOnly,
         startAdornment: (
           <InputAdornment position="start">
-            <MdiIcon path="format-list-bulleted" />
+            <MdiIcon path={icon || "format-list-bulleted"} />
           </InputAdornment>
         ),
       } }
