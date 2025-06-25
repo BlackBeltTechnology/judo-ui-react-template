@@ -20,7 +20,7 @@ export interface SingleValueFilterComponentProps<T> {
   attributeName: keyof T;
   label: string;
   col: number;
-  icon: string;
+  icon?: string;
   enumValues?: Array<FilterEnumValue>;
 }
 
@@ -129,7 +129,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                     InputProps: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <MdiIcon path={filter.filterOption.icon || 'calendar_month'} />
+                          <MdiIcon path={filter.filterOption.icon ?? 'calendar_month'} />
                         </InputAdornment>
                       ),
                     },
@@ -152,7 +152,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                     InputProps: {
                       startAdornment: (
                         <InputAdornment position="start">
-                          <MdiIcon path={filter.filterOption.icon || 'calendar-range'} />
+                          <MdiIcon path={filter.filterOption.icon ?? 'calendar-range'} />
                         </InputAdornment>
                       ),
                     },
@@ -175,7 +175,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                         ...params.InputProps,
                         startAdornment: (
                           <InputAdornment position="start">
-                            <MdiIcon path={filter.filterOption.icon || 'format-list-numbered'} />
+                            <MdiIcon path={filter.filterOption.icon ?? 'format-list-numbered'} />
                           </InputAdornment>
                         )
                       } }
@@ -208,7 +208,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 InputProps={ {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <MdiIcon path={filter.filterOption.icon || 'numeric'} />
+                      <MdiIcon path={filter.filterOption.icon ?? 'numeric'} />
                     </InputAdornment>
                   ),
                 } }
@@ -224,7 +224,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 InputProps={ {
                   startAdornment: (
                     <InputAdornment position="start">
-                      <MdiIcon path={filter.filterOption.icon || 'format-size'} />
+                      <MdiIcon path={filter.filterOption.icon ?? 'format-size'} />
                     </InputAdornment>
                   ),
                 } }
