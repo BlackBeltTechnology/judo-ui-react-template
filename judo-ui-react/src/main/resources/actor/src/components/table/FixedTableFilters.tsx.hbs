@@ -28,7 +28,7 @@ export function FixedTableFilters<T extends GridValidRowModel, TStored extends T
     return (
       <Grid container>
         <Grid item xs={12}>
-          <Grid container spacing={2}>
+          <Grid container spacing={2} alignItems="flex-end">
             {fixedTableFilterOptions.map((f) => (
               <SingleValueFilterComponent
                 key={f.id}
@@ -39,6 +39,8 @@ export function FixedTableFilters<T extends GridValidRowModel, TStored extends T
                 onFiltersChange={onFiltersChange}
                 label={f.label ?? ''}
                 col={f.col ?? 3}
+                icon={f.icon}
+                enumValues={f.enumValues}
               />
             ))}
           </Grid>
