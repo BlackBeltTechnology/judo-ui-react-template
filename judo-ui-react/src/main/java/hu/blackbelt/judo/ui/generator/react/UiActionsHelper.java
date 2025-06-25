@@ -181,7 +181,14 @@ public class UiActionsHelper {
         String actionDefinitionBareName = action.getActionDefinition().eClass().getInstanceClass().getSimpleName();
         String suffixToCut = "Definition";
         String actionName = actionDefinitionBareName.substring(0, actionDefinitionBareName.length() - suffixToCut.length());
-        return componentsLocation + actionName + ".fragment.hbs";
+        String result = null;
+        if (action.isIsMenuAction()) {
+            result = componentsLocation + actionName + "ForMenu.fragment.hbs";
+        } else {
+            result = componentsLocation + actionName + ".fragment.hbs";
+        }
+
+        return result;
     }
 
     public static PageContainer getPageContainerForActionDefinition(ActionDefinition actionDefinition) {

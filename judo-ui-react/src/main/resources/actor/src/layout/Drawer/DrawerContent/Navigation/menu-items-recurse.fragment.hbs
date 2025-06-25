@@ -17,6 +17,9 @@
     {{# if item.hiddenBy }}
         hiddenBy: '{{ item.hiddenBy }}',
     {{/ if }}
+    {{# if item.actionDefinition }}
+        onClick: {{ simpleActionDefinitionName item.actionDefinition }},
+    {{/ if }}
     children: [
         {{# each item.items as |subItem| }}
             {{> actor/src/layout/Drawer/DrawerContent/Navigation/menu-items-recurse.fragment.hbs item=subItem isRoot=false }}
