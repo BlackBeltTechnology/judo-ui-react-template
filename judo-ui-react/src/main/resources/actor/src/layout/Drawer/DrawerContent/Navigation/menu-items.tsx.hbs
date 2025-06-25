@@ -14,7 +14,7 @@ import { NavItemType } from './NavItem';
     {{ route }},
   {{/ each }}
   } from '~/routes';
-  {{# each (getAllTargetPageOpenInDialog application) as |relatedDialog| }}
+  {{# each (getAllNavigationControllerActionTargetPageOpenInDialog application) as |relatedDialog| }}
   import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
   {{/ each }}
   import { useErrorHandler } from '~/utilities';
@@ -42,7 +42,7 @@ export const useMenus = (): NavItemType[] => {
   );
   const customActions: MenuPageActions | undefined = customActionsHook?.();
 
-  {{# each (getAllTargetPageOpenInDialog application) as |pageDefinition| }}
+  {{# each (getAllNavigationControllerActionTargetPageOpenInDialog application) as |pageDefinition| }}
     const open{{ pageName pageDefinition }} = use{{ pageName pageDefinition }}();
   {{/ each }}
   {{# each (getMenuOperationOwnerTypes application) as |item| }}

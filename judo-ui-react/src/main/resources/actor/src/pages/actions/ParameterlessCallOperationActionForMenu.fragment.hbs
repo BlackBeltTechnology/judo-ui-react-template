@@ -1,6 +1,6 @@
 
 // ParameterlessCallOperationAction: {{ getXMIID action }}
-const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if action.actionDefinition.targetType }}target?: {{ classDataName action.actionDefinition.targetType 'Stored' }}{{/ if }}) => {
+const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
   if (customActions?.{{ simpleActionDefinitionName action.actionDefinition }}) {
     customActions.{{ simpleActionDefinitionName action.actionDefinition }}();
   } else {

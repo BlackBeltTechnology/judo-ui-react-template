@@ -35,7 +35,7 @@ import java.util.stream.Collectors;
 
 @Log
 @TemplateHelper
-public class MenuHelper {
+public class UIMenuHelper {
 
     public static Set<DataElement> getMenuOperationOwnerTypes(Application application) {
         return application.getNavigationController()
@@ -45,17 +45,7 @@ public class MenuHelper {
                 .collect(Collectors.toSet());
     }
 
-    public static List<PageDefinition> getAllTargetPageOpenInDialog(Application application) {
-        return application.getNavigationController()
-                .getActions()
-                .stream()
-                .filter(action -> action.getTargetPageDefinition() != null &&
-                        action.getTargetPageDefinition().isOpenInDialog())
-                .map(Action::getTargetPageDefinition)
-                .toList();
-    }
-
-    public static List<PageDefinition> getAllInputPage(Application application) {
+    public static List<PageDefinition> getAllNavigationControllerActionTargetPageOpenInDialog(Application application) {
         return application.getNavigationController()
                 .getActions()
                 .stream()
@@ -89,11 +79,11 @@ public class MenuHelper {
         return (action.getTargetDataElement() instanceof OperationType) && ((OperationType) action.getTargetDataElement()).getInput() != null;
     }
 
-    public static List<ClassType> getAllOutputTypes(Application application) {
+    public static List<ClassType> getAllNavigationControllerActionOutputTypes(Application application) {
         return application.getNavigationController()
                 .getActions()
                 .stream()
-                .filter(MenuHelper::actionHasOutput)
+                .filter(UIMenuHelper::actionHasOutput)
                 .map(action -> ((OperationType) action.getTargetDataElement()).getOutput().getTarget())
                 .toList();
     }

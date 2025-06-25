@@ -12,7 +12,7 @@ import {
   {{ route }},
 {{/ each }}
 } from '~/routes';
-{{# each (getAllTargetPageOpenInDialog application) as |relatedDialog| }}
+{{# each (getAllNavigationControllerActionTargetPageOpenInDialog application) as |relatedDialog| }}
 import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
 {{/ each }}
 import { MENU_ACTIONS_HOOK_INTERFACE_KEY, MenuActionsHook } from '~/layout/Drawer/DrawerContent/Navigation/menuCustomization';
@@ -29,7 +29,7 @@ const CustomMenuActionsHook: MenuActionsHook = () => {
   // call other hooks here
   const { t } = useTranslation();
   const { navigate, back } = useJudoNavigation();
-  {{# each (getAllTargetPageOpenInDialog application) as |pageDefinition| }}
+  {{# each (getAllNavigationControllerActionTargetPageOpenInDialog application) as |pageDefinition| }}
   const open{{ pageName pageDefinition }} = use{{ pageName pageDefinition }}();
   {{/ each }}
   {{# each (getMenuOperationOwnerTypes application) as |item| }}
@@ -41,5 +41,5 @@ const CustomMenuActionsHook: MenuActionsHook = () => {
   };
 };
 {{ else }}
-// EMPTY DASHBOARD
+// The application has no menu operations
 {{/ if }}
