@@ -1,0 +1,45 @@
+{{# if (applicationHasMenuOperations application) }}
+import type { BundleContext } from '@pandino/pandino-api';
+import { useTranslation } from 'react-i18next';
+import { useJudoNavigation } from '~/components';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+{{# each (getMenuOperationOwnerTypes application) as |item| }}
+import { {{ classDataName item 'Stored' }} } from '~/services/data-api/model/{{ classDataName item '' }}';
+import { {{ serviceClassName item }}Impl } from '~/services/data-axios/{{ serviceClassName item }}Impl';
+{{/ each }}
+import {
+{{# each (getAllRoutesFromMenuActions application) as |route| }}
+  {{ route }},
+{{/ each }}
+} from '~/routes';
+{{# each (getAllNavigationControllerActionTargetPageOpenInDialog application) as |relatedDialog| }}
+import { use{{ pageName relatedDialog }} } from '~/dialogs/{{ pagePath relatedDialog }}/hooks';
+{{/ each }}
+import { MENU_ACTIONS_HOOK_INTERFACE_KEY, MenuActionsHook } from '~/layout/Drawer/DrawerContent/Navigation/menuCustomization';
+
+/**
+ * Notes:
+ * Don't forget to remove unused hooks, and related imports afterwards to reduce build time and bundle size!
+ */
+export function registerMenuActionsHook(context: BundleContext) {
+  context.registerService<MenuActionsHook>(MENU_ACTIONS_HOOK_INTERFACE_KEY, CustomMenuActionsHook);
+}
+
+const CustomMenuActionsHook: MenuActionsHook = () => {
+  // call other hooks here
+  const { t } = useTranslation();
+  const { navigate, back } = useJudoNavigation();
+  {{# each (getAllNavigationControllerActionTargetPageOpenInDialog application) as |pageDefinition| }}
+  const open{{ pageName pageDefinition }} = use{{ pageName pageDefinition }}();
+  {{/ each }}
+  {{# each (getMenuOperationOwnerTypes application) as |item| }}
+  const {{ firstToLower (serviceClassName item) }}Impl = () => new {{ serviceClassName item }}Impl(judoAxiosProvider);
+  {{/ each }}
+
+  return {
+    // implement actions here
+  };
+};
+{{ else }}
+// The application has no menu operations
+{{/ if }}
