@@ -3,7 +3,7 @@ import { _NumericOperation, _StringOperation, _BooleanOperation, _EnumerationOpe
 import type { GridFilterModel, GridFilterItem } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { GridLogicOperator } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { isEqual, compareAsc } from 'date-fns';
-import type { Filter, FilterOption, Operation } from '../components-api';
+import type { Filter, FilterEnumValue, FilterOption, Operation } from '../components-api';
 import { FilterType } from '../components-api';
 import { CardsFilterDefinition } from '../components/widgets/CardsFilter';
 import type { Serializer } from '~/services/data-api/common/Serializer';
@@ -599,9 +599,9 @@ export function mapFilterToFilterModel(filter: Filter): GridFilterItem {
  }
 }
 
-export type FilterBuilder = <T>(filterType: FilterType, operator: Operation, attributeName: keyof T, value: any, label?: string) => Filter;
+export type FilterBuilder = <T>(filterType: FilterType, operator: Operation, attributeName: keyof T, value: any, label?: string, icon?: string, enumValues?: Array<FilterEnumValue>) => Filter;
 
-export const buildFilter: FilterBuilder = (filterType, operator, attributeName, value, label): Filter => {
+export const buildFilter: FilterBuilder = (filterType, operator, attributeName, value, label, icon, enumValues): Filter => {
   const randomized = uuidv1();
   return {
     id: randomized + '-id',
@@ -616,6 +616,8 @@ export const buildFilter: FilterBuilder = (filterType, operator, attributeName, 
       id: randomized + '-filter-option',
       filterType,
       label,
+      icon,
+      enumValues,
     },
   };
 };
