@@ -22,8 +22,8 @@ import type {
   ViewPlanetViewPageProps,
 } from '~/containers/View/Planet/View/types';
 import { useViewPlanetViewCreateChaosForInstanceInputForm } from '~/dialogs/View/Planet/View/CreateChaosForInstance/Input/Form/hooks';
-import { useViewPlanetViewCreateCreatureInputForm } from '~/dialogs/View/Planet/View/CreateCreature/Input/Form/hooks';
 import { useViewPlanetViewCreateStaticChaosInputForm } from '~/dialogs/View/Planet/View/CreateStaticChaos/Input/Form/hooks';
+import { useViewPlanetViewCreaturesCreateCreatureInputForm } from '~/dialogs/View/Planet/View/Creatures/CreateCreature/Input/Form/hooks';
 import { useViewPlanetViewGroupActionGroupSendASignRelationTableCallSelector } from '~/dialogs/View/Planet/View/Group/ActionGroup/SendASign/Relation/Table/CallSelector/hooks';
 import { useViewPlanetViewGroup_2RightCreaturesPunishCreatureRelationTableCallSelector } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/PunishCreature/Relation/Table/CallSelector/hooks';
 import { useViewPlanetViewGroup_2RightCreaturesRewardCreatureRelationTableCallSelector } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/RewardCreature/Relation/Table/CallSelector/hooks';
@@ -169,8 +169,8 @@ export default function GodGodEarthAccessViewPage() {
 
   // Dialog hooks
   const openViewPlanetViewCreateChaosForInstanceInputForm = useViewPlanetViewCreateChaosForInstanceInputForm();
-  const openViewPlanetViewCreateCreatureInputForm = useViewPlanetViewCreateCreatureInputForm();
   const openViewPlanetViewCreateStaticChaosInputForm = useViewPlanetViewCreateStaticChaosInputForm();
+  const openViewPlanetViewCreaturesCreateCreatureInputForm = useViewPlanetViewCreaturesCreateCreatureInputForm();
   const openViewPlanetViewGroupActionGroupSendASignRelationTableCallSelector =
     useViewPlanetViewGroupActionGroupSendASignRelationTableCallSelector();
   const openViewPlanetViewGroup_2RightCreaturesTableAddSelectorPage =
@@ -533,7 +533,7 @@ export default function GodGodEarthAccessViewPage() {
     isDraft?: boolean,
     ownerValidation?: (target: any) => Promise<void>,
   ) => {
-    const { result, data: returnedData } = await openViewPlanetViewCreateCreatureInputForm({
+    const { result, data: returnedData } = await openViewPlanetViewCreaturesCreateCreatureInputForm({
       ownerData: data,
     });
     if (result === 'submit' && !editMode) {

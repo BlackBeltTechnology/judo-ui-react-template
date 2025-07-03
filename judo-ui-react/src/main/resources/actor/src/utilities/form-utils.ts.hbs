@@ -7,7 +7,7 @@ import type { TFunction } from 'i18next';
 export function passesLocalValidation<T>(
     data: T,
     requiredByRecord: Record<string, boolean>,
-    dateTimeAttributes: (keyof T)[],
+    attributesToValidateRange: (keyof T)[],
     t: TFunction<string, any>,
     validation: Map<keyof T, string>,
     setValidation: Dispatch<SetStateAction<Map<keyof T, string>>>
@@ -31,7 +31,7 @@ export function passesLocalValidation<T>(
     });
     return false;
   }
-  for (const attr of dateTimeAttributes) {
+  for (const attr of attributesToValidateRange) {
     const message = validation.get(attr as keyof T);
     if (message !== null && message !== undefined && message !== '') {
       return false;

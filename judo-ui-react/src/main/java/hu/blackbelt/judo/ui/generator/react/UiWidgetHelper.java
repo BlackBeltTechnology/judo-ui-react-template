@@ -591,4 +591,9 @@ public class UiWidgetHelper {
                 .filter(t -> ((Table) t).getRepresentationComponent().equals(TableRepresentation.CARD))
                 .sorted(Comparator.comparing(NamedElement::getFQName)).toList();
     }
+
+    public static boolean hasMinOrMaxConstraintValue(VisualElement child) {
+        return (child instanceof InputValueConstraint) &&
+                (((InputValueConstraint) child).getMinValueBy() != null || ((InputValueConstraint) child).getMaxValueBy() != null);
+    }
 }
