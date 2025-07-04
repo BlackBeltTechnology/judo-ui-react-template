@@ -9,7 +9,7 @@ const requiredByRecord: Record<string, boolean> = {
   {{/ each }}
 };
 
-const dateTimes: (keyof {{ classDataName (getReferenceClassType page) '' }})[] = [
+const attributesToValidateRange: (keyof {{ classDataName (getReferenceClassType page) '' }})[] = [
 {{# each (getNotReadOnlyDateInputs page.container) as |child| }}
   '{{ child.attributeType.name }}',
 {{/ each }}
@@ -19,9 +19,12 @@ const dateTimes: (keyof {{ classDataName (getReferenceClassType page) '' }})[] =
 {{# each (getNotReadOnlyTimeInputs page.container) as |child| }}
   '{{ child.attributeType.name }}',
 {{/ each }}
+{{# each (getNotReadOnlyNumericInputs page.container) as |child| }}
+  '{{ child.attributeType.name }}',
+{{/ each }}
 ];
 
-const validationResult = passesLocalValidation<{{ classDataName (getReferenceClassType page) '' }}>(data, requiredByRecord, dateTimes, t, validation, setValidation);
+const validationResult = passesLocalValidation<{{ classDataName (getReferenceClassType page) '' }}>(data, requiredByRecord, attributesToValidateRange, t, validation, setValidation);
 
 if (!validationResult) {
   return;

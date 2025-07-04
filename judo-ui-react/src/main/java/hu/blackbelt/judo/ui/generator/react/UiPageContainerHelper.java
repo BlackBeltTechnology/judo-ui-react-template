@@ -558,6 +558,10 @@ public class UiPageContainerHelper {
         return !getNotReadOnlyDateTimeInputs(container).isEmpty();
     }
 
+    public static List<VisualElement> getNotReadOnlyNumericInputs(PageContainer container) {
+        return getNotReadOnlyInputs(container, NumericInput.class);
+    }
+
     public static List<VisualElement> getNotReadOnlyDateInputs(PageContainer container) {
         return getNotReadOnlyInputs(container, DateInput.class);
     }

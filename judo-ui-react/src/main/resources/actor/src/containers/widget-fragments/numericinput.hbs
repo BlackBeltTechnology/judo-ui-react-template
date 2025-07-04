@@ -52,6 +52,45 @@
             if (data.{{ child.attributeType.name }} !== newValue) {
                 storeDiff('{{ child.attributeType.name }}', newValue);
             }
+
+            {{# if (hasMinOrMaxConstraintValue child) }}
+            setValidation((prevValidation) => {
+                const copy = new Map<keyof {{ classDataName container.dataElement '' }}, string>(prevValidation);
+                {{# if child.minValueBy }}
+                if (newValue && data.{{ child.minValueBy.name }} && newValue < data.{{ child.minValueBy.name }}) {
+                    copy.set(
+                        '{{ child.attributeType.name }}',
+                        (t('judo.error.validation-failed.MIN_NUMERIC_VALUE_VALIDATION_FAILED', {
+                          defaultValue: `The value must be at least (${ data.{{ child.minValueBy.name }} }).`,
+                          minValue: data.{{ child.minValueBy.name }},
+                        }) as string),
+                    );
+
+                    return copy;
+                }
+                {{/ if }}
+                {{# if child.maxValueBy }}
+                if (newValue && data.{{ child.maxValueBy.name }} && newValue > data.{{ child.maxValueBy.name }}) {
+                    copy.set(
+                        '{{ child.attributeType.name }}',
+                        (t('judo.error.validation-failed.MAX_NUMERIC_VALUE_VALIDATION_FAILED', {
+                          defaultValue: `The value cannot exceed (${ data.{{ child.maxValueBy.name }} }).`,
+                          maxValue: data.{{ child.maxValueBy.name }},
+                        }) as string),
+                    );
+
+                    return copy;
+                }
+                {{/ if }}
+
+                copy.set(
+                    '{{ child.attributeType.name }}',
+                    ''
+                );
+
+                return copy;
+            });
+            {{/ if }}
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {
