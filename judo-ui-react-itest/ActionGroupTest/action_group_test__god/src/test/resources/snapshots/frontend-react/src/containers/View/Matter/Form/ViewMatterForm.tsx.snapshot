@@ -127,7 +127,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
         <Grid container direction="row" spacing={2}>
           <Grid item xs={12} sm={12}>
             <Grid
-              id="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormVisualElement"
+              data-testid="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormVisualElement"
               data-name="Form"
               container
               direction="column"
@@ -137,7 +137,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
             >
               <Grid item xs={12} sm={12}>
                 <Autocomplete
-                  id="God/(esm/_T4Q2kOq_EeuMzos2n42msw)/EnumerationTypeCombo"
+                  data-testid="God/(esm/_T4Q2kOq_EeuMzos2n42msw)/EnumerationTypeCombo"
                   autoHighlight
                   value={data.type || null}
                   disabled={actions?.isTypeDisabled ? actions.isTypeDisabled(data, editMode, isLoading) : isLoading}
@@ -201,7 +201,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                 <NumericInput
                   required={actions?.isMassRequired ? actions.isMassRequired(data, editMode) : false}
                   name="mass"
-                  id="God/(esm/_T4dq4Oq_EeuMzos2n42msw)/MeasuredTypeInput"
+                  data-testid="God/(esm/_T4dq4Oq_EeuMzos2n42msw)/MeasuredTypeInput"
                   label={t('View.Matter.Form.mass', { defaultValue: 'Mass' }) as string}
                   customInput={TextField}
                   value={data.mass ?? ''}
@@ -238,7 +238,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                 <TextField
                   required={actions?.isShortNoteRequired ? actions.isShortNoteRequired(data, editMode) : false}
                   name="shortNote"
-                  id="God/(esm/_uN0FQFENEeyWtMpj61RngA)/StringTypeTextInput"
+                  data-testid="God/(esm/_uN0FQFENEeyWtMpj61RngA)/StringTypeTextInput"
                   label={t('View.Matter.Form.shortNote', { defaultValue: 'Short Note' }) as string}
                   value={data.shortNote ?? ''}
                   className={clsx({

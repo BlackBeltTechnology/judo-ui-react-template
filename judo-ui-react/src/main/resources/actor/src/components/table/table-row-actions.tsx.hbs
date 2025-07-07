@@ -70,7 +70,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Tooltip title={a.tooltip} key={a.id}>
               <Button
-                id={a.id}
+                data-testid={a.id}
                 variant="text"
                 startIcon={a.icon}
                 disabled={a.disabled ? a.disabled(params.row, isLoading, isRowInEditMode(params.row, rowModesModel), getSelectedRows, ownerData) : false}

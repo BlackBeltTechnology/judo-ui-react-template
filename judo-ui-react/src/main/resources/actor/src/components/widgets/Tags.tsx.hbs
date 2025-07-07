@@ -197,7 +197,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
       multiple
       freeSolo
       clearOnBlur
-      id={id}
+      data-testid={id}
       disabled={!readOnly && disabled}
       readOnly={readOnly}
       options={options}
@@ -220,7 +220,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
           if (isBinary) {
             if (! readOnly) {
               deleteButton = (<Button
-                id={`${id}-delete`}
+                data-testid={`${id}-delete`}
                 onClick={(event: any) => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -236,7 +236,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
             return (
               <ButtonGroup key={key} size="small" variant="outlined" sx={ { marginRight: 1} }>
                 <Button
-                  id={`${id}-open-dialog`}
+                  data-testid={`${id}-open-dialog`}
                   startIcon={<MdiIcon path="file-document-outline" mimeType={ { type: '*', subType: '*' } } />}
                   onClick={(event: any) => {
                     event.preventDefault();
@@ -250,7 +250,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                   {extractFileNameFromToken(option[autoCompleteAttribute])}
                 </Button>
                 <Button
-                  id={`${id}-view`}
+                  data-testid={`${id}-view`}
                   onClick={(event: any) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -260,7 +260,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                   <MdiIcon path="eye" sx={ { mr: 0.5 } } />
                 </Button>
                 <Button
-                  id={`${id}-download`}
+                  data-testid={`${id}-download`}
                   onClick={(event: any) => {
                     event.preventDefault();
                     event.stopPropagation();

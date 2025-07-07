@@ -124,7 +124,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         <DialogTitle>
           {actions.getPageTitle ? actions.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}
           <IconButton
-            id="{{ getXMIID container }}-dialog-close-wrapper"
+            data-testid="{{ getXMIID container }}-dialog-close-wrapper"
             aria-label="close"
             onClick={onClose}
             sx={ {
@@ -195,7 +195,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
                 <LoadingButton
-                  id="{{ getXMIID button }}"
+                  data-testid="{{ getXMIID button }}"
                   loading={isLoading}
                   loadingPosition="start"
                   variant={ {{{ variantForButton button }}} }
@@ -278,7 +278,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                     >
                       <Paper>
                         <ClickAwayListener onClickAway={handleCreateDropdownClose}>
-                          <MenuList id="split-button-menu" autoFocusItem>
+                          <MenuList data-testid="split-button-menu" autoFocusItem>
                             <MenuItem aria-label="create and open" onClick={ async () => {
                               if (actions.{{ simpleActionDefinitionName actionDefinition }}) {
                                 await actions.{{ simpleActionDefinitionName actionDefinition }}!(true);

@@ -20,7 +20,7 @@
     <Box display="flex" alignItems="center">
     {{/ if }}
     <Autocomplete
-      id="{{ getXMIID child }}"
+      data-testid="{{ getXMIID child }}"
       autoHighlight
       value={data.{{ child.attributeType.name }} || null}
       disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}

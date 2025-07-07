@@ -16,7 +16,7 @@
         >
     {{/ if }}
     {{# if this.card }}
-        <Card id="{{ getXMIID this }}" data-name="{{ this.name }}" {{# if (isParentStretchVertical this) }}sx={ { height: '100%' } }{{/ if }}>
+        <Card data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" {{# if (isParentStretchVertical this) }}sx={ { height: '100%' } }{{/ if }}>
             <CardContent>
                 {{# if (cardHasHeaderContent this) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2} sx={ { mb: 2 } }>
@@ -40,7 +40,7 @@
                             {{# each this.actionButtonGroup.buttons as |button| }}
                                 { actions.{{ simpleActionDefinitionName button.actionDefinition }}{{# if button.hiddenBy }} && !data.{{ button.hiddenBy.name }}{{/ if }} &&
                                     <IconButton
-                                        id="{{ getXMIID button }}"
+                                        data-testid="{{ getXMIID button }}"
                                         {{# if (containerButtonHasDisabledConditions button container) }}
                                         disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
                                         {{/ if }}
@@ -89,7 +89,7 @@
                 </Grid>
             {{/ and }}
             <Grid item xs={12} sm={12}>
-                <Grid id="{{ getXMIID this }}" data-name="{{ this.name }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                <Grid data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
                     {{# each this.children as |child| }}
                         {{# if child }}
                             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
