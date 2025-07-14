@@ -41,18 +41,18 @@ export const ConfirmationDialog = ({
   };
 
   return (
-    <Dialog id={id} open={open} onClose={handleClose} scroll="paper" fullWidth={true} maxWidth={'xs'} TransitionComponent={SlideUpTransition}>
-      {title && <DialogTitle id={`${id}-dialog-title`}>{title}</DialogTitle>}
+    <Dialog data-testid={id} open={open} onClose={handleClose} scroll="paper" fullWidth={true} maxWidth={'xs'} TransitionComponent={SlideUpTransition}>
+      {title && <DialogTitle data-testid={`${id}-dialog-title`}>{title}</DialogTitle>}
       <DialogContent dividers={!!title}>
-        <DialogContentText id="scroll-dialog-description" ref={descriptionElementRef} tabIndex={-1}>
+        <DialogContentText data-testid="scroll-dialog-description" ref={descriptionElementRef} tabIndex={-1}>
           {confirmationMessage}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button id={`${id}-action-cancel`} variant="text" onClick={cancel}>
+        <Button data-testid={`${id}-action-cancel`} variant="text" onClick={cancel}>
           { t('judo.modal.confirm.cancel', { defaultValue: 'No' }) as string }
         </Button>
-        <Button id={`${id}-action-confirm`} variant="contained" onClick={ok}>
+        <Button data-testid={`${id}-action-confirm`} variant="contained" onClick={ok}>
           { t('judo.modal.confirm.confirm', { defaultValue: 'Yes' }) as string }
         </Button>
       </DialogActions>

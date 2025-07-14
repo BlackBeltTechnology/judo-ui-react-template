@@ -291,7 +291,7 @@ export const NavCollapse = ({ menu, level, render, placement, arrow, title, mous
       ) : (
         <>
           <ListItemButton
-            id={`boundary-${popperId}`}
+            data-testid={`boundary-${popperId}`}
             disableRipple
             onMouseEnter={mouseOver ?? menuBehaviour.mouseOverOpenClose ? handleHover : undefined}
             onMouseLeave={mouseOver ?? menuBehaviour.mouseOverOpenClose ? handleClose : undefined}
@@ -333,7 +333,7 @@ export const NavCollapse = ({ menu, level, render, placement, arrow, title, mous
 
             {anchorEl && (
               <PopperStyled
-                id={popperId}
+                data-testid={popperId}
                 arrow={arrow ?? true}
                 open={miniMenuOpened}
                 anchorEl={anchorEl}

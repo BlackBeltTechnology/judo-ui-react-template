@@ -83,7 +83,7 @@ export function DropdownButton({
     <>
       <Button
         ref={anchorRef}
-        id={id}
+        data-testid={id}
         onClick={handleToggle}
         startIcon={startIcon}
         endIcon={showDropdownIcon && <MdiIcon path="chevron-down" />}
@@ -117,7 +117,7 @@ export function DropdownButton({
                         <Tooltip title={menuItem.tooltip} key={menuItem.id}>
                           <MenuItem
                             key={menuItem.label ?? '' + index}
-                            id={menuItem.id}
+                            data-testid={menuItem.id}
                             disabled={menuItem.disabled ?? false}
                             onClick={(event) => {
                               if (menuItem.onClick) {

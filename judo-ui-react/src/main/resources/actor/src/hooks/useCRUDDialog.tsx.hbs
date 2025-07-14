@@ -197,7 +197,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
       <DialogTitle>
         {title}
         <IconButton
-          id="use-crud-dialog-close-top"
+          data-testid="use-crud-dialog-close-top"
           aria-label="close"
           onClick={() => close(runCount.current > 0)}
           sx={ {
@@ -231,14 +231,14 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button id="use-crud-dialog-close" onClick={() => close(runCount.current > 0)} variant="text">
+        <Button data-testid="use-crud-dialog-close" onClick={() => close(runCount.current > 0)} variant="text">
           {t('judo.modal.close', { defaultValue: 'Close' }) as string}
         </Button>
         <LoadingButton
           disabled={queue.every(i => i.status === 'success')}
           loading={inProgress}
           loadingPosition="start"
-          id="use-crud-dialog-execute"
+          data-testid="use-crud-dialog-execute"
           variant="contained"
           onClick={() => runActions()}
           startIcon={<MdiIcon path="play" />}

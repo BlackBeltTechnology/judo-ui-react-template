@@ -46,14 +46,14 @@ const FilterOperator = ({ filter, operatorId, valueId, setFilterOperator }: Filt
   return (
     <TextField
       name={'operation'}
-      id={operatorId}
+      data-testid={operatorId}
       label={t('judo.modal.filter.operation', { defaultValue: 'Operation' }) as string}
       select
       value={filter.filterBy.operator}
       onChange={onChangeHandler}
     >
       {getOperatorsByFilter(filter).map((item) => (
-        <MenuItem className="filter-operation-item" id={valueId} key={item} value={item}>
+        <MenuItem className="filter-operation-item" data-testid={valueId} key={item} value={item}>
           {t(`judo.modal.filter.${item}`, { defaultValue: 'Operation' }) as string}
         </MenuItem>
       ))}
@@ -217,7 +217,7 @@ const FilterRow = ({ id, filter, closeHandler, setFilterOperator, setFilterValue
         {filter && !isFilterWithoutValue(filter) && <FilterInput operatorId={`${id}-operator`} valueId={`${id}-value`} filter={filter} setFilterValue={setFilterValue} />}
       </Grid>
       <Grid item xs={1}>
-        <IconButton id={`${id}-close`} onClick={() => closeHandler(filter)}>
+        <IconButton data-testid={`${id}-close`} onClick={() => closeHandler(filter)}>
           <MdiIcon path="close" />
         </IconButton>
       </Grid>
@@ -298,7 +298,7 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
 
   return (
     <Dialog
-      id={id}
+      data-testid={id}
       open={open}
       onClose={cancel}
       scroll="paper"
@@ -318,7 +318,7 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
         },
       }}
     >
-      <DialogTitle id={`${id}-dialog-title`}>
+      <DialogTitle data-testid={`${id}-dialog-title`}>
         <Typography component="span" color="text.primary" variant="h5">
           { t('judo.modal.filter.label', { defaultValue: 'Filter' }) as string }
         </Typography>
@@ -376,14 +376,14 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
         </Container>
       </DialogContent>
       <DialogActions>
-        <Button id={`${id}-action-cancel`} fullWidth variant="outlined" onClick={cancel}>
+        <Button data-testid={`${id}-action-cancel`} fullWidth variant="outlined" onClick={cancel}>
           { t('judo.modal.filter.cancel', { defaultValue: 'Cancel' }) as string }
         </Button>
         { tempFilters.length > 0 &&
-        <Button id={`${id}-action-clear-all`} fullWidth variant="outlined" onClick={clear}>
+        <Button data-testid={`${id}-action-clear-all`} fullWidth variant="outlined" onClick={clear}>
             {t('judo.modal.filter.clear-all', { defaultValue: 'Clear all' }) as string}
         </Button> }
-        <Button id={`${id}-action-apply`} fullWidth onClick={ok}>
+        <Button data-testid={`${id}-action-apply`} fullWidth onClick={ok}>
           { t('judo.modal.filter.apply', { defaultValue: 'Apply' }) as string } {'(' + tempFilters.length + ')'}
         </Button>
       </DialogActions>

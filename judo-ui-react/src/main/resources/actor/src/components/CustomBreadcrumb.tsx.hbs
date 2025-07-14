@@ -192,7 +192,7 @@ export const CustomBreadcrumb = () => {
   const decorator = navigationInterceptor ? navigationInterceptor({ stringifyPath }).decorateNavigation : (to: string | Partial<Path>) => to;
 
   return (
-    <Breadcrumbs id="application-breadcrumb" maxItems={5} separator="/">
+    <Breadcrumbs data-testid="application-breadcrumb" maxItems={5} separator="/">
       {{# if ( hasDashboard application ) }}
         <Link component={RouterLink} to={decorator(routeToDashboard())} sx={ { textDecoration: 'none', color: 'secondary.main' } }>
           <Typography>{ t('judo.breadcrumb.home', { defaultValue: 'Home' }) }</Typography>

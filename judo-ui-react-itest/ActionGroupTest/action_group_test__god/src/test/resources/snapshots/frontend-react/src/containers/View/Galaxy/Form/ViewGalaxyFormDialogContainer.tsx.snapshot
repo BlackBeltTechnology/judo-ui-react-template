@@ -84,7 +84,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
       <DialogTitle>
         {actions.getPageTitle ? actions.getPageTitle(data) : ''}
         <IconButton
-          id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer-dialog-close-wrapper"
+          data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer-dialog-close-wrapper"
           aria-label="close"
           onClick={onClose}
           sx={{
@@ -120,7 +120,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
         {editMode && actions.backAction && actionsRequested.has('View::Galaxy::Form::Back') && (
           <Grid className="page-action" item>
             <LoadingButton
-              id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormBackButton"
+              data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormBackButton"
               loading={isLoading}
               loadingPosition="start"
               variant={'text'}
@@ -144,7 +144,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
               aria-label="split button for create action"
             >
               <LoadingButton
-                id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormCreateButton"
+                data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormCreateButton"
                 loading={isLoading}
                 loadingPosition="start"
                 variant={'contained'}
@@ -187,7 +187,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
                 >
                   <Paper>
                     <ClickAwayListener onClickAway={handleCreateDropdownClose}>
-                      <MenuList id="split-button-menu" autoFocusItem>
+                      <MenuList data-testid="split-button-menu" autoFocusItem>
                         <MenuItem
                           aria-label="create and open"
                           onClick={async () => {

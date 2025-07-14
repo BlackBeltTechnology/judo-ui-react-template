@@ -732,7 +732,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                 toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
                 <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <Button
-                      id={toolBarAction.id}
+                      data-testid={toolBarAction.id}
                       startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                       variant={toolBarAction.variant}
                       onClick={async () => {

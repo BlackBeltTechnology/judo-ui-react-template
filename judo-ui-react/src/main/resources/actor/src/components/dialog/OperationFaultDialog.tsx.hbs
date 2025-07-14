@@ -48,19 +48,19 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
 
     return (
         <>
-            <DialogTitle id="fault-dialog-title" sx={ { display: 'flex', alignItems: 'center' } }>
+            <DialogTitle data-testid="fault-dialog-title" sx={ { display: 'flex', alignItems: 'center' } }>
                 <MdiIcon path="alert-circle-outline" color={ palette.error.main } />
                 <Typography sx={ { ml: 1, color: (theme) => theme.palette.error.main } } variant="h6" component="h6">
                     { t('judo.error.error', { defaultValue: 'Error' }) as string }
                 </Typography>
             </DialogTitle>
-            <DialogContent id="fault-dialog-content">
+            <DialogContent data-testid="fault-dialog-content">
                 <DialogContentText>
                     { t('judo.error.business-fault', { defaultValue: 'An error occurred while processing your request.' }) as string }
                 </DialogContentText>
                 <List sx={ { listStyleType: 'disc', pl: (theme) => theme.spacing(2) } }>
                     {Object.entries(content).map(([key, value]) => (
-                        <ListItem id={'faults.' + faultObjectKey + '.' + key} key={key} sx={ { display: 'list-item', p: 0 } }>
+                        <ListItem data-testid={'faults.' + faultObjectKey + '.' + key} key={key} sx={ { display: 'list-item', p: 0 } }>
                             <Typography>
                               <strong>{t(`faults.${faultObjectKey}.${key}`, { defaultValue: key }) as string}:</strong>{' '}
                               {value.toString()}
@@ -70,7 +70,7 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
                 </List>
             </DialogContent>
             <DialogActions>
-                <Button id="close-fault-dialog" onClick={close} variant="outlined" color="error">
+                <Button data-testid="close-fault-dialog" onClick={close} variant="outlined" color="error">
                     { t('judo.modal.close', { defaultValue: 'Close' }) as string }
                 </Button>
             </DialogActions>
