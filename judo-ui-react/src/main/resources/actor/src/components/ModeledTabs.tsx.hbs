@@ -23,7 +23,7 @@ export function TabPanel(props: TabPanelProps) {
         <Box
             role="tabpanel"
             hidden={value !== index}
-            id={id}
+            data-testid={id}
             aria-labelledby={`simple-tab-${index}`}
             sx={ { flex: orientation === 'vertical' ? '1' : undefined } }
             {...other}
@@ -86,7 +86,7 @@ export function ModeledTabs({ id, ownerData, childTabs, children, orientation, v
     };
 
     return (
-        <Box id={id} sx={ { width: '100%', ...additionalBoxSx } }>
+        <Box data-testid={id} sx={ { width: '100%', ...additionalBoxSx } }>
             <Tabs
                 orientation={orientation}
                 variant="scrollable"
@@ -97,7 +97,7 @@ export function ModeledTabs({ id, ownerData, childTabs, children, orientation, v
                 sx={ { [border]: 1, borderColor: 'divider' } }
             >
                 {childTabs.map((c: any, index: number) => (
-                <Tab className={hasNestedError(c) ? 'JUDO-nestedError' : undefined} id={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={c.disabled} style={ { display:  c.hidden ? 'none' : undefined, } } />
+                <Tab className={hasNestedError(c) ? 'JUDO-nestedError' : undefined} data-testid={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={c.disabled} style={ { display:  c.hidden ? 'none' : undefined, } } />
                 ))}
             </Tabs>
             {childTabs.map((c: any, index: number) => (

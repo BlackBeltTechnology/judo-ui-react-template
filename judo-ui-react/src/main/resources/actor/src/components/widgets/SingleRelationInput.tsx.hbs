@@ -170,7 +170,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
         <Autocomplete
           freeSolo={true}
           forcePopupIcon={!!onAutoCompleteSearch}
-          id={id}
+          data-testid={id}
           disabled={!effectiveReadOnly && disabled}
           readOnly={effectiveReadOnly}
           onOpen={ () => {
@@ -191,7 +191,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
             <TextField
               {...params}
               name={name}
-              id={id}
+              data-testid={id}
               required={required}
               label={label}
               error={error}
@@ -273,7 +273,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
         >
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
-              <MenuList id={`${name}-menu`} autoFocusItem>
+              <MenuList data-testid={`${name}-menu`} autoFocusItem>
                 { buttonProps
                   .filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset')
                   .filter(a => !a.dropDownButtonIsVisible || a.dropDownButtonIsVisible(value))
