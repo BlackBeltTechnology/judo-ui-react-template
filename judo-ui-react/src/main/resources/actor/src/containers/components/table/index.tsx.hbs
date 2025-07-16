@@ -100,6 +100,12 @@ import { CellEditInput } from '~/components/table';
 {{/ if }}
 import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}Props } from './types';
 import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
+{{# if (tableHasRelationColumn table) }}
+import { Tags } from '~/components/widgets';
+{{/ if }}
+{{# each (getColumnsRepresentsRelation table) as |column| }}
+import { {{ classDataName column.representsRelation.target 'Stored' }} } from '~/services/data-api/model/{{ classDataName column.representsRelation.target }}';
+{{/ each }}
 
 export const {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY = '{{ componentName table }}SidekickComponent';
 
