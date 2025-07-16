@@ -125,6 +125,47 @@ renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceCla
     : <MdiIcon path="minus" />;
 },
 {{/ if }}
+{{# if (columnIsRelation column) }}
+  renderCell: (params: GridRenderCellParams<ViewGalaxyStored, {{ classDataName column.representsRelation.target 'Stored' }}[]>) => {
+    return (
+        <Box
+          sx={ {
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            alignItems: 'flex-start',
+            overflowY: 'auto',
+            '& .MuiInputBase-root': {
+              padding: '4px !important',
+              flexWrap: 'wrap',
+            },
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: 'none',
+            },
+            '& .MuiInputAdornment-root': {
+              display: 'none',
+            },
+          } }
+        >
+        <Tags<{{ classDataName (getReferenceClassType ref) 'Stored' }}, {{ classDataName column.representsRelation.target 'Stored' }}>
+          id={`tags-cell-${params.id}`}
+          label=""
+          ownerData={params.row}
+          name={'stars'}
+          readOnly={true}
+          editMode={false}
+          autoCompleteAttribute={'name'}
+          identifierAttribute={'id'}
+          onAutoCompleteSearch={undefined}
+          onValueChange={undefined}
+          onItemClick={(star) => {
+            console.log('Rákattintottál a csillagra:', star);
+          }}
+        />
+      </Box>
+    );
+  },
+{{/ if }}
 {{# unless (isColumnSortable column) }}
 description: t('judo.pages.table.column.not-sortable', { defaultValue: 'This column is not sortable.' }) as string,
 {{/ unless }}

@@ -35,21 +35,23 @@ import static hu.blackbelt.judo.ui.generator.react.ReactStoredVariableHelper.isM
 public class UiTableHelper {
 
     public static String getFilterTypeForAttribute(AttributeType attributeType) {
-        DataType dataType = attributeType.getDataType();
+        if (attributeType != null) {
+            DataType dataType = attributeType.getDataType();
 
-        if (dataType instanceof DateType) {
-            return "date";
-        } else if (dataType instanceof TimestampType) {
-            return "dateTime";
-        } else if (dataType instanceof EnumerationType) {
-            return "enumeration";
-        } else if (dataType instanceof NumericType) {
-            return "numeric";
-        } else if (dataType instanceof BooleanType) {
-            if (!attributeType.isIsRequired()) {
-                return "trinaryLogic";
+            if (dataType instanceof DateType) {
+                return "date";
+            } else if (dataType instanceof TimestampType) {
+                return "dateTime";
+            } else if (dataType instanceof EnumerationType) {
+                return "enumeration";
+            } else if (dataType instanceof NumericType) {
+                return "numeric";
+            } else if (dataType instanceof BooleanType) {
+                if (!attributeType.isIsRequired()) {
+                    return "trinaryLogic";
+                }
+                return "boolean";
             }
-            return "boolean";
         }
 
         return "string";
@@ -78,94 +80,142 @@ public class UiTableHelper {
             }
         }
 
-        DataType dataType = column.getAttributeType().getDataType();
+        if (column.getAttributeType() != null) {
+            DataType dataType = column.getAttributeType().getDataType();
 
-        if (dataType instanceof DateType) {
-            return 170;
-        } else if (dataType instanceof TimestampType) {
-            return 170;
-        } else if (dataType instanceof EnumerationType) {
-            return 170;
-        } else if (dataType instanceof NumericType) {
-            return 100;
-        } else if (dataType instanceof BooleanType) {
-            return 100;
+            if (dataType instanceof DateType) {
+                return 170;
+            } else if (dataType instanceof TimestampType) {
+                return 170;
+            } else if (dataType instanceof EnumerationType) {
+                return 170;
+            } else if (dataType instanceof NumericType) {
+                return 100;
+            } else if (dataType instanceof BooleanType) {
+                return 100;
+            }
+        }
+
+        if (column.getRepresentsRelation() != null) {
+            return 250;
         }
 
         return 230;
     }
 
     public static String columnType(Column column) {
-        DataType dataType = column.getAttributeType().getDataType();
+        if (column.getAttributeType() != null) {
+            DataType dataType = column.getAttributeType().getDataType();
 
-        if (dataType instanceof DateType) {
-            return "date";
-        } else if (dataType instanceof TimestampType) {
-            return "dateTime";
-        } else if (dataType instanceof EnumerationType) {
-            return "singleSelect";
-        } else if (dataType instanceof NumericType) {
-            return "number";
-        } else if (dataType instanceof BooleanType) {
-            return "boolean";
+            if (dataType instanceof DateType) {
+                return "date";
+            } else if (dataType instanceof TimestampType) {
+                return "dateTime";
+            } else if (dataType instanceof EnumerationType) {
+                return "singleSelect";
+            } else if (dataType instanceof NumericType) {
+                return "number";
+            } else if (dataType instanceof BooleanType) {
+                return "boolean";
+            }
         }
 
         return "string";
     }
 
     public static boolean isColumnString(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof StringType;
     }
 
     public static boolean isColumnBoolean(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof BooleanType;
     }
 
     public static boolean isColumnNumeric(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof NumericType;
     }
 
     public static boolean isColumnEnumeration(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof EnumerationType;
     }
 
     public static boolean isColumnEditable(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         return !column.getAttributeType().isIsReadOnly();
     }
 
     public static boolean isColumnTimestamp(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof TimestampType;
     }
 
     public static boolean isColumnTime(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof TimeType;
     }
 
     public static boolean isColumnDate(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof DateType;
     }
 
     public static boolean isColumnDatetime(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof TimestampType;
     }
 
     public static boolean isColumnBinary(Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         DataType dataType = column.getAttributeType().getDataType();
 
         return dataType instanceof BinaryType;
@@ -176,10 +226,17 @@ public class UiTableHelper {
     }
 
     private static boolean isSortableAttributeType (AttributeType attributeType) {
+        if (attributeType == null) {
+            return false;
+        }
         return isSortableDataType(attributeType.getDataType()) && !attributeType.getIsMemberTypeTransient();
     }
 
     public static boolean isColumnSortable (Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         return isSortableAttributeType(column.getAttributeType());
     }
 
@@ -188,10 +245,18 @@ public class UiTableHelper {
     }
 
     private static boolean isFilterableAttributeType (AttributeType attributeType) {
+        if (attributeType == null) {
+            return false;
+        }
+
         return isFilterableDataType(attributeType.getDataType()) && !attributeType.getIsMemberTypeTransient();
     }
 
     public static boolean isColumnFilterable (Column column) {
+        if (column.getAttributeType() == null) {
+            return false;
+        }
+
         return isFilterableAttributeType(column.getAttributeType());
     }
 
@@ -202,11 +267,13 @@ public class UiTableHelper {
                 .sorted(Comparator.comparingInt(Column::getSortPrecedence))
                 .toList();
         for (Column column : cols) {
-            AttributeType type = column.getAttributeType();
-            if (isSortableAttributeType(type)) {
-                defs.add("{ field: '" + type.getName() + "', sort: " + getSortDirection(column) + " }");
-                if (!isMUILicensePlanPro()) {
-                    break;
+            if (column.getAttributeType() != null) {
+                AttributeType type = column.getAttributeType();
+                if (isSortableAttributeType(type)) {
+                    defs.add("{ field: '" + type.getName() + "', sort: " + getSortDirection(column) + " }");
+                    if (!isMUILicensePlanPro()) {
+                        break;
+                    }
                 }
             }
         }
@@ -223,6 +290,10 @@ public class UiTableHelper {
     }
 
     public static boolean isAttributeTypeEnumeration(AttributeType attributeType) {
+        if (attributeType != null) {
+            return false;
+        }
+
         return attributeType.getDataType() instanceof EnumerationType;
     }
 
@@ -341,5 +412,17 @@ public class UiTableHelper {
     public static boolean isTableCreatable(Table table, PageDefinition page) {
         RelationType relationType = getRelationForTable(table, page);
         return relationType != null && relationType.getIsCreatable();
+    }
+
+    public static boolean columnIsRelation(Column column) {
+        return column.getRepresentsRelation() != null;
+    }
+
+    public static boolean tableHasRelationColumn(Table table) {
+        return table.getColumns().stream().anyMatch(c -> c.getRepresentsRelation() != null);
+    }
+
+    public static List<Column> getColumnsRepresentsRelation(Table table) {
+        return table.getColumns().stream().filter(c -> c.getRepresentsRelation() != null).toList();
     }
 }
