@@ -126,6 +126,7 @@ renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceCla
 },
 {{/ if }}
 {{# if (columnIsRelation column) }}
+  disableColumnMenu: true,
   renderCell: (params: GridRenderCellParams<ViewGalaxyStored, {{ classDataName column.representsRelation.target 'Stored' }}[]>) => {
     return (
         <Box
@@ -151,16 +152,11 @@ renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceCla
           id={`tags-cell-${params.id}`}
           label=""
           ownerData={params.row}
-          name={'stars'}
+          name={'{{ column.name }}'}
           readOnly={true}
           editMode={false}
-          autoCompleteAttribute={'name'}
-          identifierAttribute={'id'}
-          onAutoCompleteSearch={undefined}
-          onValueChange={undefined}
-          onItemClick={(star) => {
-            console.log('Rákattintottál a csillagra:', star);
-          }}
+          autoCompleteAttribute={'{{ column.representationOfRelation.name }}'}
+          identifierAttribute={'__identifier'}
         />
       </Box>
     );

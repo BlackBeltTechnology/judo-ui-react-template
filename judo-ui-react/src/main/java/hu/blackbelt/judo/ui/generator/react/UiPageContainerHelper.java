@@ -217,9 +217,17 @@ public class UiPageContainerHelper {
     public static MaskEntry getMaskForTable(Table table, PageDefinition pageDefinition, Integer counter) {
         MaskEntry mask = new MaskEntry(Set.of(), null);
         Set<String> columnAttributeNames = table.getColumns().stream()
-                // TODO: When the list call can return an aggregate relation, this filter should be deleted.
-                .filter(c -> c.getAttributeType() != null)
-                .map(c -> c.getAttributeType().getName())
+                .map(c -> {
+                    if (c.getAttributeType() != null) {
+                        return c.getAttributeType().getName();
+                    }
+
+                    if (c.getRepresentsRelation() != null) {
+                        return c.getRepresentsRelation().getName() + "{" + c.getRepresentationOfRelation().getName() + "}";
+                    }
+
+                    return "";
+                })
                 .collect(Collectors.toSet());
         columnAttributeNames.addAll(table.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
         mask.addPrimitives(columnAttributeNames);
