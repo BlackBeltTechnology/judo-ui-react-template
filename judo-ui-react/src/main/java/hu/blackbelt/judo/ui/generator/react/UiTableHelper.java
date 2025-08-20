@@ -315,7 +315,8 @@ public class UiTableHelper {
         if (table.isIsInlineEditable()) {
             if (table.isIsEager()) {
                 // in case of eager tables we operate on the owner
-                return page.getDataElement() instanceof RelationType relationType && relationType.getIsUpdatable();
+                return (page.getDataElement() instanceof RelationType relationType && relationType.getIsUpdatable()) ||
+                        (table.getDataElement() instanceof RelationType tableRelationType && tableRelationType.getMemberType() == MemberType.TRANSIENT);
             }
             return isTableUpdatable(table, page);
         }
