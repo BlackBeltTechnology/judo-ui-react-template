@@ -471,8 +471,29 @@ public class UiPageHelper {
             } else if (pageDefinition.getContainer().isForm() && pageDefinition.getRelationType().getIsCreateValidatable()) {
                 return true;
             }
+        } else if (isPageOperationInputValidatable(pageDefinition)) {
+            return true;
         }
         return false;
+    }
+    
+    public static boolean isPageOperationInputValidatable(PageDefinition pageDefinition) {
+        return pageDefinition.getDataElement() instanceof OperationParameterType operationParameterType && operationParameterType.getBehaviours().contains(OperationTargetBehaviourType.VALIDATE_INPUT);
+    }
+    
+    public static boolean validationRequiresOwnerParameter(PageDefinition pageDefinition) {
+        if (pageDefinition.getDataElement() instanceof RelationType relationType) {
+            return !relationType.isIsAccess();
+        } else if (pageDefinition.getDataElement() instanceof OperationParameterType operationParameterType) {
+            if (operationParameterType.eContainer() instanceof OperationType operationType) {
+                return !operationType.getIsStatic();
+            }
+        }
+        return false;
+    }
+    
+    public static boolean isFallbackValidationSupported(PageDefinition pageDefinition) {
+        return pageDefinition.getContainer().isForm() && pageDefinition.getRelationType() != null && pageDefinition.getRelationType().getBehaviours().contains(RelationBehaviourType.CREATE);
     }
 
     public static String dialogDataInitialValue(PageDefinition pageDefinition) {
