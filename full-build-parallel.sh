@@ -5,7 +5,7 @@ source "$HOME/.sdkman/bin/sdkman-init.sh"
 sdk env
 
 MVND_OPTS=$(cat << EOF
--Dmvnd.threads=4
+-Dmvnd.threads=6
 -V
 -Dhttp.keepAlive=false
 -Dmaven.wagon.http.pool=false

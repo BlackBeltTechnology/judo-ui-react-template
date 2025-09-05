@@ -223,7 +223,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     };
     const produceDataAdjustedOwner = useCallback(() => {
       const copy = simpleCloneDeep(owner.current);
-      setValue(copy, dataPath!, simpleCloneDeep(data));
+      setValue(copy, dataPath ?? "", simpleCloneDeep(data));
       return copy;
     }, [data, owner]);
 
@@ -233,10 +233,16 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         if (ownerValidation) {
           await ownerValidation(target);
         } else {
-          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}target);
+          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}{{# if (isPageOperationInputValidatable page) }}On{{ firstToUpper page.dataElement.eContainer.name }}{{ else }}Create{{/ if }}{{/ if }}({{# if (validationRequiresOwnerParameter page) }}owner.current, {{/ if }}target);
         }
+      {{ else }}
+        {{# if (isFallbackValidationSupported page) }}
+          if (ownerValidation) {
+            await ownerValidation(target);
+          }
+        {{/ if }}
       {{/ if }}
-    }, [{{# if (isValidationSupported page) }}ownerValidation, {{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data, {{ getServiceImplForPage page }}{{/ if }}]);
+    }, [{{# if (isValidationSupported page) }}ownerValidation, {{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data, {{ getServiceImplForPage page }}{{ else }}{{# if (isFallbackValidationSupported page) }}ownerValidation{{/ if }}{{/ if }}]);
 
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);

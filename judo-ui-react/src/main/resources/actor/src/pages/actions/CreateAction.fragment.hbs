@@ -9,6 +9,10 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
       try {
         setIsLoading(true);
         const validationData = simpleCloneDeep(owner.current);
+        // Clean up root metadata only, keep nested metadata for relations
+        for (const key of Object.keys(owner.current ?? {}).filter(k => k.startsWith('__'))) {
+          delete (validationData as any)[key];
+        }
         setValue(validationData, dataPath!, data);
         await validate(validationData);
         onSubmit(data, 'submit-draft');

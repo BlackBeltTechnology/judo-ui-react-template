@@ -178,7 +178,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   };
   const produceDataAdjustedOwner = useCallback(() => {
     const copy = simpleCloneDeep(owner.current);
-    setValue(copy, dataPath!, simpleCloneDeep(data));
+    setValue(copy, dataPath ?? '', simpleCloneDeep(data));
     return copy;
   }, [data, owner]);
 
