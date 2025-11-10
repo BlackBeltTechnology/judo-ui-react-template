@@ -493,18 +493,35 @@ public class UiPageContainerHelper {
     }
 
     public static boolean containerHasCreateAction(PageContainer container) {
-        return container.getActionButtonGroup() != null && container.getActionButtonGroup().getButtons().stream()
+        if (container.getActionButtonGroups().isEmpty()) {
+            return false;
+        }
+        return container.getActionButtonGroups().get(0).getButtons().stream()
                 .anyMatch(b -> b.getActionDefinition() instanceof CreateActionDefinition);
     }
 
     public static ActionDefinition getCreateActionDefinitionForCreateContainer(PageContainer container) {
-        if (container.getActionButtonGroup() != null) {
-            container.getActionButtonGroup().getButtons().stream()
+        if (!container.getActionButtonGroups().isEmpty()) {
+            container.getActionButtonGroups().get(0).getButtons().stream()
                     .map(Button::getActionDefinition)
                     .filter(actionDefinition -> actionDefinition instanceof CreateActionDefinition)
                     .findFirst().orElse(null);
         }
         return null;
+    }
+    
+    public static ButtonGroup getDefaultButtonGroupForContainer(PageContainer container) {
+        return container.getActionButtonGroups().stream().findFirst().orElse(null);
+    }
+    
+    public static List<Button> getDefaultButtonsForContainer(PageContainer container) {
+        ButtonGroup buttonGroup = getDefaultButtonGroupForContainer(container);
+        if (buttonGroup == null) {
+            return new ArrayList<>();
+        }
+        return buttonGroup.getButtons().stream()
+          .sorted(Comparator.comparing(NamedElement::getFQName))
+          .collect(Collectors.toList());
     }
 
     public static boolean containerHasTableWithTotalCount(PageContainer container) {
@@ -547,7 +564,7 @@ public class UiPageContainerHelper {
     }
 
     public static boolean cardHasHeaderContent(Flex flex) {
-        return (elementHasIconOrLabel(flex) || flex.getActionButtonGroup() != null) && !(flex.eContainer() instanceof Tab);
+        return (elementHasIconOrLabel(flex) || !flex.getActionButtonGroups().isEmpty()) && !(flex.eContainer() instanceof Tab);
     }
 
     public static boolean containerHasDateInputs(PageContainer container) {

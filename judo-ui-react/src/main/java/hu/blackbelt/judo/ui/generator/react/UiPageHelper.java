@@ -430,7 +430,10 @@ public class UiPageHelper {
     }
 
     public static Action getCreateActionForPage(PageDefinition page) {
-        ActionDefinition def = page.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof CreateActionDefinition).findFirst().orElse(null);
+        if (page.getContainer().getActionButtonGroups().isEmpty()) {
+            return null;
+        }
+        ActionDefinition def = page.getContainer().getActionButtonGroups().get(0).getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof CreateActionDefinition).findFirst().orElse(null);
         if (def != null) {
             return page.getActions().stream().filter(a -> a.getActionDefinition().equals(def)).findFirst().orElse(null);
         }
@@ -438,7 +441,10 @@ public class UiPageHelper {
     }
 
     public static Action getUpdateActionForPage(PageDefinition page) {
-        ActionDefinition def =  page.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof UpdateActionDefinition).findFirst().orElse(null);
+        if (page.getContainer().getActionButtonGroups().isEmpty()) {
+            return null;
+        }
+        ActionDefinition def =  page.getContainer().getActionButtonGroups().get(0).getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof UpdateActionDefinition).findFirst().orElse(null);
         if (def != null) {
             return page.getActions().stream().filter(a -> a.getActionDefinition().equals(def)).findFirst().orElse(null);
         }
@@ -446,7 +452,10 @@ public class UiPageHelper {
     }
 
     public static Action getCallOperationActionForPage(PageDefinition page) {
-        ActionDefinition def =  page.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof CallOperationActionDefinition).findFirst().orElse(null);
+        if (page.getContainer().getActionButtonGroups().isEmpty()) {
+            return null;
+        }
+        ActionDefinition def =  page.getContainer().getActionButtonGroups().get(0).getButtons().stream().map(Button::getActionDefinition).filter(a -> a instanceof CallOperationActionDefinition).findFirst().orElse(null);
         if (def != null) {
             return page.getActions().stream().filter(a -> a.getActionDefinition().equals(def)).findFirst().orElse(null);
         }
@@ -583,12 +592,17 @@ public class UiPageHelper {
 
     public static boolean allowSelectMultipleForPage(PageDefinition pageDefinition) {
         Action actionToCheck = pageDefinition.getActions().stream().filter(Action::getIsAddAction).findFirst().orElse(null);
-        Set<Button> buttonsToCheck = pageDefinition.getContainer().getActionButtonGroup().getButtons().stream().filter(b -> b.getActionDefinition().getIsAddAction()).collect(Collectors.toSet());
+        Set<Button> buttonsToCheck = pageDefinition.getContainer().getActionButtonGroups().stream()
+            .flatMap(g -> g.getButtons().stream())
+            .filter(b -> b.getActionDefinition().getIsAddAction())
+            .collect(Collectors.toSet());
         return actionToCheck != null && buttonsToCheck.stream().anyMatch(b -> b.getActionDefinition().equals(actionToCheck.getActionDefinition()));
     }
 
     public static List<String> getPageContainerMatchingActionNames(PageDefinition pageDefinition) {
-        List<ActionDefinition> containerButtonActionDefinitions = pageDefinition.getContainer().getActionButtonGroup().getButtons().stream().map(Button::getActionDefinition).toList();
+        List<ActionDefinition> containerButtonActionDefinitions = pageDefinition.getContainer().getActionButtonGroups().stream()
+            .flatMap(g -> g.getButtons().stream())
+            .map(Button::getActionDefinition).toList();
         return pageDefinition.getActions().stream()
                 .filter(a -> containerButtonActionDefinitions.contains(a.getActionDefinition()))
                 .map(a -> a.getActionDefinition().getName())

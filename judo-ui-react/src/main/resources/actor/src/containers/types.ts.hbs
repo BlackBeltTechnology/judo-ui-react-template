@@ -24,7 +24,7 @@
   // Containers contain the sum total of buttons for every page/dialog which embeds them. Therefore we use
   // a subset of this set to pick which action should be displayed. If the owner page/dialog does not provide an action
   // implementation, then the corresponding buttons will not be displayed even if they are requested.
-  export type AvailableContainerAction = {{# each container.actionButtonGroup.buttons as |button| }}'{{ button.actionDefinition.name }}'{{# unless @last}} | {{/ unless}}{{/each}}
+  export type AvailableContainerAction = {{# each (getDefaultButtonsForContainer container) as |button| }}'{{ button.actionDefinition.name }}'{{# unless @last}} | {{/ unless}}{{/each}}
 
   // XMIID: {{ getXMIID container }}
   // Name: {{ container.name }}
