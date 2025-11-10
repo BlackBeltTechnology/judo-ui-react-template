@@ -165,7 +165,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
           </Suspense>
         </DialogContent>
         <DialogActions>
-          {{# each container.actionButtonGroup.buttons as |button| }}
+          {{# each (getDefaultButtonsForContainer container) as |button| }}
             { {{# if button.actionDefinition.isInputFormCallOperationAction }}formFor === '{{ safeName (getCallerPageForOperationFormCallButton button application) }}' && {{/ if }}{{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
               <Grid className="page-action" item>
                 {{# if button.actionDefinition.isCreateAction }}

@@ -271,8 +271,7 @@ public class UiWidgetHelper {
             for (VisualElement child: container.getChildren()) {
                 collectVisualElementsMatchingCondition(child, condition, matches);
             }
-            ButtonGroup abg = container.getActionButtonGroup();
-            if (abg != null) {
+            for (ButtonGroup abg: container.getActionButtonGroups()) {
                 collectVisualElementsMatchingCondition(abg, condition, matches);
             }
         }

@@ -121,20 +121,20 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
             </LoadingButton>
           </Grid>
         )}
-        {!isDraft && actions.refreshAction && actionsRequested.has('View::Galaxy::View::Refresh') && (
+        {editMode && actions.cancelAction && actionsRequested.has('View::Galaxy::View::Cancel') && (
           <Grid className="page-action" item>
             <LoadingButton
-              data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton"
+              data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton"
               loading={isLoading}
               loadingPosition="start"
-              variant={'contained'}
-              disabled={isLoading || editMode}
-              startIcon={<MdiIcon path="refresh" />}
+              variant={'text'}
+              disabled={isLoading}
+              startIcon={<MdiIcon path="cancel" />}
               onClick={async () => {
-                await actions.refreshAction!(processQueryCustomizer(queryCustomizer));
+                await actions.cancelAction!();
               }}
             >
-              <span>{t('judo.action.refresh', { defaultValue: 'Refresh' })}</span>
+              <span>{t('judo.action.cancel', { defaultValue: 'Cancel' })}</span>
             </LoadingButton>
           </Grid>
         )}
@@ -158,20 +158,20 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
               </LoadingButton>
             </Grid>
           )}
-        {editMode && actions.cancelAction && actionsRequested.has('View::Galaxy::View::Cancel') && (
+        {!isDraft && actions.refreshAction && actionsRequested.has('View::Galaxy::View::Refresh') && (
           <Grid className="page-action" item>
             <LoadingButton
-              data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton"
+              data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton"
               loading={isLoading}
               loadingPosition="start"
-              variant={'text'}
-              disabled={isLoading}
-              startIcon={<MdiIcon path="cancel" />}
+              variant={'contained'}
+              disabled={isLoading || editMode}
+              startIcon={<MdiIcon path="refresh" />}
               onClick={async () => {
-                await actions.cancelAction!();
+                await actions.refreshAction!(processQueryCustomizer(queryCustomizer));
               }}
             >
-              <span>{t('judo.action.cancel', { defaultValue: 'Cancel' })}</span>
+              <span>{t('judo.action.refresh', { defaultValue: 'Refresh' })}</span>
             </LoadingButton>
           </Grid>
         )}

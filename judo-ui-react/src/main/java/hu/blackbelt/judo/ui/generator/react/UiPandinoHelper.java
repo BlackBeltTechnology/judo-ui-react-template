@@ -63,7 +63,9 @@ public class UiPandinoHelper {
     public static SortedSet<VisualElement> getContainerActionsVisualElementsWithCustomImplementation(PageContainer container) {
         SortedSet<VisualElement> result = new TreeSet<>(Comparator.comparing((VisualElement v) -> v.getFQName().trim()));
 
-        collectVisualElementsMatchingCondition(container.getActionButtonGroup(), VisualElement::isCustomImplementation, result);
+        for (ButtonGroup abg: container.getActionButtonGroups()) {
+            collectVisualElementsMatchingCondition(abg, VisualElement::isCustomImplementation, result);
+        }
 
         return result;
     }

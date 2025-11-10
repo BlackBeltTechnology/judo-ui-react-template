@@ -52,8 +52,8 @@ public class UiActionsHelper {
         collectElementsOfType(container, allFlex, Flex.class);
 
         Set<ActionDefinition> flexActionDefinitions = allFlex.stream()
-                .filter(f -> f.getActionButtonGroup() != null)
-                .flatMap(g -> g.getActionButtonGroup().getButtons().stream())
+                .filter(f -> f.getActionButtonGroups() != null)
+                .flatMap(fg -> fg.getActionButtonGroups().stream().flatMap(bg -> bg.getButtons().stream()))
                 .map(Button::getActionDefinition)
                 .filter(a -> a instanceof CallOperationActionDefinition || a instanceof OpenPageActionDefinition || a instanceof OpenFormActionDefinition || a instanceof OpenSelectorActionDefinition)
                 .collect(Collectors.toSet());
