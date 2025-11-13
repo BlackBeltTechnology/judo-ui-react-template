@@ -21,6 +21,8 @@
       post{{ firstToUpper (simpleActionDefinitionName refreshActionDefinition) }}?: ({{{ postRefreshActionParams page refreshActionDefinition }}}) => Promise<void>;
     {{/ with }}
   };
+
+  export const {{ pageName page }}XMIID = '{{ getXMIID page }}';
 {{ else }}
   export const _ = 'placeholder';
 {{/ unless }}
