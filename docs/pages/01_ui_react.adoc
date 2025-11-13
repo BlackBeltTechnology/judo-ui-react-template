@@ -155,9 +155,8 @@ This hook cannot fetch all info when used inside dialogs. It is recommended to u
 Can be used to fetch the ViewModel for any page/dialog. Works everywhere, including dialogs.
 
 The `getForPage<T>(XMIID);` function can be used to obtain the ViewModel for any page/dialog by providing its XMIID.
-In order to find out the XMIID of a page/dialog, we can use the inspector in the browser and check the `data-testid`
-attribute of the page/dialog. For the generic parameter we can search for the corresponding ViewModel typedef in the
-src folder based on the XMIID.
+In order to find out the XMIID of a page/dialog, we can locate the corresponding const in the `types.ts` file under
+the page/dialog folder.
 
 Details:
 
@@ -166,10 +165,12 @@ Details:
 
 [source,typescriptjsx]
 ----
+import { useViewContext } from '~/hooks/ViewContext';
+import type { PlanetViewPageContainerXMIID } from '...';
+
 const { getForPage } = useViewContext();
 
-const PageXMIID = 'GenericUser/(esm/_ZS1VYIgBEfC3naMpyl8-bQ)/RelationFeatureView';
-const { refresh } = getForPage<ServicesFault_registry_servicesRegistryHeaderRegistryHeader_View_EditViewModel>(PageXMIID);
+const { refresh } = getForPage<ServicesFault_registry_servicesRegistryHeaderRegistryHeader_View_EditViewModel>(PlanetViewPageContainerXMIID);
 ----
 
 === RedirectServiceHook
