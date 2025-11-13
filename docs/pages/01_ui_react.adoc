@@ -134,7 +134,7 @@ The `usePrincipal()` hook can be used to obtain information and/or manipulate Pr
 > Setting / Refreshing Principal data automatically refreshes most of the UI tree including e.g. the menu, and the active
 screen since it's Context is in a very high position in the component tree.
 
-=== useViewData
+=== useViewData (deprecated)
 
 The `useViewData()` hook can be used to obtain the data of page/dialog's.
 
@@ -147,6 +147,30 @@ such cases the latest view data will always be the current view's data.
 - getRouterPageData(): Returns the data of the page we are currently at. Will always return the "root" page data
   regardless of how many layers of dialogs we opened. In case of non-access table pages, it will return the `JudoIdentifiable<any>`
   value of the relation's owner.
+
+This hook cannot fetch all info when used inside dialogs. It is recommended to use useViewContext() instead.
+
+=== useViewContext
+
+Can be used to fetch the ViewModel for any page/dialog. Works everywhere, including dialogs.
+
+The `getForPage<T>(XMIID);` function can be used to obtain the ViewModel for any page/dialog by providing its XMIID.
+In order to find out the XMIID of a page/dialog, we can use the inspector in the browser and check the `data-testid`
+attribute of the page/dialog. For the generic parameter we can search for the corresponding ViewModel typedef in the
+src folder based on the XMIID.
+
+Details:
+
+- if multiple pages/dialogs use the same xmiid, the most recently opened one will be returned
+- closing a page/dialog removes it from the internal registry
+
+[source,typescriptjsx]
+----
+const { getForPage } = useViewContext();
+
+const PageXMIID = 'GenericUser/(esm/_ZS1VYIgBEfC3naMpyl8-bQ)/RelationFeatureView';
+const { refresh } = getForPage<ServicesFault_registry_servicesRegistryHeaderRegistryHeader_View_EditViewModel>(PageXMIID);
+----
 
 === RedirectServiceHook
 

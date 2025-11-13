@@ -26,6 +26,7 @@ import { useInlineEditTransferInlineEditTransfer_View_EditManyAggregationAssocia
 import { useInlineEditTransferManyAggregationAssociationRelationFormPage } from '~/dialogs/InlineEditTransfer/ManyAggregationAssociation/RelationFormPage/hooks';
 import { useInlineEditTransferManyAggregationCompositionRelationFormPage } from '~/dialogs/InlineEditTransfer/ManyAggregationComposition/RelationFormPage/hooks';
 import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
+import { useViewContext } from '~/hooks/ViewContext';
 import { routeToInlineEditTransferManyAggregationAssociationRelationViewPage } from '~/routes';
 import { routeToInlineEditTransferManyAggregationCompositionRelationViewPage } from '~/routes';
 import { routeToInlineEditTransferManyDerivedAggregationAssociationRelationViewPage } from '~/routes';
@@ -94,6 +95,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
   const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
+  const { setForPage, deleteForPage } = useViewContext();
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -762,6 +764,14 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
 
   // Effect section
+  useEffect(() => {
+    setForPage('Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition', viewModel);
+
+    return () => {
+      deleteForPage('Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition');
+    };
+  }, [data]);
+
   useEffect(() => {
     (async () => {
       await actions.refreshAction!(getPageQueryCustomizer());
