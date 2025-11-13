@@ -25,6 +25,7 @@ import { useViewStarPlanetsRelationFormPage } from '~/dialogs/View/Star/Planets/
 import { useViewStarViewLastObservationLinkSetSelectorPage } from '~/dialogs/View/Star/View/LastObservation/LinkSetSelectorPage/hooks';
 import { useViewStarViewObservationsTableAddSelectorPage } from '~/dialogs/View/Star/View/Observations/TableAddSelectorPage/hooks';
 import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
+import { useViewContext } from '~/hooks/ViewContext';
 import { routeToViewStarLastObservationRelationViewPage } from '~/routes';
 import { routeToViewStarObservationsRelationViewPage } from '~/routes';
 import { routeToViewStarPlanetsRelationViewPage } from '~/routes';
@@ -100,6 +101,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   const { setLatestViewData } = useViewData();
   const { publish, subscribe } = useEventBus();
   const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
+  const { setForPage, deleteForPage } = useViewContext();
   const subscriptionRef = useRef<any>(null);
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
@@ -687,6 +689,14 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   };
 
   // Effect section
+  useEffect(() => {
+    setForPage('God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView', viewModel);
+
+    return () => {
+      deleteForPage('God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView');
+    };
+  }, [data]);
+
   useEffect(() => {
     (async () => {
       if (!isDraft) {

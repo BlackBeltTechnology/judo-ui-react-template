@@ -31,6 +31,7 @@ import { useViewPlanetViewGroup_2RightCreaturesRewardCreatureRelationTableCallSe
 import { useViewPlanetViewGroup_2RightCreaturesTableAddSelectorPage } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/TableAddSelectorPage/hooks';
 import { useViewPlanetViewGroup_2RightCreaturesTalkToGodRelationTableCallSelector } from '~/dialogs/View/Planet/View/Group_2/Right/Creatures/TalkToGod/Relation/Table/CallSelector/hooks';
 import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
+import { useViewContext } from '~/hooks/ViewContext';
 import { routeToViewPlanetViewChooseTheMessiahOutputView } from '~/routes';
 import { routeToViewPlanetViewHateGodOutputView } from '~/routes';
 import { routeToViewPlanetViewLoveGodOutputView } from '~/routes';
@@ -94,6 +95,7 @@ export default function ViewStarPlanetsRelationViewPage() {
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
   const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
+  const { setForPage, deleteForPage } = useViewContext();
 
   // State section
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -686,6 +688,14 @@ export default function ViewStarPlanetsRelationViewPage() {
   };
 
   // Effect section
+  useEffect(() => {
+    setForPage('God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView', viewModel);
+
+    return () => {
+      deleteForPage('God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView');
+    };
+  }, [data]);
+
   useEffect(() => {
     (async () => {
       await actions.refreshAction!(getPageQueryCustomizer());

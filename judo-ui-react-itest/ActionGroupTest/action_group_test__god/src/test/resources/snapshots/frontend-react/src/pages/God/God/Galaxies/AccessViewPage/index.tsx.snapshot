@@ -30,6 +30,7 @@ import { useViewGalaxyViewCreateIntergalacticDustInputForm } from '~/dialogs/Vie
 import { useViewGalaxyViewCreateInterstellarMediumInputForm } from '~/dialogs/View/Galaxy/View/CreateInterstellarMedium/Input/Form/hooks';
 import { useViewGalaxyViewGroupDiscovererAstronomerLinkSetSelectorPage } from '~/dialogs/View/Galaxy/View/Group/Discoverer/Astronomer/LinkSetSelectorPage/hooks';
 import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
+import { useViewContext } from '~/hooks/ViewContext';
 import { routeToViewGalaxyAstronomerRelationViewPage } from '~/routes';
 import { routeToViewGalaxyMatterRelationTablePage } from '~/routes';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
@@ -96,6 +97,7 @@ export default function GodGodGalaxiesAccessViewPage() {
   const handleError = useErrorHandler();
   const openCRUDDialog = useCRUDDialog();
   const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
+  const { setForPage, deleteForPage } = useViewContext();
   const { exportFile } = fileHandling();
 
   // State section
@@ -617,6 +619,14 @@ export default function GodGodGalaxiesAccessViewPage() {
   };
 
   // Effect section
+  useEffect(() => {
+    setForPage('God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition', viewModel);
+
+    return () => {
+      deleteForPage('God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition');
+    };
+  }, [data]);
+
   useEffect(() => {
     (async () => {
       await actions.refreshAction!(getPageQueryCustomizer());
