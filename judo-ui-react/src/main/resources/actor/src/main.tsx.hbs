@@ -30,7 +30,7 @@ import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import App from './App';
 import { routes } from './routes';
 import { RootErrorBoundary } from './components/RootErrorBoundary';
-import { ConfigProvider, ViewDataProvider } from './hooks';
+import { ConfigProvider, ViewDataProvider, ViewProvider } from './hooks';
 import { loadProgressBar, progressGlobalStyles } from './Progress';
 
 {{# if isMUILicensed }}
@@ -100,19 +100,21 @@ const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL
             <ConfigProvider>
                 <ThemeCustomization>
                     <PandinoProvider ctx={pandino.getBundleContext()}>
-                        <ViewDataProvider>
-                            <L10NProvider axios={axios}>
-                            {{# if application.authentication }}
-                                <AuthProvider {...oidcConfig} >
-                                    <Auth>
-                            {{/ if }}
-                                <RouterProvider router={router} />
-                            {{# if application.authentication }}
-                                    </Auth>
-                                </AuthProvider>
-                            {{/ if }}
-                            </L10NProvider>
-                        </ViewDataProvider>
+                        <ViewProvider>
+                            <ViewDataProvider>
+                                <L10NProvider axios={axios}>
+                                {{# if application.authentication }}
+                                    <AuthProvider {...oidcConfig} >
+                                        <Auth>
+                                {{/ if }}
+                                    <RouterProvider router={router} />
+                                {{# if application.authentication }}
+                                        </Auth>
+                                    </AuthProvider>
+                                {{/ if }}
+                                </L10NProvider>
+                            </ViewDataProvider>
+                        </ViewProvider>
                     </PandinoProvider>
                 </ThemeCustomization>
             </ConfigProvider>

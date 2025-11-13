@@ -41,6 +41,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
     DialogResult,
   } from '~/utilities';
   import { PageContainerTransition } from '~/theme/animations';
+  import { useViewContext } from "~/hooks/ViewContext";
   {{# each (getRelatedPages page) as |relatedPage| }}
     import { {{ calculateNavigationRoute relatedPage }} } from '~/routes';
   {{/ each }}
@@ -112,6 +113,7 @@ export default function {{ pageName page }}() {
     const handleError = useErrorHandler();
     const openCRUDDialog = useCRUDDialog();
     const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
+    const { setForPage, deleteForPage } = useViewContext();
     {{# if (hasExportAction page) }}
     const { exportFile } = fileHandling();
     {{/ if }}
@@ -352,6 +354,14 @@ export default function {{ pageName page }}() {
 
     // Effect section
     {{# if (pageShouldInitialize page) }}
+      useEffect(() => {
+        setForPage('{{ getXMIID page }}', viewModel);
+
+        return () => {
+          deleteForPage('{{ getXMIID page }}');
+        };
+      }, [data]);
+
       useEffect(() => {
         (async () => {
           {{# if (isSingleAccessPage page) }}
