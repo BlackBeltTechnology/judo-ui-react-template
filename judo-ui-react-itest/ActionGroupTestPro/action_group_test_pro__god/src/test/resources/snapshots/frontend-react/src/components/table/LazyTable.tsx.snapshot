@@ -739,98 +739,100 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                 actions[toolBarAction.name] &&
                 toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
                   <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
-                    <Button
-                      data-testid={toolBarAction.id}
-                      startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
-                      variant={toolBarAction.variant}
-                      onClick={async () => {
-                        if (
-                          toolBarAction.confirmation &&
-                          (typeof toolBarAction.confirmationCondition === 'undefined' ||
-                            toolBarAction.confirmationCondition === true)
-                        ) {
-                          const result = await openConfirmDialog(
-                            toolBarAction.id,
-                            toolBarAction.confirmation,
-                            t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
-                          );
-
-                          if (!result) {
-                            return;
-                          }
-                        }
-
-                        if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
-                          const templateResult: T | undefined = await actions[toolBarAction.name]!();
-                          const id = `${draftIdentifierPrefix}${uuidv4()}`;
-                          setData((oldRows) => [
-                            { ...(templateResult || {}), __identifier: id } as unknown as T,
-                            ...oldRows,
-                          ]);
-                          setRowModesModel((oldModel) => ({
-                            ...oldModel,
-                            [id]: { mode: GridRowModes.Edit },
-                          }));
-                        }
-
-                        if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
-                          apiRef.current!.showFilterPanel();
-                        } else {
-                          let processedQueryCustomizer = {
-                            ...processQueryCustomizer(queryCustomizer),
-                          };
+                    <span>
+                      <Button
+                        data-testid={toolBarAction.id}
+                        startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
+                        variant={toolBarAction.variant}
+                        onClick={async () => {
                           if (
-                            toolBarActions.find(
-                              (tbAction: any) => tbAction.name === calculateActionName(relationName, 'refreshAction'),
-                            )
+                            toolBarAction.confirmation &&
+                            (typeof toolBarAction.confirmationCondition === 'undefined' ||
+                              toolBarAction.confirmationCondition === true)
                           ) {
-                            processedQueryCustomizer = {
-                              ...processedQueryCustomizer,
-                              _mask: maskAction ? maskAction() : queryCustomizer._mask,
-                            };
+                            const result = await openConfirmDialog(
+                              toolBarAction.id,
+                              toolBarAction.confirmation,
+                              t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+                            );
+
+                            if (!result) {
+                              return;
+                            }
                           }
 
-                          if (toolBarAction.name === calculateActionName(relationName, 'exportAction')) {
-                            processedQueryCustomizer = {
-                              ...processedQueryCustomizer,
-                              _seek: undefined,
-                            };
+                          if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
+                            const templateResult: T | undefined = await actions[toolBarAction.name]!();
+                            const id = `${draftIdentifierPrefix}${uuidv4()}`;
+                            setData((oldRows) => [
+                              { ...(templateResult || {}), __identifier: id } as unknown as T,
+                              ...oldRows,
+                            ]);
+                            setRowModesModel((oldModel) => ({
+                              ...oldModel,
+                              [id]: { mode: GridRowModes.Edit },
+                            }));
                           }
 
-                          if (toolBarAction.name === calculateActionName(relationName, 'refreshAction')) {
-                            fetching();
-                          } else if (
-                            toolBarAction.name === calculateActionName(relationName, 'exportAction') ||
-                            toolBarAction.name === calculateActionName(relationName, 'selectorRangeAction')
-                          ) {
-                            actions[toolBarAction.name]!(processedQueryCustomizer);
+                          if (toolBarAction.name === calculateActionName(relationName, 'filterAction')) {
+                            apiRef.current!.showFilterPanel();
                           } else {
-                            if (toolBarAction.isBulk) {
-                              const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
-                              const reason: DialogResultReason = bulkResult;
-                              if (reason === 'submit' || reason === 'delete') {
-                                handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
-                              }
+                            let processedQueryCustomizer = {
+                              ...processQueryCustomizer(queryCustomizer),
+                            };
+                            if (
+                              toolBarActions.find(
+                                (tbAction: any) => tbAction.name === calculateActionName(relationName, 'refreshAction'),
+                              )
+                            ) {
+                              processedQueryCustomizer = {
+                                ...processedQueryCustomizer,
+                                _mask: maskAction ? maskAction() : queryCustomizer._mask,
+                              };
+                            }
+
+                            if (toolBarAction.name === calculateActionName(relationName, 'exportAction')) {
+                              processedQueryCustomizer = {
+                                ...processedQueryCustomizer,
+                                _seek: undefined,
+                              };
+                            }
+
+                            if (toolBarAction.name === calculateActionName(relationName, 'refreshAction')) {
+                              fetching();
+                            } else if (
+                              toolBarAction.name === calculateActionName(relationName, 'exportAction') ||
+                              toolBarAction.name === calculateActionName(relationName, 'selectorRangeAction')
+                            ) {
+                              actions[toolBarAction.name]!(processedQueryCustomizer);
                             } else {
-                              if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
-                                await actions[toolBarAction.name]!();
-                                handleOnSelection([]);
+                              if (toolBarAction.isBulk) {
+                                const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
+                                const reason: DialogResultReason = bulkResult;
+                                if (reason === 'submit' || reason === 'delete') {
+                                  handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                                }
                               } else {
-                                await actions[toolBarAction.name]!();
+                                if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
+                                  await actions[toolBarAction.name]!();
+                                  handleOnSelection([]);
+                                } else {
+                                  await actions[toolBarAction.name]!();
+                                }
                               }
                             }
                           }
-                        }
-                      }}
-                      disabled={isLoading}
-                    >
-                      {t(`${toolBarAction.label['translationKey']}`, {
-                        defaultValue: `${toolBarAction.label['defaultValue']}`,
-                      })}
-                      {toolBarAction.name === calculateActionName(relationName, 'filterAction') && filters.length
-                        ? ` (${filters.length})`
-                        : ''}
-                    </Button>
+                        }}
+                        disabled={isLoading}
+                      >
+                        {t(`${toolBarAction.label['translationKey']}`, {
+                          defaultValue: `${toolBarAction.label['defaultValue']}`,
+                        })}
+                        {toolBarAction.name === calculateActionName(relationName, 'filterAction') && filters.length
+                          ? ` (${filters.length})`
+                          : ''}
+                      </Button>
+                    </span>
                   </Tooltip>
                 ) : null,
               )}

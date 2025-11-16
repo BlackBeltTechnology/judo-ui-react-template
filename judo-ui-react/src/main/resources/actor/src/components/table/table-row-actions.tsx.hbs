@@ -30,6 +30,12 @@ const isRowInEditMode = <T extends JudoIdentifiable<any>,>(row: T, gridRowModesM
   return rowData?.mode === GridRowModes.Edit;
 };
 
+const ActionColumnButtonGroup = ({ touchRippleRef, children, ...props }: any) => {
+  return (
+    <ButtonGroup {...props}>{children}</ButtonGroup>
+  );
+};
+
 export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   id: string,
   actions: TableRowAction<any, any>[],
@@ -66,7 +72,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
       headerName: t('judo.pages.table.column.actions', { defaultValue: 'Actions' }) as string,
       type: 'actions',
       getActions: (params: GridRowParams) => [
-        <ButtonGroup>
+        <ActionColumnButtonGroup>
           {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Tooltip title={a.tooltip} key={a.id}>
               <Button
@@ -96,7 +102,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           >
             <MdiIcon path="menu-down" />
           </DropdownButton> : null}
-        </ButtonGroup>,
+        </ActionColumnButtonGroup>,
       ],
     },
   ];
