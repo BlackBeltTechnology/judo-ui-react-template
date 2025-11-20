@@ -414,17 +414,15 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
       })();
     }, []);
 
-    {{# if (pageIsRootStateOwner page) }}
-      useEffect(() => {
-        const unsubscribe = subscribe('refresh:{{ getXMIID page }}', async () => {
-          await refresh();
-        });
+    useEffect(() => {
+      const unsubscribe = subscribe('refresh:{{ getXMIID page }}', async () => {
+        await refresh();
+      });
 
-        return () => {
-          unsubscribe();
-        };
-      }, [subscribe, data, editMode]);
-    {{/ if }}
+      return () => {
+        unsubscribe();
+      };
+    }, [subscribe]);
     {{# if page.container.view }}
       useEffect(() => {
         if (!rootPageId && subscriptionRef.current) {
