@@ -709,6 +709,15 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   }, []);
 
   useEffect(() => {
+    const unsubscribe = subscribe('refresh:God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView', async () => {
+      await refresh();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribe]);
+  useEffect(() => {
     if (!rootPageId && subscriptionRef.current) {
       // unsubscribe and unset
       subscriptionRef.current();
