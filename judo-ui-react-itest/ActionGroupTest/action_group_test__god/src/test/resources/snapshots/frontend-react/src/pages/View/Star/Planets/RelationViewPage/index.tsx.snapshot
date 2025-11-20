@@ -702,6 +702,16 @@ export default function ViewStarPlanetsRelationViewPage() {
     })();
   }, [signedIdentifier]);
 
+  useEffect(() => {
+    const unsubscribe = subscribe('refresh:God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView', async () => {
+      await refresh();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribe]);
+
   return (
     <ViewPlanetViewViewModelContext.Provider value={viewModel}>
       <Suspense>

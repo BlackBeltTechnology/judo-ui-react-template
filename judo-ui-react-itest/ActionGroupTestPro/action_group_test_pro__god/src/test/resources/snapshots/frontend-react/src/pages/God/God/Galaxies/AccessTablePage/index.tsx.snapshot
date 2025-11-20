@@ -9,7 +9,7 @@
 import type { GridFilterModel } from '@mui/x-data-grid-pro';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
-import { Suspense, lazy, useCallback, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
@@ -294,6 +294,16 @@ export default function GodGodGalaxiesAccessTablePage() {
   };
 
   // Effect section
+
+  useEffect(() => {
+    const unsubscribe = subscribe('refresh:God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessTablePageDefinition', async () => {
+      await refresh();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribe]);
 
   return (
     <ViewGalaxyTableViewModelContext.Provider value={viewModel}>

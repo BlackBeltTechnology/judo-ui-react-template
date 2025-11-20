@@ -1,6 +1,6 @@
 {{> fragment.header.hbs }}
 
-import { {{# unless page.container.table }}useEffect, {{/ unless }}useCallback, useRef, useState, useMemo, lazy, Suspense } from 'react';
+import { useEffect, useCallback, useRef, useState, useMemo, lazy, Suspense } from 'react';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 {{# if (containerIsEmptyDashboard page.container) }}
   import { ComponentProxy } from '@pandino/react-hooks';
@@ -379,17 +379,15 @@ export default function {{ pageName page }}() {
       }, [{{# if (pageHasSignedId page) }}signedIdentifier{{/ if }}]);
     {{/ if }}
 
-    {{# if (pageIsRootStateOwner page) }}
-      useEffect(() => {
-        const unsubscribe = subscribe('refresh:{{ getXMIID page }}', async () => {
-          await refresh();
-        });
+    useEffect(() => {
+      const unsubscribe = subscribe('refresh:{{ getXMIID page }}', async () => {
+        await refresh();
+      });
 
-        return () => {
-          unsubscribe();
-        };
-      }, [subscribe, data, editMode]);
-    {{/ if }}
+      return () => {
+        unsubscribe();
+      };
+    }, [subscribe]);
   {{/ unless }}
 
   return (
