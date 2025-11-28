@@ -1,0 +1,1068 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="ui" nsURI="http://blackbelt.hu/judo/meta/ui" nsPrefix="ui">
+  <eClassifiers xsi:type="ecore:EClass" name="NamedElement" abstract="true">
+    <eOperations name="getSeparator" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eOperations name="getFQName" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eOperations name="getOwner" eType="#//NamedElement"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sourceId" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="annotations" upperBound="-1"
+        eType="#//data/Annotation"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Container" eSuperTypes="#//VisualElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="children" upperBound="-1"
+        eType="#//VisualElement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actionButtonGroups" upperBound="-1"
+        eType="#//ButtonGroup" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="CrossAxisAlignment">
+    <eLiterals name="BASELINE"/>
+    <eLiterals name="CENTER" value="1"/>
+    <eLiterals name="END" value="2"/>
+    <eLiterals name="START" value="3"/>
+    <eLiterals name="STRETCH" value="4"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="MainAxisAlignment">
+    <eLiterals name="CENTER"/>
+    <eLiterals name="END" value="1"/>
+    <eLiterals name="SPACEAROUND" value="2"/>
+    <eLiterals name="SPACEBETWEEN" value="3"/>
+    <eLiterals name="SPACEEVENLY" value="4"/>
+    <eLiterals name="START" value="5"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Flex" eSuperTypes="#//Container">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Layout for a Flex proceeds in six steps:&#xA;&#xA;Layout each child a null or zero flex factor (e.g., those that are not Expanded) with unbounded main axis constraints and the incoming cross axis constraints. If the crossAxisAlignment is CrossAxisAlignment.stretch, instead use tight cross axis constraints that match the incoming max extent in the cross axis.&#xA;Divide the remaining main axis space among the children with non-zero flex factors (e.g., those that are Expanded) according to their flex factor. For example, a child with a flex factor of 2.0 will receive twice the amount of main axis space as a child with a flex factor of 1.0.&#xA;Layout each of the remaining children with the same cross axis constraints as in step 1, but instead of using unbounded main axis constraints, use max axis constraints based on the amount of space allocated in step 2. Children with Flexible.fit properties that are FlexFit.tight are given tight constraints (i.e., forced to fill the allocated space), and children with Flexible.fit properties that are FlexFit.loose are given loose constraints (i.e., not forced to fill the allocated space).&#xA;The cross axis extent of the Flex is the maximum cross axis extent of the children (which will always satisfy the incoming constraints).&#xA;The main axis extent of the Flex is determined by the mainAxisSize property. If the mainAxisSize property is MainAxisSize.max, then the main axis extent of the Flex is the max extent of the incoming main axis constraints. If the mainAxisSize property is MainAxisSize.min, then the main axis extent of the Flex is the sum of the main axis extents of the children (subject to the incoming constraints).&#xA;Determine the position for each child according to the mainAxisAlignment and the crossAxisAlignment. For example, if the mainAxisAlignment is MainAxisAlignment.spaceBetween, any main axis space that has not been allocated to children is divided evenly and placed between the children.&#xA;"/>
+    </eAnnotations>
+    <eOperations name="getIsDirectionHorizontal" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsDirectionVertical" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsMainAxisSizeMin" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsMainAxisSizeMax" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsMainAxisAlignmentCenter" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsMainAxisAlignmentEnd" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsMainAxisAlignmentSpaceAround" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsMainAxisAlignmentSpaceBetween" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsMainAxisAlignmentSpaceEvenly" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsMainAxisAlignmentStart" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCrossAxisAlignmentBaseline" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCrossAxisAlignmentCenter" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCrossAxisAlignmentEnd" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCrossAxisAlignmentStart" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCrossAxisAlignmentStretch" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isCard" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="direction" lowerBound="1"
+        eType="#//Axis"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="mainAxisAlignment" lowerBound="1"
+        eType="#//MainAxisAlignment"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="crossAxisAlignment" lowerBound="1"
+        eType="#//CrossAxisAlignment" defaultValueLiteral="START"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="mainAxisSize" lowerBound="1"
+        eType="#//MainAxisSize"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="dataElement" eType="#//data/DataElement"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="frame" eType="#//Frame"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="Axis">
+    <eLiterals name="HORIZONTAL"/>
+    <eLiterals name="VERTICAL" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="MainAxisSize">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="How much space should be occupied in the main axis.&#xA;&#xA;During a flex layout, available space along the main axis is allocated to children. After allocating space, there might be some remaining free space. This value controls whether to maximize or minimize the amount of free space, subject to the incoming layout constraints."/>
+    </eAnnotations>
+    <eLiterals name="MIN"/>
+    <eLiterals name="MAX" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Spacer" eSuperTypes="#//VisualElement"/>
+  <eClassifiers xsi:type="ecore:EEnum" name="Fit">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="How the child is inscribed into the available space."/>
+    </eAnnotations>
+    <eLiterals name="LOOSE" value="1">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The child can be at most as large as the available space (but is allowed to be smaller).&#xA;&#xA;The Flexible widget assigns this kind of FlexFit to its child."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="TIGHT" value="2">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The child is forced to fill the available space.&#xA;&#xA;The Expanded widget assigns this kind of FlexFit to its child."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="NONE"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Size">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="width" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"
+        defaultValueLiteral="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="height" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"
+        defaultValueLiteral="-1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="VisualElement" eSuperTypes="#//NamedElement #//LabeledElement">
+    <eOperations name="getPageContainer" eType="#//PageContainer"/>
+    <eOperations name="isHorizontalGrow" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isVerticalGrow" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsFitTight" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="size" eType="#//Size" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="sizeconstraint" eType="#//SizeConstraint"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="align" eType="#//Align"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="fit" eType="#//Fit" defaultValueLiteral="NONE"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="col" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Double"
+        defaultValueLiteral="4"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="row" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Double"
+        defaultValueLiteral="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="disabled" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="stretch" lowerBound="1"
+        eType="#//Stretch" defaultValueLiteral="NONE"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isInCard" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isReadOnly" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="order" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="hiddenBy" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="enabledBy" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="customImplementation" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="requiredBy" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="onBlur" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//BooleanObject"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="subTheme" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Icon" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="iconName" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TabController" eSuperTypes="#//VisualElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="tabs" lowerBound="1" upperBound="-1"
+        eType="#//Tab" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="controllerRow" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int" defaultValueLiteral="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="orientation" eType="#//TabOrientation"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Tab" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="element" lowerBound="1"
+        eType="#//VisualElement" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SizeConstraint">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="minWidth" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"
+        defaultValueLiteral="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="minHeight" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"
+        defaultValueLiteral="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxWidth" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"
+        defaultValueLiteral="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxHeight" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"
+        defaultValueLiteral="-1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Align">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="alignment" lowerBound="1"
+        eType="#//Alignment"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="Alignment">
+    <eLiterals name="TOP_LEFT"/>
+    <eLiterals name="TOP_CENTER" value="1"/>
+    <eLiterals name="TOP_RIGHT" value="2"/>
+    <eLiterals name="CENTER_LEFT" value="3"/>
+    <eLiterals name="CENTER" value="4"/>
+    <eLiterals name="CENTER_RIGHT" value="5"/>
+    <eLiterals name="BOTTOM_LEFT" value="6"/>
+    <eLiterals name="BOTTOM_CENTER" value="7"/>
+    <eLiterals name="BOTTOM_RIGHT" value="8"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Table" eSuperTypes="#//VisualElement #//ReferenceTypedVisualElement">
+    <eOperations name="getDefaultSortColumn" eType="#//Column"/>
+    <eOperations name="getTableActionDefinitions" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="getRowActionDefinitions" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="columns" lowerBound="1"
+        upperBound="-1" eType="#//Column" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="filters" upperBound="-1"
+        eType="#//Filter" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="crudOperationsDisplayed"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//IntObject"
+        defaultValueLiteral="2"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isSmallTable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="rowsPerPage" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//IntObject"
+        defaultValueLiteral="10"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="tableActionButtonGroup"
+        eType="#//ButtonGroup" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="rowActionButtonGroup" eType="#//ButtonGroup"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isEager" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The term &quot;eager&quot; means that a table manages it's data, and typically has a dataSource of an owner. Eager tables never go on the network for anything, and do everything in memory."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="allowSelectMultiple" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value=""/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="relationName" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="selectorRowsPerPage" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="additionalMaskAttributes"
+        upperBound="-1" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="transferOperationsDisplayed"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//IntObject"
+        defaultValueLiteral="0"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="showTotalCount" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="checkboxSelection" eType="#//CheckboxSelection"
+        defaultValueLiteral="ENABLED"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="additionalMaskRelations"
+        upperBound="-1" eType="#//data/RelationType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isInlineEditable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="representationComponent"
+        eType="#//TableRepresentation" defaultValueLiteral="TABLE"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="autocompleteRangeActionDefinition"
+        eType="#//ActionDefinition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="autocompleteAddActionDefinition"
+        eType="#//ActionDefinition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="actionColumnWidth" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Input" abstract="true" eSuperTypes="#//VisualElement #//AttributeBased">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="required" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tooltipText" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Text" eSuperTypes="#//VisualElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="text" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Divider" eSuperTypes="#//VisualElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="EnumerationRadio" eSuperTypes="#//Input">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" lowerBound="1"
+        upperBound="-1" eType="#//Option" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Option" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="selected" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="enumerationMember" lowerBound="1"
+        eType="#//data/EnumerationMember"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TextInput" eSuperTypes="#//Input">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="mask" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="regexp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxLength" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isTypeAheadField" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TextArea" eSuperTypes="#//Input">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxLength" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lines" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"
+        defaultValueLiteral="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="countCharacters" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NumericInput" eSuperTypes="#//Input #//InputValueConstraint">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="scale" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="precision" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="formatValue" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Checkbox" eSuperTypes="#//Input">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="checked" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="valueLabelPlacement" eType="#//Placement"
+        defaultValueLiteral="DEFAULT"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Switch" eSuperTypes="#//Input">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="switched" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="valueLabelPlacement" eType="#//Placement"
+        defaultValueLiteral="DEFAULT"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PageDefinition" eSuperTypes="#//NamedElement #//ReferenceTypedVisualElement #//LabeledElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="container" lowerBound="1"
+        eType="#//PageContainer"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actions" upperBound="-1"
+        eType="#//Action" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="openInDialog" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dialogSize" eType="#//DialogSize"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dashboard" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="generateActionsHook" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isSelector" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isRelationSelector" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value=""/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Application" eSuperTypes="#//NamedElement">
+    <eOperations name="getTables" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="getRelationTypes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="getClassTypes" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="getLinks" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="getAllLabels" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eOperations name="getButtons" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="navigationController" eType="#//NavigationController"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="pages" upperBound="-1"
+        eType="#//PageDefinition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="dataElements" upperBound="-1"
+        eType="#//data/DataElement" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="dataTypes" upperBound="-1"
+        eType="#//data/DataType" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actor" lowerBound="1" eType="#//data/ClassType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="principal" eType="#//data/ClassType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="mimeTypes" upperBound="-1"
+        eType="#//data/MimeType" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="authentication" eType="#//Authentication"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="version" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"
+        defaultValueLiteral="$MODEL_VERSION_PLACEHOLDER$"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="defaultLanguage" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"
+        defaultValueLiteral="en-US"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="logo" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="pageContainers" upperBound="-1"
+        eType="#//PageContainer" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="theme" lowerBound="1" eType="#//Theme"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="modelName" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="profilePage" eType="#//PageDefinition"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="defaultMenuLayout" eType="#//MenuLayout"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="icon" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="title" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="backgroundImage" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="supportGuestAccess" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="availableAnnotations" upperBound="-1"
+        eType="#//data/Annotation" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NavigationController" eSuperTypes="#//NamedElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1"
+        eType="#//NavigationItem" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actions" upperBound="-1"
+        eType="#//Action" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="NavigationItem" eSuperTypes="#//NamedElement #//LabeledElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1"
+        eType="#//NavigationItem" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="target" eType="#//PageDefinition"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="hiddenBy" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actionDefinition" eType="#//ActionDefinition"
+        containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PasswordInput" eSuperTypes="#//Input">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxLength" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DateInput" eSuperTypes="#//Input #//InputValueConstraint"/>
+  <eClassifiers xsi:type="ecore:EClass" name="DateTimeInput" eSuperTypes="#//Input #//InputValueConstraint">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseUnit" eType="#//DurationUnit"
+        defaultValueLiteral="SECOND"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="DurationUnit">
+    <eLiterals name="NANOSECOND"/>
+    <eLiterals name="MICROSECOND" value="1"/>
+    <eLiterals name="MILLISECOND" value="2"/>
+    <eLiterals name="SECOND" value="3"/>
+    <eLiterals name="MINUTE" value="4"/>
+    <eLiterals name="HOUR" value="5"/>
+    <eLiterals name="DAY" value="6"/>
+    <eLiterals name="WEEK" value="7"/>
+    <eLiterals name="MONTH" value="8"/>
+    <eLiterals name="YEAR" value="9"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Formatted" eSuperTypes="#//VisualElement #//AttributeBased">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="format" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isMultiLine" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Button" eSuperTypes="#//VisualElement #//ReferenceTypedVisualElement">
+    <eOperations name="isCustomButton" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actionDefinition" lowerBound="1"
+        eType="#//ActionDefinition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="buttonStyle" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="confirmation" eType="#//Confirmation"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="preFetchActionDefinition"
+        eType="#//ActionDefinition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="relationName" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="tooltipText" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ActionDefinition" abstract="true" eSuperTypes="#//NamedElement">
+    <eOperations name="getIsAddAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsDeleteAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRemoveAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCreateAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsSetAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsUnsetAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenPageAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRefreshAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsFilterAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsClearAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRefreshRelationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsFilterRelationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsBackAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCustomAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsUpdateAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsGetTemplateAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsBulkDeleteAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsBulkRemoveAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenFormAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenSelectorAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsAutocompleteRangeAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsPreFetchAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsSelectorRangeAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCancelAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsBulkCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsExportAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenAddSelectorAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenSetSelectorAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenOperationInputSelectorAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenCreateFormAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenOperationInputFormAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsAutocompleteSetAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRowDeleteAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsInputFormCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsInputSelectorCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsParameterlessCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRowOpenPageAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsAutocompleteAddAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsInlineCreateRowAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isTransient" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetType" eType="#//data/ClassType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isContainedRelationAction"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isBulk" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RemoveActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="AddActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="CreateActionDefinition" eSuperTypes="#//ActionDefinition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="autoOpenAfterCreate" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PageContainer" eSuperTypes="#//Flex">
+    <eOperations name="getTables" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="getLinks">
+      <eGenericType eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList">
+        <eTypeArguments/>
+      </eGenericType>
+    </eOperations>
+    <eOperations name="getAllActionDefinitions" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="getButtons">
+      <eGenericType eClassifier="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList">
+        <eTypeArguments/>
+      </eGenericType>
+    </eOperations>
+    <eOperations name="getPageActionDefinitions" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="isTable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isForm" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isView" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="transferPackageNameTokens"
+        upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="transferPageName" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="titleAttribute" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="titleFrom" eType="#//TitleFrom"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="onInit" eType="#//ActionDefinition"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="#//PageContainerType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="templateAction" eType="#//ActionDefinition"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="additionalMaskAttributes"
+        upperBound="-1" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="generateVisualPropertiesHook"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CallOperationActionDefinition" eSuperTypes="#//ActionDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="operation" lowerBound="1"
+        eType="#//data/OperationType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DeleteActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SetActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="UnsetActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ReferenceTypedVisualElement" abstract="true">
+    <eOperations name="getRelationType" eType="#//data/RelationType"/>
+    <eOperations name="getIsRelationType" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getTargetClassType" eType="#//data/ClassType"/>
+    <eOperations name="getOperationParameterType" eType="#//data/OperationParameterType"/>
+    <eOperations name="getIsOperationParameterType" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="dataElement" eType="#//data/DataElement"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenPageActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="EnumerationCombo" eSuperTypes="#//Input">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" lowerBound="1"
+        upperBound="-1" eType="#//Option" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="IconImage" eSuperTypes="#//VisualElement"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Label" eSuperTypes="#//VisualElement"/>
+  <eClassifiers xsi:type="ecore:EEnum" name="Stretch">
+    <eLiterals name="NONE"/>
+    <eLiterals name="HORIZONTAL" value="1"/>
+    <eLiterals name="VERTICAL" value="2"/>
+    <eLiterals name="BOTH" value="3"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Link" eSuperTypes="#//VisualElement #//ReferenceTypedVisualElement">
+    <eOperations name="getColumns" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eOperations name="getDefaultSortColumn" eType="#//Column"/>
+    <eOperations name="getActionDefinitions" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EEList"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="parts" lowerBound="1" upperBound="-1"
+        eType="#//Column" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actionButtonGroup" eType="#//ButtonGroup"
+        containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="autocompleteRangeActionDefinition"
+        eType="#//ActionDefinition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="relationName" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="selectorRowsPerPage" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="autoCompleteRows" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EIntegerObject"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="additionalMaskAttributes"
+        upperBound="-1" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="refreshActionDefinition"
+        eType="#//ActionDefinition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="autocompleteSetActionDefinition"
+        eType="#//ActionDefinition" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isEager" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The term &quot;eager&quot; means that a link manages it's data, and typically has a dataSource of an owner. Eager links never go on the network for anything, and do everything in memory."/>
+      </eAnnotations>
+    </eStructuralFeatures>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="additionalMaskRelations"
+        upperBound="-1" eType="#//data/RelationType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="ConfirmationType">
+    <eLiterals name="NONE"/>
+    <eLiterals name="CONDITIONAL" value="1"/>
+    <eLiterals name="MANDATORY" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RefreshActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="FilterActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Filter" eSuperTypes="#//VisualElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attributeType" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="alwaysShown" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="range" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="multiValue" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="defaultOperation" eType="#//FilterOperationType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="LabeledElement" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="label" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="icon" eType="#//Icon" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Frame">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="elevation" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Double" defaultValueLiteral="4"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="radius" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Double" defaultValueLiteral="10.0"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BinaryTypeInput" eSuperTypes="#//Input"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Column" eSuperTypes="#//VisualElement">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="format" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attributeType" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sort" eType="#//Sort" defaultValueLiteral="NONE"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="width" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="formatValue" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EBoolean"
+        defaultValueLiteral="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sortPrecedence" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EInt"
+        defaultValueLiteral="0"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="representsRelation" eType="#//data/RelationType">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="In certain source models we support inline single aggregations for columns, In such cases we transform a derived column for the representation, and we add a  reference to the actual data relation which we can use to extend e.g. the mask to contain signed ids for nested relations.&#xA;"/>
+      </eAnnotations>
+    </eStructuralFeatures>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="Sort">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="How the child is inscribed into the available space."/>
+    </eAnnotations>
+    <eLiterals name="ASC" value="1">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The child can be at most as large as the available space (but is allowed to be smaller).&#xA;&#xA;The Flexible widget assigns this kind of FlexFit to its child."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="DESC" value="2">
+      <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+        <details key="documentation" value="The child is forced to fill the available space.&#xA;&#xA;The Expanded widget assigns this kind of FlexFit to its child."/>
+      </eAnnotations>
+    </eLiterals>
+    <eLiterals name="NONE"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ButtonGroup" eSuperTypes="#//VisualElement">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="buttons" upperBound="-1"
+        eType="#//Button" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="featuredActions" lowerBound="1"
+        eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int" defaultValueLiteral="0"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TimeInput" eSuperTypes="#//Input #//InputValueConstraint">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="baseUnit" eType="#//DurationUnit"
+        defaultValueLiteral="SECOND"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ClearActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="TrinaryLogicCombo" eSuperTypes="#//Input"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Authentication">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="realm" lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2002/Ecore#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="claims" upperBound="-1"
+        eType="#//Claim" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Claim">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" lowerBound="1" eType="#//ClaimType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attributeType" lowerBound="1"
+        eType="#//data/AttributeType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="ClaimType">
+    <eLiterals name="UNDEFINED"/>
+    <eLiterals name="EMAIL" value="1"/>
+    <eLiterals name="USERNAME" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="TitleFrom">
+    <eLiterals name="LABEL"/>
+    <eLiterals name="ATTRIBUTE" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RefreshRelationActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="FilterRelationActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Action" eSuperTypes="#//NamedElement">
+    <eOperations name="getIsFilterAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenPageAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRefreshRelationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsUnsetAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsFilterRelationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsClearAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCreateAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsAddAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsDeleteAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsSetAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRemoveAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRefreshAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsBackAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCustomAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsUpdateAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsGetTemplateAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsBulkDeleteAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsBulkRemoveAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenFormAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsOpenSelectorAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsAutocompleteRangeAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsPreFetchAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsSelectorRangeAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsCancelAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsBulkCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsExportAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isOpenAddSelectorAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isOpenSetSelectorAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isOpenOperationInputSelectorAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isOpenCreateFormAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="isOpenOperationInputFormAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsAutocompleteSetAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRowDeleteAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsInputFormCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsInputSelectorCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsParameterlessCallOperationAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsRowOpenPageAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsAutocompleteAddAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsInlineCreateRowAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="actionDefinition" lowerBound="1"
+        eType="#//ActionDefinition"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetPageDefinition" eType="#//PageDefinition"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="targetDataElement" eType="#//data/DataElement"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="ownerDataElement" eType="#//data/DataElement"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="isMenuAction" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+        defaultValueLiteral="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AttributeBased" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="attributeType" eType="#//data/AttributeType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BackActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Confirmation">
+    <eOperations name="getIsConfirmationTypeNone" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsConfirmationTypeConditional" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eOperations name="getIsConfirmationTypeMandatory" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="confirmationType" lowerBound="1"
+        eType="#//ConfirmationType" defaultValueLiteral="NONE"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="confirmationMessage" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="confirmationCondition"
+        eType="#//data/AttributeType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CustomActionDefinition" eSuperTypes="#//ActionDefinition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="actionName" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="UpdateActionDefinition" eSuperTypes="#//ActionDefinition">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="autoCloseOnSave" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="GetTemplateActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EEnum" name="TabOrientation">
+    <eLiterals name="HORIZONTAL"/>
+    <eLiterals name="VERTICAL" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Theme">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="textPrimaryColor" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="textSecondaryColor" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="primaryColor" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="subtitleColor" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondaryColor" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="backgroundColor" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="paperBackgroundColor" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="DialogSize">
+    <eLiterals name="XS"/>
+    <eLiterals name="SM" value="1"/>
+    <eLiterals name="MD" value="2"/>
+    <eLiterals name="LG" value="3"/>
+    <eLiterals name="XL" value="4"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="PageContainerType">
+    <eLiterals name="TABLE"/>
+    <eLiterals name="FORM" value="1"/>
+    <eLiterals name="VIEW" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="BulkRemoveActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="BulkDeleteActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenFormActionDefinition" eSuperTypes="#//ActionDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="formFor" eType="#//ActionDefinition"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenSelectorActionDefinition" eSuperTypes="#//ActionDefinition">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="selectorFor" eType="#//ActionDefinition"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AutocompleteRangeActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PreFetchActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="SelectorRangeActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="CancelActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="BulkCallOperationActionDefinition" eSuperTypes="#//CallOperationActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenAddSelectorActionDefinition" eSuperTypes="#//OpenSelectorActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenSetSelectorActionDefinition" eSuperTypes="#//OpenSelectorActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenOperationInputSelectorActionDefinition"
+      eSuperTypes="#//OpenSelectorActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EEnum" name="Placement">
+    <eLiterals name="TOP"/>
+    <eLiterals name="BOTTOM" value="1"/>
+    <eLiterals name="END" value="2"/>
+    <eLiterals name="START" value="3"/>
+    <eLiterals name="DEFAULT" value="4"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ExportActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenCreateFormActionDefinition" eSuperTypes="#//OpenFormActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="OpenOperationInputFormActionDefinition"
+      eSuperTypes="#//OpenFormActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EEnum" name="CheckboxSelection">
+    <eLiterals name="AUTO"/>
+    <eLiterals name="ENABLED" value="1"/>
+    <eLiterals name="DISABLED" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AutocompleteSetActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="RowDeleteActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="InputFormCallOperationActionDefinition"
+      eSuperTypes="#//CallOperationActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="InputSelectorCallOperationActionDefinition"
+      eSuperTypes="#//CallOperationActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="ParameterlessCallOperationActionDefinition"
+      eSuperTypes="#//CallOperationActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EEnum" name="MenuLayout">
+    <eLiterals name="VERTICAL"/>
+    <eLiterals name="HORIZONTAL" value="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="RowOpenPageActionDefinition" eSuperTypes="#//ActionDefinition">
+    <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+      <details key="documentation" value="Primariliy used for JSL-based models where the navigation info is retrieved via an extra jump in the data structure.&#xA;"/>
+    </eAnnotations>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="linkRelation" lowerBound="1"
+        eType="#//data/DataElement"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="TableRepresentation">
+    <eLiterals name="TABLE"/>
+    <eLiterals name="TAG" value="1"/>
+    <eLiterals name="CARD" value="2"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AutocompleteAddActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="InlineCreateRowActionDefinition" eSuperTypes="#//ActionDefinition"/>
+  <eClassifiers xsi:type="ecore:EClass" name="InputValueConstraint">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="minValueBy" eType="#//data/AttributeType"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="maxValueBy" eType="#//data/AttributeType"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EnumerationToggleButtonbar" eSuperTypes="#//Input">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="options" lowerBound="1"
+        upperBound="-1" eType="#//Option" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="FilterOperationType">
+    <eLiterals name="EQUAL"/>
+    <eLiterals name="NOT_EQUAL" value="1"/>
+    <eLiterals name="IS_EMPTY" value="2"/>
+    <eLiterals name="IS_NOT_EMPTY" value="3"/>
+    <eLiterals name="LESS" value="4"/>
+    <eLiterals name="LESS_OR_EQUAL" value="5"/>
+    <eLiterals name="GREATER" value="6"/>
+    <eLiterals name="GREATER_OR_EQUAL" value="7"/>
+    <eLiterals name="LIKE" value="8"/>
+  </eClassifiers>
+  <eSubpackages name="data" nsURI="http://blackbelt.hu/judo/meta/ui/data" nsPrefix="data">
+    <eClassifiers xsi:type="ecore:EClass" name="DataElement" abstract="true" eSuperTypes="#//NamedElement"/>
+    <eClassifiers xsi:type="ecore:EClass" name="ClassType" eSuperTypes="#//data/DataElement">
+      <eOperations name="getIsRefreshable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsUpdatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsDeletable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsTemplateable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsUpdateValidatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="operations" upperBound="-1"
+          eType="#//data/OperationType" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="relations" upperBound="-1"
+          eType="#//data/RelationType" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="attributes" upperBound="-1"
+          eType="#//data/AttributeType" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isMapped" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isPrincipal" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="false"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isActor" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="false"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="behaviours" upperBound="-1"
+          eType="#//data/ClassBehaviourType" defaultValueLiteral=""/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="representation" eType="#//data/AttributeType"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="transferObjectTypeName"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isOptional" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="false"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isForCreateOrUpdateType"
+          lowerBound="1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="false"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="simpleName" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="packageNameTokens" upperBound="-1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="RelationType" eSuperTypes="#//data/ReferenceType">
+      <eOperations name="getIsRelationEmbedded" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsListable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsCreatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsSetable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsUnsetable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsAddable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRemovable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRangeable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsCreateValidatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRelationKindAssociation" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRelationKindComposition" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRelationKindAggregation" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRelationKindStatic" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeStored" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeDerived" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeMapped" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeTransient" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeAccess" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRefreshable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsUpdatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsUpdateValidatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsDeletable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsTemplateable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getOwnerSimpleName" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eOperations name="getOwnerPackageNameTokens" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eOperations name="getIsClearable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getOriginal" eType="#//data/RelationType"/>
+      <eOperations name="getIsExportable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="relationKind" lowerBound="1"
+          eType="#//data/RelationKind" defaultValueLiteral="ASSOCIATION"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="memberType" lowerBound="1"
+          eType="#//data/MemberType" defaultValueLiteral="STORED"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isAccess" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="false"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="behaviours" upperBound="-1"
+          eType="#//data/RelationBehaviourType" defaultValueLiteral=""/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isReadOnly" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="false"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="originalRelationType"
+          eType="#//data/RelationType"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isInlineCreatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="AttributeType" eSuperTypes="#//data/DataElement">
+      <eOperations name="getIsMemberTypeMapped" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeStored" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeTransient" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeDerived" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMemberTypeAccess" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getOwnerSimpleName" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eOperations name="getOwnerPackageNameTokens" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eOperations name="getOriginal" eType="#//data/AttributeType"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="memberType" lowerBound="1"
+          eType="#//data/MemberType" defaultValueLiteral="STORED"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isReadOnly" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="dataType" lowerBound="1"
+          eType="#//data/DataType"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isFilterable" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isRequired" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="originalAttributeType"
+          eType="#//data/AttributeType"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isProfilePicture" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="false"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="EnumerationType" eSuperTypes="#//data/DataType">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="members" lowerBound="1"
+          upperBound="-1" eType="#//data/EnumerationMember" containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="ApplicationType" eSuperTypes="#//data/DataElement">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="target" lowerBound="1"
+          eType="#//data/ClassType"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="OperationType" eSuperTypes="#//data/DataElement">
+      <eOperations name="getIsStatic" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsMapped" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getOwnerSimpleName" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eOperations name="getOwnerPackageNameTokens" upperBound="-1" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eOperations name="getIsInputRangeable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getOriginal" eType="#//data/OperationType"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="input" eType="#//data/OperationParameterType"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="output" eType="#//data/OperationParameterType"
+          containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="operationType" lowerBound="1"
+          eType="#//data/OperationTypeEnum" defaultValueLiteral="MAPPED"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isStateful" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="faults" upperBound="-1"
+          eType="#//data/OperationParameterType" containment="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="originalOperationType"
+          eType="#//data/OperationType"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="postCallAccessNavigation"
+          eType="#//data/AccessBasedNavigation" containment="true"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="OperationParameterType" eSuperTypes="#//data/ReferenceType">
+      <eOperations name="getIsUpdatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRefreshable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsDeletable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getOriginal" eType="#//data/OperationParameterType"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="behaviours" upperBound="-1"
+          eType="#//data/OperationTargetBehaviourType" defaultValueLiteral=""/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="originalOperationParameterType"
+          eType="#//data/OperationParameterType"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EEnum" name="RelationKind">
+      <eLiterals name="ASSOCIATION"/>
+      <eLiterals name="COMPOSITION" value="1"/>
+      <eLiterals name="AGGREGATION" value="2"/>
+      <eLiterals name="STATIC" value="3" literal="STATIC"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EEnum" name="MemberType">
+      <eLiterals name="STORED"/>
+      <eLiterals name="DERIVED" value="1"/>
+      <eLiterals name="MAPPED" value="2"/>
+      <eLiterals name="TRANSIENT" value="3"/>
+      <eLiterals name="ACCESS" value="4" literal="ACCESS"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="TimestampType" eSuperTypes="#//data/DataType"/>
+    <eClassifiers xsi:type="ecore:EClass" name="DataType" abstract="true" eSuperTypes="#//NamedElement">
+      <eOperations name="getClassDisplayLabel" lowerBound="1"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="operator" eType="#//data/EnumerationType"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="NumericType" eSuperTypes="#//data/DataType">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="precision" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="scale" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="BooleanType" eSuperTypes="#//data/DataType"/>
+    <eClassifiers xsi:type="ecore:EClass" name="StringType" eSuperTypes="#//data/DataType">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxLength" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="regExp" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="PasswordType" eSuperTypes="#//data/DataType"/>
+    <eClassifiers xsi:type="ecore:EClass" name="DateType" eSuperTypes="#//data/DataType"/>
+    <eClassifiers xsi:type="ecore:EClass" name="EnumerationMember" eSuperTypes="#//NamedElement">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="ordinal" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Int"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EEnum" name="RelationBehaviourType">
+      <eLiterals name="LIST"/>
+      <eLiterals name="CREATE" value="1"/>
+      <eLiterals name="SET" value="2"/>
+      <eLiterals name="UNSET" value="3"/>
+      <eLiterals name="ADD" value="4"/>
+      <eLiterals name="REMOVE" value="5"/>
+      <eLiterals name="RANGE" value="6"/>
+      <eLiterals name="VALIDATE_CREATE" value="7"/>
+      <eLiterals name="TEMPLATE" value="4"/>
+      <eLiterals name="UPDATE" value="1"/>
+      <eLiterals name="VALIDATE_UPDATE" value="2"/>
+      <eLiterals name="DELETE" value="3"/>
+      <eLiterals name="REFRESH"/>
+      <eLiterals name="EXPORT" value="13"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EEnum" name="ClassBehaviourType">
+      <eLiterals name="REFRESH"/>
+      <eLiterals name="UPDATE" value="1"/>
+      <eLiterals name="VALIDATE_UPDATE" value="2"/>
+      <eLiterals name="DELETE" value="3"/>
+      <eLiterals name="TEMPLATE" value="4"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EEnum" name="OperationTypeEnum">
+      <eLiterals name="MAPPED" literal="MAPPED"/>
+      <eLiterals name="STATIC" value="1" literal="STATIC"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="ReferenceType" abstract="true" eSuperTypes="#//data/DataElement">
+      <eOperations name="getIsListable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsCreatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsSetable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsUnsetable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsAddable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRemovable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRangeable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsCreateValidatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsRefreshable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsUpdatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsUpdateValidatable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsDeletable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsTemplateable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eOperations name="getIsExportable" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isCollection" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="true"/>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="target" lowerBound="1"
+          eType="#//data/ClassType"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isOptional" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="true"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isOrderable" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"
+          defaultValueLiteral="false"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="isFilterable" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Boolean"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="BinaryType" eSuperTypes="#//data/DataType">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="mimeTypes" lowerBound="1"
+          upperBound="-1" eType="#//data/MimeType"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxFileSize" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//Long" defaultValueLiteral="0"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="MimeType">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="subType" lowerBound="1"
+          eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EEnum" name="OperationTargetBehaviourType">
+      <eLiterals name="REFRESH"/>
+      <eLiterals name="UPDATE" value="1"/>
+      <eLiterals name="DELETE" value="2"/>
+      <eLiterals name="VALIDATE_INPUT" value="3"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="TimeType" eSuperTypes="#//data/DataType"/>
+    <eClassifiers xsi:type="ecore:EClass" name="AccessBasedNavigation">
+      <eStructuralFeatures xsi:type="ecore:EReference" name="accessRelation" lowerBound="1"
+          eType="#//data/RelationType">
+        <eAnnotations source="http://www.eclipse.org/emf/2002/GenModel">
+          <details key="documentation" value="We need this because we need to query table relations to get a valid signedIdentifier, and proceed to navigate to the actual pageDefinition with our id.&#xA;"/>
+        </eAnnotations>
+      </eStructuralFeatures>
+      <eStructuralFeatures xsi:type="ecore:EReference" name="pageDefinition" lowerBound="1"
+          eType="#//PageDefinition"/>
+    </eClassifiers>
+    <eClassifiers xsi:type="ecore:EClass" name="Annotation">
+      <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="ecore:EDataType http://www.eclipse.org/emf/2003/XMLType#//String"/>
+    </eClassifiers>
+  </eSubpackages>
+</ecore:EPackage>
