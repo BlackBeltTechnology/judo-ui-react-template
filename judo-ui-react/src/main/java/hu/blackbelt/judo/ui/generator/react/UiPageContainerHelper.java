@@ -513,6 +513,13 @@ public class UiPageContainerHelper {
     public static ButtonGroup getDefaultButtonGroupForContainer(PageContainer container) {
         return container.getActionButtonGroups().stream().findFirst().orElse(null);
     }
+
+    public static List<ButtonGroup> getNonDefaultButtonGroupsForContainer(PageContainer container) {
+        return container.getActionButtonGroups().stream()
+          .skip(1)
+          .sorted(Comparator.comparing(NamedElement::getFQName))
+          .collect(Collectors.toList());
+    }
     
     public static List<Button> getDefaultButtonsForContainer(PageContainer container) {
         ButtonGroup buttonGroup = getDefaultButtonGroupForContainer(container);
@@ -520,6 +527,16 @@ public class UiPageContainerHelper {
             return new ArrayList<>();
         }
         return buttonGroup.getButtons().stream()
+          .sorted(Comparator.comparing(NamedElement::getFQName))
+          .collect(Collectors.toList());
+    }
+    
+    public static List<Button> getAllButtonsForContainer(PageContainer container) {
+        List<Button> buttons = new ArrayList<>();
+        for (ButtonGroup buttonGroup : container.getActionButtonGroups()) {
+            buttons.addAll(buttonGroup.getButtons());
+        }
+        return buttons.stream()
           .sorted(Comparator.comparing(NamedElement::getFQName))
           .collect(Collectors.toList());
     }

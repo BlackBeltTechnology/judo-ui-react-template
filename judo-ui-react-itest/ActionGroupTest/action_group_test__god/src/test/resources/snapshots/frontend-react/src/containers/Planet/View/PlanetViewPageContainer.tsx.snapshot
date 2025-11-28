@@ -16,7 +16,7 @@ import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { Suspense, lazy } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdiIcon, PageHeader, useJudoNavigation } from '~/components';
+import { DropdownButton, MdiIcon, PageHeader, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import type { Planet, PlanetStored } from '~/services/data-api/model/Planet';
@@ -154,6 +154,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
+
         <ComponentProxy
           filter={`(${OBJECTCLASS}=${PLANET_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
           editMode={editMode}
