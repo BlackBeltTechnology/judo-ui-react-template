@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import LoadingButton from '@mui/lab/LoadingButton';
 import { useTranslation } from 'react-i18next';
-import { useJudoNavigation, MdiIcon, PageHeader } from '~/components';
+import { useJudoNavigation, MdiIcon, PageHeader, DropdownButton } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { mainContainerPadding } from '~/theme';
 {{# unless (containerIsEmptyDashboard container) }}
@@ -125,6 +125,46 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                 {{/ if }}
               </Grid>
             )}
+          {{/ each }}
+
+          {{# each (getNonDefaultButtonGroupsForContainer container) as |buttonGroup| }}
+            <Grid className="page-action" item>
+              <DropdownButton
+                id="{{ getXMIID buttonGroup }}-button-group"
+                disabled={ {{# if buttonGroup.enabledBy }}!data.{{ buttonGroup.enabledBy.name }} ||{{/ if }} isLoading || editMode }
+                {{# if buttonGroup.icon }}
+                  startIcon={ <MdiIcon path="{{ buttonGroup.icon.iconName }}" /> }
+                {{/ if }}
+                menuItems={[
+                  {{# each (nonFeaturedButtonsForButtonGroup buttonGroup) as |button| }}
+                    {
+                      id: '{{ getXMIID button }}',
+                      label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
+                      {{# if button.tooltipText }}
+                      tooltip: t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string,
+                      {{/ if }}
+                      onClick: actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
+                        {{# unless (isParameterOpenerButton button) }}
+                          {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+                        {{/ unless}}
+                        await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
+                      } : undefined,
+                      {{# if button.icon }}
+                        startIcon: <MdiIcon path="{{ button.icon.iconName }}" />,
+                      {{ else }}
+                        startIcon: <MdiIcon path="arrow_right" />,
+                      {{/ if }}
+                      {{# if (containerButtonHasDisabledConditions button container) }}
+                          disabled: {{{ containerButtonGroupButtonDisabledConditions button container }}},
+                      {{/ if }}
+                      {{# if button.hiddenBy }}visible: !data.{{ button.hiddenBy.name }},{{/ if }}
+                    },
+                  {{/ each }}
+                ]}
+              >
+                { t('{{ getTranslationKeyForVisualElement buttonGroup }}', { defaultValue: '{{ buttonGroup.label }}' }) }
+              </DropdownButton>
+            </Grid>
           {{/ each }}
           <ComponentProxy
             filter={`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (containerComponentName container) }}_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
