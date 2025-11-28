@@ -16,7 +16,7 @@ import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { Suspense, lazy } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
 import { useTranslation } from 'react-i18next';
-import { MdiIcon, PageHeader, useJudoNavigation } from '~/components';
+import { DropdownButton, MdiIcon, PageHeader, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
@@ -154,6 +154,55 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
             </LoadingButton>
           </Grid>
         )}
+
+        <Grid className="page-action" item>
+          <DropdownButton
+            id="God/(esm/_zk8ooFyrEeylCdga_wJIBQ)/ButtonGroupVisualElement-button-group"
+            disabled={isLoading || editMode}
+            startIcon={<MdiIcon path="flare" />}
+            menuItems={[
+              {
+                id: 'God/(esm/_5NwrQFyrEeylCdga_wJIBQ)/OperationFormVisualElement',
+                label: t('View.Galaxy.View.createDarkMatter', { defaultValue: 'Create Dark Matter' }) as string,
+                onClick: actions.createDarkMatterAction
+                  ? async () => {
+                      await actions.createDarkMatterAction!();
+                    }
+                  : undefined,
+                startIcon: <MdiIcon path="chevron_right" />,
+                disabled: isLoading || editMode,
+              },
+              {
+                id: 'God/(esm/_5Nx5YFyrEeylCdga_wJIBQ)/OperationFormVisualElement',
+                label: t('View.Galaxy.View.createIntergalacticDust', {
+                  defaultValue: 'Create Intergalactic Dust',
+                }) as string,
+                onClick: actions.createIntergalacticDustAction
+                  ? async () => {
+                      await actions.createIntergalacticDustAction!();
+                    }
+                  : undefined,
+                startIcon: <MdiIcon path="chevron_right" />,
+                disabled: isLoading || editMode,
+              },
+              {
+                id: 'God/(esm/_5Nx5YVyrEeylCdga_wJIBQ)/OperationFormVisualElement',
+                label: t('View.Galaxy.View.createInterstellarMedium', {
+                  defaultValue: 'Create Interstellar Medium',
+                }) as string,
+                onClick: actions.createInterstellarMediumAction
+                  ? async () => {
+                      await actions.createInterstellarMediumAction!();
+                    }
+                  : undefined,
+                startIcon: <MdiIcon path="chevron_right" />,
+                disabled: isLoading || editMode,
+              },
+            ]}
+          >
+            {t('View.Galaxy.View.actionGroup', { defaultValue: 'Create Matter' })}
+          </DropdownButton>
+        </Grid>
         <ComponentProxy
           filter={`(${OBJECTCLASS}=${VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY})`}
           editMode={editMode}
