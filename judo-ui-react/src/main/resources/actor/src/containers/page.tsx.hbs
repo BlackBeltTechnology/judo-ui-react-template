@@ -132,6 +132,9 @@ export default function {{ containerComponentName container }}Page ({{# unless (
               <DropdownButton
                 id="{{ getXMIID buttonGroup }}-button-group"
                 disabled={ {{# if buttonGroup.enabledBy }}!data.{{ buttonGroup.enabledBy.name }} ||{{/ if }} isLoading || editMode }
+                {{# if buttonGroup.hiddenBy }}
+                hiddenBy={ data.{{ buttonGroup.hiddenBy.name }} || isLoading || editMode }
+                {{/ if }}
                 {{# if buttonGroup.icon }}
                   startIcon={ <MdiIcon path="{{ buttonGroup.icon.iconName }}" /> }
                 {{/ if }}
