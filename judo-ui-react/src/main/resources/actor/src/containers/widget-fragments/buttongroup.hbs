@@ -49,6 +49,9 @@
       <DropdownButton
         id="{{ getXMIID child }}-button-group"
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
+        {{# if child.hiddenBy }}
+        hiddenBy={ data.{{ child.hiddenBy.name }} || isLoading || editMode }
+        {{/ if }}
         {{# if child.icon }}
           startIcon={ <MdiIcon path="{{ child.icon.iconName }}" /> }
         {{/ if }}

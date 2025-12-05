@@ -33,6 +33,7 @@ interface DropdownButtonProps {
   fullWidth?: boolean;
   variant?: 'text' | 'outlined' | 'contained' | undefined;
   startIcon?: ReactNode;
+  hiddenBy?: boolean;
 }
 
 export function DropdownButton({
@@ -44,6 +45,7 @@ export function DropdownButton({
   showDropdownIcon = true,
   fullWidth = false,
   variant = 'contained',
+  hiddenBy = false,
 }: DropdownButtonProps) {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
@@ -78,6 +80,10 @@ export function DropdownButton({
 
     prevOpen.current = open;
   }, [open]);
+
+  if (hiddenBy) {
+    return;
+  }
 
   return (
     <>
