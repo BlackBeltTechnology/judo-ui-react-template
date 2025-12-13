@@ -196,13 +196,28 @@ export interface LabeledElement {
 
 // Data model types
 
+// Mixin interfaces
+export interface AttributeBased {
+  attributeType?: AttributeType;
+}
+
+export interface ReferenceTypedVisualElement {
+  dataElement?: DataElement;
+}
+
 export interface DataElement extends NamedElement {
-  type: 'ClassType' | 'RelationType' | 'AttributeType' | 'OperationType' | 'OperationParameterType';
+  type: 'ClassType' | 'RelationType' | 'AttributeType' | 'OperationType' | 'OperationParameterType' | 'ApplicationType';
 }
 
 export interface DataType extends NamedElement {
   type: 'StringType' | 'NumericType' | 'BooleanType' | 'DateType' | 'TimestampType' | 'TimeType' | 'EnumerationType' | 'BinaryType' | 'PasswordType';
   operator?: EnumerationType;
+}
+
+export interface ReferenceType extends DataElement {
+  target: ClassType;
+  isCollection: boolean;
+  isRequired?: boolean;
 }
 
 export interface StringType extends DataType {
@@ -262,6 +277,7 @@ export interface AttributeType extends DataElement {
   dataType: DataType;
   ownerSimpleName?: string;
   ownerPackageNameTokens?: string[];
+  originalAttributeType?: AttributeType;
 }
 
 export interface RelationType extends DataElement {
@@ -273,6 +289,7 @@ export interface RelationType extends DataElement {
   isOptional: boolean;
   target: ClassType;
   behaviours: string[];
+  originalRelationType?: RelationType;
 }
 
 export interface OperationType extends DataElement {
@@ -281,8 +298,11 @@ export interface OperationType extends DataElement {
   isStateful: boolean;
   input?: OperationParameterType;
   output?: OperationParameterType;
+  faults?: OperationParameterType[];
+  postCallAccessNavigation?: AccessBasedNavigation;
   ownerSimpleName?: string;
   ownerPackageNameTokens?: string[];
+  originalOperationType?: OperationType;
 }
 
 export interface OperationParameterType extends DataElement {
@@ -290,6 +310,7 @@ export interface OperationParameterType extends DataElement {
   isCollection: boolean;
   target: ClassType;
   behaviours: string[];
+  originalOperationParameterType?: OperationParameterType;
 }
 
 export interface ClassType extends DataElement {
@@ -305,6 +326,16 @@ export interface ClassType extends DataElement {
   simpleName?: string;
   packageNameTokens?: string[];
   transferObjectTypeName?: string;
+  representation?: AttributeType;
+}
+
+export interface ApplicationType extends DataElement {
+  type: 'ApplicationType';
+}
+
+export interface AccessBasedNavigation extends NamedElement {
+  accessRelation?: RelationType;
+  pageDefinition?: PageDefinition;
 }
 
 // Visual element types
@@ -436,6 +467,11 @@ export interface PasswordInput extends Input {
   maxLength?: number;
 }
 
+export interface BinaryTypeInput extends Input {
+  elementType: 'BinaryTypeInput';
+  maxFileSize?: number;
+}
+
 export interface EnumerationMember extends NamedElement {
   ordinal: number;
 }
@@ -458,6 +494,10 @@ export interface EnumerationRadio extends Input {
 export interface EnumerationToggleButtonbar extends Input {
   elementType: 'EnumerationToggleButtonbar';
   options: Option[];
+}
+
+export interface TrinaryLogicCombo extends Input {
+  elementType: 'TrinaryLogicCombo';
 }
 
 export interface Tab extends NamedElement {
@@ -588,6 +628,82 @@ export interface ActionDefinition extends NamedElement {
   isBulk?: boolean;
   isContainedRelationAction?: boolean;
 }
+
+// Call Operation Action Base
+export interface CallOperationActionDefinition extends ActionDefinition {
+  operation?: OperationType;
+}
+
+// Basic CRUD Actions
+export interface BackActionDefinition extends ActionDefinition {}
+export interface CancelActionDefinition extends ActionDefinition {}
+export interface ClearActionDefinition extends ActionDefinition {}
+export interface CreateActionDefinition extends ActionDefinition {}
+export interface DeleteActionDefinition extends ActionDefinition {}
+export interface FilterActionDefinition extends ActionDefinition {}
+export interface RefreshActionDefinition extends ActionDefinition {}
+export interface RemoveActionDefinition extends ActionDefinition {}
+export interface SetActionDefinition extends ActionDefinition {}
+export interface UnsetActionDefinition extends ActionDefinition {}
+export interface UpdateActionDefinition extends ActionDefinition {}
+export interface AddActionDefinition extends ActionDefinition {}
+
+// Bulk Operations
+export interface BulkCallOperationActionDefinition extends CallOperationActionDefinition {}
+export interface BulkDeleteActionDefinition extends ActionDefinition {}
+export interface BulkRemoveActionDefinition extends ActionDefinition {}
+
+// Open/Navigate Actions
+export interface OpenAddSelectorActionDefinition extends ActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+export interface OpenCreateFormActionDefinition extends ActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+export interface OpenOperationInputFormActionDefinition extends CallOperationActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+export interface OpenOperationInputSelectorActionDefinition extends CallOperationActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+export interface OpenPageActionDefinition extends ActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+export interface OpenSetSelectorActionDefinition extends ActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+export interface OpenFormActionDefinition extends ActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+export interface OpenSelectorActionDefinition extends ActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+export interface RowOpenPageActionDefinition extends ActionDefinition {
+  targetPageDefinition?: PageDefinition;
+}
+
+// Operation Call Actions
+export interface InputFormCallOperationActionDefinition extends CallOperationActionDefinition {}
+export interface InputSelectorCallOperationActionDefinition extends CallOperationActionDefinition {}
+export interface ParameterlessCallOperationActionDefinition extends CallOperationActionDefinition {}
+
+// Autocomplete Actions
+export interface AutocompleteRangeActionDefinition extends ActionDefinition {}
+export interface AutocompleteSetActionDefinition extends ActionDefinition {}
+export interface AutocompleteAddActionDefinition extends ActionDefinition {}
+
+// Other Actions
+export interface CustomActionDefinition extends ActionDefinition {
+  customAction?: string;
+}
+export interface ExportActionDefinition extends ActionDefinition {}
+export interface GetTemplateActionDefinition extends ActionDefinition {}
+export interface InlineCreateRowActionDefinition extends ActionDefinition {}
+export interface PreFetchActionDefinition extends ActionDefinition {}
+export interface RowDeleteActionDefinition extends ActionDefinition {}
+export interface FilterRelationActionDefinition extends ActionDefinition {}
+export interface RefreshRelationActionDefinition extends ActionDefinition {}
+export interface SelectorRangeActionDefinition extends ActionDefinition {}
 
 export interface Action extends NamedElement {
   actionDefinition: ActionDefinition;

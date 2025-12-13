@@ -72,6 +72,205 @@ export class IconImpl implements Types.Icon {
 
 // Data Model Implementation Classes
 
+// DataType Implementations
+export class StringTypeImpl extends NamedElementImpl implements Types.StringType {
+  type: 'StringType' = 'StringType';
+  maxLength: number;
+  regExp?: string;
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.StringType> = {}) {
+    super(data);
+    this.maxLength = data.maxLength ?? 255;
+    this.regExp = data.regExp;
+    this.operator = data.operator;
+  }
+}
+
+export class NumericTypeImpl extends NamedElementImpl implements Types.NumericType {
+  type: 'NumericType' = 'NumericType';
+  precision: number;
+  scale: number;
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.NumericType> = {}) {
+    super(data);
+    this.precision = data.precision ?? 10;
+    this.scale = data.scale ?? 0;
+    this.operator = data.operator;
+  }
+}
+
+export class BooleanTypeImpl extends NamedElementImpl implements Types.BooleanType {
+  type: 'BooleanType' = 'BooleanType';
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.BooleanType> = {}) {
+    super(data);
+    this.operator = data.operator;
+  }
+}
+
+export class DateTypeImpl extends NamedElementImpl implements Types.DateType {
+  type: 'DateType' = 'DateType';
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.DateType> = {}) {
+    super(data);
+    this.operator = data.operator;
+  }
+}
+
+export class TimestampTypeImpl extends NamedElementImpl implements Types.TimestampType {
+  type: 'TimestampType' = 'TimestampType';
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.TimestampType> = {}) {
+    super(data);
+    this.operator = data.operator;
+  }
+}
+
+export class TimeTypeImpl extends NamedElementImpl implements Types.TimeType {
+  type: 'TimeType' = 'TimeType';
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.TimeType> = {}) {
+    super(data);
+    this.operator = data.operator;
+  }
+}
+
+export class PasswordTypeImpl extends NamedElementImpl implements Types.PasswordType {
+  type: 'PasswordType' = 'PasswordType';
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.PasswordType> = {}) {
+    super(data);
+    this.operator = data.operator;
+  }
+}
+
+export class MimeTypeImpl implements Types.MimeType {
+  type: string;
+  subType: string;
+
+  constructor(data: Partial<Types.MimeType> = {}) {
+    this.type = data.type || '';
+    this.subType = data.subType || '';
+  }
+}
+
+export class BinaryTypeImpl extends NamedElementImpl implements Types.BinaryType {
+  type: 'BinaryType' = 'BinaryType';
+  mimeTypes: Types.MimeType[];
+  maxFileSize: number;
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.BinaryType> = {}) {
+    super(data);
+    this.mimeTypes = data.mimeTypes || [];
+    this.maxFileSize = data.maxFileSize ?? 10485760; // 10MB default
+    this.operator = data.operator;
+  }
+}
+
+export class EnumerationMemberImpl extends NamedElementImpl implements Types.EnumerationMember {
+  ordinal: number;
+
+  constructor(data: Partial<Types.EnumerationMember> = {}) {
+    super(data);
+    this.ordinal = data.ordinal ?? 0;
+  }
+}
+
+export class EnumerationTypeImpl extends NamedElementImpl implements Types.EnumerationType {
+  type: 'EnumerationType' = 'EnumerationType';
+  members: Types.EnumerationMember[];
+  operator?: Types.EnumerationType;
+
+  constructor(data: Partial<Types.EnumerationType> = {}) {
+    super(data);
+    this.members = data.members || [];
+    this.operator = data.operator;
+  }
+}
+
+// Supporting Element Implementations
+export class SizeImpl implements Types.Size {
+  width: number;
+  height: number;
+
+  constructor(data: Partial<Types.Size> = {}) {
+    this.width = data.width ?? 0;
+    this.height = data.height ?? 0;
+  }
+}
+
+export class SizeConstraintImpl implements Types.SizeConstraint {
+  minWidth: number;
+  minHeight: number;
+  maxWidth: number;
+  maxHeight: number;
+
+  constructor(data: Partial<Types.SizeConstraint> = {}) {
+    this.minWidth = data.minWidth ?? 0;
+    this.minHeight = data.minHeight ?? 0;
+    this.maxWidth = data.maxWidth ?? 0;
+    this.maxHeight = data.maxHeight ?? 0;
+  }
+}
+
+export class AlignImpl implements Types.Align {
+  alignment: Alignment;
+
+  constructor(data: Partial<Types.Align> = {}) {
+    this.alignment = data.alignment || Alignment.TOP_LEFT;
+  }
+}
+
+export class FrameImpl implements Types.Frame {
+  elevation: number;
+  radius: number;
+
+  constructor(data: Partial<Types.Frame> = {}) {
+    this.elevation = data.elevation ?? 0;
+    this.radius = data.radius ?? 0;
+  }
+}
+
+export class ConfirmationImpl implements Types.Confirmation {
+  confirmationType: ConfirmationType;
+  confirmationMessage?: string;
+  confirmationCondition?: Types.AttributeType;
+
+  constructor(data: Partial<Types.Confirmation> = {}) {
+    this.confirmationType = data.confirmationType || ConfirmationType.NONE;
+    this.confirmationMessage = data.confirmationMessage;
+    this.confirmationCondition = data.confirmationCondition;
+  }
+}
+
+export class OptionImpl extends NamedElementImpl implements Types.Option {
+  selected: boolean;
+  enumerationMember: Types.EnumerationMember;
+
+  constructor(data: Partial<Types.Option> = {}) {
+    super(data);
+    this.selected = data.selected ?? false;
+    this.enumerationMember = data.enumerationMember || new EnumerationMemberImpl();
+  }
+}
+
+export class TabImpl extends NamedElementImpl implements Types.Tab {
+  element: Types.VisualElement;
+
+  constructor(data: Partial<Types.Tab> = {}) {
+    super(data);
+    this.element = data.element || new VisualElementImpl();
+  }
+}
+
 export class AttributeTypeImpl extends NamedElementImpl implements Types.AttributeType {
   type: 'AttributeType' = 'AttributeType';
   memberType: MemberType;
@@ -81,6 +280,7 @@ export class AttributeTypeImpl extends NamedElementImpl implements Types.Attribu
   dataType: Types.DataType;
   ownerSimpleName?: string;
   ownerPackageNameTokens?: string[];
+  originalAttributeType?: Types.AttributeType;
 
   constructor(data: Partial<Types.AttributeType> = {}) {
     super(data);
@@ -88,9 +288,10 @@ export class AttributeTypeImpl extends NamedElementImpl implements Types.Attribu
     this.isReadOnly = data.isReadOnly ?? true;
     this.isRequired = data.isRequired ?? false;
     this.isFilterable = data.isFilterable ?? false;
-    this.dataType = data.dataType || { name: '', fqName: '', type: 'StringType' };
+    this.dataType = data.dataType || new StringTypeImpl({ name: '', fqName: '' });
     this.ownerSimpleName = data.ownerSimpleName;
     this.ownerPackageNameTokens = data.ownerPackageNameTokens;
+    this.originalAttributeType = data.originalAttributeType;
   }
 }
 
@@ -103,6 +304,7 @@ export class RelationTypeImpl extends NamedElementImpl implements Types.Relation
   isOptional: boolean;
   target: Types.ClassType;
   behaviours: string[];
+  originalRelationType?: Types.RelationType;
 
   constructor(data: Partial<Types.RelationType> = {}) {
     super(data);
@@ -113,10 +315,22 @@ export class RelationTypeImpl extends NamedElementImpl implements Types.Relation
     this.isOptional = data.isOptional ?? true;
     this.target = data.target || this.createEmptyClassType();
     this.behaviours = data.behaviours || [];
+    this.originalRelationType = data.originalRelationType;
   }
 
   private createEmptyClassType(): Types.ClassType {
     return new ClassTypeImpl();
+  }
+}
+
+export class AccessBasedNavigationImpl extends NamedElementImpl implements Types.AccessBasedNavigation {
+  accessRelation?: Types.RelationType;
+  pageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.AccessBasedNavigation> = {}) {
+    super(data);
+    this.accessRelation = data.accessRelation;
+    this.pageDefinition = data.pageDefinition;
   }
 }
 
@@ -126,8 +340,11 @@ export class OperationTypeImpl extends NamedElementImpl implements Types.Operati
   isStateful: boolean;
   input?: Types.OperationParameterType;
   output?: Types.OperationParameterType;
+  faults?: Types.OperationParameterType[];
+  postCallAccessNavigation?: Types.AccessBasedNavigation;
   ownerSimpleName?: string;
   ownerPackageNameTokens?: string[];
+  originalOperationType?: Types.OperationType;
 
   constructor(data: Partial<Types.OperationType> = {}) {
     super(data);
@@ -135,8 +352,11 @@ export class OperationTypeImpl extends NamedElementImpl implements Types.Operati
     this.isStateful = data.isStateful ?? true;
     this.input = data.input;
     this.output = data.output;
+    this.faults = data.faults || [];
+    this.postCallAccessNavigation = data.postCallAccessNavigation;
     this.ownerSimpleName = data.ownerSimpleName;
     this.ownerPackageNameTokens = data.ownerPackageNameTokens;
+    this.originalOperationType = data.originalOperationType;
   }
 }
 
@@ -145,12 +365,22 @@ export class OperationParameterTypeImpl extends NamedElementImpl implements Type
   isCollection: boolean;
   target: Types.ClassType;
   behaviours: string[];
+  originalOperationParameterType?: Types.OperationParameterType;
 
   constructor(data: Partial<Types.OperationParameterType> = {}) {
     super(data);
     this.isCollection = data.isCollection ?? true;
     this.target = data.target || new ClassTypeImpl();
     this.behaviours = data.behaviours || [];
+    this.originalOperationParameterType = data.originalOperationParameterType;
+  }
+}
+
+export class ApplicationTypeImpl extends NamedElementImpl implements Types.ApplicationType {
+  type: 'ApplicationType' = 'ApplicationType';
+
+  constructor(data: Partial<Types.ApplicationType> = {}) {
+    super(data);
   }
 }
 
@@ -167,6 +397,7 @@ export class ClassTypeImpl extends NamedElementImpl implements Types.ClassType {
   simpleName?: string;
   packageNameTokens?: string[];
   transferObjectTypeName?: string;
+  representation?: Types.AttributeType;
 
   constructor(data: Partial<Types.ClassType> = {}) {
     super(data);
@@ -181,6 +412,7 @@ export class ClassTypeImpl extends NamedElementImpl implements Types.ClassType {
     this.simpleName = data.simpleName;
     this.packageNameTokens = data.packageNameTokens;
     this.transferObjectTypeName = data.transferObjectTypeName;
+    this.representation = data.representation;
   }
 }
 
@@ -294,6 +526,17 @@ export class TableImpl extends ContainerImpl implements Types.Table {
   dataElement?: Types.DataElement;
   tableActionButtonGroup?: Types.ButtonGroup;
   rowActionButtonGroup?: Types.ButtonGroup;
+  allowSelectMultiple?: boolean;
+  selectorRowsPerPage?: number;
+  additionalMaskAttributes?: Types.AttributeType[];
+  showTotalCount?: boolean;
+  checkboxSelection?: CheckboxSelection;
+  additionalMaskRelations?: Types.RelationType[];
+  isInlineEditable?: boolean;
+  representationComponent?: TableRepresentation;
+  autocompleteRangeActionDefinition?: Types.ActionDefinition;
+  autocompleteAddActionDefinition?: Types.ActionDefinition;
+  actionColumnWidth?: number;
 
   constructor(data: Partial<Types.Table> = {}) {
     super(data);
@@ -306,6 +549,17 @@ export class TableImpl extends ContainerImpl implements Types.Table {
     this.dataElement = data.dataElement;
     this.tableActionButtonGroup = data.tableActionButtonGroup;
     this.rowActionButtonGroup = data.rowActionButtonGroup;
+    this.allowSelectMultiple = data.allowSelectMultiple;
+    this.selectorRowsPerPage = data.selectorRowsPerPage;
+    this.additionalMaskAttributes = data.additionalMaskAttributes || [];
+    this.showTotalCount = data.showTotalCount;
+    this.checkboxSelection = data.checkboxSelection;
+    this.additionalMaskRelations = data.additionalMaskRelations || [];
+    this.isInlineEditable = data.isInlineEditable;
+    this.representationComponent = data.representationComponent;
+    this.autocompleteRangeActionDefinition = data.autocompleteRangeActionDefinition;
+    this.autocompleteAddActionDefinition = data.autocompleteAddActionDefinition;
+    this.actionColumnWidth = data.actionColumnWidth;
   }
 }
 
@@ -353,6 +607,14 @@ export class LinkImpl extends VisualElementImpl implements Types.Link {
   relationName: string;
   dataElement?: Types.DataElement;
   actionButtonGroup?: Types.ButtonGroup;
+  autocompleteRangeActionDefinition?: Types.ActionDefinition;
+  selectorRowsPerPage?: number;
+  autoCompleteRows?: number;
+  additionalMaskAttributes?: Types.AttributeType[];
+  refreshActionDefinition?: Types.ActionDefinition;
+  autocompleteSetActionDefinition?: Types.ActionDefinition;
+  isEager?: boolean;
+  additionalMaskRelations?: Types.RelationType[];
 
   constructor(data: Partial<Types.Link> = {}) {
     super(data);
@@ -361,6 +623,14 @@ export class LinkImpl extends VisualElementImpl implements Types.Link {
     this.relationName = data.relationName || '';
     this.dataElement = data.dataElement;
     this.actionButtonGroup = data.actionButtonGroup;
+    this.autocompleteRangeActionDefinition = data.autocompleteRangeActionDefinition;
+    this.selectorRowsPerPage = data.selectorRowsPerPage;
+    this.autoCompleteRows = data.autoCompleteRows;
+    this.additionalMaskAttributes = data.additionalMaskAttributes || [];
+    this.refreshActionDefinition = data.refreshActionDefinition;
+    this.autocompleteSetActionDefinition = data.autocompleteSetActionDefinition;
+    this.isEager = data.isEager;
+    this.additionalMaskRelations = data.additionalMaskRelations || [];
   }
 }
 
@@ -371,6 +641,8 @@ export class ButtonImpl extends VisualElementImpl implements Types.Button {
   dataElement?: Types.DataElement;
   relationName?: string;
   tooltipText?: string;
+  confirmation?: Types.Confirmation;
+  preFetchActionDefinition?: Types.ActionDefinition;
 
   constructor(data: Partial<Types.Button> = {}) {
     super(data);
@@ -380,6 +652,8 @@ export class ButtonImpl extends VisualElementImpl implements Types.Button {
     this.dataElement = data.dataElement;
     this.relationName = data.relationName;
     this.tooltipText = data.tooltipText;
+    this.confirmation = data.confirmation;
+    this.preFetchActionDefinition = data.preFetchActionDefinition;
   }
 
   private createEmptyActionDefinition(): Types.ActionDefinition {
@@ -404,6 +678,271 @@ export class ButtonGroupImpl extends VisualElementImpl implements Types.ButtonGr
   }
 }
 
+// Additional Visual Element Implementations
+
+export class TabControllerImpl extends VisualElementImpl implements Types.TabController {
+  elementType: 'TabController' = 'TabController';
+  tabs: Types.Tab[];
+  controllerRow: number;
+  orientation?: TabOrientation;
+
+  constructor(data: Partial<Types.TabController> = {}) {
+    super(data);
+    this.elementType = 'TabController';
+    this.tabs = data.tabs || [];
+    this.controllerRow = data.controllerRow ?? 1;
+    this.orientation = data.orientation;
+  }
+}
+
+export class TextImpl extends VisualElementImpl implements Types.Text {
+  elementType: 'Text' = 'Text';
+  text: string;
+
+  constructor(data: Partial<Types.Text> = {}) {
+    super(data);
+    this.elementType = 'Text';
+    this.text = data.text || '';
+  }
+}
+
+export class DividerImpl extends VisualElementImpl implements Types.Divider {
+  elementType: 'Divider' = 'Divider';
+
+  constructor(data: Partial<Types.Divider> = {}) {
+    super(data);
+    this.elementType = 'Divider';
+  }
+}
+
+export class SpacerImpl extends VisualElementImpl implements Types.Spacer {
+  elementType: 'Spacer' = 'Spacer';
+
+  constructor(data: Partial<Types.Spacer> = {}) {
+    super(data);
+    this.elementType = 'Spacer';
+  }
+}
+
+export class FormattedImpl extends VisualElementImpl implements Types.Formatted {
+  elementType: 'Formatted' = 'Formatted';
+  format: string;
+  isMultiLine?: boolean;
+  attributeType?: Types.AttributeType;
+
+  constructor(data: Partial<Types.Formatted> = {}) {
+    super(data);
+    this.elementType = 'Formatted';
+    this.format = data.format || '';
+    this.isMultiLine = data.isMultiLine;
+    this.attributeType = data.attributeType;
+  }
+}
+
+export class IconImageImpl extends VisualElementImpl implements Types.IconImage {
+  elementType: 'IconImage' = 'IconImage';
+
+  constructor(data: Partial<Types.IconImage> = {}) {
+    super(data);
+    this.elementType = 'IconImage';
+  }
+}
+
+export class LabelImpl extends VisualElementImpl implements Types.Label {
+  elementType: 'Label' = 'Label';
+
+  constructor(data: Partial<Types.Label> = {}) {
+    super(data);
+    this.elementType = 'Label';
+  }
+}
+
+// Specific Input Type Implementations
+
+export class TextInputImpl extends InputImpl implements Types.TextInput {
+  elementType: 'TextInput' = 'TextInput';
+  mask?: string;
+  regexp?: string;
+  maxLength?: number;
+  isTypeAheadField?: boolean;
+
+  constructor(data: Partial<Types.TextInput> = {}) {
+    super(data);
+    this.elementType = 'TextInput';
+    this.mask = data.mask;
+    this.regexp = data.regexp;
+    this.maxLength = data.maxLength;
+    this.isTypeAheadField = data.isTypeAheadField;
+  }
+}
+
+export class TextAreaImpl extends InputImpl implements Types.TextArea {
+  elementType: 'TextArea' = 'TextArea';
+  maxLength?: number;
+  lines: number;
+  countCharacters?: boolean;
+
+  constructor(data: Partial<Types.TextArea> = {}) {
+    super(data);
+    this.elementType = 'TextArea';
+    this.maxLength = data.maxLength;
+    this.lines = data.lines ?? 3;
+    this.countCharacters = data.countCharacters;
+  }
+}
+
+export class NumericInputImpl extends InputImpl implements Types.NumericInput {
+  elementType: 'NumericInput' = 'NumericInput';
+  scale?: number;
+  precision?: number;
+  formatValue?: boolean;
+  minValueBy?: Types.AttributeType;
+  maxValueBy?: Types.AttributeType;
+
+  constructor(data: Partial<Types.NumericInput> = {}) {
+    super(data);
+    this.elementType = 'NumericInput';
+    this.scale = data.scale;
+    this.precision = data.precision;
+    this.formatValue = data.formatValue;
+    this.minValueBy = data.minValueBy;
+    this.maxValueBy = data.maxValueBy;
+  }
+}
+
+export class CheckboxImpl extends InputImpl implements Types.Checkbox {
+  elementType: 'Checkbox' = 'Checkbox';
+  checked: boolean;
+  valueLabelPlacement?: Placement;
+
+  constructor(data: Partial<Types.Checkbox> = {}) {
+    super(data);
+    this.elementType = 'Checkbox';
+    this.checked = data.checked ?? false;
+    this.valueLabelPlacement = data.valueLabelPlacement;
+  }
+}
+
+export class SwitchImpl extends InputImpl implements Types.Switch {
+  elementType: 'Switch' = 'Switch';
+  switched?: boolean;
+  valueLabelPlacement?: Placement;
+
+  constructor(data: Partial<Types.Switch> = {}) {
+    super(data);
+    this.elementType = 'Switch';
+    this.switched = data.switched;
+    this.valueLabelPlacement = data.valueLabelPlacement;
+  }
+}
+
+export class DateInputImpl extends InputImpl implements Types.DateInput {
+  elementType: 'DateInput' = 'DateInput';
+  minValueBy?: Types.AttributeType;
+  maxValueBy?: Types.AttributeType;
+
+  constructor(data: Partial<Types.DateInput> = {}) {
+    super(data);
+    this.elementType = 'DateInput';
+    this.minValueBy = data.minValueBy;
+    this.maxValueBy = data.maxValueBy;
+  }
+}
+
+export class DateTimeInputImpl extends InputImpl implements Types.DateTimeInput {
+  elementType: 'DateTimeInput' = 'DateTimeInput';
+  baseUnit?: DurationUnit;
+  minValueBy?: Types.AttributeType;
+  maxValueBy?: Types.AttributeType;
+
+  constructor(data: Partial<Types.DateTimeInput> = {}) {
+    super(data);
+    this.elementType = 'DateTimeInput';
+    this.baseUnit = data.baseUnit;
+    this.minValueBy = data.minValueBy;
+    this.maxValueBy = data.maxValueBy;
+  }
+}
+
+export class TimeInputImpl extends InputImpl implements Types.TimeInput {
+  elementType: 'TimeInput' = 'TimeInput';
+  baseUnit?: DurationUnit;
+  minValueBy?: Types.AttributeType;
+  maxValueBy?: Types.AttributeType;
+
+  constructor(data: Partial<Types.TimeInput> = {}) {
+    super(data);
+    this.elementType = 'TimeInput';
+    this.baseUnit = data.baseUnit;
+    this.minValueBy = data.minValueBy;
+    this.maxValueBy = data.maxValueBy;
+  }
+}
+
+export class PasswordInputImpl extends InputImpl implements Types.PasswordInput {
+  elementType: 'PasswordInput' = 'PasswordInput';
+  maxLength?: number;
+
+  constructor(data: Partial<Types.PasswordInput> = {}) {
+    super(data);
+    this.elementType = 'PasswordInput';
+    this.maxLength = data.maxLength;
+  }
+}
+
+export class BinaryTypeInputImpl extends InputImpl implements Types.BinaryTypeInput {
+  elementType: 'BinaryTypeInput' = 'BinaryTypeInput';
+  maxFileSize?: number;
+
+  constructor(data: Partial<Types.BinaryTypeInput> = {}) {
+    super(data);
+    this.elementType = 'BinaryTypeInput';
+    this.maxFileSize = data.maxFileSize;
+  }
+}
+
+export class EnumerationComboImpl extends InputImpl implements Types.EnumerationCombo {
+  elementType: 'EnumerationCombo' = 'EnumerationCombo';
+  options: Types.Option[];
+
+  constructor(data: Partial<Types.EnumerationCombo> = {}) {
+    super(data);
+    this.elementType = 'EnumerationCombo';
+    this.options = data.options || [];
+  }
+}
+
+export class EnumerationRadioImpl extends InputImpl implements Types.EnumerationRadio {
+  elementType: 'EnumerationRadio' = 'EnumerationRadio';
+  options: Types.Option[];
+
+  constructor(data: Partial<Types.EnumerationRadio> = {}) {
+    super(data);
+    this.elementType = 'EnumerationRadio';
+    this.options = data.options || [];
+  }
+}
+
+export class EnumerationToggleButtonbarImpl extends InputImpl implements Types.EnumerationToggleButtonbar {
+  elementType: 'EnumerationToggleButtonbar' = 'EnumerationToggleButtonbar';
+  options: Types.Option[];
+
+  constructor(data: Partial<Types.EnumerationToggleButtonbar> = {}) {
+    super(data);
+    this.elementType = 'EnumerationToggleButtonbar';
+    this.options = data.options || [];
+  }
+}
+
+export class TrinaryLogicComboImpl extends InputImpl implements Types.TrinaryLogicCombo {
+  elementType: 'TrinaryLogicCombo' = 'TrinaryLogicCombo';
+
+  constructor(data: Partial<Types.TrinaryLogicCombo> = {}) {
+    super(data);
+    this.elementType = 'TrinaryLogicCombo';
+  }
+}
+
 // Action Implementation Classes
 
 export class ActionDefinitionImpl extends NamedElementImpl implements Types.ActionDefinition {
@@ -411,6 +950,7 @@ export class ActionDefinitionImpl extends NamedElementImpl implements Types.Acti
   isTransient: boolean;
   targetType?: Types.ClassType;
   isBulk?: boolean;
+  isContainedRelationAction?: boolean;
 
   constructor(data: Partial<Types.ActionDefinition> = {}) {
     super(data);
@@ -418,6 +958,329 @@ export class ActionDefinitionImpl extends NamedElementImpl implements Types.Acti
     this.isTransient = data.isTransient ?? false;
     this.targetType = data.targetType;
     this.isBulk = data.isBulk;
+    this.isContainedRelationAction = data.isContainedRelationAction;
+  }
+}
+
+// Call Operation Action Base
+export class CallOperationActionDefinitionImpl extends ActionDefinitionImpl implements Types.CallOperationActionDefinition {
+  operation?: Types.OperationType;
+
+  constructor(data: Partial<Types.CallOperationActionDefinition> = {}) {
+    super(data);
+    this.operation = data.operation;
+  }
+}
+
+// Basic CRUD Actions
+export class BackActionDefinitionImpl extends ActionDefinitionImpl implements Types.BackActionDefinition {
+  constructor(data: Partial<Types.BackActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.BACK;
+  }
+}
+
+export class CancelActionDefinitionImpl extends ActionDefinitionImpl implements Types.CancelActionDefinition {
+  constructor(data: Partial<Types.CancelActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CANCEL;
+  }
+}
+
+export class ClearActionDefinitionImpl extends ActionDefinitionImpl implements Types.ClearActionDefinition {
+  constructor(data: Partial<Types.ClearActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CLEAR;
+  }
+}
+
+export class CreateActionDefinitionImpl extends ActionDefinitionImpl implements Types.CreateActionDefinition {
+  constructor(data: Partial<Types.CreateActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CREATE;
+  }
+}
+
+export class DeleteActionDefinitionImpl extends ActionDefinitionImpl implements Types.DeleteActionDefinition {
+  constructor(data: Partial<Types.DeleteActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.DELETE;
+  }
+}
+
+export class FilterActionDefinitionImpl extends ActionDefinitionImpl implements Types.FilterActionDefinition {
+  constructor(data: Partial<Types.FilterActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.FILTER;
+  }
+}
+
+export class RefreshActionDefinitionImpl extends ActionDefinitionImpl implements Types.RefreshActionDefinition {
+  constructor(data: Partial<Types.RefreshActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.REFRESH;
+  }
+}
+
+export class RemoveActionDefinitionImpl extends ActionDefinitionImpl implements Types.RemoveActionDefinition {
+  constructor(data: Partial<Types.RemoveActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.REMOVE;
+  }
+}
+
+export class SetActionDefinitionImpl extends ActionDefinitionImpl implements Types.SetActionDefinition {
+  constructor(data: Partial<Types.SetActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.SET;
+  }
+}
+
+export class UnsetActionDefinitionImpl extends ActionDefinitionImpl implements Types.UnsetActionDefinition {
+  constructor(data: Partial<Types.UnsetActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.UNSET;
+  }
+}
+
+export class UpdateActionDefinitionImpl extends ActionDefinitionImpl implements Types.UpdateActionDefinition {
+  constructor(data: Partial<Types.UpdateActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.UPDATE;
+  }
+}
+
+export class AddActionDefinitionImpl extends ActionDefinitionImpl implements Types.AddActionDefinition {
+  constructor(data: Partial<Types.AddActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.ADD;
+  }
+}
+
+// Bulk Operations
+export class BulkCallOperationActionDefinitionImpl extends CallOperationActionDefinitionImpl implements Types.BulkCallOperationActionDefinition {
+  constructor(data: Partial<Types.BulkCallOperationActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CALL_OPERATION;
+    this.isBulk = true;
+  }
+}
+
+export class BulkDeleteActionDefinitionImpl extends ActionDefinitionImpl implements Types.BulkDeleteActionDefinition {
+  constructor(data: Partial<Types.BulkDeleteActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.DELETE;
+    this.isBulk = true;
+  }
+}
+
+export class BulkRemoveActionDefinitionImpl extends ActionDefinitionImpl implements Types.BulkRemoveActionDefinition {
+  constructor(data: Partial<Types.BulkRemoveActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.REMOVE;
+    this.isBulk = true;
+  }
+}
+
+// Open/Navigate Actions
+export class OpenAddSelectorActionDefinitionImpl extends ActionDefinitionImpl implements Types.OpenAddSelectorActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.OpenAddSelectorActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.ADD;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+export class OpenCreateFormActionDefinitionImpl extends ActionDefinitionImpl implements Types.OpenCreateFormActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.OpenCreateFormActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CREATE;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+export class OpenOperationInputFormActionDefinitionImpl extends CallOperationActionDefinitionImpl implements Types.OpenOperationInputFormActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.OpenOperationInputFormActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CALL_OPERATION;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+export class OpenOperationInputSelectorActionDefinitionImpl extends CallOperationActionDefinitionImpl implements Types.OpenOperationInputSelectorActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.OpenOperationInputSelectorActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CALL_OPERATION;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+export class OpenPageActionDefinitionImpl extends ActionDefinitionImpl implements Types.OpenPageActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.OpenPageActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.OPEN_PAGE;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+export class OpenSetSelectorActionDefinitionImpl extends ActionDefinitionImpl implements Types.OpenSetSelectorActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.OpenSetSelectorActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.SET;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+export class OpenFormActionDefinitionImpl extends ActionDefinitionImpl implements Types.OpenFormActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.OpenFormActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.OPEN_PAGE;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+export class OpenSelectorActionDefinitionImpl extends ActionDefinitionImpl implements Types.OpenSelectorActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.OpenSelectorActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.OPEN_PAGE;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+export class RowOpenPageActionDefinitionImpl extends ActionDefinitionImpl implements Types.RowOpenPageActionDefinition {
+  targetPageDefinition?: Types.PageDefinition;
+
+  constructor(data: Partial<Types.RowOpenPageActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.OPEN_PAGE;
+    this.targetPageDefinition = data.targetPageDefinition;
+  }
+}
+
+// Operation Call Actions
+export class InputFormCallOperationActionDefinitionImpl extends CallOperationActionDefinitionImpl implements Types.InputFormCallOperationActionDefinition {
+  constructor(data: Partial<Types.InputFormCallOperationActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CALL_OPERATION;
+  }
+}
+
+export class InputSelectorCallOperationActionDefinitionImpl extends CallOperationActionDefinitionImpl implements Types.InputSelectorCallOperationActionDefinition {
+  constructor(data: Partial<Types.InputSelectorCallOperationActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CALL_OPERATION;
+  }
+}
+
+export class ParameterlessCallOperationActionDefinitionImpl extends CallOperationActionDefinitionImpl implements Types.ParameterlessCallOperationActionDefinition {
+  constructor(data: Partial<Types.ParameterlessCallOperationActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CALL_OPERATION;
+  }
+}
+
+// Autocomplete Actions
+export class AutocompleteRangeActionDefinitionImpl extends ActionDefinitionImpl implements Types.AutocompleteRangeActionDefinition {
+  constructor(data: Partial<Types.AutocompleteRangeActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CUSTOM;
+  }
+}
+
+export class AutocompleteSetActionDefinitionImpl extends ActionDefinitionImpl implements Types.AutocompleteSetActionDefinition {
+  constructor(data: Partial<Types.AutocompleteSetActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CUSTOM;
+  }
+}
+
+export class AutocompleteAddActionDefinitionImpl extends ActionDefinitionImpl implements Types.AutocompleteAddActionDefinition {
+  constructor(data: Partial<Types.AutocompleteAddActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CUSTOM;
+  }
+}
+
+// Other Actions
+export class CustomActionDefinitionImpl extends ActionDefinitionImpl implements Types.CustomActionDefinition {
+  customAction?: string;
+
+  constructor(data: Partial<Types.CustomActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CUSTOM;
+    this.customAction = data.customAction;
+  }
+}
+
+export class ExportActionDefinitionImpl extends ActionDefinitionImpl implements Types.ExportActionDefinition {
+  constructor(data: Partial<Types.ExportActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.EXPORT;
+  }
+}
+
+export class GetTemplateActionDefinitionImpl extends ActionDefinitionImpl implements Types.GetTemplateActionDefinition {
+  constructor(data: Partial<Types.GetTemplateActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CUSTOM;
+  }
+}
+
+export class InlineCreateRowActionDefinitionImpl extends ActionDefinitionImpl implements Types.InlineCreateRowActionDefinition {
+  constructor(data: Partial<Types.InlineCreateRowActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CREATE;
+  }
+}
+
+export class PreFetchActionDefinitionImpl extends ActionDefinitionImpl implements Types.PreFetchActionDefinition {
+  constructor(data: Partial<Types.PreFetchActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CUSTOM;
+  }
+}
+
+export class RowDeleteActionDefinitionImpl extends ActionDefinitionImpl implements Types.RowDeleteActionDefinition {
+  constructor(data: Partial<Types.RowDeleteActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.DELETE;
+  }
+}
+
+export class FilterRelationActionDefinitionImpl extends ActionDefinitionImpl implements Types.FilterRelationActionDefinition {
+  constructor(data: Partial<Types.FilterRelationActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.FILTER;
+  }
+}
+
+export class RefreshRelationActionDefinitionImpl extends ActionDefinitionImpl implements Types.RefreshRelationActionDefinition {
+  constructor(data: Partial<Types.RefreshRelationActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.REFRESH;
+  }
+}
+
+export class SelectorRangeActionDefinitionImpl extends ActionDefinitionImpl implements Types.SelectorRangeActionDefinition {
+  constructor(data: Partial<Types.SelectorRangeActionDefinition> = {}) {
+    super(data);
+    this.actionType = ActionType.CUSTOM;
   }
 }
 
@@ -426,6 +1289,7 @@ export class ActionImpl extends NamedElementImpl implements Types.Action {
   targetPageDefinition?: Types.PageDefinition;
   targetDataElement?: Types.DataElement;
   ownerDataElement?: Types.DataElement;
+  isMenuAction?: boolean;
 
   constructor(data: Partial<Types.Action> = {}) {
     super(data);
@@ -433,6 +1297,7 @@ export class ActionImpl extends NamedElementImpl implements Types.Action {
     this.targetPageDefinition = data.targetPageDefinition;
     this.targetDataElement = data.targetDataElement;
     this.ownerDataElement = data.ownerDataElement;
+    this.isMenuAction = data.isMenuAction;
   }
 }
 
@@ -484,6 +1349,7 @@ export class PageDefinitionImpl extends NamedElementImpl implements Types.PageDe
   openInDialog?: boolean;
   dialogSize?: DialogSize;
   dashboard: boolean;
+  generateActionsHook?: boolean;
   isSelector?: boolean;
   isRelationSelector?: boolean;
   label?: string;
@@ -497,6 +1363,7 @@ export class PageDefinitionImpl extends NamedElementImpl implements Types.PageDe
     this.openInDialog = data.openInDialog;
     this.dialogSize = data.dialogSize;
     this.dashboard = data.dashboard ?? false;
+    this.generateActionsHook = data.generateActionsHook;
     this.isSelector = data.isSelector;
     this.isRelationSelector = data.isRelationSelector;
     this.label = data.label;
@@ -510,6 +1377,7 @@ export class NavigationItemImpl extends NamedElementImpl implements Types.Naviga
   items: Types.NavigationItem[];
   target?: Types.PageDefinition;
   hiddenBy?: string;
+  actionDefinition?: Types.ActionDefinition;
   label?: string;
   icon?: Types.Icon;
 
@@ -518,6 +1386,7 @@ export class NavigationItemImpl extends NamedElementImpl implements Types.Naviga
     this.items = data.items || [];
     this.target = data.target;
     this.hiddenBy = data.hiddenBy;
+    this.actionDefinition = data.actionDefinition;
     this.label = data.label;
     this.icon = data.icon;
   }
@@ -592,9 +1461,12 @@ export class ApplicationImpl extends NamedElementImpl implements Types.Applicati
   pageContainers: Types.PageContainer[];
   dataElements: Types.DataElement[];
   dataTypes: Types.DataType[];
+  mimeTypes?: Types.MimeType[];
   theme: Types.Theme;
   authentication?: Types.Authentication;
+  profilePage?: Types.PageDefinition;
   defaultMenuLayout?: 'VERTICAL' | 'HORIZONTAL';
+  availableAnnotations?: Types.Annotation[];
 
   constructor(data: Partial<Types.Application> = {}) {
     super(data);
@@ -613,9 +1485,12 @@ export class ApplicationImpl extends NamedElementImpl implements Types.Applicati
     this.pageContainers = data.pageContainers || [];
     this.dataElements = data.dataElements || [];
     this.dataTypes = data.dataTypes || [];
+    this.mimeTypes = data.mimeTypes || [];
     this.theme = data.theme || new ThemeImpl();
     this.authentication = data.authentication;
+    this.profilePage = data.profilePage;
     this.defaultMenuLayout = data.defaultMenuLayout;
+    this.availableAnnotations = data.availableAnnotations;
   }
 
   getTables(): Types.Table[] {
@@ -667,30 +1542,150 @@ export class ApplicationImpl extends NamedElementImpl implements Types.Applicati
 // Factory functions for convenience
 
 export const ModelFactory = {
+  // Base elements
   createNamedElement: (data?: Partial<Types.NamedElement>) => new NamedElementImpl(data),
   createAnnotation: (data?: Partial<Types.Annotation>) => new AnnotationImpl(data),
   createIcon: (data?: Partial<Types.Icon>) => new IconImpl(data),
+
+  // Data types
+  createStringType: (data?: Partial<Types.StringType>) => new StringTypeImpl(data),
+  createNumericType: (data?: Partial<Types.NumericType>) => new NumericTypeImpl(data),
+  createBooleanType: (data?: Partial<Types.BooleanType>) => new BooleanTypeImpl(data),
+  createDateType: (data?: Partial<Types.DateType>) => new DateTypeImpl(data),
+  createTimestampType: (data?: Partial<Types.TimestampType>) => new TimestampTypeImpl(data),
+  createTimeType: (data?: Partial<Types.TimeType>) => new TimeTypeImpl(data),
+  createPasswordType: (data?: Partial<Types.PasswordType>) => new PasswordTypeImpl(data),
+  createBinaryType: (data?: Partial<Types.BinaryType>) => new BinaryTypeImpl(data),
+  createEnumerationType: (data?: Partial<Types.EnumerationType>) => new EnumerationTypeImpl(data),
+  createEnumerationMember: (data?: Partial<Types.EnumerationMember>) => new EnumerationMemberImpl(data),
+  createMimeType: (data?: Partial<Types.MimeType>) => new MimeTypeImpl(data),
+
+  // Supporting elements
+  createSize: (data?: Partial<Types.Size>) => new SizeImpl(data),
+  createSizeConstraint: (data?: Partial<Types.SizeConstraint>) => new SizeConstraintImpl(data),
+  createAlign: (data?: Partial<Types.Align>) => new AlignImpl(data),
+  createFrame: (data?: Partial<Types.Frame>) => new FrameImpl(data),
+  createConfirmation: (data?: Partial<Types.Confirmation>) => new ConfirmationImpl(data),
+  createOption: (data?: Partial<Types.Option>) => new OptionImpl(data),
+  createTab: (data?: Partial<Types.Tab>) => new TabImpl(data),
+
+  // Data model
   createAttributeType: (data?: Partial<Types.AttributeType>) => new AttributeTypeImpl(data),
   createRelationType: (data?: Partial<Types.RelationType>) => new RelationTypeImpl(data),
   createOperationType: (data?: Partial<Types.OperationType>) => new OperationTypeImpl(data),
   createOperationParameterType: (data?: Partial<Types.OperationParameterType>) => new OperationParameterTypeImpl(data),
   createClassType: (data?: Partial<Types.ClassType>) => new ClassTypeImpl(data),
+  createApplicationType: (data?: Partial<Types.ApplicationType>) => new ApplicationTypeImpl(data),
+  createAccessBasedNavigation: (data?: Partial<Types.AccessBasedNavigation>) => new AccessBasedNavigationImpl(data),
+
+  // Visual elements - Base
   createVisualElement: (data?: Partial<Types.VisualElement>) => new VisualElementImpl(data),
   createContainer: (data?: Partial<Types.Container>) => new ContainerImpl(data),
   createFlex: (data?: Partial<Types.Flex>) => new FlexImpl(data),
-  createInput: (data?: Partial<Types.Input>) => new InputImpl(data),
+
+  // Visual elements - Containers
   createTable: (data?: Partial<Types.Table>) => new TableImpl(data),
+  createTabController: (data?: Partial<Types.TabController>) => new TabControllerImpl(data),
+
+  // Visual elements - Simple
+  createText: (data?: Partial<Types.Text>) => new TextImpl(data),
+  createDivider: (data?: Partial<Types.Divider>) => new DividerImpl(data),
+  createSpacer: (data?: Partial<Types.Spacer>) => new SpacerImpl(data),
+  createFormatted: (data?: Partial<Types.Formatted>) => new FormattedImpl(data),
+  createIconImage: (data?: Partial<Types.IconImage>) => new IconImageImpl(data),
+  createLabel: (data?: Partial<Types.Label>) => new LabelImpl(data),
+
+  // Visual elements - Inputs (base)
+  createInput: (data?: Partial<Types.Input>) => new InputImpl(data),
+
+  // Visual elements - Inputs (specific)
+  createTextInput: (data?: Partial<Types.TextInput>) => new TextInputImpl(data),
+  createTextArea: (data?: Partial<Types.TextArea>) => new TextAreaImpl(data),
+  createNumericInput: (data?: Partial<Types.NumericInput>) => new NumericInputImpl(data),
+  createCheckbox: (data?: Partial<Types.Checkbox>) => new CheckboxImpl(data),
+  createSwitch: (data?: Partial<Types.Switch>) => new SwitchImpl(data),
+  createDateInput: (data?: Partial<Types.DateInput>) => new DateInputImpl(data),
+  createDateTimeInput: (data?: Partial<Types.DateTimeInput>) => new DateTimeInputImpl(data),
+  createTimeInput: (data?: Partial<Types.TimeInput>) => new TimeInputImpl(data),
+  createPasswordInput: (data?: Partial<Types.PasswordInput>) => new PasswordInputImpl(data),
+  createBinaryTypeInput: (data?: Partial<Types.BinaryTypeInput>) => new BinaryTypeInputImpl(data),
+  createEnumerationCombo: (data?: Partial<Types.EnumerationCombo>) => new EnumerationComboImpl(data),
+  createEnumerationRadio: (data?: Partial<Types.EnumerationRadio>) => new EnumerationRadioImpl(data),
+  createEnumerationToggleButtonbar: (data?: Partial<Types.EnumerationToggleButtonbar>) => new EnumerationToggleButtonbarImpl(data),
+  createTrinaryLogicCombo: (data?: Partial<Types.TrinaryLogicCombo>) => new TrinaryLogicComboImpl(data),
+
+  // Visual elements - Other
   createColumn: (data?: Partial<Types.Column>) => new ColumnImpl(data),
   createFilter: (data?: Partial<Types.Filter>) => new FilterImpl(data),
   createLink: (data?: Partial<Types.Link>) => new LinkImpl(data),
   createButton: (data?: Partial<Types.Button>) => new ButtonImpl(data),
   createButtonGroup: (data?: Partial<Types.ButtonGroup>) => new ButtonGroupImpl(data),
+
+  // Actions - Base
   createActionDefinition: (data?: Partial<Types.ActionDefinition>) => new ActionDefinitionImpl(data),
+  createCallOperationActionDefinition: (data?: Partial<Types.CallOperationActionDefinition>) => new CallOperationActionDefinitionImpl(data),
   createAction: (data?: Partial<Types.Action>) => new ActionImpl(data),
+
+  // Actions - CRUD
+  createBackActionDefinition: (data?: Partial<Types.BackActionDefinition>) => new BackActionDefinitionImpl(data),
+  createCancelActionDefinition: (data?: Partial<Types.CancelActionDefinition>) => new CancelActionDefinitionImpl(data),
+  createClearActionDefinition: (data?: Partial<Types.ClearActionDefinition>) => new ClearActionDefinitionImpl(data),
+  createCreateActionDefinition: (data?: Partial<Types.CreateActionDefinition>) => new CreateActionDefinitionImpl(data),
+  createDeleteActionDefinition: (data?: Partial<Types.DeleteActionDefinition>) => new DeleteActionDefinitionImpl(data),
+  createFilterActionDefinition: (data?: Partial<Types.FilterActionDefinition>) => new FilterActionDefinitionImpl(data),
+  createRefreshActionDefinition: (data?: Partial<Types.RefreshActionDefinition>) => new RefreshActionDefinitionImpl(data),
+  createRemoveActionDefinition: (data?: Partial<Types.RemoveActionDefinition>) => new RemoveActionDefinitionImpl(data),
+  createSetActionDefinition: (data?: Partial<Types.SetActionDefinition>) => new SetActionDefinitionImpl(data),
+  createUnsetActionDefinition: (data?: Partial<Types.UnsetActionDefinition>) => new UnsetActionDefinitionImpl(data),
+  createUpdateActionDefinition: (data?: Partial<Types.UpdateActionDefinition>) => new UpdateActionDefinitionImpl(data),
+  createAddActionDefinition: (data?: Partial<Types.AddActionDefinition>) => new AddActionDefinitionImpl(data),
+
+  // Actions - Bulk
+  createBulkCallOperationActionDefinition: (data?: Partial<Types.BulkCallOperationActionDefinition>) => new BulkCallOperationActionDefinitionImpl(data),
+  createBulkDeleteActionDefinition: (data?: Partial<Types.BulkDeleteActionDefinition>) => new BulkDeleteActionDefinitionImpl(data),
+  createBulkRemoveActionDefinition: (data?: Partial<Types.BulkRemoveActionDefinition>) => new BulkRemoveActionDefinitionImpl(data),
+
+  // Actions - Open/Navigate
+  createOpenAddSelectorActionDefinition: (data?: Partial<Types.OpenAddSelectorActionDefinition>) => new OpenAddSelectorActionDefinitionImpl(data),
+  createOpenCreateFormActionDefinition: (data?: Partial<Types.OpenCreateFormActionDefinition>) => new OpenCreateFormActionDefinitionImpl(data),
+  createOpenOperationInputFormActionDefinition: (data?: Partial<Types.OpenOperationInputFormActionDefinition>) => new OpenOperationInputFormActionDefinitionImpl(data),
+  createOpenOperationInputSelectorActionDefinition: (data?: Partial<Types.OpenOperationInputSelectorActionDefinition>) => new OpenOperationInputSelectorActionDefinitionImpl(data),
+  createOpenPageActionDefinition: (data?: Partial<Types.OpenPageActionDefinition>) => new OpenPageActionDefinitionImpl(data),
+  createOpenSetSelectorActionDefinition: (data?: Partial<Types.OpenSetSelectorActionDefinition>) => new OpenSetSelectorActionDefinitionImpl(data),
+  createOpenFormActionDefinition: (data?: Partial<Types.OpenFormActionDefinition>) => new OpenFormActionDefinitionImpl(data),
+  createOpenSelectorActionDefinition: (data?: Partial<Types.OpenSelectorActionDefinition>) => new OpenSelectorActionDefinitionImpl(data),
+  createRowOpenPageActionDefinition: (data?: Partial<Types.RowOpenPageActionDefinition>) => new RowOpenPageActionDefinitionImpl(data),
+
+  // Actions - Operation Call
+  createInputFormCallOperationActionDefinition: (data?: Partial<Types.InputFormCallOperationActionDefinition>) => new InputFormCallOperationActionDefinitionImpl(data),
+  createInputSelectorCallOperationActionDefinition: (data?: Partial<Types.InputSelectorCallOperationActionDefinition>) => new InputSelectorCallOperationActionDefinitionImpl(data),
+  createParameterlessCallOperationActionDefinition: (data?: Partial<Types.ParameterlessCallOperationActionDefinition>) => new ParameterlessCallOperationActionDefinitionImpl(data),
+
+  // Actions - Autocomplete
+  createAutocompleteRangeActionDefinition: (data?: Partial<Types.AutocompleteRangeActionDefinition>) => new AutocompleteRangeActionDefinitionImpl(data),
+  createAutocompleteSetActionDefinition: (data?: Partial<Types.AutocompleteSetActionDefinition>) => new AutocompleteSetActionDefinitionImpl(data),
+  createAutocompleteAddActionDefinition: (data?: Partial<Types.AutocompleteAddActionDefinition>) => new AutocompleteAddActionDefinitionImpl(data),
+
+  // Actions - Other
+  createCustomActionDefinition: (data?: Partial<Types.CustomActionDefinition>) => new CustomActionDefinitionImpl(data),
+  createExportActionDefinition: (data?: Partial<Types.ExportActionDefinition>) => new ExportActionDefinitionImpl(data),
+  createGetTemplateActionDefinition: (data?: Partial<Types.GetTemplateActionDefinition>) => new GetTemplateActionDefinitionImpl(data),
+  createInlineCreateRowActionDefinition: (data?: Partial<Types.InlineCreateRowActionDefinition>) => new InlineCreateRowActionDefinitionImpl(data),
+  createPreFetchActionDefinition: (data?: Partial<Types.PreFetchActionDefinition>) => new PreFetchActionDefinitionImpl(data),
+  createRowDeleteActionDefinition: (data?: Partial<Types.RowDeleteActionDefinition>) => new RowDeleteActionDefinitionImpl(data),
+  createFilterRelationActionDefinition: (data?: Partial<Types.FilterRelationActionDefinition>) => new FilterRelationActionDefinitionImpl(data),
+  createRefreshRelationActionDefinition: (data?: Partial<Types.RefreshRelationActionDefinition>) => new RefreshRelationActionDefinitionImpl(data),
+  createSelectorRangeActionDefinition: (data?: Partial<Types.SelectorRangeActionDefinition>) => new SelectorRangeActionDefinitionImpl(data),
+
+  // Pages
   createPageContainer: (data?: Partial<Types.PageContainer>) => new PageContainerImpl(data),
   createPageDefinition: (data?: Partial<Types.PageDefinition>) => new PageDefinitionImpl(data),
+
+  // Navigation
   createNavigationItem: (data?: Partial<Types.NavigationItem>) => new NavigationItemImpl(data),
   createNavigationController: (data?: Partial<Types.NavigationController>) => new NavigationControllerImpl(data),
+
+  // Application
   createTheme: (data?: Partial<Types.Theme>) => new ThemeImpl(data),
   createClaim: (data?: Partial<Types.Claim>) => new ClaimImpl(data),
   createAuthentication: (data?: Partial<Types.Authentication>) => new AuthenticationImpl(data),
