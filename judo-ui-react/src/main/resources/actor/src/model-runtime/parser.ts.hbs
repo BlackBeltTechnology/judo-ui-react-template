@@ -242,8 +242,14 @@ export class ModelParser {
    */
   private updateInstanceProperties(instance: any, rawData: any): void {
     for (const propKey in rawData) {
-      // Skip metadata properties
-      if (propKey === '@id' || propKey === 'eClass') {
+      // Skip eClass metadata property, but preserve @id
+      if (propKey === 'eClass') {
+        continue;
+      }
+
+      // Preserve @id for elements that have it
+      if (propKey === '@id') {
+        instance['@id'] = rawData['@id'];
         continue;
       }
 
@@ -297,9 +303,14 @@ export class ModelParser {
       // Recursively resolve its properties
       const resolved: any = {};
       for (const key in value) {
-        if (key !== '@id' && key !== 'eClass') {
-          resolved[key] = this.resolvePropertyValue(value[key]);
+        if (key === 'eClass') {
+          continue; // Skip eClass metadata
         }
+        if (key === '@id') {
+          resolved['@id'] = value['@id']; // Preserve @id if present
+          continue;
+        }
+        resolved[key] = this.resolvePropertyValue(value[key]);
       }
       return resolved;
     }

@@ -175,6 +175,7 @@ export enum ActionType {
 // Base types
 
 export interface NamedElement {
+  '@id'?: string;
   name: string;
   fqName: string;
   sourceId?: string;
@@ -182,10 +183,12 @@ export interface NamedElement {
 }
 
 export interface Annotation {
+  '@id'?: string;
   name: string;
 }
 
 export interface Icon {
+  '@id'?: string;
   iconName: string;
 }
 
@@ -253,6 +256,7 @@ export interface PasswordType extends DataType {
 }
 
 export interface MimeType {
+  '@id'?: string;
   type: string;
   subType: string;
 }
@@ -341,11 +345,13 @@ export interface AccessBasedNavigation extends NamedElement {
 // Visual element types
 
 export interface Size {
+  '@id'?: string;
   width: number;
   height: number;
 }
 
 export interface SizeConstraint {
+  '@id'?: string;
   minWidth: number;
   minHeight: number;
   maxWidth: number;
@@ -353,10 +359,12 @@ export interface SizeConstraint {
 }
 
 export interface Align {
+  '@id'?: string;
   alignment: Alignment;
 }
 
 export interface Frame {
+  '@id'?: string;
   elevation: number;
   radius: number;
 }
@@ -597,6 +605,7 @@ export interface Link extends VisualElement {
 }
 
 export interface Confirmation {
+  '@id'?: string;
   confirmationType: ConfirmationType;
   confirmationMessage?: string;
   confirmationCondition?: AttributeType;
@@ -762,6 +771,7 @@ export interface NavigationController extends NamedElement {
 // Application types
 
 export interface Theme {
+  '@id'?: string;
   primaryColor?: string;
   secondaryColor?: string;
   backgroundColor?: string;
@@ -772,11 +782,13 @@ export interface Theme {
 }
 
 export interface Authentication {
+  '@id'?: string;
   realm: string;
   claims: Claim[];
 }
 
 export interface Claim {
+  '@id'?: string;
   type: 'UNDEFINED' | 'EMAIL' | 'USERNAME';
   attributeType: AttributeType;
 }

@@ -29,12 +29,17 @@ import {
 // Base Implementation Classes
 
 export class NamedElementImpl implements Types.NamedElement {
+  '@id'?: string;
   name: string;
   fqName: string;
   sourceId?: string;
   annotations?: Types.Annotation[];
 
   constructor(data: Partial<Types.NamedElement> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.name = data.name || '';
     this.fqName = data.fqName || '';
     this.sourceId = data.sourceId;
@@ -55,17 +60,27 @@ export class NamedElementImpl implements Types.NamedElement {
 }
 
 export class AnnotationImpl implements Types.Annotation {
+  '@id'?: string;
   name: string;
 
   constructor(data: Partial<Types.Annotation> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.name = data.name || '';
   }
 }
 
 export class IconImpl implements Types.Icon {
+  '@id'?: string;
   iconName: string;
 
   constructor(data: Partial<Types.Icon> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.iconName = data.iconName || '';
   }
 }
@@ -152,10 +167,15 @@ export class PasswordTypeImpl extends NamedElementImpl implements Types.Password
 }
 
 export class MimeTypeImpl implements Types.MimeType {
+  '@id'?: string;
   type: string;
   subType: string;
 
   constructor(data: Partial<Types.MimeType> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.type = data.type || '';
     this.subType = data.subType || '';
   }
@@ -198,22 +218,32 @@ export class EnumerationTypeImpl extends NamedElementImpl implements Types.Enume
 
 // Supporting Element Implementations
 export class SizeImpl implements Types.Size {
+  '@id'?: string;
   width: number;
   height: number;
 
   constructor(data: Partial<Types.Size> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.width = data.width ?? 0;
     this.height = data.height ?? 0;
   }
 }
 
 export class SizeConstraintImpl implements Types.SizeConstraint {
+  '@id'?: string;
   minWidth: number;
   minHeight: number;
   maxWidth: number;
   maxHeight: number;
 
   constructor(data: Partial<Types.SizeConstraint> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.minWidth = data.minWidth ?? 0;
     this.minHeight = data.minHeight ?? 0;
     this.maxWidth = data.maxWidth ?? 0;
@@ -222,29 +252,44 @@ export class SizeConstraintImpl implements Types.SizeConstraint {
 }
 
 export class AlignImpl implements Types.Align {
+  '@id'?: string;
   alignment: Alignment;
 
   constructor(data: Partial<Types.Align> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.alignment = data.alignment || Alignment.TOP_LEFT;
   }
 }
 
 export class FrameImpl implements Types.Frame {
+  '@id'?: string;
   elevation: number;
   radius: number;
 
   constructor(data: Partial<Types.Frame> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.elevation = data.elevation ?? 0;
     this.radius = data.radius ?? 0;
   }
 }
 
 export class ConfirmationImpl implements Types.Confirmation {
+  '@id'?: string;
   confirmationType: ConfirmationType;
   confirmationMessage?: string;
   confirmationCondition?: Types.AttributeType;
 
   constructor(data: Partial<Types.Confirmation> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.confirmationType = data.confirmationType || ConfirmationType.NONE;
     this.confirmationMessage = data.confirmationMessage;
     this.confirmationCondition = data.confirmationCondition;
@@ -1406,6 +1451,7 @@ export class NavigationControllerImpl extends NamedElementImpl implements Types.
 // Application Implementation Classes
 
 export class ThemeImpl implements Types.Theme {
+  '@id'?: string;
   primaryColor?: string;
   secondaryColor?: string;
   backgroundColor?: string;
@@ -1415,6 +1461,10 @@ export class ThemeImpl implements Types.Theme {
   paperBackgroundColor?: string;
 
   constructor(data: Partial<Types.Theme> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.primaryColor = data.primaryColor;
     this.secondaryColor = data.secondaryColor;
     this.backgroundColor = data.backgroundColor;
@@ -1426,20 +1476,30 @@ export class ThemeImpl implements Types.Theme {
 }
 
 export class ClaimImpl implements Types.Claim {
+  '@id'?: string;
   type: 'UNDEFINED' | 'EMAIL' | 'USERNAME';
   attributeType: Types.AttributeType;
 
   constructor(data: Partial<Types.Claim> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.type = data.type || 'UNDEFINED';
     this.attributeType = data.attributeType || new AttributeTypeImpl();
   }
 }
 
 export class AuthenticationImpl implements Types.Authentication {
+  '@id'?: string;
   realm: string;
   claims: Types.Claim[];
 
   constructor(data: Partial<Types.Authentication> = {}) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.realm = data.realm || '';
     this.claims = data.claims || [];
   }
