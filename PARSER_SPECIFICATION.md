@@ -4,13 +4,18 @@
 
 This specification describes a three-pass parser for loading EMF/Ecore-based JSON model files into TypeScript runtime objects. The parser handles model serialization with `@id` identifiers, `eClass` type information, and `$ref` cross-references.
 
+**Key Features:**
+- **ID Preservation**: Elements with `@id` properties maintain their identifiers in the parsed objects for reference tracking and debugging
+- **Type Safety**: Automatic instantiation of correct implementation classes based on `eClass` attributes
+- **Reference Resolution**: Automatic wiring of `$ref` cross-references to their target object instances
+
 ## Architecture
 
 The parser uses a three-pass approach:
 
 1. **Pass 1: Index Building** - Traverse the complete model and create an ID-to-element map
-2. **Pass 2: Object Instantiation** - Create implementation class instances for all indexed elements
-3. **Pass 3: Reference Wiring** - Resolve all `$ref` references to their target objects
+2. **Pass 2: Object Instantiation** - Create implementation class instances for all indexed elements (preserving `@id`)
+3. **Pass 3: Reference Wiring** - Resolve all `$ref` references to their target objects (maintaining `@id` in resolved objects)
 
 ## Data Structures
 
@@ -216,6 +221,12 @@ Elements that have an `@id` property are concrete model instances that can be re
   }
 }
 ```
+
+**Important**: The `@id` property is **preserved** in the parsed implementation class instances. This allows:
+- Reference tracking and lookup after parsing
+- Debugging and logging with unique identifiers
+- Potential serialization back to JSON format
+- Cross-referencing between different parts of the application
 
 ### Reference with $ref
 
@@ -525,8 +536,14 @@ function wireReferences(
    */
   function updateInstanceProperties(instance: any, rawData: any): void {
     for (const propKey in rawData) {
-      // Skip metadata properties
-      if (propKey === '@id' || propKey === 'eClass') {
+      // Skip eClass metadata property, but preserve @id
+      if (propKey === 'eClass') {
+        continue;
+      }
+      
+      // Preserve @id for elements that have it
+      if (propKey === '@id') {
+        instance['@id'] = rawData['@id'];
         continue;
       }
       
@@ -578,9 +595,14 @@ function wireReferences(
       // Recursively resolve its properties
       const resolved: any = {};
       for (const key in value) {
-        if (key !== '@id' && key !== 'eClass') {
-          resolved[key] = resolvePropertyValue(value[key]);
+        if (key === 'eClass') {
+          continue; // Skip eClass metadata
         }
+        if (key === '@id') {
+          resolved['@id'] = value['@id']; // Preserve @id if present
+          continue;
+        }
+        resolved[key] = resolvePropertyValue(value[key]);
       }
       return resolved;
     }
@@ -1427,6 +1449,9 @@ Implementation classes should have properties that match the metamodel structure
 
 ```typescript
 class PageDefinitionImpl {
+  // Identity (preserved from JSON)
+  '@id'?: string;
+  
   // Attributes (primitives)
   name: string;
   openInDialog?: boolean;
@@ -1442,6 +1467,11 @@ class PageDefinitionImpl {
   actions: ActionImpl[];
   
   constructor(data: any) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
+    
     this.name = data.name;
     this.openInDialog = data.openInDialog;
     this.isSelector = data.isSelector;
@@ -1472,6 +1502,9 @@ class PageDefinitionImpl {
 
 ```typescript
 class TableImpl {
+  // Identity (preserved from JSON)
+  '@id'?: string;
+  
   // Attributes
   name: string;
   isSmallTable: boolean;
@@ -1497,6 +1530,11 @@ class TableImpl {
   // Some ActionDefinitions might have cross-references to OperationType, etc.
   
   constructor(data: any) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
+    
     // Attributes
     this.name = data.name;
     this.isSmallTable = data.isSmallTable || false;
@@ -1518,12 +1556,13 @@ class TableImpl {
 
 ### Important Implementation Guidelines
 
-1. **Do NOT try to resolve references in constructors** - the parser handles this in Pass 3
-2. **Store all properties as-is from the JSON** - type conversion happens during wiring
-3. **Use optional types (`?`)** for references that might not exist
-4. **Initialize arrays to empty arrays** if not present in data
-5. **Preserve the structure** - don't flatten or transform relationships in constructors
-6. **Trust the parser** - it will replace raw reference objects with actual instances
+1. **Preserve `@id` if present** - elements with IDs should keep them in the parsed objects for reference tracking
+2. **Do NOT try to resolve references in constructors** - the parser handles this in Pass 3
+3. **Store all properties as-is from the JSON** - type conversion happens during wiring
+4. **Use optional types (`?`)** for references that might not exist, including `@id`
+5. **Initialize arrays to empty arrays** if not present in data
+6. **Preserve the structure** - don't flatten or transform relationships in constructors
+7. **Trust the parser** - it will replace raw reference objects with actual instances
 
 ### Abstract Base Classes
 
@@ -1532,11 +1571,16 @@ Some eClasses are abstract and serve as base types:
 ```typescript
 // Abstract base
 abstract class ActionDefinitionImpl {
+  '@id'?: string;
   name: string;
   isTransient: boolean;
   targetType?: ClassTypeImpl;
   
   constructor(data: any) {
+    // Preserve @id if present
+    if (data['@id']) {
+      this['@id'] = data['@id'];
+    }
     this.name = data.name;
     this.isTransient = data.isTransient || false;
     this.targetType = data.targetType; // Cross-reference
