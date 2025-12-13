@@ -1,0 +1,630 @@
+// Model Runtime Parser
+// Parses UI model definitions and provides query capabilities
+
+import type {
+  Application,
+  PageDefinition,
+  PageContainer,
+  ClassType,
+  RelationType,
+  AttributeType,
+  OperationType,
+  VisualElement,
+  Container,
+  Action,
+  ActionDefinition,
+  NavigationItem,
+  DataElement,
+  PageContainerType,
+  ActionType,
+} from './types';
+
+export interface ModelIndex {
+  pagesByFQName: Map<string, PageDefinition>;
+  containersByFQName: Map<string, PageContainer>;
+  classTypesByFQName: Map<string, ClassType>;
+  relationTypesByFQName: Map<string, RelationType>;
+  attributeTypesByFQName: Map<string, AttributeType>;
+  operationTypesByFQName: Map<string, OperationType>;
+  pagesByContainer: Map<string, PageDefinition[]>;
+  pagesByDataElement: Map<string, PageDefinition[]>;
+}
+
+export class ModelParser {
+  private application: Application | null = null;
+  private index: ModelIndex = {
+    pagesByFQName: new Map(),
+    containersByFQName: new Map(),
+    classTypesByFQName: new Map(),
+    relationTypesByFQName: new Map(),
+    attributeTypesByFQName: new Map(),
+    operationTypesByFQName: new Map(),
+    pagesByContainer: new Map(),
+    pagesByDataElement: new Map(),
+  };
+  private debug: boolean = false;
+
+  constructor(application?: Application, debug: boolean = false) {
+    this.debug = debug;
+    if (application) {
+      this.loadApplication(application);
+    }
+  }
+
+  /**
+   * Load and index an application model
+   */
+  loadApplication(application: Application): void {
+    this.application = application;
+    // Phase 1: Build index for fast lookups (must be done first)
+    this.buildIndex(application);
+    // Phase 2: Resolve all $ref references using multi-pass strategy
+    this.resolveAllReferences(application);
+  }
+
+  /**
+   * Resolve all $ref references in the application tree
+   * Uses a multi-pass strategy to handle forward references
+   */
+  private resolveAllReferences(application: Application): void {
+    const maxPasses = 10; // Prevent infinite loops
+    let passCount = 0;
+    let hasUnresolved = true;
+    let totalResolved = 0;
+
+    if (this.debug) {
+      console.log('ModelParser: Starting reference resolution...');
+    }
+
+    while (hasUnresolved && passCount < maxPasses) {
+      passCount++;
+      const resolvedInThisPass = this.resolvePass(application);
+      totalResolved += resolvedInThisPass;
+      hasUnresolved = resolvedInThisPass > 0;
+
+      if (this.debug) {
+        console.log(`ModelParser: Pass ${passCount} - Resolved ${resolvedInThisPass} references`);
+      }
+
+      if (resolvedInThisPass === 0 && passCount === 1) {
+        // First pass resolved nothing - no references to resolve
+        if (this.debug) {
+          console.log('ModelParser: No references found to resolve.');
+        }
+        break;
+      }
+    }
+
+    if (passCount >= maxPasses) {
+      console.warn('ModelParser: Maximum resolution passes reached. Some references may be unresolved.');
+    } else if (this.debug && totalResolved > 0) {
+      console.log(`ModelParser: Resolution complete. Total resolved: ${totalResolved} references in ${passCount} pass(es).`);
+    }
+  }
+
+  /**
+   * Single pass of reference resolution
+   * Returns the number of references resolved in this pass
+   */
+  private resolvePass(obj: any): number {
+    const resolved: Array<{ parent: any; key: string | number; ref: string }> = [];
+    this.collectUnresolvedReferences(obj, resolved);
+
+    // Attempt to resolve all collected references
+    let successCount = 0;
+    for (const { parent, key, ref } of resolved) {
+      const resolvedValue = this.resolveRef(ref);
+      if (resolvedValue !== null && resolvedValue !== undefined) {
+        parent[key] = resolvedValue;
+        successCount++;
+      } else if (this.debug) {
+        console.warn(`ModelParser: Failed to resolve reference: ${ref}`);
+      }
+    }
+
+    return successCount;
+  }
+
+  /**
+   * Collect all unresolved references in the object tree
+   */
+  private collectUnresolvedReferences(
+    obj: any,
+    collector: Array<{ parent: any; key: string | number; ref: string }>,
+    visited: WeakSet<object> = new WeakSet()
+  ): void {
+    // Base cases: null, undefined, primitives
+    if (!obj || typeof obj !== 'object') {
+      return;
+    }
+
+    // Prevent infinite recursion on circular structures
+    if (visited.has(obj)) {
+      return;
+    }
+    visited.add(obj);
+
+    // Handle arrays
+    if (Array.isArray(obj)) {
+      for (let i = 0; i < obj.length; i++) {
+        const item = obj[i];
+
+        // Check if item is a $ref object
+        if (item && typeof item === 'object' && '$ref' in item && typeof item.$ref === 'string') {
+          collector.push({ parent: obj, key: i, ref: item.$ref });
+        } else if (item && typeof item === 'object') {
+          // Recurse into nested objects/arrays
+          this.collectUnresolvedReferences(item, collector, visited);
+        }
+      }
+      return;
+    }
+
+    // Handle objects (plain objects)
+    const keys = Object.keys(obj);
+
+    for (const key of keys) {
+      const value = obj[key];
+
+      // If the entire value is a $ref object, collect it
+      if (value && typeof value === 'object' && '$ref' in value && typeof value.$ref === 'string') {
+        collector.push({ parent: obj, key, ref: value.$ref });
+        continue;
+      }
+
+      // If value is a string that looks like a JSON pointer, collect it
+      if (typeof value === 'string' && value.startsWith('#/')) {
+        collector.push({ parent: obj, key, ref: value });
+        continue;
+      }
+
+      // Recurse into nested objects/arrays
+      if (value && typeof value === 'object') {
+        this.collectUnresolvedReferences(value, collector, visited);
+      }
+    }
+  }
+
+
+
+  /**
+   * Resolve a single $ref to an actual object
+   */
+  private resolveRef(ref: string): any {
+    if (!ref || typeof ref !== 'string') return null;
+
+    // Handle JSON Pointer format: #/pages/0, #/pageContainers/0, #/dataElements/0
+    if (ref.startsWith('#/')) {
+      const parts = ref.substring(2).split('/');
+      return this.resolveJsonPointer(parts);
+    }
+
+    // Try to resolve by FQName from indexes
+    const indexedResult =
+      this.index.pagesByFQName.get(ref) ||
+      this.index.containersByFQName.get(ref) ||
+      this.index.classTypesByFQName.get(ref) ||
+      this.index.relationTypesByFQName.get(ref) ||
+      this.index.attributeTypesByFQName.get(ref) ||
+      this.index.operationTypesByFQName.get(ref);
+
+    if (indexedResult) {
+      return indexedResult;
+    }
+
+    // Fallback: try to find by fqName in all data elements
+    if (this.application?.dataElements) {
+      for (const element of this.application.dataElements) {
+        if (element.fqName === ref) {
+          return element;
+        }
+        // For ClassType, also check nested elements
+        if (element.type === 'ClassType') {
+          const classType = element as ClassType;
+
+          // Check relations
+          for (const relation of classType.relations || []) {
+            if (relation.fqName === ref) {
+              return relation;
+            }
+          }
+
+          // Check attributes
+          for (const attribute of classType.attributes || []) {
+            if (attribute.fqName === ref) {
+              return attribute;
+            }
+          }
+
+          // Check operations
+          for (const operation of classType.operations || []) {
+            if (operation.fqName === ref) {
+              return operation;
+            }
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  /**
+   * Resolve JSON Pointer reference (e.g., #/pages/0)
+   * Follows RFC 6901 JSON Pointer specification
+   */
+  private resolveJsonPointer(parts: string[]): any {
+    if (!this.application || parts.length === 0) return null;
+
+    let current: any = this.application;
+
+    for (let i = 0; i < parts.length; i++) {
+      if (current === null || current === undefined) {
+        return null;
+      }
+
+      // Decode JSON Pointer escape sequences per RFC 6901
+      // ~1 represents / and ~0 represents ~
+      let part = parts[i];
+      part = part.replace(/~1/g, '/').replace(/~0/g, '~');
+
+      // Handle arrays
+      if (Array.isArray(current)) {
+        // Array indices must be non-negative integers
+        if (/^\d+$/.test(part)) {
+          const index = parseInt(part, 10);
+          if (index >= 0 && index < current.length) {
+            current = current[index];
+          } else {
+            return null;
+          }
+        } else if (part === '-') {
+          // Special case: '-' refers to the (nonexistent) element after the last array element
+          // This is typically used for appending, but for reading we return null
+          return null;
+        } else {
+          return null;
+        }
+      } else if (typeof current === 'object') {
+        // Handle object properties
+        if (part in current) {
+          current = current[part];
+        } else {
+          return null;
+        }
+      } else {
+        // Cannot traverse further
+        return null;
+      }
+    }
+
+    return current;
+  }
+
+  /**
+   * Build indexes for fast lookups
+   */
+  private buildIndex(application: Application): void {
+    // Clear existing indexes
+    Object.values(this.index).forEach((map) => map.clear());
+
+    // Index pages
+    application.pages.forEach((page) => {
+      this.index.pagesByFQName.set(page.fqName, page);
+
+      if (page.container) {
+        const containerKey = typeof page.container === 'object' && 'fqName' in page.container
+          ? page.container.fqName
+          : String(page.container);
+        if (!this.index.pagesByContainer.has(containerKey)) {
+          this.index.pagesByContainer.set(containerKey, []);
+        }
+        this.index.pagesByContainer.get(containerKey)!.push(page);
+      }
+
+      if (page.dataElement) {
+        const dataElementKey = typeof page.dataElement === 'object' && 'fqName' in page.dataElement
+          ? page.dataElement.fqName
+          : String(page.dataElement);
+        if (!this.index.pagesByDataElement.has(dataElementKey)) {
+          this.index.pagesByDataElement.set(dataElementKey, []);
+        }
+        this.index.pagesByDataElement.get(dataElementKey)!.push(page);
+      }
+    });
+
+    // Index page containers
+    application.pageContainers.forEach((container) => {
+      this.index.containersByFQName.set(container.fqName, container);
+    });
+
+    // Index data elements
+    application.dataElements.forEach((element) => {
+      if (element.type === 'ClassType') {
+        const classType = element as ClassType;
+        this.index.classTypesByFQName.set(classType.fqName, classType);
+
+        // Index relations
+        classType.relations?.forEach((relation) => {
+          this.index.relationTypesByFQName.set(relation.fqName, relation);
+        });
+
+        // Index attributes
+        classType.attributes?.forEach((attribute) => {
+          this.index.attributeTypesByFQName.set(attribute.fqName, attribute);
+        });
+
+        // Index operations and their parameters
+        classType.operations?.forEach((operation) => {
+          this.index.operationTypesByFQName.set(operation.fqName, operation);
+        });
+      } else if (element.type === 'RelationType') {
+        const relationType = element as RelationType;
+        this.index.relationTypesByFQName.set(relationType.fqName, relationType);
+      } else if (element.type === 'AttributeType') {
+        const attributeType = element as AttributeType;
+        this.index.attributeTypesByFQName.set(attributeType.fqName, attributeType);
+      } else if (element.type === 'OperationType') {
+        const operationType = element as OperationType;
+        this.index.operationTypesByFQName.set(operationType.fqName, operationType);
+      }
+    });
+  }
+
+  /**
+   * Get the loaded application
+   */
+  getApplication(): Application | null {
+    return this.application;
+  }
+
+  /**
+   * Get a page by fully qualified name
+   */
+  getPage(fqName: string): PageDefinition | undefined {
+    return this.index.pagesByFQName.get(fqName);
+  }
+
+  /**
+   * Get all pages
+   */
+  getAllPages(): PageDefinition[] {
+    return Array.from(this.index.pagesByFQName.values());
+  }
+
+  /**
+   * Get pages by container type
+   */
+  getPagesByType(type: PageContainerType): PageDefinition[] {
+    return this.getAllPages().filter((page) => page.container?.type === type);
+  }
+
+  /**
+   * Get a page container by fully qualified name
+   */
+  getPageContainer(fqName: string): PageContainer | undefined {
+    return this.index.containersByFQName.get(fqName);
+  }
+
+  /**
+   * Get a class type by fully qualified name
+   */
+  getClassType(fqName: string): ClassType | undefined {
+    return this.index.classTypesByFQName.get(fqName);
+  }
+
+  /**
+   * Get all class types
+   */
+  getAllClassTypes(): ClassType[] {
+    return Array.from(this.index.classTypesByFQName.values());
+  }
+
+  /**
+   * Get a relation type by fully qualified name
+   */
+  getRelationType(fqName: string): RelationType | undefined {
+    return this.index.relationTypesByFQName.get(fqName);
+  }
+
+  /**
+   * Get all relation types
+   */
+  getAllRelationTypes(): RelationType[] {
+    return Array.from(this.index.relationTypesByFQName.values());
+  }
+
+  /**
+   * Get an attribute type by fully qualified name
+   */
+  getAttributeType(fqName: string): AttributeType | undefined {
+    return this.index.attributeTypesByFQName.get(fqName);
+  }
+
+  /**
+   * Get all attribute types
+   */
+  getAllAttributeTypes(): AttributeType[] {
+    return Array.from(this.index.attributeTypesByFQName.values());
+  }
+
+  /**
+   * Get an operation type by fully qualified name
+   */
+  getOperationType(fqName: string): OperationType | undefined {
+    return this.index.operationTypesByFQName.get(fqName);
+  }
+
+  /**
+   * Get all operation types
+   */
+  getAllOperationTypes(): OperationType[] {
+    return Array.from(this.index.operationTypesByFQName.values());
+  }
+
+  /**
+   * Get pages for a specific data element
+   */
+  getPagesForDataElement(dataElementFqName: string): PageDefinition[] {
+    return this.index.pagesByDataElement.get(dataElementFqName) || [];
+  }
+
+  /**
+   * Get all visual elements in a container (recursively)
+   */
+  getVisualElements(container: Container): VisualElement[] {
+    const elements: VisualElement[] = [];
+    this.collectVisualElements(container, elements);
+    return elements;
+  }
+
+  private collectVisualElements(element: VisualElement, collector: VisualElement[]): void {
+    collector.push(element);
+    if ('children' in element && Array.isArray((element as Container).children)) {
+      const children = (element as Container).children;
+      if (children) {
+        children.forEach((child) => {
+          this.collectVisualElements(child, collector);
+        });
+      }
+    }
+  }
+
+  /**
+   * Find visual elements by type
+   */
+  findVisualElementsByType<T extends VisualElement>(
+    container: Container,
+    elementType: string
+  ): T[] {
+    const allElements = this.getVisualElements(container);
+    return allElements.filter((el) => el.elementType === elementType) as T[];
+  }
+
+  /**
+   * Get all actions for a page
+   */
+  getPageActions(page: PageDefinition): Action[] {
+    return page.actions || [];
+  }
+
+  /**
+   * Find actions by type
+   */
+  findActionsByType(page: PageDefinition, actionType: ActionType): Action[] {
+    return this.getPageActions(page).filter(
+      (action) => action.actionDefinition?.actionType === actionType
+    );
+  }
+
+  /**
+   * Find pages that reference a specific page
+   */
+  findPagesReferencingPage(targetPage: PageDefinition): PageDefinition[] {
+    return this.getAllPages().filter((page) =>
+      page.actions.some((action) => action.targetPageDefinition?.fqName === targetPage.fqName)
+    );
+  }
+
+  /**
+   * Get navigation items recursively
+   */
+  getAllNavigationItems(): NavigationItem[] {
+    if (!this.application?.navigationController) {
+      return [];
+    }
+    const items: NavigationItem[] = [];
+    this.collectNavigationItems(this.application.navigationController.items, items);
+    return items;
+  }
+
+  private collectNavigationItems(items: NavigationItem[], collector: NavigationItem[]): void {
+    items.forEach((item) => {
+      collector.push(item);
+      if (item.items && item.items.length > 0) {
+        this.collectNavigationItems(item.items, collector);
+      }
+    });
+  }
+
+  /**
+   * Find relations targeting a specific class type
+   */
+  findRelationsTargeting(classType: ClassType): RelationType[] {
+    return this.getAllRelationTypes().filter(
+      (relation) => relation.target.fqName === classType.fqName
+    );
+  }
+
+  /**
+   * Get model statistics
+   */
+  getStatistics() {
+    return {
+      pageCount: this.index.pagesByFQName.size,
+      containerCount: this.index.containersByFQName.size,
+      classTypeCount: this.index.classTypesByFQName.size,
+      relationTypeCount: this.index.relationTypesByFQName.size,
+      attributeTypeCount: this.index.attributeTypesByFQName.size,
+      operationTypeCount: this.index.operationTypesByFQName.size,
+      pagesByType: this.getPageTypeDistribution(),
+    };
+  }
+
+  private getPageTypeDistribution(): Record<PageContainerType, number> {
+    const distribution: Record<string, number> = {
+      TABLE: 0,
+      FORM: 0,
+      VIEW: 0,
+    };
+
+    this.getAllPages().forEach((page) => {
+      if (page.container?.type) {
+        distribution[page.container.type] = (distribution[page.container.type] || 0) + 1;
+      }
+    });
+
+    return distribution as Record<PageContainerType, number>;
+  }
+
+  /**
+   * Check if an object has unresolved references
+   */
+  hasUnresolvedReferences(obj: any): boolean {
+    if (!obj || typeof obj !== 'object') {
+      return false;
+    }
+
+    // Check for $ref property
+    if (obj.$ref) {
+      return true;
+    }
+
+    // Check if the object is just a string reference
+    if (typeof obj === 'string' && obj.startsWith('#/')) {
+      return true;
+    }
+
+    // Recursively check nested objects
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        const value = obj[key];
+        if (value && typeof value === 'object') {
+          if (this.hasUnresolvedReferences(value)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+}
+
+/**
+ * Create a model parser instance
+ */
+export function createModelParser(application?: Application): ModelParser {
+  return new ModelParser(application);
+}
+

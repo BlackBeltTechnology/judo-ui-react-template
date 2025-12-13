@@ -1,0 +1,691 @@
+// Generated Model Runtime Types
+// This file contains TypeScript types for the UI model structure
+
+export enum PageContainerType {
+  TABLE = 'TABLE',
+  FORM = 'FORM',
+  VIEW = 'VIEW',
+}
+
+export type PageContainerTypeValue = 'TABLE' | 'FORM' | 'VIEW';
+
+export enum DialogSize {
+  XS = 'XS',
+  SM = 'SM',
+  MD = 'MD',
+  LG = 'LG',
+  XL = 'XL',
+}
+
+export enum Axis {
+  HORIZONTAL = 'HORIZONTAL',
+  VERTICAL = 'VERTICAL',
+}
+
+export enum MainAxisAlignment {
+  CENTER = 'CENTER',
+  END = 'END',
+  SPACEAROUND = 'SPACEAROUND',
+  SPACEBETWEEN = 'SPACEBETWEEN',
+  SPACEEVENLY = 'SPACEEVENLY',
+  START = 'START',
+}
+
+export enum CrossAxisAlignment {
+  BASELINE = 'BASELINE',
+  CENTER = 'CENTER',
+  END = 'END',
+  START = 'START',
+  STRETCH = 'STRETCH',
+}
+
+export enum MainAxisSize {
+  MIN = 'MIN',
+  MAX = 'MAX',
+}
+
+export enum Fit {
+  NONE = 'NONE',
+  LOOSE = 'LOOSE',
+  TIGHT = 'TIGHT',
+}
+
+export enum Stretch {
+  NONE = 'NONE',
+  HORIZONTAL = 'HORIZONTAL',
+  VERTICAL = 'VERTICAL',
+  BOTH = 'BOTH',
+}
+
+export enum Alignment {
+  TOP_LEFT = 'TOP_LEFT',
+  TOP_CENTER = 'TOP_CENTER',
+  TOP_RIGHT = 'TOP_RIGHT',
+  CENTER_LEFT = 'CENTER_LEFT',
+  CENTER = 'CENTER',
+  CENTER_RIGHT = 'CENTER_RIGHT',
+  BOTTOM_LEFT = 'BOTTOM_LEFT',
+  BOTTOM_CENTER = 'BOTTOM_CENTER',
+  BOTTOM_RIGHT = 'BOTTOM_RIGHT',
+}
+
+export enum TabOrientation {
+  HORIZONTAL = 'HORIZONTAL',
+  VERTICAL = 'VERTICAL',
+}
+
+export enum Sort {
+  NONE = 'NONE',
+  ASC = 'ASC',
+  DESC = 'DESC',
+}
+
+export enum ConfirmationType {
+  NONE = 'NONE',
+  CONDITIONAL = 'CONDITIONAL',
+  MANDATORY = 'MANDATORY',
+}
+
+export enum Placement {
+  TOP = 'TOP',
+  BOTTOM = 'BOTTOM',
+  END = 'END',
+  START = 'START',
+  DEFAULT = 'DEFAULT',
+}
+
+export enum CheckboxSelection {
+  AUTO = 'AUTO',
+  ENABLED = 'ENABLED',
+  DISABLED = 'DISABLED',
+}
+
+export enum MenuLayout {
+  VERTICAL = 'VERTICAL',
+  HORIZONTAL = 'HORIZONTAL',
+}
+
+export enum TableRepresentation {
+  TABLE = 'TABLE',
+  TAG = 'TAG',
+  CARD = 'CARD',
+}
+
+export enum DurationUnit {
+  NANOSECOND = 'NANOSECOND',
+  MICROSECOND = 'MICROSECOND',
+  MILLISECOND = 'MILLISECOND',
+  SECOND = 'SECOND',
+  MINUTE = 'MINUTE',
+  HOUR = 'HOUR',
+  DAY = 'DAY',
+  WEEK = 'WEEK',
+  MONTH = 'MONTH',
+  YEAR = 'YEAR',
+}
+
+export enum FilterOperationType {
+  EQUAL = 'EQUAL',
+  NOT_EQUAL = 'NOT_EQUAL',
+  IS_EMPTY = 'IS_EMPTY',
+  IS_NOT_EMPTY = 'IS_NOT_EMPTY',
+  LESS = 'LESS',
+  LESS_OR_EQUAL = 'LESS_OR_EQUAL',
+  GREATER = 'GREATER',
+  GREATER_OR_EQUAL = 'GREATER_OR_EQUAL',
+  LIKE = 'LIKE',
+}
+
+export enum RelationKind {
+  ASSOCIATION = 'ASSOCIATION',
+  COMPOSITION = 'COMPOSITION',
+  AGGREGATION = 'AGGREGATION',
+  STATIC = 'STATIC',
+}
+
+export type RelationKindValue = 'ASSOCIATION' | 'COMPOSITION' | 'AGGREGATION' | 'STATIC';
+
+export enum MemberType {
+  STORED = 'STORED',
+  DERIVED = 'DERIVED',
+  MAPPED = 'MAPPED',
+  TRANSIENT = 'TRANSIENT',
+  ACCESS = 'ACCESS',
+}
+
+export enum ActionType {
+  ADD = 'ADD',
+  REMOVE = 'REMOVE',
+  CREATE = 'CREATE',
+  DELETE = 'DELETE',
+  UPDATE = 'UPDATE',
+  SET = 'SET',
+  UNSET = 'UNSET',
+  CALL_OPERATION = 'CALL_OPERATION',
+  OPEN_PAGE = 'OPEN_PAGE',
+  REFRESH = 'REFRESH',
+  FILTER = 'FILTER',
+  CLEAR = 'CLEAR',
+  BACK = 'BACK',
+  CANCEL = 'CANCEL',
+  CUSTOM = 'CUSTOM',
+  EXPORT = 'EXPORT',
+}
+
+// Base types
+
+export interface NamedElement {
+  name: string;
+  fqName: string;
+  sourceId?: string;
+  annotations?: Annotation[];
+}
+
+export interface Annotation {
+  name: string;
+}
+
+export interface Icon {
+  iconName: string;
+}
+
+export interface LabeledElement {
+  label?: string;
+  icon?: Icon;
+}
+
+// Data model types
+
+export interface DataElement extends NamedElement {
+  type: 'ClassType' | 'RelationType' | 'AttributeType' | 'OperationType' | 'OperationParameterType';
+}
+
+export interface DataType extends NamedElement {
+  type: 'StringType' | 'NumericType' | 'BooleanType' | 'DateType' | 'TimestampType' | 'TimeType' | 'EnumerationType' | 'BinaryType' | 'PasswordType';
+  operator?: EnumerationType;
+}
+
+export interface StringType extends DataType {
+  type: 'StringType';
+  maxLength: number;
+  regExp?: string;
+}
+
+export interface NumericType extends DataType {
+  type: 'NumericType';
+  precision: number;
+  scale: number;
+}
+
+export interface BooleanType extends DataType {
+  type: 'BooleanType';
+}
+
+export interface DateType extends DataType {
+  type: 'DateType';
+}
+
+export interface TimestampType extends DataType {
+  type: 'TimestampType';
+}
+
+export interface TimeType extends DataType {
+  type: 'TimeType';
+}
+
+export interface PasswordType extends DataType {
+  type: 'PasswordType';
+}
+
+export interface MimeType {
+  type: string;
+  subType: string;
+}
+
+export interface BinaryType extends DataType {
+  type: 'BinaryType';
+  mimeTypes: MimeType[];
+  maxFileSize: number;
+}
+
+export interface EnumerationType extends DataType {
+  type: 'EnumerationType';
+  members: EnumerationMember[];
+}
+
+export interface AttributeType extends DataElement {
+  type: 'AttributeType';
+  memberType: MemberType;
+  isReadOnly: boolean;
+  isRequired: boolean;
+  isFilterable: boolean;
+  dataType: DataType;
+  ownerSimpleName?: string;
+  ownerPackageNameTokens?: string[];
+}
+
+export interface RelationType extends DataElement {
+  type: 'RelationType';
+  relationKind: RelationKind;
+  memberType: MemberType;
+  isCollection: boolean;
+  isReadOnly: boolean;
+  isOptional: boolean;
+  target: ClassType;
+  behaviours: string[];
+}
+
+export interface OperationType extends DataElement {
+  type: 'OperationType';
+  operationType: 'MAPPED' | 'STATIC';
+  isStateful: boolean;
+  input?: OperationParameterType;
+  output?: OperationParameterType;
+  ownerSimpleName?: string;
+  ownerPackageNameTokens?: string[];
+}
+
+export interface OperationParameterType extends DataElement {
+  type: 'OperationParameterType';
+  isCollection: boolean;
+  target: ClassType;
+  behaviours: string[];
+}
+
+export interface ClassType extends DataElement {
+  type: 'ClassType';
+  isMapped: boolean;
+  isActor: boolean;
+  isPrincipal: boolean;
+  isOptional: boolean;
+  attributes: AttributeType[];
+  relations: RelationType[];
+  operations: OperationType[];
+  behaviours: string[];
+  simpleName?: string;
+  packageNameTokens?: string[];
+  transferObjectTypeName?: string;
+}
+
+// Visual element types
+
+export interface Size {
+  width: number;
+  height: number;
+}
+
+export interface SizeConstraint {
+  minWidth: number;
+  minHeight: number;
+  maxWidth: number;
+  maxHeight: number;
+}
+
+export interface Align {
+  alignment: Alignment;
+}
+
+export interface Frame {
+  elevation: number;
+  radius: number;
+}
+
+export interface VisualElement extends NamedElement, LabeledElement {
+  elementType: string;
+  disabled: boolean;
+  isReadOnly: boolean;
+  isInCard: boolean;
+  col: number;
+  row: number;
+  order?: number;
+  customImplementation?: boolean;
+  hiddenBy?: AttributeType;
+  enabledBy?: AttributeType;
+  requiredBy?: AttributeType;
+  size?: Size;
+  sizeconstraint?: SizeConstraint;
+  align?: Align;
+  fit?: Fit;
+  stretch?: Stretch;
+  onBlur?: boolean;
+  subTheme?: string;
+}
+
+export interface Container extends VisualElement {
+  elementType: 'Container' | 'Flex' | 'PageContainer' | 'TabController' | 'Table';
+  children?: VisualElement[];
+  actionButtonGroups?: ButtonGroup[];
+}
+
+export interface Flex extends Container {
+  elementType: 'Flex' | 'PageContainer';
+  direction: Axis;
+  mainAxisAlignment: MainAxisAlignment;
+  crossAxisAlignment: CrossAxisAlignment;
+  mainAxisSize: MainAxisSize;
+  dataElement?: DataElement;
+  children: VisualElement[];
+  frame?: Frame;
+}
+
+export interface Input extends VisualElement {
+  elementType: 'TextInput' | 'TextArea' | 'NumericInput' | 'Checkbox' | 'Switch' | 'DateInput' | 'DateTimeInput' | 'TimeInput' | 'PasswordInput' | 'BinaryTypeInput' | 'EnumerationCombo' | 'EnumerationRadio' | 'TrinaryLogicCombo' | 'EnumerationToggleButtonbar';
+  required: boolean;
+  attributeType?: AttributeType;
+  tooltipText?: string;
+}
+
+export interface TextInput extends Input {
+  elementType: 'TextInput';
+  mask?: string;
+  regexp?: string;
+  maxLength?: number;
+  isTypeAheadField?: boolean;
+}
+
+export interface TextArea extends Input {
+  elementType: 'TextArea';
+  maxLength?: number;
+  lines: number;
+  countCharacters?: boolean;
+}
+
+export interface NumericInput extends Input {
+  elementType: 'NumericInput';
+  scale?: number;
+  precision?: number;
+  formatValue?: boolean;
+  minValueBy?: AttributeType;
+  maxValueBy?: AttributeType;
+}
+
+export interface Checkbox extends Input {
+  elementType: 'Checkbox';
+  checked: boolean;
+  valueLabelPlacement?: Placement;
+}
+
+export interface Switch extends Input {
+  elementType: 'Switch';
+  switched?: boolean;
+  valueLabelPlacement?: Placement;
+}
+
+export interface DateInput extends Input {
+  elementType: 'DateInput';
+  minValueBy?: AttributeType;
+  maxValueBy?: AttributeType;
+}
+
+export interface DateTimeInput extends Input {
+  elementType: 'DateTimeInput';
+  baseUnit?: DurationUnit;
+  minValueBy?: AttributeType;
+  maxValueBy?: AttributeType;
+}
+
+export interface TimeInput extends Input {
+  elementType: 'TimeInput';
+  baseUnit?: DurationUnit;
+  minValueBy?: AttributeType;
+  maxValueBy?: AttributeType;
+}
+
+export interface PasswordInput extends Input {
+  elementType: 'PasswordInput';
+  maxLength?: number;
+}
+
+export interface EnumerationMember extends NamedElement {
+  ordinal: number;
+}
+
+export interface Option extends NamedElement {
+  selected: boolean;
+  enumerationMember: EnumerationMember;
+}
+
+export interface EnumerationCombo extends Input {
+  elementType: 'EnumerationCombo';
+  options: Option[];
+}
+
+export interface EnumerationRadio extends Input {
+  elementType: 'EnumerationRadio';
+  options: Option[];
+}
+
+export interface EnumerationToggleButtonbar extends Input {
+  elementType: 'EnumerationToggleButtonbar';
+  options: Option[];
+}
+
+export interface Tab extends NamedElement {
+  element: VisualElement;
+}
+
+export interface TabController extends VisualElement {
+  elementType: 'TabController';
+  tabs: Tab[];
+  controllerRow: number;
+  orientation?: TabOrientation;
+}
+
+export interface Text extends VisualElement {
+  elementType: 'Text';
+  text: string;
+}
+
+export interface Divider extends VisualElement {
+  elementType: 'Divider';
+}
+
+export interface Spacer extends VisualElement {
+  elementType: 'Spacer';
+}
+
+export interface Formatted extends VisualElement {
+  elementType: 'Formatted';
+  format: string;
+  isMultiLine?: boolean;
+  attributeType?: AttributeType;
+}
+
+export interface IconImage extends VisualElement {
+  elementType: 'IconImage';
+}
+
+export interface Label extends VisualElement {
+  elementType: 'Label';
+}
+
+export interface Table extends Container {
+  elementType: 'Table';
+  columns: Column[];
+  filters: Filter[];
+  rowsPerPage: number;
+  isEager?: boolean;
+  relationName?: string;
+  dataElement?: DataElement;
+  tableActionButtonGroup?: ButtonGroup;
+  rowActionButtonGroup?: ButtonGroup;
+  allowSelectMultiple?: boolean;
+  selectorRowsPerPage?: number;
+  additionalMaskAttributes?: AttributeType[];
+  showTotalCount?: boolean;
+  checkboxSelection?: CheckboxSelection;
+  additionalMaskRelations?: RelationType[];
+  isInlineEditable?: boolean;
+  representationComponent?: TableRepresentation;
+  autocompleteRangeActionDefinition?: ActionDefinition;
+  autocompleteAddActionDefinition?: ActionDefinition;
+  actionColumnWidth?: number;
+}
+
+export interface Column extends VisualElement {
+  format: string;
+  attributeType?: AttributeType;
+  sort?: Sort;
+  width?: string;
+  formatValue: boolean;
+  sortPrecedence?: number;
+  representsRelation?: RelationType;
+}
+
+export interface Filter extends VisualElement {
+  attributeType?: AttributeType;
+  alwaysShown: boolean;
+  range: boolean;
+  multiValue: boolean;
+  defaultOperation?: FilterOperationType;
+}
+
+export interface Link extends VisualElement {
+  elementType: 'Link';
+  parts: Column[];
+  relationName: string;
+  dataElement?: DataElement;
+  actionButtonGroup?: ButtonGroup;
+  autocompleteRangeActionDefinition?: ActionDefinition;
+  selectorRowsPerPage?: number;
+  autoCompleteRows?: number;
+  additionalMaskAttributes?: AttributeType[];
+  refreshActionDefinition?: ActionDefinition;
+  autocompleteSetActionDefinition?: ActionDefinition;
+  isEager?: boolean;
+  additionalMaskRelations?: RelationType[];
+}
+
+export interface Confirmation {
+  confirmationType: ConfirmationType;
+  confirmationMessage?: string;
+  confirmationCondition?: AttributeType;
+}
+
+export interface Button extends VisualElement {
+  elementType: 'Button';
+  buttonStyle?: string;
+  actionDefinition: ActionDefinition;
+  dataElement?: DataElement;
+  relationName?: string;
+  tooltipText?: string;
+  confirmation?: Confirmation;
+  preFetchActionDefinition?: ActionDefinition;
+}
+
+export interface ButtonGroup extends VisualElement {
+  elementType: 'ButtonGroup';
+  buttons: Button[];
+  featuredActions: number;
+}
+
+// Action types
+
+export interface ActionDefinition extends NamedElement {
+  actionType: ActionType;
+  isTransient: boolean;
+  targetType?: ClassType;
+  isBulk?: boolean;
+  isContainedRelationAction?: boolean;
+}
+
+export interface Action extends NamedElement {
+  actionDefinition: ActionDefinition;
+  targetPageDefinition?: PageDefinition;
+  targetDataElement?: DataElement;
+  ownerDataElement?: DataElement;
+  isMenuAction?: boolean;
+}
+
+// Page types
+
+export enum TitleFrom {
+  LABEL = 'LABEL',
+  ATTRIBUTE = 'ATTRIBUTE',
+}
+
+export interface PageContainer extends Flex {
+  elementType: 'PageContainer';
+  type: PageContainerType;
+  transferPackageNameTokens?: string[];
+  transferPageName?: string;
+  titleAttribute?: AttributeType;
+  titleFrom?: TitleFrom;
+  onInit?: ActionDefinition;
+  templateAction?: ActionDefinition;
+  additionalMaskAttributes?: AttributeType[];
+  generateVisualPropertiesHook: boolean;
+}
+
+export interface PageDefinition extends NamedElement, LabeledElement {
+  container: PageContainer;
+  actions: Action[];
+  dataElement?: DataElement;
+  openInDialog?: boolean;
+  dialogSize?: DialogSize;
+  dashboard: boolean;
+  generateActionsHook?: boolean;
+  isSelector?: boolean;
+  isRelationSelector?: boolean;
+}
+
+// Navigation types
+
+export interface NavigationItem extends NamedElement, LabeledElement {
+  items: NavigationItem[];
+  target?: PageDefinition;
+  hiddenBy?: string;
+  actionDefinition?: ActionDefinition;
+}
+
+export interface NavigationController extends NamedElement {
+  items: NavigationItem[];
+  actions: Action[];
+}
+
+// Application types
+
+export interface Theme {
+  primaryColor?: string;
+  secondaryColor?: string;
+  backgroundColor?: string;
+  textPrimaryColor?: string;
+  textSecondaryColor?: string;
+  subtitleColor?: string;
+  paperBackgroundColor?: string;
+}
+
+export interface Authentication {
+  realm: string;
+  claims: Claim[];
+}
+
+export interface Claim {
+  type: 'UNDEFINED' | 'EMAIL' | 'USERNAME';
+  attributeType: AttributeType;
+}
+
+export interface Application extends NamedElement {
+  modelName: string;
+  version: string;
+  defaultLanguage: string;
+  logo?: string;
+  icon?: string;
+  title?: string;
+  backgroundImage?: string;
+  supportGuestAccess: boolean;
+  actor: ClassType;
+  principal?: ClassType;
+  navigationController?: NavigationController;
+  pages: PageDefinition[];
+  pageContainers: PageContainer[];
+  dataElements: DataElement[];
+  dataTypes: DataType[];
+  mimeTypes?: MimeType[];
+  theme: Theme;
+  authentication?: Authentication;
+  profilePage?: PageDefinition;
+  defaultMenuLayout?: 'VERTICAL' | 'HORIZONTAL';
+  availableAnnotations?: Annotation[];
+}
+

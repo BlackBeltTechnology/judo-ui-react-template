@@ -1,0 +1,699 @@
+// Generated Model Runtime Implementation Classes
+// This file contains concrete implementations of the UI model interfaces
+
+import type * as Types from './types';
+import {
+  PageContainerType,
+  DialogSize,
+  Axis,
+  MainAxisAlignment,
+  CrossAxisAlignment,
+  MainAxisSize,
+  RelationKind,
+  MemberType,
+  ActionType,
+  Sort,
+  ConfirmationType,
+  Placement,
+  CheckboxSelection,
+  TableRepresentation,
+  DurationUnit,
+  FilterOperationType,
+  TitleFrom,
+  TabOrientation,
+  Stretch,
+  Fit,
+  Alignment,
+} from './types';
+
+// Base Implementation Classes
+
+export class NamedElementImpl implements Types.NamedElement {
+  name: string;
+  fqName: string;
+  sourceId?: string;
+  annotations?: Types.Annotation[];
+
+  constructor(data: Partial<Types.NamedElement> = {}) {
+    this.name = data.name || '';
+    this.fqName = data.fqName || '';
+    this.sourceId = data.sourceId;
+    this.annotations = data.annotations;
+  }
+
+  getSeparator(): string {
+    return '.';
+  }
+
+  getFQName(): string {
+    return this.fqName;
+  }
+
+  getOwner(): Types.NamedElement | undefined {
+    return undefined;
+  }
+}
+
+export class AnnotationImpl implements Types.Annotation {
+  name: string;
+
+  constructor(data: Partial<Types.Annotation> = {}) {
+    this.name = data.name || '';
+  }
+}
+
+export class IconImpl implements Types.Icon {
+  iconName: string;
+
+  constructor(data: Partial<Types.Icon> = {}) {
+    this.iconName = data.iconName || '';
+  }
+}
+
+// Data Model Implementation Classes
+
+export class AttributeTypeImpl extends NamedElementImpl implements Types.AttributeType {
+  type: 'AttributeType' = 'AttributeType';
+  memberType: MemberType;
+  isReadOnly: boolean;
+  isRequired: boolean;
+  isFilterable: boolean;
+  dataType: Types.DataType;
+  ownerSimpleName?: string;
+  ownerPackageNameTokens?: string[];
+
+  constructor(data: Partial<Types.AttributeType> = {}) {
+    super(data);
+    this.memberType = data.memberType || MemberType.STORED;
+    this.isReadOnly = data.isReadOnly ?? true;
+    this.isRequired = data.isRequired ?? false;
+    this.isFilterable = data.isFilterable ?? false;
+    this.dataType = data.dataType || { name: '', fqName: '', type: 'StringType' };
+    this.ownerSimpleName = data.ownerSimpleName;
+    this.ownerPackageNameTokens = data.ownerPackageNameTokens;
+  }
+}
+
+export class RelationTypeImpl extends NamedElementImpl implements Types.RelationType {
+  type: 'RelationType' = 'RelationType';
+  relationKind: RelationKind;
+  memberType: MemberType;
+  isCollection: boolean;
+  isReadOnly: boolean;
+  isOptional: boolean;
+  target: Types.ClassType;
+  behaviours: string[];
+
+  constructor(data: Partial<Types.RelationType> = {}) {
+    super(data);
+    this.relationKind = data.relationKind || RelationKind.ASSOCIATION;
+    this.memberType = data.memberType || MemberType.STORED;
+    this.isCollection = data.isCollection ?? true;
+    this.isReadOnly = data.isReadOnly ?? false;
+    this.isOptional = data.isOptional ?? true;
+    this.target = data.target || this.createEmptyClassType();
+    this.behaviours = data.behaviours || [];
+  }
+
+  private createEmptyClassType(): Types.ClassType {
+    return new ClassTypeImpl();
+  }
+}
+
+export class OperationTypeImpl extends NamedElementImpl implements Types.OperationType {
+  type: 'OperationType' = 'OperationType';
+  operationType: 'MAPPED' | 'STATIC';
+  isStateful: boolean;
+  input?: Types.OperationParameterType;
+  output?: Types.OperationParameterType;
+  ownerSimpleName?: string;
+  ownerPackageNameTokens?: string[];
+
+  constructor(data: Partial<Types.OperationType> = {}) {
+    super(data);
+    this.operationType = data.operationType || 'MAPPED';
+    this.isStateful = data.isStateful ?? true;
+    this.input = data.input;
+    this.output = data.output;
+    this.ownerSimpleName = data.ownerSimpleName;
+    this.ownerPackageNameTokens = data.ownerPackageNameTokens;
+  }
+}
+
+export class OperationParameterTypeImpl extends NamedElementImpl implements Types.OperationParameterType {
+  type: 'OperationParameterType' = 'OperationParameterType';
+  isCollection: boolean;
+  target: Types.ClassType;
+  behaviours: string[];
+
+  constructor(data: Partial<Types.OperationParameterType> = {}) {
+    super(data);
+    this.isCollection = data.isCollection ?? true;
+    this.target = data.target || new ClassTypeImpl();
+    this.behaviours = data.behaviours || [];
+  }
+}
+
+export class ClassTypeImpl extends NamedElementImpl implements Types.ClassType {
+  type: 'ClassType' = 'ClassType';
+  isMapped: boolean;
+  isActor: boolean;
+  isPrincipal: boolean;
+  isOptional: boolean;
+  attributes: Types.AttributeType[];
+  relations: Types.RelationType[];
+  operations: Types.OperationType[];
+  behaviours: string[];
+  simpleName?: string;
+  packageNameTokens?: string[];
+  transferObjectTypeName?: string;
+
+  constructor(data: Partial<Types.ClassType> = {}) {
+    super(data);
+    this.isMapped = data.isMapped ?? true;
+    this.isActor = data.isActor ?? false;
+    this.isPrincipal = data.isPrincipal ?? false;
+    this.isOptional = data.isOptional ?? false;
+    this.attributes = data.attributes || [];
+    this.relations = data.relations || [];
+    this.operations = data.operations || [];
+    this.behaviours = data.behaviours || [];
+    this.simpleName = data.simpleName;
+    this.packageNameTokens = data.packageNameTokens;
+    this.transferObjectTypeName = data.transferObjectTypeName;
+  }
+}
+
+// Visual Element Implementation Classes
+
+export class VisualElementImpl extends NamedElementImpl implements Types.VisualElement {
+  elementType: string;
+  disabled: boolean;
+  isReadOnly: boolean;
+  isInCard: boolean;
+  col: number;
+  row: number;
+  order?: number;
+  customImplementation?: boolean;
+  hiddenBy?: Types.AttributeType;
+  enabledBy?: Types.AttributeType;
+  requiredBy?: Types.AttributeType;
+  label?: string;
+  icon?: Types.Icon;
+  size?: Types.Size;
+  sizeconstraint?: Types.SizeConstraint;
+  align?: Types.Align;
+  fit?: Fit;
+  stretch?: Stretch;
+  onBlur?: boolean;
+  subTheme?: string;
+
+  constructor(data: Partial<Types.VisualElement> = {}) {
+    super(data);
+    this.elementType = data.elementType || 'VisualElement';
+    this.disabled = data.disabled ?? false;
+    this.isReadOnly = data.isReadOnly ?? false;
+    this.isInCard = data.isInCard ?? false;
+    this.col = data.col ?? 4;
+    this.row = data.row ?? 1;
+    this.order = data.order;
+    this.customImplementation = data.customImplementation;
+    this.hiddenBy = data.hiddenBy;
+    this.enabledBy = data.enabledBy;
+    this.requiredBy = data.requiredBy;
+    this.label = data.label;
+    this.icon = data.icon;
+    this.size = data.size;
+    this.sizeconstraint = data.sizeconstraint;
+    this.align = data.align;
+    this.fit = data.fit;
+    this.stretch = data.stretch;
+    this.onBlur = data.onBlur;
+    this.subTheme = data.subTheme;
+  }
+}
+
+export class ContainerImpl extends VisualElementImpl implements Types.Container {
+  elementType: 'Container' | 'Flex' | 'PageContainer' | 'TabController' | 'Table';
+  children?: Types.VisualElement[];
+  actionButtonGroups?: Types.ButtonGroup[];
+
+  constructor(data: Partial<Types.Container> = {}) {
+    super(data);
+    this.elementType = (data.elementType as any) || 'Container';
+    this.children = data.children || [];
+    this.actionButtonGroups = data.actionButtonGroups || [];
+  }
+}
+
+export class FlexImpl extends ContainerImpl implements Types.Flex {
+  elementType: 'Flex' | 'PageContainer';
+  direction: Axis;
+  mainAxisAlignment: MainAxisAlignment;
+  crossAxisAlignment: CrossAxisAlignment;
+  mainAxisSize: Types.MainAxisSize;
+  dataElement?: Types.DataElement;
+  children: Types.VisualElement[];
+  frame?: Types.Frame;
+
+  constructor(data: Partial<Types.Flex> = {}) {
+    super(data);
+    this.elementType = (data.elementType as any) || 'Flex';
+    this.direction = data.direction || Axis.VERTICAL;
+    this.mainAxisAlignment = data.mainAxisAlignment || MainAxisAlignment.START;
+    this.crossAxisAlignment = data.crossAxisAlignment || CrossAxisAlignment.START;
+    this.mainAxisSize = data.mainAxisSize || MainAxisSize.MIN;
+    this.dataElement = data.dataElement;
+    this.children = data.children || [];
+    this.frame = data.frame;
+  }
+}
+
+export class InputImpl extends VisualElementImpl implements Types.Input {
+  elementType: 'TextInput' | 'TextArea' | 'NumericInput' | 'Checkbox' | 'Switch' | 'DateInput' | 'DateTimeInput' | 'TimeInput' | 'PasswordInput' | 'BinaryTypeInput' | 'EnumerationCombo' | 'EnumerationRadio' | 'TrinaryLogicCombo';
+  required: boolean;
+  attributeType?: Types.AttributeType;
+  tooltipText?: string;
+
+  constructor(data: Partial<Types.Input> = {}) {
+    super(data);
+    this.elementType = (data.elementType as any) || 'TextInput';
+    this.required = data.required ?? false;
+    this.attributeType = data.attributeType;
+    this.tooltipText = data.tooltipText;
+  }
+}
+
+export class TableImpl extends ContainerImpl implements Types.Table {
+  elementType: 'Table' = 'Table';
+  columns: Types.Column[];
+  filters: Types.Filter[];
+  rowsPerPage: number;
+  isEager?: boolean;
+  relationName?: string;
+  dataElement?: Types.DataElement;
+  tableActionButtonGroup?: Types.ButtonGroup;
+  rowActionButtonGroup?: Types.ButtonGroup;
+
+  constructor(data: Partial<Types.Table> = {}) {
+    super(data);
+    this.elementType = 'Table';
+    this.columns = data.columns || [];
+    this.filters = data.filters || [];
+    this.rowsPerPage = data.rowsPerPage ?? 10;
+    this.isEager = data.isEager;
+    this.relationName = data.relationName;
+    this.dataElement = data.dataElement;
+    this.tableActionButtonGroup = data.tableActionButtonGroup;
+    this.rowActionButtonGroup = data.rowActionButtonGroup;
+  }
+}
+
+export class ColumnImpl extends VisualElementImpl implements Types.Column {
+  format: string;
+  attributeType?: Types.AttributeType;
+  sort?: Sort;
+  width?: string;
+  formatValue: boolean;
+  sortPrecedence?: number;
+  representsRelation?: Types.RelationType;
+
+  constructor(data: Partial<Types.Column> = {}) {
+    super(data);
+    this.format = data.format || '';
+    this.attributeType = data.attributeType;
+    this.sort = data.sort || Sort.NONE;
+    this.width = data.width;
+    this.formatValue = data.formatValue ?? true;
+    this.sortPrecedence = data.sortPrecedence;
+    this.representsRelation = data.representsRelation;
+  }
+}
+
+export class FilterImpl extends VisualElementImpl implements Types.Filter {
+  attributeType?: Types.AttributeType;
+  alwaysShown: boolean;
+  range: boolean;
+  multiValue: boolean;
+  defaultOperation?: FilterOperationType;
+
+  constructor(data: Partial<Types.Filter> = {}) {
+    super(data);
+    this.attributeType = data.attributeType;
+    this.alwaysShown = data.alwaysShown ?? false;
+    this.range = data.range ?? false;
+    this.multiValue = data.multiValue ?? false;
+    this.defaultOperation = data.defaultOperation;
+  }
+}
+
+export class LinkImpl extends VisualElementImpl implements Types.Link {
+  elementType: 'Link' = 'Link';
+  parts: Types.Column[];
+  relationName: string;
+  dataElement?: Types.DataElement;
+  actionButtonGroup?: Types.ButtonGroup;
+
+  constructor(data: Partial<Types.Link> = {}) {
+    super(data);
+    this.elementType = 'Link';
+    this.parts = data.parts || [];
+    this.relationName = data.relationName || '';
+    this.dataElement = data.dataElement;
+    this.actionButtonGroup = data.actionButtonGroup;
+  }
+}
+
+export class ButtonImpl extends VisualElementImpl implements Types.Button {
+  elementType: 'Button' = 'Button';
+  buttonStyle?: string;
+  actionDefinition: Types.ActionDefinition;
+  dataElement?: Types.DataElement;
+  relationName?: string;
+  tooltipText?: string;
+
+  constructor(data: Partial<Types.Button> = {}) {
+    super(data);
+    this.elementType = 'Button';
+    this.buttonStyle = data.buttonStyle;
+    this.actionDefinition = data.actionDefinition || this.createEmptyActionDefinition();
+    this.dataElement = data.dataElement;
+    this.relationName = data.relationName;
+    this.tooltipText = data.tooltipText;
+  }
+
+  private createEmptyActionDefinition(): Types.ActionDefinition {
+    return new ActionDefinitionImpl({
+      name: '',
+      fqName: '',
+      actionType: ActionType.CUSTOM,
+    });
+  }
+}
+
+export class ButtonGroupImpl extends VisualElementImpl implements Types.ButtonGroup {
+  elementType: 'ButtonGroup' = 'ButtonGroup';
+  buttons: Types.Button[];
+  featuredActions: number;
+
+  constructor(data: Partial<Types.ButtonGroup> = {}) {
+    super(data);
+    this.elementType = 'ButtonGroup';
+    this.buttons = data.buttons || [];
+    this.featuredActions = data.featuredActions ?? 0;
+  }
+}
+
+// Action Implementation Classes
+
+export class ActionDefinitionImpl extends NamedElementImpl implements Types.ActionDefinition {
+  actionType: ActionType;
+  isTransient: boolean;
+  targetType?: Types.ClassType;
+  isBulk?: boolean;
+
+  constructor(data: Partial<Types.ActionDefinition> = {}) {
+    super(data);
+    this.actionType = data.actionType || ActionType.CUSTOM;
+    this.isTransient = data.isTransient ?? false;
+    this.targetType = data.targetType;
+    this.isBulk = data.isBulk;
+  }
+}
+
+export class ActionImpl extends NamedElementImpl implements Types.Action {
+  actionDefinition: Types.ActionDefinition;
+  targetPageDefinition?: Types.PageDefinition;
+  targetDataElement?: Types.DataElement;
+  ownerDataElement?: Types.DataElement;
+
+  constructor(data: Partial<Types.Action> = {}) {
+    super(data);
+    this.actionDefinition = data.actionDefinition || new ActionDefinitionImpl();
+    this.targetPageDefinition = data.targetPageDefinition;
+    this.targetDataElement = data.targetDataElement;
+    this.ownerDataElement = data.ownerDataElement;
+  }
+}
+
+// Page Implementation Classes
+
+export class PageContainerImpl extends FlexImpl implements Types.PageContainer {
+  elementType: 'PageContainer' = 'PageContainer';
+  type: PageContainerType;
+  transferPackageNameTokens?: string[];
+  transferPageName?: string;
+  titleAttribute?: Types.AttributeType;
+  titleFrom?: TitleFrom;
+  onInit?: Types.ActionDefinition;
+  templateAction?: Types.ActionDefinition;
+  additionalMaskAttributes?: Types.AttributeType[];
+  generateVisualPropertiesHook: boolean;
+
+  constructor(data: Partial<Types.PageContainer> = {}) {
+    super(data);
+    this.elementType = 'PageContainer';
+    this.type = data.type || PageContainerType.VIEW;
+    this.transferPackageNameTokens = data.transferPackageNameTokens;
+    this.transferPageName = data.transferPageName;
+    this.titleAttribute = data.titleAttribute;
+    this.titleFrom = data.titleFrom;
+    this.onInit = data.onInit;
+    this.templateAction = data.templateAction;
+    this.additionalMaskAttributes = data.additionalMaskAttributes;
+    this.generateVisualPropertiesHook = data.generateVisualPropertiesHook ?? false;
+  }
+
+  isTable(): boolean {
+    return this.type === PageContainerType.TABLE;
+  }
+
+  isForm(): boolean {
+    return this.type === PageContainerType.FORM;
+  }
+
+  isView(): boolean {
+    return this.type === PageContainerType.VIEW;
+  }
+}
+
+export class PageDefinitionImpl extends NamedElementImpl implements Types.PageDefinition {
+  container: Types.PageContainer;
+  actions: Types.Action[];
+  dataElement?: Types.DataElement;
+  openInDialog?: boolean;
+  dialogSize?: DialogSize;
+  dashboard: boolean;
+  isSelector?: boolean;
+  isRelationSelector?: boolean;
+  label?: string;
+  icon?: Types.Icon;
+
+  constructor(data: Partial<Types.PageDefinition> = {}) {
+    super(data);
+    this.container = data.container || new PageContainerImpl();
+    this.actions = data.actions || [];
+    this.dataElement = data.dataElement;
+    this.openInDialog = data.openInDialog;
+    this.dialogSize = data.dialogSize;
+    this.dashboard = data.dashboard ?? false;
+    this.isSelector = data.isSelector;
+    this.isRelationSelector = data.isRelationSelector;
+    this.label = data.label;
+    this.icon = data.icon;
+  }
+}
+
+// Navigation Implementation Classes
+
+export class NavigationItemImpl extends NamedElementImpl implements Types.NavigationItem {
+  items: Types.NavigationItem[];
+  target?: Types.PageDefinition;
+  hiddenBy?: string;
+  label?: string;
+  icon?: Types.Icon;
+
+  constructor(data: Partial<Types.NavigationItem> = {}) {
+    super(data);
+    this.items = data.items || [];
+    this.target = data.target;
+    this.hiddenBy = data.hiddenBy;
+    this.label = data.label;
+    this.icon = data.icon;
+  }
+}
+
+export class NavigationControllerImpl extends NamedElementImpl implements Types.NavigationController {
+  items: Types.NavigationItem[];
+  actions: Types.Action[];
+
+  constructor(data: Partial<Types.NavigationController> = {}) {
+    super(data);
+    this.items = data.items || [];
+    this.actions = data.actions || [];
+  }
+}
+
+// Application Implementation Classes
+
+export class ThemeImpl implements Types.Theme {
+  primaryColor?: string;
+  secondaryColor?: string;
+  backgroundColor?: string;
+  textPrimaryColor?: string;
+  textSecondaryColor?: string;
+  subtitleColor?: string;
+  paperBackgroundColor?: string;
+
+  constructor(data: Partial<Types.Theme> = {}) {
+    this.primaryColor = data.primaryColor;
+    this.secondaryColor = data.secondaryColor;
+    this.backgroundColor = data.backgroundColor;
+    this.textPrimaryColor = data.textPrimaryColor;
+    this.textSecondaryColor = data.textSecondaryColor;
+    this.subtitleColor = data.subtitleColor;
+    this.paperBackgroundColor = data.paperBackgroundColor;
+  }
+}
+
+export class ClaimImpl implements Types.Claim {
+  type: 'UNDEFINED' | 'EMAIL' | 'USERNAME';
+  attributeType: Types.AttributeType;
+
+  constructor(data: Partial<Types.Claim> = {}) {
+    this.type = data.type || 'UNDEFINED';
+    this.attributeType = data.attributeType || new AttributeTypeImpl();
+  }
+}
+
+export class AuthenticationImpl implements Types.Authentication {
+  realm: string;
+  claims: Types.Claim[];
+
+  constructor(data: Partial<Types.Authentication> = {}) {
+    this.realm = data.realm || '';
+    this.claims = data.claims || [];
+  }
+}
+
+export class ApplicationImpl extends NamedElementImpl implements Types.Application {
+  modelName: string;
+  version: string;
+  defaultLanguage: string;
+  logo?: string;
+  icon?: string;
+  title?: string;
+  backgroundImage?: string;
+  supportGuestAccess: boolean;
+  actor: Types.ClassType;
+  principal?: Types.ClassType;
+  navigationController?: Types.NavigationController;
+  pages: Types.PageDefinition[];
+  pageContainers: Types.PageContainer[];
+  dataElements: Types.DataElement[];
+  dataTypes: Types.DataType[];
+  theme: Types.Theme;
+  authentication?: Types.Authentication;
+  defaultMenuLayout?: 'VERTICAL' | 'HORIZONTAL';
+
+  constructor(data: Partial<Types.Application> = {}) {
+    super(data);
+    this.modelName = data.modelName || '';
+    this.version = data.version || '1.0.0';
+    this.defaultLanguage = data.defaultLanguage || 'en-US';
+    this.logo = data.logo;
+    this.icon = data.icon;
+    this.title = data.title;
+    this.backgroundImage = data.backgroundImage;
+    this.supportGuestAccess = data.supportGuestAccess ?? false;
+    this.actor = data.actor || new ClassTypeImpl();
+    this.principal = data.principal;
+    this.navigationController = data.navigationController;
+    this.pages = data.pages || [];
+    this.pageContainers = data.pageContainers || [];
+    this.dataElements = data.dataElements || [];
+    this.dataTypes = data.dataTypes || [];
+    this.theme = data.theme || new ThemeImpl();
+    this.authentication = data.authentication;
+    this.defaultMenuLayout = data.defaultMenuLayout;
+  }
+
+  getTables(): Types.Table[] {
+    const tables: Types.Table[] = [];
+    const collectTables = (element: Types.VisualElement) => {
+      if (element.elementType === 'Table') {
+        tables.push(element as Types.Table);
+      }
+      if ('children' in element && Array.isArray((element as any).children)) {
+        (element as any).children.forEach(collectTables);
+      }
+    };
+    this.pageContainers.forEach((container) => collectTables(container));
+    return tables;
+  }
+
+  getLinks(): Types.Link[] {
+    const links: Types.Link[] = [];
+    const collectLinks = (element: Types.VisualElement) => {
+      if (element.elementType === 'Link') {
+        links.push(element as Types.Link);
+      }
+      if ('children' in element && Array.isArray((element as any).children)) {
+        (element as any).children.forEach(collectLinks);
+      }
+    };
+    this.pageContainers.forEach((container) => collectLinks(container));
+    return links;
+  }
+
+  getButtons(): Types.Button[] {
+    const buttons: Types.Button[] = [];
+    const collectButtons = (element: Types.VisualElement) => {
+      if (element.elementType === 'Button') {
+        buttons.push(element as Types.Button);
+      }
+      if (element.elementType === 'ButtonGroup') {
+        buttons.push(...(element as Types.ButtonGroup).buttons);
+      }
+      if ('children' in element && Array.isArray((element as any).children)) {
+        (element as any).children.forEach(collectButtons);
+      }
+    };
+    this.pageContainers.forEach((container) => collectButtons(container));
+    return buttons;
+  }
+}
+
+// Factory functions for convenience
+
+export const ModelFactory = {
+  createNamedElement: (data?: Partial<Types.NamedElement>) => new NamedElementImpl(data),
+  createAnnotation: (data?: Partial<Types.Annotation>) => new AnnotationImpl(data),
+  createIcon: (data?: Partial<Types.Icon>) => new IconImpl(data),
+  createAttributeType: (data?: Partial<Types.AttributeType>) => new AttributeTypeImpl(data),
+  createRelationType: (data?: Partial<Types.RelationType>) => new RelationTypeImpl(data),
+  createOperationType: (data?: Partial<Types.OperationType>) => new OperationTypeImpl(data),
+  createOperationParameterType: (data?: Partial<Types.OperationParameterType>) => new OperationParameterTypeImpl(data),
+  createClassType: (data?: Partial<Types.ClassType>) => new ClassTypeImpl(data),
+  createVisualElement: (data?: Partial<Types.VisualElement>) => new VisualElementImpl(data),
+  createContainer: (data?: Partial<Types.Container>) => new ContainerImpl(data),
+  createFlex: (data?: Partial<Types.Flex>) => new FlexImpl(data),
+  createInput: (data?: Partial<Types.Input>) => new InputImpl(data),
+  createTable: (data?: Partial<Types.Table>) => new TableImpl(data),
+  createColumn: (data?: Partial<Types.Column>) => new ColumnImpl(data),
+  createFilter: (data?: Partial<Types.Filter>) => new FilterImpl(data),
+  createLink: (data?: Partial<Types.Link>) => new LinkImpl(data),
+  createButton: (data?: Partial<Types.Button>) => new ButtonImpl(data),
+  createButtonGroup: (data?: Partial<Types.ButtonGroup>) => new ButtonGroupImpl(data),
+  createActionDefinition: (data?: Partial<Types.ActionDefinition>) => new ActionDefinitionImpl(data),
+  createAction: (data?: Partial<Types.Action>) => new ActionImpl(data),
+  createPageContainer: (data?: Partial<Types.PageContainer>) => new PageContainerImpl(data),
+  createPageDefinition: (data?: Partial<Types.PageDefinition>) => new PageDefinitionImpl(data),
+  createNavigationItem: (data?: Partial<Types.NavigationItem>) => new NavigationItemImpl(data),
+  createNavigationController: (data?: Partial<Types.NavigationController>) => new NavigationControllerImpl(data),
+  createTheme: (data?: Partial<Types.Theme>) => new ThemeImpl(data),
+  createClaim: (data?: Partial<Types.Claim>) => new ClaimImpl(data),
+  createAuthentication: (data?: Partial<Types.Authentication>) => new AuthenticationImpl(data),
+  createApplication: (data?: Partial<Types.Application>) => new ApplicationImpl(data),
+};
+

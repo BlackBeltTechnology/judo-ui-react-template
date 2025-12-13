@@ -1,0 +1,18 @@
+import {
+  ModelParser,
+} from './parser';
+
+export async function loadApplicationModel() {
+  try {
+    const response = await fetch('models/{{ application.modelName }}-ui.json');
+    const data = await response.json();
+    const result = new ModelParser(data);
+
+    console.log(result);
+
+    return result;
+  } catch (error) {
+    console.error('Failed to load model:', error);
+    throw error;
+  }
+}

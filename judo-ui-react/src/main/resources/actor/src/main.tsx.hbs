@@ -32,6 +32,7 @@ import { routes } from './routes';
 import { RootErrorBoundary } from './components/RootErrorBoundary';
 import { ConfigProvider, ViewDataProvider, ViewProvider } from './hooks';
 import { loadProgressBar, progressGlobalStyles } from './Progress';
+import { loadApplicationModel } from './model-runtime/examples';
 
 {{# if isMUILicensed }}
     LicenseInfo.setLicenseKey(import.meta.env.VITE_MUI_LICENSE_KEY);
@@ -48,6 +49,7 @@ const API_RELATIVE_PATH: string = import.meta.env.VITE_API_RELATIVE_PATH || '/ap
 const FILE_DEFAULT_BASE_URL: string = import.meta.env.VITE_FILE_DEFAULT_BASE_URL || API_DEFAULT_BASE_URL;
 
 (async () => {
+    await loadApplicationModel();
     const pandino = new Pandino({
         ...loaderConfiguration,
     });
