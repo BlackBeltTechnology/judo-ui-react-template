@@ -50,6 +50,52 @@ type EClassMapping = Map<string, new (data: any) => any>;
 
 **Value**: The constructor function for the implementation class
 
+### 4. Meta-Model Schema Map
+
+```typescript
+type PropertyTypeInfo = {
+  eClass: string;
+  isMany: boolean;
+};
+
+type MetaModelSchema = Map<string, Map<string, PropertyTypeInfo>>;
+```
+
+**Purpose**: Maps each eClass to its property definitions, allowing type derivation for nodes without explicit `eClass` attributes.
+
+**Key**: The eClass URI of the parent type
+
+**Value**: A Map of property names to their type information
+
+**Example Entries**:
+```typescript
+const metaModelSchema = new Map<string, Map<string, PropertyTypeInfo>>([
+  ['http://blackbelt.hu/judo/meta/ui#//Application', new Map([
+    ['navigationController', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//NavigationController', 
+      isMany: false 
+    }],
+    ['pages', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//PageDefinition', 
+      isMany: true 
+    }],
+  ])],
+  ['http://blackbelt.hu/judo/meta/ui#//PageContainer', new Map([
+    ['table', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//Table', 
+      isMany: false 
+    }],
+    ['actions', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', 
+      isMany: true 
+    }],
+  ])],
+  // ... more type definitions
+]);
+```
+
+**Usage**: When encountering a node without an `eClass` attribute, the parser can look up the parent's type and the property name to derive the expected type.
+
 **Example Entries**:
 ```typescript
 const eClassMap = new Map<string, new (data: any) => any>([
@@ -189,21 +235,63 @@ Some elements are defined inline without `@id` (usually simple value objects or 
 }
 ```
 
+### Elements Without eClass (Type Derivation)
+
+Some elements may not have an explicit `eClass` attribute. The parser can derive the type from the parent's meta-model definition:
+
+```json
+{
+  "eClass": "http://blackbelt.hu/judo/meta/ui#//PageContainer",
+  "@id": "God/(esm/_XYZ)/MyPageContainer",
+  "table": {
+    // No eClass specified, but parser derives it from parent's "table" property definition
+    "@id": "God/(esm/_ABC)/MyTable",
+    "columns": []
+  }
+}
+```
+
+In this example:
+1. The parent is a `PageContainer` with eClass `http://blackbelt.hu/judo/meta/ui#//PageContainer`
+2. The child is in the `table` property
+3. The parser looks up `PageContainer` in the meta-model schema
+4. It finds that the `table` property has type `http://blackbelt.hu/judo/meta/ui#//Table`
+5. The parser automatically adds this eClass to the child object before indexing
+
 ## Parser Implementation
 
-### Pass 1: Index Building
+### Pass 1: Index Building with Type Derivation
 
-**Purpose**: Build a complete index of all elements that have `@id` properties.
+**Purpose**: Build a complete index of all elements that have `@id` properties, and derive missing `eClass` attributes from parent context.
 
 **Algorithm**:
 
 ```typescript
-function buildIndex(jsonModel: any): ElementIndex {
+function buildIndex(
+  jsonModel: any, 
+  metaModelSchema: MetaModelSchema
+): ElementIndex {
   const index = new Map<string, any>();
   
-  function traverse(obj: any): void {
+  function traverse(
+    obj: any, 
+    parentEClass?: string, 
+    propertyName?: string
+  ): void {
     if (obj === null || typeof obj !== 'object') {
       return;
+    }
+    
+    // Derive eClass if missing but parent context is available
+    if (!obj['eClass'] && parentEClass && propertyName) {
+      const parentSchema = metaModelSchema.get(parentEClass);
+      if (parentSchema) {
+        const propertyInfo = parentSchema.get(propertyName);
+        if (propertyInfo) {
+          // Add derived eClass to the object
+          obj['eClass'] = propertyInfo.eClass;
+        }
+      }
     }
     
     // If this object has an @id, add it to the index
@@ -211,15 +299,18 @@ function buildIndex(jsonModel: any): ElementIndex {
       index.set(obj['@id'], obj);
     }
     
+    // Get current eClass for recursive traversal
+    const currentEClass = obj['eClass'];
+    
     // Recursively traverse all properties
     if (Array.isArray(obj)) {
       for (const item of obj) {
-        traverse(item);
+        traverse(item, parentEClass, propertyName);
       }
     } else {
       for (const key in obj) {
         if (key !== '$ref') { // Don't traverse into references
-          traverse(obj[key]);
+          traverse(obj[key], currentEClass, key);
         }
       }
     }
@@ -230,7 +321,7 @@ function buildIndex(jsonModel: any): ElementIndex {
 }
 ```
 
-**Output**: A map of all `@id` values to their JSON objects.
+**Output**: A map of all `@id` values to their JSON objects, with missing `eClass` attributes filled in through derivation.
 
 ### Pass 2: Object Instantiation
 
@@ -249,7 +340,7 @@ function instantiateObjects(
     const eClass = element.eClass;
     
     if (!eClass) {
-      console.warn(`Element ${id} has no eClass property`);
+      console.warn(`Element ${id} has no eClass property (derivation failed in Pass 1)`);
       continue;
     }
     
@@ -272,6 +363,7 @@ function instantiateObjects(
 **Details**:
 - Each element in the index is instantiated using its corresponding implementation class
 - The constructor receives the raw JSON data
+- The `eClass` attribute should have been derived in Pass 1 if it was missing
 - At this stage, `$ref` properties are not yet resolved - they contain the reference strings
 - All primitive properties (strings, numbers, booleans) are set
 - Array and object properties that don't have references are set
@@ -343,19 +435,21 @@ function wireReferences(
 ```typescript
 class ModelParser {
   private eClassMap: EClassMapping;
+  private metaModelSchema: MetaModelSchema;
   private elementIndex: ElementIndex;
   private instanceMap: InstanceMap;
   
-  constructor(eClassMap: EClassMapping) {
+  constructor(eClassMap: EClassMapping, metaModelSchema: MetaModelSchema) {
     this.eClassMap = eClassMap;
+    this.metaModelSchema = metaModelSchema;
     this.elementIndex = new Map();
     this.instanceMap = new Map();
   }
   
   parse(jsonModel: any): any {
-    // Pass 1: Build index
-    console.log('Pass 1: Building element index...');
-    this.elementIndex = this.buildIndex(jsonModel);
+    // Pass 1: Build index with type derivation
+    console.log('Pass 1: Building element index with type derivation...');
+    this.elementIndex = this.buildIndex(jsonModel, this.metaModelSchema);
     console.log(`Indexed ${this.elementIndex.size} elements`);
     
     // Pass 2: Instantiate objects
@@ -401,10 +495,11 @@ class ModelParser {
 ```typescript
 import { ModelParser } from './model-parser';
 import { eClassMap } from './eclass-mapping';
+import { metaModelSchema } from './meta-model-schema';
 import modelJson from './model.json';
 
-// Create parser with eClass mapping
-const parser = new ModelParser(eClassMap);
+// Create parser with eClass mapping and meta-model schema
+const parser = new ModelParser(eClassMap, metaModelSchema);
 
 // Parse the model
 const model = parser.parse(modelJson);
@@ -420,9 +515,13 @@ const allTables = parser.getInstancesByType('http://blackbelt.hu/judo/meta/ui#//
 console.log(`Found ${allTables.length} tables in the model`);
 ```
 
-## EClass Mapping Generation
+## EClass Mapping and Meta-Model Schema Generation
 
-The eClass mapping should be generated from the meta-model or maintained manually. Here's a suggested structure:
+The eClass mapping and meta-model schema should be generated from the meta-model or maintained manually.
+
+### EClass Mapping
+
+Here's a suggested structure for the eClass mapping:
 
 ```typescript
 // eclass-mapping.ts
@@ -613,6 +712,86 @@ export const eClassMap = new Map<string, new (data: any) => any>([
 ]);
 ```
 
+### Meta-Model Schema
+
+The meta-model schema defines the property types for each eClass, enabling type derivation for nodes without explicit `eClass` attributes:
+
+```typescript
+// meta-model-schema.ts
+import { MetaModelSchema, PropertyTypeInfo } from './model-parser';
+
+export const metaModelSchema: MetaModelSchema = new Map([
+  // Application
+  ['http://blackbelt.hu/judo/meta/ui#//Application', new Map<string, PropertyTypeInfo>([
+    ['navigationController', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//NavigationController', 
+      isMany: false 
+    }],
+    ['pages', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//PageDefinition', 
+      isMany: true 
+    }],
+  ])],
+  
+  // PageDefinition
+  ['http://blackbelt.hu/judo/meta/ui#//PageDefinition', new Map<string, PropertyTypeInfo>([
+    ['container', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//PageContainer', 
+      isMany: false 
+    }],
+    ['dataElement', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//data/ClassType', 
+      isMany: false 
+    }],
+  ])],
+  
+  // PageContainer
+  ['http://blackbelt.hu/judo/meta/ui#//PageContainer', new Map<string, PropertyTypeInfo>([
+    ['table', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//Table', 
+      isMany: false 
+    }],
+    ['actions', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', 
+      isMany: true 
+    }],
+    ['children', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//VisualElement', 
+      isMany: true 
+    }],
+  ])],
+  
+  // Table
+  ['http://blackbelt.hu/judo/meta/ui#//Table', new Map<string, PropertyTypeInfo>([
+    ['columns', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//VisualElement', 
+      isMany: true 
+    }],
+    ['rowActions', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', 
+      isMany: true 
+    }],
+    ['tableActions', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', 
+      isMany: true 
+    }],
+    ['dataElement', { 
+      eClass: 'http://blackbelt.hu/judo/meta/ui#//data/RelationType', 
+      isMany: false 
+    }],
+  ])],
+  
+  // Add more type definitions as needed...
+  // This should cover all eClasses that have containment references
+]);
+```
+
+**Notes on Schema Generation**:
+- Only include properties that are **containment references** (not attributes or cross-references)
+- The `isMany` flag indicates if the property is a collection (array)
+- Abstract types (like `VisualElement`, `ActionDefinition`) can be used when multiple concrete types are possible
+- The schema should be generated from the Ecore meta-model to ensure accuracy and completeness
+
 ## Performance Considerations
 
 1. **Pass 1 (Indexing)**: O(n) where n is the total number of objects in the model
@@ -631,7 +810,9 @@ export const eClassMap = new Map<string, new (data: any) => any>([
 The parser should handle the following error cases:
 
 1. **Missing @id**: Elements without `@id` that are referenced by `$ref`
-2. **Missing eClass**: Elements without type information
+2. **Missing eClass**: Elements without type information (after derivation attempt fails)
+   - The parser first attempts to derive the `eClass` from parent context
+   - If derivation fails (no parent context or property not in schema), a warning is issued
 3. **Unknown eClass**: eClass values not in the mapping
 4. **Broken References**: `$ref` values that don't exist in the index
 5. **Circular References**: Handled naturally by the three-pass approach
@@ -698,10 +879,11 @@ function serializeModel(instance: any, instanceMap: InstanceMap): any {
 ## Implementation Checklist
 
 - [ ] Define TypeScript interfaces for parser
-- [ ] Implement Pass 1: Index building
+- [ ] Implement Pass 1: Index building with type derivation
 - [ ] Implement Pass 2: Object instantiation
 - [ ] Implement Pass 3: Reference wiring
 - [ ] Create eClass mapping from meta-model
+- [ ] Create meta-model schema for type derivation
 - [ ] Add error handling and logging
 - [ ] Write unit tests
 - [ ] Write integration tests
