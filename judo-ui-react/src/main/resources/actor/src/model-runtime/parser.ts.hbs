@@ -1,374 +1,92 @@
-// Model Runtime Parser
-// Parses UI model definitions and provides query capabilities
+// Model Runtime Parser - Three-Pass Implementation
+// Based on specification in PARSER_SPECIFICATION.md
+//
+// Pass 1: Index Building - Build complete @id index and derive missing eClass attributes
+// Pass 2: Object Instantiation - Create implementation class instances for all indexed elements
+// Pass 3: Reference Wiring - Resolve all $ref and contained object references
 
-import type {
-  Application,
-  PageDefinition,
-  PageContainer,
-  ClassType,
-  RelationType,
-  AttributeType,
-  OperationType,
-  VisualElement,
-  Container,
-  Action,
-  ActionDefinition,
-  NavigationItem,
-  DataElement,
-  PageContainerType,
-  ActionType,
-} from './types';
+import type { Application } from './types';
+import * as Impl from './implementations';
 
-export interface ModelIndex {
-  pagesByFQName: Map<string, PageDefinition>;
-  containersByFQName: Map<string, PageContainer>;
-  classTypesByFQName: Map<string, ClassType>;
-  relationTypesByFQName: Map<string, RelationType>;
-  attributeTypesByFQName: Map<string, AttributeType>;
-  operationTypesByFQName: Map<string, OperationType>;
-  pagesByContainer: Map<string, PageDefinition[]>;
-  pagesByDataElement: Map<string, PageDefinition[]>;
+// Type Definitions for Parser
+
+type ElementIndex = Map<string, any>;
+type InstanceMap = Map<string, any>;
+type EClassMapping = Map<string, new (data: any) => any>;
+
+interface PropertyTypeInfo {
+  eClass: string;
+  isMany: boolean;
 }
 
+type MetaModelSchema = Map<string, Map<string, PropertyTypeInfo>>;
+
+/**
+ * Three-Pass Model Parser
+ *
+ * This parser implements a clean three-pass approach for loading EMF/Ecore-based JSON models:
+ * 1. Pass 1: Build element index and derive missing eClass attributes
+ * 2. Pass 2: Instantiate implementation class instances
+ * 3. Pass 3: Wire all references to actual instances
+ */
 export class ModelParser {
+  private eClassMap: EClassMapping;
+  private metaModelSchema: MetaModelSchema;
+  private elementIndex: ElementIndex = new Map();
+  private instanceMap: InstanceMap = new Map();
   private application: Application | null = null;
-  private index: ModelIndex = {
-    pagesByFQName: new Map(),
-    containersByFQName: new Map(),
-    classTypesByFQName: new Map(),
-    relationTypesByFQName: new Map(),
-    attributeTypesByFQName: new Map(),
-    operationTypesByFQName: new Map(),
-    pagesByContainer: new Map(),
-    pagesByDataElement: new Map(),
-  };
   private debug: boolean = false;
 
   constructor(application?: Application, debug: boolean = false) {
     this.debug = debug;
+    this.eClassMap = this.createEClassMapping();
+    this.metaModelSchema = this.createMetaModelSchema();
+
     if (application) {
-      this.loadApplication(application);
+      this.application = application;
     }
   }
 
   /**
-   * Load and index an application model
+   * Parse a JSON model and return the root Application instance
    */
-  loadApplication(application: Application): void {
-    this.application = application;
-    // Phase 1: Build index for fast lookups (must be done first)
-    this.buildIndex(application);
-    // Phase 2: Resolve all $ref references using multi-pass strategy
-    this.resolveAllReferences(application);
-  }
-
-  /**
-   * Resolve all $ref references in the application tree
-   * Uses a multi-pass strategy to handle forward references
-   */
-  private resolveAllReferences(application: Application): void {
-    const maxPasses = 10; // Prevent infinite loops
-    let passCount = 0;
-    let hasUnresolved = true;
-    let totalResolved = 0;
-
+  parse(jsonModel: any): Application {
     if (this.debug) {
-      console.log('ModelParser: Starting reference resolution...');
+      console.log('ModelParser: Starting three-pass parsing...');
     }
 
-    while (hasUnresolved && passCount < maxPasses) {
-      passCount++;
-      const resolvedInThisPass = this.resolvePass(application);
-      totalResolved += resolvedInThisPass;
-      hasUnresolved = resolvedInThisPass > 0;
-
-      if (this.debug) {
-        console.log(`ModelParser: Pass ${passCount} - Resolved ${resolvedInThisPass} references`);
-      }
-
-      if (resolvedInThisPass === 0 && passCount === 1) {
-        // First pass resolved nothing - no references to resolve
-        if (this.debug) {
-          console.log('ModelParser: No references found to resolve.');
-        }
-        break;
-      }
+    // Pass 1: Build index with type derivation
+    if (this.debug) {
+      console.log('Pass 1: Building element index with type derivation...');
+    }
+    this.elementIndex = this.buildIndex(jsonModel);
+    if (this.debug) {
+      console.log(`Pass 1 complete: Indexed ${this.elementIndex.size} elements`);
     }
 
-    if (passCount >= maxPasses) {
-      console.warn('ModelParser: Maximum resolution passes reached. Some references may be unresolved.');
-    } else if (this.debug && totalResolved > 0) {
-      console.log(`ModelParser: Resolution complete. Total resolved: ${totalResolved} references in ${passCount} pass(es).`);
+    // Pass 2: Instantiate objects
+    if (this.debug) {
+      console.log('Pass 2: Instantiating objects...');
     }
-  }
-
-  /**
-   * Single pass of reference resolution
-   * Returns the number of references resolved in this pass
-   */
-  private resolvePass(obj: any): number {
-    const resolved: Array<{ parent: any; key: string | number; ref: string }> = [];
-    this.collectUnresolvedReferences(obj, resolved);
-
-    // Attempt to resolve all collected references
-    let successCount = 0;
-    for (const { parent, key, ref } of resolved) {
-      const resolvedValue = this.resolveRef(ref);
-      if (resolvedValue !== null && resolvedValue !== undefined) {
-        parent[key] = resolvedValue;
-        successCount++;
-      } else if (this.debug) {
-        console.warn(`ModelParser: Failed to resolve reference: ${ref}`);
-      }
+    this.instanceMap = this.instantiateObjects();
+    if (this.debug) {
+      console.log(`Pass 2 complete: Instantiated ${this.instanceMap.size} objects`);
     }
 
-    return successCount;
-  }
-
-  /**
-   * Collect all unresolved references in the object tree
-   */
-  private collectUnresolvedReferences(
-    obj: any,
-    collector: Array<{ parent: any; key: string | number; ref: string }>,
-    visited: WeakSet<object> = new WeakSet()
-  ): void {
-    // Base cases: null, undefined, primitives
-    if (!obj || typeof obj !== 'object') {
-      return;
+    // Pass 3: Wire references
+    if (this.debug) {
+      console.log('Pass 3: Wiring references...');
+    }
+    this.application = this.wireReferences(jsonModel);
+    if (this.debug) {
+      console.log('Pass 3 complete: Model parsing finished');
     }
 
-    // Prevent infinite recursion on circular structures
-    if (visited.has(obj)) {
-      return;
-    }
-    visited.add(obj);
-
-    // Handle arrays
-    if (Array.isArray(obj)) {
-      for (let i = 0; i < obj.length; i++) {
-        const item = obj[i];
-
-        // Check if item is a $ref object
-        if (item && typeof item === 'object' && '$ref' in item && typeof item.$ref === 'string') {
-          collector.push({ parent: obj, key: i, ref: item.$ref });
-        } else if (item && typeof item === 'object') {
-          // Recurse into nested objects/arrays
-          this.collectUnresolvedReferences(item, collector, visited);
-        }
-      }
-      return;
+    if (!this.application) {
+      throw new Error('Failed to parse application model');
     }
 
-    // Handle objects (plain objects)
-    const keys = Object.keys(obj);
-
-    for (const key of keys) {
-      const value = obj[key];
-
-      // If the entire value is a $ref object, collect it
-      if (value && typeof value === 'object' && '$ref' in value && typeof value.$ref === 'string') {
-        collector.push({ parent: obj, key, ref: value.$ref });
-        continue;
-      }
-
-      // If value is a string that looks like a JSON pointer, collect it
-      if (typeof value === 'string' && value.startsWith('#/')) {
-        collector.push({ parent: obj, key, ref: value });
-        continue;
-      }
-
-      // Recurse into nested objects/arrays
-      if (value && typeof value === 'object') {
-        this.collectUnresolvedReferences(value, collector, visited);
-      }
-    }
-  }
-
-
-
-  /**
-   * Resolve a single $ref to an actual object
-   */
-  private resolveRef(ref: string): any {
-    if (!ref || typeof ref !== 'string') return null;
-
-    // Handle JSON Pointer format: #/pages/0, #/pageContainers/0, #/dataElements/0
-    if (ref.startsWith('#/')) {
-      const parts = ref.substring(2).split('/');
-      return this.resolveJsonPointer(parts);
-    }
-
-    // Try to resolve by FQName from indexes
-    const indexedResult =
-      this.index.pagesByFQName.get(ref) ||
-      this.index.containersByFQName.get(ref) ||
-      this.index.classTypesByFQName.get(ref) ||
-      this.index.relationTypesByFQName.get(ref) ||
-      this.index.attributeTypesByFQName.get(ref) ||
-      this.index.operationTypesByFQName.get(ref);
-
-    if (indexedResult) {
-      return indexedResult;
-    }
-
-    // Fallback: try to find by fqName in all data elements
-    if (this.application?.dataElements) {
-      for (const element of this.application.dataElements) {
-        if (element.fqName === ref) {
-          return element;
-        }
-        // For ClassType, also check nested elements
-        if (element.type === 'ClassType') {
-          const classType = element as ClassType;
-
-          // Check relations
-          for (const relation of classType.relations || []) {
-            if (relation.fqName === ref) {
-              return relation;
-            }
-          }
-
-          // Check attributes
-          for (const attribute of classType.attributes || []) {
-            if (attribute.fqName === ref) {
-              return attribute;
-            }
-          }
-
-          // Check operations
-          for (const operation of classType.operations || []) {
-            if (operation.fqName === ref) {
-              return operation;
-            }
-          }
-        }
-      }
-    }
-
-    return null;
-  }
-
-  /**
-   * Resolve JSON Pointer reference (e.g., #/pages/0)
-   * Follows RFC 6901 JSON Pointer specification
-   */
-  private resolveJsonPointer(parts: string[]): any {
-    if (!this.application || parts.length === 0) return null;
-
-    let current: any = this.application;
-
-    for (let i = 0; i < parts.length; i++) {
-      if (current === null || current === undefined) {
-        return null;
-      }
-
-      // Decode JSON Pointer escape sequences per RFC 6901
-      // ~1 represents / and ~0 represents ~
-      let part = parts[i];
-      part = part.replace(/~1/g, '/').replace(/~0/g, '~');
-
-      // Handle arrays
-      if (Array.isArray(current)) {
-        // Array indices must be non-negative integers
-        if (/^\d+$/.test(part)) {
-          const index = parseInt(part, 10);
-          if (index >= 0 && index < current.length) {
-            current = current[index];
-          } else {
-            return null;
-          }
-        } else if (part === '-') {
-          // Special case: '-' refers to the (nonexistent) element after the last array element
-          // This is typically used for appending, but for reading we return null
-          return null;
-        } else {
-          return null;
-        }
-      } else if (typeof current === 'object') {
-        // Handle object properties
-        if (part in current) {
-          current = current[part];
-        } else {
-          return null;
-        }
-      } else {
-        // Cannot traverse further
-        return null;
-      }
-    }
-
-    return current;
-  }
-
-  /**
-   * Build indexes for fast lookups
-   */
-  private buildIndex(application: Application): void {
-    // Clear existing indexes
-    Object.values(this.index).forEach((map) => map.clear());
-
-    // Index pages
-    application.pages.forEach((page) => {
-      this.index.pagesByFQName.set(page.fqName, page);
-
-      if (page.container) {
-        const containerKey = typeof page.container === 'object' && 'fqName' in page.container
-          ? page.container.fqName
-          : String(page.container);
-        if (!this.index.pagesByContainer.has(containerKey)) {
-          this.index.pagesByContainer.set(containerKey, []);
-        }
-        this.index.pagesByContainer.get(containerKey)!.push(page);
-      }
-
-      if (page.dataElement) {
-        const dataElementKey = typeof page.dataElement === 'object' && 'fqName' in page.dataElement
-          ? page.dataElement.fqName
-          : String(page.dataElement);
-        if (!this.index.pagesByDataElement.has(dataElementKey)) {
-          this.index.pagesByDataElement.set(dataElementKey, []);
-        }
-        this.index.pagesByDataElement.get(dataElementKey)!.push(page);
-      }
-    });
-
-    // Index page containers
-    application.pageContainers.forEach((container) => {
-      this.index.containersByFQName.set(container.fqName, container);
-    });
-
-    // Index data elements
-    application.dataElements.forEach((element) => {
-      if (element.type === 'ClassType') {
-        const classType = element as ClassType;
-        this.index.classTypesByFQName.set(classType.fqName, classType);
-
-        // Index relations
-        classType.relations?.forEach((relation) => {
-          this.index.relationTypesByFQName.set(relation.fqName, relation);
-        });
-
-        // Index attributes
-        classType.attributes?.forEach((attribute) => {
-          this.index.attributeTypesByFQName.set(attribute.fqName, attribute);
-        });
-
-        // Index operations and their parameters
-        classType.operations?.forEach((operation) => {
-          this.index.operationTypesByFQName.set(operation.fqName, operation);
-        });
-      } else if (element.type === 'RelationType') {
-        const relationType = element as RelationType;
-        this.index.relationTypesByFQName.set(relationType.fqName, relationType);
-      } else if (element.type === 'AttributeType') {
-        const attributeType = element as AttributeType;
-        this.index.attributeTypesByFQName.set(attributeType.fqName, attributeType);
-      } else if (element.type === 'OperationType') {
-        const operationType = element as OperationType;
-        this.index.operationTypesByFQName.set(operationType.fqName, operationType);
-      }
-    });
+    return this.application;
   }
 
   /**
@@ -379,252 +97,627 @@ export class ModelParser {
   }
 
   /**
-   * Get a page by fully qualified name
+   * Get an instance by its @id
    */
-  getPage(fqName: string): PageDefinition | undefined {
-    return this.index.pagesByFQName.get(fqName);
+  getInstance(id: string): any | undefined {
+    return this.instanceMap.get(id);
   }
 
   /**
-   * Get all pages
+   * Get all instances of a specific type
    */
-  getAllPages(): PageDefinition[] {
-    return Array.from(this.index.pagesByFQName.values());
-  }
-
-  /**
-   * Get pages by container type
-   */
-  getPagesByType(type: PageContainerType): PageDefinition[] {
-    return this.getAllPages().filter((page) => page.container?.type === type);
-  }
-
-  /**
-   * Get a page container by fully qualified name
-   */
-  getPageContainer(fqName: string): PageContainer | undefined {
-    return this.index.containersByFQName.get(fqName);
-  }
-
-  /**
-   * Get a class type by fully qualified name
-   */
-  getClassType(fqName: string): ClassType | undefined {
-    return this.index.classTypesByFQName.get(fqName);
-  }
-
-  /**
-   * Get all class types
-   */
-  getAllClassTypes(): ClassType[] {
-    return Array.from(this.index.classTypesByFQName.values());
-  }
-
-  /**
-   * Get a relation type by fully qualified name
-   */
-  getRelationType(fqName: string): RelationType | undefined {
-    return this.index.relationTypesByFQName.get(fqName);
-  }
-
-  /**
-   * Get all relation types
-   */
-  getAllRelationTypes(): RelationType[] {
-    return Array.from(this.index.relationTypesByFQName.values());
-  }
-
-  /**
-   * Get an attribute type by fully qualified name
-   */
-  getAttributeType(fqName: string): AttributeType | undefined {
-    return this.index.attributeTypesByFQName.get(fqName);
-  }
-
-  /**
-   * Get all attribute types
-   */
-  getAllAttributeTypes(): AttributeType[] {
-    return Array.from(this.index.attributeTypesByFQName.values());
-  }
-
-  /**
-   * Get an operation type by fully qualified name
-   */
-  getOperationType(fqName: string): OperationType | undefined {
-    return this.index.operationTypesByFQName.get(fqName);
-  }
-
-  /**
-   * Get all operation types
-   */
-  getAllOperationTypes(): OperationType[] {
-    return Array.from(this.index.operationTypesByFQName.values());
-  }
-
-  /**
-   * Get pages for a specific data element
-   */
-  getPagesForDataElement(dataElementFqName: string): PageDefinition[] {
-    return this.index.pagesByDataElement.get(dataElementFqName) || [];
-  }
-
-  /**
-   * Get all visual elements in a container (recursively)
-   */
-  getVisualElements(container: Container): VisualElement[] {
-    const elements: VisualElement[] = [];
-    this.collectVisualElements(container, elements);
-    return elements;
-  }
-
-  private collectVisualElements(element: VisualElement, collector: VisualElement[]): void {
-    collector.push(element);
-    if ('children' in element && Array.isArray((element as Container).children)) {
-      const children = (element as Container).children;
-      if (children) {
-        children.forEach((child) => {
-          this.collectVisualElements(child, collector);
-        });
+  getInstancesByType(eClass: string): any[] {
+    const instances: any[] = [];
+    for (const [id, instance] of this.instanceMap.entries()) {
+      const element = this.elementIndex.get(id);
+      if (element && element.eClass === eClass) {
+        instances.push(instance);
       }
     }
+    return instances;
   }
+
+  // ============================================================================
+  // Pass 1: Index Building with Type Derivation
+  // ============================================================================
 
   /**
-   * Find visual elements by type
+   * Pass 1: Build index of all elements with @id, deriving missing eClass attributes
    */
-  findVisualElementsByType<T extends VisualElement>(
-    container: Container,
-    elementType: string
-  ): T[] {
-    const allElements = this.getVisualElements(container);
-    return allElements.filter((el) => el.elementType === elementType) as T[];
-  }
+  private buildIndex(jsonModel: any): ElementIndex {
+    const index = new Map<string, any>();
 
-  /**
-   * Get all actions for a page
-   */
-  getPageActions(page: PageDefinition): Action[] {
-    return page.actions || [];
-  }
-
-  /**
-   * Find actions by type
-   */
-  findActionsByType(page: PageDefinition, actionType: ActionType): Action[] {
-    return this.getPageActions(page).filter(
-      (action) => action.actionDefinition?.actionType === actionType
-    );
-  }
-
-  /**
-   * Find pages that reference a specific page
-   */
-  findPagesReferencingPage(targetPage: PageDefinition): PageDefinition[] {
-    return this.getAllPages().filter((page) =>
-      page.actions.some((action) => action.targetPageDefinition?.fqName === targetPage.fqName)
-    );
-  }
-
-  /**
-   * Get navigation items recursively
-   */
-  getAllNavigationItems(): NavigationItem[] {
-    if (!this.application?.navigationController) {
-      return [];
-    }
-    const items: NavigationItem[] = [];
-    this.collectNavigationItems(this.application.navigationController.items, items);
-    return items;
-  }
-
-  private collectNavigationItems(items: NavigationItem[], collector: NavigationItem[]): void {
-    items.forEach((item) => {
-      collector.push(item);
-      if (item.items && item.items.length > 0) {
-        this.collectNavigationItems(item.items, collector);
+    const traverse = (obj: any, parentEClass?: string, propertyName?: string): void => {
+      if (obj === null || typeof obj !== 'object') {
+        return;
       }
-    });
-  }
 
-  /**
-   * Find relations targeting a specific class type
-   */
-  findRelationsTargeting(classType: ClassType): RelationType[] {
-    return this.getAllRelationTypes().filter(
-      (relation) => relation.target.fqName === classType.fqName
-    );
-  }
-
-  /**
-   * Get model statistics
-   */
-  getStatistics() {
-    return {
-      pageCount: this.index.pagesByFQName.size,
-      containerCount: this.index.containersByFQName.size,
-      classTypeCount: this.index.classTypesByFQName.size,
-      relationTypeCount: this.index.relationTypesByFQName.size,
-      attributeTypeCount: this.index.attributeTypesByFQName.size,
-      operationTypeCount: this.index.operationTypesByFQName.size,
-      pagesByType: this.getPageTypeDistribution(),
-    };
-  }
-
-  private getPageTypeDistribution(): Record<PageContainerType, number> {
-    const distribution: Record<string, number> = {
-      TABLE: 0,
-      FORM: 0,
-      VIEW: 0,
-    };
-
-    this.getAllPages().forEach((page) => {
-      if (page.container?.type) {
-        distribution[page.container.type] = (distribution[page.container.type] || 0) + 1;
-      }
-    });
-
-    return distribution as Record<PageContainerType, number>;
-  }
-
-  /**
-   * Check if an object has unresolved references
-   */
-  hasUnresolvedReferences(obj: any): boolean {
-    if (!obj || typeof obj !== 'object') {
-      return false;
-    }
-
-    // Check for $ref property
-    if (obj.$ref) {
-      return true;
-    }
-
-    // Check if the object is just a string reference
-    if (typeof obj === 'string' && obj.startsWith('#/')) {
-      return true;
-    }
-
-    // Recursively check nested objects
-    for (const key in obj) {
-      if (obj.hasOwnProperty(key)) {
-        const value = obj[key];
-        if (value && typeof value === 'object') {
-          if (this.hasUnresolvedReferences(value)) {
-            return true;
+      // Derive eClass if missing but parent context is available
+      if (!obj['eClass'] && parentEClass && propertyName) {
+        const parentSchema = this.metaModelSchema.get(parentEClass);
+        if (parentSchema) {
+          const propertyInfo = parentSchema.get(propertyName);
+          if (propertyInfo) {
+            // Add derived eClass to the object
+            obj['eClass'] = propertyInfo.eClass;
+            if (this.debug) {
+              console.log(`Pass 1: Derived eClass ${propertyInfo.eClass} for property ${propertyName} from parent ${parentEClass}`);
+            }
           }
         }
       }
+
+      // If this object has an @id, add it to the index
+      if (obj['@id']) {
+        index.set(obj['@id'], obj);
+        if (this.debug) {
+          console.log(`Pass 1: Indexed element @id="${obj['@id']}", eClass="${obj['eClass'] || 'undefined'}"`);
+        }
+      }
+
+      // Get current eClass for recursive traversal
+      const currentEClass = obj['eClass'];
+
+      // Recursively traverse all properties
+      if (Array.isArray(obj)) {
+        for (const item of obj) {
+          traverse(item, parentEClass, propertyName);
+        }
+      } else {
+        for (const key in obj) {
+          if (key !== '$ref') { // Don't traverse into references
+            traverse(obj[key], currentEClass, key);
+          }
+        }
+      }
+    };
+
+    traverse(jsonModel);
+    return index;
+  }
+
+  // ============================================================================
+  // Pass 2: Object Instantiation
+  // ============================================================================
+
+  /**
+   * Pass 2: Instantiate implementation class instances for all indexed elements
+   */
+  private instantiateObjects(): InstanceMap {
+    const instances = new Map<string, any>();
+
+    for (const [id, element] of this.elementIndex.entries()) {
+      const eClass = element.eClass;
+
+      if (!eClass) {
+        if (this.debug) {
+          console.warn(`Pass 2: Element ${id} has no eClass property (derivation failed in Pass 1)`);
+        }
+        continue;
+      }
+
+      const Constructor = this.eClassMap.get(eClass);
+
+      if (!Constructor) {
+        if (this.debug) {
+          console.warn(`Pass 2: No implementation class found for eClass: ${eClass}`);
+        }
+        continue;
+      }
+
+      // Create instance with raw data (references not yet resolved)
+      const instance = new Constructor(element);
+      instances.set(id, instance);
+
+      if (this.debug) {
+        console.log(`Pass 2: Instantiated ${Constructor.name} for @id="${id}"`);
+      }
     }
 
-    return false;
+    return instances;
+  }
+
+  // ============================================================================
+  // Pass 3: Reference Wiring
+  // ============================================================================
+
+  /**
+   * Pass 3: Wire all references to actual instances
+   */
+  private wireReferences(jsonModel: any): any {
+    // Update all instances' properties with resolved references
+    for (const [id, instance] of this.instanceMap.entries()) {
+      const rawElement = this.elementIndex.get(id);
+      if (rawElement) {
+        this.updateInstanceProperties(instance, rawElement);
+      }
+    }
+
+    // Return the resolved root model
+    return this.resolveValue(jsonModel);
+  }
+
+  /**
+   * Update an instance's properties with resolved references
+   */
+  private updateInstanceProperties(instance: any, rawData: any): void {
+    for (const propKey in rawData) {
+      // Skip metadata properties
+      if (propKey === '@id' || propKey === 'eClass') {
+        continue;
+      }
+
+      const rawValue = rawData[propKey];
+
+      // Resolve the property value
+      const resolvedValue = this.resolvePropertyValue(rawValue);
+
+      // Update the instance property
+      instance[propKey] = resolvedValue;
+    }
+  }
+
+  /**
+   * Resolve a property value (handles nested structures)
+   */
+  private resolvePropertyValue(value: any): any {
+    if (value === null || value === undefined) {
+      return value;
+    }
+
+    // Handle arrays
+    if (Array.isArray(value)) {
+      return value.map(item => this.resolvePropertyValue(item));
+    }
+
+    // Handle objects
+    if (typeof value === 'object') {
+      // Cross-reference?
+      if (value['$ref'] && value['eClass']) {
+        const refId = value['$ref'];
+        const instance = this.instanceMap.get(refId);
+        if (instance) {
+          return instance;
+        }
+        if (this.debug) {
+          console.warn(`Pass 3: Reference not found: ${refId}`);
+        }
+        return value;
+      }
+
+      // Contained object with @id?
+      if (value['@id']) {
+        const instance = this.instanceMap.get(value['@id']);
+        if (instance) {
+          return instance;
+        }
+      }
+
+      // Inline value object (no @id, no $ref)
+      // Recursively resolve its properties
+      const resolved: any = {};
+      for (const key in value) {
+        if (key !== '@id' && key !== 'eClass') {
+          resolved[key] = this.resolvePropertyValue(value[key]);
+        }
+      }
+      return resolved;
+    }
+
+    // Primitive value
+    return value;
+  }
+
+  /**
+   * Resolve a value (could be a reference, an instance, or a primitive)
+   */
+  private resolveValue(obj: any): any {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+
+    // Case 1: Cross-reference with $ref
+    if (obj['$ref'] && obj['eClass']) {
+      const refId = obj['$ref'];
+      const instance = this.instanceMap.get(refId);
+
+      if (!instance) {
+        if (this.debug) {
+          console.warn(`Pass 3: Reference not found: ${refId}`);
+        }
+        return obj; // Keep original if reference can't be resolved
+      }
+
+      return instance;
+    }
+
+    // Case 2: Contained object with @id (already instantiated)
+    if (obj['@id']) {
+      const instance = this.instanceMap.get(obj['@id']);
+      if (instance) {
+        return instance;
+      }
+      // If not in instance map, it might be an inline object without eClass
+      // Fall through to handle as regular object
+    }
+
+    // Case 3: Array - resolve each element
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.resolveValue(item));
+    }
+
+    // Case 4: Regular object (inline, no @id)
+    // This could be a value object like Size, Icon, etc.
+    return obj;
+  }
+
+  // ============================================================================
+  // EClass Mapping
+  // ============================================================================
+
+  /**
+   * Create the eClass to implementation class mapping
+   */
+  private createEClassMapping(): EClassMapping {
+    const map = new Map<string, new (data: any) => any>();
+
+    // Helper function to safely add mapping with fallback
+    const add = (eClass: string, impl: any, fallback?: any) => {
+      map.set(eClass, impl || fallback || Impl.NamedElementImpl);
+    };
+
+    // Core Application
+    add('http://blackbelt.hu/judo/meta/ui#//Application', Impl.ApplicationImpl);
+
+    // Pages
+    add('http://blackbelt.hu/judo/meta/ui#//PageDefinition', Impl.PageDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//PageContainer', Impl.PageContainerImpl);
+
+    // Visual Elements - Basic
+    add('http://blackbelt.hu/judo/meta/ui#//Button', Impl.ButtonImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//ButtonGroup', Impl.ButtonGroupImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Checkbox', Impl.CheckboxImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Flex', Impl.FlexImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Formatted', Impl.FormattedImpl, Impl.VisualElementImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Link', Impl.LinkImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Table', Impl.TableImpl);
+
+    // Visual Elements - Input Types
+    add('http://blackbelt.hu/judo/meta/ui#//BinaryTypeInput', Impl.BinaryTypeInputImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//DateInput', Impl.DateInputImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//DateTimeInput', Impl.DateTimeInputImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//NumericInput', Impl.NumericInputImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//TextArea', Impl.TextAreaImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//TextInput', Impl.TextInputImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//TimeInput', Impl.TimeInputImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//PasswordInput', Impl.PasswordInputImpl, Impl.InputImpl);
+
+    // Visual Elements - Enumeration
+    add('http://blackbelt.hu/judo/meta/ui#//EnumerationCombo', Impl.EnumerationComboImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//EnumerationToggleButtonbar', Impl.EnumerationToggleButtonbarImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//EnumerationRadio', Impl.EnumerationRadioImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//TrinaryLogicCombo', Impl.TrinaryLogicComboImpl, Impl.InputImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Switch', Impl.SwitchImpl, Impl.InputImpl);
+
+    // Visual Elements - Additional
+    add('http://blackbelt.hu/judo/meta/ui#//Container', Impl.ContainerImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Spacer', Impl.SpacerImpl, Impl.VisualElementImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Text', Impl.TextImpl, Impl.VisualElementImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Divider', Impl.DividerImpl, Impl.VisualElementImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//IconImage', Impl.IconImageImpl, Impl.VisualElementImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Label', Impl.LabelImpl, Impl.VisualElementImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//TabController', Impl.TabControllerImpl, Impl.ContainerImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Tab', Impl.TabImpl);
+
+    // Supporting Elements
+    add('http://blackbelt.hu/judo/meta/ui#//Icon', Impl.IconImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Frame', Impl.FrameImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Size', Impl.SizeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//SizeConstraint', Impl.SizeConstraintImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Align', Impl.AlignImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Column', Impl.ColumnImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Filter', Impl.FilterImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Option', Impl.OptionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Confirmation', Impl.ConfirmationImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Theme', Impl.ThemeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Authentication', Impl.AuthenticationImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//Claim', Impl.ClaimImpl);
+
+    // Action
+    add('http://blackbelt.hu/judo/meta/ui#//Action', Impl.ActionImpl);
+
+    // Navigation
+    add('http://blackbelt.hu/judo/meta/ui#//NavigationController', Impl.NavigationControllerImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//NavigationItem', Impl.NavigationItemImpl);
+
+    // Actions - Basic CRUD
+    add('http://blackbelt.hu/judo/meta/ui#//AddActionDefinition', Impl.AddActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//BackActionDefinition', Impl.BackActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//CancelActionDefinition', Impl.CancelActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//ClearActionDefinition', Impl.ClearActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//CreateActionDefinition', Impl.CreateActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//DeleteActionDefinition', Impl.DeleteActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//FilterActionDefinition', Impl.FilterActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//RefreshActionDefinition', Impl.RefreshActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//RemoveActionDefinition', Impl.RemoveActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//SetActionDefinition', Impl.SetActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//UnsetActionDefinition', Impl.UnsetActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//UpdateActionDefinition', Impl.UpdateActionDefinitionImpl, Impl.ActionDefinitionImpl);
+
+    // Actions - Bulk Operations
+    add('http://blackbelt.hu/judo/meta/ui#//BulkCallOperationActionDefinition', Impl.BulkCallOperationActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//BulkDeleteActionDefinition', Impl.BulkDeleteActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//BulkRemoveActionDefinition', Impl.BulkRemoveActionDefinitionImpl, Impl.ActionDefinitionImpl);
+
+    // Actions - Open/Navigate
+    add('http://blackbelt.hu/judo/meta/ui#//OpenAddSelectorActionDefinition', Impl.OpenAddSelectorActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//OpenCreateFormActionDefinition', Impl.OpenCreateFormActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//OpenFormActionDefinition', Impl.OpenFormActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//OpenOperationInputFormActionDefinition', Impl.OpenOperationInputFormActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//OpenOperationInputSelectorActionDefinition', Impl.OpenOperationInputSelectorActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//OpenPageActionDefinition', Impl.OpenPageActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//OpenSelectorActionDefinition', Impl.OpenSelectorActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//OpenSetSelectorActionDefinition', Impl.OpenSetSelectorActionDefinitionImpl, Impl.ActionDefinitionImpl);
+
+    // Actions - Operation Call
+    add('http://blackbelt.hu/judo/meta/ui#//InputFormCallOperationActionDefinition', Impl.InputFormCallOperationActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//InputSelectorCallOperationActionDefinition', Impl.InputSelectorCallOperationActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//ParameterlessCallOperationActionDefinition', Impl.ParameterlessCallOperationActionDefinitionImpl, Impl.ActionDefinitionImpl);
+
+    // Actions - Autocomplete
+    add('http://blackbelt.hu/judo/meta/ui#//AutocompleteAddActionDefinition', Impl.AutocompleteAddActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//AutocompleteRangeActionDefinition', Impl.AutocompleteRangeActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//AutocompleteSetActionDefinition', Impl.AutocompleteSetActionDefinitionImpl, Impl.ActionDefinitionImpl);
+
+    // Actions - Relation Operations
+    add('http://blackbelt.hu/judo/meta/ui#//FilterRelationActionDefinition', Impl.FilterRelationActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//RefreshRelationActionDefinition', Impl.RefreshRelationActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//SelectorRangeActionDefinition', Impl.SelectorRangeActionDefinitionImpl, Impl.ActionDefinitionImpl);
+
+    // Actions - Other
+    add('http://blackbelt.hu/judo/meta/ui#//CustomActionDefinition', Impl.CustomActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//ExportActionDefinition', Impl.ExportActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//GetTemplateActionDefinition', Impl.GetTemplateActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//InlineCreateRowActionDefinition', Impl.InlineCreateRowActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//PreFetchActionDefinition', Impl.PreFetchActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//RowDeleteActionDefinition', Impl.RowDeleteActionDefinitionImpl, Impl.ActionDefinitionImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//RowOpenPageActionDefinition', Impl.RowOpenPageActionDefinitionImpl, Impl.ActionDefinitionImpl);
+
+    // Data Types - Core
+    add('http://blackbelt.hu/judo/meta/ui#//data/ApplicationType', Impl.ApplicationTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/Annotation', Impl.AnnotationImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/AttributeType', Impl.AttributeTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/ClassType', Impl.ClassTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/OperationParameterType', Impl.OperationParameterTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/OperationType', Impl.OperationTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/RelationType', Impl.RelationTypeImpl);
+
+    // Data Types - Primitives
+    add('http://blackbelt.hu/judo/meta/ui#//data/BinaryType', Impl.BinaryTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/BooleanType', Impl.BooleanTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/DateType', Impl.DateTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/EnumerationMember', Impl.EnumerationMemberImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/EnumerationType', Impl.EnumerationTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/MimeType', Impl.MimeTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/NumericType', Impl.NumericTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/StringType', Impl.StringTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/TimeType', Impl.TimeTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/TimestampType', Impl.TimestampTypeImpl);
+    add('http://blackbelt.hu/judo/meta/ui#//data/PasswordType', Impl.PasswordTypeImpl);
+
+    // Navigation Support
+    add('http://blackbelt.hu/judo/meta/ui#//data/AccessBasedNavigation', Impl.AccessBasedNavigationImpl);
+
+    return map;
+  }
+
+  // ============================================================================
+  // Meta-Model Schema (for Type Derivation)
+  // ============================================================================
+
+  /**
+   * Create the meta-model schema for type derivation
+   * This only includes containment references, not cross-references or attributes
+   */
+  private createMetaModelSchema(): MetaModelSchema {
+    const schema = new Map<string, Map<string, PropertyTypeInfo>>();
+
+    // Application - Root element
+    schema.set('http://blackbelt.hu/judo/meta/ui#//Application', new Map([
+      ['navigationController', { eClass: 'http://blackbelt.hu/judo/meta/ui#//NavigationController', isMany: false }],
+      ['pages', { eClass: 'http://blackbelt.hu/judo/meta/ui#//PageDefinition', isMany: true }],
+      ['dataElements', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/DataElement', isMany: true }],
+      ['dataTypes', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/DataType', isMany: true }],
+      ['mimeTypes', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/MimeType', isMany: true }],
+      ['authentication', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Authentication', isMany: false }],
+      ['pageContainers', { eClass: 'http://blackbelt.hu/judo/meta/ui#//PageContainer', isMany: true }],
+      ['theme', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Theme', isMany: false }],
+      ['availableAnnotations', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/Annotation', isMany: true }],
+    ]));
+
+    // NavigationController
+    schema.set('http://blackbelt.hu/judo/meta/ui#//NavigationController', new Map([
+      ['items', { eClass: 'http://blackbelt.hu/judo/meta/ui#//NavigationItem', isMany: true }],
+      ['actions', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Action', isMany: true }],
+    ]));
+
+    // NavigationItem
+    schema.set('http://blackbelt.hu/judo/meta/ui#//NavigationItem', new Map([
+      ['items', { eClass: 'http://blackbelt.hu/judo/meta/ui#//NavigationItem', isMany: true }],
+      ['actionDefinition', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+    ]));
+
+    // PageDefinition
+    schema.set('http://blackbelt.hu/judo/meta/ui#//PageDefinition', new Map([
+      ['actions', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Action', isMany: true }],
+    ]));
+
+    // PageContainer (extends Flex)
+    schema.set('http://blackbelt.hu/judo/meta/ui#//PageContainer', new Map([
+      ['children', { eClass: 'http://blackbelt.hu/judo/meta/ui#//VisualElement', isMany: true }],
+      ['actionButtonGroups', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ButtonGroup', isMany: true }],
+      ['frame', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Frame', isMany: false }],
+      ['templateAction', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+    ]));
+
+    // Container (base for many visual elements)
+    schema.set('http://blackbelt.hu/judo/meta/ui#//Container', new Map([
+      ['children', { eClass: 'http://blackbelt.hu/judo/meta/ui#//VisualElement', isMany: true }],
+      ['actionButtonGroups', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ButtonGroup', isMany: true }],
+    ]));
+
+    // Flex
+    schema.set('http://blackbelt.hu/judo/meta/ui#//Flex', new Map([
+      ['children', { eClass: 'http://blackbelt.hu/judo/meta/ui#//VisualElement', isMany: true }],
+      ['actionButtonGroups', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ButtonGroup', isMany: true }],
+      ['frame', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Frame', isMany: false }],
+    ]));
+
+    // VisualElement (base class)
+    schema.set('http://blackbelt.hu/judo/meta/ui#//VisualElement', new Map([
+      ['size', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Size', isMany: false }],
+      ['sizeconstraint', { eClass: 'http://blackbelt.hu/judo/meta/ui#//SizeConstraint', isMany: false }],
+      ['align', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Align', isMany: false }],
+    ]));
+
+    // Table
+    schema.set('http://blackbelt.hu/judo/meta/ui#//Table', new Map([
+      ['columns', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Column', isMany: true }],
+      ['filters', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Filter', isMany: true }],
+      ['tableActionButtonGroup', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ButtonGroup', isMany: false }],
+      ['rowActionButtonGroup', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ButtonGroup', isMany: false }],
+      ['autocompleteRangeActionDefinition', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+      ['autocompleteAddActionDefinition', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+      ['size', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Size', isMany: false }],
+      ['sizeconstraint', { eClass: 'http://blackbelt.hu/judo/meta/ui#//SizeConstraint', isMany: false }],
+      ['align', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Align', isMany: false }],
+    ]));
+
+    // TabController
+    schema.set('http://blackbelt.hu/judo/meta/ui#//TabController', new Map([
+      ['tabs', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Tab', isMany: true }],
+    ]));
+
+    // Tab
+    schema.set('http://blackbelt.hu/judo/meta/ui#//Tab', new Map([
+      ['element', { eClass: 'http://blackbelt.hu/judo/meta/ui#//VisualElement', isMany: false }],
+    ]));
+
+    // ButtonGroup
+    schema.set('http://blackbelt.hu/judo/meta/ui#//ButtonGroup', new Map([
+      ['buttons', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Button', isMany: true }],
+    ]));
+
+    // Button
+    schema.set('http://blackbelt.hu/judo/meta/ui#//Button', new Map([
+      ['actionDefinition', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+      ['confirmation', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Confirmation', isMany: false }],
+      ['preFetchActionDefinition', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+    ]));
+
+    // Link
+    schema.set('http://blackbelt.hu/judo/meta/ui#//Link', new Map([
+      ['parts', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Column', isMany: true }],
+      ['actionButtonGroup', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ButtonGroup', isMany: false }],
+      ['autocompleteRangeActionDefinition', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+      ['refreshActionDefinition', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+      ['autocompleteSetActionDefinition', { eClass: 'http://blackbelt.hu/judo/meta/ui#//ActionDefinition', isMany: false }],
+    ]));
+
+    // EnumerationRadio / EnumerationCombo
+    schema.set('http://blackbelt.hu/judo/meta/ui#//EnumerationRadio', new Map([
+      ['options', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Option', isMany: true }],
+    ]));
+    schema.set('http://blackbelt.hu/judo/meta/ui#//EnumerationCombo', new Map([
+      ['options', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Option', isMany: true }],
+    ]));
+
+    // LabeledElement
+    schema.set('http://blackbelt.hu/judo/meta/ui#//LabeledElement', new Map([
+      ['icon', { eClass: 'http://blackbelt.hu/judo/meta/ui#//Icon', isMany: false }],
+    ]));
+
+    // ClassType
+    schema.set('http://blackbelt.hu/judo/meta/ui#//data/ClassType', new Map([
+      ['operations', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/OperationType', isMany: true }],
+      ['relations', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/RelationType', isMany: true }],
+      ['attributes', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/AttributeType', isMany: true }],
+    ]));
+
+    // OperationType
+    schema.set('http://blackbelt.hu/judo/meta/ui#//data/OperationType', new Map([
+      ['input', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/OperationParameterType', isMany: false }],
+      ['output', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/OperationParameterType', isMany: false }],
+      ['faults', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/OperationParameterType', isMany: true }],
+      ['postCallAccessNavigation', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/AccessBasedNavigation', isMany: false }],
+    ]));
+
+    // EnumerationType
+    schema.set('http://blackbelt.hu/judo/meta/ui#//data/EnumerationType', new Map([
+      ['members', { eClass: 'http://blackbelt.hu/judo/meta/ui#//data/EnumerationMember', isMany: true }],
+    ]));
+
+    // AccessBasedNavigation (no containment references)
+    schema.set('http://blackbelt.hu/judo/meta/ui#//data/AccessBasedNavigation', new Map([]));
+
+    return schema;
   }
 }
+
+// ============================================================================
+// Factory Functions
+// ============================================================================
 
 /**
  * Create a model parser instance
  */
-export function createModelParser(application?: Application): ModelParser {
-  return new ModelParser(application);
+export function createModelParser(application?: Application, debug: boolean = false): ModelParser {
+  return new ModelParser(application, debug);
+}
+
+/**
+ * Parse raw JSON data into a fully typed Application with implementation instances
+ */
+export function parseApplicationModel(rawData: any, debug: boolean = false): Application {
+  const parser = new ModelParser(undefined, debug);
+  return parser.parse(rawData);
+}
+
+/**
+ * Create an empty application with implementation instances
+ */
+export function createEmptyApplication(): Application {
+  return new Impl.ApplicationImpl({
+    name: '',
+    fqName: '',
+    pages: [],
+    pageContainers: [],
+    dataElements: [],
+    dataTypes: [],
+    mimeTypes: [],
+  });
+}
+
+// ============================================================================
+// Legacy Interface for Backward Compatibility
+// ============================================================================
+
+/**
+ * Legacy ModelIndex interface for backward compatibility
+ * Note: The new parser doesn't build these indexes by default
+ */
+export interface ModelIndex {
+  pagesByFQName: Map<string, any>;
+  containersByFQName: Map<string, any>;
+  classTypesByFQName: Map<string, any>;
+  relationTypesByFQName: Map<string, any>;
+  attributeTypesByFQName: Map<string, any>;
+  operationTypesByFQName: Map<string, any>;
+  pagesByContainer: Map<string, any[]>;
+  pagesByDataElement: Map<string, any[]>;
+  allElementsByFQName: Map<string, any>;
+  visualElementsByFQName: Map<string, any>;
+  actionDefinitionsByFQName: Map<string, any>;
+  actionsByFQName: Map<string, any>;
 }
 

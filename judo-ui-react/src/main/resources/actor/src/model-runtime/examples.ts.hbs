@@ -1,16 +1,28 @@
 import {
   ModelParser,
+  parseApplicationModel,
 } from './parser';
+import type { Application } from './types';
+import { PageContainerType } from './types';
 
-export async function loadApplicationModel() {
+/**
+ * Load and parse the application model from JSON
+ * Returns a fully typed Application with all implementation classes instantiated
+ */
+export async function loadApplicationModel(): Promise<ModelParser> {
   try {
     const response = await fetch('models/{{ application.modelName }}-ui.json');
     const data = await response.json();
-    const result = new ModelParser(data);
 
-    console.log(result);
+    // Parse the raw JSON into a fully typed Application with implementation classes
+    const application: Application = parseApplicationModel(data, false);
 
-    return result;
+    // Create parser with the parsed application
+    const parser = new ModelParser(application, false);
+
+    console.log('Application model loaded successfully:', application);
+
+    return parser;
   } catch (error) {
     console.error('Failed to load model:', error);
     throw error;
