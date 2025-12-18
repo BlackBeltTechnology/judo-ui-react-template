@@ -386,13 +386,21 @@ public class UiI18NHelper {
                     || ad.getIsSetAction()
                     || ad.getIsBulkRemoveAction()
                     || ad.getIsBulkDeleteAction()
-                    || ad.getIsOpenPageAction()
                     || ad.getIsOpenCreateFormAction()
                     || ad.getIsOpenAddSelectorAction()
                     || ad.getIsOpenSetSelectorAction()
-                    || ad.getIsExportAction();
+                    || ad.getIsExportAction()
+                    || (ad.getIsOpenPageAction() && isTableRowActionButton(button));
         } else if (visualElement instanceof ButtonGroup buttonGroup) {
             return buttonGroup.getFQName().endsWith("::PageActions");
+        }
+        return false;
+    }
+
+    private static boolean isTableRowActionButton(Button button) {
+        // Check if button is inside a table's row action button group
+        if (button.eContainer() instanceof ButtonGroup buttonGroup) {
+            return buttonGroup.eContainer() instanceof Table;
         }
         return false;
     }
