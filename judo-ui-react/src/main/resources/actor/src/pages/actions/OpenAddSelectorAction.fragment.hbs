@@ -24,7 +24,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
         {{ else }}
           try {
             setIsLoading(true);
-            await {{ getServiceImplForPage page }}.add{{# if action.actionDefinition.isContainedRelationAction }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}(
+            await runtimeService.addToRelation('{{ deriveClassPath (getReferenceClassType page) }}', '{{ action.targetDataElement.name }}',
               owner.current,
               returnedData
             );

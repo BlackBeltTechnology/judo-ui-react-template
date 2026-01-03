@@ -22,7 +22,7 @@ import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
-import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
+import { X_JUDO_COUNT } from '~/service-runtime';
 import { Filter, FilterOption } from '~/components-api';
 import {
   ContextMenu,
@@ -53,9 +53,8 @@ import {
   {{/ if }}
 } from '~/utilities';
 import type { TableRowAction, FiltersSerializer, DialogResultReason{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
-import type { JudoStored } from '~/services/data-api/common/JudoStored';
-import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
-import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
+import type { JudoStored, QueryCustomizer } from '~/service-runtime';
+import { draftIdentifierPrefix } from '~/service-runtime';
 import { CustomTablePagination } from '~/components';
 import { MdiIcon } from '~/components/MdiIcon';
 import Box from '@mui/material/Box';

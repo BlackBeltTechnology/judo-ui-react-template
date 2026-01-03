@@ -6,7 +6,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (values: 
       storeDiff('{{ table.dataElement.name }}', [...(data.{{ table.relationName }} || []), ...values]);
     {{ else }}
       setIsLoading(true);
-      await {{ getServiceImplForPage page }}.add{{ firstToUpper table.relationName }}(
+      await runtimeService.addToRelation('{{ deriveClassPath (getReferenceClassType page) }}', '{{ table.relationName }}',
         owner.current,
         values
       );

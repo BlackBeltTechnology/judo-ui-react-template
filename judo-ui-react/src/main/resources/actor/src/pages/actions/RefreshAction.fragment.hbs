@@ -3,7 +3,7 @@
   const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}[]>> => {
     {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
       try {
-        return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+        return runtimeService.getRangeForRelation<{{ classDataName action.targetDataElement.target 'Stored' }}>('{{ deriveClassPath page.dataElement.target }}', '{{ action.targetDataElement.name }}', produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
       } catch (error: any) {
         handleError(error, { actionId: '{{ getXMIID action }}' });
         return Promise.resolve({ data: [], headers: error.response?.headers, status: error.response?.status, statusText: 'fallback', config: { headers: error.response?.headers } });
@@ -13,7 +13,11 @@
 {{ else }}
   {{# if action.targetDataElement }}
   const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.targetDataElement.target 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.targetDataElement.target 'Stored' }}{{# if action.targetDataElement.isCollection }}[]{{ else }} | null{{/ if }}>> => {
-    const result = await {{ getServiceImplForPage page }}.{{# if action.targetDataElement.isCollection }}list{{ else }}get{{/ if }}{{ firstToUpper action.targetDataElement.name }}({{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
+    {{# if action.targetDataElement.isCollection }}
+    const result = await runtimeService.listRelation<{{ classDataName action.targetDataElement.target 'Stored' }}>('{{ deriveClassPath page.dataElement.target }}', '{{ action.targetDataElement.name }}', {{{ refreshActionDataParameter action }}}, queryCustomizer{{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }}{{/ with }});
+    {{ else }}
+    const result = await runtimeService.getRelation<{{ classDataName action.targetDataElement.target 'Stored' }}>('{{ deriveClassPath page.dataElement.target }}', '{{ action.targetDataElement.name }}', {{{ refreshActionDataParameter action }}}, queryCustomizer);
+    {{/ if }}
     {{# if page.container.view }}
       {{# if (isRefreshPageInitializer action page) }}
       if (!isDraft) {
@@ -35,10 +39,14 @@
             setRouterPageData({ __signedIdentifier: signedIdentifier } as any);
           {{/ unless }}
         {{/ if }}
-        return {{ getServiceImplForPage page }}.list({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+        {{# if page.dataElement.isAccess }}
+        return runtimeService.listActorRelation<{{ classDataName (getReferenceClassType page) 'Stored' }}>('{{ page.dataElement.name }}', {{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+        {{ else }}
+        return runtimeService.listRelation<{{ classDataName (getReferenceClassType page) 'Stored' }}>('{{ deriveTargetClassPath page.dataElement }}', '{{ page.dataElement.name }}', {{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}{{# if page.openInDialog }}ownerData{{ else }}undefined{{/ if }}{{/ if }}, queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+        {{/ if }}
         {{/ with }}
       {{ else }}
-        const response = await {{ getServiceImplForPage page }}.refresh({{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
+        const response = await runtimeService.refresh<{{ classDataName (getReferenceClassType page) 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', {{{ refreshActionDataParameter action }}}, getPageQueryCustomizer());
         const { data: result } = response;
         {{# if (isRefreshPageInitializer action page) }}
         if (!isDraft) {

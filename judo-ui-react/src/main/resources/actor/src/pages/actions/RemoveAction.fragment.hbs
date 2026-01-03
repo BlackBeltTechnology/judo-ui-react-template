@@ -7,7 +7,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
     {{ else }}
       try {
         setIsLoading(true);
-        await {{ getServiceImplForPage page }}.remove{{# if action.actionDefinition.isContainedRelationAction }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as any{{ else }}data{{/ if }}, [target]);
+        await runtimeService.removeFromRelation('{{ deriveClassPath (getReferenceClassType page) }}', '{{ action.targetDataElement.name }}', {{# if page.container.table }}{ __signedIdentifier: signedIdentifier } as any{{ else }}data{{/ if }}, [target]);
         await refresh();
       } catch(error) {
         handleError<{{ classDataName action.actionDefinition.targetType '' }}>(error, { actionId: '{{ getXMIID action }}' }, target);

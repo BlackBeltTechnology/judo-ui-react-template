@@ -5,12 +5,8 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
   import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
   import { OBJECTCLASS } from '@pandino/pandino-api';
   import { useTrackService } from '@pandino/react-hooks';
-  import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-  import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
-  import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
-  {{# if (containerHasTableWithTotalCount page.container) }}
-  import { X_JUDO_COUNT_RECORDS } from '~/services/data-api/rest/headers';
-  {{/ if }}
+  import type { JudoIdentifiable, JudoRestResponse } from '~/service-runtime';
+  import { draftIdentifierPrefix, X_JUDO_COUNT_RECORDS, useRuntimeService } from '~/service-runtime';
   import { useTranslation } from 'react-i18next';
   import { v4 as uuidv4 } from 'uuid';
   {{# if (pageHasSignedId page) }}
@@ -24,6 +20,7 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
   import { useViewContext } from "~/hooks/ViewContext";
   import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
   import { useSnacks, useCRUDDialog, useViewData, useEventBus } from '~/hooks';
+  import { usePageModel } from '~/model-runtime';
   import {
     {{# if (hasPageRequiredBy page) }}passesLocalValidation,{{/ if }}
     processQueryCustomizer,
@@ -49,19 +46,11 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
   {{/ each }}
   import type { {{ containerComponentName page.container }}DialogActions, {{ containerComponentName page.container }}DialogProps, AvailableContainerAction } from '~/containers/{{ containerPath page.container }}/types';
   {{# each (getApiImportsForPage page) as |imp| }}
-    import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/services/data-api/model/{{ classDataName imp '' }}';
-    import type { {{ classDataName imp 'QueryCustomizer' }} } from '~/services/data-api/rest/{{ classDataName imp 'QueryCustomizer' }}';
+    import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }}, {{ classDataName imp 'QueryCustomizer' }} } from '~/service-runtime/data-types';
   {{/ each }}
   {{# each (getEnumDataTypesForPage page) as |imp| }}
-    import { {{ restParamName imp }} } from '~/services/data-api/model/{{ restParamName imp }}';
+    import { {{ restParamName imp }} } from '~/service-runtime/data-types';
   {{/ each }}
-  {{# if (getServiceImplForPage page) }}
-    import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
-    import { {{ getServiceClassForPage page }} } from '~/services/data-axios/{{ getServiceClassForPage page }}';
-    {{# each (getRelatedServicesForPage page) as |rel| }}
-    import { {{ serviceRelationName rel }}Impl } from '~/services/data-axios/{{ serviceRelationName rel }}Impl';
-    {{/ each }}
-  {{/ if }}
   import { {{ containerComponentName page.container }}ViewModelContext, type {{ containerComponentName page.container }}ViewModel } from './context';
   import type { {{ containerComponentName page.container }}DialogActionsExtended, {{ pageName page }}Props } from './types';
   import type { {{ containerComponentName page.container }}ActionsHook } from './customization';
@@ -95,10 +84,10 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     const owner = useRef<any>(ownerData ?? null);
 
     // Services
-    const {{ firstToLower (getServiceImplForPage page) }} = useMemo(() => new {{ getServiceClassForPage page }}(judoAxiosProvider), []);
-    {{# each (getRelatedServicesForPage page) as |rel| }}
-    const {{ firstToLower (serviceRelationName rel) }}Impl = useMemo(() => new {{ serviceRelationName rel }}Impl(judoAxiosProvider), []);
-    {{/ each }}
+    const runtimeService = useRuntimeService();
+
+    // Model Runtime
+    const page = usePageModel('{{ getXMIID page }}');
 
     // Hooks section
     const { t } = useTranslation();
@@ -235,10 +224,14 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
         if (ownerValidation) {
           await ownerValidation(target);
         } else {
-          await {{ getServiceImplForPage page }}.validate{{# if page.container.view }}Update{{ else }}Create{{/ if }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}target);
+          {{# if page.container.view }}
+          await runtimeService.validateUpdate<{{ classDataName (getReferenceClassType page) '' }}>('{{ deriveClassPath (getReferenceClassType page) }}', target);
+          {{ else }}
+          await runtimeService.validateCreate<{{ classDataName (getReferenceClassType page) '' }}>('{{ deriveClassPath (getReferenceClassType page) }}', {{# if page.dataElement.isAccess }}null{{ else }}owner.current{{/ if }}, target);
+          {{/ if }}
         }
       {{/ if }}
-    }, [{{# if (isValidationSupported page) }}ownerValidation, {{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data, {{ getServiceImplForPage page }}{{/ if }}]);
+    }, [{{# if (isValidationSupported page) }}ownerValidation, {{# unless page.dataElement.isAccess }}ownerData, {{/ unless }}data, runtimeService{{/ if }}]);
 
     // Pandino Action overrides
     const { service: customActionsHook } = useTrackService<{{ containerComponentName page.container }}ActionsHook>(`(${OBJECTCLASS}=${ {{~ camelCaseNameToInterfaceKey (pageName page) }}_ACTIONS_HOOK_INTERFACE_KEY})`);
@@ -256,7 +249,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{/ each }}
     {{# if (isSingleAccessPage page) }}
       const getSingletonPayload = async (): Promise<JudoIdentifiable<any>> => {
-        const { data: sp } = await {{ getServiceImplForPage page }}.refreshFor{{ firstToUpper page.dataElement.name }}({
+        const { data: sp } = await runtimeService.refresh<{{ classDataName (getReferenceClassType page) 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', {} as any, {
           _mask: '{}',
         });
         return sp;
@@ -283,7 +276,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
               {{ else }}
                 // derived eager table elements are updated on the instance, and not on the owner
                 setIsLoading(true);
-                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}(owner.current, rowData);
+                await runtimeService.updateOnRelation<{{ classDataName (getReferenceClassType table) 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', '{{ table.relationName }}', owner.current, rowData);
                 showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
                 await refresh();
               {{/ unless }}
@@ -294,14 +287,18 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
                 const queryCustomizer: { _mask: string } = {
                   _mask: '{}',
                 };
-                await {{ getServiceImplForPage page }}.create{{ firstToUpper table.relationName }}({{# unless page.dataElement.isAccess }}owner.current, {{/ unless }}rowData, queryCustomizer);
+                {{# if page.dataElement.isAccess }}
+                await runtimeService.createOnActorRelation<{{ classDataName (getReferenceClassType table) '' }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>('{{ table.relationName }}', rowData, queryCustomizer);
+                {{ else }}
+                await runtimeService.createOnRelation<{{ classDataName (getReferenceClassType table) '' }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', '{{ table.relationName }}', owner.current, rowData, queryCustomizer);
+                {{/ if }}
                 showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
                 {{ else }}
                 // We should never land on this path since the button should be disabled for relations which are not creatable
                 alert('Creating elements on this table is not supported!');
                 {{/ if }}
               } else {
-                await {{ getServiceImplForPage page }}.update{{ firstToUpper table.relationName }}({{# if table.relationName }}owner.current, {{/ if }}rowData);
+                await runtimeService.updateOnRelation<{{ classDataName (getReferenceClassType table) 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', '{{ table.relationName }}', owner.current, rowData);
                 showSuccessSnack(t('judo.action.save.success', { defaultValue: 'Changes saved' }));
               }
               await refresh();
@@ -311,7 +308,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           } finally {
             setIsLoading(false);
           }
-        }, [data, {{ getServiceImplForPage page }}]);
+        }, [data, runtimeService]);
       {{/ if }}
     {{/ each }}
 
@@ -377,6 +374,11 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     };
 
     // Effect section
+    // Log page model on mount
+    useEffect(() => {
+      console.log(page);
+    }, []);
+
     useEffect(() => {
       setForPage('{{ getXMIID page }}', viewModel);
 

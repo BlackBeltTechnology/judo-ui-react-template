@@ -19,9 +19,9 @@ import { Transitions } from '~/layout/Transitions';
 {{# if application.authentication }}
   import { useAuth } from 'react-oidc-context';
   {{# if application.profilePage }}
-    import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-    import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
-    import { {{ getServiceClassForPage application.profilePage }} } from '~/services/data-axios/{{ getServiceClassForPage application.profilePage }}';
+    import type { JudoIdentifiable } from '~/service-runtime';
+    import { useRuntimeService } from '~/service-runtime';
+    import type { {{ classDataName application.profilePage.dataElement.target 'Stored' }} } from '~/service-runtime/data-types';
     {{# if application.profilePage.openInDialog }}
       import { use{{ pageName application.profilePage }} } from '~/dialogs/{{ pagePath application.profilePage }}';
     {{ else }}
@@ -37,10 +37,10 @@ export const HeaderProfile = () => {
   const heroProps = useHeroProps();
   {{# if application.authentication }}
     {{# if application.profilePage }}
-      const {{ firstToLower (getServiceImplForPage application.profilePage) }} = useMemo(() => new {{ getServiceClassForPage application.profilePage }}(judoAxiosProvider), []);
+      const runtimeService = useRuntimeService();
       {{# if application.profilePage.openInDialog }}
         const getSingletonPayload = async (): Promise<JudoIdentifiable<any>> => {
-          const { data: sp } = await {{ firstToLower (getServiceImplForPage application.profilePage) }}.refreshFor{{ firstToUpper application.profilePage.dataElement.name }}({
+          const { data: sp } = await runtimeService.refresh<{{ classDataName application.profilePage.dataElement.target 'Stored' }}>('{{ deriveClassPath application.profilePage.dataElement.target }}', {} as any, {
             _mask: '{}',
           });
           return sp;

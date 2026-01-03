@@ -9,10 +9,8 @@ import type { Filter } from '~/components-api';
   import type {
     {{ imp }},
     {{ imp }}Stored,
-  } from '~/services/data-api/model/{{ imp }}';
-  import type {
     {{ imp }}QueryCustomizer,
-  } from '~/services/data-api/rest/{{ imp }}QueryCustomizer';
+  } from '~/service-runtime/data-types';
 {{/ each }}
 import {
   createActionName,
@@ -22,12 +20,11 @@ import {
 } from '~/utilities';
 import type { FiltersSerializer } from '~/utilities';
 import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}Props } from './types';
-import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
 
 
 export const filtersSerializer: FiltersSerializer = {
-  serialize: (filters: Filter[]) => serializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
-  deserialize: (filters: Filter[]) => deserializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
+  serialize: (filters: Filter[]) => serializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters),
+  deserialize: (filters: Filter[]) => deserializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters),
 };
 
 // XMIID: {{ getXMIID table }}

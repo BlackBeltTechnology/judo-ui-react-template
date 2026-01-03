@@ -1,0 +1,155 @@
+// Service Runtime Context
+// Provides the JudoRuntimeService instance to the application
+
+import { createContext, useContext, useMemo, type ReactNode } from 'react';
+import { JudoRuntimeService, type AxiosProvider } from './runtime-service';
+import type { RuntimeServiceConfig } from './types';
+import { ServiceFactory } from './service-factory';
+import { judoAxiosProvider } from './axios-provider';
+
+// Application configuration from generated constants
+const APPLICATION_NAME = '{{ application.modelName }}';
+const ACTOR_NAME = '{{ application.actor.name }}';
+const ACTOR_PATH = '{{ application.actor.name }}/{{ join application.actor.packageNameTokens "/" }}/{{ application.actor.name }}/{{ join application.actor.packageNameTokens "/" }}';
+
+// ============================================================================
+// Context Definition
+// ============================================================================
+
+interface ServiceRuntimeContextValue {
+  runtimeService: JudoRuntimeService;
+  serviceFactory: ServiceFactory;
+  applicationName: string;
+  actorName: string;
+}
+
+const ServiceRuntimeContext = createContext<ServiceRuntimeContextValue | null>(null);
+
+// ============================================================================
+// Provider Component
+// ============================================================================
+
+interface ServiceRuntimeProviderProps {
+  children: ReactNode;
+  axiosProvider?: AxiosProvider;
+  config?: Partial<RuntimeServiceConfig>;
+}
+
+export function ServiceRuntimeProvider({
+  children,
+  axiosProvider = judoAxiosProvider,
+  config,
+}: ServiceRuntimeProviderProps) {
+  const runtimeService = useMemo(() => {
+    const serviceConfig: RuntimeServiceConfig = {
+      applicationName: config?.applicationName ?? APPLICATION_NAME,
+      actorName: config?.actorName ?? ACTOR_NAME,
+      actorPath: config?.actorPath ?? ACTOR_PATH,
+    };
+    return new JudoRuntimeService(axiosProvider, serviceConfig);
+  }, [axiosProvider, config?.applicationName, config?.actorName, config?.actorPath]);
+
+  const serviceFactory = useMemo(() => new ServiceFactory(runtimeService), [runtimeService]);
+
+  const contextValue = useMemo<ServiceRuntimeContextValue>(
+    () => ({
+      runtimeService,
+      serviceFactory,
+      applicationName: config?.applicationName ?? APPLICATION_NAME,
+      actorName: config?.actorName ?? ACTOR_NAME,
+    }),
+    [runtimeService, serviceFactory, config?.applicationName, config?.actorName],
+  );
+
+  return (
+    <ServiceRuntimeContext.Provider value={contextValue}>
+      {children}
+    </ServiceRuntimeContext.Provider>
+  );
+}
+
+// ============================================================================
+// Hooks
+// ============================================================================
+
+/**
+ * Hook to access the runtime service
+ */
+export function useRuntimeService(): JudoRuntimeService {
+  const context = useContext(ServiceRuntimeContext);
+  if (!context) {
+    throw new Error('useRuntimeService must be used within a ServiceRuntimeProvider');
+  }
+  return context.runtimeService;
+}
+
+/**
+ * Hook to access the service factory
+ */
+export function useServiceFactory(): ServiceFactory {
+  const context = useContext(ServiceRuntimeContext);
+  if (!context) {
+    throw new Error('useServiceFactory must be used within a ServiceRuntimeProvider');
+  }
+  return context.serviceFactory;
+}
+
+/**
+ * Hook to access the service runtime context
+ */
+export function useServiceRuntimeContext(): ServiceRuntimeContextValue {
+  const context = useContext(ServiceRuntimeContext);
+  if (!context) {
+    throw new Error('useServiceRuntimeContext must be used within a ServiceRuntimeProvider');
+  }
+  return context;
+}
+
+// ============================================================================
+// Standalone Service Instance
+// ============================================================================
+
+// Default runtime service instance for direct usage (without React context)
+let defaultRuntimeService: JudoRuntimeService | null = null;
+let defaultServiceFactory: ServiceFactory | null = null;
+
+/**
+ * Get or create the default runtime service instance
+ */
+export function getRuntimeService(): JudoRuntimeService {
+  if (!defaultRuntimeService) {
+    defaultRuntimeService = new JudoRuntimeService(judoAxiosProvider, {
+      applicationName: APPLICATION_NAME,
+      actorName: ACTOR_NAME,
+      actorPath: ACTOR_PATH,
+    });
+  }
+  return defaultRuntimeService;
+}
+
+/**
+ * Get or create the default service factory instance
+ */
+export function getServiceFactory(): ServiceFactory {
+  if (!defaultServiceFactory) {
+    defaultServiceFactory = new ServiceFactory(getRuntimeService());
+  }
+  return defaultServiceFactory;
+}
+
+/**
+ * Create a new runtime service instance with custom configuration
+ */
+export function createRuntimeService(
+  axiosProvider: AxiosProvider = judoAxiosProvider,
+  config?: Partial<RuntimeServiceConfig>,
+): JudoRuntimeService {
+  return new JudoRuntimeService(axiosProvider, {
+    applicationName: config?.applicationName ?? APPLICATION_NAME,
+    actorName: config?.actorName ?? ACTOR_NAME,
+    actorPath: config?.actorPath ?? ACTOR_PATH,
+  });
+}
+
+export default ServiceRuntimeProvider;
+

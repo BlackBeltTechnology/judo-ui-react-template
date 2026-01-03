@@ -30,7 +30,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (openCrea
     const queryCustomizer: { _mask?: string } | undefined = maskRequest ? {
       _mask: maskRequest,
     } : undefined;
-    const { data: res } = await {{ getServiceImplForPage page }}.create{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# unless action.ownerDataElement.isAccess }}owner.current, {{/ unless }}data, queryCustomizer);
+    const { data: res } = await runtimeService.{{# if action.ownerDataElement.isAccess }}createOnActorRelation<{{ classDataName (getReferenceClassType page) '' }}, {{ classDataName (getReferenceClassType page) 'Stored' }}>({{# if action.targetDataElement }}'{{ action.targetDataElement.name }}'{{ else }}'{{ page.dataElement.name }}'{{/ if}}, data, queryCustomizer){{else}}createOnRelation<{{ classDataName (getReferenceClassType page) '' }}, {{ classDataName (getReferenceClassType page) 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', {{# if action.targetDataElement }}'{{ action.targetDataElement.name }}'{{ else }}'{{ page.dataElement.name }}'{{/ if}}, owner.current, data, queryCustomizer){{/if}};
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(data, res, onSubmit, onClose, openCreated);
     } else {

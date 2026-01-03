@@ -2,7 +2,7 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.actionDefinition.targetType 'QueryCustomizer' }}): Promise<{{ classDataName action.actionDefinition.targetType 'Stored' }}[]> => {
   {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
   try {
-    const { data: result } = await {{ getServiceImplForPage page }}.getRange{{# if (isActionOnOperationInput action) }}On{{ firstToUpper (getOperationNameForActionOnInput action) }}{{/ if }}For{{ firstToUpper link.dataElement.name }}(data, queryCustomizer);
+    const { data: result } = await runtimeService.getRangeForRelation<{{ classDataName action.actionDefinition.targetType 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', '{{ link.dataElement.name }}', data, queryCustomizer);
     return result;
   } catch (error: any) {
     handleError(error, { actionId: '{{ getXMIID action }}' });
@@ -11,7 +11,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
   {{/ with }}
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   try {
-    const { data: result } = await {{ getServiceImplForPage page }}.getRange{{# if (isActionOnOperationInput action) }}On{{ firstToUpper (getOperationNameForActionOnInput action) }}{{/ if }}For{{ firstToUpper table.relationName }}(data, queryCustomizer);
+    const { data: result } = await runtimeService.getRangeForRelation<{{ classDataName action.actionDefinition.targetType 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', '{{ table.relationName }}', data, queryCustomizer);
     return result;
   } catch (error: any) {
     handleError(error, { actionId: '{{ getXMIID action }}' });

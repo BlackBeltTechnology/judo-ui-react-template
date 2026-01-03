@@ -1,0 +1,304 @@
+// Service Runtime Serialization Utilities
+// Handles data serialization/deserialization for API calls
+
+import type { QueryCustomizer, CommandQueryCustomizer, Seek, OrderingType, FilterBy } from './types';
+
+// ============================================================================
+// Date/Time Serialization
+// ============================================================================
+
+/**
+ * Serialize a Date object to ISO date string (yyyy-MM-dd)
+ */
+export function serializeDate(date: Date | null | undefined): string | null {
+  if (!date) return null;
+  if (!(date instanceof Date) || isNaN(date.getTime())) return null;
+
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+/**
+ * Serialize a Date object to time string (HH:mm:ss or HH:mm:ss.SSS)
+ */
+export function serializeTime(date: Date | null | undefined): string | null {
+  if (!date) return null;
+  if (!(date instanceof Date) || isNaN(date.getTime())) return null;
+
+  const hours = String(date.getHours()).padStart(2, '0');
+  const minutes = String(date.getMinutes()).padStart(2, '0');
+  const seconds = String(date.getSeconds()).padStart(2, '0');
+  const ms = date.getMilliseconds();
+
+  if (ms > 0) {
+    return `${hours}:${minutes}:${seconds}.${String(ms).padStart(3, '0')}`;
+  }
+  return `${hours}:${minutes}:${seconds}`;
+}
+
+/**
+ * Serialize a Date object to ISO 8601 timestamp
+ */
+export function serializeTimestamp(date: Date | null | undefined): string | null {
+  if (!date) return null;
+  if (!(date instanceof Date) || isNaN(date.getTime())) return null;
+  return date.toISOString();
+}
+
+/**
+ * Parse a date string to Date object
+ */
+export function parseDate(dateString: string | null | undefined): Date | null {
+  if (!dateString) return null;
+  const date = new Date(dateString);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * Parse a time string (HH:mm:ss or HH:mm:ss.SSS) to Date object
+ */
+export function parseTime(timeString: string | null | undefined): Date | null {
+  if (!timeString) return null;
+
+  const match = timeString.match(/^(\d{2}):(\d{2}):(\d{2})(?:\.(\d{1,3}))?$/);
+  if (!match) return null;
+
+  const date = new Date();
+  date.setHours(parseInt(match[1], 10));
+  date.setMinutes(parseInt(match[2], 10));
+  date.setSeconds(parseInt(match[3], 10));
+  date.setMilliseconds(match[4] ? parseInt(match[4].padEnd(3, '0'), 10) : 0);
+
+  return date;
+}
+
+/**
+ * Parse an ISO 8601 timestamp string to Date object
+ */
+export function parseTimestamp(timestampString: string | null | undefined): Date | null {
+  return parseDate(timestampString);
+}
+
+// ============================================================================
+// Entity Serialization
+// ============================================================================
+
+/**
+ * Serialize an entity for API transmission
+ * Handles JudoStored properties and date conversions
+ */
+export function serializeEntity<T>(entity: T): any {
+  if (!entity) return entity;
+  if (typeof entity !== 'object') return entity;
+
+  const result: Record<string, any> = {};
+
+  for (const key in entity) {
+    if (Object.prototype.hasOwnProperty.call(entity, key)) {
+      const value = (entity as Record<string, any>)[key];
+      result[key] = serializeValue(value);
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Serialize a single value
+ */
+export function serializeValue(value: any): any {
+  if (value === null || value === undefined) {
+    return value;
+  }
+
+  if (value instanceof Date) {
+    // Default to timestamp serialization
+    return serializeTimestamp(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(serializeValue);
+  }
+
+  if (typeof value === 'object') {
+    return serializeEntity(value);
+  }
+
+  return value;
+}
+
+// ============================================================================
+// Date Detection Patterns
+// ============================================================================
+
+// Pattern for ISO date (YYYY-MM-DD)
+const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
+
+// Pattern for ISO timestamp (YYYY-MM-DDTHH:mm:ss or with timezone/milliseconds)
+const ISO_TIMESTAMP_PATTERN = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?(?:Z|[+-]\d{2}:?\d{2})?$/;
+
+// Pattern for time (HH:mm:ss or HH:mm:ss.SSS)
+const TIME_PATTERN = /^\d{2}:\d{2}:\d{2}(?:\.\d{1,3})?$/;
+
+/**
+ * Check if a string looks like an ISO date/time value
+ */
+function isDateString(value: string): boolean {
+  return ISO_DATE_PATTERN.test(value) || ISO_TIMESTAMP_PATTERN.test(value) || TIME_PATTERN.test(value);
+}
+
+/**
+ * Parse a date/time string to Date object
+ */
+function parseDateValue(value: string): Date | null {
+  if (TIME_PATTERN.test(value)) {
+    return parseTime(value);
+  }
+  return parseDate(value);
+}
+
+/**
+ * Deserialize an entity from API response
+ * Handles automatic date parsing and JudoStored properties
+ */
+export function deserializeEntity<T>(data: any, dateFields?: string[]): T {
+  if (!data) return data;
+
+  const result: Record<string, any> = {};
+
+  for (const key in data) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      const value = data[key];
+
+      // Check if this is a known date field or looks like a date string
+      if (typeof value === 'string') {
+        if (dateFields?.includes(key) || isDateString(value)) {
+          result[key] = parseDateValue(value);
+        } else {
+          result[key] = value;
+        }
+      } else if (Array.isArray(value)) {
+        result[key] = value.map(item =>
+          typeof item === 'object' ? deserializeEntity(item, dateFields) : item
+        );
+      } else if (typeof value === 'object' && value !== null) {
+        result[key] = deserializeEntity(value, dateFields);
+      } else {
+        result[key] = value;
+      }
+    }
+  }
+
+  return result as T;
+}
+
+// ============================================================================
+// QueryCustomizer Serialization
+// ============================================================================
+
+/**
+ * Serialize a QueryCustomizer for API transmission
+ */
+export function serializeQueryCustomizer<T>(
+  queryCustomizer?: QueryCustomizer<T>
+): Record<string, any> | undefined {
+  if (!queryCustomizer) return undefined;
+
+  const result: Record<string, any> = {};
+
+  // Copy _mask if present
+  if (queryCustomizer._mask !== undefined) {
+    result._mask = queryCustomizer._mask;
+  }
+
+  // Copy _identifier if present
+  if (queryCustomizer._identifier !== undefined) {
+    result._identifier = queryCustomizer._identifier;
+  }
+
+  // Serialize _orderBy if present
+  if (queryCustomizer._orderBy && queryCustomizer._orderBy.length > 0) {
+    result._orderBy = queryCustomizer._orderBy.map(order => ({
+      attribute: order.attribute,
+      ...(order.descending !== undefined && { descending: order.descending }),
+    }));
+  }
+
+  // Serialize _seek if present
+  if (queryCustomizer._seek) {
+    result._seek = serializeSeek(queryCustomizer._seek);
+  }
+
+  // Copy filter properties (any other keys)
+  for (const key in queryCustomizer) {
+    if (!key.startsWith('_') && Object.prototype.hasOwnProperty.call(queryCustomizer, key)) {
+      const value = queryCustomizer[key];
+      if (Array.isArray(value)) {
+        // Assume it's an array of FilterBy
+        result[key] = value.map(serializeFilterBy);
+      } else {
+        result[key] = serializeValue(value);
+      }
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Serialize a Seek object
+ */
+function serializeSeek<T>(seek: Seek<T>): Record<string, any> {
+  const result: Record<string, any> = {};
+
+  if (seek.limit !== undefined) {
+    result.limit = seek.limit;
+  }
+
+  if (seek.reverse !== undefined) {
+    result.reverse = seek.reverse;
+  }
+
+  if (seek.lastItem !== undefined) {
+    result.lastItem = serializeEntity(seek.lastItem);
+  }
+
+  return result;
+}
+
+/**
+ * Serialize a FilterBy object
+ */
+function serializeFilterBy(filter: FilterBy): Record<string, any> {
+  return {
+    operator: filter.operator,
+    value: serializeValue(filter.value),
+  };
+}
+
+// ============================================================================
+// Export all serialization utilities
+// ============================================================================
+
+export const Serialization = {
+  // Date utilities
+  serializeDate,
+  serializeTime,
+  serializeTimestamp,
+  parseDate,
+  parseTime,
+  parseTimestamp,
+
+  // Entity utilities
+  serializeEntity,
+  serializeValue,
+  deserializeEntity,
+
+  // QueryCustomizer utilities
+  serializeQueryCustomizer,
+};
+
+export default Serialization;
+

@@ -1,0 +1,90 @@
+// Axios Provider for JUDO Runtime Service
+// This provides the axios instance configuration used by the runtime service
+
+import axios from 'axios';
+import type { AxiosInstance, CreateAxiosDefaults } from 'axios';
+import type { AxiosProvider } from './runtime-service';
+
+// ============================================================================
+// Default Axios Configuration
+// ============================================================================
+
+const API_DEFAULT_BASE_URL: string = import.meta.env.VITE_API_DEFAULT_BASE_URL || globalThis.location?.origin || 'http://localhost';
+const API_RELATIVE_PATH: string = import.meta.env.VITE_API_RELATIVE_PATH || '/api';
+const BASE_PATH = `${API_DEFAULT_BASE_URL}${API_RELATIVE_PATH}`;
+
+const defaultAxiosConfig: CreateAxiosDefaults = {
+  baseURL: BASE_PATH,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+};
+
+// ============================================================================
+// JudoAxiosProvider Implementation
+// ============================================================================
+
+interface AxiosProviderConfig {
+  axios?: AxiosInstance;
+  basePathFactory?: () => string;
+  filePathFactory?: () => string;
+}
+
+class JudoAxiosProviderImpl implements AxiosProvider {
+  private axiosInstance: AxiosInstance;
+  private basePath: string;
+  private filePath: string;
+
+  constructor(config?: CreateAxiosDefaults) {
+    this.basePath = config?.baseURL || BASE_PATH;
+    this.filePath = BASE_PATH;
+    this.axiosInstance = axios.create({
+      ...defaultAxiosConfig,
+      ...config,
+    });
+  }
+
+  /**
+   * Initialize the axios provider with custom configuration.
+   * This is typically called during app startup.
+   */
+  init(config: AxiosProviderConfig): void {
+    if (config.axios) {
+      this.axiosInstance = config.axios;
+    }
+    if (config.basePathFactory) {
+      this.basePath = config.basePathFactory();
+    }
+    if (config.filePathFactory) {
+      this.filePath = config.filePathFactory();
+    }
+  }
+
+  getAxios(): AxiosInstance {
+    return this.axiosInstance;
+  }
+
+  getBasePath(suffix?: string): string {
+    if (suffix) {
+      return `${this.basePath}${suffix.startsWith('/') ? suffix : '/' + suffix}`;
+    }
+    return this.basePath;
+  }
+
+  getFilePath(): string {
+    return this.filePath;
+  }
+}
+
+// ============================================================================
+// Default Axios Provider Instance
+// ============================================================================
+
+export const judoAxiosProvider: AxiosProvider = new JudoAxiosProviderImpl();
+
+// Factory function for creating custom axios providers
+export function createAxiosProvider(config?: CreateAxiosDefaults): AxiosProvider {
+  return new JudoAxiosProviderImpl(config);
+}
+

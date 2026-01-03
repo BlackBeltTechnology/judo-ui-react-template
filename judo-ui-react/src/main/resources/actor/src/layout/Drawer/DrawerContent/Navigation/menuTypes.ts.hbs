@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 {{# each (getAllNavigationControllerActionOutputTypes application) as |class| }}
-  import type { {{ classDataName class 'Stored' }} } from '~/services/data-api/model/{{ classDataName class '' }}';
+  import type { {{ classDataName class 'Stored' }} } from '~/service-runtime/data-types';
 {{/ each }}
 
 {{# if (applicationHasMenuOperations application) }}

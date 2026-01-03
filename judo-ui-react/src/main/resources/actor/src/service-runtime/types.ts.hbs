@@ -1,0 +1,241 @@
+// Service Runtime Types
+// This file contains TypeScript types for the runtime service
+
+import type { AxiosResponse } from 'axios';
+
+// ============================================================================
+// Core Types
+// ============================================================================
+
+/**
+ * Base interface for entities with stored metadata
+ */
+export interface JudoStored<T> {
+  __signedIdentifier: string;
+  __identifier?: string;
+  __entityType?: string;
+  __updateable?: boolean;
+  __deleteable?: boolean;
+  __selected?: boolean;
+  __version?: number;
+}
+
+/**
+ * Type alias for identifiable entities
+ */
+export type JudoIdentifiable<T> = JudoStored<T>;
+
+/**
+ * REST response wrapper
+ */
+export interface JudoRestResponse<T> extends AxiosResponse<T> {
+  data: T;
+}
+
+/**
+ * Metadata response structure
+ */
+export interface JudoMetaData {
+  actor: string;
+  [key: string]: any;
+}
+
+/**
+ * Token structure for file operations
+ */
+export interface JudoToken {
+  token: string;
+}
+
+/**
+ * File download response structure
+ */
+export interface JudoDownloadFile {
+  mimeType: string;
+  fileName: string;
+}
+
+// ============================================================================
+// Query Customizer Types
+// ============================================================================
+
+/**
+ * Filter operators
+ */
+export type FilterOperator =
+  | 'equal'
+  | 'notEqual'
+  | 'less'
+  | 'lessOrEqual'
+  | 'greater'
+  | 'greaterOrEqual'
+  | 'like'
+  | 'ilike'
+  | 'isEmpty'
+  | 'isNotEmpty';
+
+/**
+ * Filter specification
+ */
+export interface FilterBy {
+  operator: FilterOperator;
+  value: any;
+}
+
+/**
+ * Ordering specification
+ */
+export interface OrderingType {
+  attribute: string;
+  descending?: boolean;
+}
+
+/**
+ * Pagination specification
+ */
+export interface Seek<T> {
+  lastItem?: T;
+  limit?: number;
+  reverse?: boolean;
+}
+
+/**
+ * Query customizer for read operations
+ */
+export interface QueryCustomizer<T> {
+  _mask?: string;
+  _seek?: Seek<T>;
+  _orderBy?: OrderingType[];
+  _identifier?: string;
+  [attributeName: string]: any;
+}
+
+/**
+ * Command query customizer for write operations
+ */
+export interface CommandQueryCustomizer {
+  _mask?: string;
+}
+
+// ============================================================================
+// Feedback Types
+// ============================================================================
+
+/**
+ * Feedback item for errors/warnings
+ */
+export interface FeedbackItem {
+  code: string;
+  level: 'error' | 'warning' | 'info';
+  message: string;
+  location?: string;
+}
+
+// ============================================================================
+// Service Configuration
+// ============================================================================
+
+/**
+ * Runtime service configuration
+ */
+export interface RuntimeServiceConfig {
+  applicationName: string;
+  actorName: string;
+  actorPath: string;
+}
+
+// ============================================================================
+// Class Path Information
+// ============================================================================
+
+/**
+ * Information needed to construct API paths for a class type
+ */
+export interface ClassPathInfo {
+  classPath: string;
+  ownerPath?: string;
+  relationName?: string;
+}
+
+/**
+ * Information needed to construct API paths for a relation
+ */
+export interface RelationPathInfo {
+  ownerClassPath: string;
+  relationName: string;
+  targetClassPath: string;
+}
+
+/**
+ * Information needed for operation calls
+ */
+export interface OperationPathInfo {
+  classPath: string;
+  operationName: string;
+  inputClassPath?: string;
+  outputClassPath?: string;
+}
+
+// ============================================================================
+// Filter Operation Types (for filter dialogs)
+// ============================================================================
+
+export enum _StringOperation {
+  equal = 'equal',
+  notEqual = 'notEqual',
+  like = 'like',
+  ilike = 'ilike',
+  unlike = 'unlike',
+  lessThan = 'lessThan',
+  greaterThan = 'greaterThan',
+  lessOrEqual = 'lessOrEqual',
+  greaterOrEqual = 'greaterOrEqual',
+  isEmpty = 'isEmpty',
+  isNotEmpty = 'isNotEmpty',
+}
+
+export enum _NumericOperation {
+  equal = 'equal',
+  notEqual = 'notEqual',
+  lessThan = 'lessThan',
+  greaterThan = 'greaterThan',
+  lessOrEqual = 'lessOrEqual',
+  greaterOrEqual = 'greaterOrEqual',
+  isEmpty = 'isEmpty',
+  isNotEmpty = 'isNotEmpty',
+}
+
+export enum _BooleanOperation {
+  equals = 'equals',
+  isEmpty = 'isEmpty',
+  isNotEmpty = 'isNotEmpty',
+}
+
+export enum _EnumerationOperation {
+  equals = 'equals',
+  notEquals = 'notEquals',
+  isEmpty = 'isEmpty',
+  isNotEmpty = 'isNotEmpty',
+}
+
+export const StringOperation = _StringOperation;
+export const NumericOperation = _NumericOperation;
+export const BooleanOperation = _BooleanOperation;
+export const EnumerationOperation = _EnumerationOperation;
+
+// ============================================================================
+// Utility Types
+// ============================================================================
+
+/**
+ * Process query customizer with defaults
+ */
+export function processQueryCustomizer<T>(queryCustomizer: QueryCustomizer<T>): QueryCustomizer<T> {
+  return queryCustomizer;
+}
+
+/**
+ * Prefix used to identify draft/new entities
+ */
+export const draftIdentifierPrefix = '__draft__';
+

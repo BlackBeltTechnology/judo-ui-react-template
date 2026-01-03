@@ -1,16 +1,17 @@
 import { expect, describe, it } from 'vitest';
-import type { JudoStored } from '~/services/data-api/common';
+import type { JudoStored } from '~/service-runtime';
 import { isRowSelectable } from './table';
 
 interface TestType extends JudoStored<TestType>{
-    name: string
+    name: string;
+    __signedIdentifier: string;
 }
 
 interface ResponseTestType extends TestType {
     __selected?: boolean;
 };
 
-type BaseTestType = Omit<TestType, 'name'>;
+type BaseTestType = Pick<TestType, '__signedIdentifier'>;
 
 describe('isRowSelectable', () => {
     const baseType: BaseTestType = {

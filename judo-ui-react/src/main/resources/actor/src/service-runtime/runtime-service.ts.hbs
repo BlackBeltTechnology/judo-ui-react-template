@@ -1,0 +1,961 @@
+// JudoRuntimeService - Single Runtime Service for all JUDO API operations
+// Replaces all generated *ServiceImpl classes with a dynamic runtime approach
+
+import type { AxiosInstance } from 'axios';
+import type {
+  JudoStored,
+  JudoRestResponse,
+  JudoMetaData,
+  JudoToken,
+  QueryCustomizer,
+  CommandQueryCustomizer,
+  RuntimeServiceConfig,
+} from './types';
+import { serializeEntity, serializeQueryCustomizer, deserializeEntity } from './serialization';
+
+// ============================================================================
+// HTTP Header Constants
+// ============================================================================
+
+export const X_JUDO_SIGNED_IDENTIFIER = 'X-Judo-SignedIdentifier';
+export const X_JUDO_COUNT_RECORDS = 'X-Judo-CountRecords';
+export const X_JUDO_COUNT = 'x-judo-count';
+export const X_JUDO_MASK = 'X-Judo-Mask';
+export const X_JUDO_MARK_SELECTED_RANGE_ITEMS = 'X-Judo-MarkSelectedRangeItems';
+
+const DEFAULT_COMMAND_MASK = '{}';
+
+// ============================================================================
+// Axios Provider Interface
+// ============================================================================
+
+export interface AxiosProvider {
+  getAxios(): AxiosInstance;
+  getBasePath(suffix?: string): string;
+  init?(config: { axios?: AxiosInstance; basePathFactory?: () => string; filePathFactory?: () => string }): void;
+}
+
+// ============================================================================
+// JudoRuntimeService Implementation
+// ============================================================================
+
+/**
+ * JudoRuntimeService provides a single service instance that can handle
+ * all JUDO API operations dynamically based on class paths and metadata.
+ */
+export class JudoRuntimeService {
+  private readonly axiosProvider: AxiosProvider;
+  private readonly applicationName: string;
+  private readonly actorName: string;
+  private readonly actorPath: string;
+
+  constructor(axiosProvider: AxiosProvider, config: RuntimeServiceConfig) {
+    this.axiosProvider = axiosProvider;
+    this.applicationName = config.applicationName;
+    this.actorName = config.actorName;
+    this.actorPath = config.actorPath;
+  }
+
+  // ============================================================================
+  // Path Construction Helpers
+  // ============================================================================
+
+  protected get axios(): AxiosInstance {
+    return this.axiosProvider.getAxios();
+  }
+
+  protected getBasePath(suffix?: string): string {
+    return this.axiosProvider.getBasePath(suffix);
+  }
+
+  protected getPathForApp(path?: string): string {
+    const tmp = path ? path : '';
+    return this.getBasePath(this.applicationName + (tmp.length && !tmp.startsWith('/') ? '/' + tmp : tmp));
+  }
+
+  /**
+   * Get path for actor-level access relation operations.
+   * Uses repeated segments: /{applicationName}/{actorPath}/...
+   * where actorPath = {actor.name}/{packageTokens}/{actor.name}/{packageTokens}
+   */
+  protected getPathForActorRelation(path?: string): string {
+    const tmp = path ? path : '';
+    return this.getPathForApp(this.actorPath + (tmp.length && !tmp.startsWith('/') ? '/' + tmp : tmp));
+  }
+
+  /**
+   * Get path for class-level operations.
+   * Uses single actor segment: /{applicationName}/{actorName}/{packageTokens}/...
+   */
+  protected getPathForActor(path?: string): string {
+    const tmp = path ? path : '';
+    // For class-level operations, use actorName + packageTokens (first half of actorPath)
+    const actorBase = this.actorPath.split('/').slice(0, this.actorPath.split('/').length / 2).join('/');
+    return this.getPathForApp(actorBase + (tmp.length && !tmp.startsWith('/') ? '/' + tmp : tmp));
+  }
+
+  // ============================================================================
+  // Metadata Operations
+  // ============================================================================
+
+  /**
+   * Get actor metadata
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async getMetadata(): Promise<JudoRestResponse<JudoMetaData>> {
+    const path = '/~meta';
+    return this.axios.get(this.getPathForActorRelation(path));
+  }
+
+  /**
+   * Get actor metadata (alias for getMetadata for backward compatibility)
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async getMetaData(): Promise<JudoRestResponse<JudoMetaData>> {
+    return this.getMetadata();
+  }
+
+  /**
+   * Get the current principal (authenticated user)
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async getPrincipal<T>(): Promise<JudoRestResponse<T>> {
+    const path = '/~principal';
+    return this.axios.get(this.getPathForActorRelation(path));
+  }
+
+  // ============================================================================
+  // Class-Level Operations
+  // ============================================================================
+
+  /**
+   * Get template for a class type
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async getTemplate<T>(classPath: string): Promise<JudoRestResponse<T>> {
+    const path = `/${classPath}/~template`;
+    const { data, ...rest } = await this.axios.get(this.getPathForActor(path));
+    return {
+      ...rest,
+      data: deserializeEntity<T>(data),
+    };
+  }
+
+  /**
+   * Refresh/get an entity
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param target - The stored entity to refresh
+   * @param queryCustomizer - Optional query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async refresh<T>(
+    classPath: string,
+    target: JudoStored<T>,
+    queryCustomizer?: QueryCustomizer<T>,
+    headers?: Record<string, string>,
+  ): Promise<JudoRestResponse<T>> {
+    const path = `/${classPath}/~get`;
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActor(path),
+      serializeQueryCustomizer(queryCustomizer) ?? {},
+      {
+        headers: {
+          [X_JUDO_SIGNED_IDENTIFIER]: target.__signedIdentifier,
+          ...(headers ?? {}),
+        },
+      },
+    );
+    return {
+      ...rest,
+      data: deserializeEntity<T>(data),
+    };
+  }
+
+  /**
+   * Delete an entity
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param target - The stored entity to delete
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async delete(classPath: string, target: JudoStored<any>): Promise<JudoRestResponse<void>> {
+    const path = `/${classPath}/~delete`;
+    return this.axios.post(this.getPathForActor(path), undefined, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: target.__signedIdentifier,
+      },
+    });
+  }
+
+  /**
+   * Update an entity
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param target - The stored entity to update
+   * @param queryCustomizer - Optional command query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async update<T>(
+    classPath: string,
+    target: T & JudoStored<T>,
+    queryCustomizer?: CommandQueryCustomizer,
+  ): Promise<JudoRestResponse<T>> {
+    const path = `/${classPath}/~update`;
+    const input = serializeEntity(target);
+    const { data, ...rest } = await this.axios.post(this.getPathForActor(path), input, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: target.__signedIdentifier,
+        [X_JUDO_MASK]: queryCustomizer?._mask ?? DEFAULT_COMMAND_MASK,
+      },
+    });
+    return {
+      ...rest,
+      data: deserializeEntity<T>(data),
+    };
+  }
+
+  /**
+   * Validate an update operation
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param target - The stored entity to validate
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async validateUpdate<T>(
+    classPath: string,
+    target: T & JudoStored<T>,
+  ): Promise<JudoRestResponse<T>> {
+    const path = `/${classPath}/~validate`;
+    const input = serializeEntity(target);
+    const { data, ...rest } = await this.axios.post(this.getPathForActor(path), input, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: target.__signedIdentifier,
+      },
+    });
+    return {
+      ...rest,
+      data: deserializeEntity<T>(data),
+    };
+  }
+
+  // ============================================================================
+  // Actor Relation Operations (Access Relations from Actor)
+  // ============================================================================
+
+  /**
+   * List entities from an actor relation (alias for listActorRelation for simpler API)
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param owner - Optional owner entity
+   * @param queryCustomizer - Optional query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async list<T>(
+    classPath: string,
+    owner?: JudoStored<any>,
+    queryCustomizer?: QueryCustomizer<T>,
+    headers?: Record<string, string>,
+  ): Promise<JudoRestResponse<T[]>> {
+    const path = `/${classPath}/~list`;
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActor(path),
+      serializeQueryCustomizer(queryCustomizer) ?? {},
+      owner
+        ? {
+            headers: {
+              [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+              ...(headers ?? {}),
+            },
+          }
+        : headers
+          ? { headers }
+          : undefined,
+    );
+    return {
+      ...rest,
+      data: Array.isArray(data) ? data.map(d => deserializeEntity<T>(d)) : [],
+    };
+  }
+
+  /**
+   * List entities from an actor relation
+   * @param relationName - The relation name on the actor (e.g., "galaxies")
+   * @param owner - Optional owner entity
+   * @param queryCustomizer - Optional query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async listActorRelation<T>(
+    relationName: string,
+    owner?: JudoStored<any>,
+    queryCustomizer?: QueryCustomizer<T>,
+    headers?: Record<string, string>,
+  ): Promise<JudoRestResponse<T[]>> {
+    const path = `/${relationName}/~list`;
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActorRelation(path),
+      serializeQueryCustomizer(queryCustomizer) ?? {},
+      owner
+        ? {
+            headers: {
+              [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+              ...(headers ?? {}),
+            },
+          }
+        : headers
+          ? { headers }
+          : undefined,
+    );
+    return {
+      ...rest,
+      data: Array.isArray(data) ? data.map(d => deserializeEntity<T>(d)) : [],
+    };
+  }
+
+  /**
+   * Create an entity on an actor relation
+   * @param relationName - The relation name on the actor (e.g., "galaxies")
+   * @param target - The entity to create
+   * @param queryCustomizer - Optional command query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async createOnActorRelation<T, R>(
+    relationName: string,
+    target: T,
+    queryCustomizer?: CommandQueryCustomizer,
+  ): Promise<JudoRestResponse<R>> {
+    const path = `/${relationName}/~create`;
+    const input = serializeEntity(target);
+    const { data, ...rest } = await this.axios.post(this.getPathForActorRelation(path), input, {
+      headers: {
+        [X_JUDO_MASK]: queryCustomizer?._mask ?? DEFAULT_COMMAND_MASK,
+      },
+    });
+    return {
+      ...rest,
+      data: deserializeEntity<R>(data),
+    };
+  }
+
+  /**
+   * Validate create on an actor relation
+   * @param relationName - The relation name on the actor (e.g., "galaxies")
+   * @param target - The entity to validate
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async validateCreateOnActorRelation<T>(
+    relationName: string,
+    target: T,
+  ): Promise<JudoRestResponse<T>> {
+    const path = `/${relationName}/~validate`;
+    const input = serializeEntity(target);
+    const { data, ...rest } = await this.axios.post(this.getPathForActorRelation(path), input, {
+      headers: {},
+    });
+    return {
+      ...rest,
+      data: deserializeEntity<T>(data),
+    };
+  }
+
+  // ============================================================================
+  // Nested Relation Operations (Relations on Entities)
+  // ============================================================================
+
+  /**
+   * List entities from a relation on an entity
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "stars")
+   * @param owner - The owner entity
+   * @param queryCustomizer - Optional query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async listRelation<T>(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any> | undefined,
+    queryCustomizer?: QueryCustomizer<T>,
+    headers?: Record<string, string>,
+  ): Promise<JudoRestResponse<T[]>> {
+    const path = `/${ownerClassPath}/${relationName}/~list`;
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActor(path),
+      serializeQueryCustomizer(queryCustomizer) ?? {},
+      {
+        headers: {
+          ...(owner ? { [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier } : {}),
+          ...(headers ?? {}),
+        },
+      },
+    );
+    return {
+      ...rest,
+      data: Array.isArray(data) ? data.map(d => deserializeEntity<T>(d)) : [],
+    };
+  }
+
+  /**
+   * Get a single entity from a relation (for single-valued relations)
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "astronomer")
+   * @param owner - The owner entity
+   * @param queryCustomizer - Optional query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async getRelation<T>(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any> | undefined,
+    queryCustomizer?: QueryCustomizer<T>,
+  ): Promise<JudoRestResponse<T | null>> {
+    const path = `/${ownerClassPath}/${relationName}/~get`;
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActor(path),
+      serializeQueryCustomizer(queryCustomizer) ?? {},
+      {
+        headers: {
+          ...(owner ? { [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier } : {}),
+        },
+      },
+    );
+    return {
+      ...rest,
+      data: typeof data === 'string' && !data.length ? null : deserializeEntity<T>(data),
+    };
+  }
+
+  /**
+   * Get range for a relation (for selectors)
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "astronomer")
+   * @param owner - The owner entity
+   * @param queryCustomizer - Optional query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async getRangeForRelation<T>(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any> | undefined,
+    queryCustomizer?: QueryCustomizer<T>,
+    headers?: Record<string, string>,
+  ): Promise<JudoRestResponse<T[]>> {
+    const path = `/${ownerClassPath}/${relationName}/~range`;
+    const head = headers ?? {};
+    const input = owner ? serializeEntity(owner) : {};
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActor(path),
+      {
+        owner: input,
+        queryCustomizer: serializeQueryCustomizer(queryCustomizer) ?? {},
+      },
+      { headers: { ...head, [X_JUDO_MARK_SELECTED_RANGE_ITEMS]: 'true' } },
+    );
+    return {
+      ...rest,
+      data: Array.isArray(data) ? data.map(d => deserializeEntity<T>(d)) : [],
+    };
+  }
+
+  /**
+   * Create an entity on a nested relation
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "stars")
+   * @param owner - The owner entity
+   * @param target - The entity to create
+   * @param queryCustomizer - Optional command query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async createRelation<T, R>(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    target: T,
+    queryCustomizer?: CommandQueryCustomizer,
+  ): Promise<JudoRestResponse<R>> {
+    const path = `/${ownerClassPath}/~update/${relationName}/~create`;
+    const input = serializeEntity(target);
+    const { data, ...rest } = await this.axios.post(this.getPathForActor(path), input, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+        [X_JUDO_MASK]: queryCustomizer?._mask ?? DEFAULT_COMMAND_MASK,
+      },
+    });
+    return {
+      ...rest,
+      data: deserializeEntity<R>(data),
+    };
+  }
+
+  /**
+   * Validate create on a nested relation
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "stars")
+   * @param owner - The owner entity
+   * @param target - The entity to validate
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async validateCreateRelation<T>(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    target: T,
+  ): Promise<JudoRestResponse<T>> {
+    const path = `/${ownerClassPath}/~update/${relationName}/~validate`;
+    const input = serializeEntity(target);
+    const { data, ...rest } = await this.axios.post(this.getPathForActor(path), input, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+      },
+    });
+    return {
+      ...rest,
+      data: deserializeEntity<T>(data),
+    };
+  }
+
+  /**
+   * Update an entity on a nested relation
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "stars")
+   * @param owner - The owner entity
+   * @param target - The entity to update
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async updateRelation<T>(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    target: T & JudoStored<T>,
+  ): Promise<JudoRestResponse<T>> {
+    const path = `/${ownerClassPath}/~update/${relationName}/~update`;
+    const input = serializeEntity(target);
+    const { data, ...rest } = await this.axios.post(this.getPathForActor(path), input, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: (target as any).__signedIdentifier ?? owner.__signedIdentifier,
+      },
+    });
+    return {
+      ...rest,
+      data: deserializeEntity<T>(data),
+    };
+  }
+
+  // ============================================================================
+  // Relation Link Management
+  // ============================================================================
+
+  /**
+   * Set a relation (for single-valued relations)
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "astronomer")
+   * @param owner - The owner entity
+   * @param selected - The entity/entities to set
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async setRelation(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    selected: JudoStored<any> | JudoStored<any>[],
+  ): Promise<JudoRestResponse<void>> {
+    const path = `/${ownerClassPath}/~update/${relationName}/~set`;
+    const input = Array.isArray(selected)
+      ? selected.map(s => serializeEntity(s))
+      : serializeEntity(selected);
+    return this.axios.post(this.getPathForActor(path), input, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+      },
+    });
+  }
+
+  /**
+   * Unset a relation (for single-valued relations)
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "astronomer")
+   * @param owner - The owner entity
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async unsetRelation(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+  ): Promise<JudoRestResponse<void>> {
+    const path = `/${ownerClassPath}/~update/${relationName}/~unset`;
+    return this.axios.post(this.getPathForActor(path), undefined, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+      },
+    });
+  }
+
+  /**
+   * Add to a relation (for multi-valued relations)
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "stars")
+   * @param owner - The owner entity
+   * @param selected - The entities to add
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async addRelation(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    selected: JudoStored<any>[],
+  ): Promise<JudoRestResponse<void>> {
+    const path = `/${ownerClassPath}/~update/${relationName}/~add`;
+    const input = selected.map(s => serializeEntity(s));
+    return this.axios.post(this.getPathForActor(path), input, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+      },
+    });
+  }
+
+  /**
+   * Remove from a relation (for multi-valued relations)
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "stars")
+   * @param owner - The owner entity
+   * @param selected - The entities to remove
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async removeRelation(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    selected: JudoStored<any>[],
+  ): Promise<JudoRestResponse<void>> {
+    const path = `/${ownerClassPath}/~update/${relationName}/~remove`;
+    const input = selected.map(s => serializeEntity(s));
+    return this.axios.post(this.getPathForActor(path), input, {
+      headers: {
+        [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+      },
+    });
+  }
+
+  // ============================================================================
+  // Export Operations
+  // ============================================================================
+
+  /**
+   * Export relation data
+   * @param ownerClassPath - The owner's class path (e.g., "View/Galaxy")
+   * @param relationName - The relation name (e.g., "stars")
+   * @param owner - The owner entity
+   * @param queryCustomizer - Optional query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async exportRelation(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    queryCustomizer?: QueryCustomizer<any>,
+  ): Promise<Blob> {
+    const path = `/${ownerClassPath}/${relationName}/~export`;
+    const { data } = await this.axios.post(
+      this.getPathForActor(path),
+      serializeQueryCustomizer(queryCustomizer) ?? {},
+      {
+        responseType: 'blob',
+        headers: {
+          [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+        },
+      },
+    );
+    return data;
+  }
+
+  // ============================================================================
+  // Operation Calls
+  // ============================================================================
+
+  /**
+   * Call a bound operation on an entity
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param operationName - The operation name (e.g., "createDarkMatter")
+   * @param owner - The entity to call the operation on
+   * @param input - Optional input data
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async callOperation<I, O>(
+    classPath: string,
+    operationName: string,
+    owner?: JudoStored<any>,
+    input?: I,
+  ): Promise<JudoRestResponse<O>> {
+    const path = `/${classPath}/${operationName}`;
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActor(path),
+      input !== undefined ? serializeEntity(input) : undefined,
+      owner
+        ? {
+            headers: {
+              [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+            },
+          }
+        : undefined,
+    );
+    return {
+      ...rest,
+      data: deserializeEntity<O>(data),
+    };
+  }
+
+  /**
+   * Call an operation with input (alias for callOperation with required input)
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param operationName - The operation name (e.g., "createDarkMatter")
+   * @param owner - The entity to call the operation on (optional for static operations)
+   * @param input - The input data
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async callOperationWithInput<I, O>(
+    classPath: string,
+    operationName: string,
+    owner: JudoStored<any> | undefined,
+    input: I,
+  ): Promise<JudoRestResponse<O>> {
+    return this.callOperation<I, O>(classPath, operationName, owner, input);
+  }
+
+  /**
+   * Call a static operation (no owner required)
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param operationName - The operation name (e.g., "createDarkMatter")
+   * @param input - Optional input data
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async callOperationStatic<I, O>(
+    classPath: string,
+    operationName: string,
+    input?: I,
+  ): Promise<JudoRestResponse<O>> {
+    return this.callOperation<I, O>(classPath, operationName, undefined, input);
+  }
+
+  /**
+   * Update an entity on a relation
+   * @param ownerClassPath - The owner's class path
+   * @param relationName - The relation name
+   * @param owner - The owner entity
+   * @param target - The entity to update
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async updateOnRelation<T>(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    target: T & JudoStored<T>,
+  ): Promise<JudoRestResponse<T>> {
+    return this.updateRelation<T>(ownerClassPath, relationName, owner, target);
+  }
+
+  /**
+   * Create an entity on a relation
+   * @param ownerClassPath - The owner's class path
+   * @param relationName - The relation name
+   * @param owner - The owner entity (optional for actor relations)
+   * @param target - The entity to create
+   * @param queryCustomizer - Optional command query customizer
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async createOnRelation<T, R>(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any> | undefined,
+    target: T,
+    queryCustomizer?: CommandQueryCustomizer,
+  ): Promise<JudoRestResponse<R>> {
+    if (owner) {
+      return this.createRelation<T, R>(ownerClassPath, relationName, owner, target, queryCustomizer);
+    }
+    // For actor relations, use createOnActorRelation
+    return this.createOnActorRelation<T, R>(relationName, target, queryCustomizer);
+  }
+
+  /**
+   * Add entities to a relation
+   * @param ownerClassPath - The owner's class path
+   * @param relationName - The relation name
+   * @param owner - The owner entity
+   * @param items - The items to add
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async addToRelation(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    items: JudoStored<any>[],
+  ): Promise<JudoRestResponse<void>> {
+    return this.addRelation(ownerClassPath, relationName, owner, items);
+  }
+
+  /**
+   * Remove entities from a relation
+   * @param ownerClassPath - The owner's class path
+   * @param relationName - The relation name
+   * @param owner - The owner entity
+   * @param items - The items to remove
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async removeFromRelation(
+    ownerClassPath: string,
+    relationName: string,
+    owner: JudoStored<any>,
+    items: JudoStored<any>[],
+  ): Promise<JudoRestResponse<void>> {
+    return this.removeRelation(ownerClassPath, relationName, owner, items);
+  }
+
+  /**
+   * Validate create operation
+   * @param classPath - The class path
+   * @param owner - The owner entity (optional)
+   * @param target - The entity to validate
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async validateCreate<T>(
+    classPath: string,
+    owner: JudoStored<any> | null,
+    target: T,
+  ): Promise<JudoRestResponse<T>> {
+    const path = `/${classPath}/~validate`;
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActor(path),
+      serializeEntity(target),
+      owner
+        ? {
+            headers: {
+              [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+            },
+          }
+        : undefined,
+    );
+    return {
+      ...rest,
+      data: deserializeEntity<T>(data),
+    };
+  }
+
+  /**
+   * Validate operation input
+   * @param classPath - The class path (e.g., "View/Galaxy")
+   * @param operationName - The operation name (e.g., "createDarkMatter")
+   * @param owner - The entity context
+   * @param input - The input data to validate
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 400, 401, 403.
+   */
+  async validateOperationInput<I>(
+    classPath: string,
+    operationName: string,
+    owner: JudoStored<any>,
+    input: I,
+  ): Promise<JudoRestResponse<I>> {
+    const path = `/${classPath}/${operationName}/~validate`;
+    const { data, ...rest } = await this.axios.post(
+      this.getPathForActor(path),
+      serializeEntity(input),
+      {
+        headers: {
+          [X_JUDO_SIGNED_IDENTIFIER]: owner.__signedIdentifier,
+        },
+      },
+    );
+    return {
+      ...rest,
+      data: deserializeEntity<I>(data),
+    };
+  }
+
+  /**
+   * Get template for operation input type
+   * @param inputClassPath - The input class path (e.g., "View/MatterCreator")
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async getOperationInputTemplate<T>(inputClassPath: string): Promise<JudoRestResponse<T>> {
+    return this.getTemplate<T>(inputClassPath);
+  }
+
+  // ============================================================================
+  // File Operations
+  // ============================================================================
+
+  /**
+   * Get upload token for a binary attribute
+   * @param attributePath - The attribute path (e.g., "View/Galaxy/image")
+   * @throws {AxiosError} With data containing {@link Array<FeedbackItem>} for status codes: 401, 403.
+   */
+  async getUploadToken(attributePath: string): Promise<JudoRestResponse<JudoToken>> {
+    const path = `/${attributePath}/~upload-token`;
+    return this.axios.post(this.getPathForActor(path));
+  }
+
+  /**
+   * Upload a file
+   * @param fileBasePath - The base path for file operations
+   * @param file - The file to upload
+   */
+  async uploadFile(
+    fileBasePath: string,
+    file: File,
+  ): Promise<JudoRestResponse<any>> {
+    const formData = new FormData();
+    formData.append('file', file);
+
+    return this.axios.post(`${fileBasePath}/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+  }
+
+  /**
+   * Download a file
+   * @param token - The download token
+   * @param disposition - The content disposition ('inline' or 'attachment')
+   * @param fileBasePath - The base path for file operations (optional, defaults to FILE_DEFAULT_BASE_URL)
+   */
+  async downloadFile(
+    token: string,
+    disposition: 'inline' | 'attachment',
+    fileBasePath?: string,
+  ): Promise<JudoRestResponse<Blob>> {
+    const basePath = fileBasePath || this.getBasePath();
+    return this.axios.get(
+      `${basePath}/download?disposition=${disposition}`,
+      {
+        responseType: 'blob',
+        headers: {
+          'X-Token': token,
+        },
+      },
+    );
+  }
+
+  // ============================================================================
+  // Instance Lookup (for AccessService pattern)
+  // ============================================================================
+
+  /**
+   * Find an instance by identifier
+   * @param relationPath - The relation path (e.g., "galaxies")
+   * @param identifier - The entity identifier
+   * @param mask - Optional field mask
+   */
+  async findInstance<T>(
+    relationPath: string,
+    identifier: string,
+    mask?: string,
+  ): Promise<T | undefined> {
+    const queryCustomizer: QueryCustomizer<T> = {
+      _identifier: identifier,
+    };
+    if (mask) {
+      queryCustomizer._mask = mask;
+    }
+
+    const { data } = await this.listActorRelation<T>(relationPath, undefined, queryCustomizer);
+    return data.length > 0 ? data[0] : undefined;
+  }
+}
+
+export default JudoRuntimeService;
+

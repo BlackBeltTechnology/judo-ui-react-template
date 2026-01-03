@@ -15,6 +15,7 @@ import { DialogProvider } from './components/dialog';
 import { Layout } from './layout';
 import { ScrollToTop } from './layout/ScrollToTop';
 import { EventBusProvider } from './hooks/EventBusContext';
+import { ServiceRuntimeProvider } from './service-runtime';
 {{# if application.authentication }}
 import { PrincipalProvider } from './auth';
 {{/ if }}
@@ -46,25 +47,27 @@ function App() {
       } }>
     {{/ if }}
     <ScrollToTop>
-      <EventBusProvider>
-        {{# if application.authentication }}
-        <PrincipalProvider>
-        {{/ if }}
-          <SnackbarProvider maxSnack={3} action={(snackbarId) => (
-            <IconButton className="close-error-snackbar" style={ { color: '#fff' } } onClick={() => closeSnackbar(snackbarId)}>
-              <MdiIcon path="close" />
-            </IconButton>
-          )}>
-            <DialogProvider>
-              <BreadcrumbProvider>
-                <Layout key={location.key} />
-              </BreadcrumbProvider>
-            </DialogProvider>
-          </SnackbarProvider>
-        {{# if application.authentication }}
-        </PrincipalProvider>
-        {{/ if }}
-      </EventBusProvider>
+      <ServiceRuntimeProvider>
+        <EventBusProvider>
+          {{# if application.authentication }}
+          <PrincipalProvider>
+          {{/ if }}
+            <SnackbarProvider maxSnack={3} action={(snackbarId) => (
+              <IconButton className="close-error-snackbar" style={ { color: '#fff' } } onClick={() => closeSnackbar(snackbarId)}>
+                <MdiIcon path="close" />
+              </IconButton>
+            )}>
+              <DialogProvider>
+                <BreadcrumbProvider>
+                  <Layout key={location.key} />
+                </BreadcrumbProvider>
+              </DialogProvider>
+            </SnackbarProvider>
+          {{# if application.authentication }}
+          </PrincipalProvider>
+          {{/ if }}
+        </EventBusProvider>
+      </ServiceRuntimeProvider>
     </ScrollToTop>
     {{# if application.backgroundImage }}
     </Box>

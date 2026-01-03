@@ -3,8 +3,7 @@
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import type { ElementType, MouseEvent, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import type { JudoIdentifiable, JudoRestResponse } from '~/service-runtime';
 import Box from '@mui/material/Box';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
@@ -53,10 +52,8 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
   import type {
     {{ imp }},
     {{ imp }}Stored,
-  } from '~/services/data-api/model/{{ imp }}';
-  import type {
     {{ imp }}QueryCustomizer,
-  } from '~/services/data-api/rest/{{ imp }}QueryCustomizer';
+  } from '~/service-runtime/data-types';
 {{/ each }}
 {{# or (tableHasNumericColumn table) (tableHasDateColumn table) (tableHasDateTimeColumn table) (tableHasTimeColumn table) }}
 import { useL10N } from '~/l10n/l10n-context';
@@ -100,13 +97,12 @@ import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/tabl
 import { CellEditInput } from '~/components/table';
 {{/ if }}
 import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}Props } from './types';
-import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
 
 export const {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY = '{{ componentName table }}SidekickComponent';
 
 export const filtersSerializer: FiltersSerializer = {
-  serialize: (filters: Filter[]) => serializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
-  deserialize: (filters: Filter[]) => deserializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
+  serialize: (filters: Filter[]) => serializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters),
+  deserialize: (filters: Filter[]) => deserializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters),
 };
 
 // XMIID: {{ getXMIID table }}

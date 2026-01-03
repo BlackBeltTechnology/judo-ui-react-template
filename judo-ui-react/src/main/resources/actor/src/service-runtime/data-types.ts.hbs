@@ -1,0 +1,49 @@
+// Generated Data Types for Runtime Service
+// These types represent the data entities used in the application
+
+import type { QueryCustomizer } from './types';
+
+{{# each (getClassTypes application) as |classType| }}
+/**
+ * {{ classType.name }}
+ * FQName: {{ classType.fqName }}
+ */
+export interface {{ classDataName classType '' }} {
+  __identifier?: string;
+  {{# each classType.attributes as |attr| }}
+  {{ attr.name }}{{# unless attr.isRequired }}?{{/ unless }}: {{ getAttributeTypeScriptType attr }};
+  {{/ each }}
+  {{# each classType.relations as |rel| }}
+  {{ rel.name }}{{# unless rel.isRequired }}?{{/ unless }}: {{ classDataName rel.target 'Stored' }}{{# if rel.isCollection }}[]{{/ if }};
+  {{/ each }}
+}
+
+export interface {{ classDataName classType 'Stored' }} extends {{ classDataName classType '' }} {
+  __signedIdentifier: string;
+  __entityType?: string;
+  __updateable?: boolean;
+  __deleteable?: boolean;
+  __selected?: boolean;
+}
+
+export interface {{ classDataName classType 'QueryCustomizer' }} extends QueryCustomizer<{{ classDataName classType 'Stored' }}> {
+  {{# each classType.attributes as |attr| }}
+  {{# if attr.isFilterable }}
+  {{ attr.name }}?: Array<{ operator: string; value: any }>;
+  {{/ if }}
+  {{/ each }}
+}
+
+{{/ each }}
+{{# each (getEnumerationTypes application) as |enumType| }}
+/**
+ * Enumeration: {{ enumType.name }}
+ */
+export enum {{ restParamName enumType }} {
+  {{# each enumType.members as |member| }}
+  {{ member.name }} = '{{ member.name }}',
+  {{/ each }}
+}
+
+{{/ each }}
+

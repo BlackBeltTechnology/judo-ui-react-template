@@ -6,7 +6,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
     {{ else }}
       try {
         setIsLoading(true);
-        await {{ getServiceImplForPage page }}.set{{# if action.actionDefinition.isContainedRelationAction }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}(owner.current, []);
+        await runtimeService.setRelation('{{ deriveClassPath (getReferenceClassType page) }}', '{{# if action.actionDefinition.isContainedRelationAction }}{{ action.targetDataElement.name }}{{/ if }}', owner.current, []);
         await refresh();
       } catch(e) {
         console.error(e);

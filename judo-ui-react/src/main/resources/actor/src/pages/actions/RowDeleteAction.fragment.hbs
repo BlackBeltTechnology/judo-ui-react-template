@@ -16,7 +16,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
           storeDiff('{{ link.dataElement.name }}', null);
         {{/ with }}
       {{ else }}
-        await {{ getServiceImplForPage page }}.delete{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}(target);
+        await runtimeService.delete('{{ deriveClassPath (getReferenceClassType page) }}', target);
         showSuccessSnack(t('judo.action.delete.success', { defaultValue: 'Delete successful' }));
         {{# if page.container.table }}
           setRefreshCounter((prev) => prev + 1);

@@ -2,7 +2,7 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<JudoRestResponse<{{ classDataName action.actionDefinition.targetType '' }}>> => {
   try {
     setIsLoading(true);
-    const response = await {{ getServiceImplForPage page }}.getTemplate{{ firstToUpper (getServiceMethodSuffix action) }}();
+    const response = await runtimeService.getTemplate<{{ classDataName action.actionDefinition.targetType '' }}>('{{ deriveClassPath action.actionDefinition.targetType }}');
     const { data: result } = response;
     setData(result as {{ classDataName action.actionDefinition.targetType 'Stored' }});
     if (!ownerData) {

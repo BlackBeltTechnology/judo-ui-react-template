@@ -1,0 +1,267 @@
+// Service Factory
+// Creates service facades that wrap the JudoRuntimeService with generated service-like interfaces
+// This provides backward compatibility during migration from generated services to runtime service
+
+import type { JudoRuntimeService } from './runtime-service';
+import type {
+  JudoStored,
+  JudoRestResponse,
+  QueryCustomizer,
+  CommandQueryCustomizer
+} from './types';
+
+// ============================================================================
+// Service Factory Types
+// ============================================================================
+
+/**
+ * Generic relation service interface
+ * Matches the pattern of generated relation service implementations
+ */
+export interface RelationService<T, TStored extends JudoStored<T>> {
+  list(owner?: JudoStored<any>, queryCustomizer?: QueryCustomizer<T>, headers?: Record<string, string>): Promise<JudoRestResponse<TStored[]>>;
+  refresh(owner?: JudoStored<any>, queryCustomizer?: QueryCustomizer<T>, headers?: Record<string, string>): Promise<JudoRestResponse<TStored>>;
+  getTemplate(): Promise<JudoRestResponse<T>>;
+  create(target: T, queryCustomizer?: CommandQueryCustomizer): Promise<JudoRestResponse<TStored>>;
+  validateCreate(target: T): Promise<JudoRestResponse<T>>;
+  delete(target: TStored): Promise<JudoRestResponse<void>>;
+  update(target: TStored, queryCustomizer?: CommandQueryCustomizer): Promise<JudoRestResponse<TStored>>;
+  validateUpdate(target: TStored): Promise<JudoRestResponse<TStored>>;
+}
+
+/**
+ * Generic class service interface
+ * Matches the pattern of generated class service implementations
+ */
+export interface ClassService<T, TStored extends JudoStored<T>> {
+  getTemplate(): Promise<JudoRestResponse<T>>;
+  refresh(target: TStored, queryCustomizer?: QueryCustomizer<T>, headers?: Record<string, string>): Promise<JudoRestResponse<TStored>>;
+  delete(target: TStored): Promise<JudoRestResponse<void>>;
+  update(target: TStored, queryCustomizer?: CommandQueryCustomizer): Promise<JudoRestResponse<TStored>>;
+  validateUpdate(target: TStored): Promise<JudoRestResponse<TStored>>;
+}
+
+// ============================================================================
+// Service Factory Implementation
+// ============================================================================
+
+/**
+ * Factory for creating service facades that wrap the runtime service
+ */
+export class ServiceFactory {
+  constructor(private readonly runtimeService: JudoRuntimeService) {}
+
+  /**
+   * Create a relation service facade for an actor relation
+   * @param relationName - The name of the relation on the actor
+   * @param targetClassPath - The class path of the target type
+   */
+  createActorRelationService<T, TStored extends JudoStored<T>>(
+    relationName: string,
+    targetClassPath: string,
+  ): RelationService<T, TStored> {
+    const runtime = this.runtimeService;
+
+    return {
+      async list(owner, queryCustomizer, headers) {
+        return runtime.listActorRelation<TStored>(relationName, owner, queryCustomizer as any, headers);
+      },
+
+      async refresh(owner, queryCustomizer, headers) {
+        if (!owner) {
+          throw new Error('Owner is required for refresh');
+        }
+        return runtime.refresh<TStored>(targetClassPath, owner as TStored, queryCustomizer as any, headers);
+      },
+
+      async getTemplate() {
+        return runtime.getTemplate<T>(targetClassPath);
+      },
+
+      async create(target, queryCustomizer) {
+        return runtime.createOnActorRelation<T, TStored>(relationName, target, queryCustomizer);
+      },
+
+      async validateCreate(target) {
+        return runtime.validateCreateOnActorRelation<T>(relationName, target);
+      },
+
+      async delete(target) {
+        return runtime.delete(targetClassPath, target);
+      },
+
+      async update(target, queryCustomizer) {
+        return runtime.update<TStored>(targetClassPath, target, queryCustomizer);
+      },
+
+      async validateUpdate(target) {
+        return runtime.validateUpdate<TStored>(targetClassPath, target);
+      },
+    };
+  }
+
+  /**
+   * Create a relation service facade for a nested relation on an entity
+   * @param ownerClassPath - The class path of the owner type
+   * @param relationName - The name of the relation
+   * @param targetClassPath - The class path of the target type
+   */
+  createNestedRelationService<T, TStored extends JudoStored<T>>(
+    ownerClassPath: string,
+    relationName: string,
+    targetClassPath: string,
+  ): RelationService<T, TStored> & {
+    listRelation(owner: JudoStored<any>, queryCustomizer?: QueryCustomizer<T>, headers?: Record<string, string>): Promise<JudoRestResponse<TStored[]>>;
+    getRelation(owner: JudoStored<any>, queryCustomizer?: QueryCustomizer<T>): Promise<JudoRestResponse<TStored | null>>;
+    getRangeForRelation(owner: JudoStored<any>, queryCustomizer?: QueryCustomizer<T>, headers?: Record<string, string>): Promise<JudoRestResponse<TStored[]>>;
+    createRelation(owner: JudoStored<any>, target: T, queryCustomizer?: CommandQueryCustomizer): Promise<JudoRestResponse<TStored>>;
+    validateCreateRelation(owner: JudoStored<any>, target: T): Promise<JudoRestResponse<T>>;
+    setRelation(owner: JudoStored<any>, selected: JudoStored<any> | JudoStored<any>[]): Promise<JudoRestResponse<void>>;
+    unsetRelation(owner: JudoStored<any>): Promise<JudoRestResponse<void>>;
+    addRelation(owner: JudoStored<any>, selected: JudoStored<any>[]): Promise<JudoRestResponse<void>>;
+    removeRelation(owner: JudoStored<any>, selected: JudoStored<any>[]): Promise<JudoRestResponse<void>>;
+  } {
+    const runtime = this.runtimeService;
+
+    return {
+      async list(owner, queryCustomizer, headers) {
+        if (!owner) {
+          throw new Error('Owner is required for list');
+        }
+        return runtime.listRelation<TStored>(ownerClassPath, relationName, owner, queryCustomizer as any, headers);
+      },
+
+      async listRelation(owner, queryCustomizer, headers) {
+        return runtime.listRelation<TStored>(ownerClassPath, relationName, owner, queryCustomizer as any, headers);
+      },
+
+      async getRelation(owner, queryCustomizer) {
+        return runtime.getRelation<TStored>(ownerClassPath, relationName, owner, queryCustomizer as any);
+      },
+
+      async getRangeForRelation(owner, queryCustomizer, headers) {
+        return runtime.getRangeForRelation<TStored>(ownerClassPath, relationName, owner, queryCustomizer as any, headers);
+      },
+
+      async refresh(owner, queryCustomizer, headers) {
+        if (!owner) {
+          throw new Error('Owner is required for refresh');
+        }
+        return runtime.refresh<TStored>(targetClassPath, owner as TStored, queryCustomizer as any, headers);
+      },
+
+      async getTemplate() {
+        return runtime.getTemplate<T>(targetClassPath);
+      },
+
+      async create(target, queryCustomizer) {
+        throw new Error('Use createRelation with owner for nested relations');
+      },
+
+      async createRelation(owner, target, queryCustomizer) {
+        return runtime.createRelation<T, TStored>(ownerClassPath, relationName, owner, target, queryCustomizer);
+      },
+
+      async validateCreate(target) {
+        throw new Error('Use validateCreateRelation with owner for nested relations');
+      },
+
+      async validateCreateRelation(owner, target) {
+        return runtime.validateCreateRelation<T>(ownerClassPath, relationName, owner, target);
+      },
+
+      async delete(target) {
+        return runtime.delete(targetClassPath, target);
+      },
+
+      async update(target, queryCustomizer) {
+        return runtime.update<TStored>(targetClassPath, target, queryCustomizer);
+      },
+
+      async validateUpdate(target) {
+        return runtime.validateUpdate<TStored>(targetClassPath, target);
+      },
+
+      async setRelation(owner, selected) {
+        return runtime.setRelation(ownerClassPath, relationName, owner, selected);
+      },
+
+      async unsetRelation(owner) {
+        return runtime.unsetRelation(ownerClassPath, relationName, owner);
+      },
+
+      async addRelation(owner, selected) {
+        return runtime.addRelation(ownerClassPath, relationName, owner, selected);
+      },
+
+      async removeRelation(owner, selected) {
+        return runtime.removeRelation(ownerClassPath, relationName, owner, selected);
+      },
+    };
+  }
+
+  /**
+   * Create a class service facade
+   * @param classPath - The class path of the type
+   */
+  createClassService<T, TStored extends JudoStored<T>>(
+    classPath: string,
+  ): ClassService<T, TStored> {
+    const runtime = this.runtimeService;
+
+    return {
+      async getTemplate() {
+        return runtime.getTemplate<T>(classPath);
+      },
+
+      async refresh(target, queryCustomizer, headers) {
+        return runtime.refresh<TStored>(classPath, target, queryCustomizer as any, headers);
+      },
+
+      async delete(target) {
+        return runtime.delete(classPath, target);
+      },
+
+      async update(target, queryCustomizer) {
+        return runtime.update<TStored>(classPath, target, queryCustomizer);
+      },
+
+      async validateUpdate(target) {
+        return runtime.validateUpdate<TStored>(classPath, target);
+      },
+    };
+  }
+
+  /**
+   * Create an operation caller for bound operations
+   * @param classPath - The class path of the type that owns the operation
+   */
+  createOperationService(classPath: string) {
+    const runtime = this.runtimeService;
+
+    return {
+      async callOperation<I, O>(
+        operationName: string,
+        owner?: JudoStored<any>,
+        input?: I,
+      ): Promise<JudoRestResponse<O>> {
+        return runtime.callOperation<I, O>(classPath, operationName, owner, input);
+      },
+
+      async validateOperationInput<I>(
+        operationName: string,
+        owner: JudoStored<any>,
+        input: I,
+      ): Promise<JudoRestResponse<I>> {
+        return runtime.validateOperationInput<I>(classPath, operationName, owner, input);
+      },
+
+      async getOperationInputTemplate<T>(inputClassPath: string): Promise<JudoRestResponse<T>> {
+        return runtime.getOperationInputTemplate<T>(inputClassPath);
+      },
+    };
+  }
+}
+
+export default ServiceFactory;
+

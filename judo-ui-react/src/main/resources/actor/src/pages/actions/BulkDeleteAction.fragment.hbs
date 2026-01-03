@@ -25,7 +25,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
               const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => c.__identifier !== item.__identifier);
               storeDiff('{{ table.dataElement.name }}', newList);
             {{ else }}
-              await {{ getServiceImplForPage page }}.delete{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}(item);
+              await runtimeService.delete('{{ deriveClassPath (getReferenceClassType page) }}', item);
             {{/ if }}
             successHandler();
           } catch (error) {

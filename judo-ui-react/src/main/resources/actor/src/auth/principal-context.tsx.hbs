@@ -4,10 +4,8 @@
   import { createContext, useContext, useEffect, useMemo, useState, useCallback } from 'react';
   import type { ReactNode } from 'react';
   import { useAuth } from 'react-oidc-context';
-  import { type {{ classDataName application.principal 'Stored' }} } from '~/services/data-api/model/{{ classDataName application.principal '' }}';
-  import { type JudoRestResponse } from '~/services/data-api/rest/requestResponse';
-  import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
-  import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+  import { type {{ classDataName application.principal 'Stored' }} } from '~/service-runtime/data-types';
+  import { type JudoRestResponse, useRuntimeService } from '~/service-runtime';
   import { type AxiosError } from 'axios';
 
   export interface PrincipalContext {
@@ -27,14 +25,14 @@
   const PrincipalContext = createContext<PrincipalContext>({} as unknown as PrincipalContext);
 
   export const PrincipalProvider = ({ children }: { children: ReactNode }) => {
-    const accessServiceImpl = useMemo(() => new AccessServiceImpl(judoAxiosProvider), []);
+    const runtimeService = useRuntimeService();
     const [principal, setPrincipal] = useState<{{ classDataName application.principal 'Stored' }}>({} as unknown as {{ classDataName application.principal 'Stored' }});
     const [errorCode, setErrorCode] = useState<string | null>(null);
     const { isAuthenticated } = useAuth();
 
     const refreshPrincipal = useCallback(async () => {
       try {
-        const { data } = await accessServiceImpl.getPrincipal();
+        const { data } = await runtimeService.getPrincipal<{{ classDataName application.principal 'Stored' }}>();
         setPrincipal({ ...data });
       } catch (e: unknown) {
         const axiosError = e as AxiosError;
@@ -46,9 +44,9 @@
           console.error(e);
         }
       }
-    }, [principal, errorCode]);
+    }, [principal, errorCode, runtimeService]);
 
-    const getPrincipal = (): Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>> => accessServiceImpl.getPrincipal();
+    const getPrincipal = (): Promise<JudoRestResponse<{{ classDataName application.principal 'Stored' }}>> => runtimeService.getPrincipal<{{ classDataName application.principal 'Stored' }}>();
 
     useEffect(() => {
       if (isAuthenticated) {

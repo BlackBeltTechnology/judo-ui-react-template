@@ -41,6 +41,7 @@ import static java.util.Arrays.stream;
 @TemplateHelper
 public class UiPageHelper {
 
+
     public static boolean isPageRefreshable(PageDefinition pageDefinition) {
         return pageDefinition.getActions().stream().anyMatch(a -> a.getIsRefreshAction() || a.getIsRefreshRelationAction());
     }
@@ -608,5 +609,170 @@ public class UiPageHelper {
                 .map(a -> a.getActionDefinition().getName())
                 .sorted()
                 .toList();
+    }
+
+    /**
+     * Derives the class path from a ClassType's fqName for use with the runtime service.
+     * Example: "God::View::Galaxy" → "View/Galaxy"
+     *
+     * @param classType The ClassType to derive the path from
+     * @return The class path string suitable for API calls
+     */
+    public static String deriveClassPath(ClassType classType) {
+        if (classType == null || classType.getFQName() == null) {
+            return "";
+        }
+        String fqName = classType.getFQName();
+        String[] parts = fqName.split("::");
+        if (parts.length <= 1) {
+            return parts[0];
+        }
+        // Skip the first part (actor/namespace) and join with /
+        return String.join("/", java.util.Arrays.copyOfRange(parts, 1, parts.length));
+    }
+
+    /**
+     * Derives the class path from a RelationType's target ClassType.
+     *
+     * @param relationType The RelationType to derive the path from
+     * @return The class path string for the target type
+     */
+    public static String deriveTargetClassPath(RelationType relationType) {
+        if (relationType == null || relationType.getTarget() == null) {
+            return "";
+        }
+        return deriveClassPath(relationType.getTarget());
+    }
+
+    /**
+     * Derives the class path from a DataElement (handles ClassType and RelationType).
+     *
+     * @param dataElement The DataElement to derive the path from
+     * @return The class path string
+     */
+    public static String deriveClassPathFromDataElement(DataElement dataElement) {
+        if (dataElement instanceof ClassType classType) {
+            return deriveClassPath(classType);
+        } else if (dataElement instanceof RelationType relationType) {
+            return deriveTargetClassPath(relationType);
+        }
+        return "";
+    }
+
+    /**
+     * Get all ClassTypes used in the application for data type generation.
+     */
+    public static Set<ClassType> getClassTypes(Application application) {
+        Set<ClassType> classTypes = new LinkedHashSet<>();
+
+        // Collect from pages
+        for (PageDefinition page : application.getPages()) {
+            if (page.getDataElement() != null) {
+                collectClassTypesFromDataElement(page.getDataElement(), classTypes);
+            }
+        }
+
+        // Collect from actor relations
+        if (application.getActor() != null) {
+            for (RelationType rel : application.getActor().getRelations()) {
+                collectClassTypesFromDataElement(rel, classTypes);
+            }
+        }
+
+        return classTypes;
+    }
+
+    private static void collectClassTypesFromDataElement(DataElement dataElement, Set<ClassType> classTypes) {
+        if (dataElement instanceof ClassType classType) {
+            if (!classTypes.contains(classType)) {
+                classTypes.add(classType);
+                // Recursively collect from relations
+                for (RelationType rel : classType.getRelations()) {
+                    if (rel.getTarget() != null) {
+                        collectClassTypesFromDataElement(rel.getTarget(), classTypes);
+                    }
+                }
+                // Collect from operations (including faults)
+                for (OperationType op : classType.getOperations()) {
+                    if (op.getInput() != null && op.getInput().getTarget() != null) {
+                        collectClassTypesFromDataElement(op.getInput().getTarget(), classTypes);
+                    }
+                    if (op.getOutput() != null && op.getOutput().getTarget() != null) {
+                        collectClassTypesFromDataElement(op.getOutput().getTarget(), classTypes);
+                    }
+                    // Collect fault types
+                    for (OperationParameterType fault : op.getFaults()) {
+                        if (fault.getTarget() != null) {
+                            collectClassTypesFromDataElement(fault.getTarget(), classTypes);
+                        }
+                    }
+                }
+            }
+        } else if (dataElement instanceof RelationType relationType) {
+            if (relationType.getTarget() != null) {
+                collectClassTypesFromDataElement(relationType.getTarget(), classTypes);
+            }
+        } else if (dataElement instanceof OperationType operationType) {
+            if (operationType.getInput() != null && operationType.getInput().getTarget() != null) {
+                collectClassTypesFromDataElement(operationType.getInput().getTarget(), classTypes);
+            }
+            if (operationType.getOutput() != null && operationType.getOutput().getTarget() != null) {
+                collectClassTypesFromDataElement(operationType.getOutput().getTarget(), classTypes);
+            }
+            // Collect fault types
+            for (OperationParameterType fault : operationType.getFaults()) {
+                if (fault.getTarget() != null) {
+                    collectClassTypesFromDataElement(fault.getTarget(), classTypes);
+                }
+            }
+        } else if (dataElement instanceof OperationParameterType paramType) {
+            if (paramType.getTarget() != null) {
+                collectClassTypesFromDataElement(paramType.getTarget(), classTypes);
+            }
+        }
+    }
+
+    /**
+     * Get all EnumerationTypes used in the application.
+     */
+    public static Set<EnumerationType> getEnumerationTypes(Application application) {
+        Set<EnumerationType> enumTypes = new LinkedHashSet<>();
+
+        for (ClassType classType : getClassTypes(application)) {
+            for (AttributeType attr : classType.getAttributes()) {
+                if (attr.getDataType() instanceof EnumerationType enumType) {
+                    enumTypes.add(enumType);
+                }
+            }
+        }
+
+        return enumTypes;
+    }
+
+    /**
+     * Get the TypeScript type for an attribute's data type.
+     */
+    public static String getAttributeTypeScriptType(AttributeType attribute) {
+        DataType dataType = attribute.getDataType();
+
+        if (dataType instanceof StringType) {
+            return "string";
+        } else if (dataType instanceof NumericType) {
+            return "number";
+        } else if (dataType instanceof BooleanType) {
+            return "boolean";
+        } else if (dataType instanceof DateType) {
+            return "Date"; // Deserialized to Date object
+        } else if (dataType instanceof TimestampType) {
+            return "Date"; // Deserialized to Date object
+        } else if (dataType instanceof TimeType) {
+            return "Date"; // Deserialized to Date object
+        } else if (dataType instanceof BinaryType) {
+            return "any"; // Binary data
+        } else if (dataType instanceof EnumerationType enumType) {
+            return restParamName(enumType);
+        }
+
+        return "any";
     }
 }

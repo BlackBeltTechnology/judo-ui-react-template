@@ -5,7 +5,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
     {{# if link.isEager }}
       storeDiff('{{ link.dataElement.name }}', selected);
     {{ else }}
-      await {{ getServiceImplForPage page }}.set{{ firstToUpper link.dataElement.name }}(data, selected);
+      await runtimeService.setRelation('{{ deriveClassPath (getReferenceClassType page) }}', '{{ link.dataElement.name }}', data, selected);
       await refresh();
     {{/ if }}
   } catch (error) {

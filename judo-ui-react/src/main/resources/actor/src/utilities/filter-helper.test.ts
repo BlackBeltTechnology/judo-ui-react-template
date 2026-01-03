@@ -6,7 +6,7 @@ import {
   _EnumerationOperation,
   _NumericOperation,
   _StringOperation,
-} from '~/services/data-api/common';
+} from '~/service-runtime';
 import {
   applyInMemoryFilters,
   filterByBooleanOperation,

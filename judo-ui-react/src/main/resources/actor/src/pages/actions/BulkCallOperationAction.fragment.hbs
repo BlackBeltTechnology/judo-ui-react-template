@@ -12,7 +12,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
       selectedItems: selectedRows,
       action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
         try {
-          await {{ getServiceImplForPage page }}.{{ action.actionDefinition.operation.name }}{{ operationCallSuffix action }}(item);
+          await runtimeService.callOperation<void, void>('{{ deriveClassPath action.ownerDataElement.target }}', '{{ action.actionDefinition.operation.name }}', item);
           successHandler();
         } catch (error) {
           errorHandler(error);

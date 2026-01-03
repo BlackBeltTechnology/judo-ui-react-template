@@ -10,8 +10,7 @@ import IconButton from '@mui/material/IconButton';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon } from '~/components';
 import { useDialog } from '~/components/dialog';
-import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
-import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { getRuntimeService } from '~/service-runtime';
 
 export type FileHandlingHook = () => {
     downloadFile: (data: any, attributeName: string, disposition: 'inline' | 'attachment') => Promise<void>,
@@ -23,7 +22,7 @@ export type FileHandlingHook = () => {
 export const fileHandling: FileHandlingHook = () => {
     const { t } = useTranslation();
     const [createDialog, closeDialog] = useDialog();
-    const accessServiceImpl = new AccessServiceImpl(judoAxiosProvider);
+    const runtimeService = getRuntimeService();
 
     const exportFile = (response: any) => {
       if (response && response.status === 200) {
@@ -43,7 +42,7 @@ export const fileHandling: FileHandlingHook = () => {
 
 
     const downloadFile = async (data: any, attributeName: string, disposition: 'inline' | 'attachment') => {
-        const response = await accessServiceImpl.downloadFile(data[attributeName], disposition);
+        const response = await runtimeService.downloadFile(data[attributeName], disposition);
 
         if (response && response.status === 200) {
             const fileName = response.headers['content-disposition'].match(/filename=\"(.*)\"/)[1];
@@ -105,7 +104,7 @@ export const fileHandling: FileHandlingHook = () => {
     }
 
     const uploadFile = async (data: any, attributeName: string, files: any[], path: string): Promise<any | void> => {
-        const response = await accessServiceImpl.uploadFile(path, files[0]);
+        const response = await runtimeService.uploadFile(path, files[0]);
         try {
             if (response && response.status === 200) {
                 return response.data.files[0];

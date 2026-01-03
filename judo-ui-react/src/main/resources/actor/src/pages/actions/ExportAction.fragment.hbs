@@ -6,7 +6,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCus
 {{/ if }}
   try {
     setIsLoading(true);
-    const response = await {{ getServiceImplForPage page }}.export{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}({{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}owner.current{{/ if }}, queryCustomizer);
+    const response = await runtimeService.exportRelation('{{ deriveClassPath (getReferenceClassType page) }}', '{{# if action.targetDataElement }}{{ action.targetDataElement.name }}{{/ if }}', {{# if (pageHasSignedId page) }}{ __signedIdentifier: signedIdentifier } as any{{ else }}owner.current{{/ if }}, queryCustomizer);
 
     exportFile(response);
   } catch (error) {

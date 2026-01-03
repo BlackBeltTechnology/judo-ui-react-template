@@ -1,8 +1,7 @@
 import type { SxProps } from '@mui/material/styles';
 import Box from '@mui/system/Box';
 import { type CSSProperties, useEffect, useMemo, useState } from 'react';
-import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
-import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { useRuntimeService } from '~/service-runtime';
 import { fileHandling } from '~/utilities/file-handling';
 
 export interface ImageDisplayProps {
@@ -14,17 +13,17 @@ export interface ImageDisplayProps {
 
 export function ImageDisplay({ token, imageCSS, sx, fallbackUrl }: ImageDisplayProps) {
   const { extractFileNameFromToken } = fileHandling();
+  const runtimeService = useRuntimeService();
 
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [altText, setAltText] = useState<string | null>(null);
 
-  const accessServiceImpl = useMemo(() => new AccessServiceImpl(judoAxiosProvider), []);
 
   useEffect(() => {
     (async () => {
       if (token) {
         try {
-          const response = await accessServiceImpl.downloadFile(token, 'inline');
+          const response = await runtimeService.downloadFile(token, 'inline');
 
           if (response && response.status === 200) {
             const fileType = response.headers['content-type'];
@@ -42,7 +41,7 @@ export function ImageDisplay({ token, imageCSS, sx, fallbackUrl }: ImageDisplayP
         }
       }
     })();
-  }, [token]);
+  }, [token, runtimeService]);
 
   const effectiveImageUrl: string | undefined = useMemo(() => imageUrl || fallbackUrl, [imageUrl, fallbackUrl]);
 

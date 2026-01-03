@@ -4,7 +4,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{# if link.isEager }}
       storeDiff('{{ link.dataElement.name }}', null);
     {{ else }}
-      await {{ getServiceImplForPage page }}.unset{{ firstToUpper link.dataElement.name }}(data);
+      await runtimeService.unsetRelation('{{ deriveClassPath (getReferenceClassType page) }}', '{{ link.dataElement.name }}', data);
       await refresh();
     {{/ if }}
   {{/ with }}

@@ -1,0 +1,111 @@
+// Model Runtime Context
+// Provides access to the loaded application model throughout the application
+
+import { createContext, useContext, type ReactNode } from 'react';
+import type { ModelParser } from './parser';
+import type { Application, PageDefinition } from './types';
+
+// ============================================================================
+// Context Definition
+// ============================================================================
+
+interface ModelRuntimeContextValue {
+  parser: ModelParser | null;
+  application: Application | null;
+  getPageById: (id: string) => PageDefinition | undefined;
+  logPageModel: (pageId: string, pageName: string) => void;
+}
+
+const ModelRuntimeContext = createContext<ModelRuntimeContextValue | null>(null);
+
+// ============================================================================
+// Provider Component
+// ============================================================================
+
+interface ModelRuntimeProviderProps {
+  children: ReactNode;
+  parser: ModelParser | null;
+}
+
+export function ModelRuntimeProvider({ children, parser }: ModelRuntimeProviderProps) {
+  const application = parser?.getApplication() ?? null;
+
+  const getPageById = (id: string): PageDefinition | undefined => {
+    if (!parser) return undefined;
+    return parser.getInstance(id) as PageDefinition | undefined;
+  };
+
+  const logPageModel = (pageId: string, pageName: string) => {
+    if (!parser) {
+      console.log(`[ModelRuntime] Page "${pageName}" (${pageId}): Model parser not available`);
+      return;
+    }
+
+    const pageDefinition = getPageById(pageId);
+    if (pageDefinition) {
+      console.log(`[ModelRuntime] Page "${pageName}" (${pageId}):`, {
+        name: pageDefinition.name,
+        label: pageDefinition.label,
+        container: pageDefinition.container ? {
+          name: pageDefinition.container.name,
+          type: pageDefinition.container.type,
+        } : undefined,
+        dataElement: pageDefinition.dataElement ? {
+          name: (pageDefinition.dataElement as any).name,
+          isAccess: (pageDefinition.dataElement as any).isAccess,
+        } : undefined,
+        openInDialog: pageDefinition.openInDialog,
+        isSelector: pageDefinition.isSelector,
+        dashboard: pageDefinition.dashboard,
+        actionsCount: pageDefinition.actions?.length ?? 0,
+      });
+    } else {
+      console.log(`[ModelRuntime] Page "${pageName}" (${pageId}): Page definition not found in model`);
+    }
+  };
+
+  const contextValue: ModelRuntimeContextValue = {
+    parser,
+    application,
+    getPageById,
+    logPageModel,
+  };
+
+  return (
+    <ModelRuntimeContext.Provider value={contextValue}>
+      {children}
+    </ModelRuntimeContext.Provider>
+  );
+}
+
+// ============================================================================
+// Hooks
+// ============================================================================
+
+/**
+ * Hook to access the model runtime context
+ */
+export function useModelRuntime(): ModelRuntimeContextValue {
+  const context = useContext(ModelRuntimeContext);
+  if (!context) {
+    // Return a no-op context if provider is not available
+    return {
+      parser: null,
+      application: null,
+      getPageById: () => undefined,
+      logPageModel: () => {},
+    };
+  }
+  return context;
+}
+
+/**
+ * Hook to get a page definition by its ID
+ */
+export function usePageModel(pageId: string): PageDefinition | undefined {
+  const { getPageById } = useModelRuntime();
+  return getPageById(pageId);
+}
+
+export default ModelRuntimeProvider;
+

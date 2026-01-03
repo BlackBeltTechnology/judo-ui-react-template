@@ -1,0 +1,99 @@
+// Service Runtime Path Utilities
+// Utilities for deriving API endpoint paths from model metadata
+
+import type { ClassType, RelationType, OperationType } from '~/model-runtime/types';
+
+/**
+ * Derives the class path from a ClassType's fqName
+ * Example: "God::View::Galaxy" → "View/Galaxy"
+ */
+export function deriveClassPath(classType: ClassType): string {
+  if (!classType.fqName) {
+    throw new Error('ClassType must have a fqName property');
+  }
+
+  const parts = classType.fqName.split('::');
+  // Skip the first part (actor/namespace) and join with /
+  if (parts.length <= 1) {
+    return parts[0];
+  }
+  return parts.slice(1).join('/');
+}
+
+/**
+ * Derives the class path from an fqName string directly
+ * Example: "God::View::Galaxy" → "View/Galaxy"
+ */
+export function deriveClassPathFromFqName(fqName: string): string {
+  if (!fqName) {
+    return '';
+  }
+
+  const parts = fqName.split('::');
+  if (parts.length <= 1) {
+    return parts[0];
+  }
+  return parts.slice(1).join('/');
+}
+
+/**
+ * Derives a relation path from an owner class and relation
+ * Example: owner="View/Galaxy", relation="stars" → "View/Galaxy/stars"
+ */
+export function deriveRelationPath(ownerClassPath: string, relationName: string): string {
+  return `${ownerClassPath}/${relationName}`;
+}
+
+/**
+ * Gets the class path for a relation's target type
+ */
+export function deriveTargetClassPath(relation: RelationType): string {
+  if (!relation.target) {
+    throw new Error('Relation must have a target ClassType');
+  }
+  return deriveClassPath(relation.target);
+}
+
+/**
+ * Derives the operation path for a bound operation
+ * Example: classPath="View/Galaxy", operation="createDarkMatter" → "View/Galaxy/createDarkMatter"
+ */
+export function deriveOperationPath(classPath: string, operationName: string): string {
+  return `${classPath}/${operationName}`;
+}
+
+/**
+ * Gets the input type class path for an operation
+ */
+export function deriveOperationInputClassPath(operation: OperationType): string | undefined {
+  if (operation.input?.target) {
+    return deriveClassPath(operation.input.target);
+  }
+  return undefined;
+}
+
+/**
+ * Gets the output type class path for an operation
+ */
+export function deriveOperationOutputClassPath(operation: OperationType): string | undefined {
+  if (operation.output?.target) {
+    return deriveClassPath(operation.output.target);
+  }
+  return undefined;
+}
+
+/**
+ * Utilities for working with model paths at runtime
+ */
+export const PathUtils = {
+  deriveClassPath,
+  deriveClassPathFromFqName,
+  deriveRelationPath,
+  deriveTargetClassPath,
+  deriveOperationPath,
+  deriveOperationInputClassPath,
+  deriveOperationOutputClassPath,
+};
+
+export default PathUtils;
+

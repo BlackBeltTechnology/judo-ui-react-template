@@ -2,7 +2,7 @@
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (queryCustomizer: {{ classDataName action.actionDefinition.targetType 'QueryCustomizer' }}): Promise<JudoRestResponse<{{ classDataName action.actionDefinition.targetType 'Stored' }}[]>> => {
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   try {
-    return {{ getServiceImplForPage page }}.getRange{{ firstToUpper (getServiceMethodSuffix action) }}(produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
+    return runtimeService.getRangeForRelation<{{ classDataName action.actionDefinition.targetType 'Stored' }}>('{{ deriveClassPath (getReferenceClassType page) }}', '{{ getServiceMethodSuffix action }}', produceDataAdjustedOwner(), queryCustomizer{{# if table.showTotalCount }}, { [X_JUDO_COUNT_RECORDS]: 'true' }{{/ if }});
   } catch (error: any) {
     handleError(error, { actionId: '{{ getXMIID action }}' });
     return Promise.resolve({ data: [], headers: error.response?.headers, status: error.response?.status, statusText: 'fallback', config: { headers: error.response?.headers } });

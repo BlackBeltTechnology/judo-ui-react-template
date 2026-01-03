@@ -11,10 +11,10 @@ import { useTrackService } from '@pandino/react-hooks';
 {{# unless (containerIsEmptyDashboard container) }}
   import { Tags } from '~/components/widgets';
   {{# each (getContainerApiImports container) as |imp| }}
-    import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/services/data-api/model/{{ classDataName imp '' }}';
+    import type { {{ classDataName imp '' }}, {{ classDataName imp 'Stored' }} } from '~/service-runtime/data-types';
   {{/ each }}
   {{# each (getEnumDataTypesForContainer container) as |imp| }}
-    import type { {{ restParamName imp }} } from '~/services/data-api/model/{{ restParamName imp }}';
+    import type { {{ restParamName imp }} } from '~/service-runtime/data-types';
   {{/ each }}
 {{/ unless }}
 {{# each container.tables as |table| }}

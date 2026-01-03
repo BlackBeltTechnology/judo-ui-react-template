@@ -7,10 +7,20 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{/ if }}
 
     setIsLoading(true);
-    {{# if operation.output }}const { data: result } = {{/ if }}await {{ getServiceImplForPage page }}.{{ operation.name }}{{ operationCallSuffix action }}(
-      {{# unless operation.isStatic }}produceDataAdjustedOwner(),{{/ unless }}
+    {{# if operation.isStatic }}
+    {{# if operation.output }}const { data: result } = {{/ if }}await runtimeService.callOperationStatic<{{ classDataName operation.input.target '' }}, {{# if operation.output }}{{ classDataName operation.output.target 'Stored' }}{{ else }}void{{/ if }}>(
+      '{{ deriveClassPath action.ownerDataElement.target }}',
+      '{{ operation.name }}',
       data
     );
+    {{ else }}
+    {{# if operation.output }}const { data: result } = {{/ if }}await runtimeService.callOperationWithInput<{{ classDataName operation.input.target '' }}, {{# if operation.output }}{{ classDataName operation.output.target 'Stored' }}{{ else }}void{{/ if }}>(
+      '{{ deriveClassPath action.ownerDataElement.target }}',
+      '{{ operation.name }}',
+      produceDataAdjustedOwner(),
+      data
+    );
+    {{/ if }}
     {{> actor/src/fragments/operations/operation-primary-output-handler.fragment.hbs operation=operation action=action }}
     if (customActions?.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}) {
       await customActions.post{{ firstToUpper (simpleActionDefinitionName action.actionDefinition) }}(
@@ -29,7 +39,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
 
       {{# if operation.postCallAccessNavigation }}
         try {
-          const { data: pcan } = await {{ firstToLower (serviceRelationName operation.postCallAccessNavigation.accessRelation) }}Impl.list(undefined, {
+          const { data: pcan } = await runtimeService.listActorRelation('{{ operation.postCallAccessNavigation.accessRelation.name }}', undefined, {
             _identifier: result.__identifier,
           });
           {{# if action.targetPageDefinition.openInDialog }}

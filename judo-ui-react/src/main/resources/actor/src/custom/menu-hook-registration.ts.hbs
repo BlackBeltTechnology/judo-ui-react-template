@@ -2,10 +2,9 @@
 import type { BundleContext } from '@pandino/pandino-api';
 import { useTranslation } from 'react-i18next';
 import { useJudoNavigation } from '~/components';
-import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { useRuntimeService } from '~/service-runtime';
 {{# each (getMenuOperationOwnerTypes application) as |item| }}
-import { {{ classDataName item 'Stored' }} } from '~/services/data-api/model/{{ classDataName item '' }}';
-import { {{ serviceClassName item }}Impl } from '~/services/data-axios/{{ serviceClassName item }}Impl';
+import { {{ classDataName item 'Stored' }} } from '~/service-runtime/data-types';
 {{/ each }}
 import {
 {{# each (getAllRoutesFromMenuActions application) as |route| }}
@@ -29,11 +28,9 @@ const CustomMenuActionsHook: MenuActionsHook = () => {
   // call other hooks here
   const { t } = useTranslation();
   const { navigate, back } = useJudoNavigation();
+  const runtimeService = useRuntimeService();
   {{# each (getAllNavigationControllerActionTargetPageOpenInDialog application) as |pageDefinition| }}
   const open{{ pageName pageDefinition }} = use{{ pageName pageDefinition }}();
-  {{/ each }}
-  {{# each (getMenuOperationOwnerTypes application) as |item| }}
-  const {{ firstToLower (serviceClassName item) }}Impl = () => new {{ serviceClassName item }}Impl(judoAxiosProvider);
   {{/ each }}
 
   return {
