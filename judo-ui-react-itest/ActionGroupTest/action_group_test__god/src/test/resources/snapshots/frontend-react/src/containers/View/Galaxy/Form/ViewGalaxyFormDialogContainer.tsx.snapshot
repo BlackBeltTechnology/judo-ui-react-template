@@ -6,7 +6,6 @@
 // Template name: actor/src/containers/dialog.tsx
 // Template file: actor/src/containers/dialog.tsx.hbs
 
-import LoadingButton from '@mui/lab/LoadingButton';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
@@ -117,7 +116,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
       <DialogActions>
         {editMode && actions.backAction && actionsRequested.has('View::Galaxy::Form::Back') && (
           <Grid className="page-action">
-            <LoadingButton
+            <Button
               data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormBackButton"
               loading={isLoading}
               loadingPosition="start"
@@ -129,7 +128,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
               }}
             >
               <span>{t('judo.action.back', { defaultValue: 'Back' })}</span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
         {editMode && actions.createAction && actionsRequested.has('View::Galaxy::Form::Create') && (
@@ -141,7 +140,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
               sx={{ borderRadius: 0, boxShadow: 0 }}
               aria-label="split button for create action"
             >
-              <LoadingButton
+              <Button
                 data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormCreateButton"
                 loading={isLoading}
                 loadingPosition="start"
@@ -157,7 +156,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
                     ? t('judo.dialogs.draft.submit', { defaultValue: 'Ok' })
                     : t('judo.action.create', { defaultValue: 'Create' })}
                 </span>
-              </LoadingButton>
+              </Button>
               {!isDraft && (
                 <Button
                   size="small"

@@ -9,7 +9,6 @@ import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import LoadingButton from '@mui/lab/LoadingButton';
 import { useTranslation } from 'react-i18next';
 import { useJudoNavigation, MdiIcon, PageHeader, DropdownButton } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
@@ -89,7 +88,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                 {{# if button.tooltipText }}
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
-                <LoadingButton
+                <Button
                   data-testid="{{ getXMIID button }}"
                   loading={isLoading}
                   loadingPosition="start"
@@ -116,7 +115,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                   } }
                 >
                   <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
-                </LoadingButton>
+                </Button>
                 {{# if button.tooltipText }}
                   </Tooltip>
                 {{/ if }}

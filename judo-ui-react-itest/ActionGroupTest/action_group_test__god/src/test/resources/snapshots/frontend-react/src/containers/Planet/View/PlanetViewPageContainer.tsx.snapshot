@@ -6,7 +6,6 @@
 // Template name: actor/src/containers/page.tsx
 // Template file: actor/src/containers/page.tsx.hbs
 
-import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Grid from '@mui/material/Grid';
@@ -66,7 +65,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
       <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle(data) : ''}>
         {!editMode && actions.backAction && actionsRequested.has('Planet::View::Back') && (
           <Grid className="page-action">
-            <LoadingButton
+            <Button
               data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewBackButton"
               loading={isLoading}
               loadingPosition="start"
@@ -78,12 +77,12 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
               }}
             >
               <span>{t('judo.action.back', { defaultValue: 'Back' })}</span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
         {editMode && actions.cancelAction && actionsRequested.has('Planet::View::Cancel') && (
           <Grid className="page-action">
-            <LoadingButton
+            <Button
               data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewCancelButton"
               loading={isLoading}
               loadingPosition="start"
@@ -95,7 +94,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
               }}
             >
               <span>{t('judo.action.cancel', { defaultValue: 'Cancel' })}</span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
         {!editMode &&
@@ -103,7 +102,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
           actions.deleteAction &&
           actionsRequested.has('Planet::View::Delete') && (
             <Grid className="page-action">
-              <LoadingButton
+              <Button
                 data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewDeleteButton"
                 loading={isLoading}
                 loadingPosition="start"
@@ -115,12 +114,12 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
                 }}
               >
                 <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
-              </LoadingButton>
+              </Button>
             </Grid>
           )}
         {!isDraft && actions.refreshAction && actionsRequested.has('Planet::View::Refresh') && (
           <Grid className="page-action">
-            <LoadingButton
+            <Button
               data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewRefreshButton"
               loading={isLoading}
               loadingPosition="start"
@@ -132,12 +131,12 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
               }}
             >
               <span>{t('judo.action.refresh', { defaultValue: 'Refresh' })}</span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
         {editMode && actions.updateAction && actionsRequested.has('Planet::View::Update') && (
           <Grid className="page-action">
-            <LoadingButton
+            <Button
               data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewUpdateButton"
               loading={isLoading}
               loadingPosition="start"
@@ -149,7 +148,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
               }}
             >
               <span>{t('judo.action.update', { defaultValue: 'Save' })}</span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
 

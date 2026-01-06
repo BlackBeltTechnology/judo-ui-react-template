@@ -19,7 +19,7 @@
     {{# if child.tooltipText }}
     <Tooltip title={t('{{ getTranslationKeyForVisualElement child }}.tooltip', { defaultValue: '{{ child.tooltipText }}' }) as string}>
     {{/ if }}
-    <LoadingButton
+    <Button
       data-testid="{{ getXMIID child }}"
       loading={isLoading}
       variant={ {{{ variantForButton child }}} }
@@ -38,7 +38,7 @@
       disabled={ !actions.{{ simpleActionDefinitionName child.actionDefinition }} ||{{# if child.enabledBy }} !data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
     >
       { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
-    </LoadingButton>
+    </Button>
     {{# if child.tooltipText }}
     </Tooltip>
     {{/ if }}
