@@ -148,7 +148,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
               <TextField
                 className={valueId}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
-                value={filter.filterBy.value}
+                value={filter.filterBy.value ?? ''}
                 select
                 onChange={(event) => setFilterValue(filter, event.target.value)}
               >
@@ -165,7 +165,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
                 className={valueId}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 type="number"
-                value={filter.filterBy.value}
+                value={filter.filterBy.value ?? ''}
                 onChange={(event) => setFilterValue(filter, Number(event.target.value))}
                 InputProps=\{{
                   startAdornment: (
