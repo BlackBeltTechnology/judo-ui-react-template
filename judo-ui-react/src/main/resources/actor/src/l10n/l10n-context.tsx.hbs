@@ -1,9 +1,9 @@
 {{> fragment.header.hbs }}
 
 {{# neq (shortLocale (getDefaultLanguage application)) 'en' }}
-    import {{ shortLocale (getDefaultLanguage application) }} from 'date-fns/locale/{{ shortLocale (getDefaultLanguage application) }}';
+    import { {{ shortLocale (getDefaultLanguage application) }} } from 'date-fns/locale/{{ shortLocale (getDefaultLanguage application) }}';
 {{/ neq }}
-import enUS from 'date-fns/locale/en-US';
+import { enUS } from 'date-fns/locale/en-US';
 import { createContext, useContext, useState, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import type { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios';

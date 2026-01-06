@@ -46,8 +46,8 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
     }, [props.data]);
 
     return (
-        <Grid container item direction="row" justifyContent="center" alignItems="center">
-            <Grid item xs>
+        <Grid container direction="row" justifyContent="center" alignItems="center">
+            <Grid size="grow">
                 <TextField
                     required={props.required}
                     name={props.id}
@@ -85,7 +85,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
                     } }
                 />
             </Grid>
-            {props.data[props.attributeName] && <Grid item xs="auto">
+            {props.data[props.attributeName] && <Grid size="auto">
                 <IconButton
                     disabled={props.disabled || isUploading}
                     data-testid={`${props.id}-download`}
@@ -95,7 +95,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
                     <MdiIcon path="download" mimeType={props.mimeTypes ? (props.mimeTypes.length > 1 ? { type: '*', subType: '*' } : props.mimeTypes[0]) : undefined} />
                 </IconButton>
             </Grid>}
-            {props.data[props.attributeName] && <Grid item xs="auto">
+            {props.data[props.attributeName] && <Grid size="auto">
                 <IconButton
                     disabled={props.disabled || isUploading}
                     data-testid={`${props.id}-view`}
@@ -105,7 +105,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
                     <MdiIcon path="eye" />
                 </IconButton>
             </Grid>}
-            { !props.readonly && <Grid item xs="auto"><IconButton
+            { !props.readonly && <Grid size="auto"><IconButton
                 disabled={props.disabled || isUploading}
                 data-testid={`${props.id}-upload`}
                 onClick={() => fileInput.current!.click()}
@@ -134,7 +134,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
                 } } />
                 <MdiIcon path="upload" />
             </IconButton></Grid> }
-            { (!props.readonly && props.data[props.attributeName] && props.deleteCallback) && <Grid item xs="auto">
+            { (!props.readonly && props.data[props.attributeName] && props.deleteCallback) && <Grid size="auto">
                 <IconButton
                     data-testid={`${props.id}-remove`}
                     className={`${props.attributeName as string}-remove`}

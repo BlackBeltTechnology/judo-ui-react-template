@@ -36,17 +36,17 @@ export const HeaderContent = () => {
   return (
     <Grid container alignItems="center">
       {isMenuOrientationHorizontal && (
-        <Grid item xs={2}>
+        <Grid size={2}>
           <DrawerHeader open={true} />
         </Grid>
       )}
       {isMenuOrientationHorizontal && (
-        <Grid item xs={8 - appBarExtraSpaceClaim}>
+        <Grid size={ 8 - appBarExtraSpaceClaim }>
           <HorizontalBar />
         </Grid>
       )}
-      {(downLG || menuOrientation !== MenuOrientation.HORIZONTAL) && <Grid item xs={10 - appBarExtraSpaceClaim} />}
-      <Grid item xs={2 + appBarExtraSpaceClaim}>
+      {(downLG || menuOrientation !== MenuOrientation.HORIZONTAL) && <Grid size={ 10 - appBarExtraSpaceClaim } />}
+      <Grid size={ 2 + appBarExtraSpaceClaim }>
         <Grid container justifyContent="flex-end">
           {appBarExtraComponentsDefinition && <appBarExtraComponentsDefinition.Component />}
           <Customization />

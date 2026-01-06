@@ -167,7 +167,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         <DialogActions>
           {{# each (getDefaultButtonsForContainer container) as |button| }}
             { {{# if button.actionDefinition.isInputFormCallOperationAction }}formFor === '{{ safeName (getCallerPageForOperationFormCallButton button application) }}' && {{/ if }}{{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
-              <Grid className="page-action" item>
+              <Grid className="page-action">
                 {{# if button.actionDefinition.isCreateAction }}
                 {{# unless button.actionDefinition.autoOpenAfterCreate }}
                 <ButtonGroup disabled={isLoading} variant={ {{{ variantForButton button }}} } ref={createDropdownRef} sx={ { borderRadius: 0, boxShadow: 0 } } aria-label="split button for create action">

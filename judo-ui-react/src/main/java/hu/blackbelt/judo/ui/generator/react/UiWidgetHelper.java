@@ -363,7 +363,7 @@ public class UiWidgetHelper {
                     result += " && data.length > 0";
                 }
                 if (button.getActionDefinition().isIsBulk()) {
-                    result += " && selectionModel.length > 0";
+                    result += " && selectionModel.ids.size > 0";
                 }
                 if (button.getActionDefinition().getIsInlineCreateRowAction()) {
                     result += " && (rowModesModel ? Object.keys(rowModesModel).every(k => rowModesModel[k].mode !== GridRowModes.Edit) : true)";
@@ -389,7 +389,7 @@ public class UiWidgetHelper {
                 return result += "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + ") : false)";
             }
             if (button.getActionDefinition().getIsBulkRemoveAction()) {
-                return result += "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + " && selectionModel.length > 0) : false)";
+                return result += "(isFormUpdateable ? (isFormUpdateable()" + (!table.isIsEager() ? "&& !editMode" : "") + " && selectionModel.ids.size > 0) : false)";
             }
         }
         if (button.getActionDefinition().getIsClearAction()) {
@@ -403,7 +403,7 @@ public class UiWidgetHelper {
             return result;
         }
         if (button.getActionDefinition().isIsBulk()) {
-            result += "selectionModel.length > 0";
+            result += "selectionModel.ids.size > 0";
             if (container.isView() && button.getActionDefinition().getIsCallOperationAction()) {
                 return result + " && !editMode";
             } else if (button.getActionDefinition().getIsBulkCallOperationAction() && button.getHiddenBy() != null) {

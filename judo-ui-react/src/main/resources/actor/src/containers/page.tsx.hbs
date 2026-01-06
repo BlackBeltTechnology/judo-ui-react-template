@@ -70,7 +70,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
         <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''} {{# if (titleIcon container) }}icon='{{ titleIcon container}}'{{/ if}}>
           {{# each (getDefaultButtonsForContainer container) as |button| }}
             { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
-              <Grid className="page-action" item>
+              <Grid className="page-action">
                 {{# if button.customImplementation }}
                   <ComponentProxy
                     filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey button ~}} }))`}
@@ -128,7 +128,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
           {{/ each }}
 
           {{# each (getNonDefaultButtonGroupsForContainer container) as |buttonGroup| }}
-            <Grid className="page-action" item>
+            <Grid className="page-action">
               <DropdownButton
                 id="{{ getXMIID buttonGroup }}-button-group"
                 disabled={ {{# if buttonGroup.enabledBy }}!data.{{ buttonGroup.enabledBy.name }} ||{{/ if }} isLoading || editMode }

@@ -215,7 +215,7 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
   return (
     <Box>
       <Grid container spacing={2}>
-        {ToolbarElement ? <Grid item xs={layout === 'horizontal' ? 3 : 12}>
+        {ToolbarElement ? <Grid size={ layout === 'horizontal' ? 3 : 12 }>
           <ToolbarElement
             columns={columns}
             isLoading={isLoading}
@@ -228,9 +228,9 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
             actions={actions}
           />
         </Grid> : null}
-        <Grid item xs={(layout === 'horizontal' && ToolbarElement) ? 9 : 12}>
+        <Grid size={ (layout === 'horizontal' && ToolbarElement) ? 9 : 12 }>
           <Grid container spacing={2} direction="row">
-            {ActionbarElement ? <Grid item xs={12}>
+            {ActionbarElement ? <Grid size={12}>
                 <ActionbarElement
                   columns={columns}
                   sortModel={sortModel}
@@ -245,7 +245,7 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
             ))}
           </Grid>
         </Grid>
-        {showPagination ? <Grid item xs={12}>
+        {showPagination ? <Grid size={12}>
           <TablePagination
             component="div"
             count={-1}

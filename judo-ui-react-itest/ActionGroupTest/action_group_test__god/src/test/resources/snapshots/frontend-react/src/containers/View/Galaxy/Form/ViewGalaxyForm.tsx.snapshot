@@ -23,6 +23,8 @@ import MenuItem from '@mui/material/MenuItem';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import type { DateTimeValidationError } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { clsx } from 'clsx';
@@ -31,20 +33,16 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { useL10N } from '~/l10n/l10n-context';
-import { isErrorOperationFault, useErrorHandler } from '~/utilities';
-
-import { DateTimePicker } from '@mui/x-date-pickers';
-import type { DateTimeValidationError } from '@mui/x-date-pickers';
-import { NumericInput } from '~/components/widgets';
-import { Tags } from '~/components/widgets';
+import { NumericInput, Tags } from '~/components/widgets';
 import { autoFocusRefDelay } from '~/config';
 import { useConfirmationBeforeChange } from '~/hooks';
+import { useL10N } from '~/l10n/l10n-context';
 import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import { isErrorOperationFault, useErrorHandler } from '~/utilities';
 import { ViewGalaxyFormAstronomerComponent } from './components/ViewGalaxyFormAstronomerComponent';
-import { VIEW_GALAXY_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyFormContainerHook } from './customization';
+import { VIEW_GALAXY_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewGalaxyFormActionDefinitions, ViewGalaxyFormProps } from './types';
 
 // XMIID: God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer
@@ -99,9 +97,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
 
   return (
     <Grid container data-container-id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer">
-      <Grid item data-name="Form" xs={12} sm={12} md={36.0}>
+      <Grid data-name="Form" size={{ xs: 12, sm: 12, md: 36.0 }}>
         <Grid container direction="row" spacing={2}>
-          <Grid item xs={12} sm={12}>
+          <Grid size={{ xs: 12, sm: 12 }}>
             <Grid
               data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormVisualElement"
               data-name="Form"
@@ -111,7 +109,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
               justifyContent="flex-start"
               spacing={2}
             >
-              <Grid item xs={12} sm={12} md={4.0}>
+              <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <TextField
                   required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : true}
                   name="name"
@@ -147,7 +145,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={12} md={4.0}>
+              <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <FormControl error={!!validation.get('real')}>
                   <FormGroup>
                     <FormControlLabel
@@ -177,7 +175,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={12} md={4.0}>
+              <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <TextField
                   required={actions?.isConstellationRequired ? actions.isConstellationRequired(data, editMode) : true}
                   name="constellation"
@@ -216,7 +214,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={12} md={4.0}>
+              <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <FormControl error={!!validation.get('nakedEye')}>
                   <FormGroup>
                     <FormControlLabel
@@ -246,7 +244,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={12} md={4.0}>
+              <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <NumericInput
                   required={actions?.isMagnitudeRequired ? actions.isMagnitudeRequired(data, editMode) : false}
                   name="magnitude"
@@ -285,7 +283,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={12} md={4.0}>
+              <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <TextField
                   required={actions?.isOriginOfNameRequired ? actions.isOriginOfNameRequired(data, editMode) : false}
                   name="originOfName"
@@ -324,7 +322,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={12} md={4.0}>
+              <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <DateTimePicker
                   ampm={false}
                   ampmInClock={false}
@@ -385,7 +383,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              <Grid item xs={12} sm={12}>
+              <Grid size={{ xs: 12, sm: 12 }}>
                 <ViewGalaxyFormAstronomerComponent
                   disabled={false || isLoading}
                   readOnly={

@@ -91,11 +91,34 @@ export const isRowSelectable = <T extends JudoStored<T>>(row: T & { __selected?:
   return true;
 };
 
+// Helper functions for MUI X Data Grid v8 GridRowSelectionModel
+export const createEmptySelectionModel = (): GridRowSelectionModel => ({
+  type: 'include',
+  ids: new Set(),
+});
+
+export const selectionModelToArray = (selectionModel: GridRowSelectionModel): any[] => {
+  return [...selectionModel.ids];
+};
+
+export const arrayToSelectionModel = (ids: any[]): GridRowSelectionModel => ({
+  type: 'include',
+  ids: new Set(ids),
+});
+
+export const selectionModelSize = (selectionModel: GridRowSelectionModel): number => {
+  return selectionModel.ids.size;
+};
+
+export const selectionModelHas = (selectionModel: GridRowSelectionModel, id: any): boolean => {
+  return selectionModel.ids.has(id);
+};
+
 export const getUpdatedRowsSelected = (selectedRows: MutableRefObject<any[]>, data: any[], selectionModel: GridRowSelectionModel): any[] => {
   const newSelectedRows: any[] = [];
   // if we are dealing with transient items, we give up...
   // our source of truth is the `selectionModel`
-  for (const selection of selectionModel) {
+  for (const selection of selectionModel.ids) {
     const prevItem = selectedRows.current.length && selectedRows.current[0].__identifier ? selectedRows.current.find((r) => r.__identifier === selection) : undefined;
     if (prevItem) {
       // we already have the item in our `selectedRows`, so keep it

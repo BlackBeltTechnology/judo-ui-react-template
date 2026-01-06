@@ -1,5 +1,5 @@
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
-<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+<Grid size={ { xs: 12, sm: 12{{# neq (calculateSize child) 12.0 }}, md: {{ calculateSize child }}{{/ neq }} } }>
     {{# if child.subTheme }}
       <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
     {{/ if }}
@@ -16,7 +16,7 @@
         >
     {{/ if }}
     <Grid container sx={ { height: DIVIDER_HEIGHT } } alignItems="center">
-        <Grid item xs={12}>
+        <Grid size={12}>
             <Divider data-testid="{{ getXMIID child }}">
                 {{# if (elementHasIconOrLabel child) }}
                 <Box sx={ { display: 'flex', flexDirection: 'row', alignItems: 'center' } }>

@@ -43,6 +43,9 @@ import {
   fileHandling,
   ToolBarActionProps,
   calculateActionName,
+  createEmptySelectionModel,
+  arrayToSelectionModel,
+  selectionModelToArray,
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -173,7 +176,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
 
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
   const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
-  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(createEmptySelectionModel());
   const [sortModel, setSortModel] = useState<GridSortModel>(getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable));
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
   const [filters, setFilters] = useState<Filter[]>(filtersSerializer.deserialize(getItemParsedWithDefault(filtersKey, [])));
@@ -267,10 +270,10 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     },
   ], [tableRowActions, rowModesModel, applyRowEdit]);
 
-  const effectiveTableColumns = useMemo(() => {
-    const cols = [
-      ...columns,
-      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed{{# if table.actionColumnWidth }}, actionsColumnWidth: {{ table.actionColumnWidth }}{{/ if }} })
+  const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
+    const cols: GridColDef<T>[] = [
+      ...columns as GridColDef<T>[],
+      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed{{# if table.actionColumnWidth }}, actionsColumnWidth: {{ table.actionColumnWidth }}{{/ if }} }) as GridColDef<T>[]
     ];
     {{# if isMUILicensePlanPro }}
       if (columnState.length) {
@@ -306,7 +309,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const getRowIdentifier: (row: T) => string = (row) => row.__identifier!;
 
   const clearSelections = () => {
-    handleOnSelection([]);
+    handleOnSelection(createEmptySelectionModel());
   };
 
   const pageSizeOptions = useMemo(() => {
@@ -385,7 +388,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
 
   let handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
     selectedRows.current = getUpdatedRowsSelected(selectedRows, data, newSelectionModel);
-    setSelectionModel(selectedRows.current.map(getRowIdentifier));
+    setSelectionModel(arrayToSelectionModel(selectedRows.current.map(getRowIdentifier)));
   }
 
   useEffect(() => {
@@ -451,7 +454,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   {{/ if }}
   }
 
-  const processRowUpdate = useCallback(async (newRow: GridRowModel) => {
+  const processRowUpdate = useCallback(async (newRow: T, oldRow: T): Promise<T> => {
     try {
       await applyRowEdit!(newRow as TStored);
       // https://mui.com/x/react-data-grid/editing/#server-side-persistence
@@ -459,7 +462,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       return newRow;
     } catch(error) {
       // we need to reject with the identifier in order for MUI to be able to detect which row should be kept in edit mode
-      return Promise.reject(new Error(newRow.__identifier));
+      return Promise.reject(new Error((newRow as any).__identifier));
     }
   }, [applyRowEdit]);
 
@@ -630,12 +633,12 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
                                 const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
                                 const reason: DialogResultReason = bulkResult;
                                 if (reason === 'submit' || reason === 'delete') {
-                                  handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                                  handleOnSelection(createEmptySelectionModel()); // not resetting on refreshes because refreshes would always remove selections...
                                 }
                               } else {
                                 if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
                                   await actions[toolBarAction.name]!();
-                                  handleOnSelection([]);
+                                  handleOnSelection(createEmptySelectionModel());
                                 } else {
                                   await actions[toolBarAction.name]!();
                                 }
