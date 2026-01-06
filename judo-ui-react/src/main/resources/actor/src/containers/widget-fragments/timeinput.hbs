@@ -31,6 +31,7 @@
                 required: actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }}),
                 helperText: validation.get('{{ child.attributeType.name }}'),
                 error: !!validation.get('{{ child.attributeType.name }}'),
+                InputLabelProps: { shrink: true },
                 {{# if child.icon }}
                     InputProps: {
                         startAdornment: (

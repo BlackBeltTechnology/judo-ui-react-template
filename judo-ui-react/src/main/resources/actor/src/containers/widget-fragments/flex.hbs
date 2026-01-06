@@ -62,14 +62,22 @@
                     {{/ if }}
                 </Grid>
                 {{/ if }}
-                <Grid container direction="{{# if this.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                {{# if this.isDirectionHorizontal }}
+                <Grid container alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                {{ else }}
+                <Stack spacing={2} className="force-full-width">
+                {{/ if }}
                     {{# each this.children as |child| }}
                         {{# if child }}
                             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                             {{> (getWidgetTemplate child) }}
                         {{/ if }}
                     {{/ each }}
+                {{# if this.isDirectionHorizontal }}
                 </Grid>
+                {{ else }}
+                </Stack>
+                {{/ if }}
             </CardContent>
         </Card>
     {{ else }}
@@ -89,14 +97,22 @@
                 </Grid>
             {{/ and }}
             <Grid size={ { xs: 12, sm: 12 } }>
-                <Grid data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                {{# if this.isDirectionHorizontal }}
+                <Grid data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" container alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                {{ else }}
+                <Stack data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" spacing={2} className="force-full-width">
+                {{/ if }}
                     {{# each this.children as |child| }}
                         {{# if child }}
                             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                             {{> (getWidgetTemplate child) }}
                         {{/ if }}
                     {{/ each }}
+                {{# if this.isDirectionHorizontal }}
                 </Grid>
+                {{ else }}
+                </Stack>
+                {{/ if }}
             </Grid>
         </Grid>
     {{/ if }}

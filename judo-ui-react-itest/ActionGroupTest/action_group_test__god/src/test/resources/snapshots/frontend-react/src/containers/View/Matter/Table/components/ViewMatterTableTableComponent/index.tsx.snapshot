@@ -1,0 +1,518 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #getTablesForPageContainers(#application)
+// Path expression: 'src/containers/'+#containerPath(#self.pageContainer)+'/components/'+#tableComponentName(#self)+'/index.tsx'
+// Template name: actor/src/containers/components/table/index.tsx
+// Template file: actor/src/containers/components/table/index.tsx.hbs
+
+import Box from '@mui/material/Box';
+import Button from '@mui/material/Button';
+import ButtonGroup from '@mui/material/ButtonGroup';
+import IconButton from '@mui/material/IconButton';
+import Typography from '@mui/material/Typography';
+import type {
+  GridColDef,
+  GridFilterModel,
+  GridRenderCellParams,
+  GridRenderEditCellParams,
+  GridRowClassNameParams,
+  GridRowId,
+  GridRowModel,
+  GridRowModesModel,
+  GridRowParams,
+  GridRowSelectionModel,
+  GridSortModel,
+  GridValidRowModel,
+} from '@mui/x-data-grid';
+import { GridLogicOperator, GridRowModes, useGridApiRef } from '@mui/x-data-grid';
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { ComponentProxy, useTrackComponent, useTrackService } from '@pandino/react-hooks';
+import type { Dispatch, ElementType, FC, MouseEvent, SetStateAction } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CustomTablePagination, MdiIcon } from '~/components';
+import { useConfirmDialog } from '~/components/dialog';
+import {
+  CellEditInput,
+  ContextMenu,
+  columnsActionCalculator,
+  EagerTable,
+  LazyTable,
+  numericColumnOperators,
+  RowHighlightLegend,
+  StripedDataGrid,
+  singleSelectColumnOperators,
+} from '~/components/table';
+import type { ContextMenuApi } from '~/components/table/ContextMenu';
+import type { Filter, FilterOption } from '~/components-api';
+import { FilterType } from '~/components-api';
+import { baseColumnConfig, basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+import { useL10N } from '~/l10n/l10n-context';
+import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import type { ViewMatterQueryCustomizer } from '~/services/data-api/rest/ViewMatterQueryCustomizer';
+import { ViewMatterStoredSerializer } from '~/services/data-api/rest/ViewMatterSerializer';
+import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+import { TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY, transformRowStylings } from '~/theme/table-row-highlighting';
+import type {
+  ColumnCustomizerHook,
+  DialogResult,
+  FiltersSerializer,
+  SidekickComponentProps,
+  TableRowAction,
+  ToolBarActionProps,
+} from '~/utilities';
+import {
+  deserializeFilters,
+  extractRelationErrorList,
+  getUpdatedRowsSelected,
+  isErrorNestedValidationError,
+  isRowSelectable,
+  mapAllFiltersToQueryCustomizerProperties,
+  processQueryCustomizer,
+  randomUtils,
+  type ServerError,
+  serializeFilters,
+  TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
+  useErrorHandler,
+  validateWithNestedErrors,
+} from '~/utilities';
+import type { ViewMatterTableTableComponentActionDefinitions, ViewMatterTableTableComponentProps } from './types';
+
+export const VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
+  'ViewMatterTableTableComponentSidekickComponent';
+
+export const filtersSerializer: FiltersSerializer = {
+  serialize: (filters: Filter[]) =>
+    serializeFilters<ViewMatterStored>(filters, ViewMatterStoredSerializer.getInstance()),
+  deserialize: (filters: Filter[]) =>
+    deserializeFilters<ViewMatterStored>(filters, ViewMatterStoredSerializer.getInstance()),
+};
+
+// XMIID: God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable
+// Name: Table
+export function ViewMatterTableTableComponent(props: ViewMatterTableTableComponentProps) {
+  const {
+    uniqueId,
+    actions,
+    dataPath,
+    refreshCounter,
+    isOwnerLoading,
+    isDraft,
+    validationError,
+    selectionDiff,
+    setSelectionDiff,
+    alreadySelected,
+    annotations = [],
+    allowSelectMultiple = true,
+  } = props;
+  const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY}))`;
+
+  const { openConfirmDialog } = useConfirmDialog();
+  const { t } = useTranslation();
+  const handleError = useErrorHandler();
+  const { locale: l10nLocale } = useL10N();
+  const rowValidation = useRef<Map<string, Map<keyof ViewMatterStored, string>>>(
+    new Map<string, Map<keyof ViewMatterStored, string>>(),
+  );
+  const isSelector = useMemo<boolean>(() => Array.isArray(selectionDiff), [selectionDiff]);
+  const isRelationSelector = useMemo<boolean>(() => Array.isArray(alreadySelected), [alreadySelected]);
+
+  const applyRowEdit = useCallback(
+    async (rowData: ViewMatterStored) => {
+      try {
+        await actions.applyRowEdit!(rowData);
+        rowValidation.current.delete(rowData.__identifier!);
+      } catch (e: any) {
+        if (e?.response?.status === 400) {
+          const errorMap: Map<keyof ViewMatterStored, string> = new Map<keyof ViewMatterStored, string>();
+          const errorList = isErrorNestedValidationError(e, dataPath)
+            ? extractRelationErrorList<any, ViewMatterStored>(e.response.data, dataPath!)
+            : (e.response.data as ServerError<ViewMatterStored>[]);
+          if (errorList && errorList.length && errorList[0].location) {
+            validateWithNestedErrors(errorList, errorMap, t);
+          }
+          const copy = new Map<string, Map<keyof ViewMatterStored, string>>(rowValidation.current);
+          copy.set(rowData.__identifier!, errorMap);
+          rowValidation.current = copy;
+        } else {
+          const copy = new Map<string, Map<keyof ViewMatterStored, string>>(rowValidation.current);
+          copy.delete(rowData.__identifier!);
+          rowValidation.current = copy;
+        }
+        throw rowData.__identifier;
+      }
+    },
+    [actions],
+  );
+
+  const onRowEditCanceled = useCallback((rowId: string) => {
+    if (rowValidation.current.has(rowId)) {
+      rowValidation.current.delete(rowId);
+    }
+  }, []);
+
+  const typeColumn: GridColDef<ViewMatterStored> = {
+    ...baseColumnConfig,
+    field: 'type',
+    headerName: t('View.Matter.Table.type', { defaultValue: 'type' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 170,
+    type: 'singleSelect',
+    editable: true,
+    renderEditCell: (props: GridRenderEditCellParams) => {
+      let error: string | undefined;
+      if (props.row && rowValidation.current.has(props.row.__identifier)) {
+        const errors = rowValidation.current.get(props.row.__identifier);
+        error = errors?.get('type');
+      }
+      return <CellEditInput {...props} error={error} cellEditorType={'singleSelect'} />;
+    },
+    filterable: false && true,
+    valueFormatter: (value?: string) => {
+      if (value !== undefined && value !== null) {
+        return t(`enumerations.MatterType.${value}`, { defaultValue: value });
+      }
+    },
+    valueOptions: [
+      { value: 'dark', label: t('enumerations.MatterType.dark', { defaultValue: 'dark' }) },
+      {
+        value: 'interstellarMedium',
+        label: t('enumerations.MatterType.interstellarMedium', { defaultValue: 'interstellarMedium' }),
+      },
+      {
+        value: 'intergalacticDust',
+        label: t('enumerations.MatterType.intergalacticDust', { defaultValue: 'intergalacticDust' }),
+      },
+    ],
+  };
+  const massColumn: GridColDef<ViewMatterStored> = {
+    ...baseColumnConfig,
+    field: 'mass',
+    headerName: t('View.Matter.Table.mass', { defaultValue: 'mass' }) as string,
+    headerClassName: 'data-grid-column-header',
+
+    width: 100,
+    type: 'number',
+    editable: true,
+    renderEditCell: (props: GridRenderEditCellParams) => {
+      let error: string | undefined;
+      if (props.row && rowValidation.current.has(props.row.__identifier)) {
+        const errors = rowValidation.current.get(props.row.__identifier);
+        error = errors?.get('mass');
+      }
+      return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
+    },
+    filterable: false && true,
+    valueFormatter: (value?: number) => {
+      if (value === null || value === undefined) {
+        return '';
+      }
+      return new Intl.NumberFormat(l10nLocale).format(value);
+    },
+  };
+
+  const columns = useMemo<GridColDef<ViewMatterStored>[]>(() => [typeColumn, massColumn], [l10nLocale]);
+
+  const toolBarActions: ToolBarActionProps<ViewMatterStored>[] = [
+    {
+      name: 'filterAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTableFilterButton',
+      startIcon: 'filter',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.filter', defaultValue: 'Set Filters' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'refreshAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTableRefreshButton',
+      startIcon: 'refresh',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.refresh', defaultValue: 'Refresh' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'exportAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableExportButton',
+      startIcon: 'file-export-outline',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.export', defaultValue: 'Export' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'openCreateFormAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableCreateButton',
+      startIcon: 'note-add',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.open-create-form', defaultValue: 'Create' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'inlineCreateRowAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableInlineCreateButton',
+      startIcon: 'note-add',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'View.Matter.Table.InlineCreate', defaultValue: 'Create' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean =>
+        (rowModesModel ? Object.keys(rowModesModel).every((k) => rowModesModel[k].mode !== GridRowModes.Edit) : true) &&
+        true,
+      isBulk: false,
+    },
+    {
+      name: 'openAddSelectorAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableAddSelectorButton',
+      startIcon: 'attachment-plus',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.open-add-selector', defaultValue: 'Add' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'openSetSelectorAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableSetSelectorButton',
+      startIcon: 'attachment-plus',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.open-set-selector', defaultValue: 'Set' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => true,
+      isBulk: false,
+    },
+    {
+      name: 'clearAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableClearButton',
+      startIcon: 'link_off',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.clear', defaultValue: 'Clear' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => data.length > 0,
+      isBulk: false,
+    },
+    {
+      name: 'bulkRemoveAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableBulkRemoveButton',
+      startIcon: 'link_off',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.bulk-remove', defaultValue: 'Remove' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => selectionModel.ids.size > 0,
+      isBulk: true,
+    },
+    {
+      name: 'bulkDeleteAction',
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableBulkDeleteButton',
+      startIcon: 'delete_forever',
+      variant: 'text',
+      hiddenBy: false,
+      label: { translationKey: 'judo.action.bulk-delete', defaultValue: 'Delete' },
+      enabled: (
+        data: ViewMatterStored[],
+        selectionModel: GridRowSelectionModel,
+        selectedRows: ViewMatterStored[],
+        ownerData?: any,
+        isFormUpdateable?: () => boolean,
+        rowModesModel?: GridRowModesModel,
+      ): boolean => selectionModel.ids.size > 0,
+      isBulk: true,
+    },
+  ];
+
+  const rowActions: TableRowAction<ViewMatterStored, ViewMatterStored>[] = [
+    {
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowRemoveButton',
+      label: t('judo.action.remove', { defaultValue: 'Remove' }) as string,
+      icon: <MdiIcon path="link_off" />,
+      isCRUD: true,
+      hidden: (row: ViewMatterStored) => false,
+      disabled: (
+        row: ViewMatterStored,
+        isLoading: boolean,
+        isRowInEditMode: boolean,
+        getSelectedRows: () => ViewMatterStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
+      action: actions.removeAction
+        ? async (rowData) => {
+            await actions.removeAction!(rowData);
+          }
+        : undefined,
+    },
+    {
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowDeleteButton',
+      label: t('judo.action.row-delete', { defaultValue: 'Delete' }) as string,
+      icon: <MdiIcon path="delete_forever" />,
+      isCRUD: true,
+      hidden: (row: ViewMatterStored) => false,
+      disabled: (
+        row: ViewMatterStored,
+        isLoading: boolean,
+        isRowInEditMode: boolean,
+        getSelectedRows: () => ViewMatterStored[],
+        ownerdata?: any,
+      ): boolean =>
+        (getSelectedRows && getSelectedRows().length > 0) ||
+        (typeof row.__deleteable === 'boolean' && !row.__deleteable) ||
+        isLoading ||
+        isRowInEditMode,
+      action: actions.rowDeleteAction
+        ? async (rowData) => {
+            await actions.rowDeleteAction!(rowData);
+          }
+        : undefined,
+    },
+  ];
+
+  const filterOptions: FilterOption[] = [
+    {
+      id: 'God/(esm/_Ey_AoFDYEfCVVsKTbmuM8g)/TabularFilter/(discriminator/God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable)',
+      attributeName: 'type',
+      label: t('View.Matter.Table.typeFilter.Filter', { defaultValue: 'Type' }) as string,
+      filterType: FilterType.enumeration,
+      enumValues: [
+        { value: 'dark', label: t('enumerations.MatterType.dark', { defaultValue: 'dark' }) },
+        {
+          value: 'interstellarMedium',
+          label: t('enumerations.MatterType.interstellarMedium', { defaultValue: 'interstellarMedium' }),
+        },
+        {
+          value: 'intergalacticDust',
+          label: t('enumerations.MatterType.intergalacticDust', { defaultValue: 'intergalacticDust' }),
+        },
+      ],
+      alwaysShown: true,
+      col: 12.0,
+      defaultOperationType: 'EQUAL',
+      icon: 'format-list-numbered',
+    },
+
+    {
+      id: 'God/(esm/_WwGNAFEFEfCVVsKTbmuM8g)/TabularFilter/(discriminator/God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable)',
+      attributeName: 'mass',
+      label: t('View.Matter.Table.massFilter.Filter', { defaultValue: 'Mass' }) as string,
+      filterType: FilterType.numeric,
+      alwaysShown: false,
+      col: 12.0,
+      defaultOperationType: 'EQUAL',
+      icon: 'numeric',
+    },
+  ];
+
+  return (
+    <div data-testid="God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable" data-table-name="Table">
+      <LazyTable<ViewMatterStored, ViewMatterStored, ViewMatterQueryCustomizer>
+        uniqueId={`God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable-${uniqueId}`}
+        rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component=ViewMatterTableTableComponent))`}
+        dataProp={isSelector ? [] : []}
+        defaultSortParamsForTable={[]}
+        tablePageLimit={10}
+        tableColumns={columns}
+        tableRowActions={rowActions}
+        tableFilterOptions={filterOptions}
+        isOwnerLoading={isOwnerLoading}
+        validationError={validationError}
+        actions={actions}
+        allowSelectMultiple={allowSelectMultiple}
+        dataElementId={'God/(esm/_D0eC0Oq_EeuMzos2n42msw)/ClassType'}
+        crudOperationsDisplayed={1}
+        transferOperationsDisplayed={0}
+        containerIsSelector={isSelector}
+        containerIsRelationSelector={isRelationSelector}
+        alreadySelected={alreadySelected}
+        showTotalCount={true}
+        onRowClick={actions.openPageAction}
+        containerIsForm={false}
+        sidekickComponentFilter={sidekickComponentFilter}
+        containerHasTable={true}
+        maskAction={actions.getMask!}
+        fetch={actions.refreshAction}
+        refreshCounter={refreshCounter}
+        toolBarActions={toolBarActions}
+        additionalToolbarButtons={actions?.AdditionalToolbarButtons}
+        tableHasSelectorColumn={isSelector || isRelationSelector}
+        enabledByName=""
+        relationName=""
+        filtersSerializer={filtersSerializer}
+        applyRowEdit={applyRowEdit}
+        onRowEditCanceled={onRowEditCanceled}
+        selectionDiff={selectionDiff}
+        setSelectionDiff={setSelectionDiff}
+      />
+    </div>
+  );
+}
