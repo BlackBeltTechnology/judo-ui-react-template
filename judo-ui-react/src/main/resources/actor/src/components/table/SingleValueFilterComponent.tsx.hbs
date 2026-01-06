@@ -162,7 +162,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
             );
           case FilterType.enumeration:
             return (
-              <Autocomplete 
+              <Autocomplete
                 value={inputValue ?? null}
                 onChange={(_: any, newValue: { label: string; value: string | null; key: string } | null) => setInputValue(newValue?.value)}
                 renderInput={ (params) => {
@@ -181,15 +181,15 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                       } }
                     />
                   );
-                } } 
-                options={filter.filterOption.enumValues 
+                } }
+                options={filter.filterOption.enumValues
                   ? filter.filterOption.enumValues?.map(item => {
                     return {
                       value: item.value,
                       key: item.value,
                       label: item.label
                     }
-                  }) 
+                  })
                   : []
                 }
               />
@@ -200,7 +200,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 type="number"
                 variant="standard"
-                value={inputValue ?? null}
+                value={inputValue ?? ''}
                 onChange={(event) => {
                   const value = event.target.value;
                   setInputValue(value === '' ? null : Number(value));
