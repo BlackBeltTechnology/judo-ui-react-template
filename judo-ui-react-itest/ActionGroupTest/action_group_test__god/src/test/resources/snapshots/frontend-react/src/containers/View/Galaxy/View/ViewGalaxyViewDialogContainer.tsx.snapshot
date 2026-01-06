@@ -6,7 +6,6 @@
 // Template name: actor/src/containers/dialog.tsx
 // Template file: actor/src/containers/dialog.tsx.hbs
 
-import LoadingButton from '@mui/lab/LoadingButton';
 import Button from '@mui/material/Button';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -16,8 +15,8 @@ import IconButton from '@mui/material/IconButton';
 import Tooltip from '@mui/material/Tooltip';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
-import { Suspense, lazy } from 'react';
 import type { Dispatch, SetStateAction } from 'react';
+import { lazy, Suspense } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
@@ -26,15 +25,13 @@ import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/Vie
 import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
-
+import { VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type {
   AvailableContainerAction,
   ViewGalaxyViewActionDefinitions,
   ViewGalaxyViewDialogActions,
   ViewGalaxyViewDialogProps,
 } from './types';
-
-import { VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 
 const ViewGalaxyView = lazy(() => import('~/containers/View/Galaxy/View/ViewGalaxyView'));
 
@@ -105,8 +102,8 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
       </DialogContent>
       <DialogActions>
         {!editMode && actions.backAction && actionsRequested.has('View::Galaxy::View::Back') && (
-          <Grid className="page-action" item>
-            <LoadingButton
+          <Grid className="page-action">
+            <Button
               data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton"
               loading={isLoading}
               loadingPosition="start"
@@ -118,12 +115,12 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
               }}
             >
               <span>{t('judo.action.back', { defaultValue: 'Back' })}</span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
         {editMode && actions.cancelAction && actionsRequested.has('View::Galaxy::View::Cancel') && (
-          <Grid className="page-action" item>
-            <LoadingButton
+          <Grid className="page-action">
+            <Button
               data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton"
               loading={isLoading}
               loadingPosition="start"
@@ -135,15 +132,15 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
               }}
             >
               <span>{t('judo.action.cancel', { defaultValue: 'Cancel' })}</span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
         {!editMode &&
           (isFormDeleteable() || isDraft) &&
           actions.deleteAction &&
           actionsRequested.has('View::Galaxy::View::Delete') && (
-            <Grid className="page-action" item>
-              <LoadingButton
+            <Grid className="page-action">
+              <Button
                 data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
                 loading={isLoading}
                 loadingPosition="start"
@@ -155,12 +152,12 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
                 }}
               >
                 <span>{t('judo.action.delete', { defaultValue: 'Delete' })}</span>
-              </LoadingButton>
+              </Button>
             </Grid>
           )}
         {!isDraft && actions.refreshAction && actionsRequested.has('View::Galaxy::View::Refresh') && (
-          <Grid className="page-action" item>
-            <LoadingButton
+          <Grid className="page-action">
+            <Button
               data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton"
               loading={isLoading}
               loadingPosition="start"
@@ -172,12 +169,12 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
               }}
             >
               <span>{t('judo.action.refresh', { defaultValue: 'Refresh' })}</span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
         {editMode && actions.updateAction && actionsRequested.has('View::Galaxy::View::Update') && (
-          <Grid className="page-action" item>
-            <LoadingButton
+          <Grid className="page-action">
+            <Button
               data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton"
               loading={isLoading}
               loadingPosition="start"
@@ -193,7 +190,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
                   ? t('judo.dialogs.draft.submit', { defaultValue: 'Ok' })
                   : t('judo.action.update', { defaultValue: 'Save' })}
               </span>
-            </LoadingButton>
+            </Button>
           </Grid>
         )}
         <ComponentProxy

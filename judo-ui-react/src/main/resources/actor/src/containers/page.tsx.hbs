@@ -9,7 +9,6 @@ import Box from '@mui/material/Box';
 import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
-import LoadingButton from '@mui/lab/LoadingButton';
 import { useTranslation } from 'react-i18next';
 import { useJudoNavigation, MdiIcon, PageHeader, DropdownButton } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
@@ -70,7 +69,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
         <PageHeader title={actions?.getPageTitle ? actions?.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''} {{# if (titleIcon container) }}icon='{{ titleIcon container}}'{{/ if}}>
           {{# each (getDefaultButtonsForContainer container) as |button| }}
             { {{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
-              <Grid className="page-action" item>
+              <Grid className="page-action">
                 {{# if button.customImplementation }}
                   <ComponentProxy
                     filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{~ getCustomizationComponentInterfaceKey button ~}} }))`}
@@ -89,7 +88,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                 {{# if button.tooltipText }}
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
-                <LoadingButton
+                <Button
                   data-testid="{{ getXMIID button }}"
                   loading={isLoading}
                   loadingPosition="start"
@@ -116,7 +115,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                   } }
                 >
                   <span>{t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' })}</span>
-                </LoadingButton>
+                </Button>
                 {{# if button.tooltipText }}
                   </Tooltip>
                 {{/ if }}
@@ -128,7 +127,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
           {{/ each }}
 
           {{# each (getNonDefaultButtonGroupsForContainer container) as |buttonGroup| }}
-            <Grid className="page-action" item>
+            <Grid className="page-action">
               <DropdownButton
                 id="{{ getXMIID buttonGroup }}-button-group"
                 disabled={ {{# if buttonGroup.enabledBy }}!data.{{ buttonGroup.enabledBy.name }} ||{{/ if }} isLoading || editMode }

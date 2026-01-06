@@ -11,8 +11,6 @@ import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { GridLogicOperator, GridRowModes, useGridApiRef } from '@mui/x-data-grid-pro';
-import { gridColumnDefinitionsSelector } from '@mui/x-data-grid-pro';
 import type {
   GridColDef,
   GridFilterModel,
@@ -24,43 +22,50 @@ import type {
   GridRowModesModel,
   GridRowParams,
   GridRowSelectionModel,
-  GridSortItem,
   GridSortModel,
   GridValidRowModel,
 } from '@mui/x-data-grid-pro';
+import { GridLogicOperator, GridRowModes, gridColumnDefinitionsSelector, useGridApiRef } from '@mui/x-data-grid-pro';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { ComponentProxy, useTrackComponent } from '@pandino/react-hooks';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Dispatch, ElementType, FC, MouseEvent, SetStateAction } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomTablePagination, MdiIcon } from '~/components';
-import type { Filter, FilterOption } from '~/components-api';
-import { FilterType } from '~/components-api';
 import { useConfirmDialog } from '~/components/dialog';
 import {
-  ContextMenu,
-  EagerTable,
-  LazyTable,
-  StripedDataGrid,
   booleanColumnOperators,
+  CellEditInput,
+  ContextMenu,
   columnsActionCalculator,
   dateTimeColumnOperators,
+  EagerTable,
+  LazyTable,
   numericColumnOperators,
+  StripedDataGrid,
   stringColumnOperators,
 } from '~/components/table';
-import { CellEditInput } from '~/components/table';
 import type { ContextMenuApi } from '~/components/table/ContextMenu';
+import type { Filter, FilterOption } from '~/components-api';
+import { FilterType } from '~/components-api';
 import { baseColumnConfig, basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import { useL10N } from '~/l10n/l10n-context';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
 import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
 import { ViewGalaxyStoredSerializer } from '~/services/data-api/rest/ViewGalaxySerializer';
-import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import type {
+  ColumnCustomizerHook,
+  DialogResult,
+  FiltersSerializer,
+  PersistedColumnInfo,
+  SidekickComponentProps,
+  TableRowAction,
+  ToolBarActionProps,
+} from '~/utilities';
 import {
-  type ServerError,
-  TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   deserializeFilters,
   extractRelationErrorList,
   getUpdatedRowsSelected,
@@ -71,18 +76,11 @@ import {
   mapFilterToFilterModel,
   processQueryCustomizer,
   randomUtils,
+  type ServerError,
   serializeFilters,
+  TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   useErrorHandler,
   validateWithNestedErrors,
-} from '~/utilities';
-import type {
-  ColumnCustomizerHook,
-  DialogResult,
-  FiltersSerializer,
-  PersistedColumnInfo,
-  SidekickComponentProps,
-  TableRowAction,
-  ToolBarActionProps,
 } from '~/utilities';
 import type { ViewGalaxyTableTableComponentActionDefinitions, ViewGalaxyTableTableComponentProps } from './types';
 
@@ -537,7 +535,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         ownerData?: any,
         isFormUpdateable?: () => boolean,
         rowModesModel?: GridRowModesModel,
-      ): boolean => selectionModel.length > 0,
+      ): boolean => selectionModel.ids.size > 0,
       isBulk: true,
     },
     {
@@ -554,7 +552,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         ownerData?: any,
         isFormUpdateable?: () => boolean,
         rowModesModel?: GridRowModesModel,
-      ): boolean => selectionModel.length > 0,
+      ): boolean => selectionModel.ids.size > 0,
       isBulk: true,
     },
   ];

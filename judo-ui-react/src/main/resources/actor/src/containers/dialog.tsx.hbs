@@ -12,7 +12,6 @@ import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import DialogContent from '@mui/material/DialogContent';
 import DialogActions from '@mui/material/DialogActions';
-import LoadingButton from '@mui/lab/LoadingButton';
 {{# if (containerHasCreateAction container) }}
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Popper from '@mui/material/Popper';
@@ -167,7 +166,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         <DialogActions>
           {{# each (getDefaultButtonsForContainer container) as |button| }}
             { {{# if button.actionDefinition.isInputFormCallOperationAction }}formFor === '{{ safeName (getCallerPageForOperationFormCallButton button application) }}' && {{/ if }}{{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
-              <Grid className="page-action" item>
+              <Grid className="page-action">
                 {{# if button.actionDefinition.isCreateAction }}
                 {{# unless button.actionDefinition.autoOpenAfterCreate }}
                 <ButtonGroup disabled={isLoading} variant={ {{{ variantForButton button }}} } ref={createDropdownRef} sx={ { borderRadius: 0, boxShadow: 0 } } aria-label="split button for create action">
@@ -194,7 +193,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                 {{# if button.tooltipText }}
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
-                <LoadingButton
+                <Button
                   data-testid="{{ getXMIID button }}"
                   loading={isLoading}
                   loadingPosition="start"
@@ -255,7 +254,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                       {{/ and }}
                     {{/ if }}
                   {{/ if }}
-                </LoadingButton>
+                </Button>
                 {{# if button.tooltipText }}
                   </Tooltip>
                 {{/ if }}

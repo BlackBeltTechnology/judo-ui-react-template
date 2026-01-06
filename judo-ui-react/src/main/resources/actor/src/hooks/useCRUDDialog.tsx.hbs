@@ -2,7 +2,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import { useTranslation } from 'react-i18next';
-import LoadingButton from '@mui/lab/LoadingButton';
 import DialogContent from '@mui/material/DialogContent';
 import Grid from '@mui/material/Grid';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -212,7 +211,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
       </DialogTitle>
       <DialogContent dividers>
         <Grid container spacing={2} direction="column" alignItems="stretch" justifyContent="flex-start">
-          <Grid item>
+          <Grid>
             <List>
               {queue.map(item => (
                   <ListItem key={item.id} disablePadding>
@@ -234,7 +233,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
         <Button data-testid="use-crud-dialog-close" onClick={() => close(runCount.current > 0)} variant="text">
           {t('judo.modal.close', { defaultValue: 'Close' }) as string}
         </Button>
-        <LoadingButton
+        <Button
           disabled={queue.every(i => i.status === 'success')}
           loading={inProgress}
           loadingPosition="start"
@@ -244,7 +243,7 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
           startIcon={<MdiIcon path="play" />}
         >
           <span>{t('judo.dialogs.crud-bulk.execute', { defaultValue: 'Execute Operation(s)' }) as string}</span>
-        </LoadingButton>
+        </Button>
       </DialogActions>
     </>
   );

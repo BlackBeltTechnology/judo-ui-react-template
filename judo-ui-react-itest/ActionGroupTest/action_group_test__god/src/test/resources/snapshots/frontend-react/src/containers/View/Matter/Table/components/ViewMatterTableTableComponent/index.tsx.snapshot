@@ -11,7 +11,6 @@ import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
-import { GridLogicOperator, GridRowModes, useGridApiRef } from '@mui/x-data-grid';
 import type {
   GridColDef,
   GridFilterModel,
@@ -23,44 +22,50 @@ import type {
   GridRowModesModel,
   GridRowParams,
   GridRowSelectionModel,
-  GridSortItem,
   GridSortModel,
   GridValidRowModel,
 } from '@mui/x-data-grid';
+import { GridLogicOperator, GridRowModes, useGridApiRef } from '@mui/x-data-grid';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import { ComponentProxy, useTrackComponent } from '@pandino/react-hooks';
-import { useTrackService } from '@pandino/react-hooks';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { ComponentProxy, useTrackComponent, useTrackService } from '@pandino/react-hooks';
 import type { Dispatch, ElementType, FC, MouseEvent, SetStateAction } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CustomTablePagination, MdiIcon } from '~/components';
-import type { Filter, FilterOption } from '~/components-api';
-import { FilterType } from '~/components-api';
 import { useConfirmDialog } from '~/components/dialog';
 import {
+  CellEditInput,
   ContextMenu,
+  columnsActionCalculator,
   EagerTable,
   LazyTable,
-  StripedDataGrid,
-  columnsActionCalculator,
   numericColumnOperators,
+  RowHighlightLegend,
+  StripedDataGrid,
   singleSelectColumnOperators,
 } from '~/components/table';
-import { CellEditInput, RowHighlightLegend } from '~/components/table';
 import type { ContextMenuApi } from '~/components/table/ContextMenu';
+import type { Filter, FilterOption } from '~/components-api';
+import { FilterType } from '~/components-api';
 import { baseColumnConfig, basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import { useL10N } from '~/l10n/l10n-context';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
 import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
 import type { ViewMatterQueryCustomizer } from '~/services/data-api/rest/ViewMatterQueryCustomizer';
 import { ViewMatterStoredSerializer } from '~/services/data-api/rest/ViewMatterSerializer';
-import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
-import { TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY, transformRowStylings } from '~/theme/table-row-highlighting';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+import { TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY, transformRowStylings } from '~/theme/table-row-highlighting';
+import type {
+  ColumnCustomizerHook,
+  DialogResult,
+  FiltersSerializer,
+  SidekickComponentProps,
+  TableRowAction,
+  ToolBarActionProps,
+} from '~/utilities';
 import {
-  type ServerError,
-  TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   deserializeFilters,
   extractRelationErrorList,
   getUpdatedRowsSelected,
@@ -69,17 +74,11 @@ import {
   mapAllFiltersToQueryCustomizerProperties,
   processQueryCustomizer,
   randomUtils,
+  type ServerError,
   serializeFilters,
+  TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY,
   useErrorHandler,
   validateWithNestedErrors,
-} from '~/utilities';
-import type {
-  ColumnCustomizerHook,
-  DialogResult,
-  FiltersSerializer,
-  SidekickComponentProps,
-  TableRowAction,
-  ToolBarActionProps,
 } from '~/utilities';
 import type { ViewMatterTableTableComponentActionDefinitions, ViewMatterTableTableComponentProps } from './types';
 
@@ -372,7 +371,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         ownerData?: any,
         isFormUpdateable?: () => boolean,
         rowModesModel?: GridRowModesModel,
-      ): boolean => selectionModel.length > 0,
+      ): boolean => selectionModel.ids.size > 0,
       isBulk: true,
     },
     {
@@ -389,7 +388,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         ownerData?: any,
         isFormUpdateable?: () => boolean,
         rowModesModel?: GridRowModesModel,
-      ): boolean => selectionModel.length > 0,
+      ): boolean => selectionModel.ids.size > 0,
       isBulk: true,
     },
   ];

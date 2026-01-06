@@ -1,5 +1,5 @@
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
-<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+<Grid size={ { xs: 12, sm: 12{{# neq (calculateSize child) 12.0 }}, md: {{ calculateSize child }}{{/ neq }} } }>
   {{# if child.subTheme }}
     <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
   {{/ if }}
@@ -19,7 +19,7 @@
     {{# if child.tooltipText }}
     <Tooltip title={t('{{ getTranslationKeyForVisualElement child }}.tooltip', { defaultValue: '{{ child.tooltipText }}' }) as string}>
     {{/ if }}
-    <LoadingButton
+    <Button
       data-testid="{{ getXMIID child }}"
       loading={isLoading}
       variant={ {{{ variantForButton child }}} }
@@ -38,7 +38,7 @@
       disabled={ !actions.{{ simpleActionDefinitionName child.actionDefinition }} ||{{# if child.enabledBy }} !data.{{ child.enabledBy.name }} ||{{/ if }} editMode }
     >
       { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }
-    </LoadingButton>
+    </Button>
     {{# if child.tooltipText }}
     </Tooltip>
     {{/ if }}
