@@ -499,6 +499,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
+        showToolbar
         {{# if isMUILicensePlanPro }}
         initialState={ { pinnedColumns: { right: ['actions'] } } }
         {{/ if }}
@@ -569,7 +570,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         onPaginationModelChange={setPaginationModel}
         slots={ {
           toolbar: () => (
-            <GridToolbarContainer>
+            <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {
                 toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable, rowModesModel) ? (
                   <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>

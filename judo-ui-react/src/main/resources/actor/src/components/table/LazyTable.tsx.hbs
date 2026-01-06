@@ -655,6 +655,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
+        showToolbar
         {{# if isMUILicensePlanPro }}
         initialState={ { pinnedColumns: { right: ['actions'] } } }
         {{/ if }}
@@ -731,7 +732,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         rowCount={rowsPerPage}
         slots={ {
           toolbar: () => (
-            <GridToolbarContainer>
+            <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {
                 toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
                 <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
