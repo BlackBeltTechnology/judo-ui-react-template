@@ -31,18 +31,6 @@ templates:
     pathExpression: "'package.json'"
     templateName: actor/package.json.hbs
 
-  - name: actor/pnpm-lock.yaml
-    pathExpression: "'pnpm-lock.yaml'"
-    templateName: actor/pnpm-lock.yaml
-    conditionExpression: '!(#isMUILicensed())'
-    copy: true
-
-  - name: actor/pnpm-lock.pro.yaml
-    pathExpression: "'pnpm-lock.yaml'"
-    templateName: actor/pnpm-lock.pro.yaml
-    conditionExpression: '#isMUILicensed()'
-    copy: true
-
   - name: actor/.nvmrc
     pathExpression: "'.nvmrc'"
     templateName: actor/.nvmrc.hbs
