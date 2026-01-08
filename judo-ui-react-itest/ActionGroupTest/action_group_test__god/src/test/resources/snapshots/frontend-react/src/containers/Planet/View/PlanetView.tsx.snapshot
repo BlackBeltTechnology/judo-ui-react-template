@@ -6,7 +6,6 @@
 // Template name: actor/src/containers/container.tsx
 // Template file: actor/src/containers/container.tsx.hbs
 
-import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -14,9 +13,12 @@ import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import type {} from '@mui/x-date-pickers';
+import {} from '@mui/x-date-pickers';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
 import { clsx } from 'clsx';
@@ -25,17 +27,13 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { useL10N } from '~/l10n/l10n-context';
-import { isErrorOperationFault, useErrorHandler } from '~/utilities';
-
-import {} from '@mui/x-date-pickers';
-import type {} from '@mui/x-date-pickers';
-import {} from '~/components/widgets';
 import { Tags } from '~/components/widgets';
 import { useConfirmationBeforeChange } from '~/hooks';
+import { useL10N } from '~/l10n/l10n-context';
 import type { Planet, PlanetStored } from '~/services/data-api/model/Planet';
-import { PLANET_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+import { isErrorOperationFault, useErrorHandler } from '~/utilities';
 import type { PlanetViewContainerHook } from './customization';
+import { PLANET_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { PlanetViewActionDefinitions, PlanetViewProps } from './types';
 
 // XMIID: God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewPageContainer
@@ -79,19 +77,16 @@ export default function PlanetView(props: PlanetViewProps) {
 
   return (
     <Grid container data-container-id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewPageContainer">
-      <Grid item data-name="View" xs={12} sm={12} md={36.0}>
+      <Grid data-name="View" size={{ xs: 12, sm: 12, md: 36.0 }}>
         <Grid container direction="row" spacing={2}>
-          <Grid item xs={12} sm={12}>
-            <Grid
+          <Grid size={{ xs: 12, sm: 12 }}>
+            <Stack
               data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewVisualElement"
               data-name="View"
-              container
-              direction="column"
-              alignItems="stretch"
-              justifyContent="flex-start"
               spacing={2}
+              className="force-full-width"
             >
-              <Grid item xs={12} sm={12} md={4.0}>
+              <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <TextField
                   required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : false}
                   name="name"
@@ -125,7 +120,7 @@ export default function PlanetView(props: PlanetViewProps) {
                   }}
                 />
               </Grid>
-            </Grid>
+            </Stack>
           </Grid>
         </Grid>
       </Grid>

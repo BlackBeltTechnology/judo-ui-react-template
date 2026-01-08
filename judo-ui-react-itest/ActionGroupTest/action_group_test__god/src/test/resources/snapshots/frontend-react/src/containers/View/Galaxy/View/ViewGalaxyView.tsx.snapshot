@@ -6,7 +6,6 @@
 // Template name: actor/src/containers/container.tsx
 // Template file: actor/src/containers/container.tsx.hbs
 
-import LoadingButton from '@mui/lab/LoadingButton';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ButtonGroup from '@mui/material/ButtonGroup';
@@ -23,39 +22,37 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import MenuItem from '@mui/material/MenuItem';
+import Stack from '@mui/material/Stack';
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import type { DateTimeValidationError } from '@mui/x-date-pickers';
+import { DateTimePicker } from '@mui/x-date-pickers';
 import { OBJECTCLASS } from '@pandino/pandino-api';
-import { ComponentProxy } from '@pandino/react-hooks';
-import { useTrackService } from '@pandino/react-hooks';
+import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { clsx } from 'clsx';
 import type { Dispatch, FC, SetStateAction } from 'react';
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
+import { AssociationButton, NumericInput, Tags } from '~/components/widgets';
 import type { CustomFormVisualElementProps } from '~/custom';
-import { useL10N } from '~/l10n/l10n-context';
-import { isErrorOperationFault, useErrorHandler } from '~/utilities';
-
-import { DateTimePicker } from '@mui/x-date-pickers';
-import type { DateTimeValidationError } from '@mui/x-date-pickers';
-import { AssociationButton, NumericInput } from '~/components/widgets';
-import { Tags } from '~/components/widgets';
+import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import { useConfirmationBeforeChange } from '~/hooks';
+import { useL10N } from '~/l10n/l10n-context';
 import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
 import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
 import type { ViewStar, ViewStarStored } from '~/services/data-api/model/ViewStar';
+import { isErrorOperationFault, useErrorHandler } from '~/utilities';
 import { ViewGalaxyViewAstronomerComponent } from './components/ViewGalaxyViewAstronomerComponent';
 import { ViewGalaxyViewStarsComponent } from './components/ViewGalaxyViewStarsComponent';
+import type { ViewGalaxyViewContainerHook } from './customization';
 import {
   VIEW_GALAXY_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY,
   VIEW_GALAXY_VIEW_DISCOVERER_COMPONENT,
 } from './customization';
-import type { ViewGalaxyViewContainerHook } from './customization';
 import type { ViewGalaxyViewActionDefinitions, ViewGalaxyViewProps } from './types';
 
 // XMIID: God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer
@@ -99,31 +96,29 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
 
   return (
     <Grid container data-container-id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer">
-      <Grid item data-name="View" xs={12} sm={12} md={36.0}>
+      <Grid data-name="View" size={{ xs: 12, sm: 12, md: 36.0 }}>
         <Grid container direction="row" spacing={2}>
-          <Grid item xs={12} sm={12}>
+          <Grid size={{ xs: 12, sm: 12 }}>
             <Grid
               data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewVisualElement"
               data-name="View"
               container
-              direction="row"
               alignItems="stretch"
               justifyContent="flex-start"
               spacing={2}
             >
-              <Grid item data-name="group" xs={12} sm={12}>
+              <Grid data-name="group" size={{ xs: 12, sm: 12 }}>
                 <Grid container direction="row" spacing={2}>
-                  <Grid item xs={12} sm={12}>
+                  <Grid size={{ xs: 12, sm: 12 }}>
                     <Grid
                       data-testid="God/(esm/_CtcuYE7uEeycO-gUAWxcVg)/GroupVisualElement"
                       data-name="group"
                       container
-                      direction="row"
                       alignItems="flex-start"
                       justifyContent="flex-start"
                       spacing={2}
                     >
-                      <Grid item data-name="group" xs={12} sm={12} md={6.0}>
+                      <Grid data-name="group" size={{ xs: 12, sm: 12, md: 6.0 }}>
                         <Card data-testid="God/(esm/_D4bTwE7uEeycO-gUAWxcVg)/GroupVisualElement" data-name="group">
                           <CardContent>
                             <Grid
@@ -134,7 +129,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               spacing={2}
                               sx={{ mb: 2 }}
                             >
-                              <Grid item>
+                              <Grid>
                                 <Grid container direction="row" alignItems="center" justifyContent="flex-start">
                                   <MdiIcon path="star-shooting" sx={{ marginRight: 1 }} />
                                   <Typography variant="h5" component="h1">
@@ -143,16 +138,10 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 </Grid>
                               </Grid>
                             </Grid>
-                            <Grid
-                              container
-                              direction="row"
-                              alignItems="flex-start"
-                              justifyContent="flex-start"
-                              spacing={2}
-                            >
-                              <Grid item xs={12} sm={12} md={24.0}>
+                            <Grid container alignItems="flex-start" justifyContent="flex-start" spacing={2}>
+                              <Grid size={{ xs: 12, sm: 12, md: 24.0 }}>
                                 <Grid container direction="row" spacing={2}>
-                                  <Grid item xs={12} sm={12}>
+                                  <Grid size={{ xs: 12, sm: 12 }}>
                                     <Grid
                                       data-testid="God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceFieldRelationDefinedTable"
                                       container
@@ -183,7 +172,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                         </Card>
                       </Grid>
 
-                      <Grid item data-name="group_2" xs={12} sm={12} md={6.0}>
+                      <Grid data-name="group_2" size={{ xs: 12, sm: 12, md: 6.0 }}>
                         <Card data-testid="God/(esm/_Emq50E7uEeycO-gUAWxcVg)/GroupVisualElement" data-name="group_2">
                           <CardContent>
                             <Grid
@@ -194,7 +183,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               spacing={2}
                               sx={{ mb: 2 }}
                             >
-                              <Grid item>
+                              <Grid>
                                 <Grid container direction="row" alignItems="center" justifyContent="flex-start">
                                   <MdiIcon path="flare" sx={{ marginRight: 1 }} />
                                   <Typography variant="h5" component="h1">
@@ -203,26 +192,19 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 </Grid>
                               </Grid>
                             </Grid>
-                            <Grid
-                              container
-                              direction="column"
-                              alignItems="stretch"
-                              justifyContent="flex-start"
-                              spacing={2}
-                            >
-                              <Grid item data-name="group" xs={12} sm={12}>
+                            <Stack spacing={2} className="force-full-width">
+                              <Grid data-name="group" size={{ xs: 12, sm: 12 }}>
                                 <Grid container direction="row" spacing={2}>
-                                  <Grid item xs={12} sm={12}>
+                                  <Grid size={{ xs: 12, sm: 12 }}>
                                     <Grid
                                       data-testid="God/(esm/_YJOJEFjWEeyV2_3ibolaNQ)/GroupVisualElement"
                                       data-name="group"
                                       container
-                                      direction="row"
                                       alignItems="stretch"
                                       justifyContent="flex-start"
                                       spacing={2}
                                     >
-                                      <Grid item xs={12} sm={12} md={8.0}>
+                                      <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
                                         <TextField
                                           required={
                                             actions?.isNameRequired ? actions.isNameRequired(data, editMode) : true
@@ -264,7 +246,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                         />
                                       </Grid>
 
-                                      <Grid item xs={12} sm={12} md={4.0}>
+                                      <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                                         <FormControl error={!!validation.get('real')}>
                                           <FormGroup>
                                             <FormControlLabel
@@ -304,7 +286,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 </Grid>
                               </Grid>
 
-                              <Grid item xs={12} sm={12} md={8.0}>
+                              <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
                                 <TextField
                                   required={
                                     actions?.isConstellationRequired
@@ -349,7 +331,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 />
                               </Grid>
 
-                              <Grid item xs={12} sm={12} md={8.0}>
+                              <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
                                 <NumericInput
                                   required={
                                     actions?.isMagnitudeRequired ? actions.isMagnitudeRequired(data, editMode) : false
@@ -392,7 +374,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 />
                               </Grid>
 
-                              <Grid item xs={12} sm={12} md={8.0}>
+                              <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
                                 <FormControl error={!!validation.get('nakedEye')}>
                                   <FormGroup>
                                     <FormControlLabel
@@ -428,7 +410,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 </FormControl>
                               </Grid>
 
-                              <Grid item xs={12} sm={12} md={8.0}>
+                              <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
                                 <TextField
                                   required={
                                     actions?.isOriginOfNameRequired
@@ -474,12 +456,12 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }}
                                 />
                               </Grid>
-                            </Grid>
+                            </Stack>
                           </CardContent>
                         </Card>
                       </Grid>
 
-                      <Grid item data-name="Discoverer" xs={12} sm={12}>
+                      <Grid data-name="Discoverer" size={{ xs: 12, sm: 12 }}>
                         <ComponentProxy
                           filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${VIEW_GALAXY_VIEW_DISCOVERER_COMPONENT}))`}
                           data={data}
@@ -503,7 +485,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 spacing={2}
                                 sx={{ mb: 2 }}
                               >
-                                <Grid item>
+                                <Grid>
                                   <Grid container direction="row" alignItems="center" justifyContent="flex-start">
                                     <MdiIcon path="telescope" sx={{ marginRight: 1 }} />
                                     <Typography variant="h5" component="h1">
@@ -512,14 +494,8 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   </Grid>
                                 </Grid>
                               </Grid>
-                              <Grid
-                                container
-                                direction="row"
-                                alignItems="flex-start"
-                                justifyContent="flex-start"
-                                spacing={2}
-                              >
-                                <Grid item xs={12} sm={12} md={4.0}>
+                              <Grid container alignItems="flex-start" justifyContent="flex-start" spacing={2}>
+                                <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                                   <DateTimePicker
                                     ampm={false}
                                     ampmInClock={false}
@@ -535,6 +511,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                           : false,
                                         helperText: validation.get('discovered'),
                                         error: !!validation.get('discovered'),
+                                        InputLabelProps: { shrink: true },
                                         InputProps: {
                                           startAdornment: (
                                             <InputAdornment position="start">
@@ -586,7 +563,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   />
                                 </Grid>
 
-                                <Grid item xs={12} sm={12} md={4.0}>
+                                <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                                   <ViewGalaxyViewAstronomerComponent
                                     disabled={false || isLoading}
                                     readOnly={
@@ -614,7 +591,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                         </ComponentProxy>
                       </Grid>
 
-                      <Grid item data-name="group_3" xs={12} sm={12}>
+                      <Grid data-name="group_3" size={{ xs: 12, sm: 12 }}>
                         <Card data-testid="God/(esm/_KkOiwFjFEeyV2_3ibolaNQ)/GroupVisualElement" data-name="group_3">
                           <CardContent>
                             <Grid
@@ -625,7 +602,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               spacing={2}
                               sx={{ mb: 2 }}
                             >
-                              <Grid item>
+                              <Grid>
                                 <Grid container direction="row" alignItems="center" justifyContent="flex-start">
                                   <Typography variant="h5" component="h1">
                                     {t('View.Galaxy.View.group_3', { defaultValue: 'Matter' })}
@@ -633,14 +610,8 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 </Grid>
                               </Grid>
                             </Grid>
-                            <Grid
-                              container
-                              direction="row"
-                              alignItems="flex-start"
-                              justifyContent="flex-start"
-                              spacing={2}
-                            >
-                              <Grid item xs={12} sm={12} md={2.0}>
+                            <Grid container alignItems="flex-start" justifyContent="flex-start" spacing={2}>
+                              <Grid size={{ xs: 12, sm: 12, md: 2.0 }}>
                                 <AssociationButton
                                   id="God/(esm/_8A3hoE7tEeycO-gUAWxcVg)/TabularReferenceFieldButton"
                                   variant={undefined}
@@ -653,7 +624,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 </AssociationButton>
                               </Grid>
 
-                              <Grid item xs={12} sm={12} md={2.0}>
+                              <Grid size={{ xs: 12, sm: 12, md: 2.0 }}>
                                 <NumericInput
                                   required={
                                     actions?.isDarkMatterRequired ? actions.isDarkMatterRequired(data, editMode) : false
@@ -696,7 +667,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 />
                               </Grid>
 
-                              <Grid item xs={12} sm={12} md={2.0}>
+                              <Grid size={{ xs: 12, sm: 12, md: 2.0 }}>
                                 <NumericInput
                                   required={
                                     actions?.isIntergalacticDustRequired
@@ -745,7 +716,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                 />
                               </Grid>
 
-                              <Grid item xs={12} sm={12} md={2.0}>
+                              <Grid size={{ xs: 12, sm: 12, md: 2.0 }}>
                                 <NumericInput
                                   required={
                                     actions?.isInterstellarMediumRequired

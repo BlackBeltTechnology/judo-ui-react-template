@@ -203,7 +203,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
         anchorPosition={contextMenu !== null ? { top: contextMenu.mouseY, left: contextMenu.mouseX } : undefined}
         slotProps={ {
           root: {
-            onContextMenu: (e) => {
+            onContextMenu: (e: React.MouseEvent) => {
               e.preventDefault();
               closeContextMenu();
             },

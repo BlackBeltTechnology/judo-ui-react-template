@@ -3,9 +3,8 @@
 import type { ReactNode } from 'react';
 import { useMemo } from 'react';
 import { createBreakpoints } from '@mui/system';
-import { {{# if application.backgroundImage }}alpha, {{/ if }}createTheme } from '@mui/material/styles';
+import { {{# if application.backgroundImage }}alpha, {{/ if }}createTheme, StyledEngineProvider } from '@mui/material/styles';
 import CssBaseline from '@mui/material/CssBaseline';
-import StyledEngineProvider from '@mui/material/StyledEngineProvider';
 import { amber, deepOrange, grey } from '@mui/material/colors';
 import { ThemeProvider } from '@mui/material/styles';
 import type { Theme } from '@mui/material/styles';
@@ -58,7 +57,7 @@ const baseTheme = (
         {{> actor/src/theme/index.ts.mui-list.fragment.hbs }}
         {{> actor/src/theme/index.ts.mui-avatar.fragment.hbs }}
         {{> actor/src/theme/index.ts.mui-card.fragment.hbs }}
-        {{> actor/src/theme/index.ts.mui-grid.fragment.hbs }}
+        {{> actor/src/theme/index.ts.mui-stack.fragment.hbs }}
         {{> actor/src/theme/index.ts.extra-components.fragment.hbs }}
       },
     },

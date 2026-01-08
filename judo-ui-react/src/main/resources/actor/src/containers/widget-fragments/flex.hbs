@@ -1,5 +1,5 @@
 {{# if this.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ this.hiddenBy.name }}) && {{/ if }}
-<Grid item data-name="{{ this.name }}" xs={12} sm={12} {{# neq (calculateSize this) 12.0 }}md={ {{ calculateSize this }} }{{/ neq }}>
+<Grid data-name="{{ this.name }}" size={ { xs: 12, sm: 12{{# neq (calculateSize this) 12.0 }}, md: {{ calculateSize this }}{{/ neq }} } }>
     {{# if this.subTheme }}
       <SubThemeWrapper subTheme="{{ this.subTheme }}" data={data}>
     {{/ if }}
@@ -21,7 +21,7 @@
                 {{# if (cardHasHeaderContent this) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2} sx={ { mb: 2 } }>
                     {{# if (elementHasIconOrLabel this) }}
-                    <Grid item>
+                    <Grid>
                         <Grid container direction="row" alignItems="center" justifyContent="flex-start">
                         {{# if (elementHasIcon this) }}
                             <MdiIcon path="{{ this.icon.iconName }}" sx={ { marginRight: 1 } } />
@@ -35,7 +35,7 @@
                     </Grid>
                     {{/ if }}
                     {{# if this.actionButtonGroup }}
-                    <Grid item>
+                    <Grid>
                         <ButtonGroup size="small">
                             {{# each this.actionButtonGroup.buttons as |button| }}
                                 { actions.{{ simpleActionDefinitionName button.actionDefinition }}{{# if button.hiddenBy }} && !data.{{ button.hiddenBy.name }}{{/ if }} &&
@@ -62,20 +62,28 @@
                     {{/ if }}
                 </Grid>
                 {{/ if }}
-                <Grid container direction="{{# if this.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                {{# if this.isDirectionHorizontal }}
+                <Grid container alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                {{ else }}
+                <Stack spacing={2} className="force-full-width">
+                {{/ if }}
                     {{# each this.children as |child| }}
                         {{# if child }}
                             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                             {{> (getWidgetTemplate child) }}
                         {{/ if }}
                     {{/ each }}
+                {{# if this.isDirectionHorizontal }}
                 </Grid>
+                {{ else }}
+                </Stack>
+                {{/ if }}
             </CardContent>
         </Card>
     {{ else }}
         <Grid container direction="row" spacing={2}>
             {{# and (elementHasIconOrLabel this) (flexParentIsNotTab this) }}
-                <Grid item xs={12} sm={12}>
+                <Grid size={ { xs: 12, sm: 12 } }>
                     <Grid container direction="row" alignItems="center" justifyContent="flex-start">
                     {{# if (elementHasIcon this) }}
                         <MdiIcon path="{{ this.icon.iconName }}" sx={ { marginRight: 1 } } />
@@ -88,15 +96,23 @@
                     </Grid>
                 </Grid>
             {{/ and }}
-            <Grid item xs={12} sm={12}>
-                <Grid data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" container direction="{{# if child.isDirectionHorizontal }}row{{ else }}column{{/ if }}" alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+            <Grid size={ { xs: 12, sm: 12 } }>
+                {{# if this.isDirectionHorizontal }}
+                <Grid data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" container alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                {{ else }}
+                <Stack data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" spacing={2} className="force-full-width">
+                {{/ if }}
                     {{# each this.children as |child| }}
                         {{# if child }}
                             {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
                             {{> (getWidgetTemplate child) }}
                         {{/ if }}
                     {{/ each }}
+                {{# if this.isDirectionHorizontal }}
                 </Grid>
+                {{ else }}
+                </Stack>
+                {{/ if }}
             </Grid>
         </Grid>
     {{/ if }}

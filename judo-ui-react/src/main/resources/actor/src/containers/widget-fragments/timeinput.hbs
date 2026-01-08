@@ -1,5 +1,5 @@
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
-<Grid item xs={12} sm={12} {{# neq (calculateSize child) 12.0 }}md={ {{ calculateSize child }} }{{/ neq }}>
+<Grid size={ { xs: 12, sm: 12{{# neq (calculateSize child) 12.0 }}, md: {{ calculateSize child }}{{/ neq }} } }>
     {{# if child.subTheme }}
       <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
     {{/ if }}
@@ -31,6 +31,7 @@
                 required: actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }}),
                 helperText: validation.get('{{ child.attributeType.name }}'),
                 error: !!validation.get('{{ child.attributeType.name }}'),
+                InputLabelProps: { shrink: true },
                 {{# if child.icon }}
                     InputProps: {
                         startAdornment: (

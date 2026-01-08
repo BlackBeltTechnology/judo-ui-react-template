@@ -25,37 +25,46 @@ import {
   GridSortModel,
   GridToolbarContainer,
   GridValidRowModel,
+  gridColumnDefinitionsSelector,
   useGridApiRef,
 } from '@mui/x-data-grid-pro';
-import { gridColumnDefinitionsSelector } from '@mui/x-data-grid-pro';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import { ElementType, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
-import { Filter, FilterOption } from '~/components-api';
-import { MdiIcon } from '~/components/MdiIcon';
 import { useConfirmDialog } from '~/components/dialog';
-import { ContextMenu, ContextMenuApi, StripedDataGrid, columnsActionCalculator } from '~/components/table';
-import { FixedTableFilters, RowHighlightLegend } from '~/components/table';
+import { MdiIcon } from '~/components/MdiIcon';
+import {
+  ContextMenu,
+  ContextMenuApi,
+  columnsActionCalculator,
+  FixedTableFilters,
+  RowHighlightLegend,
+  StripedDataGrid,
+} from '~/components/table';
+import { Filter, FilterOption } from '~/components-api';
 import { basePageSizeOptions, baseTableConfig } from '~/config';
 import { useDataStore } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
-import { transformRowStylings } from '~/theme/table-row-highlighting';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+import { transformRowStylings } from '~/theme/table-row-highlighting';
+import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
 import {
-  ToolBarActionProps,
   applyInMemoryFilters,
+  arrayToSelectionModel,
   calculateActionName,
+  createEmptySelectionModel,
   fileHandling,
   getUpdatedRowsSelected,
   mapAllFiltersToQueryCustomizerProperties,
   mapFilterModelToFilters,
   mapFilterToFilterModel,
   processQueryCustomizer,
+  selectionModelToArray,
+  ToolBarActionProps,
 } from '~/utilities';
-import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
 
 interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -154,7 +163,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
 
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
   const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
-  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(createEmptySelectionModel());
   const [sortModel, setSortModel] = useState<GridSortModel>(
     getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable),
   );
@@ -259,10 +268,10 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     [tableRowActions, rowModesModel, applyRowEdit],
   );
 
-  const effectiveTableColumns = useMemo(() => {
-    const cols = [
-      ...columns,
-      ...columnsActionCalculator(
+  const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
+    const cols: GridColDef<T>[] = [
+      ...(columns as GridColDef<T>[]),
+      ...(columnsActionCalculator(
         dataElementId,
         [...(editable ? editActions : []), ...tableRowActions],
         t,
@@ -272,7 +281,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         getSelectedRows,
         ownerData,
         { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed },
-      ),
+      ) as GridColDef<T>[]),
     ];
     if (columnState.length) {
       const adjusted = columnState.sort((a, b) => a.index - b.index).map((c) => cols.find((t) => t.field === c.field)!);
@@ -312,7 +321,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const getRowIdentifier: (row: T) => string = (row) => row.__identifier!;
 
   const clearSelections = () => {
-    handleOnSelection([]);
+    handleOnSelection(createEmptySelectionModel());
   };
 
   const pageSizeOptions = useMemo(() => {
@@ -391,7 +400,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
 
   let handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
     selectedRows.current = getUpdatedRowsSelected(selectedRows, data, newSelectionModel);
-    setSelectionModel(selectedRows.current.map(getRowIdentifier));
+    setSelectionModel(arrayToSelectionModel(selectedRows.current.map(getRowIdentifier)));
   };
 
   useEffect(() => {
@@ -452,7 +461,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   }
 
   const processRowUpdate = useCallback(
-    async (newRow: GridRowModel) => {
+    async (newRow: T, oldRow: T): Promise<T> => {
       try {
         await applyRowEdit!(newRow as TStored);
         // https://mui.com/x/react-data-grid/editing/#server-side-persistence
@@ -460,7 +469,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         return newRow;
       } catch (error) {
         // we need to reject with the identifier in order for MUI to be able to detect which row should be kept in edit mode
-        return Promise.reject(new Error(newRow.__identifier));
+        return Promise.reject(new Error((newRow as any).__identifier));
       }
     },
     [applyRowEdit],
@@ -498,6 +507,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
+        showToolbar
         initialState={{ pinnedColumns: { right: ['actions'] } }}
         pageSizeOptions={pageSizeOptions}
         sx={{
@@ -550,7 +560,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         onPaginationModelChange={setPaginationModel}
         slots={{
           toolbar: () => (
-            <GridToolbarContainer>
+            <GridToolbarContainer sx={{ justifyContent: 'flex-start' }}>
               {toolBarActions.map((toolBarAction: ToolBarActionProps<T>) =>
                 actions[toolBarAction.name] &&
                 toolBarAction.enabled(
@@ -631,12 +641,12 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
                                 const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
                                 const reason: DialogResultReason = bulkResult;
                                 if (reason === 'submit' || reason === 'delete') {
-                                  handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                                  handleOnSelection(createEmptySelectionModel()); // not resetting on refreshes because refreshes would always remove selections...
                                 }
                               } else {
                                 if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
                                   await actions[toolBarAction.name]!();
-                                  handleOnSelection([]);
+                                  handleOnSelection(createEmptySelectionModel());
                                 } else {
                                   await actions[toolBarAction.name]!();
                                 }

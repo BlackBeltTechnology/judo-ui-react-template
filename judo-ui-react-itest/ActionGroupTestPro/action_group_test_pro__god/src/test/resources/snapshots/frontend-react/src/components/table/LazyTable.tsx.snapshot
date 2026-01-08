@@ -26,9 +26,9 @@ import {
   GridSortModel,
   GridToolbarContainer,
   GridValidRowModel,
+  gridColumnDefinitionsSelector,
   useGridApiRef,
 } from '@mui/x-data-grid-pro';
-import { gridColumnDefinitionsSelector } from '@mui/x-data-grid-pro';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
 import {
   Dispatch,
@@ -44,17 +44,17 @@ import {
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { CustomTablePagination } from '~/components';
-import { Filter, FilterOption } from '~/components-api';
-import { MdiIcon } from '~/components/MdiIcon';
 import { useConfirmDialog } from '~/components/dialog';
+import { MdiIcon } from '~/components/MdiIcon';
 import {
   ContextMenu,
   ContextMenuApi,
+  columnsActionCalculator,
   FixedTableFilters,
   RowHighlightLegend,
   StripedDataGrid,
-  columnsActionCalculator,
 } from '~/components/table';
+import { Filter, FilterOption } from '~/components-api';
 import { basePageSizeOptions, baseTableConfig, filterDebounceMs } from '~/config';
 import { useDataStore } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
@@ -62,11 +62,13 @@ import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
-import { transformRowStylings } from '~/theme/table-row-highlighting';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
+import { transformRowStylings } from '~/theme/table-row-highlighting';
+import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
 import {
-  ToolBarActionProps,
+  arrayToSelectionModel,
   calculateActionName,
+  createEmptySelectionModel,
   fileHandling,
   getUpdatedRowsSelected,
   isRowSelectable,
@@ -74,10 +76,11 @@ import {
   mapFilterModelToFilters,
   mapFilterToFilterModel,
   processQueryCustomizer,
+  selectionModelToArray,
   simpleCloneDeep,
+  ToolBarActionProps,
   useErrorHandler,
 } from '~/utilities';
-import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
 
 interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -193,7 +196,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
   const [totalCount, setTotalCount] = useState<number>(-1);
   const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
-  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>([]);
+  const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(createEmptySelectionModel());
   const [sortModel, setSortModel] = useState<GridSortModel>(
     getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable),
   );
@@ -308,10 +311,10 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     [tableRowActions, rowModesModel, applyRowEdit],
   );
 
-  const effectiveTableColumns = useMemo(() => {
-    const cols = [
-      ...columns,
-      ...columnsActionCalculator(
+  const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
+    const cols: GridColDef<T>[] = [
+      ...(columns as GridColDef<T>[]),
+      ...(columnsActionCalculator(
         dataElementId,
         [...(editable ? editActions : []), ...tableRowActions],
         t,
@@ -321,7 +324,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         getSelectedRows,
         ownerData,
         { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth },
-      ),
+      ) as GridColDef<T>[]),
     ];
     if (columnState.length) {
       const adjusted = columnState.sort((a, b) => a.index - b.index).map((c) => cols.find((t) => t.field === c.field)!);
@@ -360,7 +363,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const getRowIdentifier: (row: T) => string = (row) => row.__identifier!;
 
   const clearSelections = () => {
-    handleOnSelection([]);
+    handleOnSelection(createEmptySelectionModel());
   };
 
   const pageSizeOptions = useMemo(() => {
@@ -480,12 +483,13 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     }, []);
 
     handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
-      if (!Array.isArray(selectionModel)) return;
+      const newSelectionArray = selectionModelToArray(newSelectionModel);
+      const currentSelectionArray = selectionModelToArray(selectionModel);
       if (allowSelectMultiple) {
         // added new items
-        if (newSelectionModel.length > selectionModel.length) {
-          const diff = newSelectionModel.length - selectionModel.length;
-          const newItemsId = [...newSelectionModel].slice(diff * -1);
+        if (newSelectionArray.length > currentSelectionArray.length) {
+          const diff = newSelectionArray.length - currentSelectionArray.length;
+          const newItemsId = newSelectionArray.slice(diff * -1);
           const newItems: TStored[] = data.filter(
             (value) => newItemsId.indexOf(value.__identifier as GridRowId) !== -1,
           ) as TStored[];
@@ -497,8 +501,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           }
         }
         // removed items
-        if (newSelectionModel.length < selectionModel.length) {
-          const removedItemsId = selectionModel.filter((value) => newSelectionModel.indexOf(value) === -1);
+        if (newSelectionArray.length < currentSelectionArray.length) {
+          const removedItemsId = currentSelectionArray.filter((value) => newSelectionArray.indexOf(value) === -1);
           if (setSelectionDiff !== undefined) {
             setSelectionDiff((prevSelectedItems: TStored[]) => {
               if (!Array.isArray(prevSelectedItems)) return [];
@@ -510,17 +514,17 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         }
         setSelectionModel(newSelectionModel);
       } else {
-        if (newSelectionModel.length === 0) {
-          setSelectionModel([]);
+        if (newSelectionArray.length === 0) {
+          setSelectionModel(createEmptySelectionModel());
           if (setSelectionDiff !== undefined) {
             setSelectionDiff([]);
             return;
           }
         }
 
-        const lastId = newSelectionModel[newSelectionModel.length - 1];
+        const lastId = newSelectionArray[newSelectionArray.length - 1];
 
-        setSelectionModel([lastId]);
+        setSelectionModel(arrayToSelectionModel([lastId]));
         if (setSelectionDiff !== undefined) {
           setSelectionDiff([(data as TStored[]).find((value) => value.__identifier === lastId)!]);
         }
@@ -529,7 +533,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   } else {
     handleOnSelection = (newSelectionModel: GridRowSelectionModel) => {
       selectedRows.current = getUpdatedRowsSelected(selectedRows, data, newSelectionModel);
-      setSelectionModel(selectedRows.current.map(getRowIdentifier));
+      setSelectionModel(arrayToSelectionModel(selectedRows.current.map(getRowIdentifier)));
     };
   }
 
@@ -630,7 +634,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   }
 
   const processRowUpdate = useCallback(
-    async (newRow: GridRowModel) => {
+    async (newRow: T, oldRow: T): Promise<T> => {
       try {
         await applyRowEdit!(newRow as TStored);
         // https://mui.com/x/react-data-grid/editing/#server-side-persistence
@@ -638,7 +642,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         return newRow;
       } catch (error) {
         // we need to reject with the identifier in order for MUI to be able to detect which row should be kept in edit mode
-        return Promise.reject(new Error(newRow.__identifier));
+        return Promise.reject(new Error((newRow as any).__identifier));
       }
     },
     [applyRowEdit],
@@ -676,6 +680,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
+        showToolbar
         initialState={{ pinnedColumns: { right: ['actions'] } }}
         pageSizeOptions={pageSizeOptions}
         sx={{
@@ -734,7 +739,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         rowCount={rowsPerPage}
         slots={{
           toolbar: () => (
-            <GridToolbarContainer>
+            <GridToolbarContainer sx={{ justifyContent: 'flex-start' }}>
               {toolBarActions.map((toolBarAction: ToolBarActionProps<T>) =>
                 actions[toolBarAction.name] &&
                 toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (

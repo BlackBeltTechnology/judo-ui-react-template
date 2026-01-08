@@ -61,7 +61,7 @@ export const CardsFilter: FC<{ filterDefinitions: CardsFilterDefinition<any>[], 
 
   return (
     <Grid container direction="row" spacing={2}>
-      <Grid item xs={12}>
+      <Grid size={12}>
         <Typography variant="h4">
           {t('judo.component.CardsContainer.Filter.filter', { defaultValue: 'Filter' })}
         </Typography>
@@ -70,7 +70,7 @@ export const CardsFilter: FC<{ filterDefinitions: CardsFilterDefinition<any>[], 
         </Button>
       </Grid>
       {filterDefinitions.map(d => (
-        <Grid item xs={12} key={d.field as string}>
+        <Grid size={12} key={d.field as string}>
           <Typography variant="subtitle1">{d.label}:</Typography>
           {d.allowSearch ? (
             <TextField

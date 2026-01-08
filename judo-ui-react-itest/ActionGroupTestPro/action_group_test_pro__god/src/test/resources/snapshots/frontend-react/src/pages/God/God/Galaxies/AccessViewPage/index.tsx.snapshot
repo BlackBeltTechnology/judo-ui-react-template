@@ -9,14 +9,14 @@
 import type { GridFilterModel } from '@mui/x-data-grid-pro';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackService } from '@pandino/react-hooks';
-import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { useJudoNavigation } from '~/components';
-import type { Filter, FilterOption } from '~/components-api';
 import { useConfirmDialog, useFilterDialog } from '~/components/dialog';
+import type { Filter, FilterOption } from '~/components-api';
 import type {
   AvailableContainerAction,
   ViewGalaxyViewPageActions,
@@ -31,22 +31,22 @@ import { useViewGalaxyViewCreateInterstellarMediumInputForm } from '~/dialogs/Vi
 import { useViewGalaxyViewGroupDiscovererAstronomerLinkSetSelectorPage } from '~/dialogs/View/Galaxy/View/Group/Discoverer/Astronomer/LinkSetSelectorPage/hooks';
 import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
 import { useViewContext } from '~/hooks/ViewContext';
-import { routeToViewGalaxyAstronomerRelationViewPage } from '~/routes';
-import { routeToViewGalaxyMatterRelationTablePage } from '~/routes';
+import { routeToViewGalaxyAstronomerRelationViewPage, routeToViewGalaxyMatterRelationTablePage } from '~/routes';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
 import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
 import type { ViewStar, ViewStarStored } from '~/services/data-api/model/ViewStar';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
 import type { ViewAstronomerQueryCustomizer } from '~/services/data-api/rest/ViewAstronomerQueryCustomizer';
 import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
 import type { ViewMatterQueryCustomizer } from '~/services/data-api/rest/ViewMatterQueryCustomizer';
 import type { ViewStarQueryCustomizer } from '~/services/data-api/rest/ViewStarQueryCustomizer';
-import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
 import { GodServiceForGalaxiesImpl } from '~/services/data-axios/GodServiceForGalaxiesImpl';
 import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { PageContainerTransition } from '~/theme/animations';
+import type { DialogResult } from '~/utilities';
 import {
   fileHandling,
   getValue,
@@ -55,7 +55,6 @@ import {
   simpleCloneDeep,
   useErrorHandler,
 } from '~/utilities';
-import type { DialogResult } from '~/utilities';
 import { useOperationUtils } from '~/utilities/application';
 import { type ViewGalaxyViewViewModel, ViewGalaxyViewViewModelContext } from './context';
 import type { ViewGalaxyViewActionsHook } from './customization';
