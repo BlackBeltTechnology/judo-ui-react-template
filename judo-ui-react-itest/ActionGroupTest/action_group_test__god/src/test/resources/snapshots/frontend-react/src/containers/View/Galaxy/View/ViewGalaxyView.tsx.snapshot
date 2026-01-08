@@ -36,7 +36,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { AssociationButton, NumericInput, Tags } from '~/components/widgets';
+import { AssociationButton, DebouncedNumericInput, DebouncedTextField, Tags } from '~/components/widgets';
 import type { CustomFormVisualElementProps } from '~/custom';
 import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import { useConfirmationBeforeChange } from '~/hooks';
@@ -95,7 +95,11 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
   const actions = useMemo(() => ({ ...pageActions, ...containerActions }), [pageActions, containerActions]);
 
   return (
-    <Grid container data-container-id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer">
+    <Grid
+      container
+      data-container-id="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer"
+      sx={{ width: '100%' }}
+    >
       <Grid data-name="View" size={{ xs: 12, sm: 12, md: 36.0 }}>
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
@@ -205,7 +209,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                       spacing={2}
                                     >
                                       <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
-                                        <TextField
+                                        <DebouncedTextField
                                           required={
                                             actions?.isNameRequired ? actions.isNameRequired(data, editMode) : true
                                           }
@@ -224,10 +228,8 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                           }
                                           error={!!validation.get('name')}
                                           helperText={validation.get('name')}
-                                          onChange={(event) => {
-                                            const realValue =
-                                              event.target.value?.length === 0 ? null : event.target.value;
-                                            storeDiff('name', realValue);
+                                          onDebouncedChange={(value: string | null) => {
+                                            storeDiff('name', value);
                                           }}
                                           InputLabelProps={{ shrink: true }}
                                           InputProps={{
@@ -287,7 +289,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               </Grid>
 
                               <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
-                                <TextField
+                                <DebouncedTextField
                                   required={
                                     actions?.isConstellationRequired
                                       ? actions.isConstellationRequired(data, editMode)
@@ -310,9 +312,8 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   error={!!validation.get('constellation')}
                                   helperText={validation.get('constellation')}
-                                  onChange={(event) => {
-                                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
-                                    storeDiff('constellation', realValue);
+                                  onDebouncedChange={(value: string | null) => {
+                                    storeDiff('constellation', value);
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
@@ -332,7 +333,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               </Grid>
 
                               <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
-                                <NumericInput
+                                <DebouncedNumericInput
                                   required={
                                     actions?.isMagnitudeRequired ? actions.isMagnitudeRequired(data, editMode) : false
                                   }
@@ -354,7 +355,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   error={!!validation.get('magnitude')}
                                   helperText={validation.get('magnitude')}
-                                  onValueChange={(values, sourceInfo) => {
+                                  onDebouncedValueChange={(values, sourceInfo) => {
                                     const newValue = values.floatValue === undefined ? null : values.floatValue;
                                     if (data.magnitude !== newValue) {
                                       storeDiff('magnitude', newValue);
@@ -411,7 +412,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               </Grid>
 
                               <Grid size={{ xs: 12, sm: 12, md: 8.0 }}>
-                                <TextField
+                                <DebouncedTextField
                                   required={
                                     actions?.isOriginOfNameRequired
                                       ? actions.isOriginOfNameRequired(data, editMode)
@@ -436,9 +437,8 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   rows={2.0}
                                   error={!!validation.get('originOfName')}
                                   helperText={validation.get('originOfName')}
-                                  onChange={(event) => {
-                                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
-                                    storeDiff('originOfName', realValue);
+                                  onDebouncedChange={(value: string | null) => {
+                                    storeDiff('originOfName', value);
                                   }}
                                   InputLabelProps={{ shrink: true }}
                                   InputProps={{
@@ -625,7 +625,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               </Grid>
 
                               <Grid size={{ xs: 12, sm: 12, md: 2.0 }}>
-                                <NumericInput
+                                <DebouncedNumericInput
                                   required={
                                     actions?.isDarkMatterRequired ? actions.isDarkMatterRequired(data, editMode) : false
                                   }
@@ -647,7 +647,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   error={!!validation.get('darkMatter')}
                                   helperText={validation.get('darkMatter')}
-                                  onValueChange={(values, sourceInfo) => {
+                                  onDebouncedValueChange={(values, sourceInfo) => {
                                     const newValue = values.floatValue === undefined ? null : values.floatValue;
                                     if (data.darkMatter !== newValue) {
                                       storeDiff('darkMatter', newValue);
@@ -668,7 +668,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               </Grid>
 
                               <Grid size={{ xs: 12, sm: 12, md: 2.0 }}>
-                                <NumericInput
+                                <DebouncedNumericInput
                                   required={
                                     actions?.isIntergalacticDustRequired
                                       ? actions.isIntergalacticDustRequired(data, editMode)
@@ -696,7 +696,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   error={!!validation.get('intergalacticDust')}
                                   helperText={validation.get('intergalacticDust')}
-                                  onValueChange={(values, sourceInfo) => {
+                                  onDebouncedValueChange={(values, sourceInfo) => {
                                     const newValue = values.floatValue === undefined ? null : values.floatValue;
                                     if (data.intergalacticDust !== newValue) {
                                       storeDiff('intergalacticDust', newValue);
@@ -717,7 +717,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               </Grid>
 
                               <Grid size={{ xs: 12, sm: 12, md: 2.0 }}>
-                                <NumericInput
+                                <DebouncedNumericInput
                                   required={
                                     actions?.isInterstellarMediumRequired
                                       ? actions.isInterstellarMediumRequired(data, editMode)
@@ -745,7 +745,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   error={!!validation.get('interstellarMedium')}
                                   helperText={validation.get('interstellarMedium')}
-                                  onValueChange={(values, sourceInfo) => {
+                                  onDebouncedValueChange={(values, sourceInfo) => {
                                     const newValue = values.floatValue === undefined ? null : values.floatValue;
                                     if (data.interstellarMedium !== newValue) {
                                       storeDiff('interstellarMedium', newValue);
