@@ -22,7 +22,7 @@
     {{# and child.countCharacters child.attributeType.dataType.maxLength }}
     <Box display="flex" flexDirection="column" alignItems="flex-end" width="100%">
     {{/ and }}
-    <TextField
+    <DebouncedTextField
         required={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})}
         name="{{ child.attributeType.name }}"
         data-testid="{{ getXMIID child }}"
@@ -47,9 +47,8 @@
             }
         } }
         {{/ if }}
-        onChange={ (event) => {
-            const realValue = event.target.value?.length === 0 ? null : event.target.value;
-            storeDiff('{{ child.attributeType.name }}', realValue);
+        onDebouncedChange={ (value: string | null) => {
+            storeDiff('{{ child.attributeType.name }}', value);
         } }
         InputLabelProps={ { shrink: true } }
         InputProps={ {

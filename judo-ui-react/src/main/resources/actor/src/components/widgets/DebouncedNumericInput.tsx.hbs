@@ -1,0 +1,69 @@
+{{> fragment.header.hbs }}
+
+import type { InputAttributes, NumericFormatProps, NumberFormatValues, SourceInfo } from 'react-number-format';
+import { NumericFormat } from 'react-number-format';
+import { debounce } from '@mui/material/utils';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { debounceInputs } from '~/config';
+import { useL10N } from '~/l10n/l10n-context';
+import { decimalSeparators, thousandSeparator } from '~/l10n/separators';
+
+export interface AdditionalDebouncedNumericInputProps {
+  formatValue?: boolean;
+  annotations?: string[];
+  onDebouncedValueChange: (values: NumberFormatValues, sourceInfo: SourceInfo) => void;
+}
+
+export type DebouncedNumericInputProps<BaseType = InputAttributes> = Omit<NumericFormatProps<BaseType>, 'onValueChange'> & AdditionalDebouncedNumericInputProps;
+
+export function DebouncedNumericInput<BaseType = InputAttributes>(props: DebouncedNumericInputProps<BaseType>) {
+  const { formatValue, annotations, onDebouncedValueChange, value, ...rest } = props;
+  const { locale: l10nLocale } = useL10N();
+
+  const [localValue, setLocalValue] = useState<string | number | null | undefined>(value);
+  const latestValuesRef = useRef<NumberFormatValues | null>(null);
+
+  // Sync local state when external value changes (e.g., from server refresh)
+  useEffect(() => {
+    if (value !== localValue) {
+      setLocalValue(value);
+    }
+  }, [value]);
+
+  const debouncedOnValueChange = useMemo(
+    () =>
+      debounce((values: NumberFormatValues, sourceInfo: SourceInfo) => {
+        onDebouncedValueChange(values, sourceInfo);
+      }, debounceInputs),
+    [onDebouncedValueChange],
+  );
+
+  // Cleanup debounce on unmount
+  useEffect(() => {
+    return () => {
+      debouncedOnValueChange.clear();
+    };
+  }, [debouncedOnValueChange]);
+
+  const handleValueChange = (values: NumberFormatValues, sourceInfo: SourceInfo) => {
+    setLocalValue(values.value);
+    latestValuesRef.current = values;
+    debouncedOnValueChange(values, sourceInfo);
+  };
+
+  const propsExpanded: NumericFormatProps<BaseType> = {
+    decimalScale: 0,
+    ...(rest as NumericFormatProps<BaseType>),
+  };
+
+  return (
+    <NumericFormat
+      {...propsExpanded}
+      value={localValue}
+      onValueChange={handleValueChange}
+      decimalSeparator={decimalSeparators[l10nLocale]}
+      thousandSeparator={formatValue ? thousandSeparator[l10nLocale] : undefined}
+    />
+  );
+}
+

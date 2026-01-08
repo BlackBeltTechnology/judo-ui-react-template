@@ -27,7 +27,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { Tags } from '~/components/widgets';
+import { DebouncedTextField, Tags } from '~/components/widgets';
 import { useConfirmationBeforeChange } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
 import type { Planet, PlanetStored } from '~/services/data-api/model/Planet';
@@ -76,7 +76,11 @@ export default function PlanetView(props: PlanetViewProps) {
   const actions = useMemo(() => ({ ...pageActions, ...containerActions }), [pageActions, containerActions]);
 
   return (
-    <Grid container data-container-id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewPageContainer">
+    <Grid
+      container
+      data-container-id="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewPageContainer"
+      sx={{ width: '100%' }}
+    >
       <Grid data-name="View" size={{ xs: 12, sm: 12, md: 36.0 }}>
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
@@ -87,7 +91,7 @@ export default function PlanetView(props: PlanetViewProps) {
               className="force-full-width"
             >
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
-                <TextField
+                <DebouncedTextField
                   required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : false}
                   name="name"
                   data-testid="God/(esm/_0wQI8ORsEeuSU8xLq1yYbw)/StringTypeTextInput"
@@ -100,9 +104,8 @@ export default function PlanetView(props: PlanetViewProps) {
                   disabled={actions?.isNameDisabled ? actions.isNameDisabled(data, editMode, isLoading) : isLoading}
                   error={!!validation.get('name')}
                   helperText={validation.get('name')}
-                  onChange={(event) => {
-                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
-                    storeDiff('name', realValue);
+                  onDebouncedChange={(value: string | null) => {
+                    storeDiff('name', value);
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{

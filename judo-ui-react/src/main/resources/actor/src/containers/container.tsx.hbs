@@ -90,7 +90,7 @@ export default function {{ containerComponentName container }}(props: {{ contain
   {{/ unless }}
 
   return (
-    <Grid container data-container-id="{{ getXMIID container }}">
+    <Grid container data-container-id="{{ getXMIID container }}" sx=\{{ width: '100%' }}>
       {{# each container.children as |child| }}
         {{# if isDebugPrint }}{/* include: getWidgetTemplate() */}{{/ if }}
         {{> (getWidgetTemplate child) }}

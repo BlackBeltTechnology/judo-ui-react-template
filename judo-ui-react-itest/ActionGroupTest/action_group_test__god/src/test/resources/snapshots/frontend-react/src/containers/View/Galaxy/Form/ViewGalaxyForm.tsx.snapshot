@@ -33,7 +33,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { NumericInput, Tags } from '~/components/widgets';
+import { DebouncedNumericInput, DebouncedTextField, Tags } from '~/components/widgets';
 import { autoFocusRefDelay } from '~/config';
 import { useConfirmationBeforeChange } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
@@ -96,7 +96,11 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
   }, []);
 
   return (
-    <Grid container data-container-id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer">
+    <Grid
+      container
+      data-container-id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer"
+      sx={{ width: '100%' }}
+    >
       <Grid data-name="Form" size={{ xs: 12, sm: 12, md: 36.0 }}>
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
@@ -107,7 +111,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
               className="force-full-width"
             >
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
-                <TextField
+                <DebouncedTextField
                   required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : true}
                   name="name"
                   data-testid="God/(esm/_8AgVQE7tEeycO-gUAWxcVg)/StringTypeTextInput"
@@ -121,9 +125,8 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   disabled={actions?.isNameDisabled ? actions.isNameDisabled(data, editMode, isLoading) : isLoading}
                   error={!!validation.get('name')}
                   helperText={validation.get('name')}
-                  onChange={(event) => {
-                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
-                    storeDiff('name', realValue);
+                  onDebouncedChange={(value: string | null) => {
+                    storeDiff('name', value);
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
@@ -173,7 +176,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
               </Grid>
 
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
-                <TextField
+                <DebouncedTextField
                   required={actions?.isConstellationRequired ? actions.isConstellationRequired(data, editMode) : true}
                   name="constellation"
                   data-testid="God/(esm/_t4p84FjJEeyV2_3ibolaNQ)/StringTypeTextInput"
@@ -190,9 +193,8 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }
                   error={!!validation.get('constellation')}
                   helperText={validation.get('constellation')}
-                  onChange={(event) => {
-                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
-                    storeDiff('constellation', realValue);
+                  onDebouncedChange={(value: string | null) => {
+                    storeDiff('constellation', value);
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{
@@ -242,7 +244,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
               </Grid>
 
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
-                <NumericInput
+                <DebouncedNumericInput
                   required={actions?.isMagnitudeRequired ? actions.isMagnitudeRequired(data, editMode) : false}
                   name="magnitude"
                   data-testid="God/(esm/_iqFLoFjJEeyV2_3ibolaNQ)/NumericTypeVisualInput"
@@ -260,7 +262,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }
                   error={!!validation.get('magnitude')}
                   helperText={validation.get('magnitude')}
-                  onValueChange={(values, sourceInfo) => {
+                  onDebouncedValueChange={(values, sourceInfo) => {
                     const newValue = values.floatValue === undefined ? null : values.floatValue;
                     if (data.magnitude !== newValue) {
                       storeDiff('magnitude', newValue);
@@ -281,7 +283,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
               </Grid>
 
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
-                <TextField
+                <DebouncedTextField
                   required={actions?.isOriginOfNameRequired ? actions.isOriginOfNameRequired(data, editMode) : false}
                   name="originOfName"
                   data-testid="God/(esm/_iqGZwFjJEeyV2_3ibolaNQ)/StringTypeTextInput"
@@ -298,9 +300,8 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   }
                   error={!!validation.get('originOfName')}
                   helperText={validation.get('originOfName')}
-                  onChange={(event) => {
-                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
-                    storeDiff('originOfName', realValue);
+                  onDebouncedChange={(value: string | null) => {
+                    storeDiff('originOfName', value);
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{

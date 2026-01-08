@@ -19,7 +19,7 @@
     {{# if (hasTooltipText child) }}
     <Box display="flex" alignItems="center">
     {{/ if }}
-    <NumericInput
+    <DebouncedNumericInput
         required={actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }})}
         name="{{ child.attributeType.name }}"
         data-testid="{{ getXMIID child }}"
@@ -47,7 +47,7 @@
             }
         } }
         {{/ if }}
-        onValueChange={(values, sourceInfo) => {
+        onDebouncedValueChange={(values, sourceInfo) => {
             const newValue = values.floatValue === undefined ? null : values.floatValue;
             if (data.{{ child.attributeType.name }} !== newValue) {
                 storeDiff('{{ child.attributeType.name }}', newValue);
