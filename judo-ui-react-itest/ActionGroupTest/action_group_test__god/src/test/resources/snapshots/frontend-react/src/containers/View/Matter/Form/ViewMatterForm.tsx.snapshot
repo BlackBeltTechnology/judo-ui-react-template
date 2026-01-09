@@ -28,7 +28,7 @@ import { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo, useRe
 import { useTranslation } from 'react-i18next';
 import { DropdownButton, MdiIcon, TooltipContent, useJudoNavigation } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { NumericInput, Tags } from '~/components/widgets';
+import { DebouncedNumericInput, DebouncedTextField, Tags } from '~/components/widgets';
 import { autoFocusRefDelay } from '~/config';
 import { useConfirmationBeforeChange } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
@@ -120,7 +120,11 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
   }, []);
 
   return (
-    <Grid container data-container-id="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormPageContainer">
+    <Grid
+      container
+      data-container-id="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormPageContainer"
+      sx={{ width: '100%' }}
+    >
       <Grid data-name="Form" size={{ xs: 12, sm: 12, md: 36.0 }}>
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
@@ -193,7 +197,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
               </Grid>
 
               <Grid size={{ xs: 12, sm: 12 }}>
-                <NumericInput
+                <DebouncedNumericInput
                   required={actions?.isMassRequired ? actions.isMassRequired(data, editMode) : false}
                   name="mass"
                   data-testid="God/(esm/_T4dq4Oq_EeuMzos2n42msw)/MeasuredTypeInput"
@@ -209,7 +213,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                   disabled={actions?.isMassDisabled ? actions.isMassDisabled(data, editMode, isLoading) : isLoading}
                   error={!!validation.get('mass')}
                   helperText={validation.get('mass')}
-                  onValueChange={(values, sourceInfo) => {
+                  onDebouncedValueChange={(values, sourceInfo) => {
                     const newValue = values.floatValue === undefined ? null : values.floatValue;
                     if (data.mass !== newValue) {
                       storeDiff('mass', newValue);
@@ -230,7 +234,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
               </Grid>
 
               <Grid size={{ xs: 12, sm: 12 }}>
-                <TextField
+                <DebouncedTextField
                   required={actions?.isShortNoteRequired ? actions.isShortNoteRequired(data, editMode) : false}
                   name="shortNote"
                   data-testid="God/(esm/_uN0FQFENEeyWtMpj61RngA)/StringTypeTextInput"
@@ -245,9 +249,8 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                   }
                   error={!!validation.get('shortNote')}
                   helperText={validation.get('shortNote')}
-                  onChange={(event) => {
-                    const realValue = event.target.value?.length === 0 ? null : event.target.value;
-                    storeDiff('shortNote', realValue);
+                  onDebouncedChange={(value: string | null) => {
+                    storeDiff('shortNote', value);
                   }}
                   InputLabelProps={{ shrink: true }}
                   InputProps={{

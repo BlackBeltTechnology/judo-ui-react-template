@@ -405,6 +405,13 @@ public class UiPageContainerHelper {
         return !collectElementsOfType(container, new ArrayList<>(), NumericInput.class).isEmpty();
     }
 
+    public static boolean containerHasDebouncedTextField(PageContainer container) {
+        var textInputs = collectElementsOfType(container, new ArrayList<>(), TextInput.class);
+        var textAreas = collectElementsOfType(container, new ArrayList<>(), TextArea.class);
+        boolean hasNonTypeAheadTextInput = textInputs.stream().anyMatch(ti -> !ti.isIsTypeAheadField());
+        return hasNonTypeAheadTextInput || !textAreas.isEmpty();
+    }
+
     public static boolean containerHasTrinaryLogicCombo(PageContainer container) {
         return !collectElementsOfType(container, new ArrayList<>(), TrinaryLogicCombo.class).isEmpty();
     }
