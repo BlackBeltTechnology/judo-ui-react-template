@@ -1,7 +1,13 @@
 {{> fragment.header.hbs }}
 
+import Box from "@mui/material/Box";
+import Collapse from "@mui/material/Collapse";
 import Grid from '@mui/material/Grid';
 import { GridValidRowModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import IconButton from "@mui/material/IconButton";
+import { alpha, useTheme } from "@mui/material/styles";
+import { useMemo, useState } from "react";
+import { MdiIcon } from "~/components/MdiIcon";
 import { Filter, FilterOption } from '~/components-api';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import {
@@ -16,20 +22,61 @@ interface FixedTableFiltersProps<T extends GridValidRowModel, TStored extends Gr
   ownerData?: any;
   filtersSerializer: FiltersSerializer;
   onFiltersChange: (newFilters: Filter[]) => void;
+  collapsible?: boolean;
+  maxFirstRowCols?: number;
 }
 
-export function FixedTableFilters<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
-  props: FixedTableFiltersProps<T, TStored>,
-) {
-  const { tableFilterOptions, filters, ownerData, filtersSerializer, onFiltersChange } = props;
-  const fixedTableFilterOptions = tableFilterOptions.filter(f => f.alwaysShown);
+export function FixedTableFilters<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: FixedTableFiltersProps<T, TStored>) {
+  const { tableFilterOptions, filters, ownerData, filtersSerializer, onFiltersChange, collapsible = true, maxFirstRowCols = 12 } = props;
+  const theme = useTheme();
+  const fixedTableFilterOptions = tableFilterOptions.filter((f) => f.alwaysShown);
+  const [expanded, setExpanded] = useState(false);
+
+  // Calculate which filters fit in the first row based on column widths
+  const { firstRowFilters, additionalFilters } = useMemo(() => {
+    if (!collapsible) {
+      return { firstRowFilters: fixedTableFilterOptions, additionalFilters: [] };
+    }
+
+    const firstRow: FilterOption[] = [];
+    const additional: FilterOption[] = [];
+    let currentColSum = 0;
+    // Reserve space for filter icon and toggle button (approximately 2 col)
+    const reservedForIcons = 2;
+    const availableCols = maxFirstRowCols - reservedForIcons;
+
+    for (const filter of fixedTableFilterOptions) {
+      const filterCol = filter.col ?? 3;
+      // Always show at least one filter in the first row
+      if (firstRow.length === 0 || currentColSum + filterCol <= availableCols) {
+        firstRow.push(filter);
+        currentColSum += filterCol;
+      } else {
+        additional.push(filter);
+      }
+    }
+
+    return { firstRowFilters: firstRow, additionalFilters: additional };
+  }, [fixedTableFilterOptions, collapsible, maxFirstRowCols]);
+
+  const hasAdditionalFilters = additionalFilters.length > 0;
 
   if (fixedTableFilterOptions.length > 0) {
     return (
-      <Grid container>
-        <Grid size={12}>
-          <Grid container spacing={2} alignItems="flex-end">
-            {fixedTableFilterOptions.map((f) => (
+      <Box
+        sx={ {
+          backgroundColor: alpha(theme.palette.primary.main, 0.08),
+          borderRadius: 1,
+          p: 2,
+          mb: 2,
+        }}
+      >
+        <Box sx={ { display: "flex", alignItems: "flex-end", gap: 2 } }>
+          <Box sx={ { display: "flex", alignItems: "flex-end", pb: 0.5 } }>
+            <MdiIcon path="magnify" sx={ { color: theme.palette.primary.main, fontSize: 28 } } />
+          </Box>
+          <Grid container spacing={2} alignItems="flex-end" sx={ { flex: 1 } }>
+            {firstRowFilters.map((f) => (
               <SingleValueFilterComponent
                 key={f.id}
                 attributeName={f.attributeName as keyof T}
@@ -41,11 +88,43 @@ export function FixedTableFilters<T extends GridValidRowModel, TStored extends T
                 col={f.col ?? 3}
                 icon={f.icon}
                 enumValues={f.enumValues}
+                size="small"
               />
             ))}
           </Grid>
-        </Grid>
-      </Grid>
+          {collapsible && hasAdditionalFilters && (
+            <Box sx={ { display: "flex", alignItems: "flex-end", pb: 0.5 } }>
+              <IconButton size="small" onClick={() => setExpanded(!expanded)} title={expanded ? "Collapse filters" : "Expand filters"}>
+                <MdiIcon path={expanded ? "chevron-up" : "chevron-down"} />
+              </IconButton>
+            </Box>
+          )}
+        </Box>
+        {collapsible && hasAdditionalFilters && (
+          <Collapse in={expanded}>
+            <Box sx={ { display: "flex", alignItems: "flex-end", gap: 2, mt: 2 } }>
+              <Box sx={ { width: 28 } } /> {/* Spacer to align with magnify icon */}
+              <Grid container spacing={2} alignItems="flex-end" sx={ { flex: 1 } }>
+                {additionalFilters.map((f) => (
+                  <SingleValueFilterComponent
+                    key={f.id}
+                    attributeName={f.attributeName as keyof T}
+                    filterType={f.filterType}
+                    operator={getOperationFromFilterOperationType(f, f.defaultOperationType)}
+                    filters={filters}
+                    onFiltersChange={onFiltersChange}
+                    label={f.label ?? ''}
+                    col={f.col ?? 3}
+                    icon={f.icon}
+                    enumValues={f.enumValues}
+                    size="small"
+                  />
+                ))}
+              </Grid>
+            </Box>
+          </Collapse>
+        )}
+      </Box>
     );
   } else {
     return (<></>)
