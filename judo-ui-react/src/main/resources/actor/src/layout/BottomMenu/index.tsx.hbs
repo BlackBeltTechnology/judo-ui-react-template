@@ -251,9 +251,12 @@ export const BottomMenu = () => {
         otherAction(),
       ];
     } else {
-      return bottomMenuItems.slice(0, lastItemIndex + 1).map((item) => {
-        return itemAction(item);
-      });
+      return [
+        ...bottomMenuItems.map((item) => {
+          return itemAction(item);
+        }),
+        otherAction(),
+      ];
     }
   }, [bottomMenuItems]);
 
