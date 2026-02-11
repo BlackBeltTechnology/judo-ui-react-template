@@ -290,6 +290,9 @@ public class UiI18NHelper {
                             if (b.getTooltipText() != null && !b.getTooltipText().isBlank()) {
                                 translations.put(getTranslationKeyForVisualElement(b) + ".tooltip", b.getTooltipText().replaceAll("\n", "\\\\n"));
                             }
+                            if (b.getConfirmation() != null) {
+                                translations.put(getTranslationKeyForVisualElement(b) + ".confirmation", b.getConfirmation().getConfirmationMessage());
+                            }
                         });
                     }
                 }
@@ -312,6 +315,9 @@ public class UiI18NHelper {
                         translations.put(getTranslationKeyForVisualElement(button), button.getLabel());
                         if (button.getTooltipText() != null && !button.getTooltipText().isBlank()) {
                             translations.put(getTranslationKeyForVisualElement(button) + ".tooltip", button.getTooltipText().replaceAll("\n", "\\\\n"));
+                        }
+                        if (button.getConfirmation() != null) {
+                            translations.put(getTranslationKeyForVisualElement(button) + ".confirmation", button.getConfirmation().getConfirmationMessage());
                         }
                     });
                 }
