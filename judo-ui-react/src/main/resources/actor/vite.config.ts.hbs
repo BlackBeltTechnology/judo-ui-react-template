@@ -10,18 +10,29 @@ export default defineConfig(({ mode }) => ({
       { find: '~', replacement: path.resolve(__dirname, 'src') },
     ],
   },
+  css: {
+    transformer: 'lightningcss',
+    lightningcss: {
+      drafts: {
+        customMedia: true,
+      },
+    },
+  },
   build: {
+    cssMinify: 'lightningcss',
     rollupOptions: {
       output: {
-        manualChunks: {
-          'antlr4ng': ['antlr4ng'],
-          'pandino': ['@pandino/pandino', '@pandino/react-hooks'],
-          'i18next': ['react-i18next', 'i18next'],
-          'react': ['react-dom', 'react'],
-          'react-router': ['react-router-dom', 'react-router'],
-          '@mui/material': ['@mui/material'],
-          '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}': ['@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}'],
-          '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}': ['@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}'],
+        advancedChunks: {
+          groups: [
+            { name: 'antlr4ng', test: /[\\/]node_modules[\\/]antlr4ng[\\/]/ },
+            { name: 'pandino', test: /[\\/]node_modules[\\/]@pandino[\\/]/ },
+            { name: 'i18next', test: /[\\/]node_modules[\\/](react-i18next|i18next)[\\/]/ },
+            { name: 'react', test: /[\\/]node_modules[\\/]react(-dom)?[\\/]/ },
+            { name: 'react-router', test: /[\\/]node_modules[\\/]react-router(-dom)?[\\/]/ },
+            { name: 'mui-material', test: /[\\/]node_modules[\\/]@mui[\\/]material[\\/]/ },
+            { name: 'mui-x-data-grid', test: /[\\/]node_modules[\\/]@mui[\\/]x-data-grid/ },
+            { name: 'mui-x-date-pickers', test: /[\\/]node_modules[\\/]@mui[\\/]x-date-pickers/ },
+          ],
         },
       },
     },
