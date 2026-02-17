@@ -248,7 +248,7 @@ This generates a complete application into the `target/frontend-react` directory
 
 ## Project Structure
 
-```
+```text
 judo-ui-react-template/
 ├── judo-ui-react/                    # Main generator module
 │   ├── pom.xml                       # Maven configuration
@@ -274,7 +274,7 @@ judo-ui-react-template/
 
 ## Generated Application Structure
 
-```
+```text
 target/frontend-react/
 ├── package.json                 # Dependencies and scripts
 ├── vite.config.ts              # Vite build configuration
