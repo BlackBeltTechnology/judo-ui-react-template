@@ -30,7 +30,7 @@ interface FixedTableFiltersProps<T extends GridValidRowModel, TStored extends Gr
 }
 
 export function FixedTableFilters<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: FixedTableFiltersProps<T, TStored>) {
-  const { tableFilterOptions, filters, ownerData, filtersSerializer, onFiltersChange, collapsible = true } = props;
+  const { tableFilterOptions, filters, ownerData, filtersSerializer, onFiltersChange, collapsible = true, maxFirstRowCols } = props;
   const theme = useTheme();
   const { t } = useTranslation();
   const fixedTableFilterOptions = tableFilterOptions.filter((f) => f.alwaysShown);
@@ -57,7 +57,7 @@ export function FixedTableFilters<T extends GridValidRowModel, TStored extends T
     const firstRow: FilterOption[] = [];
     const additional: FilterOption[] = [];
     let currentColSum = 0;
-    const availableCols = 12;
+    const availableCols = maxFirstRowCols ?? 12;
 
     for (const filter of fixedTableFilterOptions) {
       const filterCol = filter.col ?? 3;
@@ -70,7 +70,7 @@ export function FixedTableFilters<T extends GridValidRowModel, TStored extends T
     }
 
     return { firstRowFilters: firstRow, additionalFilters: additional };
-  }, [fixedTableFilterOptions, collapsible, isMdUp]);
+  }, [fixedTableFilterOptions, collapsible, isMdUp, maxFirstRowCols]);
 
   if (fixedTableFilterOptions.length > 0) {
     return (

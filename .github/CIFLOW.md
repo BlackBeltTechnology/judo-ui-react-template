@@ -8,7 +8,7 @@
 
 ## Branches
 
-Versioning policy of JUDO NG modules are based on GitFlow: https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow.
+Versioning policy of JUDO NG modules are based on [GitFlow workflow](https://www.atlassian.com/git/tutorials/comparing-workflows/gitflow-workflow).
 
 Branches:
 
@@ -61,33 +61,34 @@ gitGraph
     checkout release/1.0-beta2
     merge support/JNG-5 id: "merge-sp"
     
-    checkout main
+    checkout master
     merge release/1.0-beta2 id: "release-1.0"
     
     branch hotfix/JNG-6 order: 9
     commit id: "hf-1"
-    checkout main
+    checkout master
     merge hotfix/JNG-6 id: "merge-hf"
     
     checkout develop
-    merge main id: "sync-hf"
+    merge master id: "sync-hf"
     
     branch release/1.1-beta1 order: 10
     commit id: "r3-1"
-    checkout main
+    checkout master
     merge release/1.1-beta1 id: "release-1.1"
 ```
 
 **Branch Legend:**
-| Branch Type | Color | Purpose |
-|------------|-------|---------|
-| master | Green | Latest released sources |
-| develop | Blue | Latest development sources |
-| feature/* | Gold | New features |
-| release/* | Cyan | Release preparation |
-| bugfix/* | Red | Bug fixes on release branches |
-| support/* | Aquamarine | Support for previous releases |
-| hotfix/* | Dark Red | Urgent fixes for production |
+
+| Branch Type | Color      | Purpose                        |
+|-------------|------------|--------------------------------|
+| master      | Green      | Latest released sources        |
+| develop     | Blue       | Latest development sources     |
+| feature/*   | Gold       | New features                   |
+| release/*   | Cyan       | Release preparation            |
+| bugfix/*    | Red        | Bug fixes on release branches  |
+| support/*   | Aquamarine | Support for previous releases  |
+| hotfix/*    | Dark Red   | Urgent fixes for production    |
 
 ## Version numbers
 
