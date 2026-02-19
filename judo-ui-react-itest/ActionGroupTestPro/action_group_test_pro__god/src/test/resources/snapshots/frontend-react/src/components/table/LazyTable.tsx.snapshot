@@ -127,6 +127,8 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   actionsColumnWidth?: number;
   annotations?: string[];
   containerIsForm?: boolean;
+  collapsibleFilters?: boolean;
+  collapsibleFiltersMaxCols?: number;
 }
 
 export function LazyTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
@@ -177,6 +179,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     actionsColumnWidth,
     annotations = [],
     containerIsForm,
+    collapsibleFilters = true,
+    collapsibleFiltersMaxCols = 12,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -664,6 +668,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         isLoading={isLoading}
         filters={filters}
         onFiltersChange={handleFiltersChange}
+        collapsible={collapsibleFilters}
+        maxFirstRowCols={collapsibleFiltersMaxCols}
         filterModel={filterModel}
         onFilterModelChange={handleFilterModelChange}
         data={data}
@@ -676,6 +682,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         filtersSerializer={filtersSerializer}
         tableFilterOptions={tableFilterOptions}
         onFiltersChange={handleFiltersChange}
+        collapsible={collapsibleFilters}
+        maxFirstRowCols={collapsibleFiltersMaxCols}
       ></FixedTableFilters>
       <StripedDataGrid
         apiRef={apiRef as unknown as any}
