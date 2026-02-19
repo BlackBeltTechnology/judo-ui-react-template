@@ -106,6 +106,8 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   actionsColumnWidth?: number;
   annotations?: string[];
   containerIsForm?: boolean;
+  collapsibleFilters?: boolean;
+  collapsibleFiltersMaxCols?: number;
 }
 
 export function EagerTable<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(props: EagerTableProps<T, TStored>) {
@@ -149,6 +151,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     actionsColumnWidth,
     annotations = [],
     containerIsForm,
+    collapsibleFilters = true,
+    collapsibleFiltersMaxCols = 12,
   } = props;
 
   const apiRef = useGridApiRef();
@@ -480,6 +484,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         isLoading={isLoading}
         filters={filters}
         onFiltersChange={handleFiltersChange}
+        collapsible={collapsibleFilters}
+        maxFirstRowCols={collapsibleFiltersMaxCols}
         {{# if isUseInlineColumnFilters }}
           filterModel={filterModel}
           onFilterModelChange={handleFilterModelChange}
@@ -494,6 +500,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         filtersSerializer={filtersSerializer}
         tableFilterOptions={tableFilterOptions}
         onFiltersChange={handleFiltersChange}
+        collapsible={collapsibleFilters}
+        maxFirstRowCols={collapsibleFiltersMaxCols}
       >
       </FixedTableFilters>
       <StripedDataGrid
