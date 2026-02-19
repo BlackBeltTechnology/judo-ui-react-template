@@ -96,7 +96,7 @@ export function FixedTableFilters<T extends GridValidRowModel, TStored extends T
               />
             ))}
           </Grid>
-          {collapsible && (
+          {collapsible && additionalFilters.length > 0 && (
             <Box sx={ filterPanelStyles.iconContainer(theme) }>
               <IconButton
                 size="small"
@@ -109,10 +109,10 @@ export function FixedTableFilters<T extends GridValidRowModel, TStored extends T
             </Box>
           )}
         </Box>
-        {collapsible && (
+        {collapsible && additionalFilters.length > 0 && (
           <Collapse in={expanded}>
             <Box sx={ { display: "flex", alignItems: "flex-end", gap: 2, mt: 2 } }>
-              <Box sx={ { width: 28 } } /> {/* Spacer to align with magnify icon */}
+              <Box sx={ filterPanelStyles.iconSpacer } />
               <Grid container spacing={2} alignItems="flex-end" sx={ { flex: 1 } }>
                 {additionalFilters.map((f) => (
                   <SingleValueFilterComponent
@@ -130,6 +130,7 @@ export function FixedTableFilters<T extends GridValidRowModel, TStored extends T
                   />
                 ))}
               </Grid>
+              <Box sx={ filterPanelStyles.toggleButtonSpacer } />
             </Box>
           </Collapse>
         )}
