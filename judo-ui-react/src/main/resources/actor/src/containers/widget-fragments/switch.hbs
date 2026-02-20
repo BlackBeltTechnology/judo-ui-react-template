@@ -1,0 +1,51 @@
+{{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
+<Grid size={ { xs: 12, sm: 12{{# neq (calculateSize child) 12.0 }}, md: {{ calculateSize child }}{{/ neq }} } }>
+    {{# if child.subTheme }}
+      <SubThemeWrapper subTheme="{{ child.subTheme }}" data={data}>
+    {{/ if }}
+    {{# if child.customImplementation }}
+        <ComponentProxy
+            filter={`(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY}){{{ attributeBasedComponentProxyFilters child }}})`}
+            data={data}
+            validation={validation}
+            editMode={editMode}
+            storeDiff={storeDiff}
+            isLoading={isLoading}
+            actions={actions}
+            boundAttributeName={'{{ child.attributeType.name }}'}
+            annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
+        >
+    {{/ if }}
+        <FormControl error={!!validation.get('{{ child.attributeType.name }}')}>
+            <FormGroup>
+                <FormControlLabel
+                    className="switch"
+                    sx={ { marginTop: '6px', color: (theme) => validation.has('{{ child.attributeType.name }}') ? theme.palette.error.main : 'primary' } }
+                    disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading)}
+                    control={
+                        <Switch checked={ data.{{ child.attributeType.name }} || false } sx={ { color: (theme) => validation.has('{{ child.attributeType.name }}') ? theme.palette.error.main : 'primary' } } onChange={ (event) => {
+                            storeDiff('{{ child.attributeType.name }}', event.target.checked);
+                            {{# if child.onBlur }}
+                            if (actions?.on{{ firstToUpper child.attributeType.name }}BlurAction) {
+                                const eagerCopy = { ...data, ['{{ child.attributeType.name }}']: event.target.checked };
+                                actions.on{{ firstToUpper child.attributeType.name }}BlurAction(eagerCopy, storeDiff, editMode, submit);
+                            }
+                            {{/ if }}
+                        } } />
+                    }
+                    label={ t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) as string }
+                    {{# with (switchLabelPlacement) as |placement| }}
+                    labelPlacement="{{ placement }}"
+                    {{/ with }}
+                />
+            </FormGroup>
+            {validation.has('{{ child.attributeType.name }}') && <FormHelperText>{validation.get('{{ child.attributeType.name }}')}</FormHelperText>}
+        </FormControl>
+    {{# if child.customImplementation }}
+        </ComponentProxy>
+    {{/ if }}
+    {{# if child.subTheme }}
+      </SubThemeWrapper>
+    {{/ if }}
+</Grid>
+{{# if child.hiddenBy }} } {{/ if }}

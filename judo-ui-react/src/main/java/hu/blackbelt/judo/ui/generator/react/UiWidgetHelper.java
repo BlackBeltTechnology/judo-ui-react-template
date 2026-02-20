@@ -477,6 +477,13 @@ public class UiWidgetHelper {
         return checkbox.getValueLabelPlacement().getName().toLowerCase();
     }
 
+    public static String switchLabelPlacement(Switch switchComponent) {
+        if (switchComponent.getValueLabelPlacement() == null || switchComponent.getValueLabelPlacement().equals(Placement.DEFAULT)) {
+            return null;
+        }
+        return switchComponent.getValueLabelPlacement().getName().toLowerCase();
+    }
+
     public static Integer calculateLinkAutocompleteRows(Link link) {
         Integer defaultValue = link.getAutoCompleteRows() != null ? link.getAutoCompleteRows() : link.getSelectorRowsPerPage();
 
