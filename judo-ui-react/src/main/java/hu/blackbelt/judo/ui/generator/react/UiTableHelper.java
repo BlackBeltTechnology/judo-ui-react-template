@@ -290,7 +290,7 @@ public class UiTableHelper {
     }
 
     public static boolean isAttributeTypeEnumeration(AttributeType attributeType) {
-        if (attributeType != null) {
+        if (attributeType == null) {
             return false;
         }
 
