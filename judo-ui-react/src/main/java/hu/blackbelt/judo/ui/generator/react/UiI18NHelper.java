@@ -273,7 +273,9 @@ public class UiI18NHelper {
                                 return;
                             }
                             if (f.eContainer() instanceof Table t) {
-                                Optional<Column> column = t.getColumns().stream().filter(c -> c.getAttributeType().equals(f.getAttributeType())).findFirst();
+                                Optional<Column> column = t.getColumns().stream()
+                                        .filter(c -> c.getAttributeType() != null)
+                                        .filter(c -> c.getAttributeType().equals(f.getAttributeType())).findFirst();
                                 if (column.isPresent()) {
                                     return;
                                 }
