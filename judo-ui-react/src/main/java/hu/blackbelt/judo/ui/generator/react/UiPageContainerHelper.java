@@ -217,7 +217,17 @@ public class UiPageContainerHelper {
     public static MaskEntry getMaskForTable(Table table, PageDefinition pageDefinition, Integer counter) {
         MaskEntry mask = new MaskEntry(Set.of(), null);
         Set<String> columnAttributeNames = table.getColumns().stream()
-                .map(c -> c.getAttributeType().getName())
+                .map(c -> {
+                    if (c.getAttributeType() != null) {
+                        return c.getAttributeType().getName();
+                    }
+
+                    if (c.getRepresentsRelation() != null) {
+                        return c.getRepresentsRelation().getName() + "{" + c.getRepresentationOfRelation().getName() + "}";
+                    }
+
+                    return "";
+                })
                 .collect(Collectors.toSet());
         columnAttributeNames.addAll(table.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
         mask.addPrimitives(columnAttributeNames);
@@ -274,7 +284,10 @@ public class UiPageContainerHelper {
 
     public static MaskEntry getMaskForLink(Link link, PageDefinition pageDefinition, Integer counter) {
         MaskEntry mask = new MaskEntry(Set.of(), null);
-        Set<String> columnAttributeNames = ((List<Column>) link.getColumns()).stream().map(c -> c.getAttributeType().getName()).collect(Collectors.toSet());
+        Set<String> columnAttributeNames = ((List<Column>) link.getColumns()).stream()
+                .filter(c -> c.getAttributeType() != null)
+                .map(c -> c.getAttributeType().getName())
+                .collect(Collectors.toSet());
         columnAttributeNames.addAll(link.getAdditionalMaskAttributes().stream().map(NamedElement::getName).collect(Collectors.toSet()));
         mask.addPrimitives(columnAttributeNames);
 
