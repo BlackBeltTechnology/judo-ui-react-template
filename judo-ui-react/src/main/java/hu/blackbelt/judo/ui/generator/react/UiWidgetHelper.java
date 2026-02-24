@@ -353,6 +353,29 @@ public class UiWidgetHelper {
         return !nonFeaturedButtonsForButtonGroup(actionGroup).isEmpty();
     }
 
+    public static Boolean displaySpeedDialForFabButtonGroup(ButtonGroup buttonGroup) {
+        return buttonGroup.getButtons().size() > 1 && !nonFeaturedButtonsForButtonGroup(buttonGroup).isEmpty();
+    }
+
+    public static String fabAlignmentCss(ButtonGroup buttonGroup) {
+        Alignment alignment = buttonGroup.getAlignment();
+        if (alignment == null) {
+            alignment = Alignment.BOTTOM_RIGHT;
+        }
+        switch (alignment) {
+            case TOP_LEFT:
+                return "position: 'fixed', top: 16, left: 16, zIndex: 1050";
+            case TOP_RIGHT:
+                return "position: 'fixed', top: 16, right: 16, zIndex: 1050";
+            case BOTTOM_LEFT:
+                return "position: 'fixed', bottom: 16, left: 16, zIndex: 1050";
+            case BOTTOM_RIGHT:
+                return "position: 'fixed', bottom: 16, right: 16, zIndex: 1050";
+            default:
+                return "position: 'fixed', bottom: 16, right: 16, zIndex: 1050";
+        }
+    }
+
     public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {
         String result = "";
 
