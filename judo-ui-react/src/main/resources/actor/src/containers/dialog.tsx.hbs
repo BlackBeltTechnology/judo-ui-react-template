@@ -8,6 +8,13 @@ import { CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY } from '~/custom';
 import Tooltip from '@mui/material/Tooltip';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
+{{# if (containerHasFabButtonGroups container) }}
+import Box from '@mui/material/Box';
+import Fab from '@mui/material/Fab';
+import SpeedDial from '@mui/material/SpeedDial';
+import SpeedDialAction from '@mui/material/SpeedDialAction';
+import SpeedDialIcon from '@mui/material/SpeedDialIcon';
+{{/ if }}
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import DialogContent from '@mui/material/DialogContent';
@@ -163,8 +170,11 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
             />
           </Suspense>
         </DialogContent>
+        {{# each (getFabButtonGroupsForContainer container) as |fabGroup| }}
+          {{> actor/src/containers/widget-fragments/fab-button-group.fragment.hbs fabGroup=fabGroup container=../container }}
+        {{/ each }}
         <DialogActions>
-          {{# each (getDefaultButtonsForContainer container) as |button| }}
+          {{# each (getNonFabDefaultButtonsForContainer container) as |button| }}
             { {{# if button.actionDefinition.isInputFormCallOperationAction }}formFor === '{{ safeName (getCallerPageForOperationFormCallButton button application) }}' && {{/ if }}{{{ containerButtonAvailable button }}} && actions.{{ simpleActionDefinitionName actionDefinition }} && actionsRequested.has('{{ actionDefinition.name }}') && (
               <Grid className="page-action">
                 {{# if button.actionDefinition.isCreateAction }}
