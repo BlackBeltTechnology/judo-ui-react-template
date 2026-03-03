@@ -1,0 +1,65 @@
+{{!-- FAB Button Group rendering fragment
+     Context: fabGroup = ButtonGroup with isFab=true, container = PageContainer
+     Renders Fab/SpeedDial based on button count and featuredActions --}}
+<Box sx={ { {{{ fabAlignmentCss fabGroup }}}, display: 'flex', flexDirection: 'column', gap: 1 } }>
+  {{# if (displaySpeedDialForFabButtonGroup fabGroup) }}
+    <SpeedDial
+      ariaLabel={ t('{{ getTranslationKeyForVisualElement fabGroup }}', { defaultValue: '{{ fabGroup.label }}' }) as string }
+      {{# if fabGroup.icon }}
+      icon={<MdiIcon path="{{ fabGroup.icon.iconName }}" />}
+      {{/ if }}
+      FabProps={ {
+        {{# if fabGroup.label }}
+        variant: 'extended',
+        {{/ if }}
+      } }
+    >
+      {{# each (nonFeaturedButtonsForButtonGroup fabGroup) as |button| }}
+        <SpeedDialAction
+          key="{{ getXMIID button }}"
+          data-testid="{{ getXMIID button }}"
+          icon={<MdiIcon path="{{# if button.icon }}{{ button.icon.iconName }}{{ else }}circle{{/ if }}" />}
+          tooltipTitle={ t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string }
+          onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
+            {{# unless (isParameterOpenerButton button) }}
+              {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+            {{/ unless }}
+            await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
+          } : undefined }
+          FabProps={ {
+            {{# if (containerButtonHasDisabledConditions button container) }}
+            disabled: {{{ containerButtonGroupButtonDisabledConditions button container }}},
+            {{/ if }}
+          } }
+        />
+      {{/ each }}
+    </SpeedDial>
+  {{/ if }}
+  {{# each (featuredButtonsForButtonGroup fabGroup) as |button| }}
+    {{# if button.hiddenBy }}{ !data.{{ button.hiddenBy.name }} && {{/ if }}
+    <Fab
+      data-testid="{{ getXMIID button }}"
+      {{# if button.label }}
+      variant="extended"
+      {{/ if }}
+      color="primary"
+      onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
+        {{# unless (isParameterOpenerButton button) }}
+          {{> actor/src/fragments/container/action-call-confirm-check.fragment.hbs button=button dataParam='data' }}
+        {{/ unless }}
+        await actions.{{ simpleActionDefinitionName button.actionDefinition }}!();
+      } : undefined }
+      {{# if (containerButtonHasDisabledConditions button container) }}
+      disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
+      {{/ if }}
+    >
+      {{# if button.icon }}
+        <MdiIcon path="{{ button.icon.iconName }}" {{# if button.label }}sx={ { mr: 1 } }{{/ if }} />
+      {{/ if }}
+      {{# if button.label }}
+        { t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) }
+      {{/ if }}
+    </Fab>
+    {{# if button.hiddenBy }} }{{/ if }}
+  {{/ each }}
+</Box>

@@ -1,3 +1,6 @@
+{{# if child.isFab }}
+  {{> actor/src/containers/widget-fragments/fab-button-group.fragment.hbs fabGroup=child container=container }}
+{{ else }}
 {{# if child.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ child.hiddenBy.name }}) && {{/ if }}
 <Grid size={ { xs: 12{{# neq (calculateSize child) 12.0 }}, sm: {{ calculateSize child }}{{/ neq }} } }>
   <Box sx={ { display: 'flex', gap: 1 } }>
@@ -94,3 +97,4 @@
   </Box>
 </Grid>
 {{# if child.hiddenBy }} } {{/ if }}
+{{/ if }}

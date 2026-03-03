@@ -561,6 +561,50 @@ public class UiPageContainerHelper {
           .collect(Collectors.toList());
     }
 
+    public static boolean containerHasFabButtonGroups(PageContainer container) {
+        return container.getActionButtonGroups().stream().anyMatch(ButtonGroup::isIsFab)
+                || !collectElementsOfType(container, new ArrayList<>(), ButtonGroup.class).stream()
+                    .filter(ButtonGroup::isIsFab)
+                    .toList()
+                    .isEmpty();
+    }
+
+    public static List<ButtonGroup> getFabButtonGroupsForContainer(PageContainer container) {
+        return container.getActionButtonGroups().stream()
+          .filter(ButtonGroup::isIsFab)
+          .collect(Collectors.toList());
+    }
+
+    public static ButtonGroup getNonFabDefaultButtonGroupForContainer(PageContainer container) {
+        return container.getActionButtonGroups().stream()
+          .filter(bg -> !bg.isIsFab())
+          .findFirst()
+          .orElse(null);
+    }
+
+    public static List<Button> getNonFabDefaultButtonsForContainer(PageContainer container) {
+        ButtonGroup buttonGroup = getNonFabDefaultButtonGroupForContainer(container);
+        if (buttonGroup == null) {
+            return new ArrayList<>();
+        }
+        return buttonGroup.getButtons().stream()
+          .sorted(Comparator.comparing(NamedElement::getFQName))
+          .collect(Collectors.toList());
+    }
+
+    public static List<ButtonGroup> getNonFabNonDefaultButtonGroupsForContainer(PageContainer container) {
+        List<ButtonGroup> nonFabGroups = container.getActionButtonGroups().stream()
+          .filter(bg -> !bg.isIsFab())
+          .collect(Collectors.toList());
+        if (nonFabGroups.isEmpty()) {
+            return new ArrayList<>();
+        }
+        return nonFabGroups.stream()
+          .skip(1)
+          .sorted(Comparator.comparing(NamedElement::getFQName))
+          .collect(Collectors.toList());
+    }
+
     public static boolean containerHasTableWithTotalCount(PageContainer container) {
         return container.getTables().stream()
                 .filter(e -> e instanceof Table)
