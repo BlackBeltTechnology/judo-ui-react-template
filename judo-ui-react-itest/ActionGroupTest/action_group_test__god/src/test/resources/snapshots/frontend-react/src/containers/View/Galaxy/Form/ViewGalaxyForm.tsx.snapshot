@@ -98,10 +98,14 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
   return (
     <Grid
       container
-      data-container-id="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer"
+      data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer"
       sx={{ width: '100%' }}
     >
-      <Grid data-name="Form" size={{ xs: 12, sm: 12, md: 36.0 }}>
+      <Grid
+        data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormVisualElement"
+        data-name="Form"
+        size={{ xs: 12, sm: 12, md: 36.0 }}
+      >
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
             <Stack
@@ -161,6 +165,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                       }
                       control={
                         <Checkbox
+                          data-testid="God/(esm/_BL1x4FjXEeyV2_3ibolaNQ)/BooleanTypeCheckbox"
                           checked={data.real || false}
                           sx={{ color: (theme) => (validation.has('real') ? theme.palette.error.main : 'primary') }}
                           onChange={(event) => {
@@ -229,6 +234,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                       }
                       control={
                         <Checkbox
+                          data-testid="God/(esm/_iqFysFjJEeyV2_3ibolaNQ)/BooleanTypeCheckbox"
                           checked={data.nakedEye || false}
                           sx={{ color: (theme) => (validation.has('nakedEye') ? theme.palette.error.main : 'primary') }}
                           onChange={(event) => {
@@ -322,6 +328,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
 
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <DateTimePicker
+                  data-testid="God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput"
                   ampm={false}
                   ampmInClock={false}
                   className={clsx({
@@ -382,7 +389,10 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              <Grid size={{ xs: 12, sm: 12 }}>
+              <Grid
+                data-testid="God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldRelationDefinedLink"
+                size={{ xs: 12, sm: 12 }}
+              >
                 <ViewGalaxyFormAstronomerComponent
                   disabled={false || isLoading}
                   readOnly={
