@@ -29,7 +29,7 @@ export const Header = () => {
   const mainHeader: ReactNode = (
     <Toolbar>
       {!isHorizontal ? (
-        <IconButton aria-label="open drawer" color="secondary" onClick={() => downSM ? onChangeMobileDrawerOpen(!mobileDrawerOpen) : onChangeMiniDrawer(!miniDrawer)}>
+        <IconButton aria-label={downSM ? (mobileDrawerOpen ? 'close drawer' : 'open drawer') : (miniDrawer ? 'open mini drawer' : 'close mini drawer')} color="secondary" onClick={() => downSM ? onChangeMobileDrawerOpen(!mobileDrawerOpen) : onChangeMiniDrawer(!miniDrawer)}>
           {downSM ? (
             <MdiIcon path="menu" />
           ) : !miniDrawer ? (
