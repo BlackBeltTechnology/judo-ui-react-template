@@ -5,8 +5,12 @@
   {{# if (displaySpeedDialForFabButtonGroup fabGroup) }}
     <SpeedDial
       ariaLabel={ t('{{ getTranslationKeyForVisualElement fabGroup }}', { defaultValue: '{{ fabGroup.label }}' }) as string }
+      {{# if fabGroup.label }}
+      icon={<>{{# if fabGroup.icon }}<MdiIcon path="{{ fabGroup.icon.iconName }}" sx={ { mr: 1 } } />{{/ if }}{ t('{{ getTranslationKeyForVisualElement fabGroup }}', { defaultValue: '{{ fabGroup.label }}' }) }</>}
+      {{ else }}
       {{# if fabGroup.icon }}
       icon={<MdiIcon path="{{ fabGroup.icon.iconName }}" />}
+      {{/ if }}
       {{/ if }}
       FabProps={ {
         {{# if fabGroup.label }}
