@@ -54,7 +54,7 @@ const ToggleButton = styled(IconButton)(({ theme }) => ({
 
 export const Drawer = ({ window }: DrawerProps) => {
   const theme = useTheme();
-  const { miniDrawer, onChangeMiniDrawer } = useConfig();
+  const { miniDrawer, onChangeMiniDrawer, mobileDrawerOpen, onChangeMobileDrawerOpen } = useConfig();
 
   const { size, downSM, isXs, isSm, isMd, isLg, isXl } = useLayoutHelper();
   const prevSizeRef = useRef<string | undefined>(undefined);
@@ -121,8 +121,8 @@ export const Drawer = ({ window }: DrawerProps) => {
         <MuiDrawer
           container={container}
           variant="temporary"
-          open={!miniDrawer}
-          onClose={() => onChangeMiniDrawer(!miniDrawer)}
+          open={mobileDrawerOpen}
+          onClose={() => onChangeMobileDrawerOpen(false)}
           ModalProps={ { keepMounted: true } }
           sx={ {
             display: { xs: 'block', lg: 'none' },
