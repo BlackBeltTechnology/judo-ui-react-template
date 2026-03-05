@@ -27,9 +27,13 @@ interface LayoutState {
 export const useLayoutHelper = (): LayoutState => {
   const downLG = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'));
   const downMD = useMediaQuery((theme: Theme) => theme.breakpoints.down('md'));
-  const downSM = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+  const downSM = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'), {
+    defaultMatches: typeof window !== 'undefined' ? window.matchMedia('(max-width:599.95px)').matches : false,
+  });
 
-  const isXs = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'));
+  const isXs = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'), {
+    defaultMatches: typeof window !== 'undefined' ? window.matchMedia('(max-width:599.95px)').matches : false,
+  });
   const isSm = useMediaQuery((theme: Theme) => theme.breakpoints.between('sm', 'md'));
   const isMd = useMediaQuery((theme: Theme) => theme.breakpoints.between('md', 'lg'));
   const isLg = useMediaQuery((theme: Theme) => theme.breakpoints.between('lg', 'xl'));

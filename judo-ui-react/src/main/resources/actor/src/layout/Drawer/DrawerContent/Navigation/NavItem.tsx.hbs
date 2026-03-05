@@ -35,9 +35,12 @@ export interface NavItemProps {
 export const NavItem = ({ item, level }: NavItemProps) => {
   const { t } = useTranslation();
   const { clearNavigate, externalNavigate } = useJudoNavigation();
-  const { menuOrientation, miniDrawer, onChangeMiniDrawer } = useConfig();
+  const { menuOrientation, miniDrawer, onChangeMiniDrawer, onChangeMobileDrawerOpen } = useConfig();
   const theme = useTheme();
   const downLG = useMediaQuery(theme.breakpoints.down('lg'));
+  const downSM = useMediaQuery(theme.breakpoints.down('sm'), {
+    defaultMatches: typeof window !== 'undefined' ? window.matchMedia('(max-width:599.95px)').matches : false,
+  });
   const textColor = theme.palette.mode === ThemeMode.DARK ? 'grey.400' : 'text.primary';
   const iconWidth = 28;
   const iconSize = 36;
@@ -106,7 +109,7 @@ export const NavItem = ({ item, level }: NavItemProps) => {
               },
             } }
             {...(downLG && {
-              onClick: () => onChangeMiniDrawer(true),
+              onClick: () => downSM ? onChangeMobileDrawerOpen(false) : onChangeMiniDrawer(true),
             })}
           >
             {item.icon && (
