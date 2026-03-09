@@ -1,0 +1,53 @@
+# judo-ui-react-template
+
+> A Java-based code generator that transforms JUDO UI Models (EMF/XMI) into production-ready React/TypeScript frontend applications, part of the JUDO platform by BlackBelt Technology.
+
+Key facts:
+- Java 21, Maven 3.9.4 multi-module project (4 modules + 6 integration test sub-modules)
+- Handlebars templates + Java helper classes generate complete React 19 / TypeScript / MUI 7 / Vite apps
+- Template registry (`ui-react.yaml`) maps templates to output files using Spring Expression Language (SpEL)
+- Generated apps use Pandino (OSGi-style DI), Biome formatting, and i18n via JSON files
+- Snapshot-based regression testing via `judo-diff-checker-maven-plugin`
+- License: Eclipse Public License 2.0 (EPL-2.0)
+
+## Docs
+
+- [README.md](README.md): Project overview, architecture diagrams, and module dependency graph
+- [AGENTS.md](AGENTS.md): Developer guide with build commands, directory structure, and coding conventions
+- [CONTRIBUTING.md](CONTRIBUTING.md): Development setup and contribution guidelines
+- [.github/CIFLOW.md](.github/CIFLOW.md): Branch strategy and CI/CD workflow documentation
+
+## Modules — Core
+
+- [judo-ui-react/pom.xml](judo-ui-react/pom.xml): Core generator module containing Handlebars templates (`src/main/resources/actor/`), the template registry (`ui-react.yaml`), and Java `@TemplateHelper` classes
+
+## Modules — Testing
+
+- [judo-diff-checker-maven-plugin/README.md](judo-diff-checker-maven-plugin/README.md): Maven plugin that compares generated files against committed snapshots for regression detection
+- [judo-ui-react-itest/ActionGroupTest/pom.xml](judo-ui-react-itest/ActionGroupTest/pom.xml): Integration test for action groups (community MUI)
+- [judo-ui-react-itest/ActionGroupTestPro/pom.xml](judo-ui-react-itest/ActionGroupTestPro/pom.xml): Integration test for action groups (pro MUI license)
+- [judo-ui-react-itest/CRUDActionsTest/pom.xml](judo-ui-react-itest/CRUDActionsTest/pom.xml): Integration test for CRUD operations
+- [judo-ui-react-itest/OperationParametersTest/pom.xml](judo-ui-react-itest/OperationParametersTest/pom.xml): Integration test for operation parameters
+- [judo-ui-react-itest/RelationTest/pom.xml](judo-ui-react-itest/RelationTest/pom.xml): Integration test for relations
+- [judo-ui-react-itest/SimpleOrderManagement/pom.xml](judo-ui-react-itest/SimpleOrderManagement/pom.xml): End-to-end order management scenario test
+
+## Modules — Documentation
+
+- [docs/pom.xml](docs/pom.xml): AsciiDoc documentation source with PlantUML diagram generation
+
+## Depends on
+
+- [judo-meta-ui](../../models/judo-meta-ui): UI metamodel — pages, containers, tables, inputs, and data bindings
+- [judo-generator-commons](../../runtime/judo-generator-commons): Handlebars template-based code generation framework
+- [judo-ui-typescript-rest-template](../judo-ui-typescript-rest-template): Generates TypeScript REST API client code from UI metamodels
+
+## Used by
+
+- [judo-ui-e2e-template](../judo-ui-e2e-template): Generates Playwright E2E test projects from UI models
+
+## Optional
+
+- [.github/workflows/](.github/workflows/): CI/CD GitHub Actions pipelines
+- [LICENSE.txt](LICENSE.txt): EPL-2.0 license text
+- [full-build-parallel.sh](full-build-parallel.sh): Parallel build script using mvnd
+- [.sdkmanrc](.sdkmanrc): Java/Maven/mvnd version pinning for sdkman
