@@ -18,6 +18,8 @@ Children SHALL be rendered in order, each sized by `col / 12 * 100%` width propo
 
 Flex containers SHALL nest arbitrarily deep, each level applying its own direction, alignment, and sizing.
 
+When `collapsible = true`, the Flex SHALL render as an MUI `<Accordion>` (see `collapsible-group` spec for full details). The collapsible mode takes priority over card mode.
+
 #### Scenario: Horizontal flex with children
 
 - **WHEN** a `Flex` element has `direction = HORIZONTAL` and children
@@ -34,7 +36,13 @@ Flex containers SHALL nest arbitrarily deep, each level applying its own directi
 - **WHEN** a `Flex` element has `dataElement` set
 - **THEN** children are scoped to the referenced data sub-object
 
-**Key Helpers**: `UiWidgetHelper.calculateSize()`, `UiWidgetHelper.alignItems()`, `UiWidgetHelper.justifyContent()`, `UiWidgetHelper.isParentStretchVertical()`
+#### Scenario: Collapsible flex
+
+- **WHEN** a `Flex` element has `collapsible = true`
+- **THEN** the Flex renders as an MUI Accordion with expand/collapse behavior
+- **AND** the collapsible mode takes priority over card mode if both are set
+
+**Key Helpers**: `UiWidgetHelper.calculateSize()`, `UiWidgetHelper.alignItems()`, `UiWidgetHelper.justifyContent()`, `UiWidgetHelper.isParentStretchVertical()`, `UiPageContainerHelper.containerHasCollapsible()`
 
 **Template**: `actor/src/containers/widget-fragments/flex.hbs`
 
@@ -48,12 +56,19 @@ When a `Flex` element has a non-null `frame`, the generator SHALL wrap the flex 
 
 The `isInCard` flag SHALL propagate to all children inside a frame.
 
+When `collapsible = true` is also set, the collapsible Accordion rendering SHALL take priority and Card rendering SHALL be skipped.
+
 #### Scenario: Card with label and elevation
 
 - **WHEN** a `Flex` has `frame` with `elevation = 4` and `radius = 10`
 - **AND** the `Flex` has a label
 - **THEN** a card wrapper is generated with the configured shadow and radius
 - **AND** the label renders as the card header
+
+#### Scenario: Collapsible overrides card
+
+- **WHEN** a `Flex` has both `frame` (card) and `collapsible = true`
+- **THEN** the Accordion is rendered instead of the Card
 
 ---
 

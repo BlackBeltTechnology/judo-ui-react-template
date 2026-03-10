@@ -470,6 +470,11 @@ public class UiPageContainerHelper {
         return acc.stream().anyMatch(Flex::isCard);
     }
 
+    public static boolean containerHasCollapsible(PageContainer container) {
+        List<Flex> acc = collectElementsOfType(container, new ArrayList<>(), Flex.class);
+        return acc.stream().anyMatch(Flex::isCollapsible);
+    }
+
     public static boolean containerHasEnums(PageContainer container) {
         return !getEnumsForContainer(container).isEmpty();
     }
