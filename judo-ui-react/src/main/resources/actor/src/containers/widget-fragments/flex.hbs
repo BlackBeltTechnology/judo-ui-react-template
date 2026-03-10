@@ -1,5 +1,5 @@
 {{# if this.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ this.hiddenBy.name }}) && {{/ if }}
-<Grid data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" size={ { xs: 12, sm: 12{{# neq (calculateSize this) 12.0 }}, md: {{ calculateSize this }}{{/ neq }} } }{{# if this.collapsible }} sx={ { '&:has(.Mui-expanded)': { alignSelf: 'stretch' } } }{{/ if }}>
+<Grid data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" size={ { xs: 12, sm: 12{{# neq (calculateSize this) 12.0 }}, md: {{ calculateSize this }}{{/ neq }} } }>
     {{# if this.subTheme }}
       <SubThemeWrapper subTheme="{{ this.subTheme }}" data={data}>
     {{/ if }}
@@ -16,7 +16,7 @@
         >
     {{/ if }}
     {{# if this.collapsible }}
-        <Accordion data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" defaultExpanded sx={ { height: '100%' } }>
+        <Accordion data-testid="{{ getXMIID this }}" data-name="{{ this.name }}" defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={ { px: 3 } }>
                 {{# if (or (elementHasIconOrLabel this) this.actionButtonGroup) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" sx={ { width: '100%', mr: 2 } }>

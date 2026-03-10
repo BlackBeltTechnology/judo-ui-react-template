@@ -138,13 +138,11 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                         data-testid="God/(esm/_D4bTwE7uEeycO-gUAWxcVg)/GroupVisualElement"
                         data-name="group"
                         size={{ xs: 12, sm: 12, md: 6.0 }}
-                        sx={{ '&:has(.Mui-expanded)': { alignSelf: 'stretch' } }}
                       >
                         <Accordion
                           data-testid="God/(esm/_D4bTwE7uEeycO-gUAWxcVg)/GroupVisualElement"
                           data-name="group"
                           defaultExpanded
-                          sx={{ height: '100%' }}
                         >
                           <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 3 }}>
                             <Grid
@@ -203,13 +201,11 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                         data-testid="God/(esm/_Emq50E7uEeycO-gUAWxcVg)/GroupVisualElement"
                         data-name="group_2"
                         size={{ xs: 12, sm: 12, md: 6.0 }}
-                        sx={{ '&:has(.Mui-expanded)': { alignSelf: 'stretch' } }}
                       >
                         <Accordion
                           data-testid="God/(esm/_Emq50E7uEeycO-gUAWxcVg)/GroupVisualElement"
                           data-name="group_2"
                           defaultExpanded
-                          sx={{ height: '100%' }}
                         >
                           <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={{ px: 3 }}>
                             <Grid
