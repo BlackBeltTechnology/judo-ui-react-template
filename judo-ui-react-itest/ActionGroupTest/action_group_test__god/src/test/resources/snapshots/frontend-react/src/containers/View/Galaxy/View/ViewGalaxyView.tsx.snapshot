@@ -505,7 +505,6 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               <Grid container alignItems="flex-start" justifyContent="flex-start" spacing={2}>
                                 <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                                   <DateTimePicker
-                                    data-testid="God/(esm/_conRABMcEe2_DOUDKkB20Q)/TimestampTypeDateTimeInput"
                                     ampm={false}
                                     ampmInClock={false}
                                     className={clsx({
@@ -515,6 +514,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                     slotProps={{
                                       textField: {
                                         id: 'God/(esm/_conRABMcEe2_DOUDKkB20Q)/TimestampTypeDateTimeInput',
+                                        inputProps: {
+                                          'data-testid': 'God/(esm/_conRABMcEe2_DOUDKkB20Q)/TimestampTypeDateTimeInput',
+                                        },
                                         required: actions?.isDiscoveredRequired
                                           ? actions.isDiscoveredRequired(data, editMode)
                                           : false,
@@ -784,6 +786,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               <Grid size={{ xs: 12, sm: 3.0 }}>
                                 <Box sx={{ display: 'flex', gap: 1 }}>
                                   <DropdownButton
+                                    data-testid="God/(esm/_zk8ooFyrEeylCdga_wJIBQ)/ButtonGroupVisualElement"
                                     id="God/(esm/_zk8ooFyrEeylCdga_wJIBQ)/ButtonGroupVisualElement-button-group"
                                     disabled={isLoading || editMode}
                                     startIcon={<MdiIcon path="flare" />}

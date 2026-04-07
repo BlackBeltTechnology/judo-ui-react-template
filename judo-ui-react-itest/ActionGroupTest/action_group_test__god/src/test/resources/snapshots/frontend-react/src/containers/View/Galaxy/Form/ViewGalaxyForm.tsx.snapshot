@@ -323,7 +323,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
 
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <DateTimePicker
-                  data-testid="God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput"
                   ampm={false}
                   ampmInClock={false}
                   className={clsx({
@@ -333,6 +332,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   slotProps={{
                     textField: {
                       id: 'God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput',
+                      inputProps: {
+                        'data-testid': 'God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput',
+                      },
                       required: actions?.isDiscoveredRequired ? actions.isDiscoveredRequired(data, editMode) : false,
                       helperText: validation.get('discovered'),
                       error: !!validation.get('discovered'),
