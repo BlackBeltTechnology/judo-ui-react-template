@@ -160,6 +160,11 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     field: 'type',
     headerName: t('View.Matter.Table.type', { defaultValue: 'type' }) as string,
     headerClassName: 'data-grid-column-header',
+    renderHeader: () => (
+      <span data-testid="God/(esm/_T4VIAOq_EeuMzos2n42msw)/TableColumn/(discriminator/God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable)">
+        {t('View.Matter.Table.type', { defaultValue: 'type' }) as string}
+      </span>
+    ),
 
     width: 170,
     type: 'singleSelect',
@@ -195,6 +200,11 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     field: 'mass',
     headerName: t('View.Matter.Table.mass', { defaultValue: 'mass' }) as string,
     headerClassName: 'data-grid-column-header',
+    renderHeader: () => (
+      <span data-testid="God/(esm/_T4guMOq_EeuMzos2n42msw)/TableColumn/(discriminator/God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable)">
+        {t('View.Matter.Table.mass', { defaultValue: 'mass' }) as string}
+      </span>
+    ),
 
     width: 100,
     type: 'number',
@@ -394,6 +404,24 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
   ];
 
   const rowActions: TableRowAction<ViewMatterStored, ViewMatterStored>[] = [
+    {
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowViewButton',
+      label: t('judo.action.open-page', { defaultValue: 'View' }) as string,
+      icon: <MdiIcon path="visibility" />,
+      hidden: (row: ViewMatterStored) => false,
+      disabled: (
+        row: ViewMatterStored,
+        isLoading: boolean,
+        isRowInEditMode: boolean,
+        getSelectedRows: () => ViewMatterStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
+      action: actions.openPageAction
+        ? async (rowData) => {
+            await actions.openPageAction!(rowData, isDraft);
+          }
+        : undefined,
+    },
     {
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowRemoveButton',
       label: t('judo.action.remove', { defaultValue: 'Remove' }) as string,
