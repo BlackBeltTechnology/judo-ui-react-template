@@ -20,7 +20,6 @@
     <Box display="flex" alignItems="center">
     {{/ if }}
     <DateTimePicker
-        data-testid="{{ getXMIID child }}"
         ampm={false}
         ampmInClock={false}
         className={ clsx({
@@ -33,6 +32,9 @@
         slotProps={ {
             textField: {
                 id: '{{ getXMIID child }}',
+                inputProps: {
+                    'data-testid': '{{ getXMIID child }}',
+                },
                 required: actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }}),
                 helperText: validation.get('{{ child.attributeType.name }}'),
                 error: !!validation.get('{{ child.attributeType.name }}'),

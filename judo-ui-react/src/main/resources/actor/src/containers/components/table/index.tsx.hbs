@@ -197,6 +197,11 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     field: '{{ column.attributeType.name }}',
     headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
     headerClassName: 'data-grid-column-header',
+    renderHeader: () => (
+      <span data-testid="{{ getXMIID column }}">
+        { t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string }
+      </span>
+    ),
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
   };
@@ -241,7 +246,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
 
   const rowActions: TableRowAction<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
     {{# each table.rowActionButtonGroup.buttons as |button| }}
-    {{# unless button.actionDefinition.isOpenPageAction }}
     {
       id: '{{ getXMIID button }}',
       {{# if button.label }}
@@ -265,7 +269,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         await actions.{{ simpleActionDefinitionName button.actionDefinition }}!(rowData{{# if button.actionDefinition.isOpenPageAction }}, isDraft{{/ if }});
       } : undefined,
     },
-    {{/ unless }}
     {{/ each }}
   ];
 

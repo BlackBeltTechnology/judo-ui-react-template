@@ -50,6 +50,7 @@
     {{/ each }}
     {{# if (displayDropdownForButtonGroup child) }}
       <DropdownButton
+        data-testid="{{ getXMIID child }}"
         id="{{ getXMIID child }}-button-group"
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading || editMode }
         {{# if child.hiddenBy }}

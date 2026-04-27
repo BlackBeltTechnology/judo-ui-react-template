@@ -20,7 +20,6 @@
     <Box display="flex" alignItems="center">
     {{/ if }}
     <TimePicker
-        data-testid="{{ getXMIID child }}"
         {{# if (shouldElementHaveAutoFocus child) }}
             inputRef={autoFocusInputRef}
         {{/ if }}
@@ -29,6 +28,9 @@
         slotProps={ {
             textField: {
                 id: '{{ getXMIID child }}',
+                inputProps: {
+                    'data-testid': '{{ getXMIID child }}',
+                },
                 required: actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }}),
                 helperText: validation.get('{{ child.attributeType.name }}'),
                 error: !!validation.get('{{ child.attributeType.name }}'),

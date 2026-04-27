@@ -20,6 +20,16 @@ export function DebouncedTextField({
   const [localValue, setLocalValue] = useState<string>(value as string ?? '');
   const latestValueRef = useRef<string | null>(value as string ?? null);
 
+  // Hold the latest callback in a ref so the debounce instance can stay stable across parent
+  // re-renders that recreate the onDebouncedChange function reference (e.g. when storeDiff
+  // is wrapped in a useCallback whose deps include `data`). Without this, a sibling field
+  // change recreates the callback, the debounced wrapper is rebuilt, and any pending call
+  // for this field is cleared by the cleanup effect — losing the user's input.
+  const onDebouncedChangeRef = useRef(onDebouncedChange);
+  useEffect(() => {
+    onDebouncedChangeRef.current = onDebouncedChange;
+  }, [onDebouncedChange]);
+
   // Sync local state when external value changes (e.g., from server refresh)
   useEffect(() => {
     const externalValue = value as string ?? '';
@@ -32,9 +42,9 @@ export function DebouncedTextField({
   const debouncedOnChange = useMemo(
     () =>
       debounce((newValue: string | null) => {
-        onDebouncedChange(newValue);
+        onDebouncedChangeRef.current(newValue);
       }, debounceInputs),
-    [onDebouncedChange],
+    [],
   );
 
   // Cleanup debounce on unmount
@@ -53,11 +63,23 @@ export function DebouncedTextField({
     debouncedOnChange(realValue);
   };
 
+  // Flush the pending debounced value to the parent immediately on blur. Without this, a
+  // user who types a value and quickly clicks Submit (or Playwright's .fill() followed by a
+  // button click) loses the typed value when the field unmounts before the 200 ms timer
+  // fires — the cleanup effect cancels the pending call, the parent's controlled state
+  // never updates, and the form submits with empty data. See ActionGroupTest's
+  // playwright/tests/test-reports/cluster-a-nested-form-state-bug.md for the full diagnosis.
+  const handleBlur = () => {
+    debouncedOnChange.clear();
+    onDebouncedChangeRef.current(latestValueRef.current);
+  };
+
   return (
     <TextField
       {...rest}
       value={localValue}
       onChange={handleChange}
+      onBlur={handleBlur}
     />
   );
 }
