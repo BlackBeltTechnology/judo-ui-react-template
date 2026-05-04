@@ -43,7 +43,7 @@ export const TrinaryLogicCombobox = ({
       autoFocus={autoFocus}
       label={label}
       select
-      value={TRINARY_LOGIC.get(value) ?? ''}
+      value={(required && (value === null || value === undefined)) ? '' : (TRINARY_LOGIC.get(value) ?? '')}
       className={ `${clsx({
           'JUDO-viewMode': !editMode,
           'JUDO-required': required,
@@ -63,7 +63,9 @@ export const TrinaryLogicCombobox = ({
     >
       <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-true`} value={'Yes'}>{ t('judo.component.TrinaryLogic.true', { defaultValue: 'Yes' }) as string }</MenuItem>
       <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-false`} value={'No'}>{ t('judo.component.TrinaryLogic.false', { defaultValue: 'No' }) as string }</MenuItem>
-      <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-undefined`} value={'Unknown'}>{ t('judo.component.TrinaryLogic.unknown', { defaultValue: 'Unknown' }) as string }</MenuItem>
+      {!required && (
+        <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-undefined`} value={'Unknown'}>{ t('judo.component.TrinaryLogic.unknown', { defaultValue: 'Unknown' }) as string }</MenuItem>
+      )}
     </TextField>
   );
 };
