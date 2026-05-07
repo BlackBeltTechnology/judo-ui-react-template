@@ -363,9 +363,24 @@ public class UiPageHelper {
 
     public static List<VisualElement> getRequiredByWidgetsForPage(PageDefinition pageDefinition) {
         Set<VisualElement> elements = new LinkedHashSet<>();
-        collectVisualElementsMatchingCondition(pageDefinition.getContainer(), (element) -> element.getRequiredBy() != null, elements);
+        collectVisualElementsMatchingCondition(
+                pageDefinition.getContainer(),
+                (element) -> element.getRequiredBy() != null || isStaticallyRequiredTrinaryCombo(element),
+                elements);
 
         return elements.stream().sorted(Comparator.comparing(NamedElement::getFQName)).collect(Collectors.toList());
+    }
+
+    /**
+     * True for {@link TrinaryLogicCombo} widgets bound to a {@link BooleanType} attribute marked
+     * {@code isRequired = true}. Such widgets must enter {@code requiredByRecord} so the generated
+     * form action calls {@code passesLocalValidation} and blocks empty submission. See spec
+     * {@code input-widgets#Trinary Logic Combo} scenario "Submit blocked when required boolean is empty".
+     */
+    private static boolean isStaticallyRequiredTrinaryCombo(VisualElement element) {
+        return element instanceof TrinaryLogicCombo combo
+                && combo.getAttributeType() != null
+                && combo.getAttributeType().isIsRequired();
     }
 
     public static List<PageContainer> getPageContainersToGenerate(Application application) {

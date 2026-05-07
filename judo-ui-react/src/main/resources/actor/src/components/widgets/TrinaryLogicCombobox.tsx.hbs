@@ -63,7 +63,9 @@ export const TrinaryLogicCombobox = ({
     >
       <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-true`} value={'Yes'}>{ t('judo.component.TrinaryLogic.true', { defaultValue: 'Yes' }) as string }</MenuItem>
       <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-false`} value={'No'}>{ t('judo.component.TrinaryLogic.false', { defaultValue: 'No' }) as string }</MenuItem>
-      {!required && (
+      {required ? (
+        <MenuItem sx={ { display: 'none' } } aria-hidden="true" disabled data-testid={`${id}-undefined`} value={'__hidden__'} />
+      ) : (
         <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-undefined`} value={'Unknown'}>{ t('judo.component.TrinaryLogic.unknown', { defaultValue: 'Unknown' }) as string }</MenuItem>
       )}
     </TextField>
