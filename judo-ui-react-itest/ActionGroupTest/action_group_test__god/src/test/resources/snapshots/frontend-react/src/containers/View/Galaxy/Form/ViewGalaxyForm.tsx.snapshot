@@ -108,12 +108,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
       >
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
-            <Stack
-              data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormVisualElement"
-              data-name="Form"
-              spacing={2}
-              className="force-full-width"
-            >
+            <Stack data-name="Form" spacing={2} className="force-full-width">
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <DebouncedTextField
                   required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : true}
@@ -328,7 +323,6 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
 
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <DateTimePicker
-                  data-testid="God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput"
                   ampm={false}
                   ampmInClock={false}
                   className={clsx({
@@ -338,6 +332,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   slotProps={{
                     textField: {
                       id: 'God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput',
+                      inputProps: {
+                        'data-testid': 'God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput',
+                      },
                       required: actions?.isDiscoveredRequired ? actions.isDiscoveredRequired(data, editMode) : false,
                       helperText: validation.get('discovered'),
                       error: !!validation.get('discovered'),
@@ -389,10 +386,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 />
               </Grid>
 
-              <Grid
-                data-testid="God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldRelationDefinedLink"
-                size={{ xs: 12, sm: 12 }}
-              >
+              <Grid size={{ xs: 12, sm: 12 }}>
                 <ViewGalaxyFormAstronomerComponent
                   disabled={false || isLoading}
                   readOnly={

@@ -3,7 +3,7 @@
 import type { InputAttributes, NumericFormatProps, NumberFormatValues, SourceInfo } from 'react-number-format';
 import { NumericFormat } from 'react-number-format';
 import { debounce } from '@mui/material/utils';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { type FocusEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { debounceInputs } from '~/config';
 import { useL10N } from '~/l10n/l10n-context';
 import { decimalSeparators, thousandSeparator } from '~/l10n/separators';
@@ -17,11 +17,22 @@ export interface AdditionalDebouncedNumericInputProps {
 export type DebouncedNumericInputProps<BaseType = InputAttributes> = Omit<NumericFormatProps<BaseType>, 'onValueChange'> & AdditionalDebouncedNumericInputProps;
 
 export function DebouncedNumericInput<BaseType = InputAttributes>(props: DebouncedNumericInputProps<BaseType>) {
-  const { formatValue, annotations, onDebouncedValueChange, value, ...rest } = props;
+  const { formatValue, annotations, onDebouncedValueChange, value, onBlur: consumerOnBlur, ...rest } = props;
   const { locale: l10nLocale } = useL10N();
 
   const [localValue, setLocalValue] = useState<string | number | null | undefined>(value);
   const latestValuesRef = useRef<NumberFormatValues | null>(null);
+  const latestSourceInfoRef = useRef<SourceInfo | null>(null);
+
+  // Hold the latest callback in a ref so the debounce instance can stay stable across parent
+  // re-renders that recreate the onDebouncedValueChange function reference. Without this, a
+  // sibling field change recreates the callback, the debounced wrapper is rebuilt, and any
+  // pending call for this field is cleared by the cleanup effect — losing the user's input.
+  // Mirrors the ref pattern in DebouncedTextField.
+  const onDebouncedValueChangeRef = useRef(onDebouncedValueChange);
+  useEffect(() => {
+    onDebouncedValueChangeRef.current = onDebouncedValueChange;
+  }, [onDebouncedValueChange]);
 
   // Sync local state when external value changes (e.g., from server refresh)
   useEffect(() => {
@@ -33,9 +44,9 @@ export function DebouncedNumericInput<BaseType = InputAttributes>(props: Debounc
   const debouncedOnValueChange = useMemo(
     () =>
       debounce((values: NumberFormatValues, sourceInfo: SourceInfo) => {
-        onDebouncedValueChange(values, sourceInfo);
+        onDebouncedValueChangeRef.current(values, sourceInfo);
       }, debounceInputs),
-    [onDebouncedValueChange],
+    [],
   );
 
   // Cleanup debounce on unmount
@@ -48,7 +59,24 @@ export function DebouncedNumericInput<BaseType = InputAttributes>(props: Debounc
   const handleValueChange = (values: NumberFormatValues, sourceInfo: SourceInfo) => {
     setLocalValue(values.value);
     latestValuesRef.current = values;
+    latestSourceInfoRef.current = sourceInfo;
     debouncedOnValueChange(values, sourceInfo);
+  };
+
+  // Flush the pending debounced value to the parent on blur. Without this, a user (or
+  // Playwright .fill()) who enters a value and immediately clicks Submit loses the value:
+  // the field unmounts before the 200 ms debounce timer fires, the cleanup effect cancels
+  // the pending call, and the form submits with the field set to null. Mirrors the onBlur
+  // flush added to DebouncedTextField under JNG-6393. See judo-tatami-tests
+  // models/ActionGroupTest/.../cluster-a-resolution-report.md for the diagnosis.
+  const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
+    debouncedOnValueChange.clear();
+    if (latestValuesRef.current !== null && latestSourceInfoRef.current !== null) {
+      onDebouncedValueChangeRef.current(latestValuesRef.current, latestSourceInfoRef.current);
+    }
+    if (consumerOnBlur) {
+      consumerOnBlur(event);
+    }
   };
 
   const propsExpanded: NumericFormatProps<BaseType> = {
@@ -61,6 +89,7 @@ export function DebouncedNumericInput<BaseType = InputAttributes>(props: Debounc
       {...propsExpanded}
       value={localValue}
       onValueChange={handleValueChange}
+      onBlur={handleBlur}
       decimalSeparator={decimalSeparators[l10nLocale]}
       thousandSeparator={formatValue ? thousandSeparator[l10nLocale] : undefined}
     />
