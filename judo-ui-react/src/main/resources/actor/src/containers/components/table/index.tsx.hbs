@@ -134,7 +134,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     isFormUpdateable,
     {{/ unless }}
     annotations = [],
-    allowSelectMultiple = {{ boolValue (multiSelectAllowedForOwnPage table) }},
+    allowSelectMultiple = true,
   } = props;
   const sidekickComponentFilter = `(&(${OBJECTCLASS}=${CUSTOM_VISUAL_ELEMENT_INTERFACE_KEY})(component=${ {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY }))`;
 
@@ -236,30 +236,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       {{/ if }}
     },
     {{/ each }}
-    {{!-- Implicit bulk toolbar entries for batchable row actions, emitted when AUTO
-         was granted by the row-action path (i.e. no explicit BulkX exists on this table). --}}
 
-    {{# if (tableHasAnyBatchableRowAction table) }}
-    {{# unless (tableHasAnyBulkAction table) }}
-    {{# each table.rowActionButtonGroup.buttons as |button| }}
-    {{# if (isRowActionBatchable button.actionDefinition) }}
-    {
-      name: "{{ simpleActionDefinitionName button.actionDefinition }}",
-      id: "{{ getXMIID button }}::asBulk",
-      {{# if button.icon }}
-      startIcon: "{{ button.icon.iconName }}",
-      {{/ if }}
-      variant: 'text',
-      hiddenBy: {{# if button.hiddenBy }}true{{ else }}false{{/ if }},
-      label: { 'translationKey': '{{ getTranslationKeyForVisualElement button }}', 'defaultValue': '{{ button.label }}' },
-      enabled: (data: {{# with (getReferenceClassType table) as |classType| }}{{ classDataName (getReferenceClassType table) '' }}{{# if classType.isMapped }}Stored{{/ if }}[]{{/ with }}, selectionModel: GridRowSelectionModel, selectedRows: {{# with (getReferenceClassType table) as |classType| }}{{ classDataName (getReferenceClassType table) '' }}{{# if classType.isMapped }}Stored{{/ if }}[]{{/ with }}, ownerData?: any, isFormUpdateable?: () => boolean, rowModesModel?: GridRowModesModel): boolean => selectionModel.ids.size > 0,
-      isBulk: true,
-      bulkFromRowAction: true,
-    },
-    {{/ if }}
-    {{/ each }}
-    {{/ unless }}
-    {{/ if }}
   ];
 
   const rowActions: TableRowAction<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
@@ -325,7 +302,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         dataElementId={ '{{ createId table.dataElement }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
-        checkboxSelection={ isSelector ? true : {{ boolValue (checkboxSelectionForOwnPage table) }} }
+        {{# unless (checkboxSelectionEnabled table) }}
+        checkboxSelection={ false }
+        {{/ unless }}
         {{# each table.rowActionDefinitions as |actionDefinition| }}
         {{# if actionDefinition.isOpenPageAction }}
         onRowClick={ actions.{{ simpleActionDefinitionName actionDefinition }} }
@@ -375,7 +354,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        checkboxSelection={ isSelector ? true : {{ boolValue (checkboxSelectionForOwnPage table) }} }
+        {{# unless (checkboxSelectionEnabled table) }}
+        checkboxSelection={ false }
+        {{/ unless }}
         dataElementId={ '{{ createId table.dataElement }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
