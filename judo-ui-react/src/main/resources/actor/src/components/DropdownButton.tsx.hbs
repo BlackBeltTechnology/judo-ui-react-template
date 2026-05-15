@@ -27,6 +27,7 @@ interface DropdownMenuItem {
 interface DropdownButtonProps {
   children?: ReactNode;
   id: string;
+  'data-testid'?: string;
   menuItems: DropdownMenuItem[];
   disabled?: boolean;
   showDropdownIcon?: boolean;
@@ -39,6 +40,7 @@ interface DropdownButtonProps {
 export function DropdownButton({
   children,
   id,
+  'data-testid': dataTestId,
   menuItems,
   startIcon,
   disabled = false,
@@ -89,7 +91,7 @@ export function DropdownButton({
     <>
       <Button
         ref={anchorRef}
-        data-testid={id}
+        data-testid={dataTestId ?? id}
         onClick={handleToggle}
         startIcon={startIcon}
         endIcon={showDropdownIcon && <MdiIcon path="chevron-down" />}
