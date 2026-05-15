@@ -2,9 +2,17 @@
 const requiredByRecord: Record<string, boolean> = {
   {{# each (getRequiredByWidgetsForPage page) as |child| }}
     {{# if child.attributeType }}
+      {{# if child.requiredBy }}
       {{ child.attributeType.name }}: !!data.{{ child.requiredBy.name }},
+      {{ else }}
+      {{ child.attributeType.name }}: true,
+      {{/ if }}
     {{ else }}
+      {{# if child.requiredBy }}
       {{ child.relationType.name }}: !!data.{{ child.requiredBy.name }},
+      {{ else }}
+      {{ child.relationType.name }}: true,
+      {{/ if }}
     {{/ if }}
   {{/ each }}
 };

@@ -1,0 +1,447 @@
+//////////////////////////////////////////////////////////////////////////////
+// G E N E R A T E D    S O U R C E
+// --------------------------------
+// Factory expression: #getPagesForDialogs(#application)
+// Path expression: 'src/dialogs/'+#pagePath(#self)+'/index.tsx'
+// Template name: actor/src/dialogs/index.tsx
+// Template file: actor/src/dialogs/index.tsx.hbs
+
+import { OBJECTCLASS } from '@pandino/pandino-api';
+import { useTrackService } from '@pandino/react-hooks';
+import type { Dispatch, FC, ReactNode, SetStateAction } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { v4 as uuidv4 } from 'uuid';
+import { useJudoNavigation } from '~/components';
+import { useConfirmDialog, useDialog, useFilterDialog } from '~/components/dialog';
+import type {
+  AvailableContainerAction,
+  ViewGalaxyFormDialogActions,
+  ViewGalaxyFormDialogProps,
+} from '~/containers/View/Galaxy/Form/types';
+import { useViewGalaxyAstronomerRelationFormPage } from '~/dialogs/View/Galaxy/Astronomer/RelationFormPage/hooks';
+import { useViewGalaxyFormAstronomerLinkSetSelectorPage } from '~/dialogs/View/Galaxy/Form/Astronomer/LinkSetSelectorPage/hooks';
+import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
+import { useViewContext } from '~/hooks/ViewContext';
+import { routeToGodGodGalaxiesAccessViewPage } from '~/routes';
+import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
+import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
+import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
+import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
+import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
+import type { ViewAstronomerQueryCustomizer } from '~/services/data-api/rest/ViewAstronomerQueryCustomizer';
+import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
+import { GodServiceForGalaxiesImpl } from '~/services/data-axios/GodServiceForGalaxiesImpl';
+import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import type { DialogResult } from '~/utilities';
+import {
+  fileHandling,
+  getErrorRelationKeyFromPayload,
+  getValue,
+  isErrorNestedValidationError,
+  passesLocalValidation,
+  processQueryCustomizer,
+  setValue,
+  simpleCloneDeep,
+  useErrorHandler,
+} from '~/utilities';
+import { useOperationUtils } from '~/utilities/application';
+import { type ViewGalaxyFormViewModel, ViewGalaxyFormViewModelContext } from './context';
+import type { ViewGalaxyFormActionsHook } from './customization';
+import { GOD_GOD_GALAXIES_ACCESS_FORM_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
+import type { GodGodGalaxiesAccessFormPageProps, ViewGalaxyFormDialogActionsExtended } from './types';
+
+export const requestedContainerActions: Set<AvailableContainerAction> = new Set([
+  'View::Galaxy::Form::Back',
+  'View::Galaxy::Form::Create',
+]);
+
+const ViewGalaxyFormDialogContainer = lazy(() => import('~/containers/View/Galaxy/Form/ViewGalaxyFormDialogContainer'));
+
+// XMIID: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition
+// Name: God::God::galaxies::AccessFormPage
+export default function GodGodGalaxiesAccessFormPage(props: GodGodGalaxiesAccessFormPageProps) {
+  const {
+    ownerData,
+
+    templateDataOverride,
+    ownerValidation,
+    isDraft,
+    maskRequest,
+    dataPath,
+    rootPageId,
+    onClose,
+    onSubmit,
+  } = props;
+
+  const owner = useRef<any>(ownerData ?? null);
+
+  // Services
+  const godServiceForGalaxiesImpl = useMemo(() => new GodServiceForGalaxiesImpl(judoAxiosProvider), []);
+
+  // Hooks section
+  const { t } = useTranslation();
+  const { showSuccessSnack, showErrorSnack } = useSnacks();
+  const { navigate, back: navigateBack } = useJudoNavigation();
+  const { openFilterDialog } = useFilterDialog();
+  const { openConfirmDialog } = useConfirmDialog();
+  const { setLatestViewData } = useViewData();
+  const { publish, subscribe } = useEventBus();
+  const { shouldUseCustomFlow, processRedirect } = useOperationUtils();
+  const { setForPage, deleteForPage } = useViewContext();
+  const subscriptionRef = useRef<any>(null);
+  const handleError = useErrorHandler();
+  const openCRUDDialog = useCRUDDialog();
+  const [createDialog, closeDialog] = useDialog();
+
+  // Ref section
+
+  // State section
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [editMode, setEditMode] = useState<boolean>(true);
+  const [refreshCounter, setRefreshCounter] = useState<number>(0);
+  const [data, setData] = useState<ViewGalaxyStored>((templateDataOverride ?? {}) as ViewGalaxyStored);
+  const [validation, setValidation] = useState<Map<keyof ViewGalaxy, string>>(new Map<keyof ViewGalaxy, string>());
+
+  // Callback section
+  const storeDiff: (attributeName: keyof ViewGalaxy, value: any) => void = useCallback(
+    (attributeName: keyof ViewGalaxy, value: any) => {
+      setData((prevData) => ({
+        ...prevData,
+        [attributeName]: value,
+      }));
+      if (!editMode) {
+        setEditMode(true);
+      }
+    },
+    [data, editMode],
+  );
+  const isFormUpdateable = useCallback(() => {
+    return true;
+  }, [data]);
+  const isFormDeleteable = useCallback(() => {
+    return false;
+  }, [data]);
+
+  // Masks
+  const getAstronomerMask = () => '{born,name}';
+
+  // Private actions
+  const submit = async () => {
+    await createAction();
+  };
+  const refresh = async (forced = false) => {
+    if (!isDraft) {
+    }
+  };
+  const produceDataAdjustedOwner = useCallback(() => {
+    const copy = simpleCloneDeep(owner.current);
+    setValue(copy, dataPath!, simpleCloneDeep(data));
+    return copy;
+  }, [data, owner]);
+
+  // Validation
+  const validate: (target: any) => Promise<void> = useCallback(
+    async (target) => {
+      if (ownerValidation) {
+        await ownerValidation(target);
+      } else {
+        await godServiceForGalaxiesImpl.validateCreate(target);
+      }
+    },
+    [ownerValidation, data, godServiceForGalaxiesImpl],
+  );
+
+  // Pandino Action overrides
+  const { service: customActionsHook } = useTrackService<ViewGalaxyFormActionsHook>(
+    `(${OBJECTCLASS}=${GOD_GOD_GALAXIES_ACCESS_FORM_PAGE_ACTIONS_HOOK_INTERFACE_KEY})`,
+  );
+  const customActions: ViewGalaxyFormDialogActionsExtended | undefined = customActionsHook?.(
+    ownerData,
+    data,
+    editMode,
+    storeDiff,
+    submit,
+    onSubmit,
+  );
+
+  // Dialog hooks
+  const openViewGalaxyFormAstronomerLinkSetSelectorPage = useViewGalaxyFormAstronomerLinkSetSelectorPage();
+  const openViewGalaxyAstronomerRelationFormPage = useViewGalaxyAstronomerRelationFormPage();
+
+  // Action section
+  const getPageTitle = (data: ViewGalaxy): string => {
+    return t('View.Galaxy.Form', { defaultValue: 'Create a Galaxy' });
+  };
+  // BackAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormBackAction
+  const backAction = async () => {
+    onClose();
+  };
+  // CreateAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormCreateAction
+  const createAction = async (openCreated?: boolean) => {
+    try {
+      // Record of attribute names to check with the actual value of the referenced requiredBy field's value
+      const requiredByRecord: Record<string, boolean> = {
+        discoveryConfirmed: true,
+      };
+
+      const attributesToValidateRange: (keyof ViewGalaxy)[] = ['discovered', 'magnitude'];
+
+      const validationResult = passesLocalValidation<ViewGalaxy>(
+        data,
+        requiredByRecord,
+        attributesToValidateRange,
+        t,
+        validation,
+        setValidation,
+      );
+
+      if (!validationResult) {
+        return;
+      }
+      setIsLoading(true);
+      const queryCustomizer: { _mask?: string } | undefined = maskRequest
+        ? {
+            _mask: maskRequest,
+          }
+        : undefined;
+      const { data: res } = await godServiceForGalaxiesImpl.create(data, queryCustomizer);
+      if (customActions?.postCreateAction) {
+        await customActions.postCreateAction(data, res, onSubmit, onClose, openCreated);
+      } else {
+        showSuccessSnack(t('judo.action.create.success', { defaultValue: 'Create successful' }));
+        await onSubmit(res, isDraft ? 'submit-draft' : 'submit', openCreated);
+      }
+    } catch (error) {
+      handleError<ViewGalaxy>(
+        error,
+        { setValidation, actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormCreateAction' },
+        owner.current,
+        dataPath,
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // GetTemplateAction: God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormGetTemplateAction
+  const getTemplateAction = async (): Promise<JudoRestResponse<ViewGalaxy>> => {
+    try {
+      setIsLoading(true);
+      const response = await godServiceForGalaxiesImpl.getTemplate();
+      const { data: result } = response;
+      setData(result as ViewGalaxyStored);
+      if (!ownerData) {
+        owner.current = simpleCloneDeep(data);
+      }
+      if (customActions?.postGetTemplateAction) {
+        await customActions.postGetTemplateAction(produceDataAdjustedOwner(), result, storeDiff);
+      }
+      if (templateDataOverride) {
+        setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+        if (!ownerData) {
+          owner.current = simpleCloneDeep(templateDataOverride);
+        }
+      }
+      return response;
+    } catch (error) {
+      handleError(error, { actionId: 'God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormGetTemplateAction' });
+      return Promise.reject(error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  // AutocompleteRangeAction: God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkAutocompleteRangeAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)
+  const astronomerAutocompleteRangeAction = async (
+    queryCustomizer: ViewAstronomerQueryCustomizer,
+  ): Promise<ViewAstronomerStored[]> => {
+    try {
+      const { data: result } = await godServiceForGalaxiesImpl.getRangeForAstronomer(data, queryCustomizer);
+      return result;
+    } catch (error: any) {
+      handleError(error, {
+        actionId:
+          'God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkAutocompleteRangeAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)',
+      });
+      return Promise.resolve([]);
+    }
+  };
+  // AutocompleteSetAction: God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkAutocompleteSetAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)
+  const astronomerAutocompleteSetAction = async (selected: ViewAstronomerStored) => {
+    try {
+      storeDiff('astronomer', selected);
+    } catch (error) {
+      handleError(error, {
+        actionId:
+          'God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkAutocompleteSetAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)',
+      });
+      return Promise.reject(error);
+    }
+  };
+  // OpenCreateFormAction: God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkCreateAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)
+  const astronomerOpenCreateFormAction = async () => {
+    const {
+      result,
+      data: returnedData,
+      openCreated,
+    } = await openViewGalaxyAstronomerRelationFormPage({
+      ownerData: produceDataAdjustedOwner(),
+      ownerValidation: validate,
+      isDraft: true,
+      dataPath: `${dataPath ? dataPath + '.' : ''}astronomer`,
+    });
+    // we might need to differentiate result handling between operation inputs and crud relation creates
+    if (result === 'submit-draft' && returnedData) {
+      const decoratedData = {
+        ...returnedData,
+        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+      };
+      const newData = decoratedData;
+      storeDiff('astronomer', newData);
+      return;
+    }
+    if (openCreated && returnedData) {
+    }
+  };
+  // RowDeleteAction: God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkDeleteAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)
+  const astronomerRowDeleteAction = async (target: ViewAstronomerStored) => {
+    try {
+      const confirmed = await openConfirmDialog(
+        'row-delete-action',
+        t('judo.modal.confirm.confirm-delete', {
+          defaultValue: 'Are you sure you would like to delete the selected element?',
+        }),
+        t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
+      );
+      if (confirmed) {
+        storeDiff('astronomer', null);
+      }
+    } catch (error) {
+      handleError<ViewAstronomer>(
+        error,
+        {
+          actionId:
+            'God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkDeleteAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)',
+        },
+        target,
+      );
+    }
+  };
+  // OpenSelectorAction: God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkSetSelectorOpenPageAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)
+  const astronomerOpenSetSelectorAction = async (): Promise<ViewAstronomerStored | undefined> => {
+    const { result, data: returnedData } = await openViewGalaxyFormAstronomerLinkSetSelectorPage({
+      ownerData: data,
+      alreadySelected: data.astronomer ? [data.astronomer] : [],
+    });
+    if (result === 'submit') {
+      if (Array.isArray(returnedData) && returnedData.length) {
+        try {
+          storeDiff('astronomer', returnedData[0]);
+          return returnedData[0];
+        } catch (error) {
+          console.error(error);
+          return undefined;
+        }
+      }
+    }
+    return undefined;
+  };
+  // UnsetAction: God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldLinkUnsetAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition)
+  const astronomerUnsetAction = async (target: ViewAstronomer | ViewAstronomerStored) => {
+    storeDiff('astronomer', null);
+  };
+
+  const actions: ViewGalaxyFormDialogActions = {
+    getPageTitle,
+    backAction,
+    createAction,
+    getTemplateAction,
+    astronomerAutocompleteRangeAction,
+    astronomerAutocompleteSetAction,
+    astronomerOpenCreateFormAction,
+    astronomerRowDeleteAction,
+    astronomerOpenSetSelectorAction,
+    astronomerUnsetAction,
+    getAstronomerMask,
+    ...(customActions ?? {}),
+  };
+
+  // ViewModel setup
+  const viewModel: ViewGalaxyFormViewModel = {
+    onClose,
+    actions,
+    actionsRequested: requestedContainerActions,
+    ownerData,
+    isLoading,
+    setIsLoading,
+    editMode,
+    setEditMode,
+    refresh,
+    refreshCounter,
+    submit,
+    data,
+    validation,
+    setValidation,
+    storeDiff,
+    isFormUpdateable,
+    isFormDeleteable,
+    templateDataOverride,
+    isDraft,
+  };
+
+  // Effect section
+  useEffect(() => {
+    setForPage('God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition', viewModel);
+
+    return () => {
+      deleteForPage('God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition');
+    };
+  }, [data]);
+
+  useEffect(() => {
+    (async () => {
+      await actions.getTemplateAction!();
+      if (templateDataOverride) {
+        setData((prevData) => ({ ...prevData, ...templateDataOverride }));
+      }
+    })();
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribe('refresh:God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition', async () => {
+      await refresh();
+    });
+
+    return () => {
+      unsubscribe();
+    };
+  }, [subscribe]);
+
+  return (
+    <ViewGalaxyFormViewModelContext.Provider value={viewModel}>
+      <Suspense>
+        <div
+          data-testid="God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessFormPageDefinition"
+          data-page-name="God::God::galaxies::AccessFormPage"
+        />
+        <ViewGalaxyFormDialogContainer
+          ownerData={ownerData}
+          onClose={onClose}
+          actions={actions}
+          actionsRequested={requestedContainerActions}
+          dataPath={dataPath}
+          isLoading={isLoading}
+          editMode={editMode}
+          refreshCounter={refreshCounter}
+          data={data}
+          storeDiff={storeDiff}
+          isFormUpdateable={isFormUpdateable}
+          isFormDeleteable={isFormDeleteable}
+          validation={validation}
+          setValidation={setValidation}
+          submit={submit}
+          isDraft={isDraft}
+        />
+      </Suspense>
+    </ViewGalaxyFormViewModelContext.Provider>
+  );
+}
