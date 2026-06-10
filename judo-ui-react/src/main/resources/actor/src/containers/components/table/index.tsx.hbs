@@ -228,6 +228,12 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       label: { 'translationKey': '{{ getTranslationKeyForVisualElement button }}', 'defaultValue': '{{ button.label }}' },
       enabled: (data: {{# with (getReferenceClassType table) as |classType| }}{{ classDataName (getReferenceClassType table) '' }}{{# if classType.isMapped }}Stored{{/ if }}[]{{/ with }}, selectionModel: GridRowSelectionModel, selectedRows: {{# with (getReferenceClassType table) as |classType| }}{{ classDataName (getReferenceClassType table) '' }}{{# if classType.isMapped }}Stored{{/ if }}[]{{/ with }}, ownerData?: any, isFormUpdateable?: () => boolean, rowModesModel?: GridRowModesModel): boolean => {{{ tableButtonVisibilityConditions button table container }}},
       isBulk: {{ boolValue actionDefinition.isBulk }},
+      {{# if button.actionDefinition.isOpenCreateFormAction }}
+      // F10: hide the form-opening Create button when this table is mounted inside
+      // an AddSelector / SetSelector dialog overlay. Filtered out in the toolbar
+      // render loop in components/table/LazyTable.tsx.hbs and EagerTable.tsx.hbs.
+      hiddenInSelectorMode: true,
+      {{/ if }}
       {{# if button.confirmation }}
         confirmation: t('{{ getTranslationKeyForVisualElement button }}.confirmation', { defaultValue: '{{ button.confirmation.confirmationMessage }}' }) as string,
         {{# if (shouldRenderConfirmationCondition button) }}
