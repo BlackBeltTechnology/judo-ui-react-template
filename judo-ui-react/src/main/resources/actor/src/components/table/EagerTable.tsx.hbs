@@ -26,6 +26,7 @@ import { Filter, FilterOption } from '~/components-api';
 import {
   ContextMenu,
   ContextMenuApi,
+  CustomCheckbox,
   StripedDataGrid,
   columnsActionCalculator,
 } from '~/components/table';
@@ -526,6 +527,9 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
+          // F3: testid prefix injected into CustomCheckbox wrapper (see slots.baseCheckbox).
+          // Wrapper emits <uniqueId>-select-row-<rowId> for row cells, <uniqueId>-select-all for header.
+          baseCheckbox: { testIdPrefix: uniqueId },
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -570,6 +574,9 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         slots={ {
+          // F3: custom checkbox wrapper that injects data-testid per row / header.
+          // Receives testIdPrefix via slotProps.baseCheckbox above.
+          baseCheckbox: CustomCheckbox,
           toolbar: () => (
             <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {
