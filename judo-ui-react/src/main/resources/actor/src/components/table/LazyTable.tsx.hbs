@@ -734,7 +734,13 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           toolbar: () => (
             <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {
-                toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
+                toolBarActions
+                  // F10: when this table is mounted inside a selector dialog overlay,
+                  // filter out actions flagged hiddenInSelectorMode (currently emitted on
+                  // OpenCreateFormAction-bound buttons in containers/components/table/index.tsx.hbs).
+                  // This prevents duplicate TransferObjectTableCreateButton data-testid in the DOM.
+                  .filter((toolBarAction: ToolBarActionProps<T>) => !(containerIsSelector && toolBarAction.hiddenInSelectorMode))
+                  .map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
                 <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
