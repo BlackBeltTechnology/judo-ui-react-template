@@ -55,6 +55,36 @@ application roots.
 
 ENV var to use: `VITE_MUI_LICENSE_KEY`.
 
+== Template and fragment overrides
+
+Beyond the runtime (Pandino) customization surface described later in this document, the generator also supports
+*build-time* customization by overriding templates. Any template (`*.hbs`) or fragment (`*.fragment.hbs`) shipped by
+the generator can be replaced by placing a file with the same relative path under the
+`generator-overrides/ui-react/actor` folder of the consuming project.
+
+There are two flavours:
+
+- *Full template override* — provide a file matching a generated template (e.g. `package.json.hbs`) to completely
+  replace its output.
+- *Fragment override* — many templates include named `*.fragment.hbs` partials at well-defined extension points.
+  Overriding only the fragment lets you inject content without re-implementing the whole file.
+
+Several fragments exist specifically as empty extension points (their default content is just a placeholder comment),
+so they are safe to override:
+
+- `package.json.dependencies.extra.fragment.hbs` / `package.json.dev-dependencies.extra.fragment.hbs` /
+  `package.json.scripts.extra.fragment.hbs` — add extra dependencies / dev-dependencies / scripts (see the next
+  section).
+- `public/i18n/application_default_extra.fragment.hbs` — add extra translation entries (see the i18n section).
+- `src/theme/index.ts.extra-components.fragment.hbs` — add extra MUI component theme overrides.
+- `src/theme/palette.ts.extra-imports.fragment.hbs` — add extra imports used by the palette.
+- `src/theme/palette.ts.extra-attributes.fragment.hbs` — add extra theme attributes.
+- `src/theme/palette.ts.extra-palette-attributes.fragment.hbs` — add extra palette attributes.
+
+> Overriding non-`extra` fragments or full templates is also possible, but means you take ownership of that output and
+  must keep it in sync with generator changes. Prefer the runtime customization hooks or the dedicated `extra` fragments
+  where one exists.
+
 == Modifying / extending package.json content
 
 We can override `package.json` related content at the `generator-overrides/ui-react/actor` folder.
