@@ -275,7 +275,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...columns as GridColDef<T>[],
-      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed{{# if table.actionColumnWidth }}, actionsColumnWidth: {{ table.actionColumnWidth }}{{/ if }} }) as GridColDef<T>[]
+      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed{{# if table.actionColumnWidth }}, actionsColumnWidth: {{ table.actionColumnWidth }}{{/ if }} }, isSelectorTable) as GridColDef<T>[]
     ];
     {{# if isMUILicensePlanPro }}
       if (columnState.length) {
@@ -529,7 +529,10 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           },
           // F3: testid prefix injected into CustomCheckbox wrapper (see slots.baseCheckbox).
           // Wrapper emits <uniqueId>-select-row-<rowId> for row cells, <uniqueId>-select-all for header.
-          baseCheckbox: { testIdPrefix: uniqueId },
+          // F10 widening: when this table is mounted inside a selector dialog
+          // overlay, omit the testid prefix so CustomCheckbox renders no
+          // data-testid — the page mount of the same table is the canonical carrier.
+          baseCheckbox: { testIdPrefix: isSelectorTable ? undefined : uniqueId },
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -590,7 +593,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
                   <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={toolBarAction.id}
+                        data-testid={isSelectorTable ? undefined : toolBarAction.id}
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {

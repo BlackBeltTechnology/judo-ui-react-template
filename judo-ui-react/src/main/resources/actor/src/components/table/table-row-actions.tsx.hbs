@@ -46,7 +46,16 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   getSelectedRows: () => any[],
   ownerData?: any,
   options?: ColumnsActionsOptions,
+  isSelectorMount: boolean = false,
 ): GridActionsColDef[] => {
+  // F11 + F10 widening: per-row action buttons are rendered N times (once per row)
+  // from the same `actions` array; emitting a scalar action.id as data-testid
+  // collapses to N duplicate testids in the DOM. Compose with the row's
+  // __identifier so every emitted testid is row-unique. In selector-mount
+  // context, omit data-testid entirely (page mount is canonical — see
+  // SelectCheckbox / LazyTable comments).
+  const buildRowTestId = (actionId: string, rowIdentifier: string | undefined): string =>
+    rowIdentifier ? `${actionId}-${rowIdentifier}` : actionId;
   const safeOptions: ColumnsActionsOptions = {
     crudOperationsDisplayed: options?.crudOperationsDisplayed ?? 2,
     transferOperationsDisplayed: options?.transferOperationsDisplayed ?? 2,
@@ -76,7 +85,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Tooltip title={a.tooltip} key={a.id}>
               <Button
-                data-testid={a.id}
+                data-testid={isSelectorMount ? undefined : buildRowTestId(a.id, params.row.__identifier)}
                 variant="text"
                 startIcon={a.icon}
                 disabled={a.disabled ? a.disabled(params.row, isLoading, isRowInEditMode(params.row, rowModesModel), getSelectedRows, ownerData) : false}
@@ -88,10 +97,14 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           ))}
           {dropdownActions.length ? <DropdownButton
             id={id}
+            testId={buildRowTestId(id, params.row.__identifier)}
+            suppressTestId={isSelectorMount}
             variant="text"
             showDropdownIcon={false}
             menuItems={dropdownActions.filter(a => !a.hidden(params.row)).map((action) => ({
               id: action.id,
+              testId: buildRowTestId(action.id, params.row.__identifier),
+              suppressTestId: isSelectorMount,
               key: action.id,
               label: action.label,
               startIcon: action.icon,

@@ -16,6 +16,13 @@ import { MdiIcon } from './MdiIcon';
 
 interface DropdownMenuItem {
   id: string,
+  // Per-row testid override (used by table-row-actions to compose ${id}-${rowId}
+  // so each rendered row gets a unique data-testid). When omitted, `id` is used.
+  testId?: string;
+  // When true, omit the data-testid attribute entirely. Used by table-row-actions
+  // when the table is mounted inside a selector dialog overlay (page mount is
+  // the canonical testid carrier; see F10 widening).
+  suppressTestId?: boolean;
   disabled?: boolean;
   visible?: boolean;
   label?: string;
@@ -27,6 +34,11 @@ interface DropdownMenuItem {
 interface DropdownButtonProps {
   children?: ReactNode;
   id: string;
+  // Optional explicit testid for the trigger button; falls back to `id`.
+  testId?: string;
+  // When true, omit the data-testid attribute entirely on the trigger button.
+  // See DropdownMenuItem.suppressTestId.
+  suppressTestId?: boolean;
   menuItems: DropdownMenuItem[];
   disabled?: boolean;
   showDropdownIcon?: boolean;
@@ -39,6 +51,8 @@ interface DropdownButtonProps {
 export function DropdownButton({
   children,
   id,
+  testId,
+  suppressTestId = false,
   menuItems,
   startIcon,
   disabled = false,
@@ -47,6 +61,7 @@ export function DropdownButton({
   variant = 'contained',
   hiddenBy = false,
 }: DropdownButtonProps) {
+  const triggerTestId = suppressTestId ? undefined : (testId ?? id);
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
 
@@ -89,7 +104,7 @@ export function DropdownButton({
     <>
       <Button
         ref={anchorRef}
-        data-testid={id}
+        data-testid={triggerTestId}
         onClick={handleToggle}
         startIcon={startIcon}
         endIcon={showDropdownIcon && <MdiIcon path="chevron-down" />}
@@ -123,7 +138,7 @@ export function DropdownButton({
                         <Tooltip title={menuItem.tooltip} key={menuItem.id}>
                           <MenuItem
                             key={menuItem.label ?? '' + index}
-                            data-testid={menuItem.id}
+                            data-testid={menuItem.suppressTestId ? undefined : (menuItem.testId ?? menuItem.id)}
                             disabled={menuItem.disabled ?? false}
                             onClick={(event) => {
                               if (menuItem.onClick) {

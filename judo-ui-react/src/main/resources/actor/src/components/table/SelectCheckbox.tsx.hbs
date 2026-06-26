@@ -34,7 +34,15 @@ export interface SelectCheckboxProps {
 
 export const CustomCheckbox = forwardRef<HTMLButtonElement, SelectCheckboxProps>(
   ({ testIdPrefix, rowId, __identifier, ...rest }, ref) => {
-    const prefix = testIdPrefix ?? '';
+    // F10 widening: when this table is mounted inside a selector dialog overlay,
+    // LazyTable/EagerTable pass `testIdPrefix: undefined` so we omit data-testid
+    // entirely — the same DataGrid is also rendered on the underlying page
+    // (MUI dialogs are portals; the page tree is not unmounted) and the page
+    // mount is the canonical testid carrier.
+    if (testIdPrefix === undefined || testIdPrefix === null) {
+      return <Checkbox {...(rest as any)} ref={ref} />;
+    }
+    const prefix = testIdPrefix;
     const isRowCell = !(rowId === undefined || rowId === null || rowId === '');
     let testId: string;
     if (isRowCell) {

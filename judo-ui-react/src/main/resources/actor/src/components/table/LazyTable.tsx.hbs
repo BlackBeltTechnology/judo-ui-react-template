@@ -306,7 +306,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...columns as GridColDef<T>[],
-      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth }) as GridColDef<T>[]
+      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth }, containerIsSelector) as GridColDef<T>[]
     ];
     {{# if isMUILicensePlanPro }}
     if (columnState.length) {
@@ -684,7 +684,10 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           },
           // F3: testid prefix injected into CustomCheckbox wrapper (see slots.baseCheckbox).
           // Wrapper emits <uniqueId>-select-row-<rowId> for row cells, <uniqueId>-select-all for header.
-          baseCheckbox: { testIdPrefix: uniqueId },
+          // F10 widening: when this table is mounted inside a selector dialog
+          // overlay, omit the testid prefix so CustomCheckbox renders no
+          // data-testid — the page mount of the same table is the canonical carrier.
+          baseCheckbox: { testIdPrefix: containerIsSelector ? undefined : uniqueId },
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -751,7 +754,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                 <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={toolBarAction.id}
+                        data-testid={containerIsSelector ? undefined : toolBarAction.id}
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {
