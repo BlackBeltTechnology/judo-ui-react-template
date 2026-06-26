@@ -26,6 +26,7 @@ import { Filter, FilterOption } from '~/components-api';
 import {
   ContextMenu,
   ContextMenuApi,
+  CustomCheckbox,
   StripedDataGrid,
   columnsActionCalculator,
 } from '~/components/table';
@@ -133,6 +134,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     editMode,
     containerHasTable,
     toolBarActions,
+    isSelectorTable,
     additionalToolbarButtons,
     tableHasSelectorColumn,
     maskAction,
@@ -273,7 +275,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...columns as GridColDef<T>[],
-      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed{{# if table.actionColumnWidth }}, actionsColumnWidth: {{ table.actionColumnWidth }}{{/ if }} }) as GridColDef<T>[]
+      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed{{# if table.actionColumnWidth }}, actionsColumnWidth: {{ table.actionColumnWidth }}{{/ if }} }, isSelectorTable) as GridColDef<T>[]
     ];
     {{# if isMUILicensePlanPro }}
       if (columnState.length) {
@@ -525,6 +527,12 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
+          // F3: testid prefix injected into CustomCheckbox wrapper (see slots.baseCheckbox).
+          // Wrapper emits <uniqueId>-select-row-<rowId> for row cells, <uniqueId>-select-all for header.
+          // F10 widening: when this table is mounted inside a selector dialog
+          // overlay, omit the testid prefix so CustomCheckbox renders no
+          // data-testid — the page mount of the same table is the canonical carrier.
+          baseCheckbox: { testIdPrefix: isSelectorTable ? undefined : uniqueId },
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -569,14 +577,23 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         slots={ {
+          // F3: custom checkbox wrapper that injects data-testid per row / header.
+          // Receives testIdPrefix via slotProps.baseCheckbox above.
+          baseCheckbox: CustomCheckbox,
           toolbar: () => (
             <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {
-                toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable, rowModesModel) ? (
+                toolBarActions
+                  // F10: when this table is mounted inside a selector dialog overlay,
+                  // filter out actions flagged hiddenInSelectorMode (currently emitted on
+                  // OpenCreateFormAction-bound buttons in containers/components/table/index.tsx.hbs).
+                  // This prevents duplicate TransferObjectTableCreateButton data-testid in the DOM.
+                  .filter((toolBarAction: ToolBarActionProps<T>) => !(isSelectorTable && toolBarAction.hiddenInSelectorMode))
+                  .map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable, rowModesModel) ? (
                   <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={toolBarAction.id}
+                        data-testid={isSelectorTable ? undefined : toolBarAction.id}
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {
