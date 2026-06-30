@@ -60,12 +60,6 @@ export interface ToolBarActionProps<T> {
   isBulk: boolean;
   confirmation?: string;
   confirmationCondition?: boolean;
-  // F10: when true AND the table is mounted in selector mode (containerIsSelector
-  // on LazyTable, isSelectorTable on EagerTable), the toolbar render path filters
-  // this action out so its <Button data-testid={...}> does not appear in the DOM.
-  // Emitted statically on OpenCreateFormAction-bound buttons in
-  // containers/components/table/index.tsx.hbs to suppress duplicate-testid violations
-  // when an AddSelector overlay mounts the same TableComponent on top of its page.
   hiddenInSelectorMode?: boolean;
 }
 

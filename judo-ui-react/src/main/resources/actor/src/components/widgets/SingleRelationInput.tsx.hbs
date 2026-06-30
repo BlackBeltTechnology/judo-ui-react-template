@@ -222,7 +222,6 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         .filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create')
                         .filter(a => !a.visible || a.visible(value))
                         .map((buttonProp) => (
-                          // F6: inline relation-field action button — catalogued via <field>.fieldActions.<name>
                           <IconButton
                             data-testid={`${id}-${buttonProp.name}`}
                             className={buttonProp.className}
@@ -239,7 +238,6 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         ))
                       }
                       {exists(value) && (onDelete || onSet || onUnSet) && (
-                        // F6: inline relation-field dropdown toggle for delete/set/unset menu
                         <IconButton data-testid={`${id}-dropdown-toggle`} className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>

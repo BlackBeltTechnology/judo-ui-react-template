@@ -48,12 +48,6 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   options?: ColumnsActionsOptions,
   isSelectorMount: boolean = false,
 ): GridActionsColDef[] => {
-  // F11 + F10 widening: per-row action buttons are rendered N times (once per row)
-  // from the same `actions` array; emitting a scalar action.id as data-testid
-  // collapses to N duplicate testids in the DOM. Compose with the row's
-  // __identifier so every emitted testid is row-unique. In selector-mount
-  // context, omit data-testid entirely (page mount is canonical — see
-  // SelectCheckbox / LazyTable comments).
   const buildRowTestId = (actionId: string, rowIdentifier: string | undefined): string =>
     rowIdentifier ? `${actionId}-${rowIdentifier}` : actionId;
   const safeOptions: ColumnsActionsOptions = {

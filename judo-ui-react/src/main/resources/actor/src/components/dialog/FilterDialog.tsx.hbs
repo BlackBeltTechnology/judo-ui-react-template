@@ -54,9 +54,6 @@ const FilterOperator = ({ filter, operatorId, valueId, setFilterOperator }: Filt
       onChange={onChangeHandler}
     >
       {getOperatorsByFilter(filter).map((item) => (
-        // F15: per-operator platform-fixed testid `filter-operator-<kebab>` so each MenuItem is
-        // uniquely addressable by spec authors. Catalogued under PlatformTestIds.filterDialog.operators.*.id.
-        // Previously all options shared `data-testid={valueId}` which broke Playwright strict-mode locators.
         <MenuItem className="filter-operation-item" data-testid={`filter-operator-${item.replace(/[A-Z]/g, (m) => `-${m.toLowerCase()}`)}`} key={item} value={item}>
           {t(`judo.modal.filter.${item}`, { defaultValue: 'Operation' }) as string}
         </MenuItem>
@@ -342,9 +339,6 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
                 />
               ))}
               <Grid container>
-                {/* F9: rename testid suffix from `-dropdown` to `-add-new-filter` so the catalogue
-                    can expose <filter>.addNewFilter semantically. DropdownButton emits `data-testid={id}`
-                    (components/DropdownButton.tsx.hbs:92), so changing the `id` prop here changes the DOM testid. */}
                 <DropdownButton
                   id={`${id}-add-new-filter`}
                   fullWidth={true}

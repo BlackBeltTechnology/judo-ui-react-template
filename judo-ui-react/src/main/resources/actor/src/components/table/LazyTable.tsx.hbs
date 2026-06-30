@@ -682,11 +682,6 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
-          // F3: testid prefix injected into CustomCheckbox wrapper (see slots.baseCheckbox).
-          // Wrapper emits <uniqueId>-select-row-<rowId> for row cells, <uniqueId>-select-all for header.
-          // F10 widening: when this table is mounted inside a selector dialog
-          // overlay, omit the testid prefix so CustomCheckbox renders no
-          // data-testid — the page mount of the same table is the canonical carrier.
           baseCheckbox: { testIdPrefix: containerIsSelector ? undefined : uniqueId },
         } }
         getRowId={getRowIdentifier}
@@ -738,17 +733,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         filterDebounceMs={filterDebounceMs}
         rowCount={rowsPerPage}
         slots={ {
-          // F3: custom checkbox wrapper that injects data-testid per row / header.
-          // Receives testIdPrefix via slotProps.baseCheckbox above.
           baseCheckbox: CustomCheckbox,
           toolbar: () => (
             <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {
                 toolBarActions
-                  // F10: when this table is mounted inside a selector dialog overlay,
-                  // filter out actions flagged hiddenInSelectorMode (currently emitted on
-                  // OpenCreateFormAction-bound buttons in containers/components/table/index.tsx.hbs).
-                  // This prevents duplicate TransferObjectTableCreateButton data-testid in the DOM.
                   .filter((toolBarAction: ToolBarActionProps<T>) => !(containerIsSelector && toolBarAction.hiddenInSelectorMode))
                   .map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
                 <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>

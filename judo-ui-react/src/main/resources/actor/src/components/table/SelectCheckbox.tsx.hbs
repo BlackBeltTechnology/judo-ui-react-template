@@ -3,28 +3,12 @@
 import { forwardRef } from 'react';
 import Checkbox from '@mui/material/Checkbox';
 
-// F3 (audit 2026-06-10): emit data-testid on every selection checkbox MUI renders
-// for a DataGrid's built-in __check__ column. The same component is used for
-// row cells (rowId present) AND the header cell (rowId absent), so we
-// discriminate at render time.
-//
-// MUI API: see https://mui.com/x/react-data-grid/components/#slots (v8.x).
-// Wired into <DataGrid> via slots.baseCheckbox + slotProps.baseCheckbox in
-// components/table/LazyTable.tsx.hbs and components/table/EagerTable.tsx.hbs.
-//
-// Module augmentation below adds `testIdPrefix` to MUI's BaseCheckboxPropsOverrides
-// so slotProps.baseCheckbox accepts the custom prop without TS errors.
-
 declare module '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}' {
   interface BaseCheckboxPropsOverrides {
     testIdPrefix?: string;
   }
 }
 
-// Props the wrapper accepts. Typed loosely because MUI v8's BaseCheckbox slot has
-// internal-only props (e.g. rowId injected by the DataGrid) that aren't in
-// @mui/material/Checkbox's public type. `any` here is intentional and scoped to
-// the slot boundary; runtime behavior is unchanged.
 export interface SelectCheckboxProps {
   testIdPrefix?: string;
   rowId?: string | number;
@@ -34,11 +18,6 @@ export interface SelectCheckboxProps {
 
 export const CustomCheckbox = forwardRef<HTMLButtonElement, SelectCheckboxProps>(
   ({ testIdPrefix, rowId, __identifier, ...rest }, ref) => {
-    // F10 widening: when this table is mounted inside a selector dialog overlay,
-    // LazyTable/EagerTable pass `testIdPrefix: undefined` so we omit data-testid
-    // entirely — the same DataGrid is also rendered on the underlying page
-    // (MUI dialogs are portals; the page tree is not unmounted) and the page
-    // mount is the canonical testid carrier.
     if (testIdPrefix === undefined || testIdPrefix === null) {
       return <Checkbox {...(rest as any)} ref={ref} />;
     }

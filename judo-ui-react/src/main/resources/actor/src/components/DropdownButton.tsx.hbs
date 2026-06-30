@@ -16,12 +16,7 @@ import { MdiIcon } from './MdiIcon';
 
 interface DropdownMenuItem {
   id: string,
-  // Per-row testid override (used by table-row-actions to compose ${id}-${rowId}
-  // so each rendered row gets a unique data-testid). When omitted, `id` is used.
   testId?: string;
-  // When true, omit the data-testid attribute entirely. Used by table-row-actions
-  // when the table is mounted inside a selector dialog overlay (page mount is
-  // the canonical testid carrier; see F10 widening).
   suppressTestId?: boolean;
   disabled?: boolean;
   visible?: boolean;
@@ -34,10 +29,7 @@ interface DropdownMenuItem {
 interface DropdownButtonProps {
   children?: ReactNode;
   id: string;
-  // Optional explicit testid for the trigger button; falls back to `id`.
   testId?: string;
-  // When true, omit the data-testid attribute entirely on the trigger button.
-  // See DropdownMenuItem.suppressTestId.
   suppressTestId?: boolean;
   menuItems: DropdownMenuItem[];
   disabled?: boolean;
