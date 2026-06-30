@@ -1,8 +1,13 @@
-## MODIFIED Requirements
+# table-toolbar-rendering Specification
 
-### Requirement: Selector-mode tables suppress duplicate data-testid attributes (broadened scope)
+## Purpose
+Specifies how the generated `LazyTable` and `EagerTable` components render their toolbar action buttons, and what side-effects selector-mount context (i.e. the table mounted inside an AddSelector / SetSelector dialog overlay) has on that rendering. Covers two concerns: (1) suppression of form-opening Create buttons in selector context for UX correctness, and (2) suppression of `data-testid` attributes on toolbar / checkbox / row-action elements in the selector mount to avoid duplicate testids when the same table is portal-mounted twice (page + dialog overlay).
+## Requirements
+### Requirement: Selector-mode tables suppress form-opening Create buttons
 
-This requirement extends the prior `Selector-mode tables suppress form-opening Create buttons` requirement (introduced by `dedupe-create-button-in-selector`). The form-opening Create button suppression continues to hold as previously specified. In addition, the runtime table components SHALL omit the `data-testid` attribute on **all** of the following DOM elements when the table is mounted in a selector dialog overlay (i.e. `containerIsSelector === true` in LazyTable, `isSelectorTable === true` in EagerTable):
+This requirement broadens the prior scope (introduced by `dedupe-create-button-in-selector`). The form-opening Create button suppression continues to hold as previously specified — every toolbar-action entry whose underlying action is an `OpenCreateFormActionDefinition` SHALL still carry `hiddenInSelectorMode: true` and be filtered out of the toolbar render loop when mounted in a selector dialog overlay.
+
+In addition, the runtime table components SHALL omit the `data-testid` attribute on **all** of the following DOM elements when the table is mounted in a selector dialog overlay (i.e. `containerIsSelector === true` in LazyTable, `isSelectorTable === true` in EagerTable):
 
 1. Every toolbar `<Button>` rendered from the `toolBarActions` array — `data-testid={<selectorFlag> ? undefined : toolBarAction.id}`.
 2. The header selection checkbox and every per-row selection checkbox — by passing `testIdPrefix: undefined` to the `CustomCheckbox` wrapper via `slotProps.baseCheckbox`; `CustomCheckbox` SHALL detect this and return `<Checkbox>` with no `data-testid` attribute.
@@ -37,3 +42,4 @@ The page-mount (non-selector) instance of the same table SHALL retain all `data-
 - **AND** `containerIsSelector === false` / `isSelectorTable === false`
 - **WHEN** the table renders
 - **THEN** every toolbar Button, selection checkbox, and row-action Button SHALL emit `data-testid` exactly as it did before this change (subject to the row-suffix change covered by the `table-row-actions-testids` capability)
+

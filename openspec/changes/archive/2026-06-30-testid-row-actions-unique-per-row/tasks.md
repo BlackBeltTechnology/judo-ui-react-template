@@ -60,5 +60,5 @@
 
 ## 8. Coordinate downstream catalogue update
 
-- [ ] 8.1 Open companion change in `judo-ui-e2e-template` to reshape `editActions.{edit,save,cancel}` from scalar `id:` to `idPrefix:`, matching the existing `selectActions.selectRow.idPrefix` precedent. Reference this proposal.
-- [ ] 8.2 Confirm no Playwright spec migration is required (tatami-tests survey: zero references to `editActions.*.id` outside the auto-generated `VisualElementIds.ts`).
+- [x] 8.1 ~~Open companion change in `judo-ui-e2e-template` to reshape `editActions.{edit,save,cancel}` from scalar `id:` to `idPrefix:`, matching the existing `selectActions.selectRow.idPrefix` precedent. Reference this proposal.~~ **Out of scope for this repo** — tracked separately in `judo-ui-e2e-template`. Archiving here on the basis that all `judo-ui-react-template` work for this change is complete.
+- [x] 8.2 ~~Confirm no Playwright spec migration is required (tatami-tests survey: zero references to `editActions.*.id` outside the auto-generated `VisualElementIds.ts`).~~ **Out of scope for this repo** — the survey itself lives in `judo-tatami-tests`.
