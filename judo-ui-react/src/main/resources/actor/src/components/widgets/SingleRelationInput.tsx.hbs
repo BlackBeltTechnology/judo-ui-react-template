@@ -11,19 +11,20 @@ import InputAdornment from '@mui/material/InputAdornment';
 import TextField from '@mui/material/TextField';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Grow from '@mui/material/Grow';
-import Paper from '@mui/material/Paper';
+import Paper, { type PaperProps } from '@mui/material/Paper';
 import Popper from '@mui/material/Popper';
 import MenuItem from '@mui/material/MenuItem';
 import MenuList from '@mui/material/MenuList';
 import { debounce } from '@mui/material/utils';
 import { useTranslation } from 'react-i18next';
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useState, useEffect, useMemo, useRef } from 'react';
 import type { ReactNode, FC } from 'react';
 import { clsx } from 'clsx';
 import { debounceInputs } from '~/config';
 import { exists } from '../../utilities';
 import { SingleRelationInputButtonProps } from '../../utilities/application';
 import { MdiIcon } from '../MdiIcon';
+import { AutocompleteMoreResultsHint } from './AutocompleteMoreResultsHint';
 
 interface SingleRelationInputProps<T> {
   name: string;
@@ -38,6 +39,7 @@ interface SingleRelationInputProps<T> {
   editMode?: boolean;
   icon?: ReactNode;
   autoCompleteAttribute: string;
+  autoCompleteLimit?: number;
   onAutoCompleteSearch?: (searchText: string) => Promise<T[]>,
   onAutoCompleteSelect: (target?: T | null) => Promise<void>;
   isInlineCreatable?: boolean;
@@ -62,6 +64,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   isEager = true,
   icon,
   autoCompleteAttribute,
+  autoCompleteLimit,
   onAutoCompleteSearch,
   onAutoCompleteSelect,
   isInlineCreatable,
@@ -164,10 +167,19 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
     }
   }, [refreshCounter]);
 
+  const showMoreResultsHint = typeof autoCompleteLimit === 'number' && autoCompleteLimit > 0 && options.length >= autoCompleteLimit;
+  const PaperWithMoreResultsHint = useCallback((paperProps: PaperProps) => (
+    <Paper {...paperProps}>
+      {showMoreResultsHint && <AutocompleteMoreResultsHint />}
+      {paperProps.children}
+    </Paper>
+  ), [showMoreResultsHint]);
+
   return (
     <Grid container direction="row" justifyContent="stretch" alignContent="stretch">
       <Box sx={ { padding: 0, flexGrow: 1 } }>
         <Autocomplete
+          slots={ { paper: PaperWithMoreResultsHint } }
           freeSolo={true}
           forcePopupIcon={!!onAutoCompleteSearch}
           data-testid={id}
