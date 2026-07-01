@@ -20,11 +20,6 @@ export function DebouncedTextField({
   const [localValue, setLocalValue] = useState<string>(value as string ?? '');
   const latestValueRef = useRef<string | null>(value as string ?? null);
 
-  const onDebouncedChangeRef = useRef(onDebouncedChange);
-  useEffect(() => {
-    onDebouncedChangeRef.current = onDebouncedChange;
-  }, [onDebouncedChange]);
-
   // Sync local state when external value changes (e.g., from server refresh)
   useEffect(() => {
     const externalValue = value as string ?? '';
@@ -37,9 +32,9 @@ export function DebouncedTextField({
   const debouncedOnChange = useMemo(
     () =>
       debounce((newValue: string | null) => {
-        onDebouncedChangeRef.current(newValue);
+        onDebouncedChange(newValue);
       }, debounceInputs),
-    [],
+    [onDebouncedChange],
   );
 
   // Cleanup debounce on unmount
@@ -58,17 +53,11 @@ export function DebouncedTextField({
     debouncedOnChange(realValue);
   };
 
-  const handleBlur = () => {
-    debouncedOnChange.clear();
-    onDebouncedChangeRef.current(latestValueRef.current);
-  };
-
   return (
     <TextField
       {...rest}
       value={localValue}
       onChange={handleChange}
-      onBlur={handleBlur}
     />
   );
 }
