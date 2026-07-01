@@ -306,7 +306,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...columns as GridColDef<T>[],
-      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth }, containerIsSelector) as GridColDef<T>[]
+      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth }) as GridColDef<T>[]
     ];
     {{# if isMUILicensePlanPro }}
     if (columnState.length) {
@@ -682,7 +682,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
-          baseCheckbox: { testIdPrefix: containerIsSelector ? undefined : uniqueId },
+          baseCheckbox: { testIdPrefix: uniqueId },
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -737,13 +737,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           toolbar: () => (
             <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {
-                toolBarActions
-                  .filter((toolBarAction: ToolBarActionProps<T>) => !(containerIsSelector && toolBarAction.hiddenInSelectorMode))
-                  .map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
+                toolBarActions.map( (toolBarAction: ToolBarActionProps<T>) => actions[toolBarAction.name] && toolBarAction.enabled(data, selectionModel, getSelectedRows(), ownerData, isFormUpdateable) ? (
                 <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={containerIsSelector ? undefined : toolBarAction.id}
+                        data-testid={toolBarAction.id}
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {

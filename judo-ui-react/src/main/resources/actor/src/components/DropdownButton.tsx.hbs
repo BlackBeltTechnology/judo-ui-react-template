@@ -17,7 +17,6 @@ import { MdiIcon } from './MdiIcon';
 interface DropdownMenuItem {
   id: string,
   testId?: string;
-  suppressTestId?: boolean;
   disabled?: boolean;
   visible?: boolean;
   label?: string;
@@ -30,7 +29,6 @@ interface DropdownButtonProps {
   children?: ReactNode;
   id: string;
   testId?: string;
-  suppressTestId?: boolean;
   menuItems: DropdownMenuItem[];
   disabled?: boolean;
   showDropdownIcon?: boolean;
@@ -44,7 +42,6 @@ export function DropdownButton({
   children,
   id,
   testId,
-  suppressTestId = false,
   menuItems,
   startIcon,
   disabled = false,
@@ -53,7 +50,7 @@ export function DropdownButton({
   variant = 'contained',
   hiddenBy = false,
 }: DropdownButtonProps) {
-  const triggerTestId = suppressTestId ? undefined : (testId ?? id);
+  const triggerTestId = testId ?? id;
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
 
@@ -130,7 +127,7 @@ export function DropdownButton({
                         <Tooltip title={menuItem.tooltip} key={menuItem.id}>
                           <MenuItem
                             key={menuItem.label ?? '' + index}
-                            data-testid={menuItem.suppressTestId ? undefined : (menuItem.testId ?? menuItem.id)}
+                            data-testid={menuItem.testId ?? menuItem.id}
                             disabled={menuItem.disabled ?? false}
                             onClick={(event) => {
                               if (menuItem.onClick) {
