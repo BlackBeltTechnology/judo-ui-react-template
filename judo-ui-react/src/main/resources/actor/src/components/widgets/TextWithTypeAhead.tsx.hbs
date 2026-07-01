@@ -2,12 +2,14 @@
 
 import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
+import Paper, { type PaperProps } from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import { debounce } from '@mui/material/utils';
 import { clsx } from 'clsx';
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { ReactNode } from 'react';
 import { debounceInputs } from '~/config';
+import { AutocompleteMoreResultsHint } from './AutocompleteMoreResultsHint';
 
 interface TextWithTypeAheadProps {
   name: string;
@@ -22,6 +24,7 @@ interface TextWithTypeAheadProps {
   editMode?: boolean;
   icon?: ReactNode;
   onAutoCompleteSearch?: (searchText: string) => Promise<string[]>;
+  autoCompleteLimit?: number;
   onChange: (target?: string | null) => void;
   onBlur?: (event: any) => void;
   maxLength?: number;
@@ -41,6 +44,7 @@ export const TextWithTypeAhead = ({
   editMode = true,
   icon,
   onAutoCompleteSearch,
+  autoCompleteLimit,
   onChange,
   onBlur,
   maxLength,
@@ -88,8 +92,21 @@ export const TextWithTypeAhead = ({
 
   const effectiveReadOnly = readOnly || !onAutoCompleteSearch;
 
+  const showMoreResultsHint = typeof autoCompleteLimit === 'number' && autoCompleteLimit > 0 && options.length >= autoCompleteLimit;
+  // Read the latest value from a ref so the Paper slot component identity stays stable across
+  // threshold crossings — otherwise MUI remounts the paper/listbox at every true<->false flip.
+  const showMoreResultsHintRef = useRef(showMoreResultsHint);
+  showMoreResultsHintRef.current = showMoreResultsHint;
+  const PaperWithMoreResultsHint = useCallback((paperProps: PaperProps) => (
+    <Paper {...paperProps}>
+      {showMoreResultsHintRef.current && <AutocompleteMoreResultsHint />}
+      {paperProps.children}
+    </Paper>
+  ), []);
+
   return (
     <Autocomplete
+      slots={ { paper: PaperWithMoreResultsHint } }
       freeSolo={true}
       data-testid={id}
       disabled={!effectiveReadOnly && disabled}

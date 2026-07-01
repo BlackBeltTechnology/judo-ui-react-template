@@ -7,6 +7,7 @@ import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
+import Paper, { type PaperProps } from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import { debounce } from '@mui/material/utils';
 import clsx from 'clsx';
@@ -16,6 +17,7 @@ import { debounceInputs } from '~/config/general';
 import { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { StringOperation } from '~/services/data-api/model/StringOperation';
 import { fileHandling } from '~/utilities/file-handling';
+import { AutocompleteMoreResultsHint } from './AutocompleteMoreResultsHint';
 
 export interface TagsProps<P, T> {
   id: string;
@@ -192,8 +194,21 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     setLoading(isOwnerLoading);
   }, [isOwnerLoading]);
 
+  const showMoreResultsHint = typeof limitOptions === 'number' && limitOptions > 0 && options.length >= limitOptions;
+  // Read the latest value from a ref so the Paper slot component identity stays stable across
+  // threshold crossings — otherwise MUI remounts the paper/listbox at every true<->false flip.
+  const showMoreResultsHintRef = useRef(showMoreResultsHint);
+  showMoreResultsHintRef.current = showMoreResultsHint;
+  const PaperWithMoreResultsHint = useCallback((paperProps: PaperProps) => (
+    <Paper {...paperProps}>
+      {showMoreResultsHintRef.current && <AutocompleteMoreResultsHint />}
+      {paperProps.children}
+    </Paper>
+  ), []);
+
   return (
     <Autocomplete
+      slots={ { paper: PaperWithMoreResultsHint } }
       multiple
       freeSolo
       clearOnBlur
