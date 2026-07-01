@@ -15,8 +15,6 @@ If `params.row.__identifier` is missing (undefined, null, or empty string), the 
 
 React `key` properties on Tooltip, MenuItem, and other elements SHALL continue to use the scalar `action.id` (or stable equivalents) — only the `data-testid` attribute is row-suffixed. This decoupling preserves React keying semantics while making every emitted testid in the DOM globally unique within one table mount.
 
-The suppression behaviour for selector-overlay mounts (covered by the `table-toolbar-rendering` capability) takes precedence over row composition: when `isSelectorMount === true`, no `data-testid` is emitted regardless of row identifier.
-
 #### Scenario: Three-row table emits three distinct row-edit testids
 
 - **GIVEN** a generated table with rowEdit enabled (`editable === true`) and three rows whose `__identifier` values are `r1`, `r2`, `r3`
