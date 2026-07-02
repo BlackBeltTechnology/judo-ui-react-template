@@ -195,8 +195,6 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
   }, [isOwnerLoading]);
 
   const showMoreResultsHint = typeof limitOptions === 'number' && limitOptions > 0 && options.length >= limitOptions;
-  // Read the latest value from a ref so the Paper slot component identity stays stable across
-  // threshold crossings — otherwise MUI remounts the paper/listbox at every true<->false flip.
   const showMoreResultsHintRef = useRef(showMoreResultsHint);
   showMoreResultsHintRef.current = showMoreResultsHint;
   const PaperWithMoreResultsHint = useCallback((paperProps: PaperProps) => (
