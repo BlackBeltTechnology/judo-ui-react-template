@@ -510,6 +510,12 @@ public class UiWidgetHelper {
         return 10;
     }
 
+    // JNG-6409: TextInput has no per-element autoCompleteRows override in ui.ecore today.
+    // Return a constant matching calculateLinkAutocompleteRows' default. See JNG-6409.
+    public static Integer calculateTextAutocompleteRows(TextInput input) {
+        return 10;
+    }
+
     public static boolean flexParentIsNotTab(Flex flex) {
         return !(flex.eContainer() instanceof Tab);
     }
