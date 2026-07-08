@@ -20,14 +20,17 @@ Single Class III (react-template-only) change. The fix is conservative: a non-se
 
 The hint text comes from a new system-i18n key (`judo.autocomplete.type-for-more-results`), is rendered in italic typography to read as a tip rather than a selectable option, and is themable.
 
-### (a) Shared header component
+### (a) Shared header component + slot hook
 
-- New file `actor/src/components/widgets/AutocompleteMoreResultsHint.tsx.hbs` — a small React component that renders a non-interactive element styled like an MUI list subheader with `pointerEvents: 'none'`, `aria-hidden="true"`, `role="presentation"`, and `fontStyle: 'italic'`. Receives its label via i18n (`t('judo.autocomplete.type-for-more-results', { defaultValue: 'Type for more results…' })`).
+- New file `actor/src/components/widgets/AutocompleteMoreResultsHint.tsx.hbs` exports two symbols:
+  - `AutocompleteMoreResultsHint` — a small React FC that renders a non-interactive element styled like an MUI list subheader with `pointerEvents: 'none'`, `aria-hidden="true"`, `role="presentation"`, and `fontStyle: 'italic'`. Receives its label via i18n (`t('judo.autocomplete.type-for-more-results', { defaultValue: 'Type for more results…' })`).
+  - `useAutocompleteMoreResultsHintPaper(limit, optionsLength)` — a hook that returns a stable-identity `paper` slot component for MUI Autocomplete. It encapsulates the visibility calculation (`optionsLength >= limit`), the ref-based latest-value read (so MUI does not remount the paper on threshold crossings), and the `<Paper>` wrapper that prepends `<AutocompleteMoreResultsHint />` above the listbox. This is the single source of truth for the hint machinery; the three widget call sites use it verbatim.
 - Re-exported from `actor/src/components/widgets/index.tsx.hbs`.
+- Post-review note (2026-07-08, gaborflorian review nit): the hook was extracted from an initial inline-in-each-widget draft into `AutocompleteMoreResultsHint.tsx.hbs` to eliminate the ~9-line duplicated block across the three widgets. Behaviour is unchanged. See `tasks.md` §10.
 
 ### (b) Plumb the limit through every server-paginated autocomplete widget
 
-For each of the three widget templates, add a new optional prop `autoCompleteLimit?: number` (or reuse `Tags.tsx.hbs`'s existing `limitOptions`) and pass it from the caller container template. Render the header via MUI 7's `slots.paper` with a custom Paper component that closes over the live `options.length` — the exact pattern is verified and pinned in `design.md` §D1.
+For each of the three widget templates, add a new optional prop `autoCompleteLimit?: number` (or reuse `Tags.tsx.hbs`'s existing `limitOptions`), pass it from the caller container template, then call `useAutocompleteMoreResultsHintPaper` and hand its return value to `<Autocomplete slots={ { paper: paperSlot } } />`. The exact pattern is pinned in `design.md` §D1.
 
 - `SingleRelationInput.tsx.hbs` — new `autoCompleteLimit` prop; `link/index.tsx.hbs` passes `{{ calculateLinkAutocompleteRows link }}`.
 - `Tags.tsx.hbs` — uses its existing `limitOptions` (default `10`); no new prop, no container plumbing.
@@ -57,11 +60,11 @@ For each of the three widget templates, add a new optional prop `autoCompleteLim
 
 ## Impact
 
-- **`judo-ui-react/src/main/resources/actor/src/components/widgets/AutocompleteMoreResultsHint.tsx.hbs`** — new file (~40 lines).
+- **`judo-ui-react/src/main/resources/actor/src/components/widgets/AutocompleteMoreResultsHint.tsx.hbs`** — new file (~50 lines): FC + `useAutocompleteMoreResultsHintPaper` hook.
 - **`judo-ui-react/src/main/resources/actor/src/components/widgets/index.tsx.hbs`** — one new re-export.
-- **`judo-ui-react/src/main/resources/actor/src/components/widgets/SingleRelationInput.tsx.hbs`** — new `autoCompleteLimit?` prop; render header above the listbox via a custom `slots.paper` Paper that closes over `options.length` (see `design.md` §D1). ~10 lines.
-- **`judo-ui-react/src/main/resources/actor/src/components/widgets/Tags.tsx.hbs`** — same `slots.paper` pattern using existing `limitOptions`. ~8 lines.
-- **`judo-ui-react/src/main/resources/actor/src/components/widgets/TextWithTypeAhead.tsx.hbs`** — new `autoCompleteLimit?` prop; same `slots.paper` pattern. ~10 lines.
+- **`judo-ui-react/src/main/resources/actor/src/components/widgets/SingleRelationInput.tsx.hbs`** — new `autoCompleteLimit?` prop; one call to `useAutocompleteMoreResultsHintPaper(autoCompleteLimit, options.length)` + `slots={ { paper: paperSlot } }` on the `<Autocomplete>`. ~3 net-added lines (import + hook call + slots prop).
+- **`judo-ui-react/src/main/resources/actor/src/components/widgets/Tags.tsx.hbs`** — same hook call using existing `limitOptions`. ~3 net-added lines.
+- **`judo-ui-react/src/main/resources/actor/src/components/widgets/TextWithTypeAhead.tsx.hbs`** — new `autoCompleteLimit?` prop; same hook call. ~3 net-added lines.
 - **`judo-ui-react/src/main/resources/actor/src/containers/components/link/index.tsx.hbs`** — pass `autoCompleteLimit={ {{ calculateLinkAutocompleteRows link }} }`. ~1 line.
 - **`judo-ui-react/src/main/resources/actor/src/containers/widget-fragments/textinput.hbs`** — pass `autoCompleteLimit={ {{ calculateTextAutocompleteRows child }} }`. ~1 line.
 - **`judo-ui-react/src/main/java/hu/blackbelt/judo/ui/generator/react/UiWidgetHelper.java`** — new static helper `calculateTextAutocompleteRows(TextInput)` returning constant `10`. ~6 lines.
