@@ -2,14 +2,13 @@
 
 import Autocomplete from '@mui/material/Autocomplete';
 import InputAdornment from '@mui/material/InputAdornment';
-import Paper, { type PaperProps } from '@mui/material/Paper';
 import TextField from '@mui/material/TextField';
 import { debounce } from '@mui/material/utils';
 import { clsx } from 'clsx';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { debounceInputs } from '~/config';
-import { AutocompleteMoreResultsHint } from './AutocompleteMoreResultsHint';
+import { useAutocompleteMoreResultsHintPaper } from './AutocompleteMoreResultsHint';
 
 interface TextWithTypeAheadProps {
   name: string;
@@ -92,19 +91,11 @@ export const TextWithTypeAhead = ({
 
   const effectiveReadOnly = readOnly || !onAutoCompleteSearch;
 
-  const showMoreResultsHint = typeof autoCompleteLimit === 'number' && autoCompleteLimit > 0 && options.length >= autoCompleteLimit;
-  const showMoreResultsHintRef = useRef(showMoreResultsHint);
-  showMoreResultsHintRef.current = showMoreResultsHint;
-  const PaperWithMoreResultsHint = useCallback((paperProps: PaperProps) => (
-    <Paper {...paperProps}>
-      {showMoreResultsHintRef.current && <AutocompleteMoreResultsHint />}
-      {paperProps.children}
-    </Paper>
-  ), []);
+  const paperSlot = useAutocompleteMoreResultsHintPaper(autoCompleteLimit, options.length);
 
   return (
     <Autocomplete
-      slots={ { paper: PaperWithMoreResultsHint } }
+      slots={ { paper: paperSlot } }
       freeSolo={true}
       data-testid={id}
       disabled={!effectiveReadOnly && disabled}

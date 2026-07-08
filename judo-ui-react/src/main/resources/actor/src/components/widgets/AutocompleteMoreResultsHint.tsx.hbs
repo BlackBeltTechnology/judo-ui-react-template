@@ -1,18 +1,12 @@
 {{> fragment.header.hbs }}
 
 import Box from '@mui/material/Box';
+import Paper, { type PaperProps } from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import type { FC } from 'react';
+import type { ComponentType, FC } from 'react';
+import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 
-/**
- * Non-interactive header rendered above the option listbox of a server-paginated
- * MUI Autocomplete when the returned page has reached its limit. Advises the user
- * to narrow the search so that hidden rows become reachable.
- *
- * Sits inside the dropdown Paper (above the listbox) but is not itself a listbox
- * option, so keyboard navigation and `isOptionEqualToValue` never see it.
- */
 export const AutocompleteMoreResultsHint: FC = () => {
   const { t } = useTranslation();
 
@@ -37,4 +31,19 @@ export const AutocompleteMoreResultsHint: FC = () => {
       </Typography>
     </Box>
   );
+};
+
+export const useAutocompleteMoreResultsHintPaper = (
+  limit: number | undefined,
+  optionsLength: number,
+): ComponentType<PaperProps> => {
+  const show = typeof limit === 'number' && limit > 0 && optionsLength >= limit;
+  const showRef = useRef(show);
+  showRef.current = show;
+  return useCallback((paperProps: PaperProps) => (
+    <Paper {...paperProps}>
+      {showRef.current && <AutocompleteMoreResultsHint />}
+      {paperProps.children}
+    </Paper>
+  ), []);
 };
