@@ -24,6 +24,7 @@ import { debounceInputs } from '~/config';
 import { exists } from '../../utilities';
 import { SingleRelationInputButtonProps } from '../../utilities/application';
 import { MdiIcon } from '../MdiIcon';
+import { useAutocompleteMoreResultsHintPaper } from './AutocompleteMoreResultsHint';
 
 interface SingleRelationInputProps<T> {
   name: string;
@@ -38,6 +39,7 @@ interface SingleRelationInputProps<T> {
   editMode?: boolean;
   icon?: ReactNode;
   autoCompleteAttribute: string;
+  autoCompleteLimit?: number;
   onAutoCompleteSearch?: (searchText: string) => Promise<T[]>,
   onAutoCompleteSelect: (target?: T | null) => Promise<void>;
   isInlineCreatable?: boolean;
@@ -62,6 +64,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   isEager = true,
   icon,
   autoCompleteAttribute,
+  autoCompleteLimit,
   onAutoCompleteSearch,
   onAutoCompleteSelect,
   isInlineCreatable,
@@ -164,10 +167,13 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
     }
   }, [refreshCounter]);
 
+  const paperSlot = useAutocompleteMoreResultsHintPaper(autoCompleteLimit, options.length);
+
   return (
     <Grid container direction="row" justifyContent="stretch" alignContent="stretch">
       <Box sx={ { padding: 0, flexGrow: 1 } }>
         <Autocomplete
+          slots={ { paper: paperSlot } }
           freeSolo={true}
           forcePopupIcon={!!onAutoCompleteSearch}
           data-testid={id}
