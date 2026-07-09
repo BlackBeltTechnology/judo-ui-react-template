@@ -10,7 +10,7 @@ import { OBJECTCLASS } from '@pandino/pandino-api';
   import type { FC, ReactNode, Dispatch, SetStateAction } from 'react';
   import { useTrackService } from '@pandino/react-hooks';
   import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-  import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
+  import { isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
   import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
   {{# if (containerHasTableWithTotalCount page.container) }}
   import { X_JUDO_COUNT_RECORDS } from '~/services/data-api/rest/headers';
@@ -251,7 +251,7 @@ export default function {{ pageName page }}() {
             {{# if table.isEager }}
               // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
               let updatedList = [...(data.{{ table.relationName }} || [])];
-              const existingIndex = updatedList.findIndex(r => r.__identifier === rowData.__identifier);
+              const existingIndex = updatedList.findIndex(r => resolveTransferId(r) === resolveTransferId(rowData));
               if (existingIndex > -1) {
                 updatedList[existingIndex] = {
                   ...rowData,
@@ -277,7 +277,7 @@ export default function {{ pageName page }}() {
               {{/ unless }}
             {{ else }}
               setIsLoading(true);
-              if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+              if (isNewRow(rowData)) {
                 {{# if (isTableCreatable table page) }}
                 const queryCustomizer: { _mask: string } = {
                   _mask: '{}',

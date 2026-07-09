@@ -10,6 +10,7 @@ import { baseColumnConfig, characterMultiplier, iconAndDropdownIconExtra, onlyDr
 import type { ColumnActionsProvider, ColumnsActionsOptions, TableRowAction } from '../../utilities';
 import { DropdownButton } from '../DropdownButton';
 import { MdiIcon } from '../MdiIcon';
+import { resolveTransferId } from '../../utilities/transfer-id';
 
 export const calculateMinWidth = (entry: TableRowAction<any, any>[], editable = false) => {
   const baseWidth = entry.length ? ((entry.map(a => (a.label ?? '').length).reduce((p, c) => p + c, 0) * characterMultiplier) + iconAndDropdownIconExtra) : onlyDropdownWidth;
@@ -26,7 +27,7 @@ const findLastIndex = <T,>(array: T[], predicate: (e: T) => boolean): number => 
 };
 
 const isRowInEditMode = <T extends JudoIdentifiable<any>,>(row: T, gridRowModesModel: GridRowModesModel): boolean => {
-  const rowData =  gridRowModesModel[row.__identifier!];
+  const rowData =  gridRowModesModel[resolveTransferId(row)];
   return rowData?.mode === GridRowModes.Edit;
 };
 

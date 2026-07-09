@@ -3,8 +3,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
   return new Promise((resolve) => {
     {{# if table.isEager }}
-      const selectedIds = selectedRows.map(r => r.__identifier);
-      const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      const selectedIds = selectedRows.map(r => resolveTransferId(r));
+      const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
       storeDiff('{{ table.dataElement.name }}', newList);
       resolve({
         result: 'delete',
@@ -22,7 +22,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (selected
         action: async (item, successHandler: () => void, errorHandler: (error: any) => void) => {
           try {
             {{# if (isActionParentEagerElement action) }}
-              const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => c.__identifier !== item.__identifier);
+              const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => resolveTransferId(c) !== resolveTransferId(item));
               storeDiff('{{ table.dataElement.name }}', newList);
             {{ else }}
               await {{ getServiceImplForPage page }}.delete{{# if action.targetDataElement }}{{ firstToUpper action.targetDataElement.name }}{{/ if }}(item);

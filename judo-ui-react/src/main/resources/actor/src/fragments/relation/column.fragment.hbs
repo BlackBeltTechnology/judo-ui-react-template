@@ -4,8 +4,8 @@ type: '{{ columnType column }}',
 editable: true,
 renderEditCell: (props: GridRenderEditCellParams) => {
   let error: string | undefined;
-  if (props.row && rowValidation.current.has(props.row.__identifier)) {
-    const errors = rowValidation.current.get(props.row.__identifier);
+  if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+    const errors = rowValidation.current.get(resolveTransferId(props.row));
     error = errors?.get('{{ column.attributeType.name }}');
   }
   return (
@@ -156,7 +156,6 @@ renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceCla
           readOnly={true}
           editMode={false}
           autoCompleteAttribute={'{{ column.representationOfRelation.name }}'}
-          identifierAttribute={'__identifier'}
         />
       </Box>
     );

@@ -13,6 +13,7 @@ import { CardsFilter, type CardsFilterDefinition } from '~/components/widgets/Ca
 import { useJudoNavigation } from '~/components';
 import { useViewData } from '~/hooks';
 import { mapCardsFiltersToFilters } from '~/utilities';
+import { resolveTransferId } from '~/utilities/transfer-id';
 import { type {{ componentName card }}CardsContainerConfigHook, {{ camelCaseNameToInterfaceKey (componentName card) }}_CARDS_CONTAINER_CONFIG_HOOK_INTERFACE_KEY } from '~/containers/{{ containerPath card.pageContainer}}/components/{{ cardsComponentName card }}/customization';
 import { type {{ componentName card }}RowActionDefinitions } from '~/containers/{{ containerPath card.pageContainer}}/components/{{ cardsComponentName card }}/types';
 import { type {{ classDataName (getReferenceClassType card) 'Stored' }} } from '~/services/data-api/model/{{ classDataName (getReferenceClassType card) '' }}';
@@ -75,7 +76,7 @@ const {{ componentName card }}Card: FC<CardProps<{{ classDataName (getReferenceC
         <CardContent>
           {/* Here we are dynamically iterating over all columns, but we could manually handle the ones we are interested in of course. */}
           {columns.map((k, idx) => (
-            <Typography key={`${row.__identifier}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
+            <Typography key={`${resolveTransferId(row as any)}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
               {row[k.field as keyof {{ classDataName (getReferenceClassType card) 'Stored' }}]?.toString()}
             </Typography>
           ))}
