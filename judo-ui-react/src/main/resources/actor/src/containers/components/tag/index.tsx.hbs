@@ -120,7 +120,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# with (getClearActionDefinitionForTable table) as |clearActionDefinition| }}
         onClearDialogsClick={ hasClearCapability ? async () => actions.{{ simpleActionDefinitionName clearActionDefinition }}!() : undefined }
         {{/ with }}
-        identifierAttribute="__identifier"
         {{# unless table.isEager }}
         refreshCounter={refreshCounter}
         {{# with (getRefreshActionDefinitionForTable table) as |actionDefinition| }}

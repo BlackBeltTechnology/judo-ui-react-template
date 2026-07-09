@@ -102,6 +102,7 @@ import type { {{ componentName table }}ActionDefinitions, {{ componentName table
 import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
 {{# if (tableHasRelationColumn table) }}
 import { Tags } from '~/components/widgets';
+import { resolveTransferId } from '~/utilities/transfer-id';
 {{/ if }}
 {{# each (getColumnsRepresentsRelation table) as |column| }}
 import { {{ classDataName column.representsRelation.target 'Stored' }} } from '~/services/data-api/model/{{ classDataName column.representsRelation.target }}';
@@ -156,27 +157,27 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const applyRowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {
     try {
       await actions.apply{{ firstToUpper table.relationName }}RowEdit!(rowData);
-      rowValidation.current.delete(rowData.__identifier!);
+      rowValidation.current.delete(resolveTransferId(rowData));
     } catch(e: any) {
       if (e?.response?.status === 400) {
         const errorMap: Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string> = new Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>();
         {{# if table.isEager }}
         // can be -1 if row is not yet written into ownerData
-        const rowIdx = (ownerData?.{{ table.dataElement.name }} || []).findIndex(r => r.__identifier === rowData.__identifier);
+        const rowIdx = (ownerData?.{{ table.dataElement.name }} || []).findIndex(r => resolveTransferId(r) === resolveTransferId(rowData));
         {{/ if }}
         const errorList = isErrorNestedValidationError(e, dataPath) ? extractRelationErrorList<any, {{ classDataName (getReferenceClassType table) 'Stored' }}>(e.response.data, dataPath!{{# if table.isEager }}, rowIdx === -1 ? 0 : rowIdx{{/ if }}) : e.response.data as ServerError<{{ classDataName (getReferenceClassType table) 'Stored' }}>[];
         if (errorList && errorList.length && errorList[0].location) {
           validateWithNestedErrors(errorList, errorMap, t);
         }
         const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(rowValidation.current);
-        copy.set(rowData.__identifier!, errorMap);
+        copy.set(resolveTransferId(rowData), errorMap);
         rowValidation.current = copy;
       } else {
         const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(rowValidation.current);
-        copy.delete(rowData.__identifier!);
+        copy.delete(resolveTransferId(rowData));
         rowValidation.current = copy;
       }
-      throw(rowData.__identifier);
+      throw(resolveTransferId(rowData));
     }
   }, [actions]);
 
