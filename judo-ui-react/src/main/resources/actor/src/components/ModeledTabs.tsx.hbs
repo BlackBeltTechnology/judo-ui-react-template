@@ -7,6 +7,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { useDataStore } from '~/hooks';
 import { MdiIcon } from './MdiIcon';
+import { resolveTransferId } from '~/utilities/transfer-id';
 
 export interface TabPanelProps {
     id: string;
@@ -62,15 +63,18 @@ export function ModeledTabs({ id, ownerData, childTabs, children, orientation, v
     const border = orientation === 'vertical' ? 'borderRight' : 'borderBottom';
     const additionalBoxSx = orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {};
 
+    const ownerKey = ownerData ? resolveTransferId(ownerData as any) : undefined;
+    const hasOwnerKey = !!ownerKey && !ownerKey.startsWith('idx-');
+
     useEffect(() => {
-        if (ownerData && ownerData.__identifier) {
-            setItem(`${id}-${ownerData.__identifier}-activeTab`, String(value));
+        if (hasOwnerKey) {
+            setItem(`${id}-${ownerKey}-activeTab`, String(value));
         }
     }, [value]);
 
     useEffect(() => {
-        if (ownerData && ownerData.__identifier) {
-            setValue(Number(getItemWithDefault(`${id}-${ownerData.__identifier}-activeTab`, '0')));
+        if (hasOwnerKey) {
+            setValue(Number(getItemWithDefault(`${id}-${ownerKey}-activeTab`, '0')));
         }
     }, [ownerData]);
 

@@ -1,0 +1,108 @@
+{{> fragment.header.hbs }}
+
+import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
+
+/**
+ * Unified transfer-object identity contract shared with judo-frontend-runtime.
+ *
+ * See `openspec/specs/transfer-identity/spec.md` for the normative contract.
+ *
+ * All row-key resolution, new-row seeding, and `data-testid` construction in
+ * the generated app MUST go through these helpers so that Playwright tests
+ * written against the runtime output pass against the template output.
+ */
+
+/** Loose shape of any transfer object we may need to identify. */
+export interface TransferIdSource {
+  __signedIdentifier?: string;
+  __identifier?: string;
+  __tempId?: string;
+  __isNew?: boolean;
+  id?: string | number;
+}
+
+/**
+ * Resolve the client-side identity of a transfer object. Never throws, never
+ * returns undefined. Matches the runtime's fallback chain exactly:
+ *
+ *   __signedIdentifier ?? __identifier ?? __tempId ?? id ?? `idx-${index}`
+ */
+export function resolveTransferId(row: TransferIdSource | undefined | null, index?: number): string {
+  if (!row) {
+    return typeof index === 'number' ? `idx-${index}` : 'idx-undefined';
+  }
+  if (typeof row.__signedIdentifier === 'string' && row.__signedIdentifier.length > 0) {
+    return row.__signedIdentifier;
+  }
+  if (typeof row.__identifier === 'string' && row.__identifier.length > 0) {
+    return row.__identifier;
+  }
+  if (typeof row.__tempId === 'string' && row.__tempId.length > 0) {
+    return row.__tempId;
+  }
+  if (row.id !== undefined && row.id !== null && `${row.id}`.length > 0) {
+    return `${row.id}`;
+  }
+  return typeof index === 'number' ? `idx-${index}` : 'idx-undefined';
+}
+
+/**
+ * Produce a fresh temp id for a client-created, not-yet-saved row.
+ * Format: `temp::<ms-since-epoch>::<7-hex-chars>`.
+ * Matches the runtime's format from dataid-template-runtime.pdf §3.
+ */
+export function newTempId(): string {
+  const rand = Math.floor(Math.random() * 0x10000000)
+    .toString(16)
+    .padStart(7, '0')
+    .slice(0, 7);
+  return `temp::${Date.now()}::${rand}`;
+}
+
+/**
+ * Classify whether a row is a client-created, not-yet-saved row.
+ *
+ * Primary check: `__isNew === true` (aligned with the runtime).
+ *
+ * Compatibility rung: also returns true when `__identifier` still carries
+ * the legacy `draft:` prefix seeded by Phase-1's serializer
+ * (`judo-ui-typescript-rest-template/.../rest/serializer.ts.hbs`). Remove
+ * this rung once Phase-1 stops emitting the prefix (follow-up JIRA).
+ */
+export function isNewRow(row: TransferIdSource | undefined | null): boolean {
+  if (!row) return false;
+  if (row.__isNew === true) return true;
+  // TODO(JNG-6391 follow-up): remove after Phase-1 draft-seed is retired.
+  if (typeof row.__identifier === 'string' && row.__identifier.startsWith(draftIdentifierPrefix)) {
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Build a hierarchical `data-testid` value for a field-level widget node.
+ * `role` is drawn from the vocabulary in `openspec/specs/transfer-identity/spec.md`.
+ */
+export function buildFieldTestId(xmiId: string, role?: string): string {
+  return role ? `field::${xmiId}::${role}` : `field::${xmiId}`;
+}
+
+/** Build the outer `data-testid` for a table. */
+export function buildTableTestId(tableId: string): string {
+  return `table::${tableId}`;
+}
+
+/** Build the `data-testid` for a specific row in a table. */
+export function buildRowTestId(tableId: string, row: TransferIdSource | undefined | null, index?: number): string {
+  return `table::${tableId}::row::${resolveTransferId(row, index)}`;
+}
+
+/** Build the `data-testid` for a specific cell in a table. */
+export function buildCellTestId(
+  tableId: string,
+  row: TransferIdSource | undefined | null,
+  columnName: string,
+  index?: number,
+): string {
+  return `table::${tableId}::row::${resolveTransferId(row, index)}::cell::${columnName}`;
+}

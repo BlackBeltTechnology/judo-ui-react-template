@@ -20,6 +20,7 @@ import { useSnacks } from '~/hooks';
 import { useDialog } from '~/components/dialog';
 import { MdiIcon } from '~/components/MdiIcon';
 import { isErrorOperationFault } from '~/utilities';
+import { resolveTransferId } from '~/utilities/transfer-id';
 
 export type CRUDDialogOpenProps<T extends JudoStored<any>> = {
   dialogTitle: string;
@@ -50,7 +51,7 @@ export const useCRUDDialog: UseCRUDDialog = () => {
         <CRUDDialog
           title={dialogTitle}
           queueItems={selectedItems.map((item) => ({
-            id: item.__identifier!,
+            id: resolveTransferId(item),
             data: item,
             title: itemTitleFn(item),
             status: 'in-progress',

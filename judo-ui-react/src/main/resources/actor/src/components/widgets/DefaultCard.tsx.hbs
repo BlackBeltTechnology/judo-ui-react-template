@@ -13,6 +13,7 @@ import type {
   GridValidRowModel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { useL10N } from '~/l10n/l10n-context';
+import { resolveTransferId } from '~/utilities/transfer-id';
 import { useTranslation } from 'react-i18next';
 import type { CardProps } from '~/components-api/components/CardsContainer';
 
@@ -43,7 +44,7 @@ export const DefaultCard: FC<CardProps<any, any>> = ({ onRowClick, row, columns,
       <Card variant="outlined" sx={ { height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' } }>
         <CardContent>
           {columns.map((k, idx) => (
-            <Typography key={`${row.__identifier}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
+            <Typography key={`${resolveTransferId(row as any)}-${k.field}`} variant={idx === 0 ? 'h5' : 'body2'}>
               {formatValue(row[k.field])}
             </Typography>
           ))}
