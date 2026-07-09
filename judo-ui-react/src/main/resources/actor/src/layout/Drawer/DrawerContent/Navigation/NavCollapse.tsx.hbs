@@ -23,6 +23,7 @@ import { NavItemType } from '~/layout/Drawer/DrawerContent/Navigation/NavItem';
 import { Transitions } from '~/layout/Transitions';
 import { menuBehaviour } from '~/config/layout';
 import { useLayoutHelper } from '~/utilities/layout-helper';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 
 type VirtualElement = {
   getBoundingClientRect: () => ClientRect | DOMRect;
@@ -291,7 +292,7 @@ export const NavCollapse = ({ menu, level, render, placement, arrow, title, mous
       ) : (
         <>
           <ListItemButton
-            data-testid={`boundary-${popperId}`}
+            data-testid={buildFieldTestId(menu.id, 'menu::boundary')}
             disableRipple
             onMouseEnter={mouseOver ?? menuBehaviour.mouseOverOpenClose ? handleHover : undefined}
             onMouseLeave={mouseOver ?? menuBehaviour.mouseOverOpenClose ? handleClose : undefined}
@@ -333,7 +334,7 @@ export const NavCollapse = ({ menu, level, render, placement, arrow, title, mous
 
             {anchorEl && (
               <PopperStyled
-                data-testid={popperId}
+                data-testid={buildFieldTestId(menu.id, 'menu::popper')}
                 arrow={arrow ?? true}
                 open={miniMenuOpened}
                 anchorEl={anchorEl}

@@ -13,6 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { useState, useRef, useEffect } from 'react';
 import type { ReactNode, KeyboardEvent, SyntheticEvent } from 'react';
 import { MdiIcon } from './MdiIcon';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 
 interface DropdownMenuItem {
   id: string,
@@ -89,7 +90,7 @@ export function DropdownButton({
     <>
       <Button
         ref={anchorRef}
-        data-testid={id}
+        data-testid={buildFieldTestId(id)}
         onClick={handleToggle}
         startIcon={startIcon}
         endIcon={showDropdownIcon && <MdiIcon path="chevron-down" />}
@@ -123,7 +124,7 @@ export function DropdownButton({
                         <Tooltip title={menuItem.tooltip} key={menuItem.id}>
                           <MenuItem
                             key={menuItem.label ?? '' + index}
-                            data-testid={menuItem.id}
+                            data-testid={buildFieldTestId(id, `menu::item::${menuItem.id}`)}
                             disabled={menuItem.disabled ?? false}
                             onClick={(event) => {
                               if (menuItem.onClick) {

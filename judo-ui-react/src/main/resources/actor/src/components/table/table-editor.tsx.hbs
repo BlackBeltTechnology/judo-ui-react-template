@@ -16,6 +16,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers{{ getMUIPickersPlanSuf
 import { TRINARY_LOGIC } from '~/components-api/components/TrinaryLogic';
 import { MdiIcon } from '../MdiIcon';
 import { locales, useL10N } from '~/l10n/l10n-context';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 
 const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={ { popper: className } } />
@@ -42,7 +43,7 @@ export function BooleanSelectEditInputCell(props: GridRenderEditCellParams<any>)
 
   return (
       <TextField
-          data-testid={`${id}-bool-editor`}
+          data-testid={buildFieldTestId(id, 'bool-editor')}
           value={TRINARY_LOGIC.get(value) ?? ''}
           onChange={onChangeHandler}
           autoFocus

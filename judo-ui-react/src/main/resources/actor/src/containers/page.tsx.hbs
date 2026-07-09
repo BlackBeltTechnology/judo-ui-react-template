@@ -95,7 +95,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
                 <Button
-                  data-testid="{{ getXMIID button }}"
+                  data-testid={buildFieldTestId('{{ getXMIID button }}')}
                   loading={isLoading}
                   loadingPosition="start"
                   variant={ {{{ variantForButton button }}} }

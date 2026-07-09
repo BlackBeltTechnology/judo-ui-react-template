@@ -24,6 +24,7 @@ import { debounceInputs } from '~/config';
 import { exists } from '../../utilities';
 import { SingleRelationInputButtonProps } from '../../utilities/application';
 import { MdiIcon } from '../MdiIcon';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 import { useAutocompleteHintPaper } from './AutocompleteNoResultsHint';
 
 interface SingleRelationInputProps<T> {
@@ -170,13 +171,13 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   const paperSlot = useAutocompleteHintPaper({ limit: autoCompleteLimit, optionsLength: options.length, loading });
 
   return (
-    <Grid container direction="row" justifyContent="stretch" alignContent="stretch">
+    <Grid container data-testid={buildFieldTestId(id)} direction="row" justifyContent="stretch" alignContent="stretch">
       <Box sx={ { padding: 0, flexGrow: 1 } }>
         <Autocomplete
           slots={ { paper: paperSlot } }
           freeSolo={true}
           forcePopupIcon={!!onAutoCompleteSearch}
-          data-testid={id}
+          data-testid={buildFieldTestId(id, 'autocomplete')}
           disabled={!effectiveReadOnly && disabled}
           readOnly={effectiveReadOnly}
           onOpen={ () => {
@@ -197,7 +198,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
             <TextField
               {...params}
               name={name}
-              data-testid={id}
+              data-testid={buildFieldTestId(id, 'input')}
               required={required}
               label={label}
               error={error}
@@ -279,7 +280,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
         >
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
-              <MenuList data-testid={`${name}-menu`} autoFocusItem>
+              <MenuList data-testid={buildFieldTestId(id, 'dropdown')} autoFocusItem>
                 { buttonProps
                   .filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset')
                   .filter(a => !a.dropDownButtonIsVisible || a.dropDownButtonIsVisible(value))

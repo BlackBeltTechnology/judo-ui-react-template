@@ -4,6 +4,7 @@ import { useMemo } from 'react';
 import type { ElementType, MouseEvent, Dispatch, SetStateAction, FC } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Tags } from '~/components/widgets';
+import { buildTableTestId } from '~/utilities/transfer-id';
 import type { Filter } from '~/components-api';
 {{# each (getTableAPIImports table container) as |imp| }}
   import type {
@@ -68,7 +69,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   }, [actions]);
 
   return (
-    <div data-testid="{{ getXMIID table }}" data-table-name="{{ table.name }}">
+    <div data-testid={buildTableTestId('{{ getXMIID table }}')} data-table-name="{{ table.name }}">
       <Tags<{{ classDataName container.dataElement '' }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>
         id="{{ getXMIID table }}"
         label={ {{# if (elementHasLabel table) }}t('{{ getTranslationKeyForVisualElement table }}', { defaultValue: '{{ table.label }}' }){{ else }}'{{ table.relationName }}'{{/ if }} }

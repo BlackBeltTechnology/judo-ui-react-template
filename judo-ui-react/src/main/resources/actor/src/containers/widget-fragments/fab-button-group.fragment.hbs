@@ -21,7 +21,7 @@
       {{# each (nonFeaturedButtonsForButtonGroup fabGroup) as |button| }}
         <SpeedDialAction
           key="{{ getXMIID button }}"
-          data-testid="{{ getXMIID button }}"
+          data-testid={buildFieldTestId('{{ getXMIID button }}')}
           icon={<MdiIcon path="{{# if button.icon }}{{ button.icon.iconName }}{{ else }}circle{{/ if }}" />}
           tooltipTitle={ t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string }
           onClick={ actions.{{ simpleActionDefinitionName button.actionDefinition }} ? async () => {
@@ -42,7 +42,7 @@
   {{# each (featuredButtonsForButtonGroup fabGroup) as |button| }}
     {{# if button.hiddenBy }}{ !data.{{ button.hiddenBy.name }} && {{/ if }}
     <Fab
-      data-testid="{{ getXMIID button }}"
+      data-testid={buildFieldTestId('{{ getXMIID button }}')}
       {{# if button.label }}
       variant="extended"
       {{/ if }}
