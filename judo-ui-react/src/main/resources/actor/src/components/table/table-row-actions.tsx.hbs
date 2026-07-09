@@ -10,7 +10,7 @@ import { baseColumnConfig, characterMultiplier, iconAndDropdownIconExtra, onlyDr
 import type { ColumnActionsProvider, ColumnsActionsOptions, TableRowAction } from '../../utilities';
 import { DropdownButton } from '../DropdownButton';
 import { MdiIcon } from '../MdiIcon';
-import { resolveTransferId } from '../../utilities/transfer-id';
+import { resolveTransferId, buildRowTestId } from '../../utilities/transfer-id';
 
 export const calculateMinWidth = (entry: TableRowAction<any, any>[], editable = false) => {
   const baseWidth = entry.length ? ((entry.map(a => (a.label ?? '').length).reduce((p, c) => p + c, 0) * characterMultiplier) + iconAndDropdownIconExtra) : onlyDropdownWidth;
@@ -77,7 +77,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Tooltip title={a.tooltip} key={a.id}>
               <Button
-                data-testid={a.id}
+                data-testid={`${buildRowTestId(id, params.row)}::button::${a.id}`}
                 variant="text"
                 startIcon={a.icon}
                 disabled={a.disabled ? a.disabled(params.row, isLoading, isRowInEditMode(params.row, rowModesModel), getSelectedRows, ownerData) : false}

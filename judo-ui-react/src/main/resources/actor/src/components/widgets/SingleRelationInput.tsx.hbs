@@ -24,6 +24,7 @@ import { debounceInputs } from '~/config';
 import { exists } from '../../utilities';
 import { SingleRelationInputButtonProps } from '../../utilities/application';
 import { MdiIcon } from '../MdiIcon';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 
 interface SingleRelationInputProps<T> {
   name: string;
@@ -165,12 +166,12 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   }, [refreshCounter]);
 
   return (
-    <Grid container direction="row" justifyContent="stretch" alignContent="stretch">
+    <Grid container data-testid={buildFieldTestId(id)} direction="row" justifyContent="stretch" alignContent="stretch">
       <Box sx={ { padding: 0, flexGrow: 1 } }>
         <Autocomplete
           freeSolo={true}
           forcePopupIcon={!!onAutoCompleteSearch}
-          data-testid={id}
+          data-testid={buildFieldTestId(id, 'autocomplete')}
           disabled={!effectiveReadOnly && disabled}
           readOnly={effectiveReadOnly}
           onOpen={ () => {
@@ -191,7 +192,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
             <TextField
               {...params}
               name={name}
-              data-testid={id}
+              data-testid={buildFieldTestId(id, 'input')}
               required={required}
               label={label}
               error={error}
@@ -273,7 +274,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
         >
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
-              <MenuList data-testid={`${name}-menu`} autoFocusItem>
+              <MenuList data-testid={buildFieldTestId(id, 'dropdown')} autoFocusItem>
                 { buttonProps
                   .filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset')
                   .filter(a => !a.dropDownButtonIsVisible || a.dropDownButtonIsVisible(value))

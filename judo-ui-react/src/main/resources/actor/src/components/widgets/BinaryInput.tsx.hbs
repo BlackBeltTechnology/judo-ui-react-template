@@ -9,6 +9,7 @@ import { useSnacks } from '~/hooks';
 import { fileHandling } from '~/utilities';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon } from '../MdiIcon';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 
 export interface MimeTypeDeclaration {
     type: string;
@@ -46,12 +47,12 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
     }, [props.data]);
 
     return (
-        <Grid container direction="row" justifyContent="center" alignItems="center">
+        <Grid container data-testid={buildFieldTestId(props.id)} direction="row" justifyContent="center" alignItems="center">
             <Grid size="grow">
                 <TextField
                     required={props.required}
                     name={props.id}
-                    data-testid={props.id}
+                    data-testid={buildFieldTestId(props.id, 'input')}
                     label={props.label}
                     value={extractFileName(props.data[props.attributeName] as string | undefined)}
                     className={ clsx({
@@ -88,7 +89,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
             {props.data[props.attributeName] && <Grid size="auto">
                 <IconButton
                     disabled={props.disabled || isUploading}
-                    data-testid={`${props.id}-download`}
+                    data-testid={buildFieldTestId(props.id, 'button::download')}
                     onClick={() => downloadFile(props.data, props.attributeName as string, 'attachment')}
                     title={t('judo.component.BinaryInput.download', { defaultValue: 'Download file' }) as string}
                 >
@@ -98,7 +99,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
             {props.data[props.attributeName] && <Grid size="auto">
                 <IconButton
                     disabled={props.disabled || isUploading}
-                    data-testid={`${props.id}-view`}
+                    data-testid={buildFieldTestId(props.id, 'button::view')}
                     onClick={() => downloadFile(props.data, props.attributeName as string, 'inline')}
                     title={t('judo.component.BinaryInput.view', { defaultValue: 'View file' }) as string}
                 >
@@ -107,7 +108,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
             </Grid>}
             { !props.readonly && <Grid size="auto"><IconButton
                 disabled={props.disabled || isUploading}
-                data-testid={`${props.id}-upload`}
+                data-testid={buildFieldTestId(props.id, 'button::upload')}
                 onClick={() => fileInput.current!.click()}
                 title={t('judo.component.BinaryInput.upload', { defaultValue: 'Upload file' }) as string}
             >
@@ -136,7 +137,7 @@ export function BinaryInput<P>(props: BinaryInputProps<P>) {
             </IconButton></Grid> }
             { (!props.readonly && props.data[props.attributeName] && props.deleteCallback) && <Grid size="auto">
                 <IconButton
-                    data-testid={`${props.id}-remove`}
+                    data-testid={buildFieldTestId(props.id, 'button::remove')}
                     className={`${props.attributeName as string}-remove`}
                     disabled={props.readonly || props.disabled || isUploading}
                     onClick={ async () => {

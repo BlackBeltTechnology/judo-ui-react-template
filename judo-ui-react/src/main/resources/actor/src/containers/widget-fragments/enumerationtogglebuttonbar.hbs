@@ -23,17 +23,17 @@
         disabled={ {{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable() || isLoading }
         error={validation.has('{{ child.attributeType.name }}')}
     >
-        <InputLabel data-testid="{{ getXMIID child }}" shrink={true} size={'small'} sx={ { mt: '-8px'} } >
+        <InputLabel data-testid={buildFieldTestId('{{ getXMIID child }}')} shrink={true} size={'small'} sx={ { mt: '-8px'} } >
             { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.label }}' }) }{{# if child.attributeType.isRequired }} *{{/ if }}
         </InputLabel>
         <ToggleButtonGroup
-            data-testid="{{ getXMIID child }}"
+            data-testid={buildFieldTestId('{{ getXMIID child }}', 'input')}
             value={ data.{{ child.attributeType.name }} || '' }
         >
             {effective{{ firstToUpper child.attributeType.name }}Options.map((o) => (
                 <ToggleButton
                     key={o.id}
-                    data-testid={o.id}
+                    data-testid={buildFieldTestId('{{ getXMIID child }}', `option::${o.id}`)}
                     value={o.value || ''}
                     disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isReadOnly }} || !isFormUpdateable())}
                     onClick={ (event) => {

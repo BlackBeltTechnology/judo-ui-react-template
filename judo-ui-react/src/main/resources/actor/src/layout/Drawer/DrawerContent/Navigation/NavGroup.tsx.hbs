@@ -15,6 +15,7 @@ import type { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon, SimpleBar } from '~/components';
 import { SUBMENU_MIN_WIDTH, ThemeMode } from '~/config';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 import { useConfig } from '~/hooks';
 import { NavCollapse } from '~/layout/Drawer/DrawerContent/Navigation/NavCollapse';
 import { NavItem } from '~/layout/Drawer/DrawerContent/Navigation/NavItem';
@@ -150,7 +151,7 @@ export const NavGroup = ({ item }: NavGroupProps) => {
             <MdiIcon path={openMini ? 'chevron-down' : 'chevron-right'} sx={ { fontSize: 16, stroke: '1.5' } } />
             {anchorEl && (
               <PopperStyled
-                data-testid={popperId}
+                data-testid={buildFieldTestId(item.id, 'menu::popper')}
                 open={openMini}
                 anchorEl={anchorEl}
                 placement="bottom-start"
