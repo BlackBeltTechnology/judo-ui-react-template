@@ -102,7 +102,7 @@ import type { {{ componentName table }}ActionDefinitions, {{ componentName table
 import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
 {{# if (tableHasRelationColumn table) }}
 import { Tags } from '~/components/widgets';
-import { resolveTransferId } from '~/utilities/transfer-id';
+import { resolveTransferId, buildTableTestId, buildRowTestId, buildCellTestId } from '~/utilities/transfer-id';
 {{/ if }}
 {{# each (getColumnsRepresentsRelation table) as |column| }}
 import { {{ classDataName column.representsRelation.target 'Stored' }} } from '~/services/data-api/model/{{ classDataName column.representsRelation.target }}';
@@ -278,7 +278,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   ];
 
   return (
-    <div data-testid="{{ getXMIID table }}" data-table-name="{{ table.name }}">
+    <div data-testid={buildTableTestId('{{ getXMIID table }}')} data-table-name="{{ table.name }}">
       {{# if table.isEager }}
         <EagerTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
         uniqueId={`{{ createId table }}-${uniqueId}`}

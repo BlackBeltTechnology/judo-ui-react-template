@@ -8,6 +8,7 @@ import type { ChangeEvent } from 'react';
 import { clsx } from 'clsx';
 import { TRINARY_LOGIC, TrinaryLogicProps } from '../../components-api';
 import { MdiIcon } from '../MdiIcon';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 
 export const TrinaryLogicCombobox = ({
   required = false,
@@ -38,7 +39,7 @@ export const TrinaryLogicCombobox = ({
   return (
     <TextField
       name={name}
-      data-testid={id}
+      data-testid={buildFieldTestId(id, 'input')}
       required={required}
       autoFocus={autoFocus}
       label={label}
@@ -61,9 +62,9 @@ export const TrinaryLogicCombobox = ({
         ),
       } }
     >
-      <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-true`} value={'Yes'}>{ t('judo.component.TrinaryLogic.true', { defaultValue: 'Yes' }) as string }</MenuItem>
-      <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-false`} value={'No'}>{ t('judo.component.TrinaryLogic.false', { defaultValue: 'No' }) as string }</MenuItem>
-      <MenuItem className="trinary-logic-combobox-item" data-testid={`${id}-undefined`} value={'Unknown'}>{ t('judo.component.TrinaryLogic.unknown', { defaultValue: 'Unknown' }) as string }</MenuItem>
+      <MenuItem className="trinary-logic-combobox-item" data-testid={buildFieldTestId(id, 'option::true')} value={'Yes'}>{ t('judo.component.TrinaryLogic.true', { defaultValue: 'Yes' }) as string }</MenuItem>
+      <MenuItem className="trinary-logic-combobox-item" data-testid={buildFieldTestId(id, 'option::false')} value={'No'}>{ t('judo.component.TrinaryLogic.false', { defaultValue: 'No' }) as string }</MenuItem>
+      <MenuItem className="trinary-logic-combobox-item" data-testid={buildFieldTestId(id, 'option::undefined')} value={'Unknown'}>{ t('judo.component.TrinaryLogic.unknown', { defaultValue: 'Unknown' }) as string }</MenuItem>
     </TextField>
   );
 };
