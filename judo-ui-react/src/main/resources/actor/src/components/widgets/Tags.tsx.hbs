@@ -16,7 +16,7 @@ import { debounceInputs } from '~/config/general';
 import { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { StringOperation } from '~/services/data-api/model/StringOperation';
 import { fileHandling } from '~/utilities/file-handling';
-import { useAutocompleteMoreResultsHintPaper } from './AutocompleteMoreResultsHint';
+import { useAutocompleteHintPaper } from './AutocompleteNoResultsHint';
 
 export interface TagsProps<P, T> {
   id: string;
@@ -193,7 +193,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     setLoading(isOwnerLoading);
   }, [isOwnerLoading]);
 
-  const paperSlot = useAutocompleteMoreResultsHintPaper(limitOptions, options.length);
+  const paperSlot = useAutocompleteHintPaper({ limit: limitOptions, optionsLength: options.length, loading });
 
   return (
     <Autocomplete

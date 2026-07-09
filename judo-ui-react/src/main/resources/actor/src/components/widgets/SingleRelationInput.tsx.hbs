@@ -24,7 +24,7 @@ import { debounceInputs } from '~/config';
 import { exists } from '../../utilities';
 import { SingleRelationInputButtonProps } from '../../utilities/application';
 import { MdiIcon } from '../MdiIcon';
-import { useAutocompleteMoreResultsHintPaper } from './AutocompleteMoreResultsHint';
+import { useAutocompleteHintPaper } from './AutocompleteNoResultsHint';
 
 interface SingleRelationInputProps<T> {
   name: string;
@@ -167,7 +167,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
     }
   }, [refreshCounter]);
 
-  const paperSlot = useAutocompleteMoreResultsHintPaper(autoCompleteLimit, options.length);
+  const paperSlot = useAutocompleteHintPaper({ limit: autoCompleteLimit, optionsLength: options.length, loading });
 
   return (
     <Grid container direction="row" justifyContent="stretch" alignContent="stretch">

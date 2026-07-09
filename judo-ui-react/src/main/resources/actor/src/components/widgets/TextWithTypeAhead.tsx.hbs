@@ -8,7 +8,7 @@ import { clsx } from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { debounceInputs } from '~/config';
-import { useAutocompleteMoreResultsHintPaper } from './AutocompleteMoreResultsHint';
+import { useAutocompleteHintPaper } from './AutocompleteNoResultsHint';
 
 interface TextWithTypeAheadProps {
   name: string;
@@ -91,7 +91,7 @@ export const TextWithTypeAhead = ({
 
   const effectiveReadOnly = readOnly || !onAutoCompleteSearch;
 
-  const paperSlot = useAutocompleteMoreResultsHintPaper(autoCompleteLimit, options.length);
+  const paperSlot = useAutocompleteHintPaper({ limit: autoCompleteLimit, optionsLength: options.length, loading });
 
   return (
     <Autocomplete

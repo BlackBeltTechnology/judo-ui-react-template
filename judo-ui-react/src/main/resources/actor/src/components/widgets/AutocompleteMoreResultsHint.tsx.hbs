@@ -1,10 +1,8 @@
 {{> fragment.header.hbs }}
 
 import Box from '@mui/material/Box';
-import Paper, { type PaperProps } from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
-import type { ComponentType, FC } from 'react';
-import { useCallback, useRef } from 'react';
+import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
 export const AutocompleteMoreResultsHint: FC = () => {
@@ -31,19 +29,4 @@ export const AutocompleteMoreResultsHint: FC = () => {
       </Typography>
     </Box>
   );
-};
-
-export const useAutocompleteMoreResultsHintPaper = (
-  limit: number | undefined,
-  optionsLength: number,
-): ComponentType<PaperProps> => {
-  const show = typeof limit === 'number' && limit > 0 && optionsLength >= limit;
-  const showRef = useRef(show);
-  showRef.current = show;
-  return useCallback((paperProps: PaperProps) => (
-    <Paper {...paperProps}>
-      {showRef.current && <AutocompleteMoreResultsHint />}
-      {paperProps.children}
-    </Paper>
-  ), []);
 };
