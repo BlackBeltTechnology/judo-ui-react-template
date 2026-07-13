@@ -39,7 +39,6 @@ import {
   routeToViewPlanetViewLoveGodOutputView,
 } from '~/routes';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type { ViewCreature, ViewCreatureStored } from '~/services/data-api/model/ViewCreature';
 import type { ViewMessage, ViewMessageStored } from '~/services/data-api/model/ViewMessage';
 import type { ViewPlanet, ViewPlanetStored } from '~/services/data-api/model/ViewPlanet';
@@ -55,6 +54,7 @@ import { PageContainerTransition } from '~/theme/animations';
 import type { DialogResult } from '~/utilities';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import { useOperationUtils } from '~/utilities/application';
+import { buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
 import { type ViewPlanetViewViewModel, ViewPlanetViewViewModelContext } from './context';
 import type { ViewPlanetViewActionsHook } from './customization';
 import { VIEW_STAR_PLANETS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -355,8 +355,8 @@ export default function ViewStarPlanetsRelationViewPage() {
     selectedRows: ViewCreatureStored[],
   ): Promise<DialogResult<Array<ViewCreatureStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.creatures ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
+      const newList = (data?.creatures ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
       storeDiff('creatures', newList);
       resolve({
         result: 'delete',
@@ -369,8 +369,8 @@ export default function ViewStarPlanetsRelationViewPage() {
     selectedRows: ViewCreatureStored[],
   ): Promise<DialogResult<Array<ViewCreatureStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.creatures ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
+      const newList = (data?.creatures ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
       storeDiff('creatures', newList);
       resolve({
         result: 'submit',
@@ -405,7 +405,7 @@ export default function ViewStarPlanetsRelationViewPage() {
         t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
       );
       if (confirmed) {
-        const newList = (data?.creatures ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+        const newList = (data?.creatures ?? []).filter((c: any) => resolveTransferId(c) !== resolveTransferId(target));
         storeDiff('creatures', newList);
       }
     } catch (error) {
@@ -421,12 +421,12 @@ export default function ViewStarPlanetsRelationViewPage() {
   };
   // RemoveAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowRemoveAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
   const creaturesRemoveAction = async (target: ViewCreatureStored) => {
-    const newList = (data?.creatures ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+    const newList = (data?.creatures ?? []).filter((c: any) => resolveTransferId(c) !== resolveTransferId(target));
     storeDiff('creatures', newList);
   };
   // OpenPageAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
   const creaturesOpenPageAction = async (target: ViewCreatureStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.creatures || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.creatures || []).findIndex((r) => resolveTransferId(r) === resolveTransferId(target));
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(routeToViewPlanetCreaturesRelationViewPage(((target as ViewCreatureStored) || data).__signedIdentifier));
   };
@@ -718,7 +718,7 @@ export default function ViewStarPlanetsRelationViewPage() {
     <ViewPlanetViewViewModelContext.Provider value={viewModel}>
       <Suspense>
         <div
-          data-testid="God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView"
+          data-testid={buildFieldTestId('God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView')}
           data-page-name="View::Star::planets::RelationViewPage"
         />
         <PageContainerTransition>

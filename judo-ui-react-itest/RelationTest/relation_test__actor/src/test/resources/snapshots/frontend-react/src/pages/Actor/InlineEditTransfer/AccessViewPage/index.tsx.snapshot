@@ -34,7 +34,6 @@ import {
   routeToInlineEditTransferManyDerivedAggregationCompositionRelationViewPage,
 } from '~/routes';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type { InlineEditTransfer, InlineEditTransferStored } from '~/services/data-api/model/InlineEditTransfer';
 import type { TransferObjectH, TransferObjectHStored } from '~/services/data-api/model/TransferObjectH';
 import type { InlineEditTransferQueryCustomizer } from '~/services/data-api/rest/InlineEditTransferQueryCustomizer';
@@ -46,6 +45,7 @@ import { PageContainerTransition } from '~/theme/animations';
 import type { DialogResult } from '~/utilities';
 import { getValue, processQueryCustomizer, setValue, simpleCloneDeep, useErrorHandler } from '~/utilities';
 import { useOperationUtils } from '~/utilities/application';
+import { buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
 import {
   type InlineEditTransferInlineEditTransfer_View_EditViewModel,
   InlineEditTransferInlineEditTransfer_View_EditViewModelContext,
@@ -296,9 +296,9 @@ export default function ActorInlineEditTransferAccessViewPage() {
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyAggregationAssociation ?? []).filter(
-        (c: any) => !selectedIds.includes(c.__identifier),
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
       );
       storeDiff('manyAggregationAssociation', newList);
       resolve({
@@ -312,9 +312,9 @@ export default function ActorInlineEditTransferAccessViewPage() {
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyAggregationAssociation ?? []).filter(
-        (c: any) => !selectedIds.includes(c.__identifier),
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
       );
       storeDiff('manyAggregationAssociation', newList);
       resolve({
@@ -361,7 +361,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
       );
       if (confirmed) {
         const newList = (data?.manyAggregationAssociation ?? []).filter(
-          (c: any) => c.__identifier !== target.__identifier,
+          (c: any) => resolveTransferId(c) !== resolveTransferId(target),
         );
         storeDiff('manyAggregationAssociation', newList);
       }
@@ -378,12 +378,16 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
   // RemoveAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowRemoveAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
   const manyAggregationAssociationRemoveAction = async (target: TransferObjectHStored) => {
-    const newList = (data?.manyAggregationAssociation ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+    const newList = (data?.manyAggregationAssociation ?? []).filter(
+      (c: any) => resolveTransferId(c) !== resolveTransferId(target),
+    );
     storeDiff('manyAggregationAssociation', newList);
   };
   // OpenPageAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
   const manyAggregationAssociationOpenPageAction = async (target: TransferObjectHStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.manyAggregationAssociation || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.manyAggregationAssociation || []).findIndex(
+      (r) => resolveTransferId(r) === resolveTransferId(target),
+    );
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToInlineEditTransferManyAggregationAssociationRelationViewPage(
@@ -396,9 +400,9 @@ export default function ActorInlineEditTransferAccessViewPage() {
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyAggregationComposition ?? []).filter(
-        (c: any) => !selectedIds.includes(c.__identifier),
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
       );
       storeDiff('manyAggregationComposition', newList);
       resolve({
@@ -445,7 +449,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
       );
       if (confirmed) {
         const newList = (data?.manyAggregationComposition ?? []).filter(
-          (c: any) => c.__identifier !== target.__identifier,
+          (c: any) => resolveTransferId(c) !== resolveTransferId(target),
         );
         storeDiff('manyAggregationComposition', newList);
       }
@@ -462,7 +466,9 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
   // OpenPageAction: Actor/(esm/_3BEYwISbEe-FwPSSWSnNlQ)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
   const manyAggregationCompositionOpenPageAction = async (target: TransferObjectHStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.manyAggregationComposition || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.manyAggregationComposition || []).findIndex(
+      (r) => resolveTransferId(r) === resolveTransferId(target),
+    );
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToInlineEditTransferManyAggregationCompositionRelationViewPage(
@@ -475,9 +481,9 @@ export default function ActorInlineEditTransferAccessViewPage() {
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyDerivedAggregationAssociation ?? []).filter(
-        (c: any) => !selectedIds.includes(c.__identifier),
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
       );
       storeDiff('manyDerivedAggregationAssociation', newList);
       resolve({
@@ -510,7 +516,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
       );
       if (confirmed) {
         const newList = (data?.manyDerivedAggregationAssociation ?? []).filter(
-          (c: any) => c.__identifier !== target.__identifier,
+          (c: any) => resolveTransferId(c) !== resolveTransferId(target),
         );
         storeDiff('manyDerivedAggregationAssociation', newList);
       }
@@ -531,8 +537,8 @@ export default function ActorInlineEditTransferAccessViewPage() {
     isDraftParam?: boolean,
   ) => {
     const itemIndex = (data.manyDerivedAggregationAssociation || []).findIndex(
-      (r) => r.__identifier === target.__identifier,
-    )!;
+      (r) => resolveTransferId(r) === resolveTransferId(target),
+    );
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToInlineEditTransferManyDerivedAggregationAssociationRelationViewPage(
@@ -545,9 +551,9 @@ export default function ActorInlineEditTransferAccessViewPage() {
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyDerivedAggregationComposition ?? []).filter(
-        (c: any) => !selectedIds.includes(c.__identifier),
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
       );
       storeDiff('manyDerivedAggregationComposition', newList);
       resolve({
@@ -580,7 +586,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
       );
       if (confirmed) {
         const newList = (data?.manyDerivedAggregationComposition ?? []).filter(
-          (c: any) => c.__identifier !== target.__identifier,
+          (c: any) => resolveTransferId(c) !== resolveTransferId(target),
         );
         storeDiff('manyDerivedAggregationComposition', newList);
       }
@@ -601,8 +607,8 @@ export default function ActorInlineEditTransferAccessViewPage() {
     isDraftParam?: boolean,
   ) => {
     const itemIndex = (data.manyDerivedAggregationComposition || []).findIndex(
-      (r) => r.__identifier === target.__identifier,
-    )!;
+      (r) => resolveTransferId(r) === resolveTransferId(target),
+    );
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToInlineEditTransferManyDerivedAggregationCompositionRelationViewPage(
@@ -614,7 +620,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
     try {
       // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
       let updatedList = [...(data.manyAggregationAssociation || [])];
-      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      const existingIndex = updatedList.findIndex((r) => resolveTransferId(r) === resolveTransferId(rowData));
       if (existingIndex > -1) {
         updatedList[existingIndex] = {
           ...rowData,
@@ -637,7 +643,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
     try {
       // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
       let updatedList = [...(data.manyAggregationComposition || [])];
-      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      const existingIndex = updatedList.findIndex((r) => resolveTransferId(r) === resolveTransferId(rowData));
       if (existingIndex > -1) {
         updatedList[existingIndex] = {
           ...rowData,
@@ -660,7 +666,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
     try {
       // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
       let updatedList = [...(data.manyDerivedAggregationAssociation || [])];
-      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      const existingIndex = updatedList.findIndex((r) => resolveTransferId(r) === resolveTransferId(rowData));
       if (existingIndex > -1) {
         updatedList[existingIndex] = {
           ...rowData,
@@ -683,7 +689,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
     try {
       // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
       let updatedList = [...(data.manyDerivedAggregationComposition || [])];
-      const existingIndex = updatedList.findIndex((r) => r.__identifier === rowData.__identifier);
+      const existingIndex = updatedList.findIndex((r) => resolveTransferId(r) === resolveTransferId(rowData));
       if (existingIndex > -1) {
         updatedList[existingIndex] = {
           ...rowData,
@@ -794,7 +800,7 @@ export default function ActorInlineEditTransferAccessViewPage() {
     <InlineEditTransferInlineEditTransfer_View_EditViewModelContext.Provider value={viewModel}>
       <Suspense>
         <div
-          data-testid="Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition"
+          data-testid={buildFieldTestId('Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition')}
           data-page-name="Actor::inlineEditTransfer::AccessViewPage"
         />
         <PageContainerTransition>

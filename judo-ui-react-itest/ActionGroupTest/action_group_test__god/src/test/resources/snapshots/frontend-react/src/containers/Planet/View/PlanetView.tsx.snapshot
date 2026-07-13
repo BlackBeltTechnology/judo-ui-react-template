@@ -32,6 +32,7 @@ import { useConfirmationBeforeChange } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
 import type { Planet, PlanetStored } from '~/services/data-api/model/Planet';
 import { isErrorOperationFault, useErrorHandler } from '~/utilities';
+import { buildCellTestId, buildFieldTestId, buildRowTestId, buildTableTestId } from '~/utilities/transfer-id';
 import type { PlanetViewContainerHook } from './customization';
 import { PLANET_VIEW_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { PlanetViewActionDefinitions, PlanetViewProps } from './types';
@@ -78,18 +79,18 @@ export default function PlanetView(props: PlanetViewProps) {
   return (
     <Grid
       container
-      data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewPageContainer"
+      data-testid={buildFieldTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewPageContainer')}
       sx={{ width: '100%' }}
     >
       <Grid
-        data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewVisualElement"
+        data-testid={buildFieldTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewVisualElement')}
         data-name="View"
         size={{ xs: 12, sm: 12, md: 36.0 }}
       >
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
             <Stack
-              data-testid="God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewVisualElement"
+              data-testid={buildFieldTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewVisualElement')}
               data-name="View"
               spacing={2}
               className="force-full-width"
@@ -98,7 +99,7 @@ export default function PlanetView(props: PlanetViewProps) {
                 <DebouncedTextField
                   required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : false}
                   name="name"
-                  data-testid="God/(esm/_0wQI8ORsEeuSU8xLq1yYbw)/StringTypeTextInput"
+                  data-testid={buildFieldTestId('God/(esm/_0wQI8ORsEeuSU8xLq1yYbw)/StringTypeTextInput')}
                   label={t('Planet.View.name', { defaultValue: 'Name' }) as string}
                   value={data.name ?? ''}
                   className={clsx({

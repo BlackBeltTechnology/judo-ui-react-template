@@ -36,6 +36,7 @@ import type { MatterType } from '~/services/data-api/model/MatterType';
 import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
 import type { EnumOption } from '~/utilities';
 import { isErrorOperationFault, useErrorHandler } from '~/utilities';
+import { buildCellTestId, buildFieldTestId, buildRowTestId, buildTableTestId } from '~/utilities/transfer-id';
 import type { ViewMatterFormContainerHook } from './customization';
 import { VIEW_MATTER_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type { ViewMatterFormActionDefinitions, ViewMatterFormProps } from './types';
@@ -122,25 +123,25 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
   return (
     <Grid
       container
-      data-testid="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormPageContainer"
+      data-testid={buildFieldTestId('God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormPageContainer')}
       sx={{ width: '100%' }}
     >
       <Grid
-        data-testid="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormVisualElement"
+        data-testid={buildFieldTestId('God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormVisualElement')}
         data-name="Form"
         size={{ xs: 12, sm: 12, md: 36.0 }}
       >
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
             <Stack
-              data-testid="God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormVisualElement"
+              data-testid={buildFieldTestId('God/(esm/_D0xk0Oq_EeuMzos2n42msw)/TransferObjectFormVisualElement')}
               data-name="Form"
               spacing={2}
               className="force-full-width"
             >
               <Grid size={{ xs: 12, sm: 12 }}>
                 <Autocomplete
-                  data-testid="God/(esm/_T4Q2kOq_EeuMzos2n42msw)/EnumerationTypeCombo"
+                  data-testid={buildFieldTestId('God/(esm/_T4Q2kOq_EeuMzos2n42msw)/EnumerationTypeCombo')}
                   autoHighlight
                   value={data.type || null}
                   disabled={actions?.isTypeDisabled ? actions.isTypeDisabled(data, editMode, isLoading) : isLoading}
@@ -204,7 +205,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                 <DebouncedNumericInput
                   required={actions?.isMassRequired ? actions.isMassRequired(data, editMode) : false}
                   name="mass"
-                  data-testid="God/(esm/_T4dq4Oq_EeuMzos2n42msw)/MeasuredTypeInput"
+                  data-testid={buildFieldTestId('God/(esm/_T4dq4Oq_EeuMzos2n42msw)/MeasuredTypeInput')}
                   label={t('View.Matter.Form.mass', { defaultValue: 'Mass' }) as string}
                   customInput={TextField}
                   value={data.mass ?? ''}
@@ -241,7 +242,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                 <DebouncedTextField
                   required={actions?.isShortNoteRequired ? actions.isShortNoteRequired(data, editMode) : false}
                   name="shortNote"
-                  data-testid="God/(esm/_uN0FQFENEeyWtMpj61RngA)/StringTypeTextInput"
+                  data-testid={buildFieldTestId('God/(esm/_uN0FQFENEeyWtMpj61RngA)/StringTypeTextInput')}
                   label={t('View.Matter.Form.shortNote', { defaultValue: 'Short Note' }) as string}
                   value={data.shortNote ?? ''}
                   className={clsx({
