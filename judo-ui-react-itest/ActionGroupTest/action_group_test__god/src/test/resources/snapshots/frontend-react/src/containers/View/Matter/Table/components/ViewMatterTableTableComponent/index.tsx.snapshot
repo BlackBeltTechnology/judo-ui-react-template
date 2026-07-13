@@ -80,6 +80,7 @@ import {
   useErrorHandler,
   validateWithNestedErrors,
 } from '~/utilities';
+import { buildCellTestId, buildRowTestId, buildTableTestId, resolveTransferId } from '~/utilities/transfer-id';
 import type { ViewMatterTableTableComponentActionDefinitions, ViewMatterTableTableComponentProps } from './types';
 
 export const VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
@@ -125,7 +126,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     async (rowData: ViewMatterStored) => {
       try {
         await actions.applyRowEdit!(rowData);
-        rowValidation.current.delete(rowData.__identifier!);
+        rowValidation.current.delete(resolveTransferId(rowData));
       } catch (e: any) {
         if (e?.response?.status === 400) {
           const errorMap: Map<keyof ViewMatterStored, string> = new Map<keyof ViewMatterStored, string>();
@@ -136,14 +137,14 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
             validateWithNestedErrors(errorList, errorMap, t);
           }
           const copy = new Map<string, Map<keyof ViewMatterStored, string>>(rowValidation.current);
-          copy.set(rowData.__identifier!, errorMap);
+          copy.set(resolveTransferId(rowData), errorMap);
           rowValidation.current = copy;
         } else {
           const copy = new Map<string, Map<keyof ViewMatterStored, string>>(rowValidation.current);
-          copy.delete(rowData.__identifier!);
+          copy.delete(resolveTransferId(rowData));
           rowValidation.current = copy;
         }
-        throw rowData.__identifier;
+        throw resolveTransferId(rowData);
       }
     },
     [actions],
@@ -166,8 +167,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('type');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'singleSelect'} />;
@@ -201,8 +202,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('mass');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
@@ -474,7 +475,10 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
   ];
 
   return (
-    <div data-testid="God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable" data-table-name="Table">
+    <div
+      data-testid={buildTableTestId('God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable')}
+      data-table-name="Table"
+    >
       <LazyTable<ViewMatterStored, ViewMatterStored, ViewMatterQueryCustomizer>
         uniqueId={`God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable-${uniqueId}`}
         rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component=ViewMatterTableTableComponent))`}
@@ -488,7 +492,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        dataElementId={'God/(esm/_D0eC0Oq_EeuMzos2n42msw)/ClassType'}
+        tableTestId={'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
         containerIsSelector={isSelector}

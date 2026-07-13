@@ -33,7 +33,6 @@ import { useCRUDDialog, useEventBus, useSnacks, useViewData } from '~/hooks';
 import { useViewContext } from '~/hooks/ViewContext';
 import { routeToViewGalaxyAstronomerRelationViewPage, routeToViewGalaxyMatterRelationTablePage } from '~/routes';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
 import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
@@ -56,6 +55,7 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import { useOperationUtils } from '~/utilities/application';
+import { buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
 import { type ViewGalaxyViewViewModel, ViewGalaxyViewViewModelContext } from './context';
 import type { ViewGalaxyViewActionsHook } from './customization';
 import { GOD_GOD_GALAXIES_ACCESS_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -319,7 +319,8 @@ export default function GodGodGalaxiesAccessViewPage() {
     } else if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
         ...returnedData,
-        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+        __tempId: newTempId(),
+        __isNew: true,
       };
       const newData = decoratedData;
       storeDiff('astronomer', newData);
@@ -388,8 +389,8 @@ export default function GodGodGalaxiesAccessViewPage() {
     selectedRows: ViewStarStored[],
   ): Promise<DialogResult<Array<ViewStarStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.stars ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
+      const newList = (data?.stars ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
       storeDiff('stars', newList);
       resolve({
         result: 'delete',
@@ -419,7 +420,8 @@ export default function GodGodGalaxiesAccessViewPage() {
     } else if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
         ...returnedData,
-        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+        __tempId: newTempId(),
+        __isNew: true,
       };
       const newData = [...(data.stars || []), decoratedData];
       storeDiff('stars', newData);
@@ -468,7 +470,7 @@ export default function GodGodGalaxiesAccessViewPage() {
         t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
       );
       if (confirmed) {
-        const newList = (data?.stars ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+        const newList = (data?.stars ?? []).filter((c: any) => resolveTransferId(c) !== resolveTransferId(target));
         storeDiff('stars', newList);
       }
     } catch (error) {
@@ -484,7 +486,7 @@ export default function GodGodGalaxiesAccessViewPage() {
   };
   // OpenPageAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const starsOpenPageAction = async (target: ViewStarStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.stars || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.stars || []).findIndex((r) => resolveTransferId(r) === resolveTransferId(target));
     if (isDraftParam) {
       const { result, data: returnedData } = await openViewGalaxyStarsRelationViewPage({
         ownerData: produceDataAdjustedOwner(),
@@ -496,7 +498,7 @@ export default function GodGodGalaxiesAccessViewPage() {
       // we might need to differentiate result handling between operation inputs and crud relation creates
       if (result === 'submit-draft' && returnedData) {
         const existingIndex = (data.stars || []).findIndex(
-          (r: { __identifier?: string }) => r.__identifier === returnedData.__identifier,
+          (r: any) => resolveTransferId(r) === resolveTransferId(returnedData),
         );
         if (existingIndex > -1) {
           // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
@@ -510,7 +512,7 @@ export default function GodGodGalaxiesAccessViewPage() {
       }
       if (result === 'delete' && returnedData) {
         const existingIndex = (data.stars || []).findIndex(
-          (r: { __identifier?: string }) => r.__identifier === returnedData.__identifier,
+          (r: any) => resolveTransferId(r) === resolveTransferId(returnedData),
         );
         if (existingIndex > -1) {
           // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
@@ -646,7 +648,7 @@ export default function GodGodGalaxiesAccessViewPage() {
     <ViewGalaxyViewViewModelContext.Provider value={viewModel}>
       <Suspense>
         <div
-          data-testid="God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition"
+          data-testid={buildFieldTestId('God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition')}
           data-page-name="God::God::galaxies::AccessViewPage"
         />
         <PageContainerTransition>
