@@ -42,9 +42,23 @@ Rejected: rebase and squash the old branch, then land the format sweep on top. R
 
 ### D7. Snapshot churn is unavoidable and mechanical.
 
+
+
 Every `.tsx.snapshot` that renders a re-formatted `data-testid` or a re-shaped new-row seed will drift. `judo-diff-checker-maven-plugin:checkDiffs` will enumerate the drifts on first CI run; the refresh procedure per `AGENTS.md` §5 is a byte-for-byte copy from `target/frontend-react/**` back to `src/test/resources/snapshots/frontend-react/**`. One snapshot-refresh commit per itest is recommended (six commits) to keep the review diff navigable.
 
 Not a decision, but worth stating: no snapshot content changes because the change alters DOM output; only because the DOM output changed *intentionally* per this proposal.
+
+### D8. `data-testid` and `className` are separate concerns; do not conflate.
+
+The PDF (`dataid-template-runtime.pdf` §3) prescribes only the `data-testid` scheme. It is silent on `className`. The `FilterDialog.tsx.hbs` component has historically used a single `valueId` variable to feed *both* the `data-testid` and a caller-facing CSS `className` (introduced 2023 in commit `98a4f553` — *"add class names to filter dialog input fields"*). That double duty was tenable while the two schemes shared the same `${id}-value` form.
+
+Under this change the two schemes diverge: `data-testid` becomes `field::<id>::value` (hierarchical, `::`-separated), which is **not a valid CSS class selector** — CSS parses `::` as a pseudo-element prefix, so `.field::<id>::value` matches nothing.
+
+The fix separates the two concerns at the `FilterInput` interface: a new `valueClassName: string` prop carries the plain `${id}-value` form for CSS/DOM targeting, while `valueId: string` carries the new hierarchical form for tests. This preserves the 2023 downstream contract exactly and gives Playwright the hierarchical `data-testid` it wants.
+
+Rejected: kill the `className={valueId}` sites entirely. Reason: they were added deliberately for downstream consumers; removing them silently would break unknown external code.
+
+Rejected: use a single form for both. Reason: either the testid is not runtime-parity (fails Playwright) or the className is not CSS-safe (fails styling). No shared form satisfies both.
 
 ## Risks / Trade-offs
 

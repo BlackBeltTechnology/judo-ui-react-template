@@ -4,6 +4,12 @@ import type { ReactNode } from 'react';
 
 export interface TableRowAction<R, RStored> {
   id: string;
+  /**
+   * Optional role suffix for the row-action button's `data-testid`. When set,
+   * the emitted testid is `...::button::<testId>` (e.g. `edit`/`save`/`cancel`);
+   * otherwise it falls back to the full `id`. See `~/utilities/transfer-id`.
+   */
+  testId?: string;
   label?: string;
   action?: (row: RStored) => Promise<void>;
   icon?: ReactNode;

@@ -224,6 +224,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         .filter(a => !a.visible || a.visible(value))
                         .map((buttonProp) => (
                           <IconButton
+                            data-testid={buildFieldTestId(id, `button::${buttonProp.name}`)}
                             className={buttonProp.className}
                             disabled={buttonProp.disabled}
                             onClick={(event: any) => {
@@ -238,7 +239,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         ))
                       }
                       {exists(value) && (onDelete || onSet || onUnSet) && (
-                        <IconButton className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
+                        <IconButton data-testid={buildFieldTestId(id, 'button::selector')} className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
                       )}
@@ -280,6 +281,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                   .filter(a => !a.dropDownButtonIsVisible || a.dropDownButtonIsVisible(value))
                   .map((buttonProp) => (
                     <MenuItem
+                      data-testid={buildFieldTestId(id, `button::${buttonProp.name}`)}
                       className={buttonProp.className}
                       disabled={buttonProp.disabled}
                       onClick={(event: any) => {

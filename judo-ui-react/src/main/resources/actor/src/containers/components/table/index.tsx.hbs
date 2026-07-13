@@ -100,9 +100,9 @@ import { CellEditInput } from '~/components/table';
 {{/ if }}
 import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}Props } from './types';
 import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
+import { resolveTransferId, buildTableTestId, buildRowTestId, buildCellTestId } from '~/utilities/transfer-id';
 {{# if (tableHasRelationColumn table) }}
 import { Tags } from '~/components/widgets';
-import { resolveTransferId, buildTableTestId, buildRowTestId, buildCellTestId } from '~/utilities/transfer-id';
 {{/ if }}
 {{# each (getColumnsRepresentsRelation table) as |column| }}
 import { {{ classDataName column.representsRelation.target 'Stored' }} } from '~/services/data-api/model/{{ classDataName column.representsRelation.target }}';
@@ -300,7 +300,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        dataElementId={ '{{ createId table.dataElement }}' }
+        tableTestId={ '{{ getXMIID table }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
         {{# unless (checkboxSelectionEnabled table) }}
@@ -358,7 +358,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# unless (checkboxSelectionEnabled table) }}
         checkboxSelection={ false }
         {{/ unless }}
-        dataElementId={ '{{ createId table.dataElement }}' }
+        tableTestId={ '{{ getXMIID table }}' }
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
         containerIsSelector={isSelector}
