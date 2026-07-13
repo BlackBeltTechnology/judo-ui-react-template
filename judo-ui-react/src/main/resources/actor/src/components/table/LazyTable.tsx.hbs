@@ -86,7 +86,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   validationError?: string;
   actions: any;
   allowSelectMultiple?: boolean;
-  dataElementId: string;
+  tableTestId: string;
   crudOperationsDisplayed: number;
   transferOperationsDisplayed: number;
   containerIsSelector?: boolean;
@@ -137,7 +137,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     validationError,
     actions,
     allowSelectMultiple,
-    dataElementId,
+    tableTestId,
     crudOperationsDisplayed,
     transferOperationsDisplayed,
     containerIsSelector,
@@ -258,6 +258,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const editActions = useMemo(() => [
     {
       id: `${uniqueId}-row-edit`,
+      testId: 'edit',
       icon: <MdiIcon path="pencil" />,
       isCRUD: true,
       isEditAction: true,
@@ -270,6 +271,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     },
     {
       id: `${uniqueId}-row-save`,
+      testId: 'save',
       icon: <MdiIcon path="content-save" />,
       isCRUD: true,
       isEditAction: true,
@@ -282,6 +284,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     },
     {
       id: `${uniqueId}-row-cancel`,
+      testId: 'cancel',
       icon: <MdiIcon path="undo" />,
       isCRUD: true,
       isEditAction: true,
@@ -305,7 +308,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...columns as GridColDef<T>[],
-      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth }) as GridColDef<T>[]
+      ...columnsActionCalculator(tableTestId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth }) as GridColDef<T>[]
     ];
     {{# if isMUILicensePlanPro }}
     if (columnState.length) {
