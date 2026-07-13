@@ -40,6 +40,7 @@ import { useL10N } from '~/l10n/l10n-context';
 import type { ViewAstronomer, ViewAstronomerStored } from '~/services/data-api/model/ViewAstronomer';
 import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/ViewGalaxy';
 import { isErrorOperationFault, useErrorHandler } from '~/utilities';
+import { buildCellTestId, buildFieldTestId, buildRowTestId, buildTableTestId } from '~/utilities/transfer-id';
 import { ViewGalaxyFormAstronomerComponent } from './components/ViewGalaxyFormAstronomerComponent';
 import type { ViewGalaxyFormContainerHook } from './customization';
 import { VIEW_GALAXY_FORM_CONTAINER_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -98,18 +99,18 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
   return (
     <Grid
       container
-      data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer"
+      data-testid={buildFieldTestId('God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer')}
       sx={{ width: '100%' }}
     >
       <Grid
-        data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormVisualElement"
+        data-testid={buildFieldTestId('God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormVisualElement')}
         data-name="Form"
         size={{ xs: 12, sm: 12, md: 36.0 }}
       >
         <Grid container direction="row" spacing={2}>
           <Grid size={{ xs: 12, sm: 12 }}>
             <Stack
-              data-testid="God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormVisualElement"
+              data-testid={buildFieldTestId('God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormVisualElement')}
               data-name="Form"
               spacing={2}
               className="force-full-width"
@@ -118,7 +119,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 <DebouncedTextField
                   required={actions?.isNameRequired ? actions.isNameRequired(data, editMode) : true}
                   name="name"
-                  data-testid="God/(esm/_8AgVQE7tEeycO-gUAWxcVg)/StringTypeTextInput"
+                  data-testid={buildFieldTestId('God/(esm/_8AgVQE7tEeycO-gUAWxcVg)/StringTypeTextInput')}
                   inputRef={autoFocusInputRef}
                   label={t('View.Galaxy.Form.name', { defaultValue: 'Name' }) as string}
                   value={data.name ?? ''}
@@ -165,7 +166,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                       }
                       control={
                         <Checkbox
-                          data-testid="God/(esm/_BL1x4FjXEeyV2_3ibolaNQ)/BooleanTypeCheckbox"
+                          data-testid={buildFieldTestId('God/(esm/_BL1x4FjXEeyV2_3ibolaNQ)/BooleanTypeCheckbox')}
                           checked={data.real || false}
                           sx={{ color: (theme) => (validation.has('real') ? theme.palette.error.main : 'primary') }}
                           onChange={(event) => {
@@ -184,7 +185,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 <DebouncedTextField
                   required={actions?.isConstellationRequired ? actions.isConstellationRequired(data, editMode) : true}
                   name="constellation"
-                  data-testid="God/(esm/_t4p84FjJEeyV2_3ibolaNQ)/StringTypeTextInput"
+                  data-testid={buildFieldTestId('God/(esm/_t4p84FjJEeyV2_3ibolaNQ)/StringTypeTextInput')}
                   label={t('View.Galaxy.Form.constellation', { defaultValue: 'Constellation' }) as string}
                   value={data.constellation ?? ''}
                   className={clsx({
@@ -234,7 +235,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                       }
                       control={
                         <Checkbox
-                          data-testid="God/(esm/_iqFysFjJEeyV2_3ibolaNQ)/BooleanTypeCheckbox"
+                          data-testid={buildFieldTestId('God/(esm/_iqFysFjJEeyV2_3ibolaNQ)/BooleanTypeCheckbox')}
                           checked={data.nakedEye || false}
                           sx={{ color: (theme) => (validation.has('nakedEye') ? theme.palette.error.main : 'primary') }}
                           onChange={(event) => {
@@ -253,7 +254,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 <DebouncedNumericInput
                   required={actions?.isMagnitudeRequired ? actions.isMagnitudeRequired(data, editMode) : false}
                   name="magnitude"
-                  data-testid="God/(esm/_iqFLoFjJEeyV2_3ibolaNQ)/NumericTypeVisualInput"
+                  data-testid={buildFieldTestId('God/(esm/_iqFLoFjJEeyV2_3ibolaNQ)/NumericTypeVisualInput')}
                   label={t('View.Galaxy.Form.magnitude', { defaultValue: 'Magnitude' }) as string}
                   customInput={TextField}
                   value={data.magnitude ?? ''}
@@ -292,7 +293,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                 <DebouncedTextField
                   required={actions?.isOriginOfNameRequired ? actions.isOriginOfNameRequired(data, editMode) : false}
                   name="originOfName"
-                  data-testid="God/(esm/_iqGZwFjJEeyV2_3ibolaNQ)/StringTypeTextInput"
+                  data-testid={buildFieldTestId('God/(esm/_iqGZwFjJEeyV2_3ibolaNQ)/StringTypeTextInput')}
                   label={t('View.Galaxy.Form.originOfName', { defaultValue: 'OriginOfName' }) as string}
                   value={data.originOfName ?? ''}
                   className={clsx({
@@ -328,7 +329,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
 
               <Grid size={{ xs: 12, sm: 12, md: 4.0 }}>
                 <DateTimePicker
-                  data-testid="God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput"
+                  data-testid={buildFieldTestId('God/(esm/_28AhMBn_Ee2lYv3NngvLeA)/TimestampTypeDateTimeInput')}
                   ampm={false}
                   ampmInClock={false}
                   className={clsx({
@@ -390,7 +391,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
               </Grid>
 
               <Grid
-                data-testid="God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldRelationDefinedLink"
+                data-testid={buildFieldTestId(
+                  'God/(esm/_28BIQBn_Ee2lYv3NngvLeA)/TabularReferenceFieldRelationDefinedLink',
+                )}
                 size={{ xs: 12, sm: 12 }}
               >
                 <ViewGalaxyFormAstronomerComponent

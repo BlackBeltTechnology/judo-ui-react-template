@@ -60,7 +60,6 @@ import { useDataStore } from '~/hooks';
 import { useL10N } from '~/l10n/l10n-context';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
-import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 import { transformRowStylings } from '~/theme/table-row-highlighting';
@@ -81,6 +80,7 @@ import {
   ToolBarActionProps,
   useErrorHandler,
 } from '~/utilities';
+import { buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
 
 interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -95,7 +95,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   validationError?: string;
   actions: any;
   allowSelectMultiple?: boolean;
-  dataElementId: string;
+  tableTestId: string;
   crudOperationsDisplayed: number;
   transferOperationsDisplayed: number;
   containerIsSelector?: boolean;
@@ -145,7 +145,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     validationError,
     actions,
     allowSelectMultiple,
-    dataElementId,
+    tableTestId,
     crudOperationsDisplayed,
     transferOperationsDisplayed,
     containerIsSelector,
@@ -261,49 +261,52 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     () => [
       {
         id: `${uniqueId}-row-edit`,
+        testId: 'edit',
         icon: <MdiIcon path="pencil" />,
         isCRUD: true,
         isEditAction: true,
         hidden: (row: any) =>
-          rowModesModel[row.__identifier]?.mode === GridRowModes.Edit || !editable || row.__updateable === false,
+          rowModesModel[resolveTransferId(row)]?.mode === GridRowModes.Edit || !editable || row.__updateable === false,
         disabled: () => false,
         tooltip: t('judo.action.edit', { defaultValue: 'Edit' }),
         action: async (rowData: TStored) => {
-          setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.Edit } });
+          setRowModesModel({ ...rowModesModel, [resolveTransferId(rowData)]: { mode: GridRowModes.Edit } });
         },
       },
       {
         id: `${uniqueId}-row-save`,
+        testId: 'save',
         icon: <MdiIcon path="content-save" />,
         isCRUD: true,
         isEditAction: true,
-        hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
+        hidden: (row: any) => !(rowModesModel[resolveTransferId(row)]?.mode === GridRowModes.Edit),
         disabled: () => false,
         tooltip: t('judo.action.save', { defaultValue: 'Save' }),
         action: async (rowData: TStored) => {
-          setRowModesModel({ ...rowModesModel, [rowData.__identifier!]: { mode: GridRowModes.View } });
+          setRowModesModel({ ...rowModesModel, [resolveTransferId(rowData)]: { mode: GridRowModes.View } });
         },
       },
       {
         id: `${uniqueId}-row-cancel`,
+        testId: 'cancel',
         icon: <MdiIcon path="undo" />,
         isCRUD: true,
         isEditAction: true,
-        hidden: (row: any) => !(rowModesModel[row.__identifier]?.mode === GridRowModes.Edit),
+        hidden: (row: any) => !(rowModesModel[resolveTransferId(row)]?.mode === GridRowModes.Edit),
         disabled: () => false,
         tooltip: t('judo.action.undo', { defaultValue: 'Undo / Cancel' }),
         action: async (rowData: TStored) => {
           setRowModesModel({
             ...rowModesModel,
-            [rowData.__identifier!]: { mode: GridRowModes.View, ignoreModifications: true },
+            [resolveTransferId(rowData)]: { mode: GridRowModes.View, ignoreModifications: true },
           });
-          if (rowData.__identifier!.startsWith(draftIdentifierPrefix)) {
+          if (isNewRow(rowData)) {
             setData((prevData) => {
-              return prevData.filter((d) => d.__identifier! !== rowData.__identifier!);
+              return prevData.filter((d) => resolveTransferId(d) !== resolveTransferId(rowData));
             });
           }
           if (typeof onRowEditCanceled === 'function') {
-            onRowEditCanceled(rowData.__identifier!);
+            onRowEditCanceled(resolveTransferId(rowData));
           }
         },
       },
@@ -315,7 +318,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     const cols: GridColDef<T>[] = [
       ...(columns as GridColDef<T>[]),
       ...(columnsActionCalculator(
-        dataElementId,
+        tableTestId,
         [...(editable ? editActions : []), ...tableRowActions],
         t,
         isLoading,
@@ -360,7 +363,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     setColumnState(newOrder);
   };
 
-  const getRowIdentifier: (row: T) => string = (row) => row.__identifier!;
+  const getRowIdentifier: (row: T) => string = (row) => resolveTransferId(row);
 
   const clearSelections = () => {
     handleOnSelection(createEmptySelectionModel());
@@ -491,7 +494,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           const diff = newSelectionArray.length - currentSelectionArray.length;
           const newItemsId = newSelectionArray.slice(diff * -1);
           const newItems: TStored[] = data.filter(
-            (value) => newItemsId.indexOf(value.__identifier as GridRowId) !== -1,
+            (value) => newItemsId.indexOf(resolveTransferId(value as any) as GridRowId) !== -1,
           ) as TStored[];
           if (setSelectionDiff !== undefined) {
             setSelectionDiff((prevSelectedItems: TStored[]) => {
@@ -507,7 +510,9 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
             setSelectionDiff((prevSelectedItems: TStored[]) => {
               if (!Array.isArray(prevSelectedItems)) return [];
               return [
-                ...prevSelectedItems.filter((value) => removedItemsId.indexOf(value.__identifier as GridRowId) === -1),
+                ...prevSelectedItems.filter(
+                  (value) => removedItemsId.indexOf(resolveTransferId(value as any) as GridRowId) === -1,
+                ),
               ];
             });
           }
@@ -526,7 +531,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
         setSelectionModel(arrayToSelectionModel([lastId]));
         if (setSelectionDiff !== undefined) {
-          setSelectionDiff([(data as TStored[]).find((value) => value.__identifier === lastId)!]);
+          setSelectionDiff([(data as TStored[]).find((value) => resolveTransferId(value as any) === lastId)!]);
         }
       }
     };
@@ -642,7 +647,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         return newRow;
       } catch (error) {
         // we need to reject with the identifier in order for MUI to be able to detect which row should be kept in edit mode
-        return Promise.reject(new Error((newRow as any).__identifier));
+        return Promise.reject(new Error(resolveTransferId(newRow as any)));
       }
     },
     [applyRowEdit],
@@ -722,7 +727,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         onRowSelectionModelChange={handleOnSelection}
         keepNonExistentRowsSelected
         onRowClick={async (params: GridRowParams<TStored>) => {
-          return !(rowModesModel[params.row.__identifier]?.mode === GridRowModes.Edit) && onRowClick
+          return !(rowModesModel[resolveTransferId(params.row)]?.mode === GridRowModes.Edit) && onRowClick
             ? await onRowClick(params.row, containerIsForm)
             : undefined;
         }}
@@ -746,7 +751,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                   <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={toolBarAction.id}
+                        data-testid={buildFieldTestId(toolBarAction.id)}
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {
@@ -768,14 +773,14 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
                           if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
                             const templateResult: T | undefined = await actions[toolBarAction.name]!();
-                            const id = `${draftIdentifierPrefix}${uuidv4()}`;
+                            const tempId = newTempId();
                             setData((oldRows) => [
-                              { ...(templateResult || {}), __identifier: id } as unknown as T,
+                              { ...(templateResult || {}), __tempId: tempId, __isNew: true } as unknown as T,
                               ...oldRows,
                             ]);
                             setRowModesModel((oldModel) => ({
                               ...oldModel,
-                              [id]: { mode: GridRowModes.Edit },
+                              [tempId]: { mode: GridRowModes.Edit },
                             }));
                           }
 

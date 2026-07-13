@@ -42,7 +42,6 @@ import {
   routeToTagContainerTransferManyTransientRelationViewPage,
 } from '~/routes';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type { TagContainerTransfer, TagContainerTransferStored } from '~/services/data-api/model/TagContainerTransfer';
 import type { TransferObjectB, TransferObjectBStored } from '~/services/data-api/model/TransferObjectB';
 import type { TransferObjectC, TransferObjectCStored } from '~/services/data-api/model/TransferObjectC';
@@ -67,6 +66,7 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import { useOperationUtils } from '~/utilities/application';
+import { buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
 import {
   type TagContainerTransferTagContainerTransfer_View_EditViewModel,
   TagContainerTransferTagContainerTransfer_View_EditViewModelContext,
@@ -358,9 +358,9 @@ export default function ActorTagContainerTransferAccessViewPage() {
     selectedRows: TransferObjectCStored[],
   ): Promise<DialogResult<Array<TransferObjectCStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyAggregationAssociation ?? []).filter(
-        (c: any) => !selectedIds.includes(c.__identifier),
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
       );
       storeDiff('manyAggregationAssociation', newList);
       resolve({
@@ -387,12 +387,16 @@ export default function ActorTagContainerTransferAccessViewPage() {
   };
   // RemoveAction: Actor/(esm/_2vWG8IF3Ee-M3fhNedgt-g)/TabularReferenceTableRowRemoveAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
   const manyAggregationAssociationRemoveAction = async (target: TransferObjectCStored) => {
-    const newList = (data?.manyAggregationAssociation ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+    const newList = (data?.manyAggregationAssociation ?? []).filter(
+      (c: any) => resolveTransferId(c) !== resolveTransferId(target),
+    );
     storeDiff('manyAggregationAssociation', newList);
   };
   // OpenPageAction: Actor/(esm/_2vWG8IF3Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
   const manyAggregationAssociationOpenPageAction = async (target: TransferObjectCStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.manyAggregationAssociation || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.manyAggregationAssociation || []).findIndex(
+      (r) => resolveTransferId(r) === resolveTransferId(target),
+    );
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToTagContainerTransferManyAggregationAssociationRelationViewPage(
@@ -405,8 +409,10 @@ export default function ActorTagContainerTransferAccessViewPage() {
     selectedRows: TransferObjectEStored[],
   ): Promise<DialogResult<Array<TransferObjectEStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.manyAggregationCompostion ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
+      const newList = (data?.manyAggregationCompostion ?? []).filter(
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
+      );
       storeDiff('manyAggregationCompostion', newList);
       resolve({
         result: 'delete',
@@ -436,7 +442,8 @@ export default function ActorTagContainerTransferAccessViewPage() {
     } else if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
         ...returnedData,
-        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+        __tempId: newTempId(),
+        __isNew: true,
       };
       const newData = [...(data.manyAggregationCompostion || []), decoratedData];
       storeDiff('manyAggregationCompostion', newData);
@@ -470,7 +477,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
       );
       if (confirmed) {
         const newList = (data?.manyAggregationCompostion ?? []).filter(
-          (c: any) => c.__identifier !== target.__identifier,
+          (c: any) => resolveTransferId(c) !== resolveTransferId(target),
         );
         storeDiff('manyAggregationCompostion', newList);
       }
@@ -487,7 +494,9 @@ export default function ActorTagContainerTransferAccessViewPage() {
   };
   // OpenPageAction: Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
   const manyAggregationCompostionOpenPageAction = async (target: TransferObjectEStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.manyAggregationCompostion || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.manyAggregationCompostion || []).findIndex(
+      (r) => resolveTransferId(r) === resolveTransferId(target),
+    );
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToTagContainerTransferManyAggregationCompostionRelationViewPage(
@@ -658,7 +667,8 @@ export default function ActorTagContainerTransferAccessViewPage() {
     } else if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
         ...returnedData,
-        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+        __tempId: newTempId(),
+        __isNew: true,
       };
       const newData = [...(data.manyAssociationAssociation || []), decoratedData];
       storeDiff('manyAssociationAssociation', newData);
@@ -800,7 +810,8 @@ export default function ActorTagContainerTransferAccessViewPage() {
     } else if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
         ...returnedData,
-        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+        __tempId: newTempId(),
+        __isNew: true,
       };
       const newData = [...(data.manyAssociationComposition || []), decoratedData];
       storeDiff('manyAssociationComposition', newData);
@@ -872,9 +883,9 @@ export default function ActorTagContainerTransferAccessViewPage() {
     selectedRows: TransferObjectCStored[],
   ): Promise<DialogResult<Array<TransferObjectCStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyDerivedAggregationAssociation ?? []).filter(
-        (c: any) => !selectedIds.includes(c.__identifier),
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
       );
       storeDiff('manyDerivedAggregationAssociation', newList);
       resolve({
@@ -923,7 +934,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
       );
       if (confirmed) {
         const newList = (data?.manyDerivedAggregationAssociation ?? []).filter(
-          (c: any) => c.__identifier !== target.__identifier,
+          (c: any) => resolveTransferId(c) !== resolveTransferId(target),
         );
         storeDiff('manyDerivedAggregationAssociation', newList);
       }
@@ -944,8 +955,8 @@ export default function ActorTagContainerTransferAccessViewPage() {
     isDraftParam?: boolean,
   ) => {
     const itemIndex = (data.manyDerivedAggregationAssociation || []).findIndex(
-      (r) => r.__identifier === target.__identifier,
-    )!;
+      (r) => resolveTransferId(r) === resolveTransferId(target),
+    );
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToTagContainerTransferManyDerivedAggregationAssociationRelationViewPage(
@@ -958,9 +969,9 @@ export default function ActorTagContainerTransferAccessViewPage() {
     selectedRows: TransferObjectEStored[],
   ): Promise<DialogResult<Array<TransferObjectEStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyDerivedAggregationCompostion ?? []).filter(
-        (c: any) => !selectedIds.includes(c.__identifier),
+        (c: any) => !selectedIds.includes(resolveTransferId(c)),
       );
       storeDiff('manyDerivedAggregationCompostion', newList);
       resolve({
@@ -993,7 +1004,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
       );
       if (confirmed) {
         const newList = (data?.manyDerivedAggregationCompostion ?? []).filter(
-          (c: any) => c.__identifier !== target.__identifier,
+          (c: any) => resolveTransferId(c) !== resolveTransferId(target),
         );
         storeDiff('manyDerivedAggregationCompostion', newList);
       }
@@ -1014,8 +1025,8 @@ export default function ActorTagContainerTransferAccessViewPage() {
     isDraftParam?: boolean,
   ) => {
     const itemIndex = (data.manyDerivedAggregationCompostion || []).findIndex(
-      (r) => r.__identifier === target.__identifier,
-    )!;
+      (r) => resolveTransferId(r) === resolveTransferId(target),
+    );
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToTagContainerTransferManyDerivedAggregationCompostionRelationViewPage(
@@ -1273,8 +1284,8 @@ export default function ActorTagContainerTransferAccessViewPage() {
     selectedRows: TransferObjectEStored[],
   ): Promise<DialogResult<Array<TransferObjectEStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.manyTransient ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
+      const newList = (data?.manyTransient ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
       storeDiff('manyTransient', newList);
       resolve({
         result: 'submit',
@@ -1296,12 +1307,12 @@ export default function ActorTagContainerTransferAccessViewPage() {
   };
   // RemoveAction: Actor/(esm/_I-DdoIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowRemoveAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
   const manyTransientRemoveAction = async (target: TransferObjectEStored) => {
-    const newList = (data?.manyTransient ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+    const newList = (data?.manyTransient ?? []).filter((c: any) => resolveTransferId(c) !== resolveTransferId(target));
     storeDiff('manyTransient', newList);
   };
   // OpenPageAction: Actor/(esm/_I-DdoIF5Ee-M3fhNedgt-g)/TabularReferenceTableRowViewAction/(discriminator/Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition)
   const manyTransientOpenPageAction = async (target: TransferObjectEStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.manyTransient || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.manyTransient || []).findIndex((r) => resolveTransferId(r) === resolveTransferId(target));
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToTagContainerTransferManyTransientRelationViewPage(
@@ -1437,7 +1448,7 @@ export default function ActorTagContainerTransferAccessViewPage() {
     <TagContainerTransferTagContainerTransfer_View_EditViewModelContext.Provider value={viewModel}>
       <Suspense>
         <div
-          data-testid="Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition"
+          data-testid={buildFieldTestId('Actor/(esm/_0JzEMIF7Ee-M3fhNedgt-g)/AccessViewPageDefinition')}
           data-page-name="Actor::tagContainerTransfer::AccessViewPage"
         />
         <PageContainerTransition>

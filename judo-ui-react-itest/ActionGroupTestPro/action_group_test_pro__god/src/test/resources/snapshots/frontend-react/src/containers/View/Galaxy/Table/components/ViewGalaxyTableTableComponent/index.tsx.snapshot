@@ -82,6 +82,7 @@ import {
   useErrorHandler,
   validateWithNestedErrors,
 } from '~/utilities';
+import { buildCellTestId, buildRowTestId, buildTableTestId, resolveTransferId } from '~/utilities/transfer-id';
 import type { ViewGalaxyTableTableComponentActionDefinitions, ViewGalaxyTableTableComponentProps } from './types';
 
 export const VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
@@ -127,7 +128,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     async (rowData: ViewGalaxyStored) => {
       try {
         await actions.applyRowEdit!(rowData);
-        rowValidation.current.delete(rowData.__identifier!);
+        rowValidation.current.delete(resolveTransferId(rowData));
       } catch (e: any) {
         if (e?.response?.status === 400) {
           const errorMap: Map<keyof ViewGalaxyStored, string> = new Map<keyof ViewGalaxyStored, string>();
@@ -138,14 +139,14 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
             validateWithNestedErrors(errorList, errorMap, t);
           }
           const copy = new Map<string, Map<keyof ViewGalaxyStored, string>>(rowValidation.current);
-          copy.set(rowData.__identifier!, errorMap);
+          copy.set(resolveTransferId(rowData), errorMap);
           rowValidation.current = copy;
         } else {
           const copy = new Map<string, Map<keyof ViewGalaxyStored, string>>(rowValidation.current);
-          copy.delete(rowData.__identifier!);
+          copy.delete(resolveTransferId(rowData));
           rowValidation.current = copy;
         }
-        throw rowData.__identifier;
+        throw resolveTransferId(rowData);
       }
     },
     [actions],
@@ -168,8 +169,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('name');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
@@ -188,8 +189,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('real');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'optionalBoolean'} />;
@@ -217,8 +218,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('constellation');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
@@ -237,8 +238,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('magnitude');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
@@ -263,8 +264,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('nakedEye');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'optionalBoolean'} />;
@@ -343,8 +344,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('discovered');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'date'} />;
@@ -773,7 +774,10 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
   ];
 
   return (
-    <div data-testid="God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable" data-table-name="Table">
+    <div
+      data-testid={buildTableTestId('God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable')}
+      data-table-name="Table"
+    >
       <LazyTable<ViewGalaxyStored, ViewGalaxyStored, ViewGalaxyQueryCustomizer>
         uniqueId={`God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable-${uniqueId}`}
         dataProp={isSelector ? [] : []}
@@ -789,7 +793,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        dataElementId={'God/(esm/_YTkpoE7rEeycO-gUAWxcVg)/ClassType'}
+        tableTestId={'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
         containerIsSelector={isSelector}
