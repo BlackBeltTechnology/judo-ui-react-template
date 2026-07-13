@@ -16,7 +16,7 @@
         >
     {{/ if }}
     {{# if this.collapsible }}
-        <Accordion data-testid={buildFieldTestId('{{ getXMIID this }}')} data-name="{{ this.name }}" defaultExpanded>
+        <Accordion data-testid={buildFieldTestId('{{ getXMIID this }}', 'container')} data-name="{{ this.name }}" defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={ { px: 3 } }>
                 {{# if (or (elementHasIconOrLabel this) this.actionButtonGroup) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" sx={ { width: '100%', mr: 2 } }>
@@ -84,7 +84,7 @@
             </AccordionDetails>
         </Accordion>
     {{ else if this.card }}
-        <Card data-testid={buildFieldTestId('{{ getXMIID this }}')} data-name="{{ this.name }}" {{# if (isParentStretchVertical this) }}sx={ { height: '100%' } }{{/ if }}>
+        <Card data-testid={buildFieldTestId('{{ getXMIID this }}', 'container')} data-name="{{ this.name }}" {{# if (isParentStretchVertical this) }}sx={ { height: '100%' } }{{/ if }}>
             <CardContent>
                 {{# if (cardHasHeaderContent this) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2} sx={ { mb: 2 } }>
@@ -166,9 +166,9 @@
             {{/ and }}
             <Grid size={ { xs: 12, sm: 12 } }>
                 {{# if this.isDirectionHorizontal }}
-                <Grid data-testid={buildFieldTestId('{{ getXMIID this }}')} data-name="{{ this.name }}" container alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                <Grid data-testid={buildFieldTestId('{{ getXMIID this }}', 'container')} data-name="{{ this.name }}" container alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
                 {{ else }}
-                <Stack data-testid={buildFieldTestId('{{ getXMIID this }}')} data-name="{{ this.name }}" spacing={2} className="force-full-width">
+                <Stack data-testid={buildFieldTestId('{{ getXMIID this }}', 'container')} data-name="{{ this.name }}" spacing={2} className="force-full-width">
                 {{/ if }}
                     {{# each this.children as |child| }}
                         {{# if child }}
