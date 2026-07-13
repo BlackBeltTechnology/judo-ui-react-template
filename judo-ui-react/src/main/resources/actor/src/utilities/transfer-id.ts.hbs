@@ -80,29 +80,42 @@ export function isNewRow(row: TransferIdSource | undefined | null): boolean {
 }
 
 /**
+ * Loose id type accepted by every `build*TestId` helper. MUI's `GridRowId`
+ * is `string | number`; some optional widget `id` props are `string | undefined`.
+ * The helpers coerce to a stable string and fall back to `'unknown'` for
+ * missing values, so tests never crash on a bad id.
+ */
+type TestIdKey = string | number | undefined | null;
+
+function stringifyKey(key: TestIdKey): string {
+  return key === undefined || key === null || key === '' ? 'unknown' : String(key);
+}
+
+/**
  * Build a hierarchical `data-testid` value for a field-level widget node.
  * `role` is drawn from the vocabulary in `openspec/specs/transfer-identity/spec.md`.
  */
-export function buildFieldTestId(xmiId: string, role?: string): string {
-  return role ? `field::${xmiId}::${role}` : `field::${xmiId}`;
+export function buildFieldTestId(xmiId: TestIdKey, role?: string): string {
+  const key = stringifyKey(xmiId);
+  return role ? `field::${key}::${role}` : `field::${key}`;
 }
 
 /** Build the outer `data-testid` for a table. */
-export function buildTableTestId(tableId: string): string {
-  return `table::${tableId}`;
+export function buildTableTestId(tableId: TestIdKey): string {
+  return `table::${stringifyKey(tableId)}`;
 }
 
 /** Build the `data-testid` for a specific row in a table. */
-export function buildRowTestId(tableId: string, row: TransferIdSource | undefined | null, index?: number): string {
-  return `table::${tableId}::row::${resolveTransferId(row, index)}`;
+export function buildRowTestId(tableId: TestIdKey, row: TransferIdSource | undefined | null, index?: number): string {
+  return `table::${stringifyKey(tableId)}::row::${resolveTransferId(row, index)}`;
 }
 
 /** Build the `data-testid` for a specific cell in a table. */
 export function buildCellTestId(
-  tableId: string,
+  tableId: TestIdKey,
   row: TransferIdSource | undefined | null,
   columnName: string,
   index?: number,
 ): string {
-  return `table::${tableId}::row::${resolveTransferId(row, index)}::cell::${columnName}`;
+  return `table::${stringifyKey(tableId)}::row::${resolveTransferId(row, index)}::cell::${columnName}`;
 }

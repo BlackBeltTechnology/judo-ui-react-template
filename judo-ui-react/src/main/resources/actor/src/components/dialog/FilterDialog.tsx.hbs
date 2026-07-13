@@ -38,7 +38,7 @@ import { TrinaryLogicCombobox } from '../widgets/TrinaryLogicCombobox';
 import { MdiIcon } from '../MdiIcon';
 import { buildFieldTestId } from '~/utilities/transfer-id';
 
-const FilterOperator = ({ filter, operatorId, valueId, setFilterOperator }: FilterOperatorProps) => {
+const FilterOperator = ({ id, filter, setFilterOperator }: FilterOperatorProps) => {
   const { t } = useTranslation();
 
   const onChangeHandler = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -48,14 +48,14 @@ const FilterOperator = ({ filter, operatorId, valueId, setFilterOperator }: Filt
   return (
     <TextField
       name={'operation'}
-      data-testid={operatorId}
+      data-testid={buildFieldTestId(id, 'operator')}
       label={t('judo.modal.filter.operation', { defaultValue: 'Operation' }) as string}
       select
       value={filter.filterBy.operator}
       onChange={onChangeHandler}
     >
       {getOperatorsByFilter(filter).map((item) => (
-        <MenuItem className="filter-operation-item" data-testid={valueId} key={item} value={item}>
+        <MenuItem className="filter-operation-item" data-testid={buildFieldTestId(id, 'value')} key={item} value={item}>
           {t(`judo.modal.filter.${item}`, { defaultValue: 'Operation' }) as string}
         </MenuItem>
       ))}
@@ -63,10 +63,15 @@ const FilterOperator = ({ filter, operatorId, valueId, setFilterOperator }: Filt
   );
 };
 
-const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
+const FilterInput = ({ id, filter, setFilterValue }: FilterInputProps) => {
   if (filter.filterOption.filterType === FilterType.enumeration && !exists(filter.filterOption.enumValues)) {
     throw new Error(`Missing enumValues from FilterOptions of "${filter.filterOption.attributeName}"`);
   }
+
+  // `data-testid` uses the hierarchical `field::<id>::value` form for tests;
+  // `className` keeps the legacy `${id}-value` plain form because `::` is
+  // not a valid CSS class selector. See design.md §D8.
+  const valueClassName = `${id}-value`;
 
   return (
     <>
@@ -75,7 +80,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
           case FilterType.boolean:
             return (
               <FormControlLabel
-                className={valueId}
+                className={valueClassName}
                 control={
                   <Checkbox
                     checked={!!filter.filterBy.value}
@@ -88,7 +93,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
           case FilterType.date:
             return (
               <DatePicker
-                className={valueId}
+                className={valueClassName}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? null}
                 views={['year', 'month', 'day']}
@@ -109,7 +114,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
           case FilterType.dateTime:
             return (
               <DateTimePicker
-                className={valueId}
+                className={valueClassName}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? null}
                 ampm={false}
@@ -132,7 +137,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
           // case FilterType.time:
           //   return (
           //     <TextField
-          //       className={valueId}
+          //       className={valueClassName}
           //       label={filter.filterOption.label ?? filter.filterOption.attributeName}
           //       value={filter.filterBy.value}
           //       onChange={(event) => setFilterValue(filter, event.target.value)}
@@ -148,7 +153,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
           case FilterType.enumeration:
             return (
               <TextField
-                className={valueId}
+                className={valueClassName}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? ''}
                 select
@@ -164,7 +169,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
           case FilterType.numeric:
             return (
               <TextField
-                className={valueId}
+                className={valueClassName}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 type="number"
                 value={filter.filterBy.value ?? ''}
@@ -181,7 +186,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
           case FilterType.string:
             return (
               <TextField
-                className={valueId}
+                className={valueClassName}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? ''}
                 onChange={(event) => setFilterValue(filter, event.target.value)}
@@ -197,7 +202,7 @@ const FilterInput = ({ filter, setFilterValue, valueId }: FilterInputProps) => {
           case FilterType.trinaryLogic:
             return (
               <TrinaryLogicCombobox
-                className={valueId}
+                className={valueClassName}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value}
                 onChange={(value: any) => setFilterValue(filter, value)}
@@ -213,10 +218,10 @@ const FilterRow = ({ id, filter, closeHandler, setFilterOperator, setFilterValue
   return (
     <Grid container spacing={2} alignItems={'center'}>
       <Grid size={4}>
-        {filter && <FilterOperator operatorId={buildFieldTestId(id, 'operator')} valueId={buildFieldTestId(id, 'value')} filter={filter} setFilterOperator={setFilterOperator} />}
+        {filter && <FilterOperator id={id} filter={filter} setFilterOperator={setFilterOperator} />}
       </Grid>
       <Grid size={7}>
-        {filter && !isFilterWithoutValue(filter) && <FilterInput operatorId={buildFieldTestId(id, 'operator')} valueId={buildFieldTestId(id, 'value')} filter={filter} setFilterValue={setFilterValue} />}
+        {filter && !isFilterWithoutValue(filter) && <FilterInput id={id} filter={filter} setFilterValue={setFilterValue} />}
       </Grid>
       <Grid size={1}>
         <IconButton data-testid={buildFieldTestId(id, 'button::close')} onClick={() => closeHandler(filter)}>

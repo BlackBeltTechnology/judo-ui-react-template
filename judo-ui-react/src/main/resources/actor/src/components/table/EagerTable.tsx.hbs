@@ -81,7 +81,7 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   validationError?: string;
   actions: any;
   allowSelectMultiple?: boolean;
-  dataElementId: string;
+  tableTestId: string;
   crudOperationsDisplayed: number;
   transferOperationsDisplayed: number;
   onRowClick?: (row: TStored, isDraft?: boolean) => Promise<void>;
@@ -125,7 +125,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     validationError,
     actions,
     allowSelectMultiple,
-    dataElementId,
+    tableTestId,
     crudOperationsDisplayed,
     transferOperationsDisplayed,
     onRowClick,
@@ -226,6 +226,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const editActions = useMemo(() => [
     {
       id: `${uniqueId}-row-edit`,
+      testId: 'edit',
       icon: <MdiIcon path="pencil" />,
       isCRUD: true,
       isEditAction: true,
@@ -238,6 +239,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     },
     {
       id: `${uniqueId}-row-save`,
+      testId: 'save',
       icon: <MdiIcon path="content-save" />,
       isCRUD: true,
       isEditAction: true,
@@ -250,6 +252,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     },
     {
       id: `${uniqueId}-row-cancel`,
+      testId: 'cancel',
       icon: <MdiIcon path="undo" />,
       isCRUD: true,
       isEditAction: true,
@@ -273,7 +276,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...columns as GridColDef<T>[],
-      ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed{{# if table.actionColumnWidth }}, actionsColumnWidth: {{ table.actionColumnWidth }}{{/ if }} }) as GridColDef<T>[]
+      ...columnsActionCalculator(tableTestId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed: crudOperationsDisplayed, transferOperationsDisplayed: transferOperationsDisplayed{{# if table.actionColumnWidth }}, actionsColumnWidth: {{ table.actionColumnWidth }}{{/ if }} }) as GridColDef<T>[]
     ];
     {{# if isMUILicensePlanPro }}
       if (columnState.length) {
