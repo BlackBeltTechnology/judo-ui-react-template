@@ -456,7 +456,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
     {{# unless (containerIsEmptyDashboard page.container) }}
       <{{ containerComponentName page.container }}ViewModelContext.Provider value={viewModel}>
         <Suspense>
-          <div data-testid={buildFieldTestId('{{ getXMIID page }}')} data-page-name="{{ page.name }}" />
+          <div data-testid={buildFieldTestId('{{ getElementId page }}')} data-page-name="{{ page.name }}" />
           <{{ containerComponentName page.container }}DialogContainer
             ownerData={ownerData}
             onClose={onClose}

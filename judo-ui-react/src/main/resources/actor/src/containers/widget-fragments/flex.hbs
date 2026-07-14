@@ -1,5 +1,5 @@
 {{# if this.hiddenBy }} { (actions?.is{{ safeName child }}Hidden ? !actions?.is{{ safeName child }}Hidden(data, editMode) : !data.{{ this.hiddenBy.name }}) && {{/ if }}
-<Grid data-testid={buildFieldTestId('{{ getXMIID this }}')} data-name="{{ this.name }}" size={ { xs: 12, sm: 12{{# neq (calculateSize this) 12.0 }}, md: {{ calculateSize this }}{{/ neq }} } }>
+<Grid data-testid={buildFieldTestId('{{ getElementId this }}')} data-name="{{ this.name }}" size={ { xs: 12, sm: 12{{# neq (calculateSize this) 12.0 }}, md: {{ calculateSize this }}{{/ neq }} } }>
     {{# if this.subTheme }}
       <SubThemeWrapper subTheme="{{ this.subTheme }}" data={data}>
     {{/ if }}
@@ -16,7 +16,7 @@
         >
     {{/ if }}
     {{# if this.collapsible }}
-        <Accordion data-testid={buildFieldTestId('{{ getXMIID this }}', 'container')} data-name="{{ this.name }}" defaultExpanded>
+        <Accordion data-testid={buildFieldTestId('{{ getElementId this }}', 'container')} data-name="{{ this.name }}" defaultExpanded>
             <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={ { px: 3 } }>
                 {{# if (or (elementHasIconOrLabel this) this.actionButtonGroup) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" sx={ { width: '100%', mr: 2 } }>
@@ -40,7 +40,7 @@
                             {{# each this.actionButtonGroup.buttons as |button| }}
                                 { actions.{{ simpleActionDefinitionName button.actionDefinition }}{{# if button.hiddenBy }} && !data.{{ button.hiddenBy.name }}{{/ if }} &&
                                     <IconButton
-                                        data-testid={buildFieldTestId('{{ getXMIID button }}')}
+                                        data-testid={buildFieldTestId('{{ getElementId button }}')}
                                         {{# if (containerButtonHasDisabledConditions button container) }}
                                         disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
                                         {{/ if }}
@@ -84,7 +84,7 @@
             </AccordionDetails>
         </Accordion>
     {{ else if this.card }}
-        <Card data-testid={buildFieldTestId('{{ getXMIID this }}', 'container')} data-name="{{ this.name }}" {{# if (isParentStretchVertical this) }}sx={ { height: '100%' } }{{/ if }}>
+        <Card data-testid={buildFieldTestId('{{ getElementId this }}', 'container')} data-name="{{ this.name }}" {{# if (isParentStretchVertical this) }}sx={ { height: '100%' } }{{/ if }}>
             <CardContent>
                 {{# if (cardHasHeaderContent this) }}
                 <Grid container direction="row" alignItems="center" justifyContent="space-between" spacing={2} sx={ { mb: 2 } }>
@@ -108,7 +108,7 @@
                             {{# each this.actionButtonGroup.buttons as |button| }}
                                 { actions.{{ simpleActionDefinitionName button.actionDefinition }}{{# if button.hiddenBy }} && !data.{{ button.hiddenBy.name }}{{/ if }} &&
                                     <IconButton
-                                        data-testid={buildFieldTestId('{{ getXMIID button }}')}
+                                        data-testid={buildFieldTestId('{{ getElementId button }}')}
                                         {{# if (containerButtonHasDisabledConditions button container) }}
                                         disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
                                         {{/ if }}
@@ -166,9 +166,9 @@
             {{/ and }}
             <Grid size={ { xs: 12, sm: 12 } }>
                 {{# if this.isDirectionHorizontal }}
-                <Grid data-testid={buildFieldTestId('{{ getXMIID this }}', 'container')} data-name="{{ this.name }}" container alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
+                <Grid data-testid={buildFieldTestId('{{ getElementId this }}', 'container')} data-name="{{ this.name }}" container alignItems="{{ alignItems this }}" justifyContent="{{ justifyContent this }}" spacing={2}>
                 {{ else }}
-                <Stack data-testid={buildFieldTestId('{{ getXMIID this }}', 'container')} data-name="{{ this.name }}" spacing={2} className="force-full-width">
+                <Stack data-testid={buildFieldTestId('{{ getElementId this }}', 'container')} data-name="{{ this.name }}" spacing={2} className="force-full-width">
                 {{/ if }}
                     {{# each this.children as |child| }}
                         {{# if child }}
