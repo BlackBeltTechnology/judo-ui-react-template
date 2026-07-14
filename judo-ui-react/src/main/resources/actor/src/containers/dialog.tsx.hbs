@@ -131,7 +131,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         <DialogTitle>
           {actions.getPageTitle ? actions.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}
           <IconButton
-            data-testid={buildFieldTestId('{{ getXMIID container }}', 'dialog-close-wrapper')}
+            data-testid={buildFieldTestId('{{ getElementId container }}', 'dialog-close-wrapper')}
             aria-label="close"
             onClick={onClose}
             sx={ {
@@ -205,7 +205,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
                 <Button
-                  data-testid={buildFieldTestId('{{ getXMIID button }}')}
+                  data-testid={buildFieldTestId('{{ getElementId button }}')}
                   loading={isLoading}
                   loadingPosition="start"
                   variant={ {{{ variantForButton button }}} }

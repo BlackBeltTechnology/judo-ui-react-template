@@ -15,7 +15,7 @@
             annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
         >
     {{/ if }}
-    <Grid container sx={ { height: DIVIDER_HEIGHT } } data-testid={buildFieldTestId('{{ getXMIID child }}')}></Grid>
+    <Grid container sx={ { height: DIVIDER_HEIGHT } } data-testid={buildFieldTestId('{{ getElementId child }}')}></Grid>
     {{# if child.customImplementation }}
         </ComponentProxy>
     {{/ if }}

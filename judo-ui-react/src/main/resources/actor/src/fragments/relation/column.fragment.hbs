@@ -104,7 +104,7 @@ align: 'left',
 renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
   return params.row.{{ column.attributeType.name }}
     ? <ButtonGroup size="small" variant="outlined">
-        <Button data-testid={`${buildCellTestId('{{ getXMIID ref }}', params.row, '{{ column.name }}')}::button::download`} startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} onClick={ (event: any) => {
+        <Button data-testid={`${buildCellTestId('{{ getElementId ref }}', params.row, '{{ column.name }}')}::button::download`} startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} onClick={ (event: any) => {
           event.preventDefault();
           event.stopPropagation();
           downloadFile(params.row, '{{ column.attributeType.name }}', 'attachment');
@@ -112,7 +112,7 @@ renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceCla
           { extractFileNameFromToken(params.row.{{ column.attributeType.name }}) }
         </Button>
         <Button
-          data-testid={`${buildCellTestId('{{ getXMIID ref }}', params.row, '{{ column.name }}')}::button::view`}
+          data-testid={`${buildCellTestId('{{ getElementId ref }}', params.row, '{{ column.name }}')}::button::view`}
           onClick={ (event: any) => {
             event.preventDefault();
             event.stopPropagation();
