@@ -19,13 +19,16 @@ The `role` argument accepted by `buildFieldTestId` SHALL be one of the following
 | `input` | The DOM element receiving focus and keystrokes |
 | `autocomplete` | The MUI `<Autocomplete>` element when nested inside a wrapper |
 | `dropdown` | A popper / menu / dropdown element (typeahead results). Not yet reconciled with runtime's separate `menu` slot on the relation-picker popper — see open questions below. |
+| `actions` | Icon-button strip container inside a relation widget's `InputAdornment` (`SingleRelationInput` and `Tags` only). Runtime parity: `LinkRenderer.tsx:706`. |
 | `button::set` | Primary open-selector-dialog button (runtime `opensetselector` mapping per `@judo/test-ids/src/element.ts::getFieldButtonRole`) |
-| `button::clear` | Clear-current-value button |
 | `button::create` | Inline create button (runtime `opencreateform` mapping) |
 | `button::view` | View / open-form button (runtime `openpage` / `rowopenpage` mapping) |
 | `button::delete` | Row-delete button (runtime `rowdelete` mapping) |
+| `button::unset` | Unset-current-value button on relation widgets. Emitted dynamically via `buildFieldTestId(id, \`button::${buttonProp.name}\`)` in `SingleRelationInput.tsx.hbs` when the model provides an unset-relation action. |
+| `button::<modelActionName>` | Any other model-driven button (`view`, `create`, `set`, `unset`, `delete`, custom) rendered through the dynamic `buttonProp.name` path. |
 | `button::add` | Add-item button (multi-value inputs; template-only role, no runtime counterpart today) |
 | `button::remove` | Remove-item button (multi-value inputs, binary widget file-remove) |
+| `button::clear-all` | Clear-all button on multi-value widgets (`Tags`, `FilterDialog`). Template-only — runtime has no equivalent DOM level. |
 | `menu::item::<name>` | A named menu item |
 | `filter::operator::<opName>` | Filter operator selector entry |
 
@@ -40,6 +43,10 @@ Retired role names (previously emitted; SHALL NOT be re-introduced without an ex
 - `selector` — replaced by `set` on the primary open-selector button.
 - `container` — replaced by bare `field::<id>` on composite widget outer wrappers (`SingleRelationInput`, `Tags`, `TextWithTypeAhead`, `BinaryInput`, `AssociationButton`, `ModeledTabs`). The `container` role is still emitted on dialog outer elements, `DropdownButton`, and `flex.hbs` layout wrappers pending separate design decisions (see out-of-scope notes in `openspec/changes/align-testids-with-runtime-package/proposal.md`).
 
+Corrected role vocabulary entries (documented but never emitted in previous versions of this spec):
+
+- `button::clear` — removed. The template never emitted this literal. Widgets with a clear-relation action use `button::unset` (dynamic, matches runtime); multi-value widgets use `button::clear-all` (template-only).
+
 #### Scenario: SingleRelationInput emits distinct testids at each DOM level
 
 - **GIVEN** a `SingleRelationInput` widget with XMI id `esm/_28BIQBn` and no `sourceId`
@@ -47,7 +54,9 @@ Retired role names (previously emitted; SHALL NOT be re-introduced without an ex
 - **THEN** the outer wrapper carries `data-testid="field::esm/_28BIQBn"` (bare, no role suffix)
 - **AND** the autocomplete carries `data-testid="field::esm/_28BIQBn::autocomplete"`
 - **AND** the underlying input carries `data-testid="field::esm/_28BIQBn::input"`
+- **AND** the trailing icon-button strip carries `data-testid="field::esm/_28BIQBn::actions"`
 - **AND** the primary open-selector button carries `data-testid="field::esm/_28BIQBn::button::set"`
+- **AND** when the model provides an unset-relation action, the corresponding button carries `data-testid="field::esm/_28BIQBn::button::unset"`
 - **AND** `page.getByTestId("field::esm/_28BIQBn::input")` returns exactly one element
 
 #### Scenario: Element ID resolution prefers `sourceId` when present
