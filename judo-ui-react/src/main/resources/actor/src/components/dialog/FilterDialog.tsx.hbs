@@ -36,7 +36,7 @@ import { mainContainerPadding } from '../../theme';
 import { DropdownButton } from '../DropdownButton';
 import { TrinaryLogicCombobox } from '../widgets/TrinaryLogicCombobox';
 import { MdiIcon } from '../MdiIcon';
-import { buildFieldTestId } from '~/utilities/transfer-id';
+import { buildDialogTestId, buildDialogRoleTestId, buildFieldTestId } from '~/utilities/transfer-id';
 
 const FilterOperator = ({ id, filter, setFilterOperator }: FilterOperatorProps) => {
   const { t } = useTranslation();
@@ -224,7 +224,7 @@ const FilterRow = ({ id, filter, closeHandler, setFilterOperator, setFilterValue
         {filter && !isFilterWithoutValue(filter) && <FilterInput id={id} filter={filter} setFilterValue={setFilterValue} />}
       </Grid>
       <Grid size={1}>
-        <IconButton data-testid={buildFieldTestId(id, 'button::close')} onClick={() => closeHandler(filter)}>
+        <IconButton data-testid={buildDialogRoleTestId(id, 'close')} onClick={() => closeHandler(filter)}>
           <MdiIcon path="close" />
         </IconButton>
       </Grid>
@@ -305,7 +305,7 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
 
   return (
     <Dialog
-      data-testid={buildFieldTestId(id, 'container')}
+      data-testid={buildDialogTestId(id)}
       open={open}
       onClose={cancel}
       scroll="paper"
@@ -325,7 +325,7 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
         },
       }}
     >
-      <DialogTitle data-testid={buildFieldTestId(id, 'dialog-title')}>
+      <DialogTitle data-testid={buildDialogRoleTestId(id, 'title')}>
         <Typography component="span" color="text.primary" variant="h5">
           { t('judo.modal.filter.label', { defaultValue: 'Filter' }) as string }
         </Typography>
@@ -383,14 +383,14 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
         </Container>
       </DialogContent>
       <DialogActions>
-        <Button data-testid={buildFieldTestId(id, 'button::cancel')} fullWidth variant="outlined" onClick={cancel}>
+        <Button data-testid={buildDialogRoleTestId(id, 'cancel')} fullWidth variant="outlined" onClick={cancel}>
           { t('judo.modal.filter.cancel', { defaultValue: 'Cancel' }) as string }
         </Button>
         { tempFilters.length > 0 &&
         <Button data-testid={buildFieldTestId(id, 'button::clear-all')} fullWidth variant="outlined" onClick={clear}>
             {t('judo.modal.filter.clear-all', { defaultValue: 'Clear all' }) as string}
         </Button> }
-        <Button data-testid={buildFieldTestId(id, 'button::apply')} fullWidth onClick={ok}>
+        <Button data-testid={buildDialogRoleTestId(id, 'confirm')} fullWidth onClick={ok}>
           { t('judo.modal.filter.apply', { defaultValue: 'Apply' }) as string } {'(' + tempFilters.length + ')'}
         </Button>
       </DialogActions>
