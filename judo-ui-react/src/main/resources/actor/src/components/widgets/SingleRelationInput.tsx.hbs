@@ -171,7 +171,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   const paperSlot = useAutocompleteHintPaper({ limit: autoCompleteLimit, optionsLength: options.length, loading });
 
   return (
-    <Grid container data-testid={buildFieldTestId(id, 'container')} direction="row" justifyContent="stretch" alignContent="stretch">
+    <Grid container data-testid={buildFieldTestId(id)} direction="row" justifyContent="stretch" alignContent="stretch">
       <Box sx={ { padding: 0, flexGrow: 1 } }>
         <Autocomplete
           slots={ { paper: paperSlot } }
@@ -245,7 +245,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         ))
                       }
                       {exists(value) && (onDelete || onSet || onUnSet) && (
-                        <IconButton data-testid={buildFieldTestId(id, 'button::selector')} className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
+                        <IconButton data-testid={buildFieldTestId(id, 'button::set')} className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
                       )}
