@@ -119,3 +119,80 @@ export function buildCellTestId(
 ): string {
   return `table::${stringifyKey(tableId)}::row::${resolveTransferId(row, index)}::cell::${columnName}`;
 }
+
+// ---------------------------------------------------------------------------
+// Domain-prefixed testid helpers.
+//
+// Grammar and role vocabulary mirror the runtime's @judo/test-ids package:
+//   dialog     ← packages/test-ids/src/dialog.ts
+//   navigation ← packages/test-ids/src/navigation.ts
+//   tabs       ← packages/test-ids/src/tabs.ts
+// ---------------------------------------------------------------------------
+
+/** Build the outer `data-testid` for a dialog. Runtime parity: `dialog::<id>`. */
+export function buildDialogTestId(dialogId: TestIdKey): string {
+  return `dialog::${stringifyKey(dialogId)}`;
+}
+
+/**
+ * Build a role-suffixed `data-testid` inside a dialog.
+ * Role vocabulary: `title` | `content` | `actions` | `close` | `confirm` | `cancel`.
+ * Callers MAY nest compound roles with `::`.
+ */
+export function buildDialogRoleTestId(dialogId: TestIdKey, role: string): string {
+  return `dialog::${stringifyKey(dialogId)}::${role}`;
+}
+
+/** Build the outer `data-testid` for a tab controller. Runtime parity: `tabs::<ctrlId>`. */
+export function buildTabControllerTestId(ctrlId: TestIdKey): string {
+  return `tabs::${stringifyKey(ctrlId)}`;
+}
+
+/** Build a per-tab `data-testid`. Runtime parity: `tabs::<ctrlId>::<tabId>`. */
+export function buildTabTestId(ctrlId: TestIdKey, tabId: TestIdKey): string {
+  return `tabs::${stringifyKey(ctrlId)}::${stringifyKey(tabId)}`;
+}
+
+/** Build a tab-panel `data-testid`. Runtime parity: `tabs::<ctrlId>::<tabId>::panel`. */
+export function buildTabPanelTestId(ctrlId: TestIdKey, tabId: TestIdKey): string {
+  return `tabs::${stringifyKey(ctrlId)}::${stringifyKey(tabId)}::panel`;
+}
+
+/** Build the tab-list `data-testid`. Runtime parity: `tabs::<ctrlId>::list`. */
+export function buildTabListTestId(ctrlId: TestIdKey): string {
+  return `tabs::${stringifyKey(ctrlId)}::list`;
+}
+
+/**
+ * Compose a nav-item path segment. Root menus pass `parentPath=undefined`;
+ * each nested nav component threads its own path down to children.
+ *
+ *   buildNavItemPath(undefined, 'root')          → 'root'
+ *   buildNavItemPath('root', 'settings')         → 'root::settings'
+ *   buildNavItemPath('root::settings', 'prefs')  → 'root::settings::prefs'
+ */
+export function buildNavItemPath(parentPath: string | undefined, currentId: TestIdKey): string {
+  const key = stringifyKey(currentId);
+  return parentPath && parentPath.length > 0 ? `${parentPath}::${key}` : key;
+}
+
+/**
+ * Build the outer `data-testid` for a nav item, optionally nested under a parent path.
+ * Runtime parity: `nav::item::<path>`.
+ */
+export function buildNavItemTestId(itemId: TestIdKey, parentPath?: string): string {
+  return `nav::item::${buildNavItemPath(parentPath, itemId)}`;
+}
+
+/**
+ * Build a role-suffixed `data-testid` under a nav item.
+ * Role vocabulary: `icon` | `label` | `expand`.
+ */
+export function buildNavItemRoleTestId(navItemTestId: string, role: string): string {
+  return `${navItemTestId}::${role}`;
+}
+
+/** Build the `data-testid` for a breadcrumb item at a given index. Runtime parity: `breadcrumb::<index>`. */
+export function buildBreadcrumbTestId(index: number): string {
+  return `breadcrumb::${index}`;
+}
