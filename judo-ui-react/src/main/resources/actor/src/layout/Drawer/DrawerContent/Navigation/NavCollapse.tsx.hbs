@@ -23,7 +23,7 @@ import { NavItemType } from '~/layout/Drawer/DrawerContent/Navigation/NavItem';
 import { Transitions } from '~/layout/Transitions';
 import { menuBehaviour } from '~/config/layout';
 import { useLayoutHelper } from '~/utilities/layout-helper';
-import { buildFieldTestId } from '~/utilities/transfer-id';
+import { buildNavItemTestId, buildNavItemRoleTestId, buildNavItemPath } from '~/utilities/transfer-id';
 
 type VirtualElement = {
   getBoundingClientRect: () => ClientRect | DOMRect;
@@ -62,6 +62,7 @@ const PopperStyled = styled(Popper, {
 
 export interface NavCollapseProps {
   menu: NavItemType;
+  parentPath?: string;
   level: number;
   render: boolean;
   arrow?: boolean;
@@ -70,7 +71,9 @@ export interface NavCollapseProps {
   mouseOver?: boolean;
 }
 
-export const NavCollapse = ({ menu, level, render, placement, arrow, title, mouseOver }: NavCollapseProps) => {
+export const NavCollapse = ({ menu, level, render, placement, arrow, title, mouseOver, parentPath }: NavCollapseProps) => {
+  const navTestId = buildNavItemTestId(menu.id, parentPath);
+  const nextPath = buildNavItemPath(parentPath, menu.id);
   const { t } = useTranslation();
   const theme = useTheme();
   const { navigate } = useJudoNavigation();
@@ -117,6 +120,7 @@ export const NavCollapse = ({ menu, level, render, placement, arrow, title, mous
       case 'collapse':
         return (
           <NavCollapse
+            parentPath={nextPath}
             key={item.id}
             menu={item}
             level={level + 1}
@@ -127,7 +131,7 @@ export const NavCollapse = ({ menu, level, render, placement, arrow, title, mous
           />
         );
       case 'item':
-        return <NavItem key={item.id} item={item} level={level + 1} />;
+        return <NavItem key={item.id} item={item} level={level + 1} parentPath={nextPath} />;
       default:
         return (
           <Typography key={item.id} variant="h6" color="error" align="center">
@@ -292,7 +296,7 @@ export const NavCollapse = ({ menu, level, render, placement, arrow, title, mous
       ) : (
         <>
           <ListItemButton
-            data-testid={buildFieldTestId(menu.id, 'menu::boundary')}
+            data-testid={navTestId}
             disableRipple
             onMouseEnter={mouseOver ?? menuBehaviour.mouseOverOpenClose ? handleHover : undefined}
             onMouseLeave={mouseOver ?? menuBehaviour.mouseOverOpenClose ? handleClose : undefined}
@@ -334,7 +338,7 @@ export const NavCollapse = ({ menu, level, render, placement, arrow, title, mous
 
             {anchorEl && (
               <PopperStyled
-                data-testid={buildFieldTestId(menu.id, 'menu::popper')}
+                data-testid={buildNavItemRoleTestId(navTestId, 'expand')}
                 arrow={arrow ?? true}
                 open={miniMenuOpened}
                 anchorEl={anchorEl}
