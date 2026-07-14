@@ -15,7 +15,7 @@ import type { MouseEvent } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon, SimpleBar } from '~/components';
 import { SUBMENU_MIN_WIDTH, ThemeMode } from '~/config';
-import { buildFieldTestId } from '~/utilities/transfer-id';
+import { buildNavItemTestId, buildNavItemRoleTestId, buildNavItemPath } from '~/utilities/transfer-id';
 import { useConfig } from '~/hooks';
 import { NavCollapse } from '~/layout/Drawer/DrawerContent/Navigation/NavCollapse';
 import { NavItem } from '~/layout/Drawer/DrawerContent/Navigation/NavItem';
@@ -78,12 +78,14 @@ export const NavGroup = ({ item }: NavGroupProps) => {
     />
   ) : null;
 
+  const groupPath = buildNavItemPath(undefined, item.id);
+
   const items = item.children?.map((menu) => {
     switch (menu.type) {
       case 'collapse':
-        return <NavCollapse key={menu.id} menu={menu} level={1} render={true} arrow={true} />;
+        return <NavCollapse key={menu.id} menu={menu} level={1} render={true} arrow={true} parentPath={groupPath} />;
       case 'item':
-        return <NavItem key={menu.id} item={menu} level={1} />;
+        return <NavItem key={menu.id} item={menu} level={1} parentPath={groupPath} />;
       default:
         return (
           <Typography key={menu.id} variant="h6" color="error" align="center">
@@ -151,7 +153,7 @@ export const NavGroup = ({ item }: NavGroupProps) => {
             <MdiIcon path={openMini ? 'chevron-down' : 'chevron-right'} sx={ { fontSize: 16, stroke: '1.5' } } />
             {anchorEl && (
               <PopperStyled
-                data-testid={buildFieldTestId(item.id, 'menu::popper')}
+                data-testid={buildNavItemRoleTestId(buildNavItemTestId(item.id), 'expand')}
                 open={openMini}
                 anchorEl={anchorEl}
                 placement="bottom-start"
