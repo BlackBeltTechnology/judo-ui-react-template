@@ -193,7 +193,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
   }, [isOwnerLoading]);
 
   return (
-    <Box data-testid={buildFieldTestId(id, 'container')}>
+    <Box data-testid={buildFieldTestId(id)}>
     <Autocomplete
       multiple
       freeSolo
@@ -318,7 +318,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                     </IconButton>
                   ) : null}
                   {!readOnly && onSearchDialogsClick ? (
-                    <IconButton data-testid={buildFieldTestId(id, 'button::selector')} disabled={disabled} onClick={onSearchDialogsClick} title={searchDialogTitle}>
+                    <IconButton data-testid={buildFieldTestId(id, 'button::set')} disabled={disabled} onClick={onSearchDialogsClick} title={searchDialogTitle}>
                       <MdiIcon path={searchDialogIcon} />
                     </IconButton>
                   ) : null}
