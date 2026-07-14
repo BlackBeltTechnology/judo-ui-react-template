@@ -15,7 +15,7 @@
             annotations={[{{# each (getAnnotationNamesForElement child) as |annotation| }}'{{ annotation }}'{{# unless @last}},{{/ unless}}{{/ each }}]}
         >
     {{/ if }}
-    <Typography data-testid={buildFieldTestId('{{ getXMIID child }}')}>
+    <Typography data-testid={buildFieldTestId('{{ getElementId child }}')}>
         { t('{{ getTranslationKeyForVisualElement child }}', { defaultValue: '{{ child.text }}' }) as string }
     </Typography>
     {{# if child.customImplementation }}

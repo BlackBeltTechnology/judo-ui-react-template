@@ -278,7 +278,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   ];
 
   return (
-    <div data-testid={buildTableTestId('{{ getXMIID table }}')} data-table-name="{{ table.name }}">
+    <div data-testid={buildTableTestId('{{ getElementId table }}')} data-table-name="{{ table.name }}">
       {{# if table.isEager }}
         <EagerTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
         uniqueId={`{{ createId table }}-${uniqueId}`}
