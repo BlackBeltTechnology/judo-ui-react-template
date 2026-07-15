@@ -5,6 +5,7 @@ import Grid from '@mui/material/Grid';
 import IconButton from '@mui/material/IconButton';
 import List from '@mui/material/List';
 import Popover from '@mui/material/Popover';
+import Button from '@mui/material/Button';
 import { THEME_ID } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 import Avatar from '@mui/material/Avatar';
@@ -13,13 +14,14 @@ import ButtonBase from '@mui/material/ButtonBase';
 import ClickAwayListener from '@mui/material/ClickAwayListener';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
+import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { useCallback, useRef, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MdiIcon, useJudoNavigation } from '~/components';
-import { DRAWER_WIDTH, MINI_DRAWER_WIDTH, ThemeMode } from '~/config';
-import { useConfig, useHeroProps } from '~/hooks';
+import { DRAWER_WIDTH, MINI_DRAWER_WIDTH, PaletteColorKey, ThemeMode } from '~/config';
+import { useConfig, useDemoFeature, useHeroProps } from '~/hooks';
 import { ProfilePopup } from '~/layout/ProfilePopup';
 {{# if application.authentication }}
   import { useAuth } from 'react-oidc-context';
@@ -44,8 +46,11 @@ export const DrawerProfile = () => {
   const heroProps = useHeroProps();
   const { downLG } = useLayoutHelper();
   const anchorRef = useRef<any>(null);
+  const paletteAnchorRef = useRef<HTMLButtonElement>(null);
   const [open, setOpen] = useState(false);
-  const { miniDrawer, mode, onChangeMode } = useConfig();
+  const [paletteOpen, setPaletteOpen] = useState(false);
+  const isDemoEnabled = useDemoFeature();
+  const { miniDrawer, mode, onChangeMode, onChangePaletteColor, onResetPaletteColors } = useConfig();
 
   {{# if application.authentication }}
     {{# if application.profilePage }}
@@ -99,6 +104,34 @@ export const DrawerProfile = () => {
     }
   };
 
+  const handleTogglePalette = () => {
+    setPaletteOpen((isOpen) => !isOpen);
+  };
+
+  const handleClosePalette = () => {
+    setPaletteOpen(false);
+  };
+
+  const paletteColors: { key: PaletteColorKey; label: string; value: string }[] = [
+    { key: 'primary', label: t('judo.profile.palette.primary', { defaultValue: 'Primary' }), value: theme.palette.primary.main },
+    { key: 'secondary', label: t('judo.profile.palette.secondary', { defaultValue: 'Secondary' }), value: theme.palette.secondary.main },
+    { key: 'error', label: t('judo.profile.palette.error', { defaultValue: 'Error' }), value: theme.palette.error.main },
+    { key: 'warning', label: t('judo.profile.palette.warning', { defaultValue: 'Warning' }), value: theme.palette.warning.main },
+    { key: 'info', label: t('judo.profile.palette.info', { defaultValue: 'Info' }), value: theme.palette.info.main },
+    { key: 'success', label: t('judo.profile.palette.success', { defaultValue: 'Success' }), value: theme.palette.success.main },
+    { key: 'textPrimary', label: t('judo.profile.palette.textPrimary', { defaultValue: 'Text primary' }), value: theme.palette.text.primary },
+    { key: 'textSecondary', label: t('judo.profile.palette.textSecondary', { defaultValue: 'Text secondary' }), value: theme.palette.text.secondary },
+    { key: 'subtitleColor', label: t('judo.profile.palette.subtitle', { defaultValue: 'Subtitle' }), value: theme.palette.subtitleColor.main },
+    { key: 'backgroundDefault', label: t('judo.profile.palette.background', { defaultValue: 'Background' }), value: theme.palette.background.default },
+    { key: 'backgroundPaper', label: t('judo.profile.palette.paper', { defaultValue: 'Paper' }), value: theme.palette.background.paper },
+  ];
+
+  const getColorInputValue = (color: string) => (color.length === 9 ? color.slice(0, 7) : color);
+
+  const handlePaletteColorChange = (color: PaletteColorKey, value: string) => {
+    onChangePaletteColor(color, value);
+  };
+
   const iconBackColorOpen = theme.palette.mode === ThemeMode.DARK ? 'grey.200' : 'grey.300';
 
   return (
@@ -139,6 +172,20 @@ export const DrawerProfile = () => {
           </Grid>
           <Grid>
             <Stack direction="row" spacing={1.25} alignItems="center">
+              {isDemoEnabled && (
+                <Tooltip title={t('judo.profile.palette', { defaultValue: 'Palette' })} placement="top">
+                  <IconButton
+                    aria-label={t('judo.profile.palette', { defaultValue: 'Palette' })}
+                    aria-controls={paletteOpen ? 'palette-settings' : undefined}
+                    aria-expanded={paletteOpen}
+                    aria-haspopup="true"
+                    ref={paletteAnchorRef}
+                    onClick={handleTogglePalette}
+                  >
+                    <MdiIcon path="palette-outline" sx={ { fontSize: '1.4rem' } } />
+                  </IconButton>
+                </Tooltip>
+              )}
               <Tooltip
                 title={
                   mode === ThemeMode.DARK
@@ -215,6 +262,37 @@ export const DrawerProfile = () => {
             </Stack>
           </Grid>
         </Grid>
+      )}
+      {isDemoEnabled && (
+        <Popover
+          id="palette-settings"
+          open={paletteOpen}
+          anchorEl={paletteAnchorRef.current}
+          anchorOrigin={ { vertical: 'bottom', horizontal: 'right' } }
+          transformOrigin={ { vertical: 'top', horizontal: 'right' } }
+          onClose={handleClosePalette}
+        >
+          <Box sx={ { width: 320, p: 2 } }>
+            <Typography variant="h6" gutterBottom>
+              {t('judo.profile.palette', { defaultValue: 'Palette' })}
+            </Typography>
+            <Stack spacing={1.5}>
+              {paletteColors.map((color) => (
+                <TextField
+                  key={color.key}
+                  label={color.label}
+                  type="color"
+                  value={getColorInputValue(color.value)}
+                  onChange={(event) => handlePaletteColorChange(color.key, event.target.value)}
+                  slotProps={ { inputLabel: { shrink: true } } }
+                />
+              ))}
+              <Button variant="outlined" onClick={onResetPaletteColors}>
+                {t('judo.profile.palette.reset', { defaultValue: 'Reset colors' })}
+              </Button>
+            </Stack>
+          </Box>
+        </Popover>
       )}
       <Popover
         data-testid="profile"

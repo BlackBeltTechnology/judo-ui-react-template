@@ -12,13 +12,13 @@ import type {} from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}/themeAugment
 import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForMaterial' }} } from '@mui/material/locale';
 import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForGrids' }} } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}/locales';
 import { {{ muiTranslationToken (getDefaultLanguage application) '' }} as {{ muiTranslationToken (getDefaultLanguage application) 'ForDatePickers' }} } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}/locales';
-import { useConfig } from '~/hooks';
+import { useConfig, useDemoFeature } from '~/hooks';
 import { mainContainerPadding } from '~/theme/extras';
 import { paletteThemeLight, paletteThemeDark } from '~/theme/palette';
 import { density } from '~/theme/density';
 import { typography } from '~/theme/typography';
 import { getDefaultFontName } from '~/theme/fonts';
-import { defaultScales } from '~/config';
+import { defaultScales, type PaletteOverrides } from '~/config';
 
 const breakpoints = createBreakpoints({});
 
@@ -84,11 +84,32 @@ type ThemeCustomizationProps = {
 };
 
 export function ThemeCustomization({ children }: ThemeCustomizationProps) {
-  const { mode } = useConfig();
+  const { mode, paletteOverrides } = useConfig();
+  const isDemoEnabled = useDemoFeature();
 
   const base = useMemo(() => {
-    const theme = createTheme({});
-    theme.palette = mode === 'light' ? paletteThemeLight.palette : paletteThemeDark.palette;
+    const palette = mode === 'light' ? paletteThemeLight.palette : paletteThemeDark.palette;
+    const overrides: PaletteOverrides = isDemoEnabled ? (paletteOverrides ?? {}) : {};
+    const theme = createTheme({
+      palette: {
+        mode: palette.mode,
+        primary: { main: overrides.primary ?? palette.primary.main },
+        secondary: { main: overrides.secondary ?? palette.secondary.main },
+        error: { main: overrides.error ?? palette.error.main },
+        warning: { main: overrides.warning ?? palette.warning.main },
+        info: { main: overrides.info ?? palette.info.main },
+        success: { main: overrides.success ?? palette.success.main },
+        text: {
+          primary: overrides.textPrimary ?? palette.text.primary,
+          secondary: overrides.textSecondary ?? palette.text.secondary,
+        },
+        background: {
+          default: overrides.backgroundDefault ?? palette.background.default,
+          paper: overrides.backgroundPaper ?? palette.background.paper,
+        },
+        subtitleColor: { main: overrides.subtitleColor ?? palette.subtitleColor.main },
+      },
+    });
     return baseTheme(
       theme,
       defaultScales.scaleXs,
@@ -97,7 +118,7 @@ export function ThemeCustomization({ children }: ThemeCustomizationProps) {
       defaultScales.scaleLg,
       defaultScales.scaleXl,
     );
-  }, [mode]);
+  }, [isDemoEnabled, mode, paletteOverrides]);
 
   return (
     <StyledEngineProvider injectFirst>
