@@ -32,7 +32,7 @@ import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/Vie
 import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
-import { buildFieldTestId } from '~/utilities/transfer-id';
+import { buildButtonTestId, buildFieldTestId } from '~/utilities/transfer-id';
 import { VIEW_GALAXY_FORM_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type {
   AvailableContainerAction,
@@ -121,7 +121,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
         {editMode && actions.backAction && actionsRequested.has('View::Galaxy::Form::Back') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormBackButton')}
+              data-testid={buildButtonTestId('God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormBackButton', 'back')}
               loading={isLoading}
               loadingPosition="start"
               variant={'text'}
@@ -145,7 +145,10 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
               aria-label="split button for create action"
             >
               <Button
-                data-testid={buildFieldTestId('God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormCreateButton')}
+                data-testid={buildButtonTestId(
+                  'God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormCreateButton',
+                  'create',
+                )}
                 loading={isLoading}
                 loadingPosition="start"
                 variant={'contained'}

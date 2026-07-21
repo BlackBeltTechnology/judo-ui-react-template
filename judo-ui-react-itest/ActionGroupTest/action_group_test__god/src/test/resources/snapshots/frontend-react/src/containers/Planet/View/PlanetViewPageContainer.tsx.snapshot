@@ -23,7 +23,7 @@ import type { PlanetQueryCustomizer } from '~/services/data-api/rest/PlanetQuery
 import { mainContainerPadding } from '~/theme';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
-import { buildFieldTestId } from '~/utilities/transfer-id';
+import { buildButtonTestId, buildFieldTestId } from '~/utilities/transfer-id';
 import { PLANET_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type {
   AvailableContainerAction,
@@ -67,7 +67,7 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
         {!editMode && actions.backAction && actionsRequested.has('Planet::View::Back') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewBackButton')}
+              data-testid={buildButtonTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewBackButton', 'back')}
               loading={isLoading}
               loadingPosition="start"
               variant={'text'}
@@ -84,7 +84,10 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
         {editMode && actions.cancelAction && actionsRequested.has('Planet::View::Cancel') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewCancelButton')}
+              data-testid={buildButtonTestId(
+                'God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewCancelButton',
+                'cancel',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'text'}
@@ -104,7 +107,10 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
           actionsRequested.has('Planet::View::Delete') && (
             <Grid className="page-action">
               <Button
-                data-testid={buildFieldTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewDeleteButton')}
+                data-testid={buildButtonTestId(
+                  'God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewDeleteButton',
+                  'delete',
+                )}
                 loading={isLoading}
                 loadingPosition="start"
                 variant={'contained'}
@@ -121,7 +127,10 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
         {!isDraft && actions.refreshAction && actionsRequested.has('Planet::View::Refresh') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewRefreshButton')}
+              data-testid={buildButtonTestId(
+                'God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewRefreshButton',
+                'refresh',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'contained'}
@@ -138,7 +147,10 @@ export default function PlanetViewPage(props: PlanetViewPageProps) {
         {editMode && actions.updateAction && actionsRequested.has('Planet::View::Update') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewUpdateButton')}
+              data-testid={buildButtonTestId(
+                'God/(esm/_iyJ2kORqEeuSU8xLq1yYbw)/TransferObjectViewUpdateButton',
+                'update',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'contained'}
