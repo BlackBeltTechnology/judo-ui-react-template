@@ -574,4 +574,34 @@ public class UiActionsHelper {
     public static boolean isOperationInputForm(ActionDefinition actionDefinition) {
         return actionDefinition instanceof OpenOperationInputFormActionDefinition;
     }
+
+    /**
+     * Byte-exact port of runtime {@code getButtonActionType} in
+     * {@code judo-frontend-runtime/packages/test-ids/src/element.ts}:
+     *
+     * <pre>actionDef?.["@type"]?.replace("ui:", "").replace("ActionDefinition", "").toLowerCase()</pre>
+     *
+     * <p>The pure-function form takes the raw EClass name (equivalent to the runtime's
+     * {@code @type} string after the ecore package prefix) and returns the normalized
+     * suffix used in {@code button::<id>::<actionType>} test-ids.
+     */
+    public static String normalizeButtonActionType(String eClassName) {
+        if (eClassName == null) return "";
+        return eClassName.replace("ui:", "").replace("ActionDefinition", "").toLowerCase();
+    }
+
+    /**
+     * EMF-backed entry point invoked from Handlebars templates. Reads the given
+     * button's {@code actionDefinition} reference and returns the normalized action-type
+     * suffix for the runtime-compatible {@code button::<id>::<actionType>} grammar.
+     * Returns {@code ""} when the argument is null or has no {@code actionDefinition}.
+     */
+    public static String getButtonActionType(EObject button) {
+        if (button == null) return "";
+        var feature = button.eClass().getEStructuralFeature("actionDefinition");
+        if (feature == null) return "";
+        Object ad = button.eGet(feature);
+        if (!(ad instanceof EObject)) return "";
+        return normalizeButtonActionType(((EObject) ad).eClass().getName());
+    }
 }
