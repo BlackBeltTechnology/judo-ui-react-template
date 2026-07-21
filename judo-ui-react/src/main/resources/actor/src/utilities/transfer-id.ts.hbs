@@ -100,6 +100,11 @@ export function buildFieldTestId(xmiId: TestIdKey, role?: string): string {
   return role ? `field::${key}::${role}` : `field::${key}`;
 }
 
+export function buildButtonTestId(buttonId: TestIdKey, actionType?: string): string {
+  const key = stringifyKey(buttonId);
+  return actionType ? `button::${key}::${actionType}` : `button::${key}`;
+}
+
 /** Build the outer `data-testid` for a table. */
 export function buildTableTestId(tableId: TestIdKey): string {
   return `table::${stringifyKey(tableId)}`;
