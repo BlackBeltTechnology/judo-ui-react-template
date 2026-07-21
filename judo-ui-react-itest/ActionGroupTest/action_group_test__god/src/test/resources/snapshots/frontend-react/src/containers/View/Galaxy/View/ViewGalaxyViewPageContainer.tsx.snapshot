@@ -23,7 +23,7 @@ import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGal
 import { mainContainerPadding } from '~/theme';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
-import { buildFieldTestId } from '~/utilities/transfer-id';
+import { buildButtonTestId, buildFieldTestId } from '~/utilities/transfer-id';
 import { VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type {
   AvailableContainerAction,
@@ -67,7 +67,7 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
         {!editMode && actions.backAction && actionsRequested.has('View::Galaxy::View::Back') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton')}
+              data-testid={buildButtonTestId('God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton', 'back')}
               loading={isLoading}
               loadingPosition="start"
               variant={'text'}
@@ -84,7 +84,10 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
         {editMode && actions.cancelAction && actionsRequested.has('View::Galaxy::View::Cancel') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton')}
+              data-testid={buildButtonTestId(
+                'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton',
+                'cancel',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'text'}
@@ -104,7 +107,10 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
           actionsRequested.has('View::Galaxy::View::Delete') && (
             <Grid className="page-action">
               <Button
-                data-testid={buildFieldTestId('God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton')}
+                data-testid={buildButtonTestId(
+                  'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton',
+                  'delete',
+                )}
                 loading={isLoading}
                 loadingPosition="start"
                 variant={'contained'}
@@ -121,7 +127,10 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
         {!isDraft && actions.refreshAction && actionsRequested.has('View::Galaxy::View::Refresh') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton')}
+              data-testid={buildButtonTestId(
+                'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton',
+                'refresh',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'contained'}
@@ -138,7 +147,10 @@ export default function ViewGalaxyViewPage(props: ViewGalaxyViewPageProps) {
         {editMode && actions.updateAction && actionsRequested.has('View::Galaxy::View::Update') && (
           <Grid className="page-action">
             <Button
-              data-testid={buildFieldTestId('God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton')}
+              data-testid={buildButtonTestId(
+                'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton',
+                'update',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'contained'}
