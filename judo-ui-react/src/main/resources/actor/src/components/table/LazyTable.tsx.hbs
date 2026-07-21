@@ -58,7 +58,7 @@ import {
 import type { TableRowAction, FiltersSerializer, DialogResultReason{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
-import { isNewRow, newTempId, resolveTransferId, buildFieldTestId } from '~/utilities/transfer-id';
+import { isNewRow, newTempId, resolveTransferId, buildFieldTestId, buildButtonTestId } from '~/utilities/transfer-id';
 import { CustomTablePagination } from '~/components';
 import { MdiIcon } from '~/components/MdiIcon';
 import Box from '@mui/material/Box';
@@ -741,7 +741,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                 <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={buildFieldTestId(toolBarAction.id)}
+                        data-testid={buildButtonTestId(toolBarAction.id, toolBarAction.actionType)}
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {

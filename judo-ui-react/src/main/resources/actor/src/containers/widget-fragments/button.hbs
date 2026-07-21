@@ -20,7 +20,7 @@
     <Tooltip title={t('{{ getTranslationKeyForVisualElement child }}.tooltip', { defaultValue: '{{ child.tooltipText }}' }) as string}>
     {{/ if }}
     <Button
-      data-testid={buildFieldTestId('{{ getElementId child }}')}
+      data-testid={buildButtonTestId('{{ getElementId child }}', '{{ getButtonActionType child }}')}
       loading={isLoading}
       variant={ {{{ variantForButton child }}} }
       {{# if child.icon }}
@@ -47,6 +47,7 @@
   {{# if child.actionDefinition.isOpenPageAction }}
     <AssociationButton
       id="{{ getXMIID child }}"
+      actionType="{{ getButtonActionType child }}"
       variant={ {{{ variantForButton child }}} }
       editMode={editMode}
       startIcon={ <MdiIcon path="{{# if child.icon }}{{ child.icon.iconName }}{{ else }}arrow-right{{/ if }}" /> }
