@@ -80,7 +80,7 @@ import {
   ToolBarActionProps,
   useErrorHandler,
 } from '~/utilities';
-import { buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
+import { buildButtonTestId, buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
 
 interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -751,7 +751,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                   <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={buildFieldTestId(toolBarAction.id)}
+                        data-testid={buildButtonTestId(toolBarAction.id, toolBarAction.actionType)}
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {
