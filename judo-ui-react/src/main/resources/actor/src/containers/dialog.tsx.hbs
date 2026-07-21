@@ -31,7 +31,7 @@ import ClickAwayListener from '@mui/material/ClickAwayListener';
 import { useTranslation } from 'react-i18next';
 import { useJudoNavigation, MdiIcon } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
-import { buildFieldTestId } from '~/utilities/transfer-id';
+import { buildFieldTestId, buildButtonTestId } from '~/utilities/transfer-id';
 {{# unless (containerIsEmptyDashboard container) }}
   {{# unless container.table }}
     import { processQueryCustomizer } from '~/utilities';
@@ -205,7 +205,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
                 <Button
-                  data-testid={buildFieldTestId('{{ getElementId button }}')}
+                  data-testid={buildButtonTestId('{{ getElementId button }}', '{{ getButtonActionType button }}')}
                   loading={isLoading}
                   loadingPosition="start"
                   variant={ {{{ variantForButton button }}} }
