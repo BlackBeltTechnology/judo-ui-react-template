@@ -6,10 +6,11 @@ import { useTranslation } from 'react-i18next';
 import Button from '@mui/material/Button';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
 import type { JudoRestResponse } from '~/services/data-api/rest/requestResponse';
-import { buildFieldTestId } from '~/utilities/transfer-id';
+import { buildButtonTestId } from '~/utilities/transfer-id';
 
 export interface AssociationBaseProps {
   id: string;
+  actionType?: string;
   variant?: 'text' | 'contained' | 'outlined';
   startIcon?: ReactNode;
   editMode?: boolean;
@@ -26,6 +27,7 @@ export interface AssociationButtonProps extends AssociationBaseProps {
 
 export function AssociationButton({
   id,
+  actionType,
   variant,
   editMode,
   startIcon,
@@ -60,7 +62,7 @@ export function AssociationButton({
 
   return (
     <Button
-      data-testid={buildFieldTestId(id)}
+      data-testid={buildButtonTestId(id, actionType)}
       variant={variant ?? 'text'}
       startIcon={startIcon}
       onClick={navigateAction ? () => navigateAction!(data) : undefined}

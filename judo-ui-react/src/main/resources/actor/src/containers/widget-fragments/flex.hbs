@@ -40,7 +40,7 @@
                             {{# each this.actionButtonGroup.buttons as |button| }}
                                 { actions.{{ simpleActionDefinitionName button.actionDefinition }}{{# if button.hiddenBy }} && !data.{{ button.hiddenBy.name }}{{/ if }} &&
                                     <IconButton
-                                        data-testid={buildFieldTestId('{{ getElementId button }}')}
+                                        data-testid={buildButtonTestId('{{ getElementId button }}', '{{ getButtonActionType button }}')}
                                         {{# if (containerButtonHasDisabledConditions button container) }}
                                         disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
                                         {{/ if }}
@@ -108,7 +108,7 @@
                             {{# each this.actionButtonGroup.buttons as |button| }}
                                 { actions.{{ simpleActionDefinitionName button.actionDefinition }}{{# if button.hiddenBy }} && !data.{{ button.hiddenBy.name }}{{/ if }} &&
                                     <IconButton
-                                        data-testid={buildFieldTestId('{{ getElementId button }}')}
+                                        data-testid={buildButtonTestId('{{ getElementId button }}', '{{ getButtonActionType button }}')}
                                         {{# if (containerButtonHasDisabledConditions button container) }}
                                         disabled={ {{{ containerButtonGroupButtonDisabledConditions button container }}} }
                                         {{/ if }}
