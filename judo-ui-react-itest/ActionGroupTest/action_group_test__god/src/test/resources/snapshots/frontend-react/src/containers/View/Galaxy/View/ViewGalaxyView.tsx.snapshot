@@ -50,7 +50,13 @@ import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/Vie
 import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/ViewMatter';
 import type { ViewStar, ViewStarStored } from '~/services/data-api/model/ViewStar';
 import { isErrorOperationFault, useErrorHandler } from '~/utilities';
-import { buildCellTestId, buildFieldTestId, buildRowTestId, buildTableTestId } from '~/utilities/transfer-id';
+import {
+  buildButtonTestId,
+  buildCellTestId,
+  buildFieldTestId,
+  buildRowTestId,
+  buildTableTestId,
+} from '~/utilities/transfer-id';
 import { ViewGalaxyViewAstronomerComponent } from './components/ViewGalaxyViewAstronomerComponent';
 import { ViewGalaxyViewStarsComponent } from './components/ViewGalaxyViewStarsComponent';
 import type { ViewGalaxyViewContainerHook } from './customization';
@@ -666,6 +672,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                               <Grid size={{ xs: 12, sm: 12, md: 2.0 }}>
                                 <AssociationButton
                                   id="God/(esm/_8A3hoE7tEeycO-gUAWxcVg)/TabularReferenceFieldButton"
+                                  actionType="openpage"
                                   variant={undefined}
                                   editMode={editMode}
                                   startIcon={<MdiIcon path="chart-bubble" />}
