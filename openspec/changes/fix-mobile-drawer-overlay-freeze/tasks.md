@@ -15,4 +15,6 @@
 
 ## 4. Downstream
 
-- [ ] 4.1 Add a Playwright resize regression test in the consuming app (park-here) as the runtime guard (this repo has no runtime test harness)
+- [x] 4.1 Added a Playwright resize regression test in the consuming app (park-here) as the runtime guard (this repo has no runtime test harness): `application/docker/compose-e2e/e2e/tests/tier-mobile-resize.spec.ts`
+- [x] 4.2 Cross-checked the full chain: generator built locally as `1.0.0-SNAPSHOT` → park-here repointed at it → `./judo.sh build -f -i` regenerated `src/layout/Drawer/index.tsx` **with** the fix → e2e spec PASSES; reverting the generated `open` prop to `!miniDrawer` makes the same spec FAIL on the overlay assertion (negative control)
+- [ ] 4.3 After this change is released, bump `judo-ui-react-template-version` in park-here's `application/frontend-react/pom.xml` to the released generator (it is intentionally left at the previous released version — the SNAPSHOT is local-only)
