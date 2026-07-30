@@ -56,9 +56,9 @@ mounted node strands `exited` at `false`, so with `keepMounted: true` the root s
 
 ```tsx
 // prevSizeRef is the previous *committed* size (updated in the resize effect below).
-// On the first render after entering mobile it still holds the desktop/undefined size,
+// On the first render after entering mobile it still holds the larger/undefined size,
 // so the drawer is forced closed for exactly that render; afterwards it follows miniDrawer.
-const enteringMobile = downSM && prevSizeRef.current !== 'xs' && prevSizeRef.current !== 'sm';
+const enteringMobile = downSM && prevSizeRef.current !== 'xs';
 const temporaryDrawerOpen = !miniDrawer && !enteringMobile;
 // <MuiDrawer ... open={temporaryDrawerOpen} ... >
 ```
@@ -67,14 +67,30 @@ const temporaryDrawerOpen = !miniDrawer && !enteringMobile;
 existing effect), so the render output is a pure function of the last committed size and is
 stable across concurrent re-renders (the `usePrevious` pattern).
 
+### Why the guard cannot latch on (and the hamburger keeps working)
+
+In `utilities/layout-helper`, `downSM` and `isXs` are the **same media query**
+(`breakpoints.down('sm')`, i.e. < 600px):
+
+```
+downSM = useMediaQuery(breakpoints.down('sm'))
+isXs   = useMediaQuery(breakpoints.down('sm'))
+```
+
+So `downSM` ⇒ `isXs` ⇒ `size === 'xs'`: the temporary Drawer branch only ever renders at
+size `'xs'`. Once the resize effect commits `prevSizeRef.current = 'xs'`, `enteringMobile`
+becomes `false` and `open` falls back to `!miniDrawer` — so the guard is self-clearing and the
+mobile hamburger toggle is unaffected. Note `'sm'` (600–899px) renders the **permanent** mini
+drawer, so it is a desktop-side size here; a `sm → xs` crossing is therefore also guarded,
+which additionally avoids popping a modal drawer + backdrop over the page unbidden.
+
 ### Transition coverage
 
 | Situation | `prevSizeRef` at render | `enteringMobile` | `open` |
 |---|---|---|---|
-| desktop→mobile crossing render | `md`/`lg`/`xl` | true | forced closed |
+| desktop→mobile crossing render | `sm`/`md`/`lg`/`xl` | true | forced closed |
 | initial mobile mount | `undefined` | true | forced closed |
-| settled mobile (post-effect) | `sm`/`xs` | false | `!miniDrawer` (hamburger works) |
-| within-mobile resize while open (`xs`↔`sm`) | `xs`/`sm` | false | stays open (not disrupted) |
+| settled mobile (post-effect) | `xs` | false | `!miniDrawer` (hamburger works) |
 | desktop (permanent branch) | — | — | unaffected |
 
 ## Testing
