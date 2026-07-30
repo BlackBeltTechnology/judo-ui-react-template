@@ -81,6 +81,16 @@ export const Drawer = ({ window }: DrawerProps) => {
     prevSizeRef.current = size;
   }, [size]);
 
+  // The temporary (mobile) Drawer must start CLOSED on the first render after entering a
+  // mobile breakpoint. If it inherited the desktop `!miniDrawer` (open) value, MUI would
+  // mount its keepMounted Modal `open` and the resize effect above would immediately close
+  // it, stranding the Modal's internal `exited` flag. That leaves an invisible, full-viewport
+  // overlay (visibility:visible, pointer-events:auto) that blocks every click until reload.
+  // On the crossing render `prevSizeRef` still holds the previous (desktop/undefined) size,
+  // so we force the drawer closed for that render; the effect then keeps it closed.
+  const enteringMobile = downSM && prevSizeRef.current !== 'xs' && prevSizeRef.current !== 'sm';
+  const temporaryDrawerOpen = !miniDrawer && !enteringMobile;
+
   const container = window !== undefined ? () => window().document.body : undefined;
 
   const drawerContent = useMemo(() => <DrawerContent />, []);
@@ -121,7 +131,7 @@ export const Drawer = ({ window }: DrawerProps) => {
         <MuiDrawer
           container={container}
           variant="temporary"
-          open={!miniDrawer}
+          open={temporaryDrawerOpen}
           onClose={() => onChangeMiniDrawer(!miniDrawer)}
           ModalProps={ { keepMounted: true } }
           sx={ {
