@@ -41,8 +41,9 @@ mounted node strands `exited` at `false`, so with `keepMounted: true` the root s
 
 - **A. Render-time guard (chosen).** Force the temporary drawer closed on the first render
   after entering mobile, so the Modal mounts already-closed (`open=false`, `exited=true`,
-  `visibility:hidden`) and never enters the race. One file, ~7 lines, no new external state,
-  no cross-file changes, desktop untouched.
+  `visibility:hidden`) and never enters the race. One file, 2 added lines + 1 changed prop, no
+  new external state, no cross-file changes, desktop untouched. The rationale lives in
+  `proposal.md` / this file rather than as a comment in the generated output.
 - **B. Decouple a dedicated mobile-open state.** Give the temporary drawer its own
   `useState` open flag, independent of the desktop `miniDrawer` mini/expanded flag, and
   rewire the Header hamburger to toggle it. Cleaner separation of concerns, but touches
@@ -55,13 +56,14 @@ mounted node strands `exited` at `false`, so with `keepMounted: true` the root s
 ## The fix
 
 ```tsx
-// prevSizeRef is the previous *committed* size (updated in the resize effect below).
-// On the first render after entering mobile it still holds the larger/undefined size,
-// so the drawer is forced closed for exactly that render; afterwards it follows miniDrawer.
 const enteringMobile = downSM && prevSizeRef.current !== 'xs';
 const temporaryDrawerOpen = !miniDrawer && !enteringMobile;
 // <MuiDrawer ... open={temporaryDrawerOpen} ... >
 ```
+
+`prevSizeRef` is the previous *committed* size (updated in the resize effect above). On the
+first render after entering mobile it still holds the larger/`undefined` size, so the drawer is
+forced closed for exactly that render; afterwards it follows `miniDrawer`.
 
 `prevSizeRef` is only *read* during render (never mutated there — the mutation stays in the
 existing effect), so the render output is a pure function of the last committed size and is

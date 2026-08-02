@@ -1,5 +1,7 @@
 # Application Structure
 
+## Purpose
+
 Generates the top-level React application shell from a UI `Application` model element. Each `Application` corresponds to one actor (user role) and produces a complete, self-contained React SPA with routing, navigation, theming, authentication, and branding.
 
 ## Requirements
@@ -45,6 +47,8 @@ Items with `hiddenBy` SHALL be conditionally visible based on runtime state.
 
 Each navigation item SHALL display its `label` and `icon`.
 
+The vertical sidebar drawer SHALL render as a **permanent** drawer on desktop breakpoints and as a **temporary** (overlay) drawer on mobile breakpoints. Switching between these breakpoints SHALL NOT leave a click-blocking overlay over the page content: after a desktop→mobile transition the temporary drawer SHALL start closed and SHALL NOT capture pointer events over page content.
+
 #### Scenario: Vertical sidebar navigation
 
 - **WHEN** `Application.defaultMenuLayout = VERTICAL`
@@ -68,6 +72,13 @@ Each navigation item SHALL display its `label` and `icon`.
 
 - **WHEN** a navigation item has `hiddenBy` set
 - **THEN** the menu item is rendered conditionally based on the runtime value
+
+#### Scenario: Responsive drawer breakpoint switch
+
+- **WHEN** the viewport shrinks from a desktop breakpoint (`md`/`lg`/`xl`) into a mobile breakpoint (`sm`/`xs`)
+- **THEN** the generated temporary drawer starts closed for that transition
+- **AND** its underlying MUI Modal root is not left visible with `pointer-events: auto` over the page
+- **AND** page buttons, links, and navigation items remain clickable without a reload
 
 **Key Helpers**: `UIMenuHelper.applicationHasMenuOperations()`, `UIMenuHelper.getMenuOperationOwnerTypes()`, `UiGeneralHelper.isNavItemAGroup()`
 

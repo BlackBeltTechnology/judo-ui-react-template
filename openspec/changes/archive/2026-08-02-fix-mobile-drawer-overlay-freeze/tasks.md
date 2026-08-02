@@ -1,6 +1,6 @@
 ## 1. Template Fix
 
-- [x] 1.1 In `actor/src/layout/Drawer/index.tsx.hbs`, add a render-time guard `enteringMobile = downSM && prevSizeRef.current !== 'xs'` and `temporaryDrawerOpen = !miniDrawer && !enteringMobile` (with an explanatory comment). `downSM` and `isXs` are the same media query, so the temporary drawer only renders at size `'xs'` — the guard is self-clearing once the effect commits `prevSizeRef = 'xs'`, leaving the hamburger toggle unaffected
+- [x] 1.1 In `actor/src/layout/Drawer/index.tsx.hbs`, add a render-time guard `enteringMobile = downSM && prevSizeRef.current !== 'xs'` and `temporaryDrawerOpen = !miniDrawer && !enteringMobile` (no comment in the generated output — the rationale lives in `proposal.md` / `design.md`). `downSM` and `isXs` are the same media query, so the temporary drawer only renders at size `'xs'` — the guard is self-clearing once the effect commits `prevSizeRef = 'xs'`, leaving the hamburger toggle unaffected
 - [x] 1.2 Change the temporary `<MuiDrawer …>` `open` prop from `open={!miniDrawer}` to `open={temporaryDrawerOpen}` (leave the permanent `MiniDrawerStyled` and `DrawerHeader` `open={!miniDrawer}` untouched)
 
 ## 2. Spec Delta
