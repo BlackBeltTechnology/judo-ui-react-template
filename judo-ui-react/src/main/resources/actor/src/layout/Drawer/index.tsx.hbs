@@ -35,6 +35,17 @@ const BottomSection = styled('div')({
   right: 0,
 });
 
+// Breakpoint tiers for the drawer's collapsed/expanded state. Within a tier the user's toggle
+// choice is preserved; crossing a tier boundary re-applies the entered tier's default.
+// - compact (xs, sm): no ToggleButton is rendered, so the drawer must always be collapsed.
+//   At xs, "collapsed" means the temporary overlay drawer is closed.
+// - medium (md): collapsed by default.
+// - wide (lg, xl): expanded by default.
+type DrawerTier = 'compact' | 'medium' | 'wide';
+
+const drawerTier = (size?: string): DrawerTier =>
+  size === 'xs' || size === 'sm' ? 'compact' : size === 'md' ? 'medium' : 'wide';
+
 const ToggleButton = styled(IconButton)(({ theme }) => ({
   zIndex: 1300,
   color: theme.palette.secondary.main,
@@ -60,26 +71,19 @@ export const Drawer = ({ window }: DrawerProps) => {
   const prevSizeRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    // console.log('Change: ' + prevSizeRef.current + ' => ' + size);
-    if (
-      prevSizeRef.current &&
-      (prevSizeRef.current == 'md' || prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') &&
-      (size == 'sm' || size == 'xs')
-    ) {
-      onChangeMiniDrawer(true);
-    } else if (prevSizeRef.current && (prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') && size == 'md') {
-      onChangeMiniDrawer(true);
-    } else if (
-      prevSizeRef.current &&
-      (prevSizeRef.current == 'md' || prevSizeRef.current == 'sm' || prevSizeRef.current == 'xs') &&
-      (size == 'lg' || size == 'xl')
-    ) {
-      onChangeMiniDrawer(false);
-    } else if (!prevSizeRef.current && (size == 'sm' || size == 'xs')) {
-      onChangeMiniDrawer(true);
-    }
+    const prevSize = prevSizeRef.current;
     prevSizeRef.current = size;
+    if (drawerTier(size) === 'compact') {
+      onChangeMiniDrawer(true);
+    } else if (prevSize && drawerTier(prevSize) !== drawerTier(size)) {
+      // prevSize is empty on the first commit and until the media queries resolve, where the
+      // application's configured miniDrawer default is honoured instead.
+      onChangeMiniDrawer(drawerTier(size) === 'medium');
+    }
   }, [size]);
+
+  const enteringMobile = downSM && prevSizeRef.current !== 'xs';
+  const temporaryDrawerOpen = !miniDrawer && !enteringMobile;
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
@@ -121,7 +125,7 @@ export const Drawer = ({ window }: DrawerProps) => {
         <MuiDrawer
           container={container}
           variant="temporary"
-          open={!miniDrawer}
+          open={temporaryDrawerOpen}
           onClose={() => onChangeMiniDrawer(!miniDrawer)}
           ModalProps={ { keepMounted: true } }
           sx={ {
