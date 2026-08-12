@@ -14,7 +14,7 @@ Items with `hiddenBy` SHALL be conditionally visible based on runtime state.
 
 Each navigation item SHALL display its `label` and `icon`.
 
-The vertical sidebar drawer SHALL render as a **permanent** drawer on desktop breakpoints and as a **temporary** (overlay) drawer on mobile breakpoints. Switching between these breakpoints SHALL NOT leave a click-blocking overlay over the page content: after a desktop→mobile transition the temporary drawer SHALL start closed and SHALL NOT capture pointer events over page content.
+The vertical sidebar drawer SHALL render as a **permanent** drawer at `sm` and wider, and as a **temporary** (overlay) drawer only at `xs` (below the `sm` breakpoint) — so `sm` is on the permanent-drawer side. Entering `xs` from any wider breakpoint, `sm` included, SHALL NOT leave a click-blocking overlay over the page content: on that transition the temporary drawer SHALL start closed and SHALL NOT capture pointer events over page content.
 
 #### Scenario: Vertical sidebar navigation
 
@@ -42,7 +42,7 @@ The vertical sidebar drawer SHALL render as a **permanent** drawer on desktop br
 
 #### Scenario: Responsive drawer breakpoint switch
 
-- **WHEN** the viewport shrinks from a desktop breakpoint (`md`/`lg`/`xl`) into a mobile breakpoint (`sm`/`xs`)
+- **WHEN** the viewport shrinks from any wider breakpoint (`sm`/`md`/`lg`/`xl`) into `xs`, where the temporary drawer branch is rendered
 - **THEN** the generated temporary drawer starts closed for that transition
 - **AND** its underlying MUI Modal root is not left visible with `pointer-events: auto` over the page
 - **AND** page buttons, links, and navigation items remain clickable without a reload
