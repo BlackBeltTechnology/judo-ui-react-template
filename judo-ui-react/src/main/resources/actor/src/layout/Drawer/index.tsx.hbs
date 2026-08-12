@@ -41,10 +41,18 @@ const BottomSection = styled('div')({
 //   At xs, "collapsed" means the temporary overlay drawer is closed.
 // - medium (md): collapsed by default.
 // - wide (lg, xl): expanded by default.
-type DrawerTier = 'compact' | 'medium' | 'wide';
+// - unresolved: the media queries have not resolved yet, so `size` is still ''. This is
+//   deliberately its own tier rather than falling through to `wide`, otherwise an
+//   unresolved value would apply the wide default and overwrite the last resolved
+//   breakpoint.
+type DrawerTier = 'unresolved' | 'compact' | 'medium' | 'wide';
 
-const drawerTier = (size?: string): DrawerTier =>
-  size === 'xs' || size === 'sm' ? 'compact' : size === 'md' ? 'medium' : 'wide';
+const drawerTier = (size?: string): DrawerTier => {
+  if (size === 'xs' || size === 'sm') return 'compact';
+  if (size === 'md') return 'medium';
+  if (size === 'lg' || size === 'xl') return 'wide';
+  return 'unresolved';
+};
 
 const ToggleButton = styled(IconButton)(({ theme }) => ({
   zIndex: 1300,
@@ -71,14 +79,20 @@ export const Drawer = ({ window }: DrawerProps) => {
   const prevSizeRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    const prevSize = prevSizeRef.current;
+    const tier = drawerTier(size);
+    if (tier === 'unresolved') {
+      // Change nothing and keep the last resolved breakpoint, so the next resolved size
+      // still sees its own tier transition.
+      return;
+    }
+    const prevTier = drawerTier(prevSizeRef.current);
     prevSizeRef.current = size;
-    if (drawerTier(size) === 'compact') {
+    if (tier === 'compact') {
       onChangeMiniDrawer(true);
-    } else if (prevSize && drawerTier(prevSize) !== drawerTier(size)) {
-      // prevSize is empty on the first commit and until the media queries resolve, where the
-      // application's configured miniDrawer default is honoured instead.
-      onChangeMiniDrawer(drawerTier(size) === 'medium');
+    } else if (prevTier !== 'unresolved' && prevTier !== tier) {
+      // prevTier is unresolved on the first resolved commit, where the application's
+      // configured miniDrawer default is honoured instead.
+      onChangeMiniDrawer(tier === 'medium');
     }
   }, [size]);
 

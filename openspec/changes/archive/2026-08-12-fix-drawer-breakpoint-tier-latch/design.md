@@ -38,37 +38,66 @@ Read the 4 branches as *intent* rather than as pairs and a 3-tier structure fall
 
 | tier | sizes | rule | why |
 |---|---|---|---|
-| `compact` | `xs`, `sm` | always collapsed | no toggle is rendered, so any expanded state is unrecoverable; at `xs` "collapsed" = overlay closed |
+| `compact` | `xs`, `sm` | collapsed baseline, re-asserted on every change into or within the tier | no toggle is rendered, so any expanded state is unrecoverable; at `xs` "collapsed" = overlay closed |
 | `medium` | `md` | collapsed on entry, toggleable | matches the old `lg`/`xl` → `md` branch |
 | `wide` | `lg`, `xl` | expanded on entry, toggleable | matches the old `→ lg`/`xl` branch |
+| `unresolved` | `''` | change nothing, keep the last resolved size | the media queries have not reported yet; see "Unresolved breakpoints" below |
 
-Within a tier the user's choice is preserved — which is what the old `lg ↔ xl` fall-through was
-deliberately doing.
+Within the `medium` and `wide` tiers the user's choice is preserved — which is what the old
+`lg ↔ xl` fall-through was deliberately doing. Note that `xs → sm` is *within* `compact`, not a
+boundary crossing: it is the unconditional compact arm that handles it.
+
+The compact rule is a **responsive baseline, not an absolute runtime state**. The effect deps are
+`[size]`, so it only runs on a breakpoint *change*; a hamburger tap at `xs` between changes is
+never clobbered, which is exactly what keeps the mobile drawer usable.
 
 ## The fix
 
 ```ts
-const drawerTier = (size?: string) =>
-  size === 'xs' || size === 'sm' ? 'compact' : size === 'md' ? 'medium' : 'wide';
+type DrawerTier = 'unresolved' | 'compact' | 'medium' | 'wide';
+
+const drawerTier = (size?: string): DrawerTier => {
+  if (size === 'xs' || size === 'sm') return 'compact';
+  if (size === 'md') return 'medium';
+  if (size === 'lg' || size === 'xl') return 'wide';
+  return 'unresolved';
+};
 
 useEffect(() => {
-  const prevSize = prevSizeRef.current;
+  const tier = drawerTier(size);
+  if (tier === 'unresolved') {
+    return;
+  }
+  const prevTier = drawerTier(prevSizeRef.current);
   prevSizeRef.current = size;
-  if (drawerTier(size) === 'compact') {
+  if (tier === 'compact') {
     onChangeMiniDrawer(true);
-  } else if (prevSize && drawerTier(prevSize) !== drawerTier(size)) {
-    onChangeMiniDrawer(drawerTier(size) === 'medium');
+  } else if (prevTier !== 'unresolved' && prevTier !== tier) {
+    onChangeMiniDrawer(tier === 'medium');
   }
 }, [size]);
 ```
 
-`prevSize` is falsy on the first commit and while `size === ''`, which is what defers to the
-consuming app's configured `miniDrawer` default at `md`/`lg`/`xl`. The `compact` arm is
-deliberately unconditional — it must win even on the first commit, and re-asserting `true` at a
-size where no toggle exists can never fight a user action.
+`prevTier` is `unresolved` on the first resolved commit, which is what defers to the consuming
+app's configured `miniDrawer` default at `md`/`lg`/`xl`. The `compact` arm is deliberately
+unconditional — it must win even on the first commit, and re-asserting `true` at a size where no
+toggle exists cannot fight a user action, because the effect only runs on a size change.
 
-The effect deps are `[size]`, so it only runs on a breakpoint *change*; a hamburger tap inside a
-tier is never clobbered.
+### Unresolved breakpoints
+
+`useMediaQuery` returns `false` for every breakpoint until it resolves, so `layout-helper` leaves
+`size` as `''`. A first cut folded that into `wide` via the ternary fallthrough and overwrote
+`prevSizeRef` unconditionally. Both were wrong, and the harness below now proves it:
+
+- an unresolved value **mutated** `miniDrawer` in 6 cases — e.g. `xs`(collapsed) `→ ''` classified
+  `''` as `wide`, saw a tier change from `compact`, and silently expanded the drawer
+- an unresolved **hop** changed the end state in 12 cases versus the direct transition — e.g.
+  `xs → '' → md` ended expanded where `xs → md` ends collapsed, because `prevSizeRef` had been
+  clobbered to `''` and the next resolved size was misread as a first mount
+
+Giving `unresolved` its own tier and returning early fixes both: the state is untouched and the
+last resolved breakpoint survives, so the next resolved size still sees its own tier transition.
+The realistic mount path (`''` first, then resolve) is unchanged for all five sizes.
 
 ## The render guard still has to stay
 
@@ -87,24 +116,48 @@ No runtime test harness exists in this generator repo, and `src/layout/Drawer/in
 itest snapshot set — so the transition space is checked by exhaustive simulation of the effect
 plus the settled render outcome. Paste-runnable:
 
+Each variant returns `[miniDrawer, prevSizeRef]`, because `prevSizeRef` is part of the state the
+next transition reads — an earlier harness returned only `miniDrawer` and therefore could not see
+the unresolved-hop corruption at all.
+
 ```js
 const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'];
 const UNSET = ['', undefined];                 // size before useMediaQuery resolves
+const ALL = [...SIZES, ...UNSET];              // unresolved is a *current* size too, not just a prev
 
 // chain as of e5877709
 function chain(prev, size, mini) {
-  if (prev && (prev=='sm'||prev=='md'||prev=='lg'||prev=='xl') && (size=='sm'||size=='xs')) return true;
-  if (prev && (prev=='lg'||prev=='xl') && size=='md') return true;
-  if (prev && (prev=='md'||prev=='sm'||prev=='xs') && (size=='lg'||size=='xl')) return false;
-  if (!prev && (size=='sm'||size=='xs')) return true;
-  return mini;                                 // fall-through: state carries over
+  if (prev && (prev=='sm'||prev=='md'||prev=='lg'||prev=='xl') && (size=='sm'||size=='xs')) return [true, size];
+  if (prev && (prev=='lg'||prev=='xl') && size=='md') return [true, size];
+  if (prev && (prev=='md'||prev=='sm'||prev=='xs') && (size=='lg'||size=='xl')) return [false, size];
+  if (!prev && (size=='sm'||size=='xs')) return [true, size];
+  return [mini, size];                         // fall-through: state carries over
 }
 
-const tierOf = (s) => (s === 'xs' || s === 'sm') ? 'compact' : s === 'md' ? 'medium' : 'wide';
+// first cut of the tier rule (shipped in cc262dc1): unresolved fell through to 'wide'
+// and prevSizeRef was overwritten unconditionally
+const tierV1 = (s) => (s === 'xs' || s === 'sm') ? 'compact' : s === 'md' ? 'medium' : 'wide';
+function tieredV1(prev, size, mini) {
+  const t = tierV1(size);
+  if (t === 'compact') return [true, size];
+  if (prev && tierV1(prev) !== t) return [t === 'medium', size];
+  return [mini, size];
+}
+
+// explicit unresolved tier - NOT a fallthrough into 'wide'
+const tierOf = (s) =>
+  (s === 'xs' || s === 'sm') ? 'compact'
+  : s === 'md' ? 'medium'
+  : (s === 'lg' || s === 'xl') ? 'wide'
+  : 'unresolved';
+
 function tiered(prev, size, mini) {
-  if (tierOf(size) === 'compact') return true;
-  if (prev && tierOf(prev) !== tierOf(size)) return tierOf(size) === 'medium';
-  return mini;
+  const t = tierOf(size);
+  if (t === 'unresolved') return [mini, prev];  // no state change, prevSizeRef preserved
+  const pt = tierOf(prev);
+  if (t === 'compact') return [true, size];
+  if (pt !== 'unresolved' && pt !== t) return [t === 'medium', size];
+  return [mini, size];
 }
 
 // settled outcome, i.e. after the effect committed prevSizeRef = size so the render guard released
@@ -113,26 +166,57 @@ const bad = (size, mini) =>
   : size === 'sm' && !mini ? 'expanded at sm, no toggle rendered -> unrecoverable'
   : null;
 
-for (const [name, fn] of [['chain', chain], ['tiered', tiered]]) {
-  const found = new Set();
-  for (const prev of [...SIZES, ...UNSET]) for (const size of SIZES) {
+for (const [name, fn] of [['chain    ', chain], ['tieredV1 ', tieredV1], ['tiered   ', tiered]]) {
+  const cells = new Set(), mutated = [], diverged = [];
+
+  // A. single-step bad end states, unresolved included on BOTH sides
+  for (const prev of ALL) for (const size of ALL) {
     if (prev === size) continue;               // deps are [size]: only fires on change
     for (const mini of [true, false]) {
-      const v = bad(size, fn(prev, size, mini));
-      if (v) found.add(`${String(prev) || 'unset'}(mini=${mini}) -> ${size}: ${v}`);
+      const v = bad(size, fn(prev, size, mini)[0]);
+      if (v) cells.add(`${String(prev) || 'unset'}(mini=${mini}) -> ${String(size) || "''"}: ${v}`);
     }
   }
-  console.log(`${name}: ${found.size} bad cells`, [...found]);
+  // B. an unresolved size must never mutate miniDrawer
+  for (const prev of ALL) for (const u of UNSET) for (const mini of [true, false]) {
+    const [m] = fn(prev, u, mini);
+    if (m !== mini) mutated.push(`${String(prev) || 'unset'} -> ${JSON.stringify(u)}: ${mini} => ${m}`);
+  }
+  // C. an unresolved hop must not change the outcome of the surrounding transition
+  for (const prev of SIZES) for (const next of SIZES) {
+    if (prev === next) continue;
+    for (const mini of [true, false]) for (const u of UNSET) {
+      const [direct] = fn(prev, next, mini);
+      const [viaM, viaP] = fn(prev, u, mini);
+      const [hop] = fn(viaP, next, viaM);
+      if (direct !== hop) diverged.push(`${prev}(mini=${mini}) -> ${JSON.stringify(u)} -> ${next}: direct=${direct} hop=${hop}`);
+    }
+  }
+  console.log(`${name}: ${cells.size} bad cells, ${mutated.length} unresolved mutations, ${diverged.length} unresolved-hop divergences`);
+  [...cells].forEach(c => console.log('   cell      ' + c));
+  [...new Set(mutated)].forEach(m => console.log('   mutation  ' + m));
+  [...new Set(diverged)].forEach(d => console.log('   divergence ' + d));
 }
 ```
 
 Result:
 
-- `chain` — **1 bad cell**: `xs(mini=false) → sm` (`sm → xs` was already closed by `e5877709`;
-  before that commit the same harness reported 2)
-- `tiered` — **0 bad cells**
+| variant | bad cells | unresolved mutations | unresolved-hop divergences |
+|---|---|---|---|
+| `chain` (as of `e5877709`) | **1** — `xs(mini=false) → sm` | 0 | 18 |
+| `tieredV1` (as of `cc262dc1`) | 0 | **6** | **12** |
+| `tiered` (current) | 0 | 0 | 0 |
 
-Diffing `tiered` against the original pre-PR chain over the same space yields exactly 4
+`chain`'s single bad cell is the one the pair table never enumerated; `sm → xs` was already
+closed by `e5877709`, and before that commit the same harness reported 2. Its 18 divergences come
+from clobbering `prevSizeRef` with `''` — it never *mutated* `miniDrawer` on an unresolved size
+because none of its branches match a `size` outside the five names.
+
+`tieredV1` closed every bad cell but classified unresolved as `wide`, which is where the 6
+mutations come from; it inherited the `prevSizeRef` clobbering, hence the 12 remaining
+divergences. Only the explicit `unresolved` tier reaches 0/0/0.
+
+Diffing `tiered` against the original pre-PR chain over the resolved sizes yields exactly 4
 deviations, all at `mini=false`: `xs→sm`, `xs→md`, `sm→xs`, `sm→md` — precisely the cells the
 chain never enumerated. No cell the chain deliberately handled changes behaviour, so `lg ↔ xl`
 still preserves a manual collapse and initial mount at `md`/`lg`/`xl` still honours the
@@ -140,8 +224,9 @@ configured default.
 
 Also verified end to end: `mvn install -pl judo-ui-react`, then regenerating
 `judo-ui-react-itest/RelationTest/relation_test__actor` — Biome formatting, the snapshot
-diff-checker, and the Vite build all pass, and the generated
-`target/frontend-react/src/layout/Drawer/index.tsx` carries the tier rule.
+diff-checker, and the Vite build all pass, Biome reformats nothing (the generated
+`target/frontend-react/src/layout/Drawer/index.tsx` matches the template verbatim), and the
+generated file carries the tier rule including the `unresolved` arm.
 
 ## Alternatives considered
 

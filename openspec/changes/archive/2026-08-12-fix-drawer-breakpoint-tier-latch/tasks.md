@@ -21,6 +21,13 @@
 - [x] 4.2 `mvn -o clean install -pl judo-ui-react-itest/RelationTest/relation_test__actor -DskipPrepareNodeJS` succeeds — Biome formatting, snapshot diff-checker, and Vite build all clean
 - [x] 4.3 Inspect the generated `target/frontend-react/src/layout/Drawer/index.tsx` and confirm it carries `drawerTier` + the tier effect, and still `open={temporaryDrawerOpen}`
 
-## 5. Downstream
+## 5. Downstream (out of repo — tracked here, not completable here)
 
-- [ ] 5.1 Extend the consuming app's Playwright resize regression (park-here `tier-mobile-resize.spec.ts`) with the newly closed path: load at `xs` → open the overlay drawer → widen to `sm` → assert the drawer is collapsed to the mini rail and page content is clickable
+This generator repo has no runtime test harness: no browser, no React test renderer, and
+`src/layout/Drawer/index.tsx` is in no itest snapshot set. Runtime coverage therefore lives in the
+consuming app, exactly as task 4.3 of `2026-08-02-fix-mobile-drawer-overlay-freeze` does. The
+in-repo guarantees for this change are the exhaustive transition harness in `design.md` (0 bad
+cells, 0 unresolved mutations, 0 unresolved-hop divergences) plus the generate + Biome + snapshot
++ Vite build; neither exercises a real viewport.
+
+- [ ] 5.1 Extend the consuming app's Playwright resize regression (park-here `tier-mobile-resize.spec.ts`) with the newly closed path: load at `xs` → open the overlay drawer → widen to `sm` → assert the drawer is collapsed to the mini rail and page content is clickable. Deliberately left unchecked: it is a commit in another repository and cannot be verified from here.
