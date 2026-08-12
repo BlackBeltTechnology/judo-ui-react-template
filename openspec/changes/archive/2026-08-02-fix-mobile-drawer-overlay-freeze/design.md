@@ -8,7 +8,7 @@ same width restores it.
 
 `document.elementFromPoint()` over any nav button returns, after the resize:
 
-```
+```text
 div.MuiDrawer-root.MuiDrawer-modal.MuiModal-root
   position: fixed   inset: 0   z-index: 1200
   visibility: VISIBLE   pointer-events: AUTO      ← captures every click
@@ -74,7 +74,7 @@ stable across concurrent re-renders (the `usePrevious` pattern).
 In `utilities/layout-helper`, `downSM` and `isXs` are the **same media query**
 (`breakpoints.down('sm')`, i.e. < 600px):
 
-```
+```ts
 downSM = useMediaQuery(breakpoints.down('sm'))
 isXs   = useMediaQuery(breakpoints.down('sm'))
 ```
@@ -86,6 +86,27 @@ mobile hamburger toggle is unaffected. Note `'sm'` (600–899px) renders the **p
 drawer, so it is a desktop-side size here; a `sm → xs` crossing is therefore also guarded,
 which additionally avoids popping a modal drawer + backdrop over the page unbidden.
 
+### `sm` belongs on the desktop side of the resize effect too
+
+Because the guard is self-clearing, it only suppresses the *crossing* render — it does not
+change `miniDrawer`. So every size that can enter `xs` with `miniDrawer === false` must have a
+resize-effect branch that resets it, otherwise the drawer pops open one render after the guard
+releases. The `xs(open) → sm → xs` path did exactly that: `xs → sm` matches no branch, so
+`miniDrawer` stays `false`, and `sm → xs` then had no branch either. `'sm'` is therefore listed
+alongside `md`/`lg`/`xl` as a previous size in the "entering small" branch:
+
+```ts
+if (prevSizeRef.current &&
+    (prevSizeRef.current == 'sm' || prevSizeRef.current == 'md' ||
+     prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') &&
+    (size == 'sm' || size == 'xs')) {
+  onChangeMiniDrawer(true);
+}
+```
+
+The effect only runs on a size *change*, so adding `'sm'` introduces exactly one new
+transition: `sm → xs`.
+
 ### Transition coverage
 
 | Situation | `prevSizeRef` at render | `enteringMobile` | `open` |
@@ -93,6 +114,7 @@ which additionally avoids popping a modal drawer + backdrop over the page unbidd
 | desktop→mobile crossing render | `sm`/`md`/`lg`/`xl` | true | forced closed |
 | initial mobile mount | `undefined` | true | forced closed |
 | settled mobile (post-effect) | `xs` | false | `!miniDrawer` (hamburger works) |
+| `xs(open) → sm → xs`, post-effect | `xs` | false | closed — effect reset `miniDrawer` on `sm → xs` |
 | desktop (permanent branch) | — | — | unaffected |
 
 ## Testing
