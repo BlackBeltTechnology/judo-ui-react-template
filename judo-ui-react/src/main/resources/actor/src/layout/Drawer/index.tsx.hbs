@@ -63,7 +63,10 @@ export const Drawer = ({ window }: DrawerProps) => {
     // console.log('Change: ' + prevSizeRef.current + ' => ' + size);
     if (
       prevSizeRef.current &&
-      (prevSizeRef.current == 'md' || prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') &&
+      (prevSizeRef.current == 'sm' ||
+        prevSizeRef.current == 'md' ||
+        prevSizeRef.current == 'lg' ||
+        prevSizeRef.current == 'xl') &&
       (size == 'sm' || size == 'xs')
     ) {
       onChangeMiniDrawer(true);
@@ -80,6 +83,9 @@ export const Drawer = ({ window }: DrawerProps) => {
     }
     prevSizeRef.current = size;
   }, [size]);
+
+  const enteringMobile = downSM && prevSizeRef.current !== 'xs';
+  const temporaryDrawerOpen = !miniDrawer && !enteringMobile;
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
@@ -121,7 +127,7 @@ export const Drawer = ({ window }: DrawerProps) => {
         <MuiDrawer
           container={container}
           variant="temporary"
-          open={!miniDrawer}
+          open={temporaryDrawerOpen}
           onClose={() => onChangeMiniDrawer(!miniDrawer)}
           ModalProps={ { keepMounted: true } }
           sx={ {
