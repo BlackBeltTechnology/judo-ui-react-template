@@ -35,6 +35,25 @@ const BottomSection = styled('div')({
   right: 0,
 });
 
+// Breakpoint tiers for the drawer's collapsed/expanded state. Within a tier the user's toggle
+// choice is preserved; crossing a tier boundary re-applies the entered tier's default.
+// - compact (xs, sm): no ToggleButton is rendered, so the drawer must always be collapsed.
+//   At xs, "collapsed" means the temporary overlay drawer is closed.
+// - medium (md): collapsed by default.
+// - wide (lg, xl): expanded by default.
+// - unresolved: the media queries have not resolved yet, so `size` is still ''. This is
+//   deliberately its own tier rather than falling through to `wide`, otherwise an
+//   unresolved value would apply the wide default and overwrite the last resolved
+//   breakpoint.
+type DrawerTier = 'unresolved' | 'compact' | 'medium' | 'wide';
+
+const drawerTier = (size?: string): DrawerTier => {
+  if (size === 'xs' || size === 'sm') return 'compact';
+  if (size === 'md') return 'medium';
+  if (size === 'lg' || size === 'xl') return 'wide';
+  return 'unresolved';
+};
+
 const ToggleButton = styled(IconButton)(({ theme }) => ({
   zIndex: 1300,
   color: theme.palette.secondary.main,
@@ -60,26 +79,25 @@ export const Drawer = ({ window }: DrawerProps) => {
   const prevSizeRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    // console.log('Change: ' + prevSizeRef.current + ' => ' + size);
-    if (
-      prevSizeRef.current &&
-      (prevSizeRef.current == 'md' || prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') &&
-      (size == 'sm' || size == 'xs')
-    ) {
-      onChangeMiniDrawer(true);
-    } else if (prevSizeRef.current && (prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') && size == 'md') {
-      onChangeMiniDrawer(true);
-    } else if (
-      prevSizeRef.current &&
-      (prevSizeRef.current == 'md' || prevSizeRef.current == 'sm' || prevSizeRef.current == 'xs') &&
-      (size == 'lg' || size == 'xl')
-    ) {
-      onChangeMiniDrawer(false);
-    } else if (!prevSizeRef.current && (size == 'sm' || size == 'xs')) {
-      onChangeMiniDrawer(true);
+    const tier = drawerTier(size);
+    if (tier === 'unresolved') {
+      // Change nothing and keep the last resolved breakpoint, so the next resolved size
+      // still sees its own tier transition.
+      return;
     }
+    const prevTier = drawerTier(prevSizeRef.current);
     prevSizeRef.current = size;
+    if (tier === 'compact') {
+      onChangeMiniDrawer(true);
+    } else if (prevTier !== 'unresolved' && prevTier !== tier) {
+      // prevTier is unresolved on the first resolved commit, where the application's
+      // configured miniDrawer default is honoured instead.
+      onChangeMiniDrawer(tier === 'medium');
+    }
   }, [size]);
+
+  const enteringMobile = downSM && prevSizeRef.current !== 'xs';
+  const temporaryDrawerOpen = !miniDrawer && !enteringMobile;
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
@@ -121,7 +139,7 @@ export const Drawer = ({ window }: DrawerProps) => {
         <MuiDrawer
           container={container}
           variant="temporary"
-          open={!miniDrawer}
+          open={temporaryDrawerOpen}
           onClose={() => onChangeMiniDrawer(!miniDrawer)}
           ModalProps={ { keepMounted: true } }
           sx={ {
