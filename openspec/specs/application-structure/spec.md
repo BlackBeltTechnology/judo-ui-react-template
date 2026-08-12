@@ -49,6 +49,10 @@ Each navigation item SHALL display its `label` and `icon`.
 
 The vertical sidebar drawer SHALL render as a **permanent** drawer on desktop breakpoints and as a **temporary** (overlay) drawer on mobile breakpoints. Switching between these breakpoints SHALL NOT leave a click-blocking overlay over the page content: after a desktop→mobile transition the temporary drawer SHALL start closed and SHALL NOT capture pointer events over page content.
 
+The drawer's collapsed/expanded state SHALL be a function of the **breakpoint tier**, not of the individual breakpoint transition. Breakpoints SHALL form three tiers: `xs`/`sm` (**compact**), `md` (**medium**), and `lg`/`xl` (**wide**). In the compact tier the drawer SHALL always be collapsed — no collapse toggle is rendered there, so an expanded drawer would be unrecoverable; at `xs` "collapsed" means the temporary overlay drawer is closed. The medium tier SHALL default to collapsed and the wide tier to expanded.
+
+Within a tier the user's toggle choice SHALL be preserved. Crossing a tier boundary SHALL re-apply the entered tier's default. Before the first resolved breakpoint the application's configured `miniDrawer` default SHALL be honoured for the medium and wide tiers.
+
 #### Scenario: Vertical sidebar navigation
 
 - **WHEN** `Application.defaultMenuLayout = VERTICAL`
@@ -79,6 +83,26 @@ The vertical sidebar drawer SHALL render as a **permanent** drawer on desktop br
 - **THEN** the generated temporary drawer starts closed for that transition
 - **AND** its underlying MUI Modal root is not left visible with `pointer-events: auto` over the page
 - **AND** page buttons, links, and navigation items remain clickable without a reload
+
+#### Scenario: Drawer state after crossing a breakpoint tier
+
+- **WHEN** the user opens the temporary overlay drawer at `xs`
+- **AND** the viewport then widens into `sm`
+- **THEN** the generated drawer is collapsed to the mini rail at `sm`
+- **AND** it is not left expanded at a width where no collapse toggle is rendered
+- **AND** narrowing back to `xs` does not reopen the overlay drawer without a user action
+
+#### Scenario: Drawer state preserved within a breakpoint tier
+
+- **WHEN** the user collapses the drawer at `lg`
+- **AND** the viewport widens into `xl`
+- **THEN** the drawer stays collapsed because no tier boundary was crossed
+
+#### Scenario: Configured drawer default on first render
+
+- **WHEN** the application is loaded at `md`, `lg`, or `xl`
+- **THEN** the generated drawer honours the consuming application's configured `miniDrawer` default
+- **AND** the resize effect does not override it until a tier boundary is crossed
 
 **Key Helpers**: `UIMenuHelper.applicationHasMenuOperations()`, `UIMenuHelper.getMenuOperationOwnerTypes()`, `UiGeneralHelper.isNavItemAGroup()`
 
