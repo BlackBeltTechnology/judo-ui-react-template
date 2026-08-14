@@ -1,11 +1,11 @@
 ## Definition of Done
 
 - `./mvnw clean install` exits green; the React-template's itests regenerate fixture frontends and run them under Vitest/Playwright without new failures.
-- Regenerated `SingleRelationInput.tsx`, `Tags.tsx`, and `TextWithTypeAhead.tsx` under at least one itest contain the new header JSX gated on `options.length >= limit`, rendered **above** the listbox via a custom `slots.paper` Paper component (per `design.md` §D1).
+- Regenerated `SingleRelationInput.tsx`, `Tags.tsx`, and `TextWithTypeAhead.tsx` under at least one itest contain the new footer JSX gated on `options.length >= limit`, rendered **below** the listbox via a custom `slots.paper` Paper component (per `design.md` §D1).
 - Regenerated `link/index.tsx` for a representative link container passes `autoCompleteLimit={ … }` to `<SingleRelationInput>`.
 - Regenerated `widget-fragments/textinput.hbs` consumer (any container using a TypeAhead text field) passes `autoCompleteLimit={ … }` to `<TextWithTypeAhead>`.
 - Regenerated `system_en-US.json` contains the new key `"judo.autocomplete.showing-first-results": "Showing the first {{limit}} results — narrow your search"`.
-- Manual reproduction in `RelationTest/Actor` (documented in §0 below) shows the header appearing **above** the truncated `SingleAggregationAssociation` dropdown both on initial open (full first page) and after typing `c` (12 matches → 10 returned), and disappearing once the search is narrowed enough to return fewer than 10 matches.
+- Manual reproduction in `RelationTest/Actor` (documented in §0 below) shows the footer appearing **below** the truncated `SingleAggregationAssociation` dropdown both on initial open (full first page) and after typing `c` (12 matches → 10 returned), and disappearing once the search is narrowed enough to return fewer than 10 matches.
 - All snapshot drifts caught by `judo-diff-checker-maven-plugin` are resolved by copying regenerated files into `src/test/resources/snapshots/frontend-react/` (AGENTS.md "Important Notes" §5; explicit `bash` one-liner in §7.2 below).
 - Commit message: `JNG-6409 surface truncation hint in autocomplete dropdowns`.
 
@@ -18,12 +18,12 @@
 ## 0. Manual baseline reproduction (already done; just confirm before merge)
 
 - [x] 0.1 In `RelationTest/Actor`, ensure `TransferObjectC` table has at least 11 rows whose `field` contains `c`. (Already populated 2026-06-30: `Giga C`, `C-extra-01..11`.)
-- [x] 0.2 Navigate to `TransferObjectA → First A → Single` tab. Click into the `SingleAggregationAssociation` combobox, clear it. Confirm the initial dropdown shows 10 options with no header (baseline before fix). Type `c`; confirm still 10 options with no header.
-- [x] 0.3 After the implementation tasks (§1–§5) are complete, redo step 0.2 and confirm the header **does** appear with the text "Showing the first {{limit}} results — narrow your search" **above** the listbox both before typing and after typing `c`. Narrow the search to `extra-11` and confirm the header **disappears** (only 1 match, below the limit).
+- [x] 0.2 Navigate to `TransferObjectA → First A → Single` tab. Click into the `SingleAggregationAssociation` combobox, clear it. Confirm the initial dropdown shows 10 options with no footer (baseline before fix). Type `c`; confirm still 10 options with no footer.
+- [x] 0.3 After the implementation tasks (§1–§5) are complete, redo step 0.2 and confirm the footer **does** appear with the text "Showing the first 10 results — narrow your search" **below** the listbox both before typing and after typing `c`. Narrow the search to `extra-11` and confirm the footer **disappears** (only 1 match, below the limit).
 
-## 1. New shared header component + slot hook
+## 1. New shared footer component + slot hook
 
-- [x] 1.1 Create `judo-ui-react/src/main/resources/actor/src/components/widgets/AutocompleteMoreResultsHint.tsx.hbs`. Export a functional component `AutocompleteMoreResultsHint` with no props that reads `t('judo.autocomplete.showing-first-results', { defaultValue: 'Type for more results…' })` via `useTranslation()`. Wrap in a styled `<Box>` (or MUI `<Typography>`) with list-subheader-like padding so it visually sits above the option list. Set `pointerEvents: 'none'`, `aria-hidden="true"`, `role="presentation"`, and **`fontStyle: 'italic'`** so the text reads as a tip rather than a selectable option. Add an optional bottom divider (`borderBottom: 1, borderColor: 'divider'`) so it visually separates from the first option.
+- [x] 1.1 Create `judo-ui-react/src/main/resources/actor/src/components/widgets/AutocompleteMoreResultsHint.tsx.hbs`. Export a functional component `AutocompleteMoreResultsHint` taking a `limit: number` prop that reads `t('judo.autocomplete.showing-first-results', { limit, defaultValue: 'Showing the first {{limit}} results — narrow your search' })` via `useTranslation()`. Wrap in a `<Box>` styled as an enclosed status footer sitting below the option list: `pointerEvents: 'none'`, `role="status"` (NOT `aria-hidden` — truncation is status the user needs), `borderTop: 1, borderColor: 'divider'`, `bgcolor: 'action.hover'`, `minHeight: 32`, and `caption` / `text.secondary` typography. No italic: the enclosing region carries the "not an option" signal.
 - [x] 1.1a **(added 2026-07-08 in response to review)** Also export from the same file a hook `useAutocompleteMoreResultsHintPaper(limit: number | undefined, optionsLength: number): ComponentType<PaperProps>` that (i) computes `show = typeof limit === 'number' && limit > 0 && optionsLength >= limit`, (ii) mirrors the latest value through a `useRef` (so the returned slot component identity stays stable across threshold crossings and MUI does not remount the paper/listbox), and (iii) returns a `useCallback`-memoized Paper wrapper that prepends `<AutocompleteMoreResultsHint />` above `paperProps.children` when the ref is true. This hook is the **single source of truth** for the hint machinery — all three widget templates call it verbatim (see §4a/§4b/§4c). Do **not** add JSDoc/prose comments inside the `.hbs` — comments there leak into every generated `.tsx` (the standard G-E-N-E-R-A-T-E-D banner is enough).
 - [x] 1.2 Re-export the component from `judo-ui-react/src/main/resources/actor/src/components/widgets/index.tsx.hbs` (add a `export * from './AutocompleteMoreResultsHint';` line next to the existing exports).
 
@@ -187,7 +187,7 @@ No local `showHint`, no local `PaperWithHint`, no `useCallback` / `useRef` / `Pa
 ## 8. Manual verification on RelationTest
 
 - [x] 8.1 In `judo-ng/runtime/judo-tatami-tests/models/RelationTest`, run `./judo.sh start` against the regenerated bundle. *(Additionally verified 2026-07-08 on `judo-ng/runtime/judo-tatami-tests/models/ActionGroupTest` — the Astronomer single-relation autocomplete on Galaxy view renders the hint identically.)*
-- [x] 8.2 Repeat the §0.3 reproduction. Capture a screenshot of the dropdown with the header visible **above** the option list (italic text reading "Showing the first {{limit}} results — narrow your search") and attach it to the JIRA ticket (JNG-6409).
+- [x] 8.2 Repeat the §0.3 reproduction. Capture a screenshot of the dropdown with the footer visible **below** the option list (reading "Showing the first 10 results — narrow your search") and attach it to the JIRA ticket (JNG-6409).
 
 ## 9. Commit
 

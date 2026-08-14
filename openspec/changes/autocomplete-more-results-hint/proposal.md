@@ -16,11 +16,11 @@ This is a one-line UX defect with concrete user impact: in any deployed app with
 
 ## What Changes
 
-Single Class III (react-template-only) change. The fix is conservative: a non-selectable **header** item is rendered **above** the option list inside the MUI `<Autocomplete>` dropdown **whenever the returned page is full** — i.e. `options.length >= limit`. It does not depend on whether the user has typed anything; on initial open with a full first page the hint already advises the user to type to narrow the result set. The hint disappears once the user has narrowed the search enough that the server returned fewer than `limit` rows.
+Single Class III (react-template-only) change. The fix is conservative: a non-selectable **status footer** is rendered **below** the option list inside the MUI `<Autocomplete>` dropdown **whenever the returned page is full** — i.e. `options.length >= limit`. It does not depend on whether the user has typed anything; on initial open with a full first page the hint already advises the user to type to narrow the result set. The hint disappears once the user has narrowed the search enough that the server returned fewer than `limit` rows.
 
 The hint text comes from a new system-i18n key (`judo.autocomplete.showing-first-results`), reports the caller-supplied limit via a `{{limit}}` interpolation, and is themable. It renders as an enclosed status footer below the listbox — a top divider plus a tinted background, rather than italics, carry the "this is not an option" signal.
 
-### (a) Shared header component + slot hook
+### (a) Shared footer component + slot hook
 
 - New file `actor/src/components/widgets/AutocompleteMoreResultsHint.tsx.hbs` exports two symbols:
   - `AutocompleteMoreResultsHint` — a small React FC taking a `limit` prop that renders a non-interactive status footer with `pointerEvents: 'none'`, `role="status"`, `borderTop`, `bgcolor: 'action.hover'` and `minHeight: 32`. Receives its label via i18n (`t('judo.autocomplete.showing-first-results', { limit, defaultValue: 'Showing the first {{limit}} results — narrow your search' })`). It is deliberately NOT `aria-hidden`: truncation is real system status a screen-reader user needs (per the W3C `role="status"` search-results working example and GOV.UK accessible-autocomplete).
@@ -55,7 +55,7 @@ For each of the three widget templates, add a new optional prop `autoCompleteLim
 
 ### Modified Capabilities
 
-- **`input-widgets`** — one new MODIFIED requirement: "Autocomplete dropdowns hint when the result list is truncated". Scenarios: header visible whenever returned options reach the limit (regardless of search input); header hidden when fewer options are returned; header rendered in italic and outside the listbox role.
+- **`input-widgets`** — one new MODIFIED requirement: "Autocomplete dropdowns hint when the result list is truncated". Scenarios: footer visible whenever returned options reach the limit (regardless of search input); footer hidden when fewer options are returned; footer reports the limit it was given; footer announced via `role="status"` and rendered outside the listbox role as an enclosed region (not italic).
 - **`relation-management`** — one new MODIFIED requirement: "Link autocomplete dropdown surfaces truncation hint" (touches `SingleRelationInput` + `Tags` wiring through the link/tag container templates).
 
 ## Impact
@@ -70,4 +70,4 @@ For each of the three widget templates, add a new optional prop `autoCompleteLim
 - **`judo-ui-react/src/main/java/hu/blackbelt/judo/ui/generator/react/UiWidgetHelper.java`** — new static helper `calculateTextAutocompleteRows(TextInput)` returning constant `10`. ~6 lines.
 - **`judo-ui-react/src/main/resources/actor/public/i18n/system_en-US.json.hbs`**, **`system_hu-HU.json.hbs`**, **`system_default.json.hbs`** — one new key each. 3 lines.
 - **Integration tests** (`judo-ui-react-itest/**`): regeneration will introduce the new prop and the new i18n key into every regenerated frontend. The six committed snapshot files under `src/test/resources/snapshots/frontend-react/` that reference an autocomplete widget need a one-time mechanical refresh (an explicit `bash` one-liner is provided in `tasks.md` §7.2). The diff-checker plugin (`judo-diff-checker-maven-plugin`) will list every drift on the first CI run.
-- **Downstream consumers**: zero contract change. The new prop is optional; the header is purely additive in the rendered DOM. Existing Playwright selectors targeting `option` elements continue to work — the header is rendered with `role="presentation"` (no `role="option"`).
+- **Downstream consumers**: zero contract change. The new prop is optional; the footer is purely additive in the rendered DOM. Existing Playwright selectors targeting `option` elements continue to work — the footer is rendered with `role="status"` (no `role="option"`).
