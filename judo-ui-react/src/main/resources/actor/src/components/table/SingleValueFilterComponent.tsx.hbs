@@ -7,6 +7,7 @@ import Grid from '@mui/material/Grid';
 import TextField from '@mui/material/TextField';
 import { DatePicker, DateTimePicker } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 import { FC, useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Filter, FilterEnumValue, FilterType, Operation } from '~/components-api';
 import { buildFilter } from '~/utilities';
 import { MdiIcon } from '~/components/MdiIcon';
@@ -35,6 +36,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
   icon,
   enumValues,
 }) => {
+  const { t } = useTranslation();
   const fallbackFilter: Filter = buildFilter(filterType, operator, attributeName as string, null, label, icon);
 
   const [filter, setFilter] = useState<Filter>(
@@ -163,6 +165,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.enumeration:
             return (
               <Autocomplete
+                noOptionsText={t('judo.autocomplete.no-results', { defaultValue: 'No matching results' })}
                 value={inputValue ?? null}
                 onChange={(_: any, newValue: { label: string; value: string | null; key: string } | null) => setInputValue(newValue?.value)}
                 renderInput={ (params) => {
