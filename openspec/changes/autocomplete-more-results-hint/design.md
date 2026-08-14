@@ -84,6 +84,29 @@ The derived-fill column was verified by executing the installed `@mui/system@7.3
 
 **Known dark-mode caveat (pre-existing, out of scope).** The generated dark palette is marked `// WIP` and sets `text.secondary: #646464` against `background.paper: #2a2a2a`. That is 1.72:1 against the derived fill `#444444` — a WCAG-AA failure, and it fails on every candidate fill (1.70–2.72:1). This affects all secondary text in the app, not just this footer, so the fix belongs in `palette.ts.hbs`, not here. Light mode, which is what ships today, is 7.37:1 — comfortably AA.
 
+### D8. Both hints are gated on `loading`, and the fill inherits the Paper's corner radius
+
+Two defects reported on 2026-08-14 after the footer restyle:
+
+**(a) The footer looked "not part of the application."** The generated theme applies `borderRadius: density.borderRadius` (currently **20**) to `MuiPaper.rounded`, and the Autocomplete dropdown Paper is such a Paper. It does not set `overflow: hidden`. A square-cornered filled `Box` as the Paper's last child therefore extends past the 20px curve at the bottom corners, so the band visibly fights the container's shape. Fixed with `borderBottomLeftRadius: 'inherit'` + `borderBottomRightRadius: 'inherit'`, which tracks whatever radius the Paper actually has — including a modeler-changed `density.borderRadius` — rather than restating `20`.
+
+**(b) The footer flashed during a query.** The original gating was asymmetric:
+
+```tsx
+const showMoreHint  = typeof limit === 'number' && limit > 0 && optionsLength >= limit;  // ungated
+const showNoResults = !loading && optionsLength === 0;                                   // gated
+```
+
+Traced against `handleSearch` with `debounceInputs = 200`: the user edits the search text, `options` still hold the previous full page and `loading` is still `false` for the 200 ms debounce; then `setLoading(true)` runs and the network request begins — and because `showMoreHint` ignored `loading`, the footer kept asserting "showing the first N" across the whole request, over a result set that was being replaced. If the new query returned fewer than `limit`, that claim was simply false for 200 ms + latency.
+
+Fixed by making the gate symmetric: `showMoreHint = !loading && …`. The footer now describes only a **completed** result set (Nielsen H1 — report actual status, never a stale one).
+
+**Residual limitation**: the 200 ms debounce window is still uncovered, because `loading` is false during it and no widget tracks an "input pending" state. MUI is also still painting the stale option list at that moment, so the list and the footer at least agree with each other. Closing it properly needs a new flag threaded through all three widgets; deliberately not done.
+
+**Not a defect**: `onOpen` calls `setOptions([])` and then `handleSearch('')`, whose first statement is `setLoading(true)`. Both run in one synchronous block, so React 18 auto-batching commits `options: []` and `loading: true` in a single render — the empty-state hint does not flash on open.
+
+**Why (a) escaped pre-implementation review** — worth knowing before mocking this component up again. The HTML mockup used to compare the five footer candidates diverged from the real theme in two ways that each independently masked the corner defect: it set a `4px` paper radius instead of the theme's `density.borderRadius` of `20`, and it put `overflow: hidden` on the paper, which MUI's Paper does not. Clipping plus a near-negligible radius made square corners invisible. Any future mockup of a dropdown surface must copy the real radius and must **not** add `overflow: hidden`.
+
 ### D2. Truncation heuristic: `options.length >= limit`
 
 Chosen during planning (reporter clarification 2026-06-30, after an initial proposal that gated on a non-empty input string): show the footer whenever the returned page is full. Rationale:
