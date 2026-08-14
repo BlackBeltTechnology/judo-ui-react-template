@@ -10,7 +10,11 @@ The footer SHALL NOT participate in keyboard navigation and SHALL carry `pointer
 
 The footer SHALL be visually distinguished from the option rows as an enclosed metadata region rather than a list item: a top divider (`borderTop: 1, borderColor: 'divider'`), a filled background, a reduced row height (`minHeight: 32`), and `caption` typography in `text.secondary`. It SHALL NOT use italic typography — the enclosing region, not the font style, carries the "this is not an option" signal.
 
-The footer background SHALL be taken from the neutral grey ramp — `grey.300` in light mode, `grey.800` in dark mode — and SHALL NOT be any `action.*` token. The `action.*` tokens are interaction-state colours: `action.hover` resolves to the exact same fill an option receives while hovered, which makes a static footer indistinguishable from a hovered row, and its separation from `background.paper` (1.09:1 light) is too faint to read as a region at all.
+The footer background SHALL be **derived from the active `background.paper` value** — `emphasize(theme.palette.background.paper, 0.12)` — so that it adapts to whatever paper colour the model supplies via `application.theme.paperBackgroundColor`.
+
+The footer background SHALL NOT be any `action.*` token: those are interaction-state colours, and `action.hover` in particular resolves to the exact fill an option receives while hovered, making a static footer indistinguishable from a hovered row (and, at 1.09:1 against the default paper, too faint to read as a region at all).
+
+The footer background SHALL NOT be a fixed step of the neutral ramp (e.g. `grey.300`) selected on `theme.palette.mode`. `grey` is absent from the generated palette, so such a value is a constant rather than a themeable token; and `mode` is hard-coded per palette while `paperBackgroundColor` is modeler-supplied, so the two can disagree — a dark configured paper under `mode: 'light'` would render a glaring near-white band.
 
 The footer SHALL state the system's actual knowledge — how many results are shown — rather than issue an instruction alone. It SHALL source its label from the i18n key `judo.autocomplete.showing-first-results`, interpolating the caller-supplied limit as `{{limit}}`, with English default `"Showing the first {{limit}} results — narrow your search"`.
 
@@ -66,7 +70,14 @@ The caller container template SHALL pass the limit to the widget via an `autoCom
 - **GIVEN** the dropdown is open with the footer visible
 - **AND** the pointer is hovering one of the option rows
 - **WHEN** the footer's computed background is compared with the hovered option's computed background
-- **THEN** the two differ — the footer uses the neutral grey ramp while the hovered option uses `action.hover`
+- **THEN** the two differ — the footer's fill is derived from `background.paper` while the hovered option uses `action.hover`
+
+#### Scenario: Footer fill follows a modeler-configured paper colour
+
+- **GIVEN** an application whose model sets `application.theme.paperBackgroundColor` to a light grey such as `#e8e8e8`
+- **WHEN** the dropdown is open with the footer visible
+- **THEN** the footer fill is recomputed from that paper colour (yielding roughly `#cccccc`) and remains visibly distinct from it
+- **AND** the footer does NOT fall back to a fixed neutral value that would blend into the configured paper
 
 **Key Helpers**: `UiWidgetHelper.calculateLinkAutocompleteRows()`, `UiWidgetHelper.calculateTextAutocompleteRows()` (new in this change)
 

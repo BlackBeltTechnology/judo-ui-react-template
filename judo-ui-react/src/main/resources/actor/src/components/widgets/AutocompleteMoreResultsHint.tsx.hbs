@@ -1,6 +1,7 @@
 {{> fragment.header.hbs }}
 
 import Box from '@mui/material/Box';
+import { emphasize } from '@mui/material/styles';
 import Typography from '@mui/material/Typography';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -24,7 +25,7 @@ export const AutocompleteMoreResultsHint: FC<AutocompleteMoreResultsHintProps> =
         pointerEvents: 'none',
         borderTop: 1,
         borderColor: 'divider',
-        bgcolor: theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[800],
+        bgcolor: emphasize(theme.palette.background.paper, 0.12),
       }) }
     >
       <Typography variant="caption" color="text.secondary">

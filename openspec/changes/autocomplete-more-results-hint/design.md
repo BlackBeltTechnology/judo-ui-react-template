@@ -36,7 +36,7 @@ References (verified via `code_search` 2026-06-30):
 - Overriding component structure: https://mui.com/material-ui/customization/overriding-component-structure/
 - Issue #43609 (custom-props limitation on `slotProps.paper`): https://github.com/mui/material-ui/issues/43609
 
-### D7. Footer fill comes from the grey ramp, never from an `action.*` token
+### D7. Footer fill is derived from `background.paper`, never from an `action.*` token or a fixed ramp step
 
 The first implementation used `bgcolor: 'action.hover'`. Reported broken on 2026-08-14 ("the user barely sees the tip") and confirmed by measuring the generated theme's own palette (`background.paper: #ffffff`, `background.default: #fafafa`, `text.secondary: #434448`):
 
@@ -45,7 +45,8 @@ The first implementation used `bgcolor: 'action.hover'`. Reported broken on 2026
 | `background.default` | `#fafafa` | 1.044:1 | no, but even fainter |
 | `action.hover` (first impl) | `#f5f5f5` | **1.090:1** | **yes — byte-identical** |
 | `action.selected` | `#ebebeb` | 1.192:1 | still an interaction state |
-| **`grey.300` (chosen)** | `#e0e0e0` | **1.320:1** | no |
+| `grey.300` (fixed ramp, also rejected — see below) | `#e0e0e0` | 1.320:1 | no |
+| **`emphasize(background.paper, 0.12)` (chosen)** | `#e0e0e0` on the default paper | **1.320:1** | no |
 
 Two independent defects in the original choice:
 
@@ -54,9 +55,34 @@ Two independent defects in the original choice:
 
 `background.default` is not the fix either: in this theme it is *lighter* than `action.hover` (1.044:1), so the recessed-surface token is useless here.
 
-**Chosen**: the neutral grey ramp via an `sx` theme callback — `grey.300` light (`#e0e0e0`, 1.32:1, ~3.5× the original separation) and `grey.800` dark (`#424242`, 1.43:1, the best of the dark candidates). Both are `theme.palette` tokens, not hex literals, and neither carries interaction-state meaning. `#e0e0e0` also sits in the same grey family as the filled-input background the field itself uses, so the footer reads as intentional app chrome.
+A fixed grey-ramp step (`grey.300` light / `grey.800` dark, selected on `theme.palette.mode`) was implemented first and also rejected, for two reasons discovered on review:
 
-**Known dark-mode caveat (pre-existing, out of scope).** The generated dark palette is marked `// WIP` and sets `text.secondary: #646464` against `background.paper: #2a2a2a`. That is 1.70:1 on `grey.800` — a WCAG-AA failure, and it fails on every candidate fill (1.70–2.72:1). This affects all secondary text in the app, not just this footer, so the fix belongs in `palette.ts.hbs`, not here. Light mode, which is what ships today, is 7.37:1 — comfortably AA.
+1. **`grey` is not part of this app's palette.** `palette.ts.hbs` defines only `primary`, `secondary`, `text.*`, `background.*` and `subtitleColor`, so `theme.palette.grey[…]` falls through to MUI's built-in default. The modeler's theme has no influence on it — it is a constant wearing a token's clothing.
+2. **`mode` is not a reliable proxy for paper luminance.** `paletteThemeLight` hard-codes `mode: 'light'` but accepts an arbitrary modeler-supplied `application.theme.paperBackgroundColor`. Branching on `mode` therefore assumes something the model can contradict.
+
+Measured failure modes of the fixed-ramp approach against a modeler-configured paper:
+
+| Configured `background.paper` | Fixed ramp | Separation | `emphasize(paper, 0.12)` | Separation |
+|---|---|---|---|---|
+| `#ffffff` (default) | `#e0e0e0` | 1.32:1 ✓ | `#e0e0e0` | 1.32:1 ✓ |
+| `#2a2a2a` (default dark) | `#424242` | 1.43:1 ✓ | `#434343` | 1.46:1 ✓ |
+| `#e8e8e8` (light grey) | `#e0e0e0` | **1.08:1 — invisible again** | `#cccccc` | 1.31:1 ✓ |
+| `#f5eedc` (beige) | `#e0e0e0` | **1.14:1 — barely visible** | `#d7d1c1` | 1.31:1 ✓ |
+| `#1e1e1e` (dark paper, `mode` still `'light'`) | `#e0e0e0` | **12.63:1 — glaring white band** | `#393939` | 1.44:1 ✓ |
+
+**Chosen**: derive the fill from the actual configured paper colour with MUI's `emphasize` helper (exported from `@mui/material/styles`, verified in 7.3.6):
+
+```tsx
+bgcolor: emphasize(theme.palette.background.paper, 0.12)
+```
+
+`emphasize` is `getLuminance(color) > 0.5 ? darken(color, k) : lighten(color, k)`, so it picks the correct direction from the colour itself and needs no `mode` branch. On the default light theme it evaluates to exactly `#e0e0e0` — pixel-identical to the reviewed-and-approved fixed-ramp rendering — while holding ~1.31–1.46:1 across every case above.
+
+The derived-fill column was verified by executing the installed `@mui/system@7.3.6` `emphasize` directly, not by reimplementing its maths: `#ffffff → rgb(224,224,224)`, `#2a2a2a → rgb(67,67,67)`, `#e8e8e8 → rgb(204,204,204)`, `#f5eedc → rgb(215,209,193)`, `#1e1e1e → rgb(57,57,57)`.
+
+**Known limitation**: `emphasize` is proportional, not target-seeking, so it cannot *guarantee* a contrast floor on a pathological paper colour (a mid-grey paper yields ~1.3:1, which is fine, but nothing enforces a minimum). A coefficient-stepping helper could guarantee a floor; that is more machinery than this one band warrants, and is not implemented.
+
+**Known dark-mode caveat (pre-existing, out of scope).** The generated dark palette is marked `// WIP` and sets `text.secondary: #646464` against `background.paper: #2a2a2a`. That is 1.72:1 against the derived fill `#444444` — a WCAG-AA failure, and it fails on every candidate fill (1.70–2.72:1). This affects all secondary text in the app, not just this footer, so the fix belongs in `palette.ts.hbs`, not here. Light mode, which is what ships today, is 7.37:1 — comfortably AA.
 
 ### D2. Truncation heuristic: `options.length >= limit`
 
