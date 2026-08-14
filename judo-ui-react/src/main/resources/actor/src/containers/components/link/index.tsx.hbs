@@ -136,6 +136,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
         }
       } }
 {{# if (isAutocompleteAvailable link) }}
+      autoCompleteLimit={ {{ calculateLinkAutocompleteRows link }} }
   {{# with (getFirstAutocompleteColumnForLink link) as |column| }}
     {{# with link.autocompleteRangeActionDefinition as |actionDefinition| }}
       onAutoCompleteSearch={ actions.{{ simpleActionDefinitionName actionDefinition }} ? async (searchText: string) => {
