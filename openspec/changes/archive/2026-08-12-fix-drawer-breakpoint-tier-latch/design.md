@@ -125,7 +125,17 @@ const SIZES = ['xs', 'sm', 'md', 'lg', 'xl'];
 const UNSET = ['', undefined];                 // size before useMediaQuery resolves
 const ALL = [...SIZES, ...UNSET];              // unresolved is a *current* size too, not just a prev
 
-// chain as of e5877709
+// the pre-PR chain, i.e. the baseline this PR changes behaviour against.
+// branch 1 lists only md/lg/xl as `prev`, so sm -> xs falls through and keeps mini as-is.
+function chainPrePR(prev, size, mini) {
+  if (prev && (prev=='md'||prev=='lg'||prev=='xl') && (size=='sm'||size=='xs')) return [true, size];
+  if (prev && (prev=='lg'||prev=='xl') && size=='md') return [true, size];
+  if (prev && (prev=='md'||prev=='sm'||prev=='xs') && (size=='lg'||size=='xl')) return [false, size];
+  if (!prev && (size=='sm'||size=='xs')) return [true, size];
+  return [mini, size];
+}
+
+// chain as of e5877709 — the pre-PR chain plus the sm -> xs reset that commit added
 function chain(prev, size, mini) {
   if (prev && (prev=='sm'||prev=='md'||prev=='lg'||prev=='xl') && (size=='sm'||size=='xs')) return [true, size];
   if (prev && (prev=='lg'||prev=='xl') && size=='md') return [true, size];
@@ -216,9 +226,12 @@ because none of its branches match a `size` outside the five names.
 mutations come from; it inherited the `prevSizeRef` clobbering, hence the 12 remaining
 divergences. Only the explicit `unresolved` tier reaches 0/0/0.
 
-Diffing `tiered` against the original pre-PR chain over the resolved sizes yields exactly 4
-deviations, all at `mini=false`: `xs→sm`, `xs→md`, `sm→xs`, `sm→md` — precisely the cells the
-chain never enumerated. No cell the chain deliberately handled changes behaviour, so `lg ↔ xl`
+Diffing `tiered` against `chainPrePR` — the pre-PR baseline, *not* the `chain` variant above —
+over the resolved sizes yields exactly 4 deviations, all at `mini=false`: `xs→sm`, `xs→md`,
+`sm→xs`, `sm→md` — precisely the cells the chain never enumerated. Against `chain` (as of
+`e5877709`) the same diff yields 3, because `e5877709` had already closed `sm→xs` itself; that
+commit is part of this PR, so the 4-cell count is the one that describes the PR as a whole. No
+cell the chain deliberately handled changes behaviour, so `lg ↔ xl`
 still preserves a manual collapse and initial mount at `md`/`lg`/`xl` still honours the
 configured default.
 

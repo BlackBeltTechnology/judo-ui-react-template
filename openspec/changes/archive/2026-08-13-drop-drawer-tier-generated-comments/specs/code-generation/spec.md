@@ -6,7 +6,7 @@ Templates SHALL keep design rationale — why an approach was chosen, what defec
 
 Templates MAY emit a short comment where it explains something a reader of the generated file cannot otherwise recover, such as a non-obvious external constraint at the point of use. Rationale that explains a *decision* SHALL NOT be emitted.
 
-Where a rationale comment would otherwise be needed to name a set of states, the generated code SHOULD make those states self-describing instead — for example a named union type whose members are the states.
+Where a rationale comment would otherwise be needed to name a set of states, the generated code SHALL make those states self-describing instead — for example a named union type whose members are the states.
 
 This applies because generated output is duplicated into every consuming application, for every actor, and cannot be revised there: a comment that drifts out of step with the requirement it implements keeps contradicting it in every generated app.
 
