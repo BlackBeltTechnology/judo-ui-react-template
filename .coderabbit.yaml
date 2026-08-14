@@ -1,0 +1,70 @@
+# CodeRabbit configuration
+# yaml-language-server: $schema=https://storage.googleapis.com/coderabbit_public_assets/schema.v2.json
+#
+# Implements CodeRabbit's own guidance for staying under the per-developer review
+# limit: "reduce automatic review volume by pausing incremental auto-reviews
+# earlier, using label-based review opt-in, excluding WIP or generated PR titles,
+# or requesting reviews manually when the PR is ready."
+#
+# Before this file the reviews reported "Configuration used: Repository UI", so the
+# settings lived outside the repo and could not be reviewed or versioned.
+#
+# A review can be requested or resumed at any time by commenting
+# `@coderabbitai review` on the pull request.
+
+reviews:
+  auto_review:
+    # Keep the automatic first review when a PR is opened.
+    enabled: true
+
+    # Re-review on push, but pause sooner than the schema default of 5 reviewed
+    # commits. A review-fix cycle here routinely runs several follow-up pushes,
+    # which is what exhausts the quota; past this point the author asks for the
+    # re-review explicitly with `@coderabbitai review`.
+    auto_incremental_review: true
+    auto_pause_after_reviewed_commits: 3
+
+    # Label-based filtering. A leading "!" is a negative match and MUST stay
+    # quoted, otherwise YAML parses it as a tag indicator.
+    #   "automated pr" is requested by .github/workflows/release.yml and
+    #   .github/workflows/bump-version.yml when they open version PRs.
+    #   "wip" was added to .github/labels.yml alongside this file.
+    # Both are declared there but NOT yet present on the repository: the
+    # .github/workflows/sync-labels.yml job is workflow_dispatch-only and has not
+    # been run, so 8 declared labels are missing live. These two filters stay
+    # inert until that workflow is dispatched; the title keywords below cover the
+    # generated PRs in the meantime.
+    labels:
+      - "!wip"
+      - "!automated pr"
+
+    # Case-insensitive substring match, so only unambiguous bracketed markers are
+    # listed here - a bare "wip" would also match ordinary words such as "swipe",
+    # and a bare "bump" would match the human PRs "JNG-6364 bump deps" and
+    # "JNG-6168 bump deps for missing translations".
+    #   "[RELEASE]" and "[BUMP VERSION]" are the exact title prefixes emitted by
+    #   the two workflows above.
+    ignore_title_keywords:
+      - "[WIP]"
+      - "WIP:"
+      - "do not merge"
+      - "[RELEASE]"
+      - "[BUMP VERSION]"
+
+    # Skip draft PRs. This is also the schema default, kept explicit because it is
+    # one of the volume levers the guidance names.
+    drafts: false
+
+    # Dependabot runs daily with up to 10 open PRs (.github/dependabot.yml) and has
+    # authored 24 of the 100 most recent PRs; the dedicated "Dependabot test build"
+    # CI job is the gate for those. Author matching is used rather than a "bump"
+    # title keyword precisely because humans also open "bump deps" PRs.
+    # "dependabot[bot]" is the exact REST user.login (verified on PRs #98, #112).
+    # Drop this entry if the team wants CodeRabbit on dependency bumps.
+    ignore_usernames:
+      - "dependabot[bot]"
+
+    # Empty on purpose: only PRs targeting the default branch (develop) are
+    # auto-reviewed. Every recent PR targets develop, and the release PR that
+    # targets master is intentionally out of scope.
+    base_branches: []
