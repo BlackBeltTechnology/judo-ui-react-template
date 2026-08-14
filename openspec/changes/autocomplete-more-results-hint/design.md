@@ -65,7 +65,7 @@ Implementation note: in `Tags.tsx.hbs` the widget continues to drive the fetch f
 
 Existing keys in `system_*.json.hbs` cluster under `judo.<area>.<sub>` (e.g. `judo.action.*`, `judo.pages.*`, `judo.dialogs.*`). The autocomplete hint is a cross-cutting widget concern, not a per-page concern, so a new top-level area `judo.autocomplete.*` is justified rather than wedging the key into `judo.action.*`.
 
-The default English string `"Type for more results…"` matches the JIRA ticket wording verbatim. The Hungarian translation uses three dots (ellipsis character `…`) to match the spacing used in other system messages such as `judo.security.loading-principal`.
+The default English string `"Showing the first {{limit}} results — narrow your search"` matches the JIRA ticket wording verbatim. The Hungarian translation uses three dots (ellipsis character `…`) to match the spacing used in other system messages such as `judo.security.loading-principal`.
 
 ### D5. Java helper symmetry: introduce `calculateTextAutocompleteRows(TextInput)`
 

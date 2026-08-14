@@ -2,7 +2,7 @@
 
 ### Requirement: Link autocomplete dropdown surfaces truncation hint
 
-When a `Link` element renders as `<SingleRelationInput>` with autocomplete support (`autocompleteSetActionDefinition` present), the link container template SHALL pass `autoCompleteLimit={ calculateLinkAutocompleteRows(link) }` to the widget. The widget SHALL then render the truncation header per the `input-widgets` capability requirement "Autocomplete dropdowns hint when the result list is truncated".
+When a `Link` element renders as `<SingleRelationInput>` with autocomplete support (`autocompleteSetActionDefinition` present), the link container template SHALL pass `autoCompleteLimit={ calculateLinkAutocompleteRows(link) }` to the widget. The widget SHALL then render the truncation footer per the `input-widgets` capability requirement "Autocomplete dropdowns hint when the result list is truncated".
 
 For collection-association autocomplete via the `Tags` widget (driven from the tag container template), the same hint SHALL appear in the multi-select dropdown using the widget's existing `limitOptions` prop.
 
@@ -16,7 +16,7 @@ For collection-association autocomplete via the `Tags` widget (driven from the t
 
 - **WHEN** a collection-aggregation relation renders via the `Tags` widget
 - **AND** the autocomplete fetch returns a number of options equal to `limitOptions`
-- **THEN** the dropdown paper renders the same truncation header as `SingleRelationInput`
+- **THEN** the dropdown paper renders the same truncation footer as `SingleRelationInput`
 
 **Templates**:
 - `actor/src/containers/components/link/index.tsx.hbs`

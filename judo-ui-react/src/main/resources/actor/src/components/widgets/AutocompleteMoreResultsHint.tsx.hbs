@@ -5,27 +5,30 @@ import Typography from '@mui/material/Typography';
 import type { FC } from 'react';
 import { useTranslation } from 'react-i18next';
 
-export const AutocompleteMoreResultsHint: FC = () => {
+export interface AutocompleteMoreResultsHintProps {
+  limit: number;
+}
+
+export const AutocompleteMoreResultsHint: FC<AutocompleteMoreResultsHintProps> = ({ limit }) => {
   const { t } = useTranslation();
 
   return (
     <Box
-      role="presentation"
-      aria-hidden="true"
+      role="status"
       sx={ {
         px: 2,
-        py: 1,
+        py: 0.75,
+        minHeight: 32,
+        display: 'flex',
+        alignItems: 'center',
         pointerEvents: 'none',
-        borderBottom: 1,
+        borderTop: 1,
         borderColor: 'divider',
+        bgcolor: 'action.hover',
       } }
     >
-      <Typography
-        variant="caption"
-        color="text.secondary"
-        sx={ { fontStyle: 'italic' } }
-      >
-        {t('judo.autocomplete.type-for-more-results', { defaultValue: 'Type for more results…' })}
+      <Typography variant="caption" color="text.secondary">
+        {t('judo.autocomplete.showing-first-results', { limit, defaultValue: 'Showing the first \{{limit}} results — narrow your search' })}
       </Typography>
     </Box>
   );

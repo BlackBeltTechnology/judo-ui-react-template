@@ -24,11 +24,11 @@ Verified 2026-07-09 against ActionGroupTest: with the Paper-slot approach in pla
 
 ### D2. Key naming: `judo.autocomplete.no-results`
 
-Sits inside the `judo.autocomplete.*` namespace created by JNG-6409 (`judo.autocomplete.type-for-more-results`). Alternatives considered and rejected:
+Sits inside the `judo.autocomplete.*` namespace created by JNG-6409 (`judo.autocomplete.showing-first-results`). Alternatives considered and rejected:
 
 - `judo.autocomplete.no-options` — literal mirror of MUI's default. Rejected because "options" is MUI-internal jargon; end users think in terms of *results* / *matches*.
 - `judo.autocomplete.empty` — too generic; would collide with any future "empty state" strings.
-- `judo.form.no-results` or `judo.action.no-results` — cross-cuts multiple widgets; better to keep alongside the sibling `type-for-more-results` under one autocomplete area.
+- `judo.form.no-results` or `judo.action.no-results` — cross-cuts multiple widgets; better to keep alongside the sibling `showing-first-results` under one autocomplete area.
 
 The English default `"No matching results"` was chosen (rather than parroting MUI's `"No options"`) because it is friendlier and mirrors typical enterprise-app copy. Hungarian value `"Nincs találat"` is the canonical short form used across JUDO's own admin frontends (verified visually in existing hu-HU translations for related empty-state messages).
 

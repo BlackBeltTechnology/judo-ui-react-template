@@ -18,12 +18,12 @@ This is a one-line UX defect with concrete user impact: in any deployed app with
 
 Single Class III (react-template-only) change. The fix is conservative: a non-selectable **header** item is rendered **above** the option list inside the MUI `<Autocomplete>` dropdown **whenever the returned page is full** — i.e. `options.length >= limit`. It does not depend on whether the user has typed anything; on initial open with a full first page the hint already advises the user to type to narrow the result set. The hint disappears once the user has narrowed the search enough that the server returned fewer than `limit` rows.
 
-The hint text comes from a new system-i18n key (`judo.autocomplete.type-for-more-results`), is rendered in italic typography to read as a tip rather than a selectable option, and is themable.
+The hint text comes from a new system-i18n key (`judo.autocomplete.showing-first-results`), reports the caller-supplied limit via a `{{limit}}` interpolation, and is themable. It renders as an enclosed status footer below the listbox — a top divider plus a tinted background, rather than italics, carry the "this is not an option" signal.
 
 ### (a) Shared header component + slot hook
 
 - New file `actor/src/components/widgets/AutocompleteMoreResultsHint.tsx.hbs` exports two symbols:
-  - `AutocompleteMoreResultsHint` — a small React FC that renders a non-interactive element styled like an MUI list subheader with `pointerEvents: 'none'`, `aria-hidden="true"`, `role="presentation"`, and `fontStyle: 'italic'`. Receives its label via i18n (`t('judo.autocomplete.type-for-more-results', { defaultValue: 'Type for more results…' })`).
+  - `AutocompleteMoreResultsHint` — a small React FC taking a `limit` prop that renders a non-interactive status footer with `pointerEvents: 'none'`, `role="status"`, `borderTop`, `bgcolor: 'action.hover'` and `minHeight: 32`. Receives its label via i18n (`t('judo.autocomplete.showing-first-results', { limit, defaultValue: 'Showing the first {{limit}} results — narrow your search' })`). It is deliberately NOT `aria-hidden`: truncation is real system status a screen-reader user needs (per the W3C `role="status"` search-results working example and GOV.UK accessible-autocomplete).
   - `useAutocompleteMoreResultsHintPaper(limit, optionsLength)` — a hook that returns a stable-identity `paper` slot component for MUI Autocomplete. It encapsulates the visibility calculation (`optionsLength >= limit`), the ref-based latest-value read (so MUI does not remount the paper on threshold crossings), and the `<Paper>` wrapper that prepends `<AutocompleteMoreResultsHint />` above the listbox. This is the single source of truth for the hint machinery; the three widget call sites use it verbatim.
 - Re-exported from `actor/src/components/widgets/index.tsx.hbs`.
 - Post-review note (2026-07-08, gaborflorian review nit): the hook was extracted from an initial inline-in-each-widget draft into `AutocompleteMoreResultsHint.tsx.hbs` to eliminate the ~9-line duplicated block across the three widgets. Behaviour is unchanged. See `tasks.md` §10.
@@ -38,8 +38,8 @@ For each of the three widget templates, add a new optional prop `autoCompleteLim
 
 ### (c) New i18n key
 
-- `actor/public/i18n/system_en-US.json.hbs`: `"judo.autocomplete.type-for-more-results": "Type for more results…"`
-- `actor/public/i18n/system_hu-HU.json.hbs`: `"judo.autocomplete.type-for-more-results": "Gépeljen tovább a további találatokhoz…"`
+- `actor/public/i18n/system_en-US.json.hbs`: `"judo.autocomplete.showing-first-results": "Showing the first {{limit}} results — narrow your search"`
+- `actor/public/i18n/system_hu-HU.json.hbs`: `"judo.autocomplete.showing-first-results": "Az első {{limit}} találat látható — szűkítse a keresést"`
 - `actor/public/i18n/system_default.json.hbs`: same as `en-US`.
 
 ### What this change does NOT do

@@ -4,7 +4,7 @@
 - Regenerated `AutocompleteNoResultsHint.tsx` exports `AutocompleteNoResultsHint` and `useAutocompleteHintPaper`, while `AutocompleteMoreResultsHint.tsx` still exports `AutocompleteMoreResultsHint`. The old `useAutocompleteMoreResultsHintPaper` export is gone.
 - Regenerated `SingleRelationInput.tsx`, `Tags.tsx`, `TextWithTypeAhead.tsx` each import `useAutocompleteHintPaper` and call it with `{ limit, optionsLength: options.length, loading }`. They pass its return value to `slots={ { paper: paperSlot } }`.
 - Regenerated `SingleValueFilterComponent.tsx` carries the prop `noOptionsText={t('judo.autocomplete.no-results', { defaultValue: 'No matching results' })}` on its enum-branch `<Autocomplete>`.
-- Regenerated `system_en-US.json`, `system_hu-HU.json`, and `system_default.json` each contain the new `judo.autocomplete.no-results` key alongside the pre-existing `judo.autocomplete.type-for-more-results` key.
+- Regenerated `system_en-US.json`, `system_hu-HU.json`, and `system_default.json` each contain the new `judo.autocomplete.no-results` key alongside the pre-existing `judo.autocomplete.showing-first-results` key.
 - Live verification against `ActionGroupTest`: typing a nonsense query into the Astronomer `SingleRelationInput` under `en-US` shows `"No matching results"` in the dropdown; the served `system_hu-HU.json` contains `"Nincs találat"` (visual `hu-HU` verification skipped because the app has no runtime language switcher — the rendering code path is locale-agnostic and only reads whichever key i18next has active).
 - `judo-diff-checker-maven-plugin` reports zero drifts: none of the templates touched by this change has a committed snapshot (see §6.2), so no file needs copying into `src/test/resources/snapshots/frontend-react/`.
 - Commit message: `JNG-6410 localize autocomplete empty-state message`.
@@ -17,7 +17,7 @@
 
 ## 1. New i18n keys
 
-- [x] 1.1 In `judo-ui-react/src/main/resources/actor/public/i18n/system_en-US.json.hbs`, add `"judo.autocomplete.no-results": "No matching results",` inside the existing `judo.autocomplete.*` group, immediately after `judo.autocomplete.type-for-more-results`.
+- [x] 1.1 In `judo-ui-react/src/main/resources/actor/public/i18n/system_en-US.json.hbs`, add `"judo.autocomplete.no-results": "No matching results",` inside the existing `judo.autocomplete.*` group, immediately after `judo.autocomplete.showing-first-results`.
 - [x] 1.2 In `system_hu-HU.json.hbs`, add `"judo.autocomplete.no-results": "Nincs találat",` in the same position.
 - [x] 1.3 In `system_default.json.hbs`, mirror the `en-US` value.
 

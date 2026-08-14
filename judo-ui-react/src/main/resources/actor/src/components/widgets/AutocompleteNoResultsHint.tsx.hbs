@@ -13,7 +13,7 @@ export const AutocompleteNoResultsHint: FC = () => {
 
   return (
     <Box
-      role="presentation"
+      role="status"
       sx={ {
         px: 2,
         py: 1,
@@ -40,18 +40,23 @@ export const useAutocompleteHintPaper = ({
 }: AutocompleteHintPaperOptions): ComponentType<PaperProps> => {
   const showMoreHint = typeof limit === 'number' && limit > 0 && optionsLength >= limit;
   const showNoResults = !loading && optionsLength === 0;
+  const hintLimit = limit ?? 0;
   // MUI remounts the whole dropdown whenever the `slots.paper` component identity changes,
   // which would blur the input mid-typing. So the component must be referentially stable:
   // `useCallback` with an empty dependency list pins the identity for the widget's lifetime,
   // and the flags are read through `stateRef.current` at render time so each render still
   // sees the latest values despite the callback itself never being recreated.
-  const stateRef = useRef({ showMoreHint, showNoResults });
-  stateRef.current = { showMoreHint, showNoResults };
+  const stateRef = useRef({ showMoreHint, showNoResults, hintLimit });
+  stateRef.current = { showMoreHint, showNoResults, hintLimit };
+  // The more-results hint is a FOOTER: it renders AFTER the listbox so the options keep the
+  // prime position at the top of the paper, and so it reads as list metadata rather than as a
+  // selectable first row. The no-results hint stays above because it IS the content when the
+  // list is empty (there are no children to sit under).
   return useCallback((paperProps: PaperProps) => (
     <Paper {...paperProps}>
-      {stateRef.current.showMoreHint && <AutocompleteMoreResultsHint />}
       {stateRef.current.showNoResults && <AutocompleteNoResultsHint />}
       {paperProps.children}
+      {stateRef.current.showMoreHint && <AutocompleteMoreResultsHint limit={stateRef.current.hintLimit} />}
     </Paper>
   ), []);
 };

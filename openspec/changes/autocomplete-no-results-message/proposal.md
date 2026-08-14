@@ -41,7 +41,7 @@ Single Class III (react-template-only) change. Follows JNG-6409's structural con
 - `actor/public/i18n/system_hu-HU.json.hbs`: `"judo.autocomplete.no-results": "Nincs találat"`
 - `actor/public/i18n/system_default.json.hbs`: same as `en-US`.
 
-Placed inside the existing `judo.autocomplete.*` block introduced by JNG-6409, immediately after `judo.autocomplete.type-for-more-results`, so all autocomplete-scoped strings live together.
+Placed inside the existing `judo.autocomplete.*` block introduced by JNG-6409, immediately after `judo.autocomplete.showing-first-results`, so all autocomplete-scoped strings live together.
 
 ### (b) New sibling file for the no-results hint + composition hook
 
