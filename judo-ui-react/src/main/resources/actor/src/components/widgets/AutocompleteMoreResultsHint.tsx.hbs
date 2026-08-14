@@ -1,0 +1,32 @@
+{{> fragment.header.hbs }}
+
+import Box from '@mui/material/Box';
+import Typography from '@mui/material/Typography';
+import type { FC } from 'react';
+import { useTranslation } from 'react-i18next';
+
+export const AutocompleteMoreResultsHint: FC = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Box
+      role="presentation"
+      aria-hidden="true"
+      sx={ {
+        px: 2,
+        py: 1,
+        pointerEvents: 'none',
+        borderBottom: 1,
+        borderColor: 'divider',
+      } }
+    >
+      <Typography
+        variant="caption"
+        color="text.secondary"
+        sx={ { fontStyle: 'italic' } }
+      >
+        {t('judo.autocomplete.type-for-more-results', { defaultValue: 'Type for more results…' })}
+      </Typography>
+    </Box>
+  );
+};
