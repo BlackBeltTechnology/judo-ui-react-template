@@ -48,6 +48,7 @@
         {{# if child.attributeType.dataType.maxLength }}
         maxLength={ {{ child.attributeType.dataType.maxLength }} }
         {{/ if }}
+        autoCompleteLimit={ {{ calculateTextAutocompleteRows child }} }
         onAutoCompleteSearch={ async (searchText: string) => {
             if (actions?.get{{ firstToUpper child.attributeType.name }}Options) {
                 return await actions.get{{ firstToUpper child.attributeType.name }}Options(searchText, data, editMode, validation);
