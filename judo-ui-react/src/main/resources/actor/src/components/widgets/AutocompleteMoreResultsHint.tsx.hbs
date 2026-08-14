@@ -15,7 +15,7 @@ export const AutocompleteMoreResultsHint: FC<AutocompleteMoreResultsHintProps> =
   return (
     <Box
       role="status"
-      sx={ {
+      sx={ (theme) => ({
         px: 2,
         py: 0.75,
         minHeight: 32,
@@ -24,8 +24,8 @@ export const AutocompleteMoreResultsHint: FC<AutocompleteMoreResultsHintProps> =
         pointerEvents: 'none',
         borderTop: 1,
         borderColor: 'divider',
-        bgcolor: 'action.hover',
-      } }
+        bgcolor: theme.palette.mode === 'light' ? theme.palette.grey[300] : theme.palette.grey[800],
+      }) }
     >
       <Typography variant="caption" color="text.secondary">
         {t('judo.autocomplete.showing-first-results', { limit, defaultValue: 'Showing the first \{{limit}} results — narrow your search' })}

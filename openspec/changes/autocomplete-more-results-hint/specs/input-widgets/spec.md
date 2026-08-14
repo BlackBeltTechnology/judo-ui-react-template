@@ -8,7 +8,9 @@ The footer SHALL be visible whether the search input is empty or non-empty — i
 
 The footer SHALL NOT participate in keyboard navigation and SHALL carry `pointerEvents: 'none'` so it cannot be clicked or hovered as if it were an option. It SHALL be marked `role="status"` so assistive technology is informed that the list was truncated — the message is real system status, not decoration, and SHALL NOT be hidden with `aria-hidden`.
 
-The footer SHALL be visually distinguished from the option rows as an enclosed metadata region rather than a list item: a top divider (`borderTop: 1, borderColor: 'divider'`), a tinted background (`bgcolor: 'action.hover'`), a reduced row height (`minHeight: 32`), and `caption` typography in `text.secondary`. It SHALL NOT use italic typography — the enclosing region, not the font style, carries the "this is not an option" signal.
+The footer SHALL be visually distinguished from the option rows as an enclosed metadata region rather than a list item: a top divider (`borderTop: 1, borderColor: 'divider'`), a filled background, a reduced row height (`minHeight: 32`), and `caption` typography in `text.secondary`. It SHALL NOT use italic typography — the enclosing region, not the font style, carries the "this is not an option" signal.
+
+The footer background SHALL be taken from the neutral grey ramp — `grey.300` in light mode, `grey.800` in dark mode — and SHALL NOT be any `action.*` token. The `action.*` tokens are interaction-state colours: `action.hover` resolves to the exact same fill an option receives while hovered, which makes a static footer indistinguishable from a hovered row, and its separation from `background.paper` (1.09:1 light) is too faint to read as a region at all.
 
 The footer SHALL state the system's actual knowledge — how many results are shown — rather than issue an instruction alone. It SHALL source its label from the i18n key `judo.autocomplete.showing-first-results`, interpolating the caller-supplied limit as `{{limit}}`, with English default `"Showing the first {{limit}} results — narrow your search"`.
 
@@ -57,7 +59,14 @@ The caller container template SHALL pass the limit to the widget via an `autoCom
 
 - **GIVEN** the dropdown is open with the footer visible
 - **WHEN** the footer is inspected in the DOM
-- **THEN** it has a top divider and a tinted background distinct from the option rows, and its computed `font-style` is `normal` (not italic)
+- **THEN** it has a top divider and a filled background distinct from the option rows, and its computed `font-style` is `normal` (not italic)
+
+#### Scenario: Footer fill is not confusable with a hovered option
+
+- **GIVEN** the dropdown is open with the footer visible
+- **AND** the pointer is hovering one of the option rows
+- **WHEN** the footer's computed background is compared with the hovered option's computed background
+- **THEN** the two differ — the footer uses the neutral grey ramp while the hovered option uses `action.hover`
 
 **Key Helpers**: `UiWidgetHelper.calculateLinkAutocompleteRows()`, `UiWidgetHelper.calculateTextAutocompleteRows()` (new in this change)
 

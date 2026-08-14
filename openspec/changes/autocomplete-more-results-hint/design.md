@@ -23,7 +23,7 @@ Properties of the resulting footer:
 - Inherits the paper's elevation so it visually belongs to the dropdown.
 - Has `pointerEvents: 'none'` so it cannot be clicked or hovered like an option.
 - Carries `role="status"` and is **not** `aria-hidden`. Truncation is real system status a screen-reader user needs; the documented pattern for result-count messaging is a live region (W3C `role="status"` search-results working example: https://www.w3.org/WAI/WCAG22/working-examples/aria-role-status-searchresults/ — and GOV.UK accessible-autocomplete, which does the same).
-- Is **enclosed as its own region** (`borderTop: 1 divider` + `bgcolor: 'action.hover'` + `minHeight: 32`, `caption` / `text.secondary`, no italic). The container, not the font style, carries the "this is not an option" signal — Gestalt *common region*.
+- Is **enclosed as its own region** (`borderTop: 1 divider` + a grey-ramp fill + `minHeight: 32`, `caption` / `text.secondary`, no italic). The container, not the font style, carries the "this is not an option" signal — Gestalt *common region*. See D7 for why the fill comes from the grey ramp and not from an `action.*` token.
 
 **Revision 2026-08-14 (supersedes the 2026-06-30 above-the-list call).** The original decision put the hint above the list, in italic, on the reasoning that a footer under a scrollable list is easily missed. Shipped, that produced a row with the same left padding (`px: 2` = 16px, identical to MUI's option padding) and roughly the same height as an option, so it read as a **selectable first item** — violating Gestalt *similarity* and Nielsen H4/H8. The original objection turns out not to apply here: **the footer sits outside the scroll container.** `.MuiAutocomplete-listbox` owns the `max-height` + `overflow: auto`, and the footer is a sibling of it inside the Paper, so it stays pinned and visible no matter how far the option list is scrolled. Five candidates were compared in a served mockup; the footer status bar (the Slack / Linear / GitHub search convention) was selected.
 
@@ -35,6 +35,28 @@ References (verified via `code_search` 2026-06-30):
 - MUI Autocomplete API: `slots: { paper?: elementType }` and `slotProps: { paper?: func|object }` (https://mui.com/material-ui/api/autocomplete/)
 - Overriding component structure: https://mui.com/material-ui/customization/overriding-component-structure/
 - Issue #43609 (custom-props limitation on `slotProps.paper`): https://github.com/mui/material-ui/issues/43609
+
+### D7. Footer fill comes from the grey ramp, never from an `action.*` token
+
+The first implementation used `bgcolor: 'action.hover'`. Reported broken on 2026-08-14 ("the user barely sees the tip") and confirmed by measuring the generated theme's own palette (`background.paper: #ffffff`, `background.default: #fafafa`, `text.secondary: #434448`):
+
+| Candidate fill | Resolves to | Separation from `background.paper` | Collides with hovered option? |
+|---|---|---|---|
+| `background.default` | `#fafafa` | 1.044:1 | no, but even fainter |
+| `action.hover` (first impl) | `#f5f5f5` | **1.090:1** | **yes — byte-identical** |
+| `action.selected` | `#ebebeb` | 1.192:1 | still an interaction state |
+| **`grey.300` (chosen)** | `#e0e0e0` | **1.320:1** | no |
+
+Two independent defects in the original choice:
+
+1. **Semantic collision.** `action.hover` *is* the fill MUI paints on an option under the pointer, so a static footer using it renders the exact same colour as a hovered row — the user cannot tell chrome from interaction feedback.
+2. **Insufficient separation.** At 1.09:1 against the paper the band is effectively invisible, so the "enclosed region" signal that justifies dropping the italics never actually lands.
+
+`background.default` is not the fix either: in this theme it is *lighter* than `action.hover` (1.044:1), so the recessed-surface token is useless here.
+
+**Chosen**: the neutral grey ramp via an `sx` theme callback — `grey.300` light (`#e0e0e0`, 1.32:1, ~3.5× the original separation) and `grey.800` dark (`#424242`, 1.43:1, the best of the dark candidates). Both are `theme.palette` tokens, not hex literals, and neither carries interaction-state meaning. `#e0e0e0` also sits in the same grey family as the filled-input background the field itself uses, so the footer reads as intentional app chrome.
+
+**Known dark-mode caveat (pre-existing, out of scope).** The generated dark palette is marked `// WIP` and sets `text.secondary: #646464` against `background.paper: #2a2a2a`. That is 1.70:1 on `grey.800` — a WCAG-AA failure, and it fails on every candidate fill (1.70–2.72:1). This affects all secondary text in the app, not just this footer, so the fix belongs in `palette.ts.hbs`, not here. Light mode, which is what ships today, is 7.37:1 — comfortably AA.
 
 ### D2. Truncation heuristic: `options.length >= limit`
 
