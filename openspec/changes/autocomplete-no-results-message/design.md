@@ -48,9 +48,9 @@ For the three freeSolo widgets, our custom hint component sits above `paperProps
 
 Unlike JNG-6409's `autoCompleteLimit`, the empty message has no per-caller variance to express. Every Autocomplete in every generated app wants the same localized string. Adding an opt-in prop would be dead ceremony. Callers get the localized behaviour automatically on regeneration.
 
-### D6. Snapshot churn is unavoidable but small
+### D6. No snapshot churn
 
-Every regenerated widget file gains one changed hook call (three files) or one `noOptionsText` prop (one file). Every regenerated `system_*.json` gains one key. The `AutocompleteMoreResultsHint.tsx` snapshot picks up the new `<AutocompleteNoResultsHint>` component + new hook signature. Snapshot refresh is mechanical using the same procedure as JNG-6409 §7.2. Container-level snapshots do **not** change because no container template is modified.
+Every regenerated widget file gains one changed hook call (three files) or one `noOptionsText` prop (one file), and every regenerated `system_*.json` gains one key — but none of those artifacts has a committed snapshot. Verified via `find judo-ui-react-itest -path '*snapshots*'`: the snapshot set covers container-level and page-level `.tsx` files only, so neither the new `AutocompleteNoResultsHint.tsx` nor any `system_*.json` is snapshotted. Container-level snapshots do **not** change either, because no container template is modified. Net snapshot refresh for this change: zero files.
 
 ## Risks / Trade-offs
 

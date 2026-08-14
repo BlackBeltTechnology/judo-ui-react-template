@@ -15,8 +15,8 @@
 
 ## 1. Widen the action type
 
-- [ ] 1.1 Introduce an `AutocompleteOptionsResult` type exported from `judo-ui-react/src/main/resources/actor/src/components/widgets/TextWithTypeAhead.tsx.hbs`. Shape: `{ items: string[]; truncated: boolean }` with a JSDoc line on `truncated` explaining "set true if the backend capped the returned list".
-- [ ] 1.2 Update `judo-ui-react/src/main/resources/actor/src/containers/types.ts.hbs:64` to import `AutocompleteOptionsResult` and change the return type of `get<Attr>Options` to `Promise<AutocompleteOptionsResult>`.
+- [ ] 1.1 Introduce an `AutocompleteOptionsResult` type in a dedicated **non-component** module — new template `judo-ui-react/src/main/resources/actor/src/components-api/components/AutocompleteOptions.ts.hbs`, re-exported from the existing `components-api/components/index.ts.hbs` barrel. Shape: `{ items: string[]; truncated: boolean }` with a JSDoc line on `truncated` explaining "set true if the backend capped the returned list". Register the new template in `ui-react.yaml`. Rationale: the contract is shared between the widget and the container `Actions` interface, so it must not live inside a component file — that would make `containers/types.ts.hbs` depend on a UI module for a pure type.
+- [ ] 1.2 Update `judo-ui-react/src/main/resources/actor/src/containers/types.ts.hbs:64` to import `AutocompleteOptionsResult` from `~/components-api` (the file already imports types from there) and change the return type of `get<Attr>Options` to `Promise<AutocompleteOptionsResult>`.
 - [ ] 1.3 Confirm no other template references `Promise<string[]>` as a `get*Options` return.
 
 ## 2. Consume `truncated` in the widget
@@ -27,7 +27,7 @@
   - Add a `truncatedRef` (mirroring the existing `showMoreResultsHintRef` pattern).
   - After the `onAutoCompleteSearch` returns, destructure `{ items, truncated }`, set `options` to `items`, and assign `truncatedRef.current = truncated`.
   - Rebind the memoised custom Paper component to render `<AutocompleteMoreResultsHint />` iff `truncatedRef.current` is true.
-- [ ] 2.2 Update the JSDoc block above the component to describe the new contract in one paragraph, with a pointer to `AutocompleteOptionsResult`.
+- [ ] 2.2 Import `AutocompleteOptionsResult` from `~/components-api` and update the JSDoc block above the component to describe the new contract in one paragraph, with a pointer to that type.
 
 ## 3. Update the call site
 
@@ -38,7 +38,7 @@
 ## 4. Remove the deprecated helper and its test
 
 - [ ] 4.1 Delete `UiWidgetHelper.calculateTextAutocompleteRows(TextInput)`.
-- [ ] 4.2 Delete `judo-ui-react/src/test/java/hu/blackbelt/judo/ui/generator/react/UiWidgetHelperTextAutocompleteRowsTest.java`.
+- [ ] 4.2 No test file to delete — verified `judo-ui-react/src/test/java/hu/blackbelt/judo/ui/generator/react/` contains only `MaskEntryTest.java`; `calculateTextAutocompleteRows` was never unit-tested.
 - [ ] 4.3 Grep the repo for `calculateTextAutocompleteRows` and confirm zero remaining references (templates, YAML, or docs).
 - [ ] 4.4 Grep for `judo-ui-react::autoCompleteRows` and confirm zero remaining references.
 
@@ -55,5 +55,5 @@
 
 ## 7. Snapshot updates
 
-- [ ] 7.1 Run `mvn install` on affected itests. Every snapshot for a template file that includes `TextWithTypeAhead.tsx` (the widget itself is snapshotted even if no itest container uses it) needs to be refreshed once. Copy regenerated files into the appropriate `src/test/resources/snapshots/frontend-react/` directories per AGENTS.md "Important Notes" §5.
+- [ ] 7.1 Run `mvn install` on affected itests and confirm `judo-diff-checker-maven-plugin` reports **zero** drifts. Expected precondition: `TextWithTypeAhead.tsx` has no committed snapshot (the snapshot set covers container/page-level files only). If any drift does appear, refresh it by copying regenerated files into the appropriate `src/test/resources/snapshots/frontend-react/` directories per AGENTS.md "Important Notes" §5.
 - [ ] 7.2 Confirm no container-level snapshot changes (verified precondition: zero itest models with `isTypeAheadField="true"`).

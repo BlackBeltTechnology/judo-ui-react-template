@@ -40,6 +40,11 @@ export const useAutocompleteHintPaper = ({
 }: AutocompleteHintPaperOptions): ComponentType<PaperProps> => {
   const showMoreHint = typeof limit === 'number' && limit > 0 && optionsLength >= limit;
   const showNoResults = !loading && optionsLength === 0;
+  // MUI remounts the whole dropdown whenever the `slots.paper` component identity changes,
+  // which would blur the input mid-typing. So the component must be referentially stable:
+  // `useCallback` with an empty dependency list pins the identity for the widget's lifetime,
+  // and the flags are read through `stateRef.current` at render time so each render still
+  // sees the latest values despite the callback itself never being recreated.
   const stateRef = useRef({ showMoreHint, showNoResults });
   stateRef.current = { showMoreHint, showNoResults };
   return useCallback((paperProps: PaperProps) => (

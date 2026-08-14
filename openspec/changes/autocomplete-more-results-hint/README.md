@@ -1,3 +1,3 @@
 # autocomplete-more-results-hint
 
-Render a non-selectable footer in every generated MUI Autocomplete dropdown indicating that more results may exist on the server when the returned options list hits the seek limit.
+Render a non-selectable header above the listbox in server-paginated MUI Autocomplete dropdowns indicating that more results may exist on the server when the returned options list reaches the limit injected by the caller.

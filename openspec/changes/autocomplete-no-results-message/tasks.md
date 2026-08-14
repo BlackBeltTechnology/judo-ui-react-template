@@ -1,12 +1,12 @@
 ## Definition of Done
 
 - `./mvnw clean install` exits green; itests regenerate frontends and pass under Vitest/Playwright without new failures.
-- Regenerated `AutocompleteMoreResultsHint.tsx` exports `AutocompleteNoResultsHint`, `useAutocompleteHintPaper`, and (still) `AutocompleteMoreResultsHint`. The old `useAutocompleteMoreResultsHintPaper` export is gone.
+- Regenerated `AutocompleteNoResultsHint.tsx` exports `AutocompleteNoResultsHint` and `useAutocompleteHintPaper`, while `AutocompleteMoreResultsHint.tsx` still exports `AutocompleteMoreResultsHint`. The old `useAutocompleteMoreResultsHintPaper` export is gone.
 - Regenerated `SingleRelationInput.tsx`, `Tags.tsx`, `TextWithTypeAhead.tsx` each import `useAutocompleteHintPaper` and call it with `{ limit, optionsLength: options.length, loading }`. They pass its return value to `slots={ { paper: paperSlot } }`.
 - Regenerated `SingleValueFilterComponent.tsx` carries the prop `noOptionsText={t('judo.autocomplete.no-results', { defaultValue: 'No matching results' })}` on its enum-branch `<Autocomplete>`.
 - Regenerated `system_en-US.json`, `system_hu-HU.json`, and `system_default.json` each contain the new `judo.autocomplete.no-results` key alongside the pre-existing `judo.autocomplete.type-for-more-results` key.
 - Live verification against `ActionGroupTest`: typing a nonsense query into the Astronomer `SingleRelationInput` under `en-US` shows `"No matching results"` in the dropdown; the served `system_hu-HU.json` contains `"Nincs találat"` (visual `hu-HU` verification skipped because the app has no runtime language switcher — the rendering code path is locale-agnostic and only reads whichever key i18next has active).
-- All snapshot drifts caught by `judo-diff-checker-maven-plugin` are resolved by copying regenerated files into `src/test/resources/snapshots/frontend-react/` (AGENTS.md "Important Notes" §5).
+- `judo-diff-checker-maven-plugin` reports zero drifts: none of the templates touched by this change has a committed snapshot (see §6.2), so no file needs copying into `src/test/resources/snapshots/frontend-react/`.
 - Commit message: `JNG-6410 localize autocomplete empty-state message`.
 
 ## 0. Manual baseline reproduction (completed 2026-07-09)

@@ -63,7 +63,7 @@ Implementation note: in `Tags.tsx.hbs` the widget continues to drive the fetch f
 
 ### D4. i18n key under the `judo.autocomplete.*` namespace
 
-Existing keys in `system_*.json.hbs` cluster under `judo.<area>.<sub>` (e.g. `judo.action.*`, `judo.pages.*`, `judo.dialogs.*`). The autocomplete footer is a cross-cutting widget concern, not a per-page concern, so a new top-level area `judo.autocomplete.*` is justified rather than wedging the key into `judo.action.*`.
+Existing keys in `system_*.json.hbs` cluster under `judo.<area>.<sub>` (e.g. `judo.action.*`, `judo.pages.*`, `judo.dialogs.*`). The autocomplete hint is a cross-cutting widget concern, not a per-page concern, so a new top-level area `judo.autocomplete.*` is justified rather than wedging the key into `judo.action.*`.
 
 The default English string `"Type for more results…"` matches the JIRA ticket wording verbatim. The Hungarian translation uses three dots (ellipsis character `…`) to match the spacing used in other system messages such as `judo.security.loading-principal`.
 
@@ -77,13 +77,13 @@ If `TextInput` does not currently expose an `autoCompleteRows` attribute in the 
 
 Every regenerated itest container that wires up a `SingleRelationInput`, `Tags`, `TextWithTypeAhead`, or `SingleValueFilterComponent` will emit a new `autoCompleteLimit={...}` prop. Every snapshot file under `judo-ui-react-itest/**/src/test/resources/snapshots/frontend-react/` that contains one of those components needs a one-time update. This is mechanical and expected; the diff-checker plugin (`judo-diff-checker-maven-plugin`) will list every drift on the first CI run, and the snapshot-refresh procedure documented in AGENTS.md "Important Notes" §5 covers it.
 
-The four widget files themselves are also snapshotted; their snapshots gain the new `autoCompleteLimit` prop in the interface plus the new footer in the JSX.
+The widget files themselves are **not** snapshotted — verified via `find judo-ui-react-itest -path '*snapshots*' -name '*.tsx'`, which returns only container-level files. No widget-level snapshot refresh is required.
 
 ## Risks / Trade-offs
 
 | Risk | Mitigation |
 |---|---|
-| The "list is full" heuristic produces a false positive when the data happens to contain exactly `limit` matches. | The footer text says "Type for more results" (advisory) rather than "Hidden results exist" (assertive). False positives cost the user a useless keystroke; a false negative (silently hidden rows, current state) costs them the row. |
+| The "list is full" heuristic produces a false positive when the data happens to contain exactly `limit` matches. | The hint text says "Type for more results" (advisory) rather than "Hidden results exist" (assertive). False positives cost the user a useless keystroke; a false negative (silently hidden rows, current state) costs them the row. |
 | MUI 7's `slotProps.paper` rendering may differ across MUI minor versions. | Pin the implementation to the `slotProps.paper.children` slot — covered by both MUI 7.x and a forward-compat path that falls back to `PaperComponent` if needed. Smoke-tested in at least one itest before merge. |
 | Tags widget's existing `limitOptions` default (`10`) and `calculateLinkAutocompleteRows` default (`10`) drift in the future. | A test in the spec scenarios fixes both at `10` for the integration baselines; if either default changes, the spec scenarios will need an explicit update — which is the desired behaviour. |
 | Screen readers may announce the header as part of the listbox. | Header is rendered outside the `role="listbox"` element (inside the paper, above the listbox). `aria-hidden="true"` is set to keep the announcement out of the active descendant chain. |

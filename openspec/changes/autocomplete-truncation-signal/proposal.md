@@ -90,7 +90,12 @@ get<Attr>Options?: (
 
 ### (e) Snapshot updates
 
-Every itest that regenerates a `TextWithTypeAhead` will emit the new call shape and the widened `Actions` interface. Currently **zero** itest models in this repo (and zero in `/home/balazs/judo-ng/runtime/judo-tatami-tests/models/`) have `isTypeAheadField="true"`, so **no snapshot files change today**. The widget file (`TextWithTypeAhead.tsx.hbs`) itself is snapshotted; its snapshot loses the `autoCompleteLimit` prop and gains `truncated` handling.
+Every itest that regenerates a `TextWithTypeAhead` will emit the new call shape and the widened `Actions` interface.
+
+- **Container-level snapshots**: unchanged. Currently **zero** itest models in this repo (and zero in `/home/balazs/judo-ng/runtime/judo-tatami-tests/models/`) have `isTypeAheadField="true"`, so no container emits the widget.
+- **Widget-level snapshots**: none exist. Verified via `find judo-ui-react-itest -path '*snapshots*' -name '*.tsx'`, which returns only container/page-level files — `TextWithTypeAhead.tsx` has no committed snapshot, so its loss of the `autoCompleteLimit` prop and gain of `truncated` handling is invisible to `judo-diff-checker-maven-plugin`.
+
+Net expected snapshot refresh: **zero files**. Task §7 should confirm this rather than assume a refresh is due.
 
 ### What this change does NOT do
 
