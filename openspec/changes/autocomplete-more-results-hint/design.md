@@ -46,7 +46,7 @@ The first implementation used `bgcolor: 'action.hover'`. Reported broken on 2026
 | `action.hover` (first impl) | `#f5f5f5` | **1.090:1** | **yes — byte-identical** |
 | `action.selected` | `#ebebeb` | 1.192:1 | still an interaction state |
 | `grey.300` (fixed ramp, also rejected — see below) | `#e0e0e0` | 1.320:1 | no |
-| **`emphasize(background.paper, 0.12)` (chosen)** | `#e0e0e0` on the default paper | **1.320:1** | no |
+| `emphasize(background.paper, 0.12)` (chosen at the time; coefficient later lowered to 0.06, see below) | `#e0e0e0` on the default paper | 1.320:1 | no |
 
 Two independent defects in the original choice:
 
@@ -62,7 +62,7 @@ A fixed grey-ramp step (`grey.300` light / `grey.800` dark, selected on `theme.p
 
 Measured failure modes of the fixed-ramp approach against a modeler-configured paper:
 
-| Configured `background.paper` | Fixed ramp | Separation | `emphasize(paper, 0.12)` | Separation |
+| Configured `background.paper` | Fixed ramp | Separation | `emphasize(paper, 0.12)` at the time | Separation |
 |---|---|---|---|---|
 | `#ffffff` (default) | `#e0e0e0` | 1.32:1 ✓ | `#e0e0e0` | 1.32:1 ✓ |
 | `#2a2a2a` (default dark) | `#424242` | 1.43:1 ✓ | `#434343` | 1.46:1 ✓ |
@@ -73,10 +73,26 @@ Measured failure modes of the fixed-ramp approach against a modeler-configured p
 **Chosen**: derive the fill from the actual configured paper colour with MUI's `emphasize` helper (exported from `@mui/material/styles`, verified in 7.3.6):
 
 ```tsx
-bgcolor: emphasize(theme.palette.background.paper, 0.12)
+bgcolor: emphasize(theme.palette.background.paper, 0.06)
 ```
 
-`emphasize` is `getLuminance(color) > 0.5 ? darken(color, k) : lighten(color, k)`, so it picks the correct direction from the colour itself and needs no `mode` branch. On the default light theme it evaluates to exactly `#e0e0e0` — pixel-identical to the reviewed-and-approved fixed-ramp rendering — while holding ~1.31–1.46:1 across every case above.
+**Coefficient = 0.06, to match the filled input.** Reviewer feedback 2026-08-14: at `0.12` (`#e0e0e0`) the band read as too dark against the form, and the requested target was "the colour of the edit field". The app's inputs are `variant: 'filled'`, and MUI's `FilledInput` paints `rgba(0, 0, 0, 0.06)` (light) / `rgba(255, 255, 255, 0.09)` (dark) over the surface behind it.
+
+There is **no token** for that colour in this app: `theme.palette.FilledInput` does not exist (grep of `createPalette.js` in 7.3.6 → 0 hits; the `FilledInput.bg` token lives only under `theme.vars`, which requires `cssVariables`/`colorSchemes`, and the generated theme calls plain `createTheme`). Hard-coding `rgba(0,0,0,0.06)` would reintroduce exactly the burnt-in constant this decision exists to avoid.
+
+`emphasize(paper, 0.06)` reproduces it instead: `darken(#ffffff, 0.06)` → `rgb(239,239,239)` versus the field's composited `rgb(240,240,240)` — a 1/255 difference, imperceptible — while remaining derived from whatever `paperBackgroundColor` the model supplies.
+
+`emphasize` is `getLuminance(color) > 0.5 ? darken(color, k) : lighten(color, k)`, so it picks the correct direction from the colour itself and needs no `mode` branch.
+
+**Accepted trade-off of the 0.06 coefficient.** Matching the field costs separation, measured on the default light theme:
+
+| Coefficient | Fill | vs paper | vs a hovered option (`#f5f5f5`) | text contrast |
+|---|---|---|---|---|
+| **0.06 (chosen — field match)** | `#f0f0f0` | 1.14:1 | 1.05:1 | 8.53:1 |
+| 0.09 | `#e8e8e8` | 1.23:1 | 1.12:1 | 7.94:1 |
+| 0.12 (previous) | `#e0e0e0` | 1.32:1 | 1.21:1 | 7.37:1 |
+
+At 0.06 the fill is again close in tone to `action.hover`, which is what made the original `action.hover` choice fail. It is acceptable here only because the footer no longer relies on tone alone to separate itself: it now also carries a `borderTop` divider, inherited bottom corner radii, and a position *below* the listbox rather than masquerading as its first row. Tone is one of four signals instead of the only one. If the band proves too faint in practice, 0.09 is the middle setting — a one-character change.
 
 The derived-fill column was verified by executing the installed `@mui/system@7.3.6` `emphasize` directly, not by reimplementing its maths: `#ffffff → rgb(224,224,224)`, `#2a2a2a → rgb(67,67,67)`, `#e8e8e8 → rgb(204,204,204)`, `#f5eedc → rgb(215,209,193)`, `#1e1e1e → rgb(57,57,57)`.
 

@@ -12,7 +12,7 @@ The footer SHALL be visually distinguished from the option rows as an enclosed m
 
 Because the footer is the last child of a rounded `MuiPaper` (the generated theme applies `borderRadius: density.borderRadius`, currently 20, to `MuiPaper.rounded`) and that Paper does not set `overflow: hidden`, the footer's filled background SHALL inherit the Paper's bottom corner radii (`borderBottomLeftRadius: 'inherit'`, `borderBottomRightRadius: 'inherit'`). A square-cornered fill would extend past the Paper's curve and read as an element stuck onto the dropdown rather than part of it. Inheriting rather than restating the radius keeps the footer correct if `density.borderRadius` is changed.
 
-The footer background SHALL be **derived from the active `background.paper` value** — `emphasize(theme.palette.background.paper, 0.12)` — so that it adapts to whatever paper colour the model supplies via `application.theme.paperBackgroundColor`.
+The footer background SHALL be **derived from the active `background.paper` value** — `emphasize(theme.palette.background.paper, 0.06)` — so that it adapts to whatever paper colour the model supplies via `application.theme.paperBackgroundColor`.
 
 The footer background SHALL NOT be any `action.*` token: those are interaction-state colours, and `action.hover` in particular resolves to the exact fill an option receives while hovered, making a static footer indistinguishable from a hovered row (and, at 1.09:1 against the default paper, too faint to read as a region at all).
 
