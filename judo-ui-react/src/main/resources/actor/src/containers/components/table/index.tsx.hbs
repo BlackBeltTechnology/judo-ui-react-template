@@ -100,7 +100,7 @@ import { CellEditInput } from '~/components/table';
 {{/ if }}
 import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}Props } from './types';
 import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
-import { resolveTransferId, buildTableTestId, buildRowTestId, buildCellTestId } from '~/utilities/transfer-id';
+import { resolveTransferId, buildTableTestId, buildColumnHeaderTestId, buildRowTestId, buildCellTestId } from '~/utilities/transfer-id';
 {{# if (tableHasRelationColumn table) }}
 import { Tags } from '~/components/widgets';
 {{/ if }}
@@ -120,6 +120,7 @@ export const filtersSerializer: FiltersSerializer = {
 export function {{ componentName table }}(props: {{ componentName table }}Props) {
   const {
     uniqueId,
+    testIdOverride,
     actions,
     dataPath,
     refreshCounter,
@@ -197,6 +198,13 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     ...baseColumnConfig,
     field: '{{ column.attributeType.name }}',
     headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '{{ getElementId table }}', '{{ column.attributeType.name }}')}>
+        {t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
@@ -243,9 +251,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
 
   const rowActions: TableRowAction<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
     {{# each table.rowActionButtonGroup.buttons as |button| }}
-    {{# unless button.actionDefinition.isOpenPageAction }}
     {
       id: '{{ getXMIID button }}',
+      testId: '{{ getButtonRole button }}',
+      actionType: '{{ getButtonActionType button }}',
       {{# if button.label }}
       label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
       {{/ if }}
@@ -267,7 +276,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         await actions.{{ simpleActionDefinitionName button.actionDefinition }}!(rowData{{# if button.actionDefinition.isOpenPageAction }}, isDraft{{/ if }});
       } : undefined,
     },
-    {{/ unless }}
     {{/ each }}
   ];
 
@@ -279,7 +287,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   ];
 
   return (
-    <div data-testid={buildTableTestId('{{ getElementId table }}')} data-table-name="{{ table.name }}">
+    <div data-testid={buildTableTestId(testIdOverride ?? '{{ getElementId table }}')} data-table-name="{{ table.name }}">
       {{# if table.isEager }}
         <EagerTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
         uniqueId={`{{ createId table }}-${uniqueId}`}
@@ -301,7 +309,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        tableTestId={ '{{ getXMIID table }}' }
+        tableTestId={testIdOverride ?? '{{ getElementId table }}'}
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
         {{# unless (checkboxSelectionEnabled table) }}
@@ -359,7 +367,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# unless (checkboxSelectionEnabled table) }}
         checkboxSelection={ false }
         {{/ unless }}
-        tableTestId={ '{{ getXMIID table }}' }
+        tableTestId={testIdOverride ?? '{{ getElementId table }}'}
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
         containerIsSelector={isSelector}

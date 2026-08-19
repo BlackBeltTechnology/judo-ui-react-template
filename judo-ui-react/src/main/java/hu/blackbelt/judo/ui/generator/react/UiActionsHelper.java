@@ -302,7 +302,9 @@ public class UiActionsHelper {
     }
 
     public static boolean isActionAddOrSet(ActionDefinition actionDefinition) {
-        return actionDefinition.getIsAddAction() || actionDefinition.getIsSetAction();
+        return actionDefinition.getIsAddAction()
+                || actionDefinition.getIsSetAction()
+                || actionDefinition instanceof OpenCreateFormActionDefinition;
     }
 
     public static String operationCallSuffix(Action action) {
@@ -603,5 +605,27 @@ public class UiActionsHelper {
         Object ad = button.eGet(feature);
         if (!(ad instanceof EObject)) return "";
         return normalizeButtonActionType(((EObject) ad).eClass().getName());
+    }
+
+    /**
+     * Maps a normalized action type to the canonical row-action role used by the runtime.
+     * Unknown action types intentionally retain their normalized value.
+     */
+    public static String normalizeButtonRole(String actionType) {
+        if (actionType == null || actionType.isEmpty()) return "";
+        return switch (actionType) {
+            case "opensetselector" -> "set";
+            case "opencreateform" -> "create";
+            case "openpage", "rowopenpage" -> "view";
+            case "rowdelete" -> "delete";
+            default -> actionType;
+        };
+    }
+
+    /**
+     * Returns the canonical row-action role for a button, or an empty string when no action exists.
+     */
+    public static String getButtonRole(EObject button) {
+        return normalizeButtonRole(getButtonActionType(button));
     }
 }

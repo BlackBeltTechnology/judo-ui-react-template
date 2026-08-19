@@ -17,9 +17,14 @@ import {
   GridRowModesModel,
   GridRowModes,
   GridRowEditStopReasons,
+  GridRow,
+  GridRowProps,
+  GridCell,
+  GridCellProps,
+  GridFilterPanel,
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
-import { MouseEvent, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
+import { type ComponentProps, MouseEvent, memo, useCallback, useMemo, useRef, useState, useEffect, ElementType, Dispatch, SetStateAction  } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
@@ -58,7 +63,7 @@ import {
 import type { TableRowAction, FiltersSerializer, DialogResultReason{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
-import { isNewRow, newTempId, resolveTransferId, buildFieldTestId, buildButtonTestId } from '~/utilities/transfer-id';
+import { isNewRow, newTempId, resolveTransferId, buildFieldTestId, buildButtonTestId, buildRowTestId, buildCellTestId, buildFilterPanelTestId, buildFilterPanelColumnInputTestId, buildFilterPanelOperatorInputTestId, buildFilterPanelValueInputTestId } from '~/utilities/transfer-id';
 import { CustomTablePagination } from '~/components';
 import { MdiIcon } from '~/components/MdiIcon';
 import Box from '@mui/material/Box';
@@ -198,6 +203,25 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
   const [totalCount, setTotalCount] = useState<number>(-1);
   const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
+  const TestIdRow = useMemo(() => memo((rowProps: GridRowProps) => (
+    <GridRow {...rowProps} data-testid={buildRowTestId(tableTestId, rowProps.row, rowProps.index)} />
+  )), [tableTestId]);
+  const TestIdCell = useMemo(() => memo((cellProps: GridCellProps) => (
+    <GridCell {...cellProps} data-testid={buildCellTestId(tableTestId, cellProps.row, cellProps.column.field, data.indexOf(cellProps.row as T))} />
+  )), [data, tableTestId]);
+  const TestIdFilterPanel = useMemo(() => memo((panelProps: ComponentProps<typeof GridFilterPanel>) => (
+    <div data-testid={buildFilterPanelTestId(tableTestId)}>
+      <GridFilterPanel
+        {...panelProps}
+        filterFormProps={ {
+          ...panelProps.filterFormProps,
+          columnInputProps: { ...panelProps.filterFormProps?.columnInputProps, 'data-testid': buildFilterPanelColumnInputTestId(tableTestId) },
+          operatorInputProps: { ...panelProps.filterFormProps?.operatorInputProps, 'data-testid': buildFilterPanelOperatorInputTestId(tableTestId) },
+          valueInputProps: { ...panelProps.filterFormProps?.valueInputProps, 'data-testid': buildFilterPanelValueInputTestId(tableTestId) },
+        } }
+      />
+    </div>
+  )), [tableTestId]);
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(createEmptySelectionModel());
   const [sortModel, setSortModel] = useState<GridSortModel>(getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable));
   const [filterModel, setFilterModel] = useState<GridFilterModel>(getItemParsedWithDefault(filterModelKey, { items: [] }));
@@ -599,8 +623,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     </>;
   };
 
-  async function filterAction(id: string) {
-    const filterResults = await actions[calculateActionName(relationName, 'filterAction')]!(id, filterOptions, filterModel, filters);
+  async function filterAction(id: string, tableId: string) {
+    const filterResults = await actions[calculateActionName(relationName, 'filterAction')]!(id, tableId, filterOptions, filterModel, filters);
     {{# if isUseInlineColumnFilters }}
       if (filterResults.model) {
         handleFilterModelChange({
@@ -660,7 +684,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         { ...baseTableConfig }
         showToolbar
         {{# if isMUILicensePlanPro }}
-        initialState={ { pinnedColumns: { right: ['actions'] } } }
+        initialState={ { pinnedColumns: { right: ['__actions__'] } } }
         {{/ if }}
         pageSizeOptions={pageSizeOptions}
         sx={ {
@@ -734,6 +758,9 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         filterDebounceMs={filterDebounceMs}
         rowCount={rowsPerPage}
         slots={ {
+          row: TestIdRow,
+          cell: TestIdCell,
+          filterPanel: TestIdFilterPanel,
           toolbar: () => (
             <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {
@@ -741,7 +768,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                 <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={buildButtonTestId(toolBarAction.id, toolBarAction.actionType)}
+                        data-testid={containerIsSelector && toolBarAction.actionType === 'opencreateform' ? buildFieldTestId(tableTestId, 'selector::create') : buildButtonTestId(toolBarAction.id, toolBarAction.actionType)}
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {
@@ -760,10 +787,14 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                           if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
                             const templateResult: T | undefined = await actions[toolBarAction.name]!();
                             const tempId = newTempId();
-                            setData((oldRows) => [{ ...(templateResult || {}), __tempId: tempId, __isNew: true } as unknown as T, ...oldRows]);
+                            const draftRow = { ...(templateResult || {}), __tempId: tempId, __isNew: true } as unknown as T;
+                            setData((oldRows) => [draftRow, ...oldRows]);
+                            // Key the edit mode by the identity the grid resolves for the
+                            // row: a template result may already carry an __identifier,
+                            // which wins over __tempId in the resolution chain.
                             setRowModesModel((oldModel) => ({
                               ...oldModel,
-                              [tempId]: { mode: GridRowModes.Edit },
+                              [getRowIdentifier(draftRow)]: { mode: GridRowModes.Edit },
                             }));
                           }
 
@@ -771,7 +802,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                             {{# if isUseInlineColumnFilters }}
                               apiRef.current!.showFilterPanel();
                             {{ else }}
-                              await filterAction(toolBarAction.id);
+                              await filterAction(toolBarAction.id, tableTestId);
                             {{/ if }}
                           } else {
                             let processedQueryCustomizer = {

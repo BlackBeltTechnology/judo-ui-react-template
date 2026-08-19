@@ -23,7 +23,9 @@ package hu.blackbelt.judo.ui.generator.react;
 import org.junit.jupiter.api.Test;
 
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getButtonActionType;
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getButtonRole;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.normalizeButtonActionType;
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.normalizeButtonRole;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -64,5 +66,33 @@ public class UiActionsHelperTest {
     @Test
     void getButtonActionType_returnsEmptyStringForNullButton() {
         assertEquals("", getButtonActionType(null));
+    }
+
+    @Test
+    void normalizeButtonRole_mapsActionTypesToCanonicalRoles() {
+        // Byte-exact port of the runtime's getButtonRole switch in @judo/test-ids/src/element.ts.
+        assertEquals("set", normalizeButtonRole("opensetselector"));
+        assertEquals("create", normalizeButtonRole("opencreateform"));
+        assertEquals("view", normalizeButtonRole("openpage"));
+        assertEquals("view", normalizeButtonRole("rowopenpage"));
+        assertEquals("delete", normalizeButtonRole("rowdelete"));
+    }
+
+    @Test
+    void normalizeButtonRole_fallsBackToRawActionType() {
+        assertEquals("calloperation", normalizeButtonRole("calloperation"));
+        assertEquals("refresh", normalizeButtonRole("refresh"));
+        assertEquals("openaddselector", normalizeButtonRole("openaddselector"));
+    }
+
+    @Test
+    void normalizeButtonRole_returnsEmptyStringForNullOrBlank() {
+        assertEquals("", normalizeButtonRole(null));
+        assertEquals("", normalizeButtonRole(""));
+    }
+
+    @Test
+    void getButtonRole_returnsEmptyStringForNullButton() {
+        assertEquals("", getButtonRole(null));
     }
 }
