@@ -1,5 +1,7 @@
 # Conditional UI
 
+## Purpose
+
 Generates runtime conditional rendering logic for visibility, enabled state, and required state of UI elements. Conditions are driven by data-bound attribute values, allowing the UI to dynamically adapt based on the current entity state without custom code.
 
 ## Requirements

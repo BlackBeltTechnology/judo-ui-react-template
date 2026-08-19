@@ -1,5 +1,7 @@
 # Data Tables
 
+## Purpose
+
 Generates MUI DataGrid-based table components from UI `Table` model elements. Tables are the primary mechanism for displaying collections of data with sorting, filtering, pagination, row selection, CRUD actions, and inline editing. The generator supports three MUI license tiers (Community, Pro, Premium) and three visual representations (TABLE, TAG, CARD).
 
 ## Requirements

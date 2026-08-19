@@ -1,5 +1,7 @@
 # Runtime Extensibility
 
+## Purpose
+
 Generates Pandino-based extensibility hooks that allow developers to customize generated applications at runtime without modifying generated code. Pandino (an OSGi-style dependency injection framework for JavaScript) provides interface-based service registration. The generator produces interface keys, hook registration points, and default implementations that can be overridden.
 
 ## Requirements
