@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Paper, { type PaperProps } from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import type { ComponentType, FC } from 'react';
-import { memo, useMemo } from 'react';
+import { useCallback, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutocompleteMoreResultsHint } from './AutocompleteMoreResultsHint';
 
@@ -41,18 +41,13 @@ export const useAutocompleteHintPaper = ({
   const showMoreHint = !loading && typeof limit === 'number' && limit > 0 && optionsLength >= limit;
   const showNoResults = !loading && optionsLength === 0;
   const hintLimit = limit ?? 0;
-
-  return useMemo(
-    () =>
-      memo(function AutocompleteHintPaper(paperProps: PaperProps) {
-        return (
-          <Paper {...paperProps}>
-            {showNoResults && <AutocompleteNoResultsHint />}
-            {paperProps.children}
-            {showMoreHint && <AutocompleteMoreResultsHint limit={hintLimit} />}
-          </Paper>
-        );
-      }),
-    [showNoResults, showMoreHint, hintLimit],
-  );
+  const stateRef = useRef({ showMoreHint, showNoResults, hintLimit });
+  stateRef.current = { showMoreHint, showNoResults, hintLimit };
+  return useCallback((paperProps: PaperProps) => (
+    <Paper {...paperProps}>
+      {stateRef.current.showNoResults && <AutocompleteNoResultsHint />}
+      {paperProps.children}
+      {stateRef.current.showMoreHint && <AutocompleteMoreResultsHint limit={stateRef.current.hintLimit} />}
+    </Paper>
+  ), []);
 };
