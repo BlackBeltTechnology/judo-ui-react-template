@@ -1,14 +1,18 @@
 import { useState, useEffect } from 'react';
+import { namespacedStorageKey } from '../utilities/storage-namespace';
 
 export function useLocalStorage<ValueType>(key: string, defaultValue: ValueType) {
+  // Namespaced by the base path this application is served on, so a sibling frontend on the same
+  // origin cannot overwrite this application's preferences.
+  const storageKey = namespacedStorageKey(key);
   const [value, setValue] = useState(() => {
-    const storedValue = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+    const storedValue = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null;
     return storedValue === null ? defaultValue : JSON.parse(storedValue);
   });
 
   useEffect(() => {
     const listener = (e: StorageEvent) => {
-      if (typeof window !== 'undefined' && e.storageArea === localStorage && e.key === key) {
+      if (typeof window !== 'undefined' && e.storageArea === localStorage && e.key === storageKey) {
         setValue(e.newValue ? JSON.parse(e.newValue) : e.newValue);
       }
     };
@@ -17,12 +21,12 @@ export function useLocalStorage<ValueType>(key: string, defaultValue: ValueType)
     return () => {
       window.removeEventListener('storage', listener);
     };
-  }, [key, defaultValue]);
+  }, [storageKey, defaultValue]);
 
   const setValueInLocalStorage = (newValue: ValueType) => {
     setValue((currentValue: any) => {
       const result = typeof newValue === 'function' ? newValue(currentValue) : newValue;
-      if (typeof window !== 'undefined') localStorage.setItem(key, JSON.stringify(result));
+      if (typeof window !== 'undefined') localStorage.setItem(storageKey, JSON.stringify(result));
       return result;
     });
   };
