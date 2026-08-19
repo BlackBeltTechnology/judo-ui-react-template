@@ -10,7 +10,7 @@ import { baseColumnConfig, characterMultiplier, iconAndDropdownIconExtra, onlyDr
 import type { ColumnActionsProvider, ColumnsActionsOptions, TableRowAction } from '../../utilities';
 import { DropdownButton } from '../DropdownButton';
 import { MdiIcon } from '../MdiIcon';
-import { resolveTransferId, buildRowTestId } from '../../utilities/transfer-id';
+import { resolveTransferId, buildButtonTestId, buildRowActionTestId, ROW_ACTION_ROLE_OVERFLOW } from '../../utilities/transfer-id';
 
 export const calculateMinWidth = (entry: TableRowAction<any, any>[], editable = false) => {
   const baseWidth = entry.length ? ((entry.map(a => (a.label ?? '').length).reduce((p, c) => p + c, 0) * characterMultiplier) + iconAndDropdownIconExtra) : onlyDropdownWidth;
@@ -35,6 +35,13 @@ const ActionColumnButtonGroup = ({ touchRippleRef, children, ...props }: any) =>
   return (
     <ButtonGroup {...props}>{children}</ButtonGroup>
   );
+};
+
+const getRowActionTestId = (tableId: string, row: any, action: TableRowAction<any, any>): string => {
+  const role = action.testId;
+  return role && role !== 'unknown'
+    ? buildRowActionTestId(tableId, row, role)
+    : buildButtonTestId(action.id, action.actionType);
 };
 
 export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
@@ -66,7 +73,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   return [
     {
       ...baseColumnConfig,
-      field: 'actions',
+      field: '__actions__',
       sortable: false,
       disableColumnMenu: true,
       minWidth: options?.actionsColumnWidth || calculateMinWidth(splitActions, editable),
@@ -77,7 +84,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Tooltip title={a.tooltip} key={a.id}>
               <Button
-                data-testid={`${buildRowTestId(id, params.row)}::button::${a.testId ?? a.id}`}
+                data-testid={getRowActionTestId(id, params.row, a)}
                 variant="text"
                 startIcon={a.icon}
                 disabled={a.disabled ? a.disabled(params.row, isLoading, isRowInEditMode(params.row, rowModesModel), getSelectedRows, ownerData) : false}
@@ -89,11 +96,13 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           ))}
           {dropdownActions.length ? <DropdownButton
             id={id}
+            testId={buildRowActionTestId(id, params.row, ROW_ACTION_ROLE_OVERFLOW)}
             variant="text"
             showDropdownIcon={false}
             menuItems={dropdownActions.filter(a => !a.hidden(params.row)).map((action) => ({
               id: action.id,
               key: action.id,
+              testId: getRowActionTestId(id, params.row, action),
               label: action.label,
               startIcon: action.icon,
               tooltip: action.tooltip,
