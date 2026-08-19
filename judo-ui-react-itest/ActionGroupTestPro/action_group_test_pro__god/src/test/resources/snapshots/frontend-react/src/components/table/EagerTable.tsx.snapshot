@@ -11,16 +11,21 @@ import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
 import {
+  GridCell,
+  GridCellProps,
   GridColDef,
   GridEventListener,
   GridFilterModel,
+  GridFilterPanel,
   GridLogicOperator,
+  GridRow,
   GridRowClassNameParams,
   GridRowEditStopReasons,
   GridRowModel,
   GridRowModes,
   GridRowModesModel,
   GridRowParams,
+  GridRowProps,
   GridRowSelectionModel,
   GridSortModel,
   GridToolbarContainer,
@@ -29,7 +34,17 @@ import {
   useGridApiRef,
 } from '@mui/x-data-grid-pro';
 import { ComponentProxy, useTrackService } from '@pandino/react-hooks';
-import { ElementType, MouseEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type ComponentProps,
+  ElementType,
+  MouseEvent,
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
 import { useConfirmDialog } from '~/components/dialog';
@@ -64,7 +79,19 @@ import {
   selectionModelToArray,
   ToolBarActionProps,
 } from '~/utilities';
-import { buildButtonTestId, buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
+import {
+  buildButtonTestId,
+  buildCellTestId,
+  buildFieldTestId,
+  buildFilterPanelColumnInputTestId,
+  buildFilterPanelOperatorInputTestId,
+  buildFilterPanelTestId,
+  buildFilterPanelValueInputTestId,
+  buildRowTestId,
+  isNewRow,
+  newTempId,
+  resolveTransferId,
+} from '~/utilities/transfer-id';
 
 interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
   sidekickComponentFilter: string;
@@ -163,6 +190,54 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
 
   const [isInternalLoading, setIsInternalLoading] = useState<boolean>(false);
   const [data, setData] = useState<GridRowModel<T>[]>(dataProp);
+  const TestIdRow = useMemo(
+    () =>
+      memo((rowProps: GridRowProps) => (
+        <GridRow {...rowProps} data-testid={buildRowTestId(tableTestId, rowProps.row, rowProps.index)} />
+      )),
+    [tableTestId],
+  );
+  const TestIdCell = useMemo(
+    () =>
+      memo((cellProps: GridCellProps) => (
+        <GridCell
+          {...cellProps}
+          data-testid={buildCellTestId(
+            tableTestId,
+            cellProps.row,
+            cellProps.column.field,
+            data.indexOf(cellProps.row as T),
+          )}
+        />
+      )),
+    [data, tableTestId],
+  );
+  const TestIdFilterPanel = useMemo(
+    () =>
+      memo((panelProps: ComponentProps<typeof GridFilterPanel>) => (
+        <div data-testid={buildFilterPanelTestId(tableTestId)}>
+          <GridFilterPanel
+            {...panelProps}
+            filterFormProps={{
+              ...panelProps.filterFormProps,
+              columnInputProps: {
+                ...panelProps.filterFormProps?.columnInputProps,
+                'data-testid': buildFilterPanelColumnInputTestId(tableTestId),
+              },
+              operatorInputProps: {
+                ...panelProps.filterFormProps?.operatorInputProps,
+                'data-testid': buildFilterPanelOperatorInputTestId(tableTestId),
+              },
+              valueInputProps: {
+                ...panelProps.filterFormProps?.valueInputProps,
+                'data-testid': buildFilterPanelValueInputTestId(tableTestId),
+              },
+            }}
+          />
+        </div>
+      )),
+    [tableTestId],
+  );
   const [selectionModel, setSelectionModel] = useState<GridRowSelectionModel>(createEmptySelectionModel());
   const [sortModel, setSortModel] = useState<GridSortModel>(
     getItemParsedWithDefault(sortModelKey, defaultSortParamsForTable),
@@ -562,6 +637,9 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         slots={{
+          row: TestIdRow,
+          cell: TestIdCell,
+          filterPanel: TestIdFilterPanel,
           toolbar: () => (
             <GridToolbarContainer sx={{ justifyContent: 'flex-start' }}>
               {toolBarActions.map((toolBarAction: ToolBarActionProps<T>) =>

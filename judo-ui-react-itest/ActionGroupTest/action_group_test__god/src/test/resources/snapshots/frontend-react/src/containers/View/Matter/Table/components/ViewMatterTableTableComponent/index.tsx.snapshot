@@ -407,6 +407,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
   const rowActions: TableRowAction<ViewMatterStored, ViewMatterStored>[] = [
     {
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowRemoveButton',
+      testId: 'remove',
+      actionType: 'remove',
       label: t('judo.action.remove', { defaultValue: 'Remove' }) as string,
       icon: <MdiIcon path="link_off" />,
       isCRUD: true,
@@ -426,6 +428,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     },
     {
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowDeleteButton',
+      testId: 'delete',
+      actionType: 'rowdelete',
       label: t('judo.action.row-delete', { defaultValue: 'Delete' }) as string,
       icon: <MdiIcon path="delete_forever" />,
       isCRUD: true,
@@ -499,7 +503,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        tableTestId={'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable'}
+        tableTestId={'_D04SgOq_EeuMzos2n42msw'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
         containerIsSelector={isSelector}
