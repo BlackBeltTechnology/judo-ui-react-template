@@ -77,7 +77,12 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       dropDownButtonIsVisible: (value: any) => exists(value) && !readOnly && !isRequired && value.__deleteable && !!actions.{{ simpleActionDefinitionName actionDefinition }},
       disabled: disabled || editMode,
       onClick: async (value: {{ classDataName link.dataElement.target 'Stored' }} | null) => {
-        actions.{{ simpleActionDefinitionName actionDefinition }}!(value!);
+        {{# each link.actionButtonGroup.buttons as |unsetButton| }}
+          {{# if unsetButton.actionDefinition.isUnsetAction }}
+        await actions.{{ simpleActionDefinitionName unsetButton.actionDefinition }}!(value!);
+          {{/ if }}
+        {{/ each }}
+        await actions.{{ simpleActionDefinitionName actionDefinition }}!(value!);
       },
       title: t('judo.component.SingleRelationInput.delete', { defaultValue: 'Delete' }) as string,
     {{/ if }}
@@ -89,7 +94,7 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
   return (
     <SingleRelationInput
       name="{{ link.dataElement.name }}"
-      id="{{ getXMIID link }}"
+      id="{{ getElementId link }}"
       label={ t('{{ getTranslationKeyForVisualElement link }}', { defaultValue: '{{ link.label }}' }) as string }
       required={isRequired}
       ownerData={ownerData}
