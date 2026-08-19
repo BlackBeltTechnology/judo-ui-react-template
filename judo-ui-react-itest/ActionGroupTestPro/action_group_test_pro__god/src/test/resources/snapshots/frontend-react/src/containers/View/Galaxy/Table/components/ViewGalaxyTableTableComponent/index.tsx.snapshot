@@ -571,6 +571,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
   const rowActions: TableRowAction<ViewGalaxyStored, ViewGalaxyStored>[] = [
     {
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableRowRemoveButton',
+      testId: 'remove',
+      actionType: 'remove',
       label: t('judo.action.remove', { defaultValue: 'Remove' }) as string,
       icon: <MdiIcon path="link_off" />,
       isCRUD: true,
@@ -590,6 +592,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableRowDeleteButton',
+      testId: 'delete',
+      actionType: 'rowdelete',
       label: t('judo.action.row-delete', { defaultValue: 'Delete' }) as string,
       icon: <MdiIcon path="delete_forever" />,
       isCRUD: true,
@@ -613,6 +617,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKM0T0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      testId: 'openoperationinputform',
+      actionType: 'openoperationinputform',
       label: t('View.Galaxy.Table.View.Galaxy.createDarkMatter', { defaultValue: 'CreateDarkMatter' }) as string,
       icon: <MdiIcon path="chevron_right" />,
       hidden: (row: ViewGalaxyStored) => false,
@@ -631,6 +637,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKz4T0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      testId: 'openoperationinputform',
+      actionType: 'openoperationinputform',
       label: t('View.Galaxy.Table.View.Galaxy.createIntergalacticDust', {
         defaultValue: 'CreateIntergalacticDust',
       }) as string,
@@ -651,6 +659,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKz4z0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      testId: 'openoperationinputform',
+      actionType: 'openoperationinputform',
       label: t('View.Galaxy.Table.View.Galaxy.createInterstellarMedium', {
         defaultValue: 'CreateInterstellarMedium',
       }) as string,
@@ -800,7 +810,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        tableTestId={'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable'}
+        tableTestId={'_YT0hQE7rEeycO-gUAWxcVg'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
         containerIsSelector={isSelector}
