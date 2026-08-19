@@ -20,7 +20,11 @@ import { useSnacks } from '~/hooks';
 import { useDialog } from '~/components/dialog';
 import { MdiIcon } from '~/components/MdiIcon';
 import { isErrorOperationFault } from '~/utilities';
-import { resolveTransferId } from '~/utilities/transfer-id';
+import { buildDialogRoleTestId, resolveTransferId } from '~/utilities/transfer-id';
+
+// This dialog confirms before it runs anything, so it shares the canonical
+// confirmation identity used by every other confirmation dialog.
+const CONFIRMATION_DIALOG_ID = 'confirmation';
 
 export type CRUDDialogOpenProps<T extends JudoStored<any>> = {
   dialogTitle: string;
@@ -194,10 +198,10 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
 
   return (
     <>
-      <DialogTitle>
+      <DialogTitle data-testid={buildDialogRoleTestId(CONFIRMATION_DIALOG_ID, 'title')}>
         {title}
         <IconButton
-          data-testid="use-crud-dialog-close-top"
+          data-testid={buildDialogRoleTestId(CONFIRMATION_DIALOG_ID, 'cancel')}
           aria-label="close"
           onClick={() => close(runCount.current > 0)}
           sx={ {
@@ -231,14 +235,14 @@ export function CRUDDialog({ title, close, queueItems, action, autoCloseOnSucces
         </Grid>
       </DialogContent>
       <DialogActions>
-        <Button data-testid="use-crud-dialog-close" onClick={() => close(runCount.current > 0)} variant="text">
+        <Button onClick={() => close(runCount.current > 0)} variant="text">
           {t('judo.modal.close', { defaultValue: 'Close' }) as string}
         </Button>
         <Button
           disabled={queue.every(i => i.status === 'success')}
           loading={inProgress}
           loadingPosition="start"
-          data-testid="use-crud-dialog-execute"
+          data-testid={buildDialogRoleTestId(CONFIRMATION_DIALOG_ID, 'confirm')}
           variant="contained"
           onClick={() => runActions()}
           startIcon={<MdiIcon path="play" />}
