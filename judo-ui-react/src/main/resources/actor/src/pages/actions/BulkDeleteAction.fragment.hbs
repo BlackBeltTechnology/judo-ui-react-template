@@ -1,6 +1,18 @@
 // BulkDeleteAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (selectedRows: {{ classDataName action.actionDefinition.targetType 'Stored' }}[]): Promise<DialogResult<Array<{{ classDataName action.actionDefinition.targetType 'Stored' }}>>> => {
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
+  {{# if table.isEager }}
+    // Deleting the selected rows destroys data, so it asks first. The lazy path
+    // below asks through its own bulk CRUD dialog.
+    const confirmed = await openConfirmDialog(
+      'confirmation',
+      t('judo.modal.confirm.confirm-bulk-delete', { defaultValue: 'Are you sure you would like to delete the selected items?' }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return { result: 'close', data: [] };
+    }
+  {{/ if }}
   return new Promise((resolve) => {
     {{# if table.isEager }}
       const selectedIds = selectedRows.map(r => resolveTransferId(r));
