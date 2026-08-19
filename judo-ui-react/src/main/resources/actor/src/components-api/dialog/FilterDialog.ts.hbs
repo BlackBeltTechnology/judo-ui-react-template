@@ -47,6 +47,8 @@ export interface Filter {
 
 export interface FilterDialogProps {
   id: string;
+  /** Source ID of the owning table; the canonical filter selector prefix. */
+  tableTestId: string;
   filters?: Filter[];
   filterOptions: FilterOption[];
   resolve: (value: any) => void;
@@ -56,18 +58,27 @@ export interface FilterDialogProps {
 
 export interface FilterOperatorProps {
   id: string;
+  tableTestId: string;
+  /** Position of the owning filter row; scopes the canonical `::row::<n>` roles. */
+  index: number;
   filter: Filter;
   setFilterOperator: (filter: Filter, newOperator: Operation) => void;
 }
 
 export interface FilterInputProps {
   id: string;
+  tableTestId: string;
+  /** Position of the owning filter row; scopes the canonical `::row::<n>` roles. */
+  index: number;
   filter: Filter;
   setFilterValue: (filter: Filter, newValue: any) => void;
 }
 
 export interface FilterProps {
   id: string;
+  tableTestId: string;
+  /** Position of this filter row; scopes the canonical `::row::<n>` roles. */
+  index: number;
   filter: Filter;
   closeHandler: (filter: Filter) => void;
   setFilterValue: (filter: Filter, newValue: any) => void;

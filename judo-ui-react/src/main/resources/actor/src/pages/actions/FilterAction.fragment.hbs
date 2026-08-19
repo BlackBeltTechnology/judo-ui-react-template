@@ -1,6 +1,6 @@
 // FilterAction: {{ getXMIID action }}
-const {{ simpleActionDefinitionName action.actionDefinition }} = async (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-  const newFilters = await openFilterDialog(id, filterOptions, filters);
+const {{ simpleActionDefinitionName action.actionDefinition }} = async (id: string, tableTestId: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
+  const newFilters = await openFilterDialog(id, tableTestId, filterOptions, filters);
   return {
     filters: newFilters,
   };
