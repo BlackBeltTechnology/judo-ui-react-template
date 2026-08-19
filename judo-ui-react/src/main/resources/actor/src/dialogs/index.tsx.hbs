@@ -79,6 +79,7 @@ import { useRef, useCallback, useEffect, useState, useMemo, lazy, Suspense } fro
 export default function {{ pageName page }}(props: {{ pageName page }}Props) {
   const {
     ownerData,
+    selectorOwnerId,
     {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: output,{{/ and }}
     {{# if page.isRelationSelector }}alreadySelected,{{/ if }}
     {{# unless page.isSelector }}templateDataOverride,{{/ unless }}
@@ -459,6 +460,7 @@ export default function {{ pageName page }}(props: {{ pageName page }}Props) {
           <div data-testid={buildFieldTestId('{{ getElementId page }}')} data-page-name="{{ page.name }}" />
           <{{ containerComponentName page.container }}DialogContainer
             ownerData={ownerData}
+            selectorOwnerId={selectorOwnerId}
             onClose={onClose}
             actions={actions}
             actionsRequested={requestedContainerActions}

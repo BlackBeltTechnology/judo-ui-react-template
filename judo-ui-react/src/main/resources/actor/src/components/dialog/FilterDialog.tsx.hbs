@@ -36,9 +36,9 @@ import { mainContainerPadding } from '../../theme';
 import { DropdownButton } from '../DropdownButton';
 import { TrinaryLogicCombobox } from '../widgets/TrinaryLogicCombobox';
 import { MdiIcon } from '../MdiIcon';
-import { buildDialogTestId, buildDialogRoleTestId, buildFieldTestId } from '~/utilities/transfer-id';
+import { buildDialogTestId, buildDialogRoleTestId, buildFieldTestId, buildFilterPanelTestId, buildFilterPanelColumnInputTestId, buildFilterPanelOperatorInputTestId, buildFilterPanelOperatorOptionTestId, buildFilterPanelRowTestId, buildFilterPanelValueInputTestId } from '~/utilities/transfer-id';
 
-const FilterOperator = ({ id, filter, setFilterOperator }: FilterOperatorProps) => {
+const FilterOperator = ({ id, tableTestId, index, filter, setFilterOperator }: FilterOperatorProps) => {
   const { t } = useTranslation();
 
   const onChangeHandler = (event: ChangeEvent<HTMLTextAreaElement | HTMLInputElement>) => {
@@ -48,14 +48,19 @@ const FilterOperator = ({ id, filter, setFilterOperator }: FilterOperatorProps) 
   return (
     <TextField
       name={'operation'}
-      data-testid={buildFieldTestId(id, 'operator')}
+      data-testid={buildFilterPanelOperatorInputTestId(tableTestId, index)}
       label={t('judo.modal.filter.operation', { defaultValue: 'Operation' }) as string}
       select
       value={filter.filterBy.operator}
       onChange={onChangeHandler}
     >
       {getOperatorsByFilter(filter).map((item) => (
-        <MenuItem className="filter-operation-item" data-testid={buildFieldTestId(id, 'value')} key={item} value={item}>
+        <MenuItem
+          className="filter-operation-item"
+          data-testid={buildFilterPanelOperatorOptionTestId(tableTestId, index, item)}
+          key={item}
+          value={item}
+        >
           {t(`judo.modal.filter.${item}`, { defaultValue: 'Operation' }) as string}
         </MenuItem>
       ))}
@@ -63,7 +68,7 @@ const FilterOperator = ({ id, filter, setFilterOperator }: FilterOperatorProps) 
   );
 };
 
-const FilterInput = ({ id, filter, setFilterValue }: FilterInputProps) => {
+const FilterInput = ({ id, tableTestId, index, filter, setFilterValue }: FilterInputProps) => {
   if (filter.filterOption.filterType === FilterType.enumeration && !exists(filter.filterOption.enumValues)) {
     throw new Error(`Missing enumValues from FilterOptions of "${filter.filterOption.attributeName}"`);
   }
@@ -72,6 +77,12 @@ const FilterInput = ({ id, filter, setFilterValue }: FilterInputProps) => {
   // `className` keeps the legacy `${id}-value` plain form because `::` is
   // not a valid CSS class selector. See design.md §D8.
   const valueClassName = `${id}-value`;
+
+  // The canonical `::value` role sits on the focusable input of the text-like
+  // value editors (string, numeric, enumeration).
+  // ponytail: the date, dateTime, boolean and trinary editors do not accept
+  // `inputProps`; they need the role threaded through their own slot props.
+  // Add that when a spec has to filter on those types.
 
   return (
     <>
@@ -154,6 +165,7 @@ const FilterInput = ({ id, filter, setFilterValue }: FilterInputProps) => {
             return (
               <TextField
                 className={valueClassName}
+                inputProps=\{{ 'data-testid': buildFilterPanelValueInputTestId(tableTestId, index) }}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? ''}
                 select
@@ -170,6 +182,7 @@ const FilterInput = ({ id, filter, setFilterValue }: FilterInputProps) => {
             return (
               <TextField
                 className={valueClassName}
+                inputProps=\{{ 'data-testid': buildFilterPanelValueInputTestId(tableTestId, index) }}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 type="number"
                 value={filter.filterBy.value ?? ''}
@@ -187,6 +200,7 @@ const FilterInput = ({ id, filter, setFilterValue }: FilterInputProps) => {
             return (
               <TextField
                 className={valueClassName}
+                inputProps=\{{ 'data-testid': buildFilterPanelValueInputTestId(tableTestId, index) }}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? ''}
                 onChange={(event) => setFilterValue(filter, event.target.value)}
@@ -214,17 +228,20 @@ const FilterInput = ({ id, filter, setFilterValue }: FilterInputProps) => {
   );
 };
 
-const FilterRow = ({ id, filter, closeHandler, setFilterOperator, setFilterValue }: FilterProps) => {
+const FilterRow = ({ id, tableTestId, index, filter, closeHandler, setFilterOperator, setFilterValue }: FilterProps) => {
   return (
-    <Grid container spacing={2} alignItems={'center'}>
+    <Grid container spacing={2} alignItems={'center'} data-testid={buildFilterPanelRowTestId(tableTestId, index)}>
       <Grid size={4}>
-        {filter && <FilterOperator id={id} filter={filter} setFilterOperator={setFilterOperator} />}
+        {filter && <FilterOperator id={id} tableTestId={tableTestId} index={index} filter={filter} setFilterOperator={setFilterOperator} />}
       </Grid>
       <Grid size={7}>
-        {filter && !isFilterWithoutValue(filter) && <FilterInput id={id} filter={filter} setFilterValue={setFilterValue} />}
+        {filter && !isFilterWithoutValue(filter) && <FilterInput id={id} tableTestId={tableTestId} index={index} filter={filter} setFilterValue={setFilterValue} />}
       </Grid>
       <Grid size={1}>
-        <IconButton data-testid={buildDialogRoleTestId(id, 'close')} onClick={() => closeHandler(filter)}>
+        <IconButton
+          data-testid={`${buildFilterPanelRowTestId(tableTestId, index)}::remove`}
+          onClick={() => closeHandler(filter)}
+        >
           <MdiIcon path="close" />
         </IconButton>
       </Grid>
@@ -241,7 +258,7 @@ const Transition = forwardRef(function Transition(
   return <Slide direction="left" ref={ref} {...props} />;
 });
 
-export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handleClose }: FilterDialogProps) => {
+export const FilterDialog = ({ id, tableTestId, filters, filterOptions, resolve, open, handleClose }: FilterDialogProps) => {
   const descriptionElementRef = useRef<HTMLElement>(null);
   const [tempFilters, setTempFilters] = useState<Filter[]>(filters ?? []);
   const { t } = useTranslation();
@@ -305,7 +322,7 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
 
   return (
     <Dialog
-      data-testid={buildDialogTestId(id)}
+      data-testid={buildFilterPanelTestId(tableTestId)}
       open={open}
       onClose={cancel}
       scroll="paper"
@@ -325,7 +342,7 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
         },
       }}
     >
-      <DialogTitle data-testid={buildDialogRoleTestId(id, 'title')}>
+      <DialogTitle data-testid={`${buildFilterPanelTestId(tableTestId)}::title`}>
         <Typography component="span" color="text.primary" variant="h5">
           { t('judo.modal.filter.label', { defaultValue: 'Filter' }) as string }
         </Typography>
@@ -334,9 +351,11 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
         <Container component="main" maxWidth="xs">
           <Box sx={mainContainerPadding}>
             <Stack spacing={2} className="force-full-width" sx=\{{ width: '100%' }}>
-              {tempFilters.map((filter) => (
+              {tempFilters.map((filter, index) => (
                 <FilterRow
                   id={filter.id}
+                  tableTestId={tableTestId}
+                  index={index}
                   key={filter.id}
                   filter={filter}
                   closeHandler={filterCloseHandler}
@@ -346,12 +365,17 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
               ))}
               <Grid container>
                 <DropdownButton
+                  testId={`${buildFilterPanelTestId(tableTestId)}::add`}
+                  menuTestId={buildFilterPanelColumnInputTestId(tableTestId)}
                   id={`${id}-dropdown`}
                   fullWidth={true}
                   showDropdownIcon={false}
                   menuItems={filterOptions.map((filterOption) => {
                     return {
                       id: filterOption.id,
+                      // Canonical column-option role so an engine-neutral spec can
+                      // pick a filter column by its modeled attribute name.
+                      testId: `${buildFilterPanelColumnInputTestId(tableTestId)}::${filterOption.attributeName}`,
                       label: filterOption.label ?? filterOption.attributeName,
                       onClick: () =>
                         setTempFilters((prevTempFilters) => [
@@ -383,14 +407,14 @@ export const FilterDialog = ({ id, filters, filterOptions, resolve, open, handle
         </Container>
       </DialogContent>
       <DialogActions>
-        <Button data-testid={buildDialogRoleTestId(id, 'cancel')} fullWidth variant="outlined" onClick={cancel}>
+        <Button data-testid={`${buildFilterPanelTestId(tableTestId)}::cancel`} fullWidth variant="outlined" onClick={cancel}>
           { t('judo.modal.filter.cancel', { defaultValue: 'Cancel' }) as string }
         </Button>
         { tempFilters.length > 0 &&
         <Button data-testid={buildFieldTestId(id, 'button::clear-all')} fullWidth variant="outlined" onClick={clear}>
             {t('judo.modal.filter.clear-all', { defaultValue: 'Clear all' }) as string}
         </Button> }
-        <Button data-testid={buildDialogRoleTestId(id, 'confirm')} fullWidth onClick={ok}>
+        <Button data-testid={`${buildFilterPanelTestId(tableTestId)}::confirm`} fullWidth onClick={ok}>
           { t('judo.modal.filter.apply', { defaultValue: 'Apply' }) as string } {'(' + tempFilters.length + ')'}
         </Button>
       </DialogActions>

@@ -33,6 +33,8 @@
 
   export interface {{ pageName page }}Props {
     ownerData: any;
+    /** Canonical id of the field that opened this dialog as its selector, when it has one. */
+    selectorOwnerId?: string;
     {{# and (isPageDataElementUnmappedSingle page) page.container.view }}data: {{ classDataName (getReferenceClassType page) '' }};{{/ and }}
     {{# if page.isRelationSelector }}alreadySelected: {{ classDataName (getReferenceClassType page) 'Stored' }}[];{{/ if }}
     {{# unless page.isSelector }}templateDataOverride?: {{# if page.container.view }}{{ classDataName (getReferenceClassType page) 'Stored' }}{{ else }}Partial<{{ classDataName (getReferenceClassType page) '' }}>{{/ if }};{{/ unless }}
