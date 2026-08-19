@@ -1,3 +1,5 @@
+import { namespacedStorageKey } from '../utilities/storage-namespace';
+
 export type DataStoreDriver = 'sessionStorage' | 'localStorage';
 
 export interface DataStore {
@@ -12,31 +14,34 @@ export type UseDataStoreHook = (driver: DataStoreDriver) => DataStore;
 
 export const useDataStore: UseDataStoreHook = <T>(driver: DataStoreDriver) => {
   const storage: Storage = driver === 'sessionStorage' ? sessionStorage : localStorage;
+  // Keys are namespaced by the base path this application is served on, so a sibling frontend on the
+  // same origin cannot overwrite this application's state.
+  const scoped = (key: string) => namespacedStorageKey(key);
 
   return {
     getItem: (key: string) => {
-      return storage.getItem(key);
+      return storage.getItem(scoped(key));
     },
     getItemParsed: (key: string) => {
-      const item = storage.getItem(key);
+      const item = storage.getItem(scoped(key));
       return item !== null ? JSON.parse(item) : item;
     },
     getItemWithDefault: (key: string, defaultReturn: string) => {
-      let item = storage.getItem(key);
+      let item = storage.getItem(scoped(key));
       if (item === null) {
         return defaultReturn;
       }
       return item;
     },
     getItemParsedWithDefault: (key: string, defaultReturn: T) => {
-      let item = storage.getItem(key);
+      let item = storage.getItem(scoped(key));
       return item !== null ? JSON.parse(item) : defaultReturn;
     },
     setItem: (key: string, value: string) => {
-      storage.setItem(key, value);
+      storage.setItem(scoped(key), value);
     },
     setItemStringified: (key: string, value: T) => {
-      storage.setItem(key, JSON.stringify(value));
+      storage.setItem(scoped(key), JSON.stringify(value));
     },
   };
 };
