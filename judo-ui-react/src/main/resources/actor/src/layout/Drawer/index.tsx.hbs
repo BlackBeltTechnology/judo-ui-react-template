@@ -35,6 +35,15 @@ const BottomSection = styled('div')({
   right: 0,
 });
 
+type DrawerTier = 'unresolved' | 'compact' | 'medium' | 'wide';
+
+const drawerTier = (size?: string): DrawerTier => {
+  if (size === 'xs' || size === 'sm') return 'compact';
+  if (size === 'md') return 'medium';
+  if (size === 'lg' || size === 'xl') return 'wide';
+  return 'unresolved';
+};
+
 const ToggleButton = styled(IconButton)(({ theme }) => ({
   zIndex: 1300,
   color: theme.palette.secondary.main,
@@ -60,26 +69,21 @@ export const Drawer = ({ window }: DrawerProps) => {
   const prevSizeRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
-    // console.log('Change: ' + prevSizeRef.current + ' => ' + size);
-    if (
-      prevSizeRef.current &&
-      (prevSizeRef.current == 'md' || prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') &&
-      (size == 'sm' || size == 'xs')
-    ) {
-      onChangeMiniDrawer(true);
-    } else if (prevSizeRef.current && (prevSizeRef.current == 'lg' || prevSizeRef.current == 'xl') && size == 'md') {
-      onChangeMiniDrawer(true);
-    } else if (
-      prevSizeRef.current &&
-      (prevSizeRef.current == 'md' || prevSizeRef.current == 'sm' || prevSizeRef.current == 'xs') &&
-      (size == 'lg' || size == 'xl')
-    ) {
-      onChangeMiniDrawer(false);
-    } else if (!prevSizeRef.current && (size == 'sm' || size == 'xs')) {
-      onChangeMiniDrawer(true);
+    const tier = drawerTier(size);
+    if (tier === 'unresolved') {
+      return;
     }
+    const prevTier = drawerTier(prevSizeRef.current);
     prevSizeRef.current = size;
+    if (tier === 'compact') {
+      onChangeMiniDrawer(true);
+    } else if (prevTier !== 'unresolved' && prevTier !== tier) {
+      onChangeMiniDrawer(tier === 'medium');
+    }
   }, [size]);
+
+  const enteringMobile = downSM && prevSizeRef.current !== 'xs';
+  const temporaryDrawerOpen = !miniDrawer && !enteringMobile;
 
   const container = window !== undefined ? () => window().document.body : undefined;
 
@@ -121,7 +125,7 @@ export const Drawer = ({ window }: DrawerProps) => {
         <MuiDrawer
           container={container}
           variant="temporary"
-          open={!miniDrawer}
+          open={temporaryDrawerOpen}
           onClose={() => onChangeMiniDrawer(!miniDrawer)}
           ModalProps={ { keepMounted: true } }
           sx={ {
