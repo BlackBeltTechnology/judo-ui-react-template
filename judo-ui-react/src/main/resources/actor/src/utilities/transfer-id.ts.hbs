@@ -110,6 +110,11 @@ export function buildTableTestId(tableId: TestIdKey): string {
   return `table::${stringifyKey(tableId)}`;
 }
 
+/** Build the `data-testid` for a table's column header (the sort handle). */
+export function buildColumnHeaderTestId(tableId: TestIdKey, columnName: string): string {
+  return `table::${stringifyKey(tableId)}::header::${columnName}`;
+}
+
 /** Build the `data-testid` for a specific row in a table. */
 export function buildRowTestId(tableId: TestIdKey, row: TransferIdSource | undefined | null, index?: number): string {
   return `table::${stringifyKey(tableId)}::row::${resolveTransferId(row, index)}`;
@@ -123,6 +128,111 @@ export function buildCellTestId(
   index?: number,
 ): string {
   return `table::${stringifyKey(tableId)}::row::${resolveTransferId(row, index)}::cell::${columnName}`;
+}
+
+/**
+ * Reserved row-action role for the overflow ("more actions") dropdown trigger. It has no model
+ * action behind it, so no role can be derived for it; both engines agree on this literal.
+ */
+export const ROW_ACTION_ROLE_OVERFLOW = 'overflow';
+
+/**
+ * Reserved row-action roles for the inline-edit controls. These are UI-only pseudo-actions with no
+ * model action definition, so the runtime currently emits nothing for them (see this change's design
+ * OQ1). They are template-only until the runtime adopts them.
+ */
+export const ROW_ACTION_ROLE_EDIT = 'edit';
+export const ROW_ACTION_ROLE_SAVE = 'save';
+export const ROW_ACTION_ROLE_CANCEL = 'cancel';
+
+/**
+ * Build the `data-testid` for a row-scoped action button.
+ * Runtime parity: `table::<tableId>::row::<transferId>::action::<role>`.
+ *
+ * `role` comes from the canonical role vocabulary (`set` | `create` | `view` | `delete` | any raw
+ * action type, plus the reserved `overflow`, `edit`, `save`, `cancel` literals). A missing or
+ * `unknown` role is a generator bug rather than a runtime condition, so it throws instead of
+ * emitting an unaddressable id.
+ */
+export function buildRowActionTestId(
+  tableId: TestIdKey,
+  row: TransferIdSource | undefined | null,
+  role: string,
+  index?: number,
+): string {
+  if (!role || role === 'unknown') {
+    throw new Error(`buildRowActionTestId requires a canonical action role, received '${role}'.`);
+  }
+  return `${buildRowTestId(tableId, row, index)}::action::${role}`;
+}
+
+/** Build the `data-testid` for the selection (checkbox) cell of a row. */
+export function buildSelectionCellTestId(
+  tableId: TestIdKey,
+  row: TransferIdSource | undefined | null,
+  index?: number,
+): string {
+  // MUI's selection column always uses the `__check__` field name, so this is the ordinary cell id.
+  return buildCellTestId(tableId, row, '__check__', index);
+}
+
+/** Build the `data-testid` for a table's filter panel. Runtime parity: `table::<id>::filter-panel`. */
+export function buildFilterPanelTestId(tableId: TestIdKey): string {
+  return `${buildTableTestId(tableId)}::filter-panel`;
+}
+
+/** Build the `data-testid` for the filter panel's column selector. */
+export function buildFilterPanelColumnInputTestId(tableId: TestIdKey): string {
+  return `${buildFilterPanelTestId(tableId)}::column`;
+}
+
+/**
+ * Build the `data-testid` for one filter row of the panel.
+ *
+ * Several rows may filter the same attribute (`name LIKE x` AND
+ * `name NOT_EQUAL y`), so the row index is the only stable disambiguator —
+ * the attribute name is not unique. Runtime parity:
+ * `table::<id>::filter-panel::row::<n>`.
+ */
+export function buildFilterPanelRowTestId(tableId: TestIdKey, index: number): string {
+  return `${buildFilterPanelTestId(tableId)}::row::${index}`;
+}
+
+/**
+ * Build the `data-testid` for a filter panel's operator selector.
+ *
+ * Pass `index` to scope the role to that filter row; omit it for the
+ * single-row panel form.
+ */
+export function buildFilterPanelOperatorInputTestId(tableId: TestIdKey, index?: number): string {
+  const scope = index === undefined ? buildFilterPanelTestId(tableId) : buildFilterPanelRowTestId(tableId, index);
+  return `${scope}::operator`;
+}
+
+/**
+ * Build the `data-testid` for a filter panel's value input.
+ *
+ * Pass `index` to scope the role to that filter row; omit it for the
+ * single-row panel form.
+ */
+export function buildFilterPanelValueInputTestId(tableId: TestIdKey, index?: number): string {
+  const scope = index === undefined ? buildFilterPanelTestId(tableId) : buildFilterPanelRowTestId(tableId, index);
+  return `${scope}::value`;
+}
+
+/**
+ * Build the `data-testid` for one operator option of a filter row.
+ *
+ * `operation` is the backend filter operator (`like`, `equal`, `notEqual`,
+ * `matches`, `lessThan`, …), never the translated label, so an engine-neutral
+ * spec can pick an operator regardless of the UI language.
+ */
+export function buildFilterPanelOperatorOptionTestId(
+  tableId: TestIdKey,
+  index: number,
+  operation: string,
+): string {
+  return `${buildFilterPanelOperatorInputTestId(tableId, index)}::${operation}`;
 }
 
 // ---------------------------------------------------------------------------
