@@ -66,6 +66,32 @@ class DialogTemplateTest {
         assertEquals(0, count(template, "buildDialogRoleTestId(id,"));
     }
 
+    /**
+     * Clearing a collection removes every element in one click, so it asks first.
+     * Unsetting a single relation deliberately does not: it breaks one link and is
+     * reversible before saving.
+     */
+    @Test
+    void clearingACollectionAsksForConfirmation() throws IOException {
+        String template = loadTemplate("/actor/src/pages/actions/ClearAction.fragment.hbs");
+
+        assertEquals(1, count(template, "openConfirmDialog("));
+        assertEquals(1, count(template, "judo.modal.confirm.confirm-clear"));
+    }
+
+    /**
+     * Deleting several selected rows destroys data, so it asks first on every
+     * table. The lazy path already confirms through its bulk CRUD dialog; the
+     * eager path used to drop the selection from the draft without asking.
+     */
+    @Test
+    void bulkDeletingRowsAsksForConfirmation() throws IOException {
+        String template = loadTemplate("/actor/src/pages/actions/BulkDeleteAction.fragment.hbs");
+
+        assertEquals(1, count(template, "openConfirmDialog("));
+        assertEquals(1, count(template, "judo.modal.confirm.confirm-bulk-delete"));
+    }
+
     private static String loadTemplate(String path) throws IOException {
         try (InputStream input = DialogTemplateTest.class.getResourceAsStream(path)) {
             assertNotNull(input, "Missing template resource: " + path);
