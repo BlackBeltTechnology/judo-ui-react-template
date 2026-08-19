@@ -12,6 +12,8 @@ import type { ConfirmationDialogProps } from '~/components-api';
 import { SlideUpTransition } from '~/theme/animations';
 import { buildDialogTestId, buildDialogRoleTestId } from '~/utilities/transfer-id';
 
+const CONFIRMATION_DIALOG_ID = 'confirmation';
+
 export const ConfirmationDialog = ({
   id,
   confirmationMessage,
@@ -42,18 +44,18 @@ export const ConfirmationDialog = ({
   };
 
   return (
-    <Dialog data-testid={buildDialogTestId(id)} open={open} onClose={handleClose} scroll="paper" fullWidth={true} maxWidth={'xs'} TransitionComponent={SlideUpTransition}>
-      {title && <DialogTitle data-testid={buildDialogRoleTestId(id, 'title')}>{title}</DialogTitle>}
+    <Dialog data-testid={buildDialogTestId(CONFIRMATION_DIALOG_ID)} open={open} onClose={handleClose} scroll="paper" fullWidth={true} maxWidth={'xs'} TransitionComponent={SlideUpTransition}>
+      {title && <DialogTitle data-testid={buildDialogRoleTestId(CONFIRMATION_DIALOG_ID, 'title')}>{title}</DialogTitle>}
       <DialogContent dividers={!!title}>
-        <DialogContentText data-testid={buildDialogRoleTestId(id, 'content')} ref={descriptionElementRef} tabIndex={-1}>
+        <DialogContentText data-testid={buildDialogRoleTestId(CONFIRMATION_DIALOG_ID, 'content')} ref={descriptionElementRef} tabIndex={-1}>
           {confirmationMessage}
         </DialogContentText>
       </DialogContent>
       <DialogActions>
-        <Button data-testid={buildDialogRoleTestId(id, 'cancel')} variant="text" onClick={cancel}>
+        <Button data-testid={buildDialogRoleTestId(CONFIRMATION_DIALOG_ID, 'cancel')} variant="text" onClick={cancel}>
           { t('judo.modal.confirm.cancel', { defaultValue: 'No' }) as string }
         </Button>
-        <Button data-testid={buildDialogRoleTestId(id, 'confirm')} variant="contained" onClick={ok}>
+        <Button data-testid={buildDialogRoleTestId(CONFIRMATION_DIALOG_ID, 'confirm')} variant="contained" onClick={ok}>
           { t('judo.modal.confirm.confirm', { defaultValue: 'Yes' }) as string }
         </Button>
       </DialogActions>
