@@ -1,5 +1,7 @@
 # Collapsible Group
 
+## Purpose
+
 Renders collapsible Flex containers as MUI Accordion components. When a `Flex` element has `collapsible = true`, the entire group can be expanded/collapsed by the user. Supports icons, labels, action buttons in the header, and all existing wrapper layers.
 
 ## Requirements

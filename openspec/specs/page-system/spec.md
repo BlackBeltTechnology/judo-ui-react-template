@@ -1,5 +1,7 @@
 # Page System
 
+## Purpose
+
 Generates React page components and dialog components from UI `PageDefinition` model elements. Each page definition produces a routable page or a modal dialog, with its own context, actions, types, and customization hooks.
 
 ## Requirements

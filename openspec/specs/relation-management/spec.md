@@ -1,5 +1,7 @@
 # Relation Management
 
+## Purpose
+
 Generates React components for managing relationships between entities. Relations are displayed as Link components (single relations) or Table components (collection relations), with CRUD operations determined by the relation's kind, cardinality, and behaviours. The generator produces selector dialogs, autocomplete inputs, and inline creation forms based on the relation configuration.
 
 ## Requirements

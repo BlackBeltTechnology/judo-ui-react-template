@@ -1,5 +1,7 @@
 # FAB Rendering
 
+## Purpose
+
 Generates floating action button (FAB) components from UI `ButtonGroup` model elements marked with `isFab=true`. FAB groups render as MUI `<Fab>` and `<SpeedDial>` components, positioned at viewport corners via the `alignment` attribute.
 
 ## Requirements
