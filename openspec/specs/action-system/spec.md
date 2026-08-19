@@ -1,5 +1,7 @@
 # Action System
 
+## Purpose
+
 Generates TypeScript action handler functions from UI `ActionDefinition` and `Action` model elements. The action system uses a two-layer pattern: `ActionDefinition` specifies WHAT an action does (35+ subtypes), while `Action` wraps it with WHERE/WHEN context (target page, data element). Each page and dialog gets a typed actions interface with implementations for every action it supports.
 
 ## Requirements

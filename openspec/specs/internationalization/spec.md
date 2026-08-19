@@ -1,5 +1,7 @@
 # Internationalization
 
+## Purpose
+
 Generates i18n translation files and translation key usage throughout the generated React application. The generator produces JSON translation files with keys for every labeled element, enumeration value, menu item, and system message. Applications use `react-i18next` for runtime translation resolution.
 
 ## Requirements

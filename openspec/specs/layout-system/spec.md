@@ -1,5 +1,7 @@
 # Layout System
 
+## Purpose
+
 Generates React layout components from UI container model elements. The layout system uses a flexbox-based approach where `Flex` containers arrange child elements horizontally or vertically, `Frame` provides card-style grouping, `TabController` creates tabbed interfaces, and `Spacer`/`Divider` provide spacing.
 
 ## Requirements
