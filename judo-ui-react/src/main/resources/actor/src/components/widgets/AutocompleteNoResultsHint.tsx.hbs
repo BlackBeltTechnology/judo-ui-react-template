@@ -38,12 +38,9 @@ export const useAutocompleteHintPaper = ({
   optionsLength,
   loading,
 }: AutocompleteHintPaperOptions): ComponentType<PaperProps> => {
-  const showMoreHint = useMemo(
-    () => !loading && typeof limit === 'number' && limit > 0 && optionsLength >= limit,
-    [loading, limit, optionsLength],
-  );
-  const showNoResults = useMemo(() => !loading && optionsLength === 0, [loading, optionsLength]);
-  const hintLimit = useMemo(() => limit ?? 0, [limit]);
+  const showMoreHint = !loading && typeof limit === 'number' && limit > 0 && optionsLength >= limit;
+  const showNoResults = !loading && optionsLength === 0;
+  const hintLimit = limit ?? 0;
 
   return useMemo(
     () =>
