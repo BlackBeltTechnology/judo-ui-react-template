@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import Paper, { type PaperProps } from '@mui/material/Paper';
 import Typography from '@mui/material/Typography';
 import type { ComponentType, FC } from 'react';
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AutocompleteMoreResultsHint } from './AutocompleteMoreResultsHint';
 
@@ -38,7 +38,10 @@ export const useAutocompleteHintPaper = ({
   optionsLength,
   loading,
 }: AutocompleteHintPaperOptions): ComponentType<PaperProps> => {
-  const showMoreHint = !loading && typeof limit === 'number' && limit > 0 && optionsLength >= limit;
+  const showMoreHint = useMemo(
+    () => !loading && typeof limit === 'number' && limit > 0 && optionsLength >= limit,
+    [loading, limit, optionsLength],
+  );
   const showNoResults = !loading && optionsLength === 0;
   const hintLimit = limit ?? 0;
   const stateRef = useRef({ showMoreHint, showNoResults, hintLimit });
