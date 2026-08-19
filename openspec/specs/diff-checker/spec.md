@@ -38,12 +38,16 @@ The `checkDiffs` goal SHALL throw a `MojoExecutionException` when any configured
 
 ### Requirement: Plugin SHALL fail when source files are missing
 
+The `checkDiffs` goal SHALL throw a `MojoExecutionException` when a configured source path does not exist in `sourceDirectory`.
+
 #### Scenario: Missing source file
 - **GIVEN** a configured source path that does not exist in `sourceDirectory`
 - **WHEN** the `checkDiffs` goal executes
 - **THEN** a `MojoExecutionException` is thrown with message "Source file does not exist: ..."
 
 ### Requirement: Plugin SHALL auto-create snapshot files when configured
+
+When a source file exists but its snapshot file does not, the `checkDiffs` goal SHALL create the snapshot by copying the source file — including any missing parent directories — if `createSnapshotIfNotExists` is `true` (the default). If it is `false`, the goal SHALL throw a `MojoExecutionException` instead.
 
 #### Scenario: Missing snapshot with createSnapshotIfNotExists=true
 - **GIVEN** a source file exists but its snapshot file does not
@@ -60,6 +64,8 @@ The `checkDiffs` goal SHALL throw a `MojoExecutionException` when any configured
 
 ### Requirement: Plugin SHALL support forced snapshot overwrite
 
+The `checkDiffs` goal SHALL overwrite each snapshot file with its source file content before comparison when `forceSnapshotOverwrite` is `true`.
+
 #### Scenario: Force overwrite enabled
 - **GIVEN** `forceSnapshotOverwrite` is `true`
 - **AND** both source and snapshot files exist
@@ -68,6 +74,8 @@ The `checkDiffs` goal SHALL throw a `MojoExecutionException` when any configured
 - **AND** the comparison always passes (since files are now identical)
 
 ### Requirement: Plugin SHALL require at least one source to be configured
+
+The `checkDiffs` goal SHALL throw a `MojoExecutionException` when the `sources` list is null or empty.
 
 #### Scenario: No sources configured
 - **GIVEN** the `sources` list is null or empty

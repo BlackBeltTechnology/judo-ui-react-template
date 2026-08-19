@@ -1,5 +1,7 @@
 # Input Widgets
 
+## Purpose
+
 Generates React form input components from UI input model elements. Each input type in the metamodel maps to a specific MUI-based React widget. Input widgets are data-type-aware: the generator selects the correct widget based on the bound attribute's data type.
 
 ## Requirements
