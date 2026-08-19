@@ -1,0 +1,61 @@
+{{> fragment.header.hbs }}
+
+import Box from '@mui/material/Box';
+import Paper, { type PaperProps } from '@mui/material/Paper';
+import Typography from '@mui/material/Typography';
+import type { ComponentType, FC } from 'react';
+import { memo, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
+import { AutocompleteMoreResultsHint } from './AutocompleteMoreResultsHint';
+
+export const AutocompleteNoResultsHint: FC = () => {
+  const { t } = useTranslation();
+
+  return (
+    <Box
+      role="status"
+      sx={ {
+        px: 2,
+        py: 1,
+        pointerEvents: 'none',
+      } }
+    >
+      <Typography variant="body2" color="text.secondary">
+        {t('judo.autocomplete.no-results', { defaultValue: 'No matching results' })}
+      </Typography>
+    </Box>
+  );
+};
+
+export interface AutocompleteHintPaperOptions {
+  limit?: number;
+  optionsLength: number;
+  loading?: boolean;
+}
+
+export const useAutocompleteHintPaper = ({
+  limit,
+  optionsLength,
+  loading,
+}: AutocompleteHintPaperOptions): ComponentType<PaperProps> => {
+  const showMoreHint = useMemo(
+    () => !loading && typeof limit === 'number' && limit > 0 && optionsLength >= limit,
+    [loading, limit, optionsLength],
+  );
+  const showNoResults = useMemo(() => !loading && optionsLength === 0, [loading, optionsLength]);
+  const hintLimit = useMemo(() => limit ?? 0, [limit]);
+
+  return useMemo(
+    () =>
+      memo(function AutocompleteHintPaper(paperProps: PaperProps) {
+        return (
+          <Paper {...paperProps}>
+            {showNoResults && <AutocompleteNoResultsHint />}
+            {paperProps.children}
+            {showMoreHint && <AutocompleteMoreResultsHint limit={hintLimit} />}
+          </Paper>
+        );
+      }),
+    [showNoResults, showMoreHint, hintLimit],
+  );
+};
