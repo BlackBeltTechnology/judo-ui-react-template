@@ -82,6 +82,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
         formFor,
       {{/ if }}
       ownerData,
+      selectorOwnerId,
       onClose
       {{# unless (containerIsEmptyDashboard container) }},
         actions,
@@ -128,10 +129,10 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
   return (
     <>
       {{# unless (containerIsEmptyDashboard container) }}
-        <DialogTitle>
+        <DialogTitle data-testid={selectorOwnerId ? buildFieldTestId(selectorOwnerId, 'selector::title') : undefined}>
           {actions.getPageTitle ? actions.getPageTitle({{# unless container.table }}data{{/ unless }}) : ''}
           <IconButton
-            data-testid={buildFieldTestId('{{ getElementId container }}', 'dialog-close-wrapper')}
+            data-testid={selectorOwnerId ? buildFieldTestId(selectorOwnerId, 'selector::cancel') : buildFieldTestId('{{ getElementId container }}', 'dialog-close-wrapper')}
             aria-label="close"
             onClick={onClose}
             sx={ {
@@ -144,10 +145,11 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
             <MdiIcon path="close" />
           </IconButton>
         </DialogTitle>
-        <DialogContent dividers>
+        <DialogContent dividers data-testid={selectorOwnerId ? buildFieldTestId(selectorOwnerId, 'selector') : undefined}>
           <Suspense>
             <{{ containerComponentName container }}
               actions={actions}
+              selectorOwnerId={selectorOwnerId}
               dataPath={dataPath}
               refreshCounter={refreshCounter}
               isLoading={isLoading}
@@ -205,7 +207,7 @@ export default function {{ containerComponentName container }}Dialog({{# unless 
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
                 <Button
-                  data-testid={buildButtonTestId('{{ getElementId button }}', '{{ getButtonActionType button }}')}
+                  data-testid={ {{# if (isActionAddOrSet actionDefinition) }}selectorOwnerId ? buildFieldTestId(selectorOwnerId, 'selector::confirm') : {{/ if }}buildButtonTestId('{{ getElementId button }}', '{{ getButtonActionType button }}')}
                   loading={isLoading}
                   loadingPosition="start"
                   variant={ {{{ variantForButton button }}} }

@@ -129,6 +129,15 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   };
   const effectiveReadOnly = readOnly || !onAutoCompleteSearch || !onSet;
 
+  // Derived and composition relations offer no inline actions at all. Rendering
+  // their action bar anyway would leave an empty landmark that the runtime engine
+  // does not produce, so it is only mounted when it actually holds something.
+  const relationActionButtons = buttonProps
+    .filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create')
+    .filter(a => !a.visible || a.visible(value));
+  const hasRelationActions =
+    loading || relationActionButtons.length > 0 || (exists(value) && (onDelete || onSet || onUnSet));
+
   // initial load
   useEffect(() => {
     if (!isEager) {
@@ -166,7 +175,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   }, [refreshCounter]);
 
   return (
-    <Grid container data-testid={buildFieldTestId(id)} direction="row" justifyContent="stretch" alignContent="stretch">
+    <Grid container direction="row" justifyContent="stretch" alignContent="stretch">
       <Box sx={ { padding: 0, flexGrow: 1 } }>
         <Autocomplete
           freeSolo={true}
@@ -192,7 +201,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
             <TextField
               {...params}
               name={name}
-              data-testid={buildFieldTestId(id, 'input')}
+              inputProps={ { ...params.inputProps, 'data-testid': buildFieldTestId(id, 'input') } }
               required={required}
               label={label}
               error={error}
@@ -210,6 +219,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                 startAdornment: icon && <InputAdornment position="start" style={ { marginTop: 0 } }>{icon}</InputAdornment>,
                 endAdornment: (
                   <InputAdornment position="end">
+                    {hasRelationActions && (
                     <ButtonGroup
                       ref={anchorRef}
                       data-testid={buildFieldTestId(id, 'actions')}
@@ -220,9 +230,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                       })}
                     >
                       {loading ? <CircularProgress color="inherit" size='1rem' className="AggregationInputLoading" /> : null}
-                      { buttonProps
-                        .filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create')
-                        .filter(a => !a.visible || a.visible(value))
+                      { relationActionButtons
                         .map((buttonProp) => (
                           <IconButton
                             data-testid={buildFieldTestId(id, `button::${buttonProp.name}`)}
@@ -240,11 +248,12 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         ))
                       }
                       {exists(value) && (onDelete || onSet || onUnSet) && (
-                        <IconButton data-testid={buildFieldTestId(id, 'button::set')} className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
+                        <IconButton data-testid={buildFieldTestId(id, 'dropdown')} className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
                       )}
                     </ButtonGroup>
+                    )}
                   </InputAdornment>
                 ),
               } }
@@ -276,7 +285,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
         >
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
-              <MenuList data-testid={buildFieldTestId(id, 'dropdown')} autoFocusItem>
+              <MenuList data-testid={buildFieldTestId(id, 'menu')} autoFocusItem>
                 { buttonProps
                   .filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset')
                   .filter(a => !a.dropDownButtonIsVisible || a.dropDownButtonIsVisible(value))

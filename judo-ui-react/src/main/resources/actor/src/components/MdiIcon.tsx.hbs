@@ -20,10 +20,12 @@ export interface MdiIconProps {
     subType?: string;
   };
   sx?: any;
+  testId?: string;
+  onClick?: any;
 }
 
 export const MdiIcon = (props: MdiIconProps) => {
-  const { className, path, iconSize, rotate, flip, spin, color, mimeType, sx } = props;
+  const { className, path, iconSize, rotate, flip, spin, color, mimeType, sx, testId, onClick } = props;
   const mappedPath = mimeType ? mapMimeTypeIcon(mimeType.type, mimeType.subType, mapIcon(path)) : mapIcon(path);
 
   const layoutHelper = useLayoutHelper();
@@ -83,7 +85,7 @@ export const MdiIcon = (props: MdiIconProps) => {
 
   return (
     <Box sx={ { display: 'flex', ...(sx || {}) } }>
-      <span className={classes} style={style}></span>
+      <span className={classes} style={style} data-testid={testId} onClick={onClick}></span>
     </Box>
   );
 };

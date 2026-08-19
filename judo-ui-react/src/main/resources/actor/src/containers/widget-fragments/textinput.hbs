@@ -93,11 +93,12 @@
                 ),
             {{/ if }}
         } }
-        {{# if child.attributeType.dataType.maxLength }}
         inputProps={ {
+          'data-testid': buildFieldTestId('{{ getElementId child }}', 'input'),
+          {{# if child.attributeType.dataType.maxLength }}
           maxLength: {{ child.attributeType.dataType.maxLength }},
+          {{/ if }}
         } }
-        {{/ if }}
     />
     {{/ if }}
     {{# if (hasTooltipText child) }}

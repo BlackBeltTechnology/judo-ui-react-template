@@ -6,6 +6,7 @@ import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
 import { routeToDashboard } from '~/routes';
+import { clearNamespacedStorage } from '~/utilities/storage-namespace';
 import { MdiIcon } from './MdiIcon';
 
 export function RootErrorBoundary() {
@@ -44,7 +45,8 @@ export function RootErrorBoundary() {
   }
 
   const resetSettings = () => {
-    window.sessionStorage.clear();
+    // Only this application's entries: a sibling frontend on the same origin keeps its session.
+    clearNamespacedStorage(window.sessionStorage);
   };
 
   return (

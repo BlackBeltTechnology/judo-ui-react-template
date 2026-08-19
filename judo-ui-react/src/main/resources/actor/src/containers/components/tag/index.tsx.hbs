@@ -71,7 +71,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   return (
     <div data-testid={buildTableTestId('{{ getElementId table }}')} data-table-name="{{ table.name }}">
       <Tags<{{ classDataName container.dataElement '' }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>
-        id="{{ getXMIID table }}"
+        id="{{ getElementId table }}"
         label={ {{# if (elementHasLabel table) }}t('{{ getTranslationKeyForVisualElement table }}', { defaultValue: '{{ table.label }}' }){{ else }}'{{ table.relationName }}'{{/ if }} }
         helperText={validationError}
         error={!!validationError}
@@ -120,6 +120,9 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         onCreateDialogsClick={hasCreateCapability ? () => (actions as any)[createActionName('{{ table.relationName }}', 'OpenCreateFormAction')]() : undefined}
         {{# with (getClearActionDefinitionForTable table) as |clearActionDefinition| }}
         onClearDialogsClick={ hasClearCapability ? async () => actions.{{ simpleActionDefinitionName clearActionDefinition }}!() : undefined }
+        {{/ with }}
+        {{# with (getRefreshActionDefinitionForTable table) as |refreshActionDefinition| }}
+        onRefreshClick={ actions.{{ simpleActionDefinitionName refreshActionDefinition }} ? () => { void actions.{{ simpleActionDefinitionName refreshActionDefinition }}!({} as any); } : undefined }
         {{/ with }}
         {{# unless table.isEager }}
         refreshCounter={refreshCounter}
