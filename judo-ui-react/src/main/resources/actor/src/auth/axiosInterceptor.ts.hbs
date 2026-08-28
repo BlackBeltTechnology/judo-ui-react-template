@@ -2,7 +2,6 @@
 
 import type { AxiosError, InternalAxiosRequestConfig, AxiosResponse } from 'axios';
 import { User, WebStorageStateStore } from 'oidc-client-ts';
-import { namespacedStorageKey } from '../utilities/storage-namespace';
 
 const securityStore: { authority?: string, clientId?: string, name?: string } = {};
 
@@ -12,10 +11,7 @@ export function storeMeta(meta: any): void {
   securityStore.name = meta.name;
 }
 
-// Namespaced by the base path this application is served on. Without the namespace two frontend
-// applications of the same realm and client served from one origin would share this entry and
-// overwrite each other's session.
-export const storageKey = () => namespacedStorageKey(`oidc.user:${securityStore.name!}:${securityStore.clientId!}`);
+export const storageKey = () => `oidc.user:${securityStore.name!}:${securityStore.clientId!}`;
 
 // We need to store the user per realm, not per actor.
 const store: Storage = {
