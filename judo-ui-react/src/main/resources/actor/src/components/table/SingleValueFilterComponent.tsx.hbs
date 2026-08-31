@@ -119,6 +119,8 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.date:
             return (
               <DatePicker
+                // Single-input structure, matching the modeled date inputs.
+                enableAccessibleFieldDOMStructure={false}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 views={['year', 'month', 'day']}
@@ -140,6 +142,8 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
           case FilterType.dateTime:
             return (
               <DateTimePicker
+                // Single-input structure, matching the modeled date inputs.
+                enableAccessibleFieldDOMStructure={false}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? null}
                 ampm={false}

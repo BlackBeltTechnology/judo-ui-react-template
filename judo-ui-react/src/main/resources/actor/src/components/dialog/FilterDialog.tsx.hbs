@@ -104,6 +104,8 @@ const FilterInput = ({ id, tableTestId, index, filter, setFilterValue }: FilterI
           case FilterType.date:
             return (
               <DatePicker
+                // Single-input structure, matching the modeled date inputs.
+                enableAccessibleFieldDOMStructure={false}
                 className={valueClassName}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? null}
@@ -125,6 +127,8 @@ const FilterInput = ({ id, tableTestId, index, filter, setFilterValue }: FilterI
           case FilterType.dateTime:
             return (
               <DateTimePicker
+                // Single-input structure, matching the modeled date inputs.
+                enableAccessibleFieldDOMStructure={false}
                 className={valueClassName}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? null}

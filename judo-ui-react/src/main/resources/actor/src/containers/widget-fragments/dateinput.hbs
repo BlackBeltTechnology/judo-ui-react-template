@@ -20,6 +20,11 @@
     <Box display="flex" alignItems="center">
     {{/ if }}
     <DatePicker
+        // MUI X's accessible field structure renders the editor as a contenteditable
+        // section list and hides the value in a 1x1 input, so the canonical
+        // field::<id>::input role would address something nothing can be typed or
+        // pasted into. A date field keeps the single-input structure instead.
+        enableAccessibleFieldDOMStructure={false}
         data-testid={buildFieldTestId('{{ getElementId child }}')}
         {{# if (shouldElementHaveAutoFocus child) }}
             inputRef={autoFocusInputRef}
