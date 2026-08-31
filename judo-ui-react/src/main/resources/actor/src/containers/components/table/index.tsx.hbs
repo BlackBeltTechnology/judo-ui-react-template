@@ -178,13 +178,24 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
       }
       throw(rowData.__identifier);
     }
-  }, [actions]);
+  }, [actions{{# unless container.table }}, ownerData, editMode{{/ unless }}]);
 
   const onRowEditCanceled = useCallback((rowId: string) => {
     if (rowValidation.current.has(rowId)) {
       rowValidation.current.delete(rowId);
     }
-  }, []);
+  }, [actions{{# unless container.table }}, ownerData, editMode{{/ unless }}]);
+
+  const onRowEditDeleted = useCallback(async (rowId: string) => {
+    try {
+      await actions.remove{{ firstToUpper table.relationName }}RowEdit!(rowId);
+      if (rowValidation.current.has(rowId)) {
+        rowValidation.current.delete(rowId);
+      }
+    } catch(e: any) {
+      console.error(e);
+    }
+  }, [actions{{# unless container.table }}, ownerData, editMode{{/ unless }}]);
 
   {{# each (customizableColumns table) as |column| }}
   const { service: {{ column.name }}ColumnCustomizerHook } = useTrackService<ColumnCustomizerHook<{{ classDataName (getReferenceClassType table) 'Stored' }}>>(`(&(${OBJECTCLASS}=${TABLE_COLUMN_CUSTOMIZER_HOOK_INTERFACE_KEY})(component={{~ componentName table ~}})(column={{ column.name }})`);
@@ -331,6 +342,11 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         filtersSerializer={filtersSerializer}
         applyRowEdit={applyRowEdit}
         onRowEditCanceled={onRowEditCanceled}
+        onRowEditDeleted={onRowEditDeleted}
+        {{# if container.isSelector }}
+        selectionDiff={selectionDiff}
+        setSelectionDiff={setSelectionDiff}
+        {{/ if }}
         {{# if table.actionColumnWidth }}actionsColumnWidth={ {{ table.actionColumnWidth }} } {{/ if }}
         />
       {{ else }}
@@ -398,6 +414,8 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         filtersSerializer={filtersSerializer}
         applyRowEdit={applyRowEdit}
         onRowEditCanceled={onRowEditCanceled}
+        onRowEditDeleted={onRowEditDeleted}
+        {{# if container.isSelector }}
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
         {{# if table.actionColumnWidth }}actionsColumnWidth={ {{ table.actionColumnWidth }} } {{/ if }}
