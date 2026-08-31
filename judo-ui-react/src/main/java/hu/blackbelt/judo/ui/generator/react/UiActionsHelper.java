@@ -614,7 +614,7 @@ public class UiActionsHelper {
     public static String normalizeButtonRole(String actionType) {
         if (actionType == null || actionType.isEmpty()) return "";
         return switch (actionType) {
-            case "opensetselector" -> "set";
+            case "opensetselector", "openaddselector" -> "set";
             case "opencreateform" -> "create";
             case "openpage", "rowopenpage" -> "view";
             case "rowdelete" -> "delete";
@@ -623,9 +623,49 @@ public class UiActionsHelper {
     }
 
     /**
+     * Action types that launch a modeled operation.
+     *
+     * <p>A role has to identify one action inside its owner. The CRUD types do that by
+     * construction — a row carries at most one view or delete — but these do not: one row,
+     * field or view can launch several operations, and every one of them reports the same
+     * action type. Mirrors {@code OPERATION_ACTION_TYPES} in {@code @judo/test-ids}.
+     */
+    private static final java.util.Set<String> OPERATION_ACTION_TYPES = java.util.Set.of(
+            "openoperationinputform",
+            "openoperationinputselector",
+            "parameterlesscalloperation",
+            "bulkcalloperation");
+
+    /**
+     * Returns the canonical role of a button whose action type may be shared by several
+     * operations on one owner. Such a role is the modeled operation name; every other type
+     * keeps its canonical role. Byte-exact port of the runtime's {@code getButtonRole}.
+     */
+    public static String operationRole(String actionType, String name) {
+        if (OPERATION_ACTION_TYPES.contains(actionType) && name != null && !name.isEmpty()) {
+            // The name reaches the DOM, so it may not forge extra grammar segments.
+            return sanitizeTestId(name);
+        }
+        return normalizeButtonRole(actionType);
+    }
+
+    /** Byte-exact port of {@code sanitizeId} in {@code @judo/test-ids/src/utils.ts}. */
+    public static String sanitizeTestId(String id) {
+        return id.replaceAll("[^a-zA-Z0-9_-]", "-").replaceAll("-+", "-");
+    }
+
+    /**
      * Returns the canonical row-action role for a button, or an empty string when no action exists.
      */
     public static String getButtonRole(EObject button) {
-        return normalizeButtonRole(getButtonActionType(button));
+        return operationRole(getButtonActionType(button), getButtonName(button));
+    }
+
+    private static String getButtonName(EObject button) {
+        if (button == null) return "";
+        var feature = button.eClass().getEStructuralFeature("name");
+        if (feature == null) return "";
+        Object name = button.eGet(feature);
+        return name instanceof String ? (String) name : "";
     }
 }

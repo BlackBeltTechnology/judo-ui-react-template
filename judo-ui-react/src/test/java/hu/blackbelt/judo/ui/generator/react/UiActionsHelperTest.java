@@ -26,6 +26,7 @@ import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getButtonActi
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.getButtonRole;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.normalizeButtonActionType;
 import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.normalizeButtonRole;
+import static hu.blackbelt.judo.ui.generator.react.UiActionsHelper.operationRole;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -72,6 +73,9 @@ public class UiActionsHelperTest {
     void normalizeButtonRole_mapsActionTypesToCanonicalRoles() {
         // Byte-exact port of the runtime's getButtonRole switch in @judo/test-ids/src/element.ts.
         assertEquals("set", normalizeButtonRole("opensetselector"));
+        // The runtime maps both selector-opening types to one role, so a spec that
+        // addresses `button::set` resolves on either engine.
+        assertEquals("set", normalizeButtonRole("openaddselector"));
         assertEquals("create", normalizeButtonRole("opencreateform"));
         assertEquals("view", normalizeButtonRole("openpage"));
         assertEquals("view", normalizeButtonRole("rowopenpage"));
@@ -82,7 +86,36 @@ public class UiActionsHelperTest {
     void normalizeButtonRole_fallsBackToRawActionType() {
         assertEquals("calloperation", normalizeButtonRole("calloperation"));
         assertEquals("refresh", normalizeButtonRole("refresh"));
-        assertEquals("openaddselector", normalizeButtonRole("openaddselector"));
+    }
+
+    /**
+     * A role identifies one modeled action inside its owner. The CRUD types satisfy that by
+     * construction, but an operation type does not: one row can launch several operations and
+     * they all report the same action type, so those roles are the modeled operation name.
+     * Mirrors {@code OPERATION_ACTION_TYPES} in {@code @judo/test-ids/src/element.ts}.
+     */
+    @Test
+    void operationRole_usesModeledOperationNameSoOneRowCanCarrySeveral() {
+        assertEquals("createDarkMatter", operationRole("openoperationinputform", "createDarkMatter"));
+        assertEquals("createIntergalacticDust", operationRole("openoperationinputform", "createIntergalacticDust"));
+        assertEquals("talkToGod", operationRole("openoperationinputselector", "talkToGod"));
+        assertEquals("bang", operationRole("parameterlesscalloperation", "bang"));
+        assertEquals("destroyLife", operationRole("bulkcalloperation", "destroyLife"));
+    }
+
+    @Test
+    void operationRole_sanitizesTheNameIntoOneSegment() {
+        assertEquals(
+                "View-Galaxy-createDarkMatter",
+                operationRole("openoperationinputform", "View::Galaxy::createDarkMatter"));
+    }
+
+    @Test
+    void operationRole_fallsBackToTheActionTypeWithoutAName() {
+        assertEquals("openoperationinputform", operationRole("openoperationinputform", null));
+        assertEquals("openoperationinputform", operationRole("openoperationinputform", ""));
+        // A non-operation type keeps its canonical role even when named.
+        assertEquals("view", operationRole("rowopenpage", "openGalaxy"));
     }
 
     @Test
