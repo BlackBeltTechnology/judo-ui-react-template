@@ -370,8 +370,102 @@ public class UiTableHelper {
                 .toList();
     }
 
-    public static boolean checkboxSelectionEnabled(Table table) {
-        return table.getCheckboxSelection() == null || table.getCheckboxSelection() != CheckboxSelection.DISABLED;
+    /**
+     * True iff the table has at least one table-level bulk action button.
+     * The closed list of bulk action definitions:
+     *   - BulkDeleteActionDefinition
+     *   - BulkRemoveActionDefinition
+     *   - BulkCallOperationActionDefinition
+     */
+    public static boolean tableHasAnyBulkAction(Table table) {
+        if (table == null || table.getTableActionButtonGroup() == null) {
+            return false;
+        }
+        return table.getTableActionButtonGroup().getButtons().stream()
+                .map(Button::getActionDefinition)
+                .filter(Objects::nonNull)
+                .anyMatch(ad -> ad.getIsBulkDeleteAction()
+                             || ad.getIsBulkRemoveAction()
+                             || ad.getIsBulkCallOperationAction());
+    }
+
+    /**
+     * True iff the given action definition is "batchable" — i.e. can be invoked safely
+     * on N selected rows without per-row user input.
+     *
+     * Batchable action definitions (closed list):
+     *   - RowDeleteActionDefinition
+     *   - ParameterlessCallOperationActionDefinition
+     */
+    public static boolean isRowActionBatchable(ActionDefinition ad) {
+        if (ad == null) {
+            return false;
+        }
+        return ad.getIsRowDeleteAction() || ad.getIsParameterlessCallOperationAction();
+    }
+
+    /**
+     * STRICT variant: true iff the table has at least one batchable row action AND
+     * zero input-needing row actions in {@code rowActionButtonGroup}.
+     *
+     * Categories (closed list):
+     *   Batchable      = RowDeleteActionDefinition, ParameterlessCallOperationActionDefinition
+     *   Input-needing  = InputFormCallOperationActionDefinition, InputSelectorCallOperationActionDefinition  (VETO)
+     *   Neutral        = everything else (e.g. OpenPage / OpenForm — single-row navigation)
+     *
+     * A single input-needing row action vetoes the result, even if batchable actions also exist.
+     */
+    public static boolean tableHasAnyBatchableRowAction(Table table) {
+        if (table == null || table.getRowActionButtonGroup() == null) {
+            return false;
+        }
+        boolean hasBatchable = false;
+        for (Button button : table.getRowActionButtonGroup().getButtons()) {
+            ActionDefinition ad = button.getActionDefinition();
+            if (ad == null) {
+                continue;
+            }
+            if (ad.getIsInputFormCallOperationAction() || ad.getIsInputSelectorCallOperationAction()) {
+                return false; // veto
+            }
+            if (isRowActionBatchable(ad)) {
+                hasBatchable = true;
+            }
+        }
+        return hasBatchable;
+    }
+
+    /**
+     * True iff the checkbox column should render when this table is on its own page.
+     *   ENABLED / null  -> true
+     *   DISABLED        -> false
+     *   AUTO            -> tableHasAnyBulkAction(table) || tableHasAnyBatchableRowAction(table)
+     *
+     * Selector-mode rendering is the template's responsibility (runtime `isSelector` flag);
+     * this helper computes only the own-page side.
+     */
+    public static boolean checkboxSelectionForOwnPage(Table table) {
+        if (table == null) {
+            return true;
+        }
+        CheckboxSelection cb = table.getCheckboxSelection();
+        if (cb == CheckboxSelection.DISABLED) {
+            return false;
+        }
+        if (cb == CheckboxSelection.AUTO) {
+            return tableHasAnyBulkAction(table) || tableHasAnyBatchableRowAction(table);
+        }
+        return true; // ENABLED or null
+    }
+
+    /**
+     * True iff multi-row select should be allowed when this table is on its own page.
+     * Mirrors {@link #checkboxSelectionForOwnPage} exactly today. Kept as a separate
+     * method so a future divergence (e.g. "AUTO shows column but disallows multi")
+     * doesn't require renaming.
+     */
+    public static boolean multiSelectAllowedForOwnPage(Table table) {
+        return checkboxSelectionForOwnPage(table);
     }
 
     public static boolean isTableTag(Table table) {
