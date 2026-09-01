@@ -229,6 +229,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         .filter(a => !a.visible || a.visible(value))
                         .map((buttonProp) => (
                           <IconButton
+                            data-testid={`${id}-${buttonProp.name}`}
                             className={buttonProp.className}
                             disabled={buttonProp.disabled}
                             onClick={(event: any) => {
@@ -243,7 +244,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         ))
                       }
                       {exists(value) && (onDelete || onSet || onUnSet) && (
-                        <IconButton className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
+                        <IconButton data-testid={`${id}-dropdown-toggle`} className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
                       )}

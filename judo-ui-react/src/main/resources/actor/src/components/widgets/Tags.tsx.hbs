@@ -311,17 +311,17 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                 >
                   {loading ? <CircularProgress color="inherit" size="1rem" className="TagsLoading" /> : null}
                   {!readOnly && onClearDialogsClick ? (
-                    <IconButton disabled={disabled} onClick={onClearDialogsClick} title={clearTitle}>
+                    <IconButton data-testid={`${id}-clear-all`} disabled={disabled} onClick={onClearDialogsClick} title={clearTitle}>
                       <MdiIcon path={clearIcon} />
                     </IconButton>
                   ) : null}
                   {!readOnly && onCreateDialogsClick ? (
-                    <IconButton disabled={disabled} onClick={onCreateDialogsClick} title={createDialogTitle}>
+                    <IconButton data-testid={`${id}-inline-create`} disabled={disabled} onClick={onCreateDialogsClick} title={createDialogTitle}>
                       <MdiIcon path={createDialogIcon} />
                     </IconButton>
                   ) : null}
                   {!readOnly && onSearchDialogsClick ? (
-                    <IconButton disabled={disabled} onClick={onSearchDialogsClick} title={searchDialogTitle}>
+                    <IconButton data-testid={`${id}-open-selector`} disabled={disabled} onClick={onSearchDialogsClick} title={searchDialogTitle}>
                       <MdiIcon path={searchDialogIcon} />
                     </IconButton>
                   ) : null}
