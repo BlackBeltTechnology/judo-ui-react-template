@@ -1,0 +1,26 @@
+import { useEffect, useState } from 'react';
+
+const isDemoEnabled = () => Boolean(window.localStorage.getItem('demo')?.trim());
+
+export const useDemoFeature = () => {
+  const [enabled, setEnabled] = useState(() => (typeof window === 'undefined' ? false : isDemoEnabled()));
+
+  useEffect(() => {
+    const update = () => setEnabled(isDemoEnabled());
+    const onStorageChange = (event: StorageEvent) => {
+      if (event.storageArea === window.localStorage && event.key === 'demo') {
+        update();
+      }
+    };
+
+    window.addEventListener('storage', onStorageChange);
+    const intervalId = window.setInterval(update, 500);
+
+    return () => {
+      window.removeEventListener('storage', onStorageChange);
+      window.clearInterval(intervalId);
+    };
+  }, []);
+
+  return enabled;
+};

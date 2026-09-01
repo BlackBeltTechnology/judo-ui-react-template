@@ -4,13 +4,15 @@ import type { ReactNode } from 'react';
 import { defaultLayoutConfig } from '../config';
 import { useLocalStorage } from '../hooks/useLocalStorage';
 
-import { CustomizationProps, I18n, MenuOrientation, ThemeDirection, ThemeMode } from '../config';
+import { CustomizationProps, I18n, MenuOrientation, PaletteColorKey, ThemeDirection, ThemeMode } from '../config';
 
 const initialState: CustomizationProps = {
   ...defaultLayoutConfig,
   onChangeContainer: () => {},
   onChangeLocalization: (lang: I18n) => {},
   onChangeMode: (mode: ThemeMode) => {},
+  onChangePaletteColor: (color: PaletteColorKey, value: string) => {},
+  onResetPaletteColors: () => {},
   onChangeMiniDrawer: (miniDrawer: boolean) => {},
   onChangeMenuOrientation: (menuOrientation: MenuOrientation) => {},
   onChangeHeader: (header: boolean) => {},
@@ -44,6 +46,21 @@ function ConfigProvider({ children }: ConfigProviderProps) {
       ...config,
       mode,
     });
+  };
+
+  const onChangePaletteColor = (color: PaletteColorKey, value: string) => {
+    setConfig({
+      ...config,
+      paletteOverrides: {
+        ...config.paletteOverrides,
+        [color]: value,
+      },
+    });
+  };
+
+  const onResetPaletteColors = () => {
+    const { paletteOverrides: _paletteOverrides, ...nextConfig } = config;
+    setConfig(nextConfig);
   };
 
   const onChangeDirection = (direction: ThemeDirection) => {
@@ -81,6 +98,8 @@ function ConfigProvider({ children }: ConfigProviderProps) {
         onChangeContainer,
         onChangeLocalization,
         onChangeMode,
+        onChangePaletteColor,
+        onResetPaletteColors,
         onChangeDirection,
         onChangeMiniDrawer,
         onChangeMenuOrientation,
