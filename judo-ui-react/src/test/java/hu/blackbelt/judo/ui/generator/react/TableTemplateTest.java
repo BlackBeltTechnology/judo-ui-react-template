@@ -27,6 +27,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -39,6 +40,27 @@ class TableTemplateTest {
      * addresses a row the grid does not have and crashes the page. The edit
      * mode must be keyed by the same resolved identity the grid uses.
      */
+    /**
+     * Boolean columns render an icon rather than text, so a test can only read
+     * their value through a stable marker. The runtime tags those icons
+     * boolean-null / boolean-true / boolean-false and covers that in its own
+     * TableRenderer unit tests; React must expose the same three markers so one
+     * spec can assert a boolean cell on either frontend.
+     */
+    @Test
+    void booleanColumnsExposeTheirValueThroughACanonicalMarker() throws IOException {
+        try (InputStream input = TableTemplateTest.class.getResourceAsStream("/actor/src/fragments/relation/column.fragment.hbs")) {
+            assertNotNull(input);
+            String template = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+            // MdiIcon exposes no index signature, so the marker travels through
+            // its own testId prop, which it renders as data-testid.
+            assertTrue(template.contains("testId=\"boolean-null\""), "unset boolean must be marked");
+            assertTrue(template.contains("testId=\"boolean-true\""), "true boolean must be marked");
+            assertTrue(template.contains("testId=\"boolean-false\""), "false boolean must be marked");
+            assertFalse(template.contains("data-testid=\"boolean-"), "MdiIcon takes testId, not a raw data-testid");
+        }
+    }
+
     /**
      * The container passes testIdOverride to its table child regardless of how
      * that child renders (grid, cards, tags), so every collection component's

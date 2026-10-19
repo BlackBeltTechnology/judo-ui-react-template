@@ -26,11 +26,11 @@ filterOperators: stringColumnOperators,
 align: 'center',
 renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
   if (params.row.{{ column.attributeType.name }} === null || params.row.{{ column.attributeType.name }} === undefined) {
-    return <MdiIcon className="undefined" path="minus" color="#ddd" />;
+    return <MdiIcon className="undefined" path="minus" color="#ddd" testId="boolean-null" />;
   } else if (params.row.{{ column.attributeType.name }}) {
-    return <MdiIcon className="true" path="check-circle" color="green" />;
+    return <MdiIcon className="true" path="check-circle" color="green" testId="boolean-true" />;
   }
-  return <MdiIcon className="false" path="close-circle" color="red" />;
+  return <MdiIcon className="false" path="close-circle" color="red" testId="boolean-false" />;
 },
 {{# if isUseInlineColumnFilters }}
 filterOperators: booleanColumnOperators,
