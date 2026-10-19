@@ -34,6 +34,11 @@
       ]}
       isOptionEqualToValue={ (option) => option.value === data.{{ child.attributeType.name }} }
       getOptionKey={(option: any) => option.key }
+      renderOption={({ key, ...props }: any, option: any) => (
+        <li key={key} {...props} data-testid={buildFieldTestId('{{ getElementId child }}', `option::${option.value}`)}>
+          {option.label}
+        </li>
+      )}
       getOptionLabel={(option: any) => {
         if (typeof option === 'string') {
           const o = effective{{ firstToUpper child.attributeType.name }}Options.find(o => o.value === option)!;
