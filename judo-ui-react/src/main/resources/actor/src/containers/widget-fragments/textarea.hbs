@@ -61,11 +61,12 @@
                 ),
             {{/ if }}
         } }
-        {{# if child.attributeType.dataType.maxLength }}
         inputProps={ {
+            'data-testid': buildFieldTestId('{{ getElementId child }}', 'input'),
+            {{# if child.attributeType.dataType.maxLength }}
             maxLength: {{ child.attributeType.dataType.maxLength }},
+            {{/ if }}
         } }
-        {{/ if }}
     />
     {{# and child.countCharacters child.attributeType.dataType.maxLength }}
     <CharacterCounter current={(data.{{ child.attributeType.name }} ?? '').length} max={ {{ child.attributeType.dataType.maxLength }} } />
