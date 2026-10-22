@@ -132,4 +132,36 @@ class LinkTemplateTest {
         }
     }
 
+    /** Create stays available while the owner is edited; the page action stages it into the owner. */
+    @Test
+    void linkCreateIsNotDisabledByEditMode() throws IOException {
+        try (InputStream input = LinkTemplateTest.class.getResourceAsStream(
+                "/actor/src/containers/components/link/index.tsx.hbs")) {
+            assertNotNull(input);
+            String template = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+
+            assertFalse(template.contains("(editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft))"));
+            assertTrue(template.contains("disabled: disabled,"));
+        }
+    }
+
+    /** The field shows every modeled display part, like the runtime's LinkRenderer. */
+    @Test
+    void linkLabelJoinsEveryDisplayPart() throws IOException {
+        String link;
+        String widget;
+        try (InputStream input = LinkTemplateTest.class.getResourceAsStream(
+                "/actor/src/containers/components/link/index.tsx.hbs")) {
+            link = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
+        try (InputStream input = LinkTemplateTest.class.getResourceAsStream(
+                "/actor/src/components/widgets/SingleRelationInput.tsx.hbs")) {
+            widget = new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
+
+        assertTrue(link.contains("{{# each link.parts as |part| }}"));
+        assertTrue(link.contains(".join(' ') }"));
+        assertTrue(widget.contains("getOptionLabel ? getOptionLabel(option as T) : option[autoCompleteAttribute as keyof T]"));
+    }
+
 }

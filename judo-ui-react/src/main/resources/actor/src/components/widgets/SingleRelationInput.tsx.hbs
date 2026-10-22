@@ -41,6 +41,8 @@ interface SingleRelationInputProps<T> {
   icon?: ReactNode;
   autoCompleteAttribute: string;
   autoCompleteLimit?: number;
+  /** Label from every modeled display part; defaults to the autocomplete attribute alone. */
+  getOptionLabel?: (option: T) => string;
   onAutoCompleteSearch?: (searchText: string) => Promise<T[]>,
   onAutoCompleteSelect: (target?: T | null) => Promise<void>;
   isInlineCreatable?: boolean;
@@ -66,6 +68,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   icon,
   autoCompleteAttribute,
   autoCompleteLimit,
+  getOptionLabel,
   onAutoCompleteSearch,
   onAutoCompleteSelect,
   isInlineCreatable,
@@ -197,7 +200,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
             }
           } }
           isOptionEqualToValue={ (option: any, value: any) => option[autoCompleteAttribute] === value[autoCompleteAttribute] }
-          getOptionLabel={ (option) => option[autoCompleteAttribute as keyof T] as string || '' }
+          getOptionLabel={ (option) => getOptionLabel ? getOptionLabel(option as T) : option[autoCompleteAttribute as keyof T] as string || '' }
           options={options}
           value={isEager ? (ownerData[name] || null) : value}
           clearOnBlur={true}
