@@ -20,9 +20,8 @@
     <Box display="flex" alignItems="center">
     {{/ if }}
     <DatePicker
-        data-testid={buildFieldTestId('{{ getElementId child }}')}
         {{# if (shouldElementHaveAutoFocus child) }}
-            inputRef={autoFocusInputRef}
+            autoFocus
         {{/ if }}
         slotProps={ {
             textField: {
@@ -30,17 +29,21 @@
                 required: actions?.is{{ firstToUpper child.attributeType.name }}Required ? actions.is{{ firstToUpper child.attributeType.name }}Required(data, editMode) : ({{# if child.requiredBy }}data.{{ child.requiredBy.name }} ||{{/ if }} {{ boolValue child.attributeType.isRequired  }}),
                 helperText: validation.get('{{ child.attributeType.name }}'),
                 error: !!validation.get('{{ child.attributeType.name }}'),
-                InputLabelProps: { shrink: true },
-                inputProps: { 'data-testid': buildFieldTestId('{{ getElementId child }}', 'input') },
-                {{# if child.icon }}
-                    InputProps: {
-                        startAdornment: (
-                            <InputAdornment position="start">
-                                <MdiIcon path="{{ child.icon.iconName }}" />
-                            </InputAdornment>
-                        ),
-                    },
-                {{/ if }}
+                // Spread: MUI X 8 types this slot without data-* keys; PickersTextField forwards it to its root.
+                ...{ 'data-testid': buildFieldTestId('{{ getElementId child }}') },
+                slotProps: {
+                    inputLabel: { shrink: true },
+                    htmlInput: { 'data-testid': buildFieldTestId('{{ getElementId child }}', 'input') },
+                    {{# if child.icon }}
+                        input: {
+                            startAdornment: (
+                                <InputAdornment position="start">
+                                    <MdiIcon path="{{ child.icon.iconName }}" />
+                                </InputAdornment>
+                            ),
+                        },
+                    {{/ if }}
+                },
             },
             actionBar: {
               actions: ['today', 'accept'],
