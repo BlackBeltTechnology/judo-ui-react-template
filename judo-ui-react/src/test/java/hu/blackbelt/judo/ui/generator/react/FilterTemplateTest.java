@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -96,6 +97,25 @@ class FilterTemplateTest {
                 "/actor/src/components/table/EagerTable.tsx.hbs",
                 "/actor/src/components/table/LazyTable.tsx.hbs" }) {
             assertTrue(template(path).contains("await filterAction(toolBarAction.id, tableTestId);"));
+        }
+    }
+
+    /** Always-shown filters use the runtime grammar `table::<id>::fixed-filter(s)`. */
+    @Test
+    void fixedFiltersCarryTheRuntimeIds() throws IOException {
+        String bar = template("/actor/src/components/table/FixedTableFilters.tsx.hbs");
+        assertTrue(bar.contains("data-testid={buildFixedFiltersTestId(tableTestId)}"));
+        assertTrue(bar.contains("testId={buildFixedFilterTestId(tableTestId, f.attributeName)}"));
+
+        String filter = template("/actor/src/components/table/SingleValueFilterComponent.tsx.hbs");
+        // enumeration, string and numeric roots carry the id; the trinary/boolean comboboxes take it as a prop
+        assertEquals(3, filter.split("data-testid=\\{testId\\}", -1).length - 1);
+        assertEquals(2, filter.split(" testId=\\{testId\\}", -1).length - 1);
+
+        for (String path : new String[] {
+                "/actor/src/components/table/EagerTable.tsx.hbs",
+                "/actor/src/components/table/LazyTable.tsx.hbs" }) {
+            assertTrue(template(path).contains("tableTestId={tableTestId}"));
         }
     }
 }

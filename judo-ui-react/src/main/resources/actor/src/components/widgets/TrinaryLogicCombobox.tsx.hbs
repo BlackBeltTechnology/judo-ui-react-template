@@ -26,6 +26,7 @@ export const TrinaryLogicCombobox = ({
   className,
   annotations = [],
   icon,
+  testId,
 }: TrinaryLogicProps) => {
   const { t } = useTranslation();
   const onChangeHandler = onChange
@@ -39,7 +40,7 @@ export const TrinaryLogicCombobox = ({
   return (
     <TextField
       name={name}
-      data-testid={buildFieldTestId(id, 'input')}
+      data-testid={testId ?? buildFieldTestId(id, 'input')}
       required={required}
       autoFocus={autoFocus}
       label={label}
