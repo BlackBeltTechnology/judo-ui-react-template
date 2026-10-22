@@ -79,10 +79,9 @@ const FilterInput = ({ id, tableTestId, index, filter, setFilterValue }: FilterI
   const valueClassName = `${id}-value`;
 
   // The canonical `::value` role sits on the focusable input of the text-like
-  // value editors (string, numeric, enumeration).
-  // ponytail: the date, dateTime, boolean and trinary editors do not accept
-  // `inputProps`; they need the role threaded through their own slot props.
-  // Add that when a spec has to filter on those types.
+  // value editors (string, numeric, enumeration) and on the field root of the
+  // date-like editors, whose value input carries `::value::input`.
+  const valueTestId = buildFilterPanelValueInputTestId(tableTestId, index);
 
   return (
     <>
@@ -111,12 +110,17 @@ const FilterInput = ({ id, tableTestId, index, filter, setFilterValue }: FilterI
                 onChange={(newValue) => setFilterValue(filter, newValue)}
                 slotProps={ {
                     textField: {
-                        InputProps: {
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <MdiIcon path="calendar_month" />
-                                </InputAdornment>
-                            ),
+                        // Spread: MUI X 8 types this slot without data-* keys; PickersTextField forwards it to its root.
+                        ...{ 'data-testid': valueTestId },
+                        slotProps: {
+                            htmlInput: { 'data-testid': `${valueTestId}::input` },
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <MdiIcon path="calendar_month" />
+                                    </InputAdornment>
+                                ),
+                            },
                         },
                     },
                 } }
@@ -134,12 +138,17 @@ const FilterInput = ({ id, tableTestId, index, filter, setFilterValue }: FilterI
                 onChange={(newValue) => setFilterValue(filter, newValue)}
                 slotProps={ {
                     textField: {
-                        InputProps: {
-                            startAdornment: (
-                                <InputAdornment position="start">
-                                    <MdiIcon path="calendar-range" />
-                                </InputAdornment>
-                            ),
+                        // Spread: MUI X 8 types this slot without data-* keys; PickersTextField forwards it to its root.
+                        ...{ 'data-testid': valueTestId },
+                        slotProps: {
+                            htmlInput: { 'data-testid': `${valueTestId}::input` },
+                            input: {
+                                startAdornment: (
+                                    <InputAdornment position="start">
+                                        <MdiIcon path="calendar-range" />
+                                    </InputAdornment>
+                                ),
+                            },
                         },
                     },
                 } }

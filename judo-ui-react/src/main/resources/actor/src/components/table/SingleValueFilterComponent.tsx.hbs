@@ -132,12 +132,17 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 slotProps={ {
                   textField: {
                     variant: 'standard',
-                    InputProps: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <MdiIcon path={filter.filterOption.icon ?? 'calendar_month'} />
-                        </InputAdornment>
-                      ),
+                    // Spread: MUI X 8 types this slot without data-* keys; PickersTextField forwards it to its root.
+                    ...{ 'data-testid': testId },
+                    slotProps: {
+                      htmlInput: { 'data-testid': `${testId}::input` },
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <MdiIcon path={filter.filterOption.icon ?? 'calendar_month'} />
+                          </InputAdornment>
+                        ),
+                      },
                     },
                   },
                 } }
@@ -155,12 +160,17 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 slotProps={ {
                   textField: {
                     variant: 'standard',
-                    InputProps: {
-                      startAdornment: (
-                        <InputAdornment position="start">
-                          <MdiIcon path={filter.filterOption.icon ?? 'calendar-range'} />
-                        </InputAdornment>
-                      ),
+                    // Spread: MUI X 8 types this slot without data-* keys; PickersTextField forwards it to its root.
+                    ...{ 'data-testid': testId },
+                    slotProps: {
+                      htmlInput: { 'data-testid': `${testId}::input` },
+                      input: {
+                        startAdornment: (
+                          <InputAdornment position="start">
+                            <MdiIcon path={filter.filterOption.icon ?? 'calendar-range'} />
+                          </InputAdornment>
+                        ),
+                      },
                     },
                   },
                 } }
