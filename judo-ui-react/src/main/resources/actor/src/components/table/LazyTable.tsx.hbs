@@ -680,6 +680,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
       >
       </FixedTableFilters>
       <StripedDataGrid
+        data-testid={`${tableTestId}::grid`}
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
         showToolbar
@@ -708,6 +709,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
+          loadingOverlay: { 'data-testid': `${tableTestId}::loading` } as any,
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}

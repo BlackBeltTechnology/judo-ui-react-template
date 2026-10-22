@@ -525,6 +525,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       >
       </FixedTableFilters>
       <StripedDataGrid
+        data-testid={`${tableTestId}::grid`}
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
         showToolbar
@@ -553,6 +554,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
+          loadingOverlay: { 'data-testid': `${tableTestId}::loading` } as any,
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}
