@@ -13,14 +13,13 @@ change closes the last three deltas between it and this template so one Playwrig
 | Runtime settled row actions on `::action::<role>` | `RowActionCell.tsx:161` uses `getRowActionTestId`; `:162` `getButtonTestId` is the no-role fallback |
 | Runtime reserves `overflow` as a role | `RowActionCell.tsx:164` |
 | Selection cell derives from the cell grammar | `test-ids/src/table.ts:56` `getSelectionCellTestId → getCellTestId(…, "__check__")` |
-| Runtime namespaces browser state | `core/src/utils/storage-namespace.ts` |
 | Every RelationTest table and field element carries a `sourceId` | model scan: `ui:Table` 33/33, all input widgets 48/48 |
 | No `xmi:id` in the model contains `@` | model scan: 0 of 2909 |
 
 ## Goals / Non-Goals
 
 **Goals.** Emit canonical row, cell, selection-cell and filter-panel IDs. Resolve the D3 row-action
-grammar. Namespace persisted browser state. Keep grid behavior bit-identical.
+grammar. Keep grid behavior bit-identical. (Browser-state namespacing: withdrawn — JNG-6411 scope.)
 
 **Non-Goals.** No change to `judo-frontend-runtime` or `judo-ui-typescript-rest-template`. No new
 Playwright specs here. No new test IDs beyond the four classes above. No rename of `build*TestId`
@@ -81,19 +80,9 @@ The existing `TableRowAction.testId` field currently feeds `a.testId ?? a.id`. I
 *Rejected:* leave D3 open again. Reason: the tatami suite must address row actions, and the runtime
 evidence is now unambiguous.
 
-### D5. Browser-state namespacing lives in its own template file, exported through the barrel
+### D5. Browser-state namespacing (withdrawn — JNG-6411 scope)
 
-`storage-namespace.ts.hbs` is a leaf module with no imports, so `axiosInterceptor` (which is imported
-very early during auth bootstrap) can depend on it without a cycle. It is registered in
-`ui-react.yaml` and re-exported from `utilities/index.tsx.hbs` for ordinary consumers, while the five
-call sites import it directly by path to keep the early-bootstrap path barrel-free.
-
-The derivation reads `document.baseURI` rather than a generated constant, so the namespace is
-automatically correct in production, in single-actor mode (application owns the root path), and in
-the dev server — no build-time coupling to the deployment path.
-
-*Rejected:* namespace by generated model/actor name. Reason: the collision is caused by the *serving
-path*, and two deployments of the same actor on different paths must not share state.
+One deployment serves one frontend, so no storage collision is possible and no namespacing is added.
 
 ### D6. Snapshot refresh is audited for disappearing IDs, not just added ones
 
@@ -109,7 +98,6 @@ row actions (count unchanged). Any file whose count *decreases* blocks the commi
 | `tableTestId` switch from `getXMIID` to `getElementId` (D2) silently changes existing row-action IDs. | Intended and simultaneous with the D4 grammar change, so no consumer observes an intermediate state. Verified by grepping generated output for `::row::` segments carrying an `Actor/(esm/…)` prefix — expected zero. |
 | Slot wrappers break grid virtualization or editing. | Wrappers forward all props and add one attribute; memoized on identity. Guarded by the existing six-itest Vite build plus inline-edit and selection scenarios in the paired tatami run. |
 | MUI changes slot prop shapes in a minor release. | Both engines pin the same major (v8) and would move together; a divergence surfaces as a cross-engine test failure, which is exactly what the suite detects. |
-| Namespacing strands existing users' stored state. | One-time re-login and reset preferences; no server-side data affected. Called out as breaking in the proposal. |
 | Filter-panel input IDs collide when several filter rows are open. | The runtime accepts the same constraint (one filter row edited per open/close cycle). Documented rather than engineered around, to stay engine-identical. |
 | Cross-engine equality is asserted here but provable only in the paired tatami change. | Sequencing is explicit: this change's scenarios state the equality requirement; `react-template-e2e-parity` executes it. Neither is accepted alone. |
 
@@ -117,8 +105,7 @@ row actions (count unchanged). Any file whose count *decreases* blocks the commi
 
 1. Fast-forward the working branch onto the four code-complete JNG-6391 changes; resolve the single
    `ui-react.yaml` insertion conflict (both sides add distinct entries to the same `templates:` list).
-2. Land the browser-state namespacing (already drafted in the working tree) — it is a precondition
-   for any two-engine run, and independently testable.
+2. ~~Land the browser-state namespacing~~ (withdrawn — JNG-6411 scope).
 3. Add the helpers (`buildRowActionTestId`, `buildFilterPanelTestId` + variants) and the Java role
    mapping, test-first per repo rule 7.
 4. Switch `tableTestId` to `getElementId` and the row-action grammar together (D2 + D4).

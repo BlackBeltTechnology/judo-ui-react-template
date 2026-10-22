@@ -47,7 +47,7 @@ Corrected role vocabulary entries (documented but never emitted in previous vers
 
 - `button::clear` — removed. The template never emitted this literal. Widgets with a clear-relation action use `button::unset` (dynamic, matches runtime); multi-value widgets use `button::clear-all` (template-only).
 
-#### Scenario: SingleRelationInput emits distinct testids at each DOM level
+#### Scenario: RelationDefinedLink emits three distinct testids
 
 - **GIVEN** a `SingleRelationInput` widget with XMI id `esm/_28BIQBn` and no `sourceId`
 - **WHEN** the widget is rendered
@@ -86,7 +86,13 @@ Corrected role vocabulary entries (documented but never emitted in previous vers
 - **AND** the button previously labeled `::button::selector` now carries `::button::set`
 - **AND** the outer wrapper previously labeled `::container` now carries bare `field::<id>`
 
-#### Scenario: Runtime and template output share testids byte-for-byte on shared DOM nodes
+#### Scenario: Ad-hoc suffixes are eliminated
+
+- **WHEN** the generator emits the DropdownButton, per-row action buttons, or FilterDialog operator MenuItems
+- **THEN** no `data-testid` value contains a hyphen-joined ad-hoc suffix (`-dropdown-toggle`, `-clear-all`, `-open-selector`, `-inline-create`)
+- **AND** every such button carries a testid produced by `buildFieldTestId(...)` with an explicit role
+
+#### Scenario: Runtime and template output share testids
 
 - **GIVEN** the same UI model rendered by (i) this template and (ii) the JUDO frontend runtime at `feature/unify-data-testid-contract` or later
 - **WHEN** the generated DOM is compared for any relation widget or table row

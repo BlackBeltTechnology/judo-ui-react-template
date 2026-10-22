@@ -63,6 +63,12 @@ row without relying on a CSS class, a `[data-field]` attribute, or a positional 
 - **THEN** its selection cell carries the canonical `…::cell::__check__` test ID
 - **AND** checking that cell's control selects exactly that row
 
+#### Scenario: Selection persists after a saved row's `__identifier` changes
+
+- **GIVEN** a saved row selected before backend confirmation
+- **WHEN** the server refresh returns the row with a new `__signedIdentifier` and the previous `__identifier` cleared
+- **THEN** the selection model tracks the row via `resolveTransferId` and remains consistent
+
 ### Requirement: Row Actions
 
 The generator SHALL produce per-row action buttons from `Table.rowActionButtonGroup`.
@@ -80,5 +86,10 @@ defined by the `transfer-identity` capability.
 - **THEN** 2 buttons are visible per row and 3 are in an overflow menu
 - **AND** each visible button carries its canonical `…::action::<role>` test ID
 - **AND** the overflow trigger carries `…::action::overflow`
+
+#### Scenario: Row-mode model keyed by resolver
+
+- **WHEN** the user enters edit mode on a row
+- **THEN** the `rowModesModel` state is keyed by `resolveTransferId(rowData)`, not by `rowData.__identifier`
 
 **Key Helpers**: `UiActionsHelper.getRowDeleteActionDefinitionForTable()`, `UiWidgetHelper.tableRowButtonHiddenConditions()`, `UiWidgetHelper.tableRowButtonDisabledConditions()`

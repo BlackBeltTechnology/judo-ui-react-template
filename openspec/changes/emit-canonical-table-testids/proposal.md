@@ -1,4 +1,4 @@
-# Emit canonical table `data-testid` attributes and namespace browser state
+# Emit canonical table `data-testid` attributes
 
 ## Why
 
@@ -61,17 +61,10 @@ runtime looked self-inconsistent. That is no longer the case. In
 when no role resolves (line 162). The canonical form is therefore the row-scoped `::action::<role>`,
 and this template's current `::button::<name>` form (using `a.testId ?? a.id`) does not match it.
 
-### Gap 3 (dual-engine precondition) — browser state is shared across engines
+### Gap 3 — browser state shared across engines (withdrawn — JNG-6411 scope)
 
-Cross-engine acceptance serves both actors from **one origin** on distinct base paths
-(`/RelationTest/Actor/` and `/RelationTest_runtime/Actor/`). `localStorage` and `sessionStorage` are
-scoped to the origin, not the path, so unprefixed keys are shared. The most damaging collision is
-`axiosInterceptor.storageKey()` → `oidc.user:<realm>:<clientId>`: identical realm and client on both
-engines means each engine overwrites the other's session, and the two actors cannot be exercised
-side by side at all. The runtime already namespaces every persisted key via
-`@judo/core`'s `namespacedStorageKey` (`packages/core/src/utils/storage-namespace.ts`,
-`judo:<namespace>:<key>` with the namespace derived from `document.baseURI`). This template does not,
-so the convention must be ported for the two engines to coexist.
+The namespacing of browser storage keys proposed here was withdrawn: one deployment serves one
+frontend at a time, so the two engines never share an origin (see `scope-pr604-to-testid-contract`).
 
 ## What Changes
 
@@ -85,20 +78,14 @@ so the convention must be ported for the two engines to coexist.
   canonical `::row::<id>::action::<role>`, resolving D3 in the direction the runtime settled on.
   New helpers `buildRowActionTestId` and `buildFilterPanelTestId` (plus its column/operator/value
   variants) are added to `transfer-id.ts.hbs`.
-- **NEW** capability `browser-state-isolation`: every persisted `localStorage`/`sessionStorage` key
-  is namespaced by the base path the application is served on, matching `@judo/core`'s scheme
-  byte-for-byte, so two engines on one origin keep independent session, locale and layout state.
 - **BREAKING (test-surface only)**: any downstream test addressing a row-action button by
-  `::button::<name>` must switch to `::action::<role>`. Persisted browser keys gain a
-  `judo:<namespace>:` prefix, so existing users' stored preferences and sessions are not read on
-  first load after upgrade (a one-time re-login, no data loss). No product behavior changes.
+  `::button::<name>` must switch to `::action::<role>`. No product behavior changes.
 
 ## Capabilities
 
 ### New Capabilities
 
-- `browser-state-isolation`: base-path-derived namespacing of all persisted browser state, with a
-  scoped clear that leaves a sibling frontend's state on the same origin intact.
+None (`browser-state-isolation` was withdrawn — JNG-6411 scope).
 
 ### Modified Capabilities
 
@@ -117,7 +104,7 @@ so the convention must be ported for the two engines to coexist.
   audited for silently *disappearing* IDs, not just added ones.
 - **Branch precondition**: this change builds on the four code-complete JNG-6391 changes on
   `feature/JNG-6391_unified_data_id_and_testid`. That branch is a strict descendant of `develop`
-  (0 behind / 27 ahead), so it fast-forwards; the working tree's in-flight `storage-namespace` work
+  (0 behind / 27 ahead), so it fast-forwards; the working tree's in-flight `storage-namespace` work (withdrawn — JNG-6411 scope)
   collides only in `ui-react.yaml` (both insert into the same `templates:` list at different
   offsets) and is folded into this change as Gap 3.
 - **Verification depends on the paired tatami change** `react-template-e2e-parity`, which pins this
