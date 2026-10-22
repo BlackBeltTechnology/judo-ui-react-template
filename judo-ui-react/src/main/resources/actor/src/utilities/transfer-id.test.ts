@@ -6,6 +6,8 @@ import {
   buildFilterPanelOperatorInputTestId,
   buildFilterPanelTestId,
   buildFilterPanelValueInputTestId,
+  buildFixedFilterTestId,
+  buildFixedFiltersTestId,
   buildRowActionTestId,
   buildRowTestId,
   buildSelectionCellTestId,
@@ -42,6 +44,13 @@ describe('buildRowActionTestId', () => {
   it('rejects an empty or unknown role segment', () => {
     expect(() => buildRowActionTestId(table, row, '')).toThrow();
     expect(() => buildRowActionTestId(table, row, 'unknown')).toThrow();
+  });
+});
+
+describe('buildFixedFilterTestId', () => {
+  it('emits the runtime fixed-filter grammar', () => {
+    expect(buildFixedFiltersTestId(table)).toBe('table::Galaxies::fixed-filters');
+    expect(buildFixedFilterTestId(table, 'discovered')).toBe('table::Galaxies::fixed-filter::discovered');
   });
 });
 

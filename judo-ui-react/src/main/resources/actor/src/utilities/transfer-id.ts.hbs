@@ -220,6 +220,19 @@ export function buildFilterPanelValueInputTestId(tableId: TestIdKey, index?: num
   return `${scope}::value`;
 }
 
+/** Build the `data-testid` for a table's always-shown filter bar. Runtime parity: `table::<id>::fixed-filters`. */
+export function buildFixedFiltersTestId(tableId: TestIdKey): string {
+  return `${buildTableTestId(tableId)}::fixed-filters`;
+}
+
+/**
+ * Build the `data-testid` for one always-shown filter, on its field root.
+ * Runtime parity: `table::<id>::fixed-filter::<attributeName>`.
+ */
+export function buildFixedFilterTestId(tableId: TestIdKey, attributeName: string): string {
+  return `${buildTableTestId(tableId)}::fixed-filter::${attributeName}`;
+}
+
 /**
  * Build the `data-testid` for one operator option of a filter row.
  *
