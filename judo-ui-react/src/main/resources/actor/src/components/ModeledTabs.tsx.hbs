@@ -7,9 +7,17 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import { useDataStore } from '~/hooks';
 import { MdiIcon } from './MdiIcon';
+import {
+    resolveTransferId,
+    buildTabControllerTestId,
+    buildTabListTestId,
+    buildTabTestId,
+    buildTabPanelTestId,
+} from '~/utilities/transfer-id';
 
 export interface TabPanelProps {
-    id: string;
+    ctrlId: string;
+    tabId: string;
     children?: ReactNode;
     index: number;
     value: number;
@@ -17,13 +25,13 @@ export interface TabPanelProps {
 }
 
 export function TabPanel(props: TabPanelProps) {
-    const { id, children, value, orientation, index, ...other } = props;
+    const { ctrlId, tabId, children, value, orientation, index, ...other } = props;
 
     return (
         <Box
             role="tabpanel"
             hidden={value !== index}
-            data-testid={id}
+            data-testid={buildTabPanelTestId(ctrlId, tabId)}
             aria-labelledby={`simple-tab-${index}`}
             sx={ { flex: orientation === 'vertical' ? '1' : undefined } }
             {...other}
@@ -62,15 +70,18 @@ export function ModeledTabs({ id, ownerData, childTabs, children, orientation, v
     const border = orientation === 'vertical' ? 'borderRight' : 'borderBottom';
     const additionalBoxSx = orientation === 'vertical' ? { flexGrow: 1, display: 'flex' } : {};
 
+    const ownerKey = ownerData ? resolveTransferId(ownerData as any) : undefined;
+    const hasOwnerKey = !!ownerKey && !ownerKey.startsWith('idx-');
+
     useEffect(() => {
-        if (ownerData && ownerData.__identifier) {
-            setItem(`${id}-${ownerData.__identifier}-activeTab`, String(value));
+        if (hasOwnerKey) {
+            setItem(`${id}-${ownerKey}-activeTab`, String(value));
         }
     }, [value]);
 
     useEffect(() => {
-        if (ownerData && ownerData.__identifier) {
-            setValue(Number(getItemWithDefault(`${id}-${ownerData.__identifier}-activeTab`, '0')));
+        if (hasOwnerKey) {
+            setValue(Number(getItemWithDefault(`${id}-${ownerKey}-activeTab`, '0')));
         }
     }, [ownerData]);
 
@@ -86,8 +97,9 @@ export function ModeledTabs({ id, ownerData, childTabs, children, orientation, v
     };
 
     return (
-        <Box data-testid={id} sx={ { width: '100%', ...additionalBoxSx } }>
+        <Box data-testid={buildTabControllerTestId(id)} sx={ { width: '100%', ...additionalBoxSx } }>
             <Tabs
+                data-testid={buildTabListTestId(id)}
                 orientation={orientation}
                 variant="scrollable"
                 value={value}
@@ -97,11 +109,11 @@ export function ModeledTabs({ id, ownerData, childTabs, children, orientation, v
                 sx={ { [border]: 1, borderColor: 'divider' } }
             >
                 {childTabs.map((c: any, index: number) => (
-                <Tab className={hasNestedError(c) ? 'JUDO-nestedError' : undefined} data-testid={`${c.id}-tab`} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={c.disabled} style={ { display:  c.hidden ? 'none' : undefined, } } />
+                <Tab className={hasNestedError(c) ? 'JUDO-nestedError' : undefined} data-testid={buildTabTestId(id, c.id)} key={c.id} label={c.label} icon={c.icon ? <MdiIcon path={c.icon} sx={ { m: '0 0.5rem' } } /> : '' } iconPosition="start" disabled={c.disabled} style={ { display:  c.hidden ? 'none' : undefined, } } />
                 ))}
             </Tabs>
             {childTabs.map((c: any, index: number) => (
-                <TabPanel id={`${c.id}-tab-panel`} key={c.id} value={value} index={index} orientation={orientation}>
+                <TabPanel ctrlId={id} tabId={c.id} key={c.id} value={value} index={index} orientation={orientation}>
                     {Array.isArray(children) ? children[index] : children}
                 </TabPanel>
             ))}

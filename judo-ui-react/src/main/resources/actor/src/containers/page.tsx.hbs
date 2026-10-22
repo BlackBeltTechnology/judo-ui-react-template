@@ -19,6 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useJudoNavigation, MdiIcon, PageHeader, DropdownButton } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { mainContainerPadding } from '~/theme';
+import { buildFieldTestId, buildButtonTestId } from '~/utilities/transfer-id';
 {{# unless (containerIsEmptyDashboard container) }}
   {{# unless container.table }}
     import { processQueryCustomizer } from '~/utilities';
@@ -60,7 +61,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
   {{# unless (containerIsEmptyDashboard container) }}
     const { t } = useTranslation();
     const { navigate, back } = useJudoNavigation();
-    const { ownerData, actions, actionsRequested, dataPath, isLoading, editMode, refreshCounter{{# if container.table }}, alreadySelected, selectionDiff, setSelectionDiff{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
+    const { ownerData, selectorOwnerId, actions, actionsRequested, dataPath, isLoading, editMode, refreshCounter{{# if container.table }}, alreadySelected, selectionDiff, setSelectionDiff{{/ if }}{{# unless container.table }}, data, isFormUpdateable, isFormDeleteable, storeDiff, validation, setValidation, submit{{/ unless }} } = props;
     const isDraft = false; // currently no page can be opened as draft, but we need this variable anyway
     {{# if container.view }}
       const queryCustomizer: {{ classDataName container.dataElement 'QueryCustomizer' }} = {
@@ -95,7 +96,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                   <Tooltip title={t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string}>
                 {{/ if }}
                 <Button
-                  data-testid="{{ getXMIID button }}"
+                  data-testid={buildButtonTestId('{{ getElementId button }}', '{{ getButtonActionType button }}')}
                   loading={isLoading}
                   loadingPosition="start"
                   variant={ {{{ variantForButton button }}} }

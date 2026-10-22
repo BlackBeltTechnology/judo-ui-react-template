@@ -18,6 +18,7 @@ import type { TransferObjectEQueryCustomizer } from '~/services/data-api/rest/Tr
 import { TransferObjectEStoredSerializer } from '~/services/data-api/rest/TransferObjectESerializer';
 import type { FiltersSerializer } from '~/utilities';
 import { actionsHasCapability, createActionName, deserializeFilters, serializeFilters } from '~/utilities';
+import { buildTableTestId } from '~/utilities/transfer-id';
 import type {
   TagContainerTransferTagContainerTransfer_View_EditManyAggregationCompostionComponentActionDefinitions,
   TagContainerTransferTagContainerTransfer_View_EditManyAggregationCompostionComponentProps,
@@ -70,12 +71,9 @@ export function TagContainerTransferTagContainerTransfer_View_EditManyAggregatio
   }, [actions]);
 
   return (
-    <div
-      data-testid="Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceFieldRelationDefinedTable"
-      data-table-name="manyAggregationCompostion"
-    >
+    <div data-testid={buildTableTestId('_2vNkEIF3Ee-M3fhNedgt-g')} data-table-name="manyAggregationCompostion">
       <Tags<TagContainerTransfer, TransferObjectEStored>
-        id="Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceFieldRelationDefinedTable"
+        id="_2vNkEIF3Ee-M3fhNedgt-g"
         label={t('TagContainerTransfer.TagContainerTransfer_View_Edit.manyAggregationCompostion', {
           defaultValue: 'ManyAggregationCompostion',
         })}
@@ -128,7 +126,13 @@ export function TagContainerTransferTagContainerTransfer_View_EditManyAggregatio
         onClearDialogsClick={
           hasClearCapability ? async () => actions.manyAggregationCompostionClearAction!() : undefined
         }
-        identifierAttribute="__identifier"
+        onRefreshClick={
+          actions.manyAggregationCompostionRefreshAction
+            ? () => {
+                void actions.manyAggregationCompostionRefreshAction!({} as any);
+              }
+            : undefined
+        }
       />
     </div>
   );

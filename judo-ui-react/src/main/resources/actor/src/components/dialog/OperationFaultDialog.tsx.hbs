@@ -12,6 +12,10 @@ import Typography from '@mui/material/Typography';
 import { useTheme } from '@mui/material/styles';
 import { MdiIcon } from '../MdiIcon';
 import { useDialog } from './StackableDialogProvider';
+import { buildDialogRoleTestId } from '~/utilities/transfer-id';
+
+/** Stable synthetic dialog id — this dialog has no model xmi:id. Shared with runtime. */
+const OPERATION_FAULT_DIALOG_ID = 'operation-fault';
 
 export const useFaultDialog = () => {
   const [createDialog, closeDialog] = useDialog();
@@ -48,13 +52,13 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
 
     return (
         <>
-            <DialogTitle data-testid="fault-dialog-title" sx={ { display: 'flex', alignItems: 'center' } }>
+            <DialogTitle data-testid={buildDialogRoleTestId(OPERATION_FAULT_DIALOG_ID, 'title')} sx={ { display: 'flex', alignItems: 'center' } }>
                 <MdiIcon path="alert-circle-outline" color={ palette.error.main } />
                 <Typography sx={ { ml: 1, color: (theme) => theme.palette.error.main } } variant="h6" component="h6">
                     { t('judo.error.error', { defaultValue: 'Error' }) as string }
                 </Typography>
             </DialogTitle>
-            <DialogContent data-testid="fault-dialog-content">
+            <DialogContent data-testid={buildDialogRoleTestId(OPERATION_FAULT_DIALOG_ID, 'content')}>
                 <DialogContentText>
                     { t('judo.error.business-fault', { defaultValue: 'An error occurred while processing your request.' }) as string }
                 </DialogContentText>
@@ -70,7 +74,7 @@ export const OperationFaultDialog = ({ faultObjectKey, content, close }: Operati
                 </List>
             </DialogContent>
             <DialogActions>
-                <Button data-testid="close-fault-dialog" onClick={close} variant="outlined" color="error">
+                <Button data-testid={buildDialogRoleTestId(OPERATION_FAULT_DIALOG_ID, 'close')} onClick={close} variant="outlined" color="error">
                     { t('judo.modal.close', { defaultValue: 'Close' }) as string }
                 </Button>
             </DialogActions>
