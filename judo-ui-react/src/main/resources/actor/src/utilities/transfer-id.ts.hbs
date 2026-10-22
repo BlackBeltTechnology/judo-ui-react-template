@@ -105,6 +105,11 @@ export function buildButtonTestId(buttonId: TestIdKey, actionType?: string): str
   return actionType ? `button::${key}::${actionType}` : `button::${key}`;
 }
 
+/** Mirrors `getButtonGroupTestId` of `@judo/test-ids`; a dropdown trigger appends `::dropdown`. */
+export function buildButtonGroupTestId(groupId: TestIdKey): string {
+  return `button-group::${stringifyKey(groupId)}`;
+}
+
 /** Build the outer `data-testid` for a table. */
 export function buildTableTestId(tableId: TestIdKey): string {
   return `table::${stringifyKey(tableId)}`;

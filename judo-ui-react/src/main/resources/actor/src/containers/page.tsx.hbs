@@ -19,7 +19,7 @@ import { useTranslation } from 'react-i18next';
 import { useJudoNavigation, MdiIcon, PageHeader, DropdownButton } from '~/components';
 import { useConfirmDialog } from '~/components/dialog';
 import { mainContainerPadding } from '~/theme';
-import { buildFieldTestId, buildButtonTestId } from '~/utilities/transfer-id';
+import { buildFieldTestId, buildButtonTestId, buildButtonGroupTestId } from '~/utilities/transfer-id';
 {{# unless (containerIsEmptyDashboard container) }}
   {{# unless container.table }}
     import { processQueryCustomizer } from '~/utilities';
@@ -137,6 +137,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
             <Grid className="page-action">
               <DropdownButton
                 id="{{ getXMIID buttonGroup }}-button-group"
+                testId={`${buildButtonGroupTestId('{{ getElementId buttonGroup }}')}::dropdown`}
                 disabled={ {{# if buttonGroup.enabledBy }}!data.{{ buttonGroup.enabledBy.name }} ||{{/ if }} isLoading || editMode }
                 {{# if buttonGroup.hiddenBy }}
                 hiddenBy={ data.{{ buttonGroup.hiddenBy.name }} || isLoading || editMode }
@@ -148,6 +149,7 @@ export default function {{ containerComponentName container }}Page ({{# unless (
                   {{# each (nonFeaturedButtonsForButtonGroup buttonGroup) as |button| }}
                     {
                       id: '{{ getXMIID button }}',
+                      testId: buildButtonTestId('{{ getElementId button }}', '{{ getButtonActionType button }}'),
                       label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
                       {{# if button.tooltipText }}
                       tooltip: t('{{ getTranslationKeyForVisualElement button }}.tooltip', { defaultValue: '{{ button.tooltipText }}' }) as string,
