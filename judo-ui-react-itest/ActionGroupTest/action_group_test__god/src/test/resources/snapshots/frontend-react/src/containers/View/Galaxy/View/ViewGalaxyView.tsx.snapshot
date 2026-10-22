@@ -71,6 +71,7 @@ import type { ViewGalaxyViewActionDefinitions, ViewGalaxyViewProps } from './typ
 export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
   // Container props
   const {
+    selectorOwnerId,
     refreshCounter,
     isLoading,
     isDraft,
@@ -185,6 +186,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                         uniqueId={
                                           'God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceFieldRelationDefinedTable'
                                         }
+                                        testIdOverride={selectorOwnerId}
                                         actions={actions}
                                         dataPath={dataPath ? dataPath + '.stars' : 'stars'}
                                         ownerData={data}
@@ -284,6 +286,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                             ),
                                           }}
                                           inputProps={{
+                                            'data-testid': buildFieldTestId('_8Ad5AE7tEeycO-gUAWxcVg', 'input'),
                                             maxLength: 255,
                                           }}
                                         />
@@ -307,6 +310,16 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                               control={
                                                 <Checkbox
                                                   data-testid={buildFieldTestId('_V0npMFjWEeyV2_3ibolaNQ')}
+                                                  slotProps={{
+                                                    input: {
+                                                      ...{
+                                                        'data-testid': buildFieldTestId(
+                                                          '_V0npMFjWEeyV2_3ibolaNQ',
+                                                          'input',
+                                                        ),
+                                                      },
+                                                    },
+                                                  }}
                                                   checked={data.real || false}
                                                   sx={{
                                                     color: (theme) =>
@@ -369,6 +382,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                     ),
                                   }}
                                   inputProps={{
+                                    'data-testid': buildFieldTestId('_gT1p0FjFEeyV2_3ibolaNQ', 'input'),
                                     maxLength: 255,
                                   }}
                                 />
@@ -381,6 +395,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   name="magnitude"
                                   data-testid={buildFieldTestId('_gT2Q4FjFEeyV2_3ibolaNQ')}
+                                  inputProps={{
+                                    'data-testid': buildFieldTestId('_gT2Q4FjFEeyV2_3ibolaNQ', 'input'),
+                                  }}
                                   label={t('View.Galaxy.View.magnitude', { defaultValue: 'Magnitude' }) as string}
                                   customInput={TextField}
                                   value={data.magnitude ?? ''}
@@ -435,6 +452,13 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                       control={
                                         <Checkbox
                                           data-testid={buildFieldTestId('_gT238FjFEeyV2_3ibolaNQ')}
+                                          slotProps={{
+                                            input: {
+                                              ...{
+                                                'data-testid': buildFieldTestId('_gT238FjFEeyV2_3ibolaNQ', 'input'),
+                                              },
+                                            },
+                                          }}
                                           checked={data.nakedEye || false}
                                           sx={{
                                             color: (theme) =>
@@ -495,6 +519,7 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                     ),
                                   }}
                                   inputProps={{
+                                    'data-testid': buildFieldTestId('_gT3fAFjFEeyV2_3ibolaNQ', 'input'),
                                     maxLength: 255,
                                   }}
                                 />
@@ -560,6 +585,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                         helperText: validation.get('discovered'),
                                         error: !!validation.get('discovered'),
                                         InputLabelProps: { shrink: true },
+                                        inputProps: {
+                                          'data-testid': buildFieldTestId('_conRABMcEe2_DOUDKkB20Q', 'input'),
+                                        },
                                         InputProps: {
                                           startAdornment: (
                                             <InputAdornment position="start">
@@ -690,6 +718,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   name="darkMatter"
                                   data-testid={buildFieldTestId('_8Aj_oE7tEeycO-gUAWxcVg')}
+                                  inputProps={{
+                                    'data-testid': buildFieldTestId('_8Aj_oE7tEeycO-gUAWxcVg', 'input'),
+                                  }}
                                   label={t('View.Galaxy.View.darkMatter', { defaultValue: 'Dark Matter' }) as string}
                                   customInput={TextField}
                                   value={data.darkMatter ?? ''}
@@ -735,6 +766,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   name="intergalacticDust"
                                   data-testid={buildFieldTestId('_8AoREE7tEeycO-gUAWxcVg')}
+                                  inputProps={{
+                                    'data-testid': buildFieldTestId('_8AoREE7tEeycO-gUAWxcVg', 'input'),
+                                  }}
                                   label={
                                     t('View.Galaxy.View.intergalacticDust', {
                                       defaultValue: 'Intergalactic Dust',
@@ -784,6 +818,9 @@ export default function ViewGalaxyView(props: ViewGalaxyViewProps) {
                                   }
                                   name="interstellarMedium"
                                   data-testid={buildFieldTestId('_8AtJkE7tEeycO-gUAWxcVg')}
+                                  inputProps={{
+                                    'data-testid': buildFieldTestId('_8AtJkE7tEeycO-gUAWxcVg', 'input'),
+                                  }}
                                   label={
                                     t('View.Galaxy.View.interstellarMedium', {
                                       defaultValue: 'Interstellar Medium',

@@ -53,6 +53,7 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
   const createDropdownRef = useRef<HTMLDivElement>(null);
   const {
     ownerData,
+    selectorOwnerId,
     onClose,
     actions,
     actionsRequested,
@@ -79,13 +80,17 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
 
   return (
     <>
-      <DialogTitle>
+      <DialogTitle data-testid={selectorOwnerId ? buildFieldTestId(selectorOwnerId, 'selector::title') : undefined}>
         {actions.getPageTitle ? actions.getPageTitle(data) : ''}
         <IconButton
-          data-testid={buildFieldTestId(
-            'God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer',
-            'dialog-close-wrapper',
-          )}
+          data-testid={
+            selectorOwnerId
+              ? buildFieldTestId(selectorOwnerId, 'selector::cancel')
+              : buildFieldTestId(
+                  'God/(esm/_YTwP0E7rEeycO-gUAWxcVg)/TransferObjectFormPageContainer',
+                  'dialog-close-wrapper',
+                )
+          }
           aria-label="close"
           onClick={onClose}
           sx={{
@@ -98,10 +103,11 @@ export default function ViewGalaxyFormDialog(props: ViewGalaxyFormDialogProps) {
           <MdiIcon path="close" />
         </IconButton>
       </DialogTitle>
-      <DialogContent dividers>
+      <DialogContent dividers data-testid={selectorOwnerId ? buildFieldTestId(selectorOwnerId, 'selector') : undefined}>
         <Suspense>
           <ViewGalaxyForm
             actions={actions}
+            selectorOwnerId={selectorOwnerId}
             dataPath={dataPath}
             refreshCounter={refreshCounter}
             isLoading={isLoading}

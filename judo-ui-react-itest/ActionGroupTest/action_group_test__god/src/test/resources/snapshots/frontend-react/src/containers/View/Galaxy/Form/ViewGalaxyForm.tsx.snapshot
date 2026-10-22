@@ -57,6 +57,7 @@ import type { ViewGalaxyFormActionDefinitions, ViewGalaxyFormProps } from './typ
 export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
   // Container props
   const {
+    selectorOwnerId,
     refreshCounter,
     isLoading,
     isDraft,
@@ -151,6 +152,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                     ),
                   }}
                   inputProps={{
+                    'data-testid': buildFieldTestId('_8AgVQE7tEeycO-gUAWxcVg', 'input'),
                     maxLength: 255,
                   }}
                 />
@@ -173,6 +175,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                       control={
                         <Checkbox
                           data-testid={buildFieldTestId('_BL1x4FjXEeyV2_3ibolaNQ')}
+                          slotProps={{
+                            input: { ...{ 'data-testid': buildFieldTestId('_BL1x4FjXEeyV2_3ibolaNQ', 'input') } },
+                          }}
                           checked={data.real || false}
                           sx={{ color: (theme) => (validation.has('real') ? theme.palette.error.main : 'primary') }}
                           onChange={(event) => {
@@ -220,6 +225,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                     ),
                   }}
                   inputProps={{
+                    'data-testid': buildFieldTestId('_t4p84FjJEeyV2_3ibolaNQ', 'input'),
                     maxLength: 255,
                   }}
                 />
@@ -242,6 +248,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                       control={
                         <Checkbox
                           data-testid={buildFieldTestId('_iqFysFjJEeyV2_3ibolaNQ')}
+                          slotProps={{
+                            input: { ...{ 'data-testid': buildFieldTestId('_iqFysFjJEeyV2_3ibolaNQ', 'input') } },
+                          }}
                           checked={data.nakedEye || false}
                           sx={{ color: (theme) => (validation.has('nakedEye') ? theme.palette.error.main : 'primary') }}
                           onChange={(event) => {
@@ -261,6 +270,9 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                   required={actions?.isMagnitudeRequired ? actions.isMagnitudeRequired(data, editMode) : false}
                   name="magnitude"
                   data-testid={buildFieldTestId('_iqFLoFjJEeyV2_3ibolaNQ')}
+                  inputProps={{
+                    'data-testid': buildFieldTestId('_iqFLoFjJEeyV2_3ibolaNQ', 'input'),
+                  }}
                   label={t('View.Galaxy.Form.magnitude', { defaultValue: 'Magnitude' }) as string}
                   customInput={TextField}
                   value={data.magnitude ?? ''}
@@ -328,6 +340,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                     ),
                   }}
                   inputProps={{
+                    'data-testid': buildFieldTestId('_iqGZwFjJEeyV2_3ibolaNQ', 'input'),
                     maxLength: 255,
                   }}
                 />
@@ -349,6 +362,7 @@ export default function ViewGalaxyForm(props: ViewGalaxyFormProps) {
                       helperText: validation.get('discovered'),
                       error: !!validation.get('discovered'),
                       InputLabelProps: { shrink: true },
+                      inputProps: { 'data-testid': buildFieldTestId('_28AhMBn_Ee2lYv3NngvLeA', 'input') },
                       InputProps: {
                         startAdornment: (
                           <InputAdornment position="start">

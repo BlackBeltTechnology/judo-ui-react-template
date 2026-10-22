@@ -80,7 +80,13 @@ import {
   useErrorHandler,
   validateWithNestedErrors,
 } from '~/utilities';
-import { buildCellTestId, buildRowTestId, buildTableTestId, resolveTransferId } from '~/utilities/transfer-id';
+import {
+  buildCellTestId,
+  buildColumnHeaderTestId,
+  buildRowTestId,
+  buildTableTestId,
+  resolveTransferId,
+} from '~/utilities/transfer-id';
 import type { ViewMatterTableTableComponentActionDefinitions, ViewMatterTableTableComponentProps } from './types';
 
 export const VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
@@ -98,6 +104,7 @@ export const filtersSerializer: FiltersSerializer = {
 export function ViewMatterTableTableComponent(props: ViewMatterTableTableComponentProps) {
   const {
     uniqueId,
+    testIdOverride,
     actions,
     dataPath,
     refreshCounter,
@@ -160,6 +167,13 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     ...baseColumnConfig,
     field: 'type',
     headerName: t('View.Matter.Table.type', { defaultValue: 'type' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_D04SgOq_EeuMzos2n42msw', 'type')}>
+        {t('View.Matter.Table.type', { defaultValue: 'type' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 170,
@@ -195,6 +209,13 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     ...baseColumnConfig,
     field: 'mass',
     headerName: t('View.Matter.Table.mass', { defaultValue: 'mass' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_D04SgOq_EeuMzos2n42msw', 'mass')}>
+        {t('View.Matter.Table.mass', { defaultValue: 'mass' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 100,
@@ -406,6 +427,26 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
 
   const rowActions: TableRowAction<ViewMatterStored, ViewMatterStored>[] = [
     {
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowViewButton',
+      testId: 'view',
+      actionType: 'openpage',
+      label: t('judo.action.open-page', { defaultValue: 'View' }) as string,
+      icon: <MdiIcon path="visibility" />,
+      hidden: (row: ViewMatterStored) => false,
+      disabled: (
+        row: ViewMatterStored,
+        isLoading: boolean,
+        isRowInEditMode: boolean,
+        getSelectedRows: () => ViewMatterStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
+      action: actions.openPageAction
+        ? async (rowData) => {
+            await actions.openPageAction!(rowData, isDraft);
+          }
+        : undefined,
+    },
+    {
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowRemoveButton',
       testId: 'remove',
       actionType: 'remove',
@@ -489,7 +530,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
   ];
 
   return (
-    <div data-testid={buildTableTestId('_D04SgOq_EeuMzos2n42msw')} data-table-name="Table">
+    <div data-testid={buildTableTestId(testIdOverride ?? '_D04SgOq_EeuMzos2n42msw')} data-table-name="Table">
       <LazyTable<ViewMatterStored, ViewMatterStored, ViewMatterQueryCustomizer>
         uniqueId={`God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable-${uniqueId}`}
         rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component=ViewMatterTableTableComponent))`}
@@ -503,7 +544,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        tableTestId={'_D04SgOq_EeuMzos2n42msw'}
+        tableTestId={testIdOverride ?? '_D04SgOq_EeuMzos2n42msw'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
         containerIsSelector={isSelector}

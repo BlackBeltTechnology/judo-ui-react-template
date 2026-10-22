@@ -691,9 +691,10 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     );
   };
 
-  async function filterAction(id: string) {
+  async function filterAction(id: string, tableId: string) {
     const filterResults = await actions[calculateActionName(relationName, 'filterAction')]!(
       id,
+      tableId,
       filterOptions,
       filterModel,
       filters,
@@ -750,10 +751,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         onFiltersChange={handleFiltersChange}
       ></FixedTableFilters>
       <StripedDataGrid
+        data-testid={`${tableTestId}::grid`}
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
-        initialState={{ pinnedColumns: { right: ['actions'] } }}
+        initialState={{ pinnedColumns: { right: ['__actions__'] } }}
         pageSizeOptions={pageSizeOptions}
         sx={{
           overflow: 'hidden',
@@ -771,6 +773,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
+          loadingOverlay: { 'data-testid': `${tableTestId}::loading` } as any,
         }}
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -821,7 +824,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                   <Tooltip title={toolBarAction.tooltip} key={toolBarAction.id}>
                     <span>
                       <Button
-                        data-testid={buildButtonTestId(toolBarAction.id, toolBarAction.actionType)}
+                        data-testid={
+                          containerIsSelector && toolBarAction.actionType === 'opencreateform'
+                            ? buildFieldTestId(tableTestId, 'selector::create')
+                            : buildButtonTestId(toolBarAction.id, toolBarAction.actionType)
+                        }
                         startIcon={<MdiIcon path={toolBarAction.startIcon ? toolBarAction.startIcon : ''} />}
                         variant={toolBarAction.variant}
                         onClick={async () => {
@@ -844,13 +851,18 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                           if (toolBarAction.name === calculateActionName(relationName, 'inlineCreateRowAction')) {
                             const templateResult: T | undefined = await actions[toolBarAction.name]!();
                             const tempId = newTempId();
-                            setData((oldRows) => [
-                              { ...(templateResult || {}), __tempId: tempId, __isNew: true } as unknown as T,
-                              ...oldRows,
-                            ]);
+                            const draftRow = {
+                              ...(templateResult || {}),
+                              __tempId: tempId,
+                              __isNew: true,
+                            } as unknown as T;
+                            setData((oldRows) => [draftRow, ...oldRows]);
+                            // Key the edit mode by the identity the grid resolves for the
+                            // row: a template result may already carry an __identifier,
+                            // which wins over __tempId in the resolution chain.
                             setRowModesModel((oldModel) => ({
                               ...oldModel,
-                              [tempId]: { mode: GridRowModes.Edit },
+                              [getRowIdentifier(draftRow)]: { mode: GridRowModes.Edit },
                             }));
                           }
 
