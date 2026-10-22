@@ -295,6 +295,18 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const manyAggregationAssociationBulkDeleteAction = async (
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
+    // Deleting the selected rows destroys data, so it asks first. The lazy path
+    // below asks through its own bulk CRUD dialog.
+    const confirmed = await openConfirmDialog(
+      'confirmation',
+      t('judo.modal.confirm.confirm-bulk-delete', {
+        defaultValue: 'Are you sure you would like to delete the selected items?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return { result: 'close', data: [] };
+    }
     return new Promise((resolve) => {
       const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyAggregationAssociation ?? []).filter(
@@ -325,6 +337,18 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
   // ClearAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableClearAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
   const manyAggregationAssociationClearAction = async () => {
+    // Clearing removes every element of the collection in a single click, so it
+    // asks first. Unsetting a single relation deliberately does not.
+    const confirmed = await openConfirmDialog(
+      'clear-action',
+      t('judo.modal.confirm.confirm-clear', {
+        defaultValue: 'Are you sure you would like to clear the collection?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return;
+    }
     storeDiff('manyAggregationAssociation', []);
   };
   // FilterAction: Actor/(esm/_tRJE4ISdEe-FwPSSWSnNlQ)/TabularReferenceTableFilterAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -400,6 +424,18 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const manyAggregationCompositionBulkDeleteAction = async (
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
+    // Deleting the selected rows destroys data, so it asks first. The lazy path
+    // below asks through its own bulk CRUD dialog.
+    const confirmed = await openConfirmDialog(
+      'confirmation',
+      t('judo.modal.confirm.confirm-bulk-delete', {
+        defaultValue: 'Are you sure you would like to delete the selected items?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return { result: 'close', data: [] };
+    }
     return new Promise((resolve) => {
       const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyAggregationComposition ?? []).filter(
@@ -414,6 +450,18 @@ export default function ActorInlineEditTransferAccessViewPage() {
   };
   // ClearAction: Actor/(esm/_3BEYwISbEe-FwPSSWSnNlQ)/TabularReferenceTableClearAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
   const manyAggregationCompositionClearAction = async () => {
+    // Clearing removes every element of the collection in a single click, so it
+    // asks first. Unsetting a single relation deliberately does not.
+    const confirmed = await openConfirmDialog(
+      'clear-action',
+      t('judo.modal.confirm.confirm-clear', {
+        defaultValue: 'Are you sure you would like to clear the collection?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return;
+    }
     storeDiff('manyAggregationComposition', []);
   };
   // FilterAction: Actor/(esm/_3BEYwISbEe-FwPSSWSnNlQ)/TabularReferenceTableFilterAction/(discriminator/Actor/(esm/_rLuF8IScEe-FwPSSWSnNlQ)/AccessViewPageDefinition)
@@ -482,6 +530,18 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const manyDerivedAggregationAssociationBulkDeleteAction = async (
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
+    // Deleting the selected rows destroys data, so it asks first. The lazy path
+    // below asks through its own bulk CRUD dialog.
+    const confirmed = await openConfirmDialog(
+      'confirmation',
+      t('judo.modal.confirm.confirm-bulk-delete', {
+        defaultValue: 'Are you sure you would like to delete the selected items?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return { result: 'close', data: [] };
+    }
     return new Promise((resolve) => {
       const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyDerivedAggregationAssociation ?? []).filter(
@@ -553,6 +613,18 @@ export default function ActorInlineEditTransferAccessViewPage() {
   const manyDerivedAggregationCompositionBulkDeleteAction = async (
     selectedRows: TransferObjectHStored[],
   ): Promise<DialogResult<Array<TransferObjectHStored>>> => {
+    // Deleting the selected rows destroys data, so it asks first. The lazy path
+    // below asks through its own bulk CRUD dialog.
+    const confirmed = await openConfirmDialog(
+      'confirmation',
+      t('judo.modal.confirm.confirm-bulk-delete', {
+        defaultValue: 'Are you sure you would like to delete the selected items?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return { result: 'close', data: [] };
+    }
     return new Promise((resolve) => {
       const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.manyDerivedAggregationComposition ?? []).filter(

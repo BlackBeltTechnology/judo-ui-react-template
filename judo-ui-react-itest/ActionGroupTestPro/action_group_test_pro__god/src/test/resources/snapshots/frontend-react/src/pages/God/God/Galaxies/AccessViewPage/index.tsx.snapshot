@@ -389,6 +389,18 @@ export default function GodGodGalaxiesAccessViewPage() {
   const starsBulkDeleteAction = async (
     selectedRows: ViewStarStored[],
   ): Promise<DialogResult<Array<ViewStarStored>>> => {
+    // Deleting the selected rows destroys data, so it asks first. The lazy path
+    // below asks through its own bulk CRUD dialog.
+    const confirmed = await openConfirmDialog(
+      'confirmation',
+      t('judo.modal.confirm.confirm-bulk-delete', {
+        defaultValue: 'Are you sure you would like to delete the selected items?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return { result: 'close', data: [] };
+    }
     return new Promise((resolve) => {
       const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.stars ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
@@ -401,6 +413,18 @@ export default function GodGodGalaxiesAccessViewPage() {
   };
   // ClearAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableClearAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const starsClearAction = async () => {
+    // Clearing removes every element of the collection in a single click, so it
+    // asks first. Unsetting a single relation deliberately does not.
+    const confirmed = await openConfirmDialog(
+      'clear-action',
+      t('judo.modal.confirm.confirm-clear', {
+        defaultValue: 'Are you sure you would like to clear the collection?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return;
+    }
     storeDiff('stars', []);
   };
   // OpenCreateFormAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableCreateAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
