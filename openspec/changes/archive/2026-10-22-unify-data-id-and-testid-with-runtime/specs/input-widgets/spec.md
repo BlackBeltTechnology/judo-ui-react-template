@@ -33,6 +33,11 @@ Every input widget SHALL emit a `data-testid` on its outer wrapper constructed v
 - **THEN** the generated field is disabled
 - **AND** `readonly`, `required`, `label`, and `helperText` are handled similarly
 
+#### Scenario: Required field with tooltip
+
+- **WHEN** an input has `required = true` and `tooltipText` set
+- **THEN** the field displays a required asterisk and a help tooltip
+
 #### Scenario: Widget outer wrapper carries a field-scoped testid
 
 - **WHEN** any input widget is rendered
