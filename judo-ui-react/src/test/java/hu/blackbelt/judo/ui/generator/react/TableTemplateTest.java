@@ -156,6 +156,9 @@ class TableTemplateTest {
         assertEquals(1, count(template, "row: TestIdRow,"));
         assertEquals(1, count(template, "cell: TestIdCell,"));
         assertEquals(1, count(template, "filterPanel: TestIdFilterPanel,"));
+        // The shared Tatami TableHelper waits on these on both engines.
+        assertEquals(1, count(template, "data-testid={`${tableTestId}::grid`}"));
+        assertEquals(1, count(template, "loadingOverlay: { 'data-testid': `${tableTestId}::loading` }"));
     }
 
     /**
