@@ -78,6 +78,7 @@ const ViewStarViewDialogContainer = lazy(() => import('~/containers/View/Star/Vi
 export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRelationViewPageProps) {
   const {
     ownerData,
+    selectorOwnerId,
 
     templateDataOverride,
     ownerValidation,
@@ -362,6 +363,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     CreatePageTestObservationTransferStored | undefined
   > => {
     const { result, data: returnedData } = await openViewStarViewLastObservationLinkSetSelectorPage({
+      selectorOwnerId: '_mNkDMNYvEe61sPEiAs6Ysw',
       ownerData: data,
       alreadySelected: data.lastObservation ? [data.lastObservation] : [],
     });
@@ -431,11 +433,12 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   // FilterAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const observationsFilterAction = async (
     id: string,
+    tableTestId: string,
     filterOptions: FilterOption[],
     model?: GridFilterModel,
     filters?: Filter[],
   ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    const newFilters = await openFilterDialog(id, tableTestId, filterOptions, filters);
     return {
       filters: newFilters,
     };
@@ -509,11 +512,12 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   // FilterAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const planetsFilterAction = async (
     id: string,
+    tableTestId: string,
     filterOptions: FilterOption[],
     model?: GridFilterModel,
     filters?: Filter[],
   ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    const newFilters = await openFilterDialog(id, tableTestId, filterOptions, filters);
     return {
       filters: newFilters,
     };
@@ -755,6 +759,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
         />
         <ViewStarViewDialogContainer
           ownerData={ownerData}
+          selectorOwnerId={selectorOwnerId}
           onClose={onClose}
           actions={actions}
           actionsRequested={requestedContainerActions}

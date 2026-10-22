@@ -73,7 +73,7 @@ export function TagContainerTransferTagContainerTransfer_View_EditManyAggregatio
   return (
     <div data-testid={buildTableTestId('_2vNkEIF3Ee-M3fhNedgt-g')} data-table-name="manyAggregationCompostion">
       <Tags<TagContainerTransfer, TransferObjectEStored>
-        id="Actor/(esm/_2vNkEIF3Ee-M3fhNedgt-g)/TabularReferenceFieldRelationDefinedTable"
+        id="_2vNkEIF3Ee-M3fhNedgt-g"
         label={t('TagContainerTransfer.TagContainerTransfer_View_Edit.manyAggregationCompostion', {
           defaultValue: 'ManyAggregationCompostion',
         })}
@@ -125,6 +125,13 @@ export function TagContainerTransferTagContainerTransfer_View_EditManyAggregatio
         }
         onClearDialogsClick={
           hasClearCapability ? async () => actions.manyAggregationCompostionClearAction!() : undefined
+        }
+        onRefreshClick={
+          actions.manyAggregationCompostionRefreshAction
+            ? () => {
+                void actions.manyAggregationCompostionRefreshAction!({} as any);
+              }
+            : undefined
         }
       />
     </div>

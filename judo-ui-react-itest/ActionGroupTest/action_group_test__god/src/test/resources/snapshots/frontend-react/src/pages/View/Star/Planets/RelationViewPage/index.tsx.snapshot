@@ -385,11 +385,12 @@ export default function ViewStarPlanetsRelationViewPage() {
   // FilterAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_Hfxf0E7sEeycO-gUAWxcVg)/RelationFeatureView)
   const creaturesFilterAction = async (
     id: string,
+    tableTestId: string,
     filterOptions: FilterOption[],
     model?: GridFilterModel,
     filters?: Filter[],
   ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    const newFilters = await openFilterDialog(id, tableTestId, filterOptions, filters);
     return {
       filters: newFilters,
     };

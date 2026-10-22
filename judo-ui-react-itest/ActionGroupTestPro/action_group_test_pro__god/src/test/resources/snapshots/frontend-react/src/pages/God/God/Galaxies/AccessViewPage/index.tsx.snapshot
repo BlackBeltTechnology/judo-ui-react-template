@@ -357,6 +357,7 @@ export default function GodGodGalaxiesAccessViewPage() {
   // OpenSelectorAction: God/(esm/_conRARMcEe2_DOUDKkB20Q)/TabularReferenceFieldLinkSetSelectorOpenPageAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const astronomerOpenSetSelectorAction = async (): Promise<ViewAstronomerStored | undefined> => {
     const { result, data: returnedData } = await openViewGalaxyViewGroupDiscovererAstronomerLinkSetSelectorPage({
+      selectorOwnerId: '_conRARMcEe2_DOUDKkB20Q',
       ownerData: data,
       alreadySelected: data.astronomer ? [data.astronomer] : [],
     });
@@ -450,11 +451,12 @@ export default function GodGodGalaxiesAccessViewPage() {
   // FilterAction: God/(esm/_8AxbAE7tEeycO-gUAWxcVg)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const starsFilterAction = async (
     id: string,
+    tableTestId: string,
     filterOptions: FilterOption[],
     model?: GridFilterModel,
     filters?: Filter[],
   ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    const newFilters = await openFilterDialog(id, tableTestId, filterOptions, filters);
     return {
       filters: newFilters,
     };

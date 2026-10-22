@@ -460,11 +460,12 @@ export default function GodGodEarthAccessViewPage() {
   // FilterAction: God/(esm/_QKcpkE7vEeycO-gUAWxcVg)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_oaE_YM_fEe6fibzd7gNETg)/AccessViewPageDefinition)
   const creaturesFilterAction = async (
     id: string,
+    tableTestId: string,
     filterOptions: FilterOption[],
     model?: GridFilterModel,
     filters?: Filter[],
   ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    const newFilters = await openFilterDialog(id, tableTestId, filterOptions, filters);
     return {
       filters: newFilters,
     };

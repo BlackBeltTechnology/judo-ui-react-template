@@ -52,6 +52,7 @@ import type { ViewMatterFormActionDefinitions, ViewMatterFormProps } from './typ
 export default function ViewMatterForm(props: ViewMatterFormProps) {
   // Container props
   const {
+    selectorOwnerId,
     refreshCounter,
     isLoading,
     isDraft,
@@ -165,6 +166,15 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                   ]}
                   isOptionEqualToValue={(option) => option.value === data.type}
                   getOptionKey={(option: any) => option.key}
+                  renderOption={({ key, ...props }: any, option: any) => (
+                    <li
+                      key={key}
+                      {...props}
+                      data-testid={buildFieldTestId('_T4Q2kOq_EeuMzos2n42msw', `option::${option.value}`)}
+                    >
+                      {option.label}
+                    </li>
+                  )}
                   getOptionLabel={(option: any) => {
                     if (typeof option === 'string') {
                       const o = effectiveTypeOptions.find((o) => o.value === option)!;
@@ -212,6 +222,9 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                   required={actions?.isMassRequired ? actions.isMassRequired(data, editMode) : false}
                   name="mass"
                   data-testid={buildFieldTestId('_T4dq4Oq_EeuMzos2n42msw')}
+                  inputProps={{
+                    'data-testid': buildFieldTestId('_T4dq4Oq_EeuMzos2n42msw', 'input'),
+                  }}
                   label={t('View.Matter.Form.mass', { defaultValue: 'Mass' }) as string}
                   customInput={TextField}
                   value={data.mass ?? ''}
@@ -275,6 +288,7 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                     ),
                   }}
                   inputProps={{
+                    'data-testid': buildFieldTestId('_uN0FQFENEeyWtMpj61RngA', 'input'),
                     maxLength: 127,
                   }}
                 />
