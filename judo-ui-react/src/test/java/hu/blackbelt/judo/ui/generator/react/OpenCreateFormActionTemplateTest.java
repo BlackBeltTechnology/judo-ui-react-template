@@ -76,12 +76,7 @@ class OpenCreateFormActionTemplateTest {
 
     @Test
     void templateDecidesDraftAndRefreshByTheRule() throws IOException {
-        String template;
-        try (InputStream input = OpenCreateFormActionTemplateTest.class.getResourceAsStream(
-                "/actor/src/pages/actions/OpenCreateFormAction.fragment.hbs")) {
-            assertNotNull(input);
-            template = new String(input.readAllBytes(), StandardCharsets.UTF_8);
-        }
+        String template = read("/actor/src/pages/actions/OpenCreateFormAction.fragment.hbs");
 
         assertTrue(template.contains("{{# if (isLinkCreatePersistedOnSavedOwner page action) }}"));
         assertTrue(template.contains("const stagesDraft = !!isDraft || !(data as { __signedIdentifier?: string }).__signedIdentifier;"));
@@ -89,9 +84,39 @@ class OpenCreateFormActionTemplateTest {
         assertTrue(template.contains("ownerValidation: stagesDraft ? validate : undefined,"));
         // A persisted create reloads the owner even while it carries staged edits (e.g. after an unset).
         assertTrue(template.contains("if (result === 'submit'{{# unless (isLinkCreatePersistedOnSavedOwner page action) }} && !editMode{{/ unless }})"));
+        // A selector reports that its result was created (not picked), so the caller can tell them apart.
+        assertTrue(template.contains("onSubmit([returnedData], 'submit', true);"));
+    }
+
+    @Test
+    void eagerNonCompositionSetSelectorFollowsTheSameRule() {
+        assertTrue(isLinkCreatePersistedOnSavedOwner(page(PageContainerType.VIEW, RelationKind.AGGREGATION, true, true)));
+        assertFalse(isLinkCreatePersistedOnSavedOwner(page(PageContainerType.VIEW, RelationKind.COMPOSITION, true, true)));
+        assertFalse(isLinkCreatePersistedOnSavedOwner(page(PageContainerType.VIEW, RelationKind.AGGREGATION, false, true)));
+    }
+
+    @Test
+    void setSelectorReloadsTheSavedOwnerAfterASelectorCreate() throws IOException {
+        String template = read("/actor/src/pages/actions/OpenSetSelectorAction.fragment.hbs");
+
+        // Mirrors the runtime's handleSelectorCreate: the relation's ~create already linked the
+        // target, so it is adopted by a reload instead of being staged into the owner.
+        assertTrue(template.contains("if (openCreated && !isDraft && (data as { __signedIdentifier?: string }).__signedIdentifier) {"));
+        assertTrue(template.contains("await refresh(true);"));
+    }
+
+    private static String read(String path) throws IOException {
+        try (InputStream input = OpenCreateFormActionTemplateTest.class.getResourceAsStream(path)) {
+            assertNotNull(input);
+            return new String(input.readAllBytes(), StandardCharsets.UTF_8);
+        }
     }
 
     private static Object[] page(PageContainerType type, RelationKind kind, boolean eager) {
+        return page(type, kind, eager, false);
+    }
+
+    private static Object[] page(PageContainerType type, RelationKind kind, boolean eager, boolean setSelector) {
         PageDefinition page = UiFactory.eINSTANCE.createPageDefinition();
         PageContainer container = UiFactory.eINSTANCE.createPageContainer();
         container.setType(type);
@@ -104,7 +129,8 @@ class OpenCreateFormActionTemplateTest {
         container.getChildren().add(link);
         ButtonGroup group = UiFactory.eINSTANCE.createButtonGroup();
         link.setActionButtonGroup(group);
-        return new Object[] { page, createAction(page, group) };
+        return new Object[] { page, setSelector ? createAction(page, group, UiFactory.eINSTANCE.createOpenSetSelectorActionDefinition())
+                : createAction(page, group) };
     }
 
     private static boolean isLinkCreatePersistedOnSavedOwner(Object[] pageAndAction) {
@@ -112,8 +138,11 @@ class OpenCreateFormActionTemplateTest {
     }
 
     private static Action createAction(PageDefinition page, ButtonGroup group) {
+        return createAction(page, group, UiFactory.eINSTANCE.createOpenCreateFormActionDefinition());
+    }
+
+    private static Action createAction(PageDefinition page, ButtonGroup group, ActionDefinition definition) {
         Button button = UiFactory.eINSTANCE.createButton();
-        OpenCreateFormActionDefinition definition = UiFactory.eINSTANCE.createOpenCreateFormActionDefinition();
         button.setActionDefinition(definition);
         group.getButtons().add(button);
         Action action = UiFactory.eINSTANCE.createAction();
