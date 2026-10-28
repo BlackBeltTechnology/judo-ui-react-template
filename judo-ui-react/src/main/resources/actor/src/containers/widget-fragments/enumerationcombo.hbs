@@ -68,6 +68,7 @@
         error={ !!validation.get('{{ child.attributeType.name }}') }
         helperText={ validation.get('{{ child.attributeType.name }}') }
         InputLabelProps={ { shrink: true } }
+        inputProps={ { ...params.inputProps, 'data-testid': buildFieldTestId('{{ getElementId child }}', 'input') } }
         InputProps={ {
           ...params.InputProps,
           {{# if child.icon }}
