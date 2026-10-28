@@ -362,13 +362,22 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   const lastObservationOpenSetSelectorAction = async (): Promise<
     CreatePageTestObservationTransferStored | undefined
   > => {
-    const { result, data: returnedData } = await openViewStarViewLastObservationLinkSetSelectorPage({
+    const {
+      result,
+      data: returnedData,
+      openCreated,
+    } = await openViewStarViewLastObservationLinkSetSelectorPage({
       selectorOwnerId: '_mNkDMNYvEe61sPEiAs6Ysw',
       ownerData: data,
       alreadySelected: data.lastObservation ? [data.lastObservation] : [],
     });
     if (result === 'submit') {
       if (Array.isArray(returnedData) && returnedData.length) {
+        // Mirrors the runtime: the relation's ~create already linked the target of a saved owner.
+        if (openCreated && !isDraft && (data as { __signedIdentifier?: string }).__signedIdentifier) {
+          await refresh(true);
+          return returnedData[0];
+        }
         try {
           storeDiff('lastObservation', returnedData[0]);
           return returnedData[0];
