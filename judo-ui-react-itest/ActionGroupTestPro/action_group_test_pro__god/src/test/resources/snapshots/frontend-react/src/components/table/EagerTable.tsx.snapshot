@@ -88,6 +88,7 @@ import {
   buildFilterPanelTestId,
   buildFilterPanelValueInputTestId,
   buildRowTestId,
+  buildTableTestId,
   isNewRow,
   newTempId,
   resolveTransferId,
@@ -586,7 +587,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         onFiltersChange={handleFiltersChange}
       ></FixedTableFilters>
       <StripedDataGrid
-        data-testid={`${tableTestId}::grid`}
+        data-testid={`${buildTableTestId(tableTestId)}::grid`}
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
@@ -608,7 +609,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
-          loadingOverlay: { 'data-testid': `${tableTestId}::loading` } as any,
+          loadingOverlay: { 'data-testid': `${buildTableTestId(tableTestId)}::loading` } as any,
         }}
         getRowId={getRowIdentifier}
         loading={isLoading}
