@@ -19,3 +19,13 @@ On a view page, a create through an eager link (not a table) whose relation is n
 
 - **WHEN** the link's relation is a `COMPOSITION`
 - **THEN** the create is staged into the owner (`isDraft: true`) and persisted by the owner's save
+
+### Requirement: Create from the set selector adopts the persisted target
+
+When the set selector of such a link (eager, not a composition, on a view page) creates a target on a saved owner, the relation's `~create` endpoint already links the target. The selector SHALL report the result as created (`openCreated`). The page SHALL reload, and SHALL NOT stage the target into the owner. This mirrors the runtime's `LinkRenderer` `handleSelectorCreate`. A target picked from the selector SHALL still be staged.
+
+#### Scenario: Selector create after an unset
+
+- **WHEN** a saved Galaxy view unsets its astronomer, opens the set selector and creates a new astronomer there
+- **THEN** the form calls `~update/astronomer/~create`
+- **AND** the page reloads, so the field shows the new astronomer, the owner is not dirty and the refresh button is enabled
