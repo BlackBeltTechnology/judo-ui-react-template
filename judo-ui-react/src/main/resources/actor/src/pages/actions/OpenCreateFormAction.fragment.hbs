@@ -3,11 +3,19 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
   {{# if (isActionParentEagerTable action) }}
   const itemIndex = (data.{{ action.targetDataElement.name }} || []).length; // length gives next without -1-ing it
   {{/ if }}
+  {{# if (isLinkCreatePersistedOnSavedOwner page action) }}
+  // Mirrors the runtime: on a saved owner a non-composition relation is created through its own endpoint.
+  const stagesDraft = !!isDraft || !(data as { __signedIdentifier?: string }).__signedIdentifier;
+  {{/ if }}
   const { result, data: returnedData, openCreated } = await open{{ actionTargetPageName action }}({
     ownerData: produceDataAdjustedOwner(),
+    {{# if (isLinkCreatePersistedOnSavedOwner page action) }}
+      ownerValidation: stagesDraft ? validate : undefined,
+    {{ else }}
     {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}
       ownerValidation: validate,
     {{/ or }}
+    {{/ if }}
     {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
       {{# with (getFirstAutocompleteColumnForLink link) as |col| }}
         {{# unless link.isEager }}
@@ -18,7 +26,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
     {{# if page.isRelationSelector }}
       maskRequest: getMask(),
     {{/ if }}
-    isDraft: {{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}true{{ else }}false{{/ or }},
+    isDraft: {{# if (isLinkCreatePersistedOnSavedOwner page action) }}stagesDraft{{ else }}{{# or (isRelationOpenCreateActionOnForm page action) (isActionParentEagerElement action) }}true{{ else }}false{{/ or }}{{/ if }},
     dataPath: `${dataPath ? (dataPath + '.') : ''}{{# if (isActionParentEagerElement action) }}{{ action.targetPageDefinition.dataElement.name }}{{/ if }}{{# if (isActionParentEagerTable action) }}[${itemIndex}]{{/ if }}`
   });
   {{# if page.isRelationSelector }}
@@ -41,7 +49,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
   {{/ if }}
   {{# with (getRefreshActionDefinitionForContainer page.container) as |actionDefinition| }}
     {{# if page.container.view }}
-      if (result === 'submit' && !editMode) {
+      if (result === 'submit'{{# unless (isLinkCreatePersistedOnSavedOwner page action) }} && !editMode{{/ unless }}) {
         await actions.{{ simpleActionDefinitionName actionDefinition }}!(processQueryCustomizer(getPageQueryCustomizer()));
       } else if (result === 'submit-draft' && returnedData) {
         const decoratedData = {
