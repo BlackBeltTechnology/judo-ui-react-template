@@ -543,9 +543,12 @@ public class UiActionsHelper {
      * on a saved owner; the server refuses a new object nested into any other relation
      * ("On association there can be any attribute / reference inside the payload").
      * Whether the owner is saved is a runtime fact, so the template still stages while {@code isDraft}.
+     * The set selector's create follows the same rule ({@code LinkRenderer.handleSelectorCreate}).
      */
     public static boolean isLinkCreatePersistedOnSavedOwner(PageDefinition pageDefinition, Action action) {
-        if (!pageDefinition.getContainer().isView() || !action.getActionDefinition().getIsOpenCreateFormAction()
+        ActionDefinition definition = action.getActionDefinition();
+        if (!pageDefinition.getContainer().isView()
+                || !(definition.getIsOpenCreateFormAction() || definition.getIsOpenSetSelectorAction())
                 || getTableParentForActionDefinition(action.getActionDefinition()) != null) {
             return false;
         }

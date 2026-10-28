@@ -31,7 +31,8 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async ({{# if a
   });
   {{# if page.isRelationSelector }}
     if (result === 'submit' && returnedData) {
-      onSubmit([returnedData]);
+      // Tells the caller the result was created through the relation, not picked.
+      onSubmit([returnedData], 'submit', true);
     }
   {{/ if }}
   {{# if (isRelationOpenCreateActionOnForm page action) }}
