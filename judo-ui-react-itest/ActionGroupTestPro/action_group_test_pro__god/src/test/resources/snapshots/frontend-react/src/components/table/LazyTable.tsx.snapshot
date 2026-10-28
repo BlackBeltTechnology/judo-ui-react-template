@@ -96,6 +96,7 @@ import {
   buildFilterPanelTestId,
   buildFilterPanelValueInputTestId,
   buildRowTestId,
+  buildTableTestId,
   isNewRow,
   newTempId,
   resolveTransferId,
@@ -752,7 +753,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         onFiltersChange={handleFiltersChange}
       ></FixedTableFilters>
       <StripedDataGrid
-        data-testid={`${tableTestId}::grid`}
+        data-testid={`${buildTableTestId(tableTestId)}::grid`}
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
@@ -774,7 +775,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
-          loadingOverlay: { 'data-testid': `${tableTestId}::loading` } as any,
+          loadingOverlay: { 'data-testid': `${buildTableTestId(tableTestId)}::loading` } as any,
         }}
         getRowId={getRowIdentifier}
         loading={isLoading}

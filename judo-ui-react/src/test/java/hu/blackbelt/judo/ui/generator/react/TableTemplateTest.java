@@ -156,9 +156,11 @@ class TableTemplateTest {
         assertEquals(1, count(template, "row: TestIdRow,"));
         assertEquals(1, count(template, "cell: TestIdCell,"));
         assertEquals(1, count(template, "filterPanel: TestIdFilterPanel,"));
-        // The shared Tatami TableHelper waits on these on both engines.
-        assertEquals(1, count(template, "data-testid={`${tableTestId}::grid`}"));
-        assertEquals(1, count(template, "loadingOverlay: { 'data-testid': `${tableTestId}::loading` }"));
+        // The shared Tatami TableHelper waits on these on both engines; the runtime and
+        // @judo/test-ids use `table::<id>::grid` / `table::<id>::loading`.
+        assertEquals(1, count(template, "data-testid={`${buildTableTestId(tableTestId)}::grid`}"));
+        assertEquals(1, count(template, "loadingOverlay: { 'data-testid': `${buildTableTestId(tableTestId)}::loading` }"));
+        assertEquals(0, count(template, "`${tableTestId}::"));
     }
 
     /**
