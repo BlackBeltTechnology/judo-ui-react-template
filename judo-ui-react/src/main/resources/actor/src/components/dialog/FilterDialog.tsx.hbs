@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import type { TransitionProps } from '@mui/material/transitions';
 import { DatePicker, DateTimePicker, TimePicker } from '@mui/x-date-pickers{{ getMUIPickersPlanSuffix }}';
 import { forwardRef, useEffect, useRef, useState } from 'react';
-import type { ChangeEvent, ReactElement, Ref } from 'react';
+import type { ChangeEvent, HTMLAttributes, ReactElement, Ref } from 'react';
 import type {
   Filter,
   FilterDialogProps,
@@ -36,7 +36,11 @@ import { mainContainerPadding } from '../../theme';
 import { DropdownButton } from '../DropdownButton';
 import { TrinaryLogicCombobox } from '../widgets/TrinaryLogicCombobox';
 import { MdiIcon } from '../MdiIcon';
-import { buildDialogTestId, buildDialogRoleTestId, buildFieldTestId, buildFilterPanelTestId, buildFilterPanelColumnInputTestId, buildFilterPanelOperatorInputTestId, buildFilterPanelOperatorOptionTestId, buildFilterPanelRowTestId, buildFilterPanelValueInputTestId } from '~/utilities/transfer-id';
+import { buildDialogTestId, buildDialogRoleTestId, buildFieldTestId, buildFilterPanelTestId, buildFilterPanelColumnInputTestId, buildFilterPanelOperatorInputTestId, buildFilterPanelOperatorOptionTestId, buildFilterPanelRowTestId, buildFilterPanelValueInputTestId, buildFilterPanelValueOptionTestId } from '~/utilities/transfer-id';
+
+interface TestIdProps {
+  'data-testid'?: string;
+}
 
 const FilterOperator = ({ id, tableTestId, index, filter, setFilterOperator }: FilterOperatorProps) => {
   const { t } = useTranslation();
@@ -79,9 +83,11 @@ const FilterInput = ({ id, tableTestId, index, filter, setFilterValue }: FilterI
   const valueClassName = `${id}-value`;
 
   // The canonical `::value` role sits on the focusable input of the text-like
-  // value editors (string, numeric, enumeration) and on the field root of the
-  // date-like editors, whose value input carries `::value::input`.
+  // value editors (string, numeric), on the clickable combobox of the
+  // enumeration Select and on the field root of the date-like editors, whose
+  // value input carries `::value::input`.
   const valueTestId = buildFilterPanelValueInputTestId(tableTestId, index);
+  const valueDisplayProps: HTMLAttributes<HTMLDivElement> & TestIdProps = { 'data-testid': valueTestId };
 
   return (
     <>
@@ -174,14 +180,14 @@ const FilterInput = ({ id, tableTestId, index, filter, setFilterValue }: FilterI
             return (
               <TextField
                 className={valueClassName}
-                inputProps=\{{ 'data-testid': buildFilterPanelValueInputTestId(tableTestId, index) }}
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={filter.filterBy.value ?? ''}
                 select
+                slotProps={ { select: { SelectDisplayProps: valueDisplayProps } } }
                 onChange={(event) => setFilterValue(filter, event.target.value)}
               >
                 {filter.filterOption.enumValues?.map((item) => (
-                  <MenuItem key={item.value} value={item.value}>
+                  <MenuItem key={item.value} value={item.value} data-testid={buildFilterPanelValueOptionTestId(tableTestId, index, item.value)}>
                     {item.label}
                   </MenuItem>
                 ))}

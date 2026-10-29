@@ -234,6 +234,16 @@ export function buildFilterPanelValueInputTestId(tableId: TestIdKey, index?: num
   return `${scope}::value`;
 }
 
+/**
+ * Build the `data-testid` for one option of an enumeration filter value.
+ *
+ * `member` is the enum member sent to the server (`dark`), never the
+ * translated label. Runtime parity: `table::<id>::filter-panel::row::<n>::value::option::<member>`.
+ */
+export function buildFilterPanelValueOptionTestId(tableId: TestIdKey, index: number, member: string): string {
+  return `${buildFilterPanelValueInputTestId(tableId, index)}::option::${member}`;
+}
+
 /** Build the `data-testid` for a table's always-shown filter bar. Runtime parity: `table::<id>::fixed-filters`. */
 export function buildFixedFiltersTestId(tableId: TestIdKey): string {
   return `${buildTableTestId(tableId)}::fixed-filters`;

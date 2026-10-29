@@ -48,6 +48,27 @@ class FilterTemplateTest {
     }
 
     /**
+     * An enum value editor is a Select: the shared spec clicks `::value` to open it, then
+     * `::value::option::<member>`. The value id therefore sits on the combobox display, not on
+     * the hidden native input, and each option is named by the enum member sent to the server.
+     */
+    @Test
+    void theEnumFilterValueMarksTheComboboxAndEachOptionByMember() throws IOException {
+        String helpers = template("/actor/src/utilities/transfer-id.ts.hbs");
+        assertTrue(helpers.contains("export function buildFilterPanelValueOptionTestId(tableId: TestIdKey, index: number, member: string): string {"));
+        assertTrue(helpers.contains("return `${buildFilterPanelValueInputTestId(tableId, index)}::option::${member}`;"));
+
+        String dialog = template("/actor/src/components/dialog/FilterDialog.tsx.hbs");
+        String enumEditor = dialog.substring(dialog.indexOf("case FilterType.enumeration:"), dialog.indexOf("case FilterType.numeric:"));
+        assertTrue(enumEditor.contains("slotProps={ { select: { SelectDisplayProps: valueDisplayProps } } }"), enumEditor);
+        assertTrue(enumEditor.contains("data-testid={buildFilterPanelValueOptionTestId(tableTestId, index, item.value)}"), enumEditor);
+        assertTrue(!enumEditor.contains("inputProps="), enumEditor);
+        assertTrue(dialog.contains("const valueDisplayProps: HTMLAttributes<HTMLDivElement> & TestIdProps = { 'data-testid': valueTestId };"));
+        // Text and numeric editors keep the id on their focusable input.
+        assertEquals(2, dialog.split("inputProps=\\\\\\{\\{ 'data-testid': buildFilterPanelValueInputTestId\\(tableTestId, index\\) }}", -1).length - 1);
+    }
+
+    /**
      * Several filter rows may target the SAME attribute (`name LIKE x` AND
      * `name NOT_EQUAL y`), so a row is addressable by its index, not by its
      * attribute name. Runtime emits `::row::<n>::operator` / `::value` /
