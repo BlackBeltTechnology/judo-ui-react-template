@@ -538,7 +538,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   }
 
   let handleIsRowSelectable: any;
-  let handleOnSelection: any;
+  let handleOnSelection: (newSelectionModel: GridRowSelectionModel) => void;
   if (containerIsSelector) {
     handleIsRowSelectable = useCallback((params: GridRowParams<JudoStored<TStored> & { __selected?: boolean }>) => {
       if (!containerIsRelationSelector) {
@@ -904,12 +904,12 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                                 const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
                                 const reason: DialogResultReason = bulkResult;
                                 if (reason === 'submit' || reason === 'delete') {
-                                  handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                                  handleOnSelection(createEmptySelectionModel()); // not resetting on refreshes because refreshes would always remove selections...
                                 }
                               } else {
                                 if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
                                   await actions[toolBarAction.name]!();
-                                  handleOnSelection([]);
+                                  handleOnSelection(createEmptySelectionModel());
                                 } else {
                                   await actions[toolBarAction.name]!();
                                 }
