@@ -192,6 +192,20 @@ class TableTemplateTest {
     }
 
     /**
+     * MUI X 8 selection models are `{ type, ids }`. Resetting the LazyTable selection with a bare
+     * `[]` threw inside getUpdatedRowsSelected, so a row removed by a bulk action stayed in
+     * `selectedRows` and the next bulk Remove sent it again although it was unchecked.
+     */
+    @Test
+    void lazyTableResetsItsSelectionWithATypedEmptyModel() throws IOException {
+        String lazy = loadTemplate(LAZY_TABLE_TEMPLATE);
+        assertEquals(0, count(lazy, "handleOnSelection([])"));
+        assertEquals(1, count(lazy, "let handleOnSelection: (newSelectionModel: GridRowSelectionModel) => void;"));
+        assertEquals(1, count(lazy, "await actions[toolBarAction.name]!();\n                                  handleOnSelection(createEmptySelectionModel());"));
+        assertEquals(1, count(lazy, "if (reason === 'submit' || reason === 'delete') {\n                                  handleOnSelection(createEmptySelectionModel());"));
+    }
+
+    /**
      * Sorting is driven by clicking a column header. Without a canonical role a
      * shared spec has to reach for the MUI `.MuiDataGrid-columnHeaderTitle`
      * class, which is an implementation detail the runtime does not share.
