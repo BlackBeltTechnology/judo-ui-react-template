@@ -47,6 +47,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
+import { useTablePaginationTestIds } from '~/components/CustomTablePagination';
 import { useConfirmDialog } from '~/components/dialog';
 import { MdiIcon } from '~/components/MdiIcon';
 import {
@@ -214,6 +215,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       )),
     [data, tableTestId],
   );
+  const paginationTestIds = useTablePaginationTestIds(tableTestId);
   const TestIdFilterPanel = useMemo(
     () =>
       memo((panelProps: ComponentProps<typeof GridFilterPanel>) => (
@@ -610,6 +612,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
             logicOperators: [GridLogicOperator.And],
           },
           loadingOverlay: { 'data-testid': `${buildTableTestId(tableTestId)}::loading` } as any,
+          basePagination: { material: paginationTestIds },
         }}
         getRowId={getRowIdentifier}
         loading={isLoading}
