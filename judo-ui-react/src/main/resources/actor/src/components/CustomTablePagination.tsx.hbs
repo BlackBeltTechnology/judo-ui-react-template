@@ -1,7 +1,52 @@
 {{> fragment.header.hbs }}
 
-import TablePagination from '@mui/material/TablePagination';
-import { useCallback, type Dispatch, type MouseEvent, type SetStateAction, type ChangeEventHandler } from 'react';
+import IconButton, { type IconButtonProps } from '@mui/material/IconButton';
+import MenuItem, { type MenuItemProps } from '@mui/material/MenuItem';
+import TablePagination, { type TablePaginationProps } from '@mui/material/TablePagination';
+import { useCallback, useMemo, type Dispatch, type HTMLAttributes, type JSX, type MouseEvent, type SetStateAction, type ChangeEventHandler } from 'react';
+import { buildTablePaginationTestId } from '~/utilities/transfer-id';
+
+interface TestIdProps {
+  'data-testid'?: string;
+}
+
+/** Select clones each option with its value as `data-value`. */
+interface PageSizeOptionProps extends MenuItemProps {
+  'data-value'?: number;
+}
+
+export type TablePaginationTestIds = Pick<TablePaginationProps, 'slots' | 'slotProps'> & TestIdProps;
+
+/**
+ * Canonical pager ids, shared with the runtime: `table::<id>::pagination` plus `::previous`, `::next`,
+ * `::page-size` and `::page-size::option::<n>`. The buttons and options go through `slots` wrappers, not
+ * `slotProps`, so the `backIconButtonProps` / `nextIconButtonProps` the callers set keep working.
+ * Returns no props when `tableTestId` is absent.
+ */
+export function useTablePaginationTestIds(tableTestId?: string): TablePaginationTestIds {
+  return useMemo<TablePaginationTestIds>(() => {
+    if (tableTestId === undefined) {
+      return {};
+    }
+    const PreviousButton = (buttonProps: IconButtonProps): JSX.Element => (
+      <IconButton {...buttonProps} data-testid={buildTablePaginationTestId(tableTestId, 'previous')} />
+    );
+    const NextButton = (buttonProps: IconButtonProps): JSX.Element => (
+      <IconButton {...buttonProps} data-testid={buildTablePaginationTestId(tableTestId, 'next')} />
+    );
+    const PageSizeOption = (optionProps: PageSizeOptionProps): JSX.Element => (
+      <MenuItem {...optionProps} data-testid={buildTablePaginationTestId(tableTestId, `page-size::option::${optionProps['data-value']}`)} />
+    );
+    const SelectDisplayProps: HTMLAttributes<HTMLDivElement> & TestIdProps = {
+      'data-testid': buildTablePaginationTestId(tableTestId, 'page-size'),
+    };
+    return {
+      'data-testid': buildTablePaginationTestId(tableTestId),
+      slots: { menuItem: PageSizeOption, actions: { previousButton: PreviousButton, nextButton: NextButton } },
+      slotProps: { select: { SelectDisplayProps } },
+    };
+  }, [tableTestId]);
+}
 
 export interface CustomTablePaginationProps {
   pageSizeOptions: number[];
@@ -12,9 +57,11 @@ export interface CustomTablePaginationProps {
   rowPerPage: number;
   setPage: Dispatch<SetStateAction<number>>;
   totalCount?: number;
+  tableTestId?: string;
 }
 
-export const CustomTablePagination = (props: CustomTablePaginationProps) => {
+export const CustomTablePagination = (props: CustomTablePaginationProps): JSX.Element => {
+  const testIds = useTablePaginationTestIds(props.tableTestId);
   const handleChangePage = async (event: MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     let isNext = true;
     if (newPage < props.page) {
@@ -29,6 +76,7 @@ export const CustomTablePagination = (props: CustomTablePaginationProps) => {
 
   return (
     <TablePagination
+      {...testIds}
       component="div"
       count={props.totalCount ?? -1}
       page={props.page}

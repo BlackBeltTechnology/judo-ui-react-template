@@ -164,6 +164,34 @@ class TableTemplateTest {
     }
 
     /**
+     * The shared pager spec needs `table::<id>::pagination` and its `::previous`, `::next`,
+     * `::page-size` and `::page-size::option::<n>` parts on both engines.
+     */
+    @Test
+    void bothTableVariantsMarkThePagerWithCanonicalIds() throws IOException {
+        String eager = loadTemplate(EAGER_TABLE_TEMPLATE);
+        assertEquals(1, count(eager, "const paginationTestIds = useTablePaginationTestIds(tableTestId);"));
+        assertEquals(1, count(eager, "basePagination: { material: paginationTestIds },"));
+
+        String lazy = loadTemplate(LAZY_TABLE_TEMPLATE);
+        String lazyPager = lazy.substring(lazy.indexOf("<CustomTablePagination"));
+        lazyPager = lazyPager.substring(0, lazyPager.indexOf("/>"));
+        assertTrue(lazyPager.contains("tableTestId={tableTestId}"), lazyPager);
+
+        String pager = loadTemplate("/actor/src/components/CustomTablePagination.tsx.hbs");
+        assertEquals(1, count(pager, "const testIds = useTablePaginationTestIds(props.tableTestId);"));
+        assertEquals(1, count(pager, "{...testIds}"));
+        assertEquals(1, count(pager, "'data-testid': buildTablePaginationTestId(tableTestId),"));
+        assertEquals(1, count(pager, "buildTablePaginationTestId(tableTestId, 'previous')"));
+        assertEquals(1, count(pager, "buildTablePaginationTestId(tableTestId, 'next')"));
+        assertEquals(1, count(pager, "'data-testid': buildTablePaginationTestId(tableTestId, 'page-size'),"));
+        assertEquals(1, count(pager, "buildTablePaginationTestId(tableTestId, `page-size::option::${optionProps['data-value']}`)"));
+
+        String ids = loadTemplate("/actor/src/utilities/transfer-id.ts.hbs");
+        assertEquals(1, count(ids, "const pagination = `${buildTableTestId(tableId)}::pagination`;"));
+    }
+
+    /**
      * Sorting is driven by clicking a column header. Without a canonical role a
      * shared spec has to reach for the MUI `.MuiDataGrid-columnHeaderTitle`
      * class, which is an implementation detail the runtime does not share.
