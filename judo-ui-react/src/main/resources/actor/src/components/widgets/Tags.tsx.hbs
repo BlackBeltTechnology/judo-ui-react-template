@@ -2,6 +2,7 @@
 
 import Button from '@mui/material/Button';
 import Autocomplete from '@mui/material/Autocomplete';
+import Box from '@mui/material/Box';
 import ButtonGroup from '@mui/material/ButtonGroup';
 import Chip from '@mui/material/Chip';
 import CircularProgress from '@mui/material/CircularProgress';
@@ -16,6 +17,7 @@ import { debounceInputs } from '~/config/general';
 import { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
 import { StringOperation } from '~/services/data-api/model/StringOperation';
 import { fileHandling } from '~/utilities/file-handling';
+import { resolveTransferId, buildFieldTestId, buildRowTestId } from '~/utilities/transfer-id';
 import { useAutocompleteHintPaper } from './AutocompleteNoResultsHint';
 
 export interface TagsProps<P, T> {
@@ -30,7 +32,6 @@ export interface TagsProps<P, T> {
   editMode?: boolean;
   autoCompleteAttribute: keyof T;
   isBinary?: boolean;
-  identifierAttribute: string | keyof T;
   onAutoCompleteSearch?: (searchText: string, preparedQueryCustomizer: QueryCustomizer<T>) => Promise<T[]>;
   additionalMaskAttributes?: string[];
   limitOptions?: number;
@@ -43,7 +44,9 @@ export interface TagsProps<P, T> {
   createDialogTitle?: string;
   createDialogIcon?: string;
   onClearDialogsClick?: () => Promise<void>;
+  onRefreshClick?: () => void;
   clearTitle?: string;
+  refreshTitle?: string;
   clearIcon?: string;
   refreshCounter?: number;
   isOwnerLoading?: boolean;
@@ -77,11 +80,12 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     createDialogTitle,
     createDialogIcon = 'file-document-plus',
     onClearDialogsClick,
+    onRefreshClick,
     clearTitle = 'Clear',
+    refreshTitle = 'Refresh',
     clearIcon = 'close',
     additionalMaskAttributes = [],
     limitOptions = 10,
-    identifierAttribute,
     refreshCounter,
     isOwnerLoading = false,
     onAsyncLoad,
@@ -144,10 +148,10 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
     (event: SyntheticEvent, value: (string | any)[], reason: string) => {
       if (typeof onValueChange === 'function') {
         const added = value.filter(
-          (v) => !values.some((vv) => vv[identifierAttribute as keyof T] === v[identifierAttribute as keyof T]),
+          (v) => !values.some((vv) => resolveTransferId(vv as any) === resolveTransferId(v as any)),
         );
         const removed = values.filter(
-          (v) => !value.some((vv) => vv[identifierAttribute as keyof T] === v[identifierAttribute as keyof T]),
+          (v) => !value.some((vv) => resolveTransferId(vv as any) === resolveTransferId(v as any)),
         );
         onValueChange(value as any, added, removed);
       }
@@ -196,21 +200,22 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
   const paperSlot = useAutocompleteHintPaper({ limit: limitOptions, optionsLength: options.length, loading });
 
   return (
+    <Box data-testid={buildFieldTestId(id)}>
     <Autocomplete
       slots={ { paper: paperSlot } }
       multiple
       freeSolo
       clearOnBlur
-      data-testid={id}
+      data-testid={buildFieldTestId(id, 'autocomplete')}
       disabled={!readOnly && disabled}
       readOnly={readOnly}
       options={options}
       loading={loading}
       value={values}
       disableClearable={true}
-      getOptionKey={(option) => option[identifierAttribute]}
+      getOptionKey={(option) => resolveTransferId(option as any)}
       getOptionLabel={(option) => option[autoCompleteAttribute] ?? ''}
-      isOptionEqualToValue={(option, value) => option[identifierAttribute] === value[identifierAttribute]}
+      isOptionEqualToValue={(option, value) => resolveTransferId(option as any) === resolveTransferId(value as any)}
       onOpen={ onAutoCompleteSearch ? () => {
         setOptions([]); // always start with a clean slate
         handleSearch('');
@@ -224,7 +229,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
           if (isBinary) {
             if (! readOnly) {
               deleteButton = (<Button
-                data-testid={`${id}-delete`}
+                data-testid={buildFieldTestId(id, 'button::delete')}
                 onClick={(event: any) => {
                   event.preventDefault();
                   event.stopPropagation();
@@ -240,7 +245,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
             return (
               <ButtonGroup key={key} size="small" variant="outlined" sx={ { marginRight: 1} }>
                 <Button
-                  data-testid={`${id}-open-dialog`}
+                  data-testid={buildFieldTestId(id, 'button::open-dialog')}
                   startIcon={<MdiIcon path="file-document-outline" mimeType={ { type: '*', subType: '*' } } />}
                   onClick={(event: any) => {
                     event.preventDefault();
@@ -254,7 +259,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                   {extractFileNameFromToken(option[autoCompleteAttribute])}
                 </Button>
                 <Button
-                  data-testid={`${id}-view`}
+                  data-testid={buildFieldTestId(id, 'button::view')}
                   onClick={(event: any) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -264,7 +269,7 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
                   <MdiIcon path="eye" sx={ { mr: 0.5 } } />
                 </Button>
                 <Button
-                  data-testid={`${id}-download`}
+                  data-testid={buildFieldTestId(id, 'button::download')}
                   onClick={(event: any) => {
                     event.preventDefault();
                     event.stopPropagation();
@@ -279,6 +284,8 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
           } else {
             return (<Chip
 	            key={key}
+	            data-testid={buildRowTestId(id, option)}
+	            deleteIcon={<MdiIcon path="close" testId={buildRowTestId(id, option) + '::action::remove'} />}
 	            label={option[autoCompleteAttribute]}
 	            {...rest}
 	            sx={ { cursor: (typeof onItemClick === 'function' && !editMode) ? 'pointer' : undefined } }
@@ -304,24 +311,30 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
             endAdornment: (
               <InputAdornment position="end">
                 <ButtonGroup
+                  data-testid={buildFieldTestId(id, 'actions')}
                   aria-label="tags button group"
                   className={clsx({
                     'TagsButtonGroup': true,
                   })}
                 >
                   {loading ? <CircularProgress color="inherit" size="1rem" className="TagsLoading" /> : null}
+                  {onRefreshClick ? (
+                    <IconButton data-testid={buildFieldTestId(id, 'button::refresh')} disabled={disabled} onClick={onRefreshClick} title={refreshTitle}>
+                      <MdiIcon path="refresh" />
+                    </IconButton>
+                  ) : null}
                   {!readOnly && onClearDialogsClick ? (
-                    <IconButton disabled={disabled} onClick={onClearDialogsClick} title={clearTitle}>
+                    <IconButton data-testid={buildFieldTestId(id, 'button::clear')} disabled={disabled} onClick={onClearDialogsClick} title={clearTitle}>
                       <MdiIcon path={clearIcon} />
                     </IconButton>
                   ) : null}
                   {!readOnly && onCreateDialogsClick ? (
-                    <IconButton disabled={disabled} onClick={onCreateDialogsClick} title={createDialogTitle}>
+                    <IconButton data-testid={buildFieldTestId(id, 'button::create')} disabled={disabled} onClick={onCreateDialogsClick} title={createDialogTitle}>
                       <MdiIcon path={createDialogIcon} />
                     </IconButton>
                   ) : null}
                   {!readOnly && onSearchDialogsClick ? (
-                    <IconButton disabled={disabled} onClick={onSearchDialogsClick} title={searchDialogTitle}>
+                    <IconButton data-testid={buildFieldTestId(id, 'button::set')} disabled={disabled} onClick={onSearchDialogsClick} title={searchDialogTitle}>
                       <MdiIcon path={searchDialogIcon} />
                     </IconButton>
                   ) : null}
@@ -332,5 +345,6 @@ export function Tags<P, T>(props: TagsProps<P, T>) {
         />
       )}
     />
+    </Box>
   );
 }

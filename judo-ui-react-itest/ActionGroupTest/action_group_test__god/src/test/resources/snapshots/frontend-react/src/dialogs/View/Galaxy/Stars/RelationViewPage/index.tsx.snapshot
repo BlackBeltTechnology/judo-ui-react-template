@@ -32,7 +32,6 @@ import {
   routeToViewStarPlanetsRelationViewPage,
 } from '~/routes';
 import type { JudoIdentifiable } from '~/services/data-api/common/JudoIdentifiable';
-import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type {
   CreatePageTestObservationTransfer,
   CreatePageTestObservationTransferStored,
@@ -58,6 +57,7 @@ import {
   useErrorHandler,
 } from '~/utilities';
 import { useOperationUtils } from '~/utilities/application';
+import { buildFieldTestId, isNewRow, newTempId, resolveTransferId } from '~/utilities/transfer-id';
 import { type ViewStarViewViewModel, ViewStarViewViewModelContext } from './context';
 import type { ViewStarViewActionsHook } from './customization';
 import { VIEW_GALAXY_STARS_RELATION_VIEW_PAGE_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
@@ -78,6 +78,7 @@ const ViewStarViewDialogContainer = lazy(() => import('~/containers/View/Star/Vi
 export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRelationViewPageProps) {
   const {
     ownerData,
+    selectorOwnerId,
 
     templateDataOverride,
     ownerValidation,
@@ -362,6 +363,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     CreatePageTestObservationTransferStored | undefined
   > => {
     const { result, data: returnedData } = await openViewStarViewLastObservationLinkSetSelectorPage({
+      selectorOwnerId: '_mNkDMNYvEe61sPEiAs6Ysw',
       ownerData: data,
       alreadySelected: data.lastObservation ? [data.lastObservation] : [],
     });
@@ -415,8 +417,8 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     selectedRows: CreatePageTestObservationTransferStored[],
   ): Promise<DialogResult<Array<CreatePageTestObservationTransferStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.observations ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
+      const newList = (data?.observations ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
       storeDiff('observations', newList);
       resolve({
         result: 'submit',
@@ -431,18 +433,19 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   // FilterAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const observationsFilterAction = async (
     id: string,
+    tableTestId: string,
     filterOptions: FilterOption[],
     model?: GridFilterModel,
     filters?: Filter[],
   ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    const newFilters = await openFilterDialog(id, tableTestId, filterOptions, filters);
     return {
       filters: newFilters,
     };
   };
   // RemoveAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableRowRemoveAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const observationsRemoveAction = async (target: CreatePageTestObservationTransferStored) => {
-    const newList = (data?.observations ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+    const newList = (data?.observations ?? []).filter((c: any) => resolveTransferId(c) !== resolveTransferId(target));
     storeDiff('observations', newList);
   };
   // OpenPageAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
@@ -450,7 +453,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     target: CreatePageTestObservationTransferStored,
     isDraftParam?: boolean,
   ) => {
-    const itemIndex = (data.observations || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.observations || []).findIndex((r) => resolveTransferId(r) === resolveTransferId(target));
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(
       routeToViewStarObservationsRelationViewPage(
@@ -464,8 +467,8 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     selectedRows: ViewPlanetStored[],
   ): Promise<DialogResult<Array<ViewPlanetStored>>> => {
     return new Promise((resolve) => {
-      const selectedIds = selectedRows.map((r) => r.__identifier);
-      const newList = (data?.planets ?? []).filter((c: any) => !selectedIds.includes(c.__identifier));
+      const selectedIds = selectedRows.map((r) => resolveTransferId(r));
+      const newList = (data?.planets ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
       storeDiff('planets', newList);
       resolve({
         result: 'delete',
@@ -495,7 +498,8 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     } else if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
         ...returnedData,
-        __identifier: `${draftIdentifierPrefix}${uuidv4()}`,
+        __tempId: newTempId(),
+        __isNew: true,
       };
       const newData = [...(data.planets || []), decoratedData];
       storeDiff('planets', newData);
@@ -508,11 +512,12 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   // FilterAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const planetsFilterAction = async (
     id: string,
+    tableTestId: string,
     filterOptions: FilterOption[],
     model?: GridFilterModel,
     filters?: Filter[],
   ): Promise<{ model?: GridFilterModel; filters?: Filter[] }> => {
-    const newFilters = await openFilterDialog(id, filterOptions, filters);
+    const newFilters = await openFilterDialog(id, tableTestId, filterOptions, filters);
     return {
       filters: newFilters,
     };
@@ -528,7 +533,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
         t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }),
       );
       if (confirmed) {
-        const newList = (data?.planets ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+        const newList = (data?.planets ?? []).filter((c: any) => resolveTransferId(c) !== resolveTransferId(target));
         storeDiff('planets', newList);
       }
     } catch (error) {
@@ -544,7 +549,7 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   };
   // OpenPageAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableRowViewAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const planetsOpenPageAction = async (target: ViewPlanetStored, isDraftParam?: boolean) => {
-    const itemIndex = (data.planets || []).findIndex((r) => r.__identifier === target.__identifier)!;
+    const itemIndex = (data.planets || []).findIndex((r) => resolveTransferId(r) === resolveTransferId(target));
     // if the `target` is missing we are likely navigating to a relation table page, in which case we need the owner's id
     navigate(routeToViewStarPlanetsRelationViewPage(((target as ViewPlanetStored) || data).__signedIdentifier));
     onSubmit();
@@ -749,11 +754,12 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
     <ViewStarViewViewModelContext.Provider value={viewModel}>
       <Suspense>
         <div
-          data-testid="God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView"
+          data-testid={buildFieldTestId('God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView')}
           data-page-name="View::Galaxy::stars::RelationViewPage"
         />
         <ViewStarViewDialogContainer
           ownerData={ownerData}
+          selectorOwnerId={selectorOwnerId}
           onClose={onClose}
           actions={actions}
           actionsRequested={requestedContainerActions}

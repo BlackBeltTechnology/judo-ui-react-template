@@ -8,6 +8,8 @@ import { clsx } from 'clsx';
 import { useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import { debounceInputs } from '~/config';
+import Box from '@mui/material/Box';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 import { useAutocompleteHintPaper } from './AutocompleteNoResultsHint';
 
 interface TextWithTypeAheadProps {
@@ -94,10 +96,11 @@ export const TextWithTypeAhead = ({
   const paperSlot = useAutocompleteHintPaper({ limit: autoCompleteLimit, optionsLength: options.length, loading });
 
   return (
+    <Box data-testid={buildFieldTestId(id)}>
     <Autocomplete
       slots={ { paper: paperSlot } }
       freeSolo={true}
-      data-testid={id}
+      data-testid={buildFieldTestId(id, 'autocomplete')}
       disabled={!effectiveReadOnly && disabled}
       readOnly={effectiveReadOnly}
       onOpen={ () => {
@@ -116,7 +119,7 @@ export const TextWithTypeAhead = ({
         <TextField
           {...params}
           name={name}
-          data-testid={id}
+          data-testid={buildFieldTestId(id, 'input')}
           required={required}
           label={label}
           error={error}
@@ -148,5 +151,6 @@ export const TextWithTypeAhead = ({
         handleSearch(target);
       } }
     />
+    </Box>
   );
 };

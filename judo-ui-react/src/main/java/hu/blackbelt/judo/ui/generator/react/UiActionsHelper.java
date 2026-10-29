@@ -302,7 +302,9 @@ public class UiActionsHelper {
     }
 
     public static boolean isActionAddOrSet(ActionDefinition actionDefinition) {
-        return actionDefinition.getIsAddAction() || actionDefinition.getIsSetAction();
+        return actionDefinition.getIsAddAction()
+                || actionDefinition.getIsSetAction()
+                || actionDefinition instanceof OpenCreateFormActionDefinition;
     }
 
     public static String operationCallSuffix(Action action) {
@@ -573,5 +575,97 @@ public class UiActionsHelper {
 
     public static boolean isOperationInputForm(ActionDefinition actionDefinition) {
         return actionDefinition instanceof OpenOperationInputFormActionDefinition;
+    }
+
+    /**
+     * Byte-exact port of runtime {@code getButtonActionType} in
+     * {@code judo-frontend-runtime/packages/test-ids/src/element.ts}:
+     *
+     * <pre>actionDef?.["@type"]?.replace("ui:", "").replace("ActionDefinition", "").toLowerCase()</pre>
+     *
+     * <p>The pure-function form takes the raw EClass name (equivalent to the runtime's
+     * {@code @type} string after the ecore package prefix) and returns the normalized
+     * suffix used in {@code button::<id>::<actionType>} test-ids.
+     */
+    public static String normalizeButtonActionType(String eClassName) {
+        if (eClassName == null) return "";
+        return eClassName.replace("ui:", "").replace("ActionDefinition", "").toLowerCase();
+    }
+
+    /**
+     * EMF-backed entry point invoked from Handlebars templates. Reads the given
+     * button's {@code actionDefinition} reference and returns the normalized action-type
+     * suffix for the runtime-compatible {@code button::<id>::<actionType>} grammar.
+     * Returns {@code ""} when the argument is null or has no {@code actionDefinition}.
+     */
+    public static String getButtonActionType(EObject button) {
+        if (button == null) return "";
+        var feature = button.eClass().getEStructuralFeature("actionDefinition");
+        if (feature == null) return "";
+        Object ad = button.eGet(feature);
+        if (!(ad instanceof EObject)) return "";
+        return normalizeButtonActionType(((EObject) ad).eClass().getName());
+    }
+
+    /**
+     * Maps a normalized action type to the canonical row-action role used by the runtime.
+     * Unknown action types intentionally retain their normalized value.
+     */
+    public static String normalizeButtonRole(String actionType) {
+        if (actionType == null || actionType.isEmpty()) return "";
+        return switch (actionType) {
+            case "opensetselector", "openaddselector" -> "set";
+            case "opencreateform" -> "create";
+            case "openpage", "rowopenpage" -> "view";
+            case "rowdelete" -> "delete";
+            default -> actionType;
+        };
+    }
+
+    /**
+     * Action types that launch a modeled operation.
+     *
+     * <p>A role has to identify one action inside its owner. The CRUD types do that by
+     * construction — a row carries at most one view or delete — but these do not: one row,
+     * field or view can launch several operations, and every one of them reports the same
+     * action type. Mirrors {@code OPERATION_ACTION_TYPES} in {@code @judo/test-ids}.
+     */
+    private static final java.util.Set<String> OPERATION_ACTION_TYPES = java.util.Set.of(
+            "openoperationinputform",
+            "openoperationinputselector",
+            "parameterlesscalloperation",
+            "bulkcalloperation");
+
+    /**
+     * Returns the canonical role of a button whose action type may be shared by several
+     * operations on one owner. Such a role is the modeled operation name; every other type
+     * keeps its canonical role. Byte-exact port of the runtime's {@code getButtonRole}.
+     */
+    public static String operationRole(String actionType, String name) {
+        if (OPERATION_ACTION_TYPES.contains(actionType) && name != null && !name.isEmpty()) {
+            // The name reaches the DOM, so it may not forge extra grammar segments.
+            return sanitizeTestId(name);
+        }
+        return normalizeButtonRole(actionType);
+    }
+
+    /** Byte-exact port of {@code sanitizeId} in {@code @judo/test-ids/src/utils.ts}. */
+    public static String sanitizeTestId(String id) {
+        return id.replaceAll("[^a-zA-Z0-9_-]", "-").replaceAll("-+", "-");
+    }
+
+    /**
+     * Returns the canonical row-action role for a button, or an empty string when no action exists.
+     */
+    public static String getButtonRole(EObject button) {
+        return operationRole(getButtonActionType(button), getButtonName(button));
+    }
+
+    private static String getButtonName(EObject button) {
+        if (button == null) return "";
+        var feature = button.eClass().getEStructuralFeature("name");
+        if (feature == null) return "";
+        Object name = button.eGet(feature);
+        return name instanceof String ? (String) name : "";
     }
 }

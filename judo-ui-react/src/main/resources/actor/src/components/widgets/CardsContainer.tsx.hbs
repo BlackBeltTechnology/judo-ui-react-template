@@ -13,6 +13,7 @@ import type {
 } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import { useEffect, useMemo, useState, type FC } from 'react';
 import { useTranslation } from 'react-i18next';
+import { resolveTransferId } from '~/utilities/transfer-id';
 import type { Filter, FilterOption } from '~/components-api';
 import type { CardProps, ToolbarElementProps, ActionbarElementProps } from '~/components-api/components/CardsContainer';
 import { basePageSizeOptions } from '~/config';
@@ -241,7 +242,7 @@ export const CardsContainer = <T extends GridValidRowModel>(props: CardsContaine
                 />
             </Grid> : null}
             {data.map((d) => (
-              <CardItem key={d.__identifier} onRowClick={(row) => onRowClick?.({ row, columns, id: d.__identifier }, null as any, null as any)} row={d} columns={columns} actions={actions} />
+              <CardItem key={resolveTransferId(d as any)} onRowClick={(row) => onRowClick?.({ row, columns, id: resolveTransferId(d as any) }, null as any, null as any)} row={d} columns={columns} actions={actions} />
             ))}
           </Grid>
         </Grid>

@@ -1,7 +1,7 @@
 // OpenPageAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: {{ classDataName action.actionDefinition.targetType 'Stored' }}, isDraftParam?: boolean) => {
   {{# if (isActionParentEagerTable action) }}
-    const itemIndex = {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}(data.{{ table.relationName }} || []).findIndex(r => r.__identifier === target.__identifier)!{{/ with }};
+    const itemIndex = {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}(data.{{ table.relationName }} || []).findIndex(r => resolveTransferId(r) === resolveTransferId(target)){{/ with }};
   {{/ if }}
   {{# and (isActionParentEagerElement action) action.targetPageDefinition.openInDialog }}
     if (isDraftParam) {
@@ -15,7 +15,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
       // we might need to differentiate result handling between operation inputs and crud relation creates
       if (result === 'submit-draft' && returnedData) {
         {{# if action.targetDataElement.isCollection }}
-          const existingIndex = (data.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
+          const existingIndex = (data.{{ action.targetDataElement.name }} || []).findIndex((r: any) => resolveTransferId(r) === resolveTransferId(returnedData));
           if (existingIndex > -1) {
             // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
             const updatedList = [...(data.{{ action.targetDataElement.name }} || [])];
@@ -33,7 +33,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
       }
       if (result === 'delete' && returnedData) {
         {{# if action.targetDataElement.isCollection }}
-          const existingIndex = (data.{{ action.targetDataElement.name }} || []).findIndex((r: { __identifier?: string }) => r.__identifier === returnedData.__identifier);
+          const existingIndex = (data.{{ action.targetDataElement.name }} || []).findIndex((r: any) => resolveTransferId(r) === resolveTransferId(returnedData));
           if (existingIndex > -1) {
             // we need to create a copy to keep order, and because mui datagrid freezes elements, and crashes on reference updates
             const updatedList = [...(data.{{ action.targetDataElement.name }} || [])];

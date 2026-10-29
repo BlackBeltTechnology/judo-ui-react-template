@@ -12,6 +12,7 @@ import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import type { Path, To } from 'react-router-dom';
 import { routeToDashboard } from '~/routes';
 import { StackableDialogProvider } from './dialog/StackableDialogProvider';
+import { buildBreadcrumbTestId } from '~/utilities/transfer-id';
 
 export function stringifyPath(path: Partial<Path>): string {
   const { pathname = '/', search = '', hash = '' } = path;
@@ -194,15 +195,15 @@ export const CustomBreadcrumb = () => {
   return (
     <Breadcrumbs data-testid="application-breadcrumb" maxItems={5} separator="/">
       {{# if ( hasDashboard application ) }}
-        <Link component={RouterLink} to={decorator(routeToDashboard())} sx={ { textDecoration: 'none', color: 'secondary.main' } }>
+        <Link data-testid={buildBreadcrumbTestId(0)} component={RouterLink} to={decorator(routeToDashboard())} sx={ { textDecoration: 'none', color: 'secondary.main' } }>
           <Typography>{ t('judo.breadcrumb.home', { defaultValue: 'Home' }) }</Typography>
         </Link>
       {{ else }}
-        <Typography>{ t('judo.breadcrumb.home', { defaultValue: 'Home' }) }</Typography>
+        <Typography data-testid={buildBreadcrumbTestId(0)}>{ t('judo.breadcrumb.home', { defaultValue: 'Home' }) }</Typography>
       {{/ if }}
-      {breadcrumbItems.map((item) => {
+      {breadcrumbItems.map((item, index) => {
         return (
-          <Link key={item.key} component={RouterLink} to={decorator(item.fromPath!)} onClick={() => navigateBackTo(item)} sx={ { textDecoration: 'none', color: 'secondary.main' } }>
+          <Link data-testid={buildBreadcrumbTestId(index + 1)} key={item.key} component={RouterLink} to={decorator(item.fromPath!)} onClick={() => navigateBackTo(item)} sx={ { textDecoration: 'none', color: 'secondary.main' } }>
             <Typography>{item.label || ''}</Typography>
           </Link>
         );

@@ -25,6 +25,7 @@ import type { ViewGalaxy, ViewGalaxyStored } from '~/services/data-api/model/Vie
 import type { ViewGalaxyQueryCustomizer } from '~/services/data-api/rest/ViewGalaxyQueryCustomizer';
 import { processQueryCustomizer } from '~/utilities';
 import { getValue } from '~/utilities/helper';
+import { buildButtonTestId, buildFieldTestId } from '~/utilities/transfer-id';
 import { VIEW_GALAXY_VIEW_CONTAINER_EXTRA_ACTIONS_HOOK_INTERFACE_KEY } from './customization';
 import type {
   AvailableContainerAction,
@@ -43,6 +44,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
   const { navigate, back } = useJudoNavigation();
   const {
     ownerData,
+    selectorOwnerId,
     onClose,
     actions,
     actionsRequested,
@@ -65,10 +67,17 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
 
   return (
     <>
-      <DialogTitle>
+      <DialogTitle data-testid={selectorOwnerId ? buildFieldTestId(selectorOwnerId, 'selector::title') : undefined}>
         {actions.getPageTitle ? actions.getPageTitle(data) : ''}
         <IconButton
-          data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer-dialog-close-wrapper"
+          data-testid={
+            selectorOwnerId
+              ? buildFieldTestId(selectorOwnerId, 'selector::cancel')
+              : buildFieldTestId(
+                  'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewPageContainer',
+                  'dialog-close-wrapper',
+                )
+          }
           aria-label="close"
           onClick={onClose}
           sx={{
@@ -81,10 +90,11 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
           <MdiIcon path="close" />
         </IconButton>
       </DialogTitle>
-      <DialogContent dividers>
+      <DialogContent dividers data-testid={selectorOwnerId ? buildFieldTestId(selectorOwnerId, 'selector') : undefined}>
         <Suspense>
           <ViewGalaxyView
             actions={actions}
+            selectorOwnerId={selectorOwnerId}
             dataPath={dataPath}
             refreshCounter={refreshCounter}
             isLoading={isLoading}
@@ -104,7 +114,7 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
         {!editMode && actions.backAction && actionsRequested.has('View::Galaxy::View::Back') && (
           <Grid className="page-action">
             <Button
-              data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton"
+              data-testid={buildButtonTestId('God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewBackButton', 'back')}
               loading={isLoading}
               loadingPosition="start"
               variant={'text'}
@@ -121,7 +131,10 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
         {editMode && actions.cancelAction && actionsRequested.has('View::Galaxy::View::Cancel') && (
           <Grid className="page-action">
             <Button
-              data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton"
+              data-testid={buildButtonTestId(
+                'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewCancelButton',
+                'cancel',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'text'}
@@ -141,7 +154,10 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
           actionsRequested.has('View::Galaxy::View::Delete') && (
             <Grid className="page-action">
               <Button
-                data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton"
+                data-testid={buildButtonTestId(
+                  'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewDeleteButton',
+                  'delete',
+                )}
                 loading={isLoading}
                 loadingPosition="start"
                 variant={'contained'}
@@ -158,7 +174,10 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
         {!isDraft && actions.refreshAction && actionsRequested.has('View::Galaxy::View::Refresh') && (
           <Grid className="page-action">
             <Button
-              data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton"
+              data-testid={buildButtonTestId(
+                'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewRefreshButton',
+                'refresh',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'contained'}
@@ -175,7 +194,10 @@ export default function ViewGalaxyViewDialog(props: ViewGalaxyViewDialogProps) {
         {editMode && actions.updateAction && actionsRequested.has('View::Galaxy::View::Update') && (
           <Grid className="page-action">
             <Button
-              data-testid="God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton"
+              data-testid={buildButtonTestId(
+                'God/(esm/_YTr-YE7rEeycO-gUAWxcVg)/TransferObjectViewUpdateButton',
+                'update',
+              )}
               loading={isLoading}
               loadingPosition="start"
               variant={'contained'}
