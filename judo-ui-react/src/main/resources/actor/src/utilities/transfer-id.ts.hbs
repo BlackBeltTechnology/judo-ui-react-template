@@ -115,6 +115,15 @@ export function buildTableTestId(tableId: TestIdKey): string {
   return `table::${stringifyKey(tableId)}`;
 }
 
+/**
+ * Build the `data-testid` for a table's footer pager (`table::<id>::pagination`) or one of its parts:
+ * `previous`, `next`, `page-size`, `page-size::option::<n>`.
+ */
+export function buildTablePaginationTestId(tableId: TestIdKey, part?: string): string {
+  const pagination = `${buildTableTestId(tableId)}::pagination`;
+  return part ? `${pagination}::${part}` : pagination;
+}
+
 /** Build the `data-testid` for a table's column header (the sort handle). */
 export function buildColumnHeaderTestId(tableId: TestIdKey, columnName: string): string {
   return `table::${stringifyKey(tableId)}::header::${columnName}`;
