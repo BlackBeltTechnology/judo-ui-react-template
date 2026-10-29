@@ -37,6 +37,7 @@ import type { ViewMatter, ViewMatterStored } from '~/services/data-api/model/Vie
 import type { EnumOption } from '~/utilities';
 import { isErrorOperationFault, useErrorHandler } from '~/utilities';
 import {
+  buildButtonGroupTestId,
   buildButtonTestId,
   buildCellTestId,
   buildFieldTestId,
@@ -196,6 +197,10 @@ export default function ViewMatterForm(props: ViewMatterFormProps) {
                       error={!!validation.get('type')}
                       helperText={validation.get('type')}
                       InputLabelProps={{ shrink: true }}
+                      inputProps={{
+                        ...params.inputProps,
+                        'data-testid': buildFieldTestId('_T4Q2kOq_EeuMzos2n42msw', 'input'),
+                      }}
                       InputProps={{
                         ...params.InputProps,
                         startAdornment: (

@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   ROW_ACTION_ROLE_OVERFLOW,
+  buildButtonGroupTestId,
   buildCellTestId,
   buildFilterPanelColumnInputTestId,
   buildFilterPanelOperatorInputTestId,
@@ -79,5 +80,12 @@ describe('buildSelectionCellTestId', () => {
 
   it('threads the positional index through', () => {
     expect(buildSelectionCellTestId(table, {}, 7)).toBe(buildCellTestId(table, {}, '__check__', 7));
+  });
+});
+
+describe('buildButtonGroupTestId', () => {
+  it('emits the runtime button-group grammar', () => {
+    expect(buildButtonGroupTestId('ops')).toBe('button-group::ops');
+    expect(`${buildButtonGroupTestId('ops')}::dropdown`).toBe('button-group::ops::dropdown');
   });
 });

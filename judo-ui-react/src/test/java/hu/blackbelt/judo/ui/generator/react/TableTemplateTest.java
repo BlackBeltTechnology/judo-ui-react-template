@@ -156,9 +156,53 @@ class TableTemplateTest {
         assertEquals(1, count(template, "row: TestIdRow,"));
         assertEquals(1, count(template, "cell: TestIdCell,"));
         assertEquals(1, count(template, "filterPanel: TestIdFilterPanel,"));
-        // The shared Tatami TableHelper waits on these on both engines.
-        assertEquals(1, count(template, "data-testid={`${tableTestId}::grid`}"));
-        assertEquals(1, count(template, "loadingOverlay: { 'data-testid': `${tableTestId}::loading` }"));
+        // The shared Tatami TableHelper waits on these on both engines; the runtime and
+        // @judo/test-ids use `table::<id>::grid` / `table::<id>::loading`.
+        assertEquals(1, count(template, "data-testid={`${buildTableTestId(tableTestId)}::grid`}"));
+        assertEquals(1, count(template, "loadingOverlay: { 'data-testid': `${buildTableTestId(tableTestId)}::loading` }"));
+        assertEquals(0, count(template, "`${tableTestId}::"));
+    }
+
+    /**
+     * The shared pager spec needs `table::<id>::pagination` and its `::previous`, `::next`,
+     * `::page-size` and `::page-size::option::<n>` parts on both engines.
+     */
+    @Test
+    void bothTableVariantsMarkThePagerWithCanonicalIds() throws IOException {
+        String eager = loadTemplate(EAGER_TABLE_TEMPLATE);
+        assertEquals(1, count(eager, "const paginationTestIds = useTablePaginationTestIds(tableTestId);"));
+        assertEquals(1, count(eager, "basePagination: { material: paginationTestIds },"));
+
+        String lazy = loadTemplate(LAZY_TABLE_TEMPLATE);
+        String lazyPager = lazy.substring(lazy.indexOf("<CustomTablePagination"));
+        lazyPager = lazyPager.substring(0, lazyPager.indexOf("/>"));
+        assertTrue(lazyPager.contains("tableTestId={tableTestId}"), lazyPager);
+
+        String pager = loadTemplate("/actor/src/components/CustomTablePagination.tsx.hbs");
+        assertEquals(1, count(pager, "const testIds = useTablePaginationTestIds(props.tableTestId);"));
+        assertEquals(1, count(pager, "{...testIds}"));
+        assertEquals(1, count(pager, "'data-testid': buildTablePaginationTestId(tableTestId),"));
+        assertEquals(1, count(pager, "buildTablePaginationTestId(tableTestId, 'previous')"));
+        assertEquals(1, count(pager, "buildTablePaginationTestId(tableTestId, 'next')"));
+        assertEquals(1, count(pager, "'data-testid': buildTablePaginationTestId(tableTestId, 'page-size'),"));
+        assertEquals(1, count(pager, "buildTablePaginationTestId(tableTestId, `page-size::option::${optionProps['data-value']}`)"));
+
+        String ids = loadTemplate("/actor/src/utilities/transfer-id.ts.hbs");
+        assertEquals(1, count(ids, "const pagination = `${buildTableTestId(tableId)}::pagination`;"));
+    }
+
+    /**
+     * MUI X 8 selection models are `{ type, ids }`. Resetting the LazyTable selection with a bare
+     * `[]` threw inside getUpdatedRowsSelected, so a row removed by a bulk action stayed in
+     * `selectedRows` and the next bulk Remove sent it again although it was unchecked.
+     */
+    @Test
+    void lazyTableResetsItsSelectionWithATypedEmptyModel() throws IOException {
+        String lazy = loadTemplate(LAZY_TABLE_TEMPLATE);
+        assertEquals(0, count(lazy, "handleOnSelection([])"));
+        assertEquals(1, count(lazy, "let handleOnSelection: (newSelectionModel: GridRowSelectionModel) => void;"));
+        assertEquals(1, count(lazy, "await actions[toolBarAction.name]!();\n                                  handleOnSelection(createEmptySelectionModel());"));
+        assertEquals(1, count(lazy, "if (reason === 'submit' || reason === 'delete') {\n                                  handleOnSelection(createEmptySelectionModel());"));
     }
 
     /**

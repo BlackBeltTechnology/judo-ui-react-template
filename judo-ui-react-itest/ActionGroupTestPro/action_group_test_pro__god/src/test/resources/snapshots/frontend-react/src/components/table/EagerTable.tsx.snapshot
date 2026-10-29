@@ -47,6 +47,7 @@ import {
 } from 'react';
 import { useTranslation } from 'react-i18next';
 import { v4 as uuidv4 } from 'uuid';
+import { useTablePaginationTestIds } from '~/components/CustomTablePagination';
 import { useConfirmDialog } from '~/components/dialog';
 import { MdiIcon } from '~/components/MdiIcon';
 import {
@@ -88,6 +89,7 @@ import {
   buildFilterPanelTestId,
   buildFilterPanelValueInputTestId,
   buildRowTestId,
+  buildTableTestId,
   isNewRow,
   newTempId,
   resolveTransferId,
@@ -213,6 +215,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       )),
     [data, tableTestId],
   );
+  const paginationTestIds = useTablePaginationTestIds(tableTestId);
   const TestIdFilterPanel = useMemo(
     () =>
       memo((panelProps: ComponentProps<typeof GridFilterPanel>) => (
@@ -586,7 +589,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         onFiltersChange={handleFiltersChange}
       ></FixedTableFilters>
       <StripedDataGrid
-        data-testid={`${tableTestId}::grid`}
+        data-testid={`${buildTableTestId(tableTestId)}::grid`}
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
@@ -608,7 +611,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
-          loadingOverlay: { 'data-testid': `${tableTestId}::loading` } as any,
+          loadingOverlay: { 'data-testid': `${buildTableTestId(tableTestId)}::loading` } as any,
+          basePagination: { material: paginationTestIds },
         }}
         getRowId={getRowIdentifier}
         loading={isLoading}

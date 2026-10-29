@@ -1,7 +1,7 @@
 // OpenSelectorAction: {{ getXMIID action }}
 {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promise<{{ classDataName (getReferenceClassType link) 'Stored' }} | undefined> => {
-  const { result, data: returnedData } = await open{{ pageName action.targetPageDefinition }}({
+  const { result, data: returnedData{{# if (isLinkCreatePersistedOnSavedOwner page action) }}, openCreated{{/ if }} } = await open{{ pageName action.targetPageDefinition }}({
     selectorOwnerId: '{{ getElementId link }}',
     {{# unless page.container.table }}
     ownerData: data,
@@ -20,6 +20,13 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (): Promi
   });
   if (result === 'submit') {
     if (Array.isArray(returnedData) && returnedData.length) {
+      {{# if (isLinkCreatePersistedOnSavedOwner page action) }}
+      // Mirrors the runtime: the relation's ~create already linked the target of a saved owner.
+      if (openCreated && !isDraft && (data as { __signedIdentifier?: string }).__signedIdentifier) {
+        await refresh(true);
+        return returnedData[0];
+      }
+      {{/ if }}
       try {
         {{# if link.isEager }}
           storeDiff('{{ link.dataElement.name }}', returnedData[0]);

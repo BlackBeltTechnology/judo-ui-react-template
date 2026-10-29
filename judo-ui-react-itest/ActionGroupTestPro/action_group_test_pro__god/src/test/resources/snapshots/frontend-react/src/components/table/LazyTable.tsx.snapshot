@@ -96,6 +96,7 @@ import {
   buildFilterPanelTestId,
   buildFilterPanelValueInputTestId,
   buildRowTestId,
+  buildTableTestId,
   isNewRow,
   newTempId,
   resolveTransferId,
@@ -537,7 +538,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
   }
 
   let handleIsRowSelectable: any;
-  let handleOnSelection: any;
+  let handleOnSelection: (newSelectionModel: GridRowSelectionModel) => void;
   if (containerIsSelector) {
     handleIsRowSelectable = useCallback((params: GridRowParams<JudoStored<TStored> & { __selected?: boolean }>) => {
       if (!containerIsRelationSelector) {
@@ -752,7 +753,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         onFiltersChange={handleFiltersChange}
       ></FixedTableFilters>
       <StripedDataGrid
-        data-testid={`${tableTestId}::grid`}
+        data-testid={`${buildTableTestId(tableTestId)}::grid`}
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
@@ -774,7 +775,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
-          loadingOverlay: { 'data-testid': `${tableTestId}::loading` } as any,
+          loadingOverlay: { 'data-testid': `${buildTableTestId(tableTestId)}::loading` } as any,
         }}
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -903,12 +904,12 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                                 const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
                                 const reason: DialogResultReason = bulkResult;
                                 if (reason === 'submit' || reason === 'delete') {
-                                  handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                                  handleOnSelection(createEmptySelectionModel()); // not resetting on refreshes because refreshes would always remove selections...
                                 }
                               } else {
                                 if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
                                   await actions[toolBarAction.name]!();
-                                  handleOnSelection([]);
+                                  handleOnSelection(createEmptySelectionModel());
                                 } else {
                                   await actions[toolBarAction.name]!();
                                 }
@@ -943,6 +944,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
               setPage={setPage}
               rowPerPage={rowsPerPage}
               totalCount={showTotalCount ? totalCount : undefined}
+              tableTestId={tableTestId}
             />
           ),
         }}

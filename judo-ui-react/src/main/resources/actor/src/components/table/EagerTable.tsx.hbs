@@ -59,8 +59,9 @@ import {
 from '~/utilities';
 import type { TableRowAction, FiltersSerializer, DialogResultReason{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer';
-import { isNewRow, newTempId, resolveTransferId, buildFieldTestId, buildButtonTestId, buildRowTestId, buildCellTestId, buildFilterPanelTestId, buildFilterPanelColumnInputTestId, buildFilterPanelOperatorInputTestId, buildFilterPanelValueInputTestId } from '~/utilities/transfer-id';
+import { isNewRow, newTempId, resolveTransferId, buildFieldTestId, buildButtonTestId, buildTableTestId, buildRowTestId, buildCellTestId, buildFilterPanelTestId, buildFilterPanelColumnInputTestId, buildFilterPanelOperatorInputTestId, buildFilterPanelValueInputTestId } from '~/utilities/transfer-id';
 import { MdiIcon } from '~/components/MdiIcon';
+import { useTablePaginationTestIds } from '~/components/CustomTablePagination';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
@@ -188,6 +189,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
   const TestIdCell = useMemo(() => memo((cellProps: GridCellProps) => (
     <GridCell {...cellProps} data-testid={buildCellTestId(tableTestId, cellProps.row, cellProps.column.field, data.indexOf(cellProps.row as T))} />
   )), [data, tableTestId]);
+  const paginationTestIds = useTablePaginationTestIds(tableTestId);
   const TestIdFilterPanel = useMemo(() => memo((panelProps: ComponentProps<typeof GridFilterPanel>) => (
     <div data-testid={buildFilterPanelTestId(tableTestId)}>
       <GridFilterPanel
@@ -526,7 +528,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
       >
       </FixedTableFilters>
       <StripedDataGrid
-        data-testid={`${tableTestId}::grid`}
+        data-testid={`${buildTableTestId(tableTestId)}::grid`}
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
         showToolbar
@@ -555,7 +557,8 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
-          loadingOverlay: { 'data-testid': `${tableTestId}::loading` } as any,
+          loadingOverlay: { 'data-testid': `${buildTableTestId(tableTestId)}::loading` } as any,
+          basePagination: { material: paginationTestIds },
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}

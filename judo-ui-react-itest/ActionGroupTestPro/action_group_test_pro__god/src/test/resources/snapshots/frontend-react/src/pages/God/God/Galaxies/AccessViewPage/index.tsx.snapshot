@@ -304,17 +304,19 @@ export default function GodGodGalaxiesAccessViewPage() {
   };
   // OpenCreateFormAction: God/(esm/_conRARMcEe2_DOUDKkB20Q)/TabularReferenceFieldLinkCreateAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const astronomerOpenCreateFormAction = async () => {
+    // Mirrors the runtime: on a saved owner a non-composition relation is created through its own endpoint.
+    const stagesDraft = !!isDraft || !(data as { __signedIdentifier?: string }).__signedIdentifier;
     const {
       result,
       data: returnedData,
       openCreated,
     } = await openViewGalaxyAstronomerRelationFormPage({
       ownerData: produceDataAdjustedOwner(),
-      ownerValidation: validate,
-      isDraft: true,
+      ownerValidation: stagesDraft ? validate : undefined,
+      isDraft: stagesDraft,
       dataPath: `${dataPath ? dataPath + '.' : ''}astronomer`,
     });
-    if (result === 'submit' && !editMode) {
+    if (result === 'submit') {
       await actions.refreshAction!(processQueryCustomizer(getPageQueryCustomizer()));
     } else if (result === 'submit-draft' && returnedData) {
       const decoratedData = {
@@ -356,13 +358,22 @@ export default function GodGodGalaxiesAccessViewPage() {
   };
   // OpenSelectorAction: God/(esm/_conRARMcEe2_DOUDKkB20Q)/TabularReferenceFieldLinkSetSelectorOpenPageAction/(discriminator/God/(esm/_4pyPkM_cEe6fibzd7gNETg)/AccessViewPageDefinition)
   const astronomerOpenSetSelectorAction = async (): Promise<ViewAstronomerStored | undefined> => {
-    const { result, data: returnedData } = await openViewGalaxyViewGroupDiscovererAstronomerLinkSetSelectorPage({
+    const {
+      result,
+      data: returnedData,
+      openCreated,
+    } = await openViewGalaxyViewGroupDiscovererAstronomerLinkSetSelectorPage({
       selectorOwnerId: '_conRARMcEe2_DOUDKkB20Q',
       ownerData: data,
       alreadySelected: data.astronomer ? [data.astronomer] : [],
     });
     if (result === 'submit') {
       if (Array.isArray(returnedData) && returnedData.length) {
+        // Mirrors the runtime: the relation's ~create already linked the target of a saved owner.
+        if (openCreated && !isDraft && (data as { __signedIdentifier?: string }).__signedIdentifier) {
+          await refresh(true);
+          return returnedData[0];
+        }
         try {
           storeDiff('astronomer', returnedData[0]);
           return returnedData[0];
