@@ -428,6 +428,18 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   };
   // ClearAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableClearAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const observationsClearAction = async () => {
+    // Clearing removes every element of the collection in a single click, so it
+    // asks first. Unsetting a single relation deliberately does not.
+    const confirmed = await openConfirmDialog(
+      'clear-action',
+      t('judo.modal.confirm.confirm-clear', {
+        defaultValue: 'Are you sure you would like to clear the collection?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return;
+    }
     storeDiff('observations', []);
   };
   // FilterAction: God/(esm/_mNl4YNYvEe61sPEiAs6Ysw)/TabularReferenceTableFilterAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
@@ -466,6 +478,18 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   const planetsBulkDeleteAction = async (
     selectedRows: ViewPlanetStored[],
   ): Promise<DialogResult<Array<ViewPlanetStored>>> => {
+    // Deleting the selected rows destroys data, so it asks first. The lazy path
+    // below asks through its own bulk CRUD dialog.
+    const confirmed = await openConfirmDialog(
+      'confirmation',
+      t('judo.modal.confirm.confirm-bulk-delete', {
+        defaultValue: 'Are you sure you would like to delete the selected items?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return { result: 'close', data: [] };
+    }
     return new Promise((resolve) => {
       const selectedIds = selectedRows.map((r) => resolveTransferId(r));
       const newList = (data?.planets ?? []).filter((c: any) => !selectedIds.includes(resolveTransferId(c)));
@@ -478,6 +502,18 @@ export default function ViewGalaxyStarsRelationViewPage(props: ViewGalaxyStarsRe
   };
   // ClearAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableClearAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)
   const planetsClearAction = async () => {
+    // Clearing removes every element of the collection in a single click, so it
+    // asks first. Unsetting a single relation deliberately does not.
+    const confirmed = await openConfirmDialog(
+      'clear-action',
+      t('judo.modal.confirm.confirm-clear', {
+        defaultValue: 'Are you sure you would like to clear the collection?',
+      }) as string,
+      t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+    );
+    if (!confirmed) {
+      return;
+    }
     storeDiff('planets', []);
   };
   // OpenCreateFormAction: God/(esm/_GuuWAE7vEeycO-gUAWxcVg)/TabularReferenceTableCreateAction/(discriminator/God/(esm/_B7jpUE7sEeycO-gUAWxcVg)/RelationFeatureView)

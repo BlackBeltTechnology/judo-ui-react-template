@@ -67,7 +67,9 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
     {{/ if }}
     {{# if button.actionDefinition.isOpenFormAction }}
       visible: (value: any) => !exists(value) && !readOnly && !!actions.{{ simpleActionDefinitionName actionDefinition }},
-      disabled: disabled || (editMode && !({{ boolValue link.dataElement.isInlineCreatable }} && !isDraft)),
+      // A create while the owner is being edited (e.g. right after an unset) is
+      // staged into the owner by the page action's submit-draft branch.
+      disabled: disabled,
       onClick: async () => {
         await actions.{{ simpleActionDefinitionName actionDefinition }}!();
       },
@@ -128,6 +130,17 @@ export function {{ componentName link }}(props: {{ componentName link }}Props) {
       {{/ unless }}
       isInlineCreatable={ {{ boolValue link.dataElement.isInlineCreatable }} && !isDraft }
       autoCompleteAttribute={'{{ link.parts.[0].attributeType.name }}'}
+      getOptionLabel={ (option: any) => [
+        {{# each link.parts as |part| }}
+          {{# if (isColumnDate part) }}
+          option?.{{ part.attributeType.name }} instanceof Date ? option.{{ part.attributeType.name }}.toLocaleDateString() : option?.{{ part.attributeType.name }},
+          {{ else if (isColumnDatetime part) }}
+          option?.{{ part.attributeType.name }} instanceof Date ? option.{{ part.attributeType.name }}.toLocaleString() : option?.{{ part.attributeType.name }},
+          {{ else }}
+          option?.{{ part.attributeType.name }},
+          {{/ if }}
+        {{/ each }}
+      ].filter((part) => part !== undefined && part !== null && part !== '').join(' ') }
       buttonProps={buttonProps}
       onAutoCompleteSelect={ async ({{ link.dataElement.name }}) => {
         if (actions.{{ link.dataElement.name }}AutocompleteSetAction) {
