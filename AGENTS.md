@@ -1,114 +1,62 @@
-# JUDO UI React Template - Project Documentation
+# judo-ui-react-template — module agent doctrine
 
-## Project Overview
+## Module purpose
 
+`judo-ui-react-template` is the estate's *frontend factory*: it turns a JUDO UI
+model instance (`judo-meta-ui` — `Application`, its `PageDefinition`s,
+`PageContainer`s, `Table`/`Link`/`Widget` elements, `Action`s, actor/role and
+menu structure, plus the data classes reachable from them) into a complete,
+buildable React 19 + TypeScript + Vite single-page application, one application
+per *actor* declared in the model. It does not render anything itself and it
+contains no runtime React library — it ships a Handlebars template set
+(~236 template entries under `judo-ui-react/src/main/resources/actor/`,
+registered in `judo-ui-react/src/main/resources/ui-react.yaml`) plus the
+`@TemplateHelper`-annotated Java classes those templates call through SpEL, and
+hands both to the shared `judo-generator-commons` engine.
 
-**Repository:** BlackBeltTechnology/judo-ui-react-template
-**License:** Eclipse Public License 2.0 (EPL-2.0)
-**Java Version:** 21 (21.0.7-zulu via sdkman)
-**Build System:** Maven 3.9.4 with mvnd parallel support
+What comes out of the generator, per actor: routed pages and dialogs, containers
+and widget fragments bound to model attributes, MUI DataGrid tables with
+per-column filtering and pagination, action buttons wired to the model's
+operations and relation navigations, form validation and masks, Keycloak-backed
+auth wiring, i18n JSON bundles plus the translation-sync tooling, MUI theming,
+Pandino service registrations that give the generated app named interface keys
+for customization, and the project scaffolding (`package.json`, Vite and
+TypeScript config, Biome config, `.nvmrc`) that makes the output installable and
+buildable without hand editing.
 
-1. A Java-based code generator that transforms JUDO UI Models (EMF/XMI format) into complete, production-ready React/TypeScript frontend applications
-2. Uses Handlebars templates and Java helper classes to produce pages, containers, dialogs, routing, i18n, theming, and authentication code
-3. Includes a snapshot-based regression testing plugin (`judo-diff-checker-maven-plugin`) that detects unexpected changes in generated output
-4. Integration tests generate full React apps from test models, then compile and snapshot-check them to validate correctness
-5. Generated apps use React 19, MUI 7, Vite, TypeScript, Pandino (OSGi-style DI), and Biome for formatting
+The generated UI does not talk HTTP itself — the REST/service/Axios layer it
+imports is produced in an earlier phase by `judo-ui-typescript-rest-template`,
+whose `judo-ui-typescript-rest-commons` helpers this module depends on directly.
+Consumers (project templates such as `judo-jsl-fullstack-karaf-project-template`)
+run both phases in order and pass template parameters — `muiLicensePlan`,
+`tablePageLimit`, `defaultLanguage` — from their own POMs.
 
-## Code Instructions
+**Repository:** BlackBeltTechnology/judo-ui-react-template ·
+**Artifact:** `hu.blackbelt.judo.generator:judo-ui-react-template`
+(packaging `pom`, version `${revision}` = `1.0.0-SNAPSHOT`) ·
+**License:** EPL-2.0 · **Java:** 21 (21.0.7-zulu via sdkman) ·
+**Build:** Maven 3.9.4, mvnd-capable parallel builds.
 
-1. First think through the problem, read the codebase for relevant files.
-2. Before you make any major changes, check in with me and I will verify the plan.
-3. Please every step of the way just give me a high level explanation of what changes you made.
-4. Make every task and code change you do as simple as possible. We want to avoid making any massive or complex changes. Every change should impact as little code as possible. Everything is about simplicity.
-5. Maintain a documentation file that describes how the architecture of the app works inside and out.
-6. Never speculate about code you have not opened. If the user references a specific file, you MUST read the file before answering. Make sure to investigate and read relevant files BEFORE answering questions about the codebase. Never make any claims about code before investigating unless you are certain of the correct answer - give grounded and hallucination-free answers.
-7. For implementation use TDD (Test-Driven Development): write or update tests first to define the expected behaviour, verify they fail, then write the minimal implementation to make them pass.
-8. Use DRY (Don't Repeat Yourself): extract reusable logic into separate classes, utilities, or components. If the same pattern appears in multiple places, refactor it into a shared helper.
+## Reactor map
 
-## Directory Structure
+The root `pom.xml` declares four modules; build order is the declared order, and
+`judo-ui-react` is the artifact every consumer outside this repo actually uses.
 
-```
-judo-ui-react-template/
-├── judo-ui-react/                  # Core generator module (Java helpers + Handlebars templates)
-├── judo-ui-react-itest/            # Integration tests (each generates a full React app)
-│   ├── ActionGroupTest/            # Action groups (community MUI)
-│   ├── ActionGroupTestPro/         # Action groups (pro MUI license)
-│   ├── CRUDActionsTest/            # CRUD operations
-│   ├── OperationParametersTest/    # Operation parameters
-│   ├── RelationTest/               # Relations
-│   └── SimpleOrderManagement/      # End-to-end order management scenario
-├── judo-diff-checker-maven-plugin/ # Maven plugin for snapshot-based diff checking
-├── docs/                           # AsciiDoc documentation source
-├── .github/workflows/              # CI/CD GitHub Actions
-├── full-build-parallel.sh          # Parallel build script using mvnd
-└── .sdkmanrc                       # Java/Maven/mvnd version pinning
-```
+<modules>
+  <module>docs</module>
+  <module>judo-diff-checker-maven-plugin</module>
+  <module>judo-ui-react</module>
+  <module>judo-ui-react-itest</module>
+</modules>
 
-## Core Modules
+| Module | Artifact / packaging | What it contributes |
+|---|---|---|
+| `docs` | `judo-ui-react-template-docs`, `jar` | AsciiDoc source describing the generated application's architecture, packaged so the documentation ships alongside the generator rather than living only in the repo. |
+| `judo-diff-checker-maven-plugin` | `judo-diff-checker-maven-plugin`, `maven-plugin` | Snapshot regression gate. Compares freshly generated output against committed snapshots with java-diff-utils and fails the build on any unexpected diff — the mechanism that makes template edits reviewable line by line instead of trusting that "it still compiles". Used by the itest modules here and reusable by other generator repos. |
+| `judo-ui-react` | `judo-ui-react`, `bundle` (Felix OSGi) | The generator proper: the Handlebars template tree, the `ui-react.yaml` registry that binds each template to an output path via SpEL path/factory expressions, and the `@TemplateHelper` classes under `hu.blackbelt.judo.ui.generator.react` that the templates invoke — page routing and navigation (`UiPageHelper`), action/operation logic (`UiActionsHelper`), widgets (`UiWidgetHelper`), container layout (`UiPageContainerHelper`), tables (`UiTableHelper`), menus (`UIMenuHelper`), i18n keys (`UiI18NHelper`), Pandino DI registration (`UiPandinoHelper`), TypeScript import bookkeeping (`UiImportHelper`), naming/path derivation (`UiGeneralHelper`), npm/pnpm packaging (`UiNPMHelper`), auth (`UiSecurityHelper`), stored-variable state (`ReactStoredVariableHelper`), plus the input-mask package under `.../react/mask`. |
+| `judo-ui-react-itest` | `judo-ui-react-itest`, `pom` | Aggregator for the executable proof that the templates work. Each child owns a `.model` file and generates a full React app from it, then formats with Biome, runs the diff checker against committed snapshots, and builds with Vite. Children: `ActionGroupTest` (action groups, community MUI), `ActionGroupTestPro` (action groups, pro MUI license), `CRUDActionsTest` (create/read/update/delete flows), `OperationParametersTest` (operation input parameters), `RelationTest` (relation navigation, inline-edit and tag-container transfers), `SimpleOrderManagement` (an end-to-end order-management scenario). Each child in turn has one sub-module per actor — e.g. `ActionGroupTest/action_group_test__god` — because one actor means one generated application. |
 
-### Generator Module
-
-| Module | Type | Purpose |
-|--------|------|---------|
-| `judo-ui-react/` | OSGi bundle | Contains all Handlebars templates (`src/main/resources/actor/`), the template registry (`ui-react.yaml`), and Java `@TemplateHelper` classes that provide utility functions for templates |
-
-### Helper Classes (`hu.blackbelt.judo.ui.generator.react`)
-
-| Helper | Purpose |
-|--------|---------|
-| `UiPageHelper` | Page routing, navigation, data access |
-| `UiActionsHelper` | Action generation, button/operation logic |
-| `UiWidgetHelper` | Widget/component generation |
-| `UiPageContainerHelper` | Container layout logic |
-| `UiTableHelper` | Table/grid generation |
-| `UIMenuHelper` | Menu/navigation component generation |
-| `UiI18NHelper` | Internationalization keys and translations |
-| `UiPandinoHelper` | Pandino (OSGi-style DI) service registration |
-| `UiImportHelper` | TypeScript import statement management |
-| `UiGeneralHelper` | General utility functions |
-| `UiNPMHelper` | npm/pnpm package management utilities |
-| `UiSecurityHelper` | Security and authentication utilities |
-| `ReactStoredVariableHelper` | Stored variable state management |
-
-### Template System
-
-| Component | Location | Purpose |
-|-----------|----------|---------|
-| Template registry | `judo-ui-react/src/main/resources/ui-react.yaml` | Maps templates to output files with path expressions, factory expressions, and template context |
-| Templates | `judo-ui-react/src/main/resources/actor/` | Handlebars `.hbs` files — directory structure mirrors the generated React app |
-| Fragment templates | Various `*.fragment.hbs` files | Partial templates included via `{{> fragment.hbs}}` for composition |
-
-### Testing & Tooling
-
-| Module | Type | Purpose |
-|--------|------|---------|
-| `judo-diff-checker-maven-plugin/` | Maven plugin | Compares generated files against committed snapshots using java-diff-utils; fails the build on unexpected diffs |
-| `judo-ui-react-itest/` | Integration tests | Each sub-module generates a full React app from a `.model` file, runs Biome formatting, snapshot checking, and Vite build |
-
-## Technology Stack
-
-### Core Technologies
-- **Eclipse EMF** (ecore-xmi 2.2.3) — model framework for loading/traversing UI models
-- **Handlebars** — template engine for generating TypeScript/React code
-- **Spring Expression Language (SpEL)** 5.0.0 — used in `ui-react.yaml` for path expressions and factory expressions
-- **Lombok** 1.18.34 — reduces Java boilerplate in helper classes
-- **Apache Felix** maven-bundle-plugin — OSGi bundle packaging
-
-### Generated App Technologies
-- React 19 + TypeScript + Vite 7
-- MUI (Material UI) 7.x + DataGrid Pro 8.x
-- Pandino — runtime extensibility via OSGi-style dependency injection
-- Biome — formatting and linting (not ESLint/Prettier)
-- i18n via JSON files (`public/i18n/application_*.json`, `system_*.json`)
-
-### Build & Quality
-- Maven 3.9.4 with `flatten-maven-plugin` for CI-friendly versions (`${revision}`)
-- JaCoCo 0.8.12 for code coverage
-- SonarQube integration via `sonar-maven-plugin`
-- JUnit 5 for unit tests
-- `frontend-maven-plugin` 1.12.1 for Node.js/pnpm auto-installation
-
-## Build Commands
+## Build commands
 
 ```bash
 # Full build (compile generator + run all integration tests)
@@ -130,57 +78,143 @@ mvn clean install -DskipPrepareNodeJS
 sdk env
 ```
 
-### Maven Profiles
+### Maven profiles
 
 | Profile | Purpose |
-|---------|---------|
-| `sign-artifacts` | Sign artifacts using `sign-maven-plugin` for release |
-| `release-dummy` | Deploy to local filesystem (`/tmp/`) for testing |
-| `release-judong` | Deploy to JUDO NG Nexus repository |
-| `release-central` | Deploy to Maven Central via Sonatype OSSRH |
-| `generate-github-asciidoc-diagrams` | Generate PNG diagrams from AsciiDoc PlantUML blocks |
-| `update-source-code-license` | Update EPL-2.0 license headers in source files |
+|---|---|
+| `sign-artifacts` | Sign artifacts using `sign-maven-plugin` for release. |
+| `release-dummy` | Deploy to local filesystem (`/tmp/`) for testing. |
+| `release-judong` | Deploy to the JUDO NG Nexus repository. |
+| `release-central` | Deploy to Maven Central via Sonatype OSSRH. |
+| `generate-github-asciidoc-diagrams` | Generate PNG diagrams from AsciiDoc PlantUML blocks. |
+| `update-source-code-license` | Update EPL-2.0 license headers in source files. |
 
-## Key Configuration Files
+## Technology stack
 
-| File | Purpose |
-|------|---------|
-| `pom.xml` | Root POM — defines modules, dependency versions, build plugins, and profiles |
-| `.sdkmanrc` | Pins Java 21.0.7-zulu, Maven 3.9.4, mvnd 1.0-m6-m40 |
-| `judo-ui-react/src/main/resources/ui-react.yaml` | Template registry — maps Handlebars templates to generated output files |
-| `logback-test.xml` | Logging configuration for test execution |
-| `full-build-parallel.sh` | Shell script for parallel builds using mvnd |
+**Generator side**
 
-## Development Environment
+- **Eclipse EMF** (`ecore-xmi` 2.2.3) — loads and traverses the XMI UI model
+- **`judo-meta-ui`** 1.1.0-SNAPSHOT — the UI metamodel this generator reads
+- **`judo-generator-commons`** — template engine, `@TemplateHelper` discovery, output writing
+- **`judo-ui-typescript-rest-commons`** — shared helpers with the REST-layer generator (phase 1)
+- **Handlebars** — template engine producing TypeScript/React sources
+- **Spring Expression Language (SpEL)** 5.0.0 — path and factory expressions in `ui-react.yaml`
+- **Lombok** 1.18.34 · **Apache Felix `maven-bundle-plugin`** — OSGi bundle packaging
 
-**Required:**
-- Java 21 JDK (via sdkman: `sdk env` reads `.sdkmanrc`)
-- Maven 3.9.4+
-- Node.js 22.14.0 / pnpm 9.15.9 (auto-installed during build, or skip with `-DskipPrepareNodeJS`)
-- Optional: mvnd for parallel builds
+**Generated application side**
 
-## Git Workflow
+- React 19 + TypeScript + Vite 7
+- MUI (Material UI) 7.x + DataGrid Pro 8.x
+- Pandino — runtime extensibility via OSGi-style dependency injection
+- Biome — formatting and linting (not ESLint/Prettier)
+- i18n via JSON files (`public/i18n/application_*.json`, `system_*.json`)
 
-- **Main Branch:** `develop`
-- **Versioning:** CI-friendly `${revision}` property (1.0.0-SNAPSHOT in development)
+**Build & quality**
+
+- Maven 3.9.4 with `flatten-maven-plugin` for CI-friendly `${revision}` versions
+- JaCoCo 0.8.12 · SonarQube via `sonar-maven-plugin` · JUnit 5
+- `frontend-maven-plugin` 1.12.1 auto-installs Node.js 22.14.0 / pnpm 9.15.9
+
+## Architecture pointers
+
+- `judo-ui-react/src/main/resources/ui-react.yaml` — the template registry. Every generated file exists because a row here maps a `.hbs` template to an output path; `copy: true` rows are emitted verbatim. Adding an output file starts here, not in the templates.
+- `judo-ui-react/src/main/resources/actor/` — the template tree; its directory structure mirrors the generated React app one-to-one. `*.fragment.hbs` files are partials pulled in via `{{> fragment.hbs}}`.
+- `judo-ui-react/src/main/java/hu/blackbelt/judo/ui/generator/react/` — the helper classes; templates call them from `ui-react.yaml` in SpEL form, e.g. `#getPagesForRouting(#application)`.
+- Generated code exposes Pandino interface keys (e.g. `ROUTE_GOD_GALAXIES_TABLE_INTERFACE_KEY`) as the supported runtime customization seam.
+- The pipeline runs in two phases: phase 1 generates the TypeScript REST layer (types, services, Axios) via `judo-ui-typescript-rest-template`; phase 2 generates the React UI from this repo.
+- Build environment is pinned by `.sdkmanrc` (Java 21.0.7-zulu, Maven 3.9.4, mvnd 1.0-m6-m40); test logging is configured by the repo-root `logback-test.xml`; `full-build-parallel.sh` drives the mvnd parallel build.
+- [README.md](README.md) — project overview and usage example.
+- [CONTRIBUTING.md](CONTRIBUTING.md) — development setup and submission guidelines.
+- [.github/CIFLOW.md](.github/CIFLOW.md) — branch strategy and CI/CD workflow.
+- [judo-diff-checker-maven-plugin/README.md](judo-diff-checker-maven-plugin/README.md) — snapshot diff checker usage.
+- [docs/pages/](docs/pages/) — detailed generated-application documentation.
+
+## Development environment
+
+**Required:** Java 21 JDK (`sdk env` reads `.sdkmanrc`) · Maven 3.9.4+ ·
+Node.js 22.14.0 / pnpm 9.15.9 (auto-installed during the build, or bypass with
+`-DskipPrepareNodeJS`). **Optional:** mvnd for parallel builds. The `.vscode`
+directory is git-ignored — IDE settings stay local to each developer.
+
+## Git workflow
+
+- **Main branch:** `develop`
+- **Versioning:** CI-friendly `${revision}` (`1.0.0-SNAPSHOT` in development)
 - **Branch naming:** `feature/JNG-xxx_description`, `bugfix/JNG-xxx_description`, `release/x.y.z`
-- **Commit rule:** Every commit must reference a JIRA ticket (`JNG-xxx`)
-- **CI:** GitHub Actions workflows for build, release, merge-pr handling, and changelog generation
+- **Rule:** every commit must reference a JIRA ticket (`JNG-xxx`)
+- **CI:** GitHub Actions workflows for build, release, merge-pr handling, changelog generation
 
-## Important Notes
+## Scope guard — invariants an edit must not break
 
-1. The code generation pipeline has two phases: Phase 1 generates the TypeScript REST layer (types, services, Axios) using `judo-ui-typescript-rest-template`, Phase 2 generates the React UI using templates from this repo
-2. Helper methods are invoked from `ui-react.yaml` using SpEL syntax (e.g., `#getPagesForRouting(#application)`)
-3. Template parameters like `muiLicensePlan`, `tablePageLimit`, `defaultLanguage` are configured in consumer POMs and passed to templates
-4. Each itest has sub-modules per "actor" (user role), e.g., `action_group_test__god` — each actor gets its own generated React app
-5. When templates change, update snapshots by copying files from `target/frontend-react/` to `src/test/resources/snapshots/frontend-react/`
-6. Generated code uses Pandino interface keys (e.g., `ROUTE_GOD_GALAXIES_TABLE_INTERFACE_KEY`) for runtime customization hooks
-7. The `.vscode` directory is in `.gitignore` — IDE settings are local to each developer
+1. **A template change is a snapshot change.** After editing templates, refresh the affected snapshots by copying from `target/frontend-react/` to the itest module's `src/test/resources/snapshots/frontend-react/`, and read the resulting diff — that diff *is* the review.
+2. **Never speculate about code you have not opened.** If a file is referenced, read it before answering; ground every claim about templates or helpers in the file.
+3. **Keep changes minimal and DRY.** Prefer the smallest edit that works; when the same pattern appears in several templates or helpers, extract it into a fragment or a shared helper instead of copying it.
+4. **Implement test-first.** Write or update the test/snapshot expectation that defines the behaviour, watch it fail, then make it pass.
+5. **Check in before a major change.** Explain the plan and get it verified before large or structural edits, and give a high-level summary of what changed after each step.
 
-## Related Documentation
+<!-- dox-doctrine -->
+## Documentation Update Protocol (WRITE discipline)
 
-- [README.md](README.md) — Project overview and usage example
-- [CONTRIBUTING.md](CONTRIBUTING.md) — Development setup and submission guidelines
-- [.github/CIFLOW.md](.github/CIFLOW.md) — Branch strategy and CI/CD workflow documentation
-- [judo-diff-checker-maven-plugin/README.md](judo-diff-checker-maven-plugin/README.md) — Snapshot diff checker usage
-- [docs/pages/](docs/pages/) — Detailed generated app documentation
+Per-directory `AGENTS.md` files form a tree. Each directory `AGENTS.md` is the
+per-file record for the files in that directory. This module-root `AGENTS.md`
+holds doctrine + architecture pointers only — never a per-file index.
+
+**Keep the root lean.** This file loads into every agent turn — every byte costs
+tokens on every turn. A verbose root file buries the rules the model must follow
+(signal dilution) and measurably degrades adherence; a lean file keeps doctrine
+salient. Default assumption: your update does NOT belong in the root — route it
+by the table below.
+
+**Route every doc update by kind:**
+
+| Kind of update | Goes in |
+|---|---|
+| New file in a directory, or its per-file detail / change history | Nearest directory `AGENTS.md`. Add a `` | `<basename>` | <purpose> | `` row, path-alphabetical. |
+| Data flow, protocol, architecture rationale | `docs/architecture.md` or a `docs/<topic>.md` |
+| End-user / developer setup | `README.md` |
+| Cross-cutting rule every agent needs every turn (rare) | this module-root `AGENTS.md` |
+
+**Read before editing (chain walk).** Before editing a file, read the nearest
+`AGENTS.md` chain root→leaf so you know the file's recorded purpose, contracts,
+and change history. Do not edit blind.
+
+**Update after editing (closeout pass).** After changing a file, update its row
+in the nearest directory `AGENTS.md`: find the file's row, update its purpose in
+place; if absent, add it in path-alphabetical order. New directory → scaffold
+its `AGENTS.md`. One row per file. The purpose carries a one-line summary, key
+exported symbols, contracts/invariants, and `See change: <id>` history.
+
+**Row style (caveman).** Short declarative fragments. Drop articles. Subject →
+verb → object, present tense. One fact per row. Prefer concrete tokens (paths,
+symbols, env vars) over prose. Keep identifiers verbatim.
+
+**Size rule — split an over-large directory `AGENTS.md` file-based.** pi
+auto-injects a directory `AGENTS.md` on every turn when cwd sits at/below it, so
+an over-large directory `AGENTS.md` is not supported. Split it file-based: a row
+exceeding the length threshold promotes to a per-file `<File>.AGENTS.md`
+sidecar carrying that file's full detail (including every `See change:`). The
+sidecar is pull-only — its name is not `AGENTS.md`, so pi never auto-injects it
+— yet it stays search-indexed (`agents` doc_type). The directory `AGENTS.md`
+keeps a one-line summary plus a `→ see `<File>.AGENTS.md`` pointer. Rows within
+the threshold stay verbatim (lossless).
+
+## Finding docs (READ discipline)
+
+`kb_*` tools are faster and cheaper than raw search — they return a one-line
+purpose + key exports per file, not raw bytes. **This fires on the ACTION, not
+the intent** — before you `grep`/`rg` for a symbol, `cat`/read a file to learn
+what it does, or chase an import, the kb call goes first. It fires **even
+mid-task when you already know the file**; knowing the file does not exempt you.
+When your reflex is the left column, run the right column instead:
+
+| You're about to… | Do this FIRST instead |
+|---|---|
+| `grep -rn "SymbolName" src/` — find where a fn / type / const lives | `kb_search --doc-type agents "SymbolName"` — tree indexes key exports per file |
+| `grep -rn "feature\|topic" src/` — how does X work / where's X handled | `kb_search "feature topic"` |
+| `cat` / read a file just to learn its purpose before editing | `kb agents <path>` — one-line purpose + exports + change history |
+| chase imports / callers across files | `kb_neighbors <path\|heading>` |
+| read one doc section in full | `kb_get <path> <section>` |
+
+**Fall-through (explicit):** if the kb call returns nothing relevant, `rg` /
+source read is allowed — then add the missing directory `AGENTS.md` row per the
+WRITE discipline. kb does NOT replace grep; it goes first.
