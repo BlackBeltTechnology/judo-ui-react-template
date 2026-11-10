@@ -82,6 +82,13 @@ import {
   useErrorHandler,
   validateWithNestedErrors,
 } from '~/utilities';
+import {
+  buildCellTestId,
+  buildColumnHeaderTestId,
+  buildRowTestId,
+  buildTableTestId,
+  resolveTransferId,
+} from '~/utilities/transfer-id';
 import type { ViewGalaxyTableTableComponentActionDefinitions, ViewGalaxyTableTableComponentProps } from './types';
 
 export const VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
@@ -99,6 +106,7 @@ export const filtersSerializer: FiltersSerializer = {
 export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableComponentProps) {
   const {
     uniqueId,
+    testIdOverride,
     actions,
     dataPath,
     refreshCounter,
@@ -127,7 +135,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     async (rowData: ViewGalaxyStored) => {
       try {
         await actions.applyRowEdit!(rowData);
-        rowValidation.current.delete(rowData.__identifier!);
+        rowValidation.current.delete(resolveTransferId(rowData));
       } catch (e: any) {
         if (e?.response?.status === 400) {
           const errorMap: Map<keyof ViewGalaxyStored, string> = new Map<keyof ViewGalaxyStored, string>();
@@ -138,14 +146,14 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
             validateWithNestedErrors(errorList, errorMap, t);
           }
           const copy = new Map<string, Map<keyof ViewGalaxyStored, string>>(rowValidation.current);
-          copy.set(rowData.__identifier!, errorMap);
+          copy.set(resolveTransferId(rowData), errorMap);
           rowValidation.current = copy;
         } else {
           const copy = new Map<string, Map<keyof ViewGalaxyStored, string>>(rowValidation.current);
-          copy.delete(rowData.__identifier!);
+          copy.delete(resolveTransferId(rowData));
           rowValidation.current = copy;
         }
-        throw rowData.__identifier;
+        throw resolveTransferId(rowData);
       }
     },
     [actions],
@@ -161,6 +169,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'name',
     headerName: t('View.Galaxy.Table.name', { defaultValue: 'Name' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'name')}>
+        {t('View.Galaxy.Table.name', { defaultValue: 'Name' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 230,
@@ -168,8 +183,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('name');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
@@ -181,6 +196,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'real',
     headerName: t('View.Galaxy.Table.real', { defaultValue: 'Real' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'real')}>
+        {t('View.Galaxy.Table.real', { defaultValue: 'Real' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 100,
@@ -188,8 +210,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('real');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'optionalBoolean'} />;
@@ -198,11 +220,11 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, ViewGalaxyStored>) => {
       if (params.row.real === null || params.row.real === undefined) {
-        return <MdiIcon className="undefined" path="minus" color="#ddd" />;
+        return <MdiIcon className="undefined" path="minus" color="#ddd" testId="boolean-null" />;
       } else if (params.row.real) {
-        return <MdiIcon className="true" path="check-circle" color="green" />;
+        return <MdiIcon className="true" path="check-circle" color="green" testId="boolean-true" />;
       }
-      return <MdiIcon className="false" path="close-circle" color="red" />;
+      return <MdiIcon className="false" path="close-circle" color="red" testId="boolean-false" />;
     },
     filterOperators: booleanColumnOperators,
   };
@@ -210,6 +232,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'constellation',
     headerName: t('View.Galaxy.Table.constellation', { defaultValue: 'Constellation' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'constellation')}>
+        {t('View.Galaxy.Table.constellation', { defaultValue: 'Constellation' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 230,
@@ -217,8 +246,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('constellation');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
@@ -230,6 +259,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'magnitude',
     headerName: t('View.Galaxy.Table.magnitude', { defaultValue: 'Magnitude' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'magnitude')}>
+        {t('View.Galaxy.Table.magnitude', { defaultValue: 'Magnitude' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 100,
@@ -237,8 +273,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('magnitude');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
@@ -256,6 +292,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'nakedEye',
     headerName: t('View.Galaxy.Table.nakedEye', { defaultValue: 'Naked Eye' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'nakedEye')}>
+        {t('View.Galaxy.Table.nakedEye', { defaultValue: 'Naked Eye' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 100,
@@ -263,8 +306,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('nakedEye');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'optionalBoolean'} />;
@@ -273,11 +316,11 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     align: 'center',
     renderCell: (params: GridRenderCellParams<any, ViewGalaxyStored>) => {
       if (params.row.nakedEye === null || params.row.nakedEye === undefined) {
-        return <MdiIcon className="undefined" path="minus" color="#ddd" />;
+        return <MdiIcon className="undefined" path="minus" color="#ddd" testId="boolean-null" />;
       } else if (params.row.nakedEye) {
-        return <MdiIcon className="true" path="check-circle" color="green" />;
+        return <MdiIcon className="true" path="check-circle" color="green" testId="boolean-true" />;
       }
-      return <MdiIcon className="false" path="close-circle" color="red" />;
+      return <MdiIcon className="false" path="close-circle" color="red" testId="boolean-false" />;
     },
     filterOperators: booleanColumnOperators,
   };
@@ -285,6 +328,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'darkMatter',
     headerName: t('View.Galaxy.Table.darkMatter', { defaultValue: 'Dark Matter' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'darkMatter')}>
+        {t('View.Galaxy.Table.darkMatter', { defaultValue: 'Dark Matter' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 100,
@@ -302,6 +352,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'intergalacticDust',
     headerName: t('View.Galaxy.Table.intergalacticDust', { defaultValue: 'Intergalactic Dust' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'intergalacticDust')}>
+        {t('View.Galaxy.Table.intergalacticDust', { defaultValue: 'Intergalactic Dust' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 100,
@@ -319,6 +376,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'interstellarMedium',
     headerName: t('View.Galaxy.Table.interstellarMedium', { defaultValue: 'Interstellar Medium' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'interstellarMedium')}>
+        {t('View.Galaxy.Table.interstellarMedium', { defaultValue: 'Interstellar Medium' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 100,
@@ -336,6 +400,13 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     ...baseColumnConfig,
     field: 'discovered',
     headerName: t('View.Galaxy.Table.discovered', { defaultValue: 'Discovered' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg', 'discovered')}>
+        {t('View.Galaxy.Table.discovered', { defaultValue: 'Discovered' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 170,
@@ -343,8 +414,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('discovered');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'date'} />;
@@ -386,6 +457,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'filterAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTableFilterButton',
+      actionType: 'filter',
       startIcon: 'filter',
       variant: 'text',
       hiddenBy: false,
@@ -403,6 +475,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'refreshAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTableRefreshButton',
+      actionType: 'refresh',
       startIcon: 'refresh',
       variant: 'text',
       hiddenBy: false,
@@ -420,6 +493,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'exportAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableExportButton',
+      actionType: 'export',
       startIcon: 'file-export-outline',
       variant: 'text',
       hiddenBy: false,
@@ -437,6 +511,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'openCreateFormAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableCreateButton',
+      actionType: 'opencreateform',
       startIcon: 'note-add',
       variant: 'text',
       hiddenBy: false,
@@ -454,6 +529,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'inlineCreateRowAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableInlineCreateButton',
+      actionType: 'inlinecreaterow',
       startIcon: 'note-add',
       variant: 'text',
       hiddenBy: false,
@@ -473,6 +549,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'openAddSelectorAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableAddSelectorButton',
+      actionType: 'openaddselector',
       startIcon: 'attachment-plus',
       variant: 'text',
       hiddenBy: false,
@@ -490,6 +567,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'openSetSelectorAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableSetSelectorButton',
+      actionType: 'opensetselector',
       startIcon: 'attachment-plus',
       variant: 'text',
       hiddenBy: false,
@@ -507,6 +585,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'clearAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableClearButton',
+      actionType: 'clear',
       startIcon: 'link_off',
       variant: 'text',
       hiddenBy: false,
@@ -524,6 +603,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'bulkRemoveAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableBulkRemoveButton',
+      actionType: 'bulkremove',
       startIcon: 'link_off',
       variant: 'text',
       hiddenBy: false,
@@ -541,6 +621,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     {
       name: 'bulkDeleteAction',
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableBulkDeleteButton',
+      actionType: 'bulkdelete',
       startIcon: 'delete_forever',
       variant: 'text',
       hiddenBy: false,
@@ -559,7 +640,29 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
 
   const rowActions: TableRowAction<ViewGalaxyStored, ViewGalaxyStored>[] = [
     {
+      id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableRowViewButton',
+      testId: 'view',
+      actionType: 'openpage',
+      label: t('judo.action.open-page', { defaultValue: 'View' }) as string,
+      icon: <MdiIcon path="visibility" />,
+      hidden: (row: ViewGalaxyStored) => false,
+      disabled: (
+        row: ViewGalaxyStored,
+        isLoading: boolean,
+        isRowInEditMode: boolean,
+        getSelectedRows: () => ViewGalaxyStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
+      action: actions.openPageAction
+        ? async (rowData) => {
+            await actions.openPageAction!(rowData, isDraft);
+          }
+        : undefined,
+    },
+    {
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableRowRemoveButton',
+      testId: 'remove',
+      actionType: 'remove',
       label: t('judo.action.remove', { defaultValue: 'Remove' }) as string,
       icon: <MdiIcon path="link_off" />,
       isCRUD: true,
@@ -579,6 +682,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableRowDeleteButton',
+      testId: 'delete',
+      actionType: 'rowdelete',
       label: t('judo.action.row-delete', { defaultValue: 'Delete' }) as string,
       icon: <MdiIcon path="delete_forever" />,
       isCRUD: true,
@@ -602,6 +707,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKM0T0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      testId: 'createDarkMatter',
+      actionType: 'openoperationinputform',
       label: t('View.Galaxy.Table.View.Galaxy.createDarkMatter', { defaultValue: 'CreateDarkMatter' }) as string,
       icon: <MdiIcon path="chevron_right" />,
       hidden: (row: ViewGalaxyStored) => false,
@@ -620,6 +727,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKz4T0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      testId: 'createIntergalacticDust',
+      actionType: 'openoperationinputform',
       label: t('View.Galaxy.Table.View.Galaxy.createIntergalacticDust', {
         defaultValue: 'CreateIntergalacticDust',
       }) as string,
@@ -640,6 +749,8 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
     },
     {
       id: 'God/(esm/_9MKz4z0wEe-oxNmZsPxMmA)/OperationFormTableRowCallOperationButton/(discriminator/God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTable)',
+      testId: 'createInterstellarMedium',
+      actionType: 'openoperationinputform',
       label: t('View.Galaxy.Table.View.Galaxy.createInterstellarMedium', {
         defaultValue: 'CreateInterstellarMedium',
       }) as string,
@@ -773,7 +884,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
   ];
 
   return (
-    <div data-testid="God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable" data-table-name="Table">
+    <div data-testid={buildTableTestId(testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg')} data-table-name="Table">
       <LazyTable<ViewGalaxyStored, ViewGalaxyStored, ViewGalaxyQueryCustomizer>
         uniqueId={`God/(esm/_YT0hQE7rEeycO-gUAWxcVg)/TransferObjectTableTable-${uniqueId}`}
         dataProp={isSelector ? [] : []}
@@ -789,7 +900,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        dataElementId={'God/(esm/_YTkpoE7rEeycO-gUAWxcVg)/ClassType'}
+        tableTestId={testIdOverride ?? '_YT0hQE7rEeycO-gUAWxcVg'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
         containerIsSelector={isSelector}

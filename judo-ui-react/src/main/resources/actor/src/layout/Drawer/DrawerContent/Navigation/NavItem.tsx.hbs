@@ -14,6 +14,7 @@ import { Link } from 'react-router-dom';
 import { MdiIcon, useJudoNavigation } from '~/components';
 import { MenuOrientation, ThemeMode } from '~/config';
 import { useConfig } from '~/hooks';
+import { buildNavItemTestId } from '~/utilities/transfer-id';
 
 export type NavItemType = {
   id: string;
@@ -30,9 +31,10 @@ export type NavItemType = {
 export interface NavItemProps {
   item: NavItemType;
   level: number;
+  parentPath?: string;
 }
 
-export const NavItem = ({ item, level }: NavItemProps) => {
+export const NavItem = ({ item, level, parentPath }: NavItemProps) => {
   const { t } = useTranslation();
   const { clearNavigate, externalNavigate } = useJudoNavigation();
   const { menuOrientation, miniDrawer, onChangeMiniDrawer } = useConfig();
@@ -95,6 +97,7 @@ export const NavItem = ({ item, level }: NavItemProps) => {
           placement="right"
         >
           <ListItemButton
+            data-testid={buildNavItemTestId(item.id, parentPath)}
             component={LinkComponent}
             disabled={item.disabled}
             sx={ {
@@ -137,6 +140,7 @@ export const NavItem = ({ item, level }: NavItemProps) => {
         </Tooltip>
       ) : (
         <ListItemButton
+          data-testid={buildNavItemTestId(item.id, parentPath)}
           component={LinkComponent}
           disabled={item.disabled}
           sx={ {

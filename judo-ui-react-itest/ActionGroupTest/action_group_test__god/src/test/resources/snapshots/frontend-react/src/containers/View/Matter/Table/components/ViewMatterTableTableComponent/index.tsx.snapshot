@@ -80,6 +80,13 @@ import {
   useErrorHandler,
   validateWithNestedErrors,
 } from '~/utilities';
+import {
+  buildCellTestId,
+  buildColumnHeaderTestId,
+  buildRowTestId,
+  buildTableTestId,
+  resolveTransferId,
+} from '~/utilities/transfer-id';
 import type { ViewMatterTableTableComponentActionDefinitions, ViewMatterTableTableComponentProps } from './types';
 
 export const VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
@@ -97,6 +104,7 @@ export const filtersSerializer: FiltersSerializer = {
 export function ViewMatterTableTableComponent(props: ViewMatterTableTableComponentProps) {
   const {
     uniqueId,
+    testIdOverride,
     actions,
     dataPath,
     refreshCounter,
@@ -125,7 +133,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     async (rowData: ViewMatterStored) => {
       try {
         await actions.applyRowEdit!(rowData);
-        rowValidation.current.delete(rowData.__identifier!);
+        rowValidation.current.delete(resolveTransferId(rowData));
       } catch (e: any) {
         if (e?.response?.status === 400) {
           const errorMap: Map<keyof ViewMatterStored, string> = new Map<keyof ViewMatterStored, string>();
@@ -136,14 +144,14 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
             validateWithNestedErrors(errorList, errorMap, t);
           }
           const copy = new Map<string, Map<keyof ViewMatterStored, string>>(rowValidation.current);
-          copy.set(rowData.__identifier!, errorMap);
+          copy.set(resolveTransferId(rowData), errorMap);
           rowValidation.current = copy;
         } else {
           const copy = new Map<string, Map<keyof ViewMatterStored, string>>(rowValidation.current);
-          copy.delete(rowData.__identifier!);
+          copy.delete(resolveTransferId(rowData));
           rowValidation.current = copy;
         }
-        throw rowData.__identifier;
+        throw resolveTransferId(rowData);
       }
     },
     [actions],
@@ -159,6 +167,13 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     ...baseColumnConfig,
     field: 'type',
     headerName: t('View.Matter.Table.type', { defaultValue: 'type' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_D04SgOq_EeuMzos2n42msw', 'type')}>
+        {t('View.Matter.Table.type', { defaultValue: 'type' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 170,
@@ -166,8 +181,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('type');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'singleSelect'} />;
@@ -194,6 +209,13 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     ...baseColumnConfig,
     field: 'mass',
     headerName: t('View.Matter.Table.mass', { defaultValue: 'mass' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '_D04SgOq_EeuMzos2n42msw', 'mass')}>
+        {t('View.Matter.Table.mass', { defaultValue: 'mass' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
 
     width: 100,
@@ -201,8 +223,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     editable: true,
     renderEditCell: (props: GridRenderEditCellParams) => {
       let error: string | undefined;
-      if (props.row && rowValidation.current.has(props.row.__identifier)) {
-        const errors = rowValidation.current.get(props.row.__identifier);
+      if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+        const errors = rowValidation.current.get(resolveTransferId(props.row));
         error = errors?.get('mass');
       }
       return <CellEditInput {...props} error={error} cellEditorType={'text'} />;
@@ -222,6 +244,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'filterAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTableFilterButton',
+      actionType: 'filter',
       startIcon: 'filter',
       variant: 'text',
       hiddenBy: false,
@@ -239,6 +262,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'refreshAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTableRefreshButton',
+      actionType: 'refresh',
       startIcon: 'refresh',
       variant: 'text',
       hiddenBy: false,
@@ -256,6 +280,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'exportAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableExportButton',
+      actionType: 'export',
       startIcon: 'file-export-outline',
       variant: 'text',
       hiddenBy: false,
@@ -273,6 +298,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'openCreateFormAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableCreateButton',
+      actionType: 'opencreateform',
       startIcon: 'note-add',
       variant: 'text',
       hiddenBy: false,
@@ -290,6 +316,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'inlineCreateRowAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableInlineCreateButton',
+      actionType: 'inlinecreaterow',
       startIcon: 'note-add',
       variant: 'text',
       hiddenBy: false,
@@ -309,6 +336,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'openAddSelectorAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableAddSelectorButton',
+      actionType: 'openaddselector',
       startIcon: 'attachment-plus',
       variant: 'text',
       hiddenBy: false,
@@ -326,6 +354,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'openSetSelectorAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableSetSelectorButton',
+      actionType: 'opensetselector',
       startIcon: 'attachment-plus',
       variant: 'text',
       hiddenBy: false,
@@ -343,6 +372,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'clearAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableClearButton',
+      actionType: 'clear',
       startIcon: 'link_off',
       variant: 'text',
       hiddenBy: false,
@@ -360,6 +390,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'bulkRemoveAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableBulkRemoveButton',
+      actionType: 'bulkremove',
       startIcon: 'link_off',
       variant: 'text',
       hiddenBy: false,
@@ -377,6 +408,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     {
       name: 'bulkDeleteAction',
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableBulkDeleteButton',
+      actionType: 'bulkdelete',
       startIcon: 'delete_forever',
       variant: 'text',
       hiddenBy: false,
@@ -395,7 +427,29 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
 
   const rowActions: TableRowAction<ViewMatterStored, ViewMatterStored>[] = [
     {
+      id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowViewButton',
+      testId: 'view',
+      actionType: 'openpage',
+      label: t('judo.action.open-page', { defaultValue: 'View' }) as string,
+      icon: <MdiIcon path="visibility" />,
+      hidden: (row: ViewMatterStored) => false,
+      disabled: (
+        row: ViewMatterStored,
+        isLoading: boolean,
+        isRowInEditMode: boolean,
+        getSelectedRows: () => ViewMatterStored[],
+        ownerdata?: any,
+      ): boolean => (getSelectedRows && getSelectedRows().length > 0) || isLoading || isRowInEditMode,
+      action: actions.openPageAction
+        ? async (rowData) => {
+            await actions.openPageAction!(rowData, isDraft);
+          }
+        : undefined,
+    },
+    {
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowRemoveButton',
+      testId: 'remove',
+      actionType: 'remove',
       label: t('judo.action.remove', { defaultValue: 'Remove' }) as string,
       icon: <MdiIcon path="link_off" />,
       isCRUD: true,
@@ -415,6 +469,8 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
     },
     {
       id: 'God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableRowDeleteButton',
+      testId: 'delete',
+      actionType: 'rowdelete',
       label: t('judo.action.row-delete', { defaultValue: 'Delete' }) as string,
       icon: <MdiIcon path="delete_forever" />,
       isCRUD: true,
@@ -474,7 +530,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
   ];
 
   return (
-    <div data-testid="God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable" data-table-name="Table">
+    <div data-testid={buildTableTestId(testIdOverride ?? '_D04SgOq_EeuMzos2n42msw')} data-table-name="Table">
       <LazyTable<ViewMatterStored, ViewMatterStored, ViewMatterQueryCustomizer>
         uniqueId={`God/(esm/_D04SgOq_EeuMzos2n42msw)/TransferObjectTableTable-${uniqueId}`}
         rowHighlightingHookInterfaceKey={`(&(${OBJECTCLASS}=${TABLE_ROW_HIGHLIGHTING_HOOK_INTERFACE_KEY})(component=ViewMatterTableTableComponent))`}
@@ -488,7 +544,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        dataElementId={'God/(esm/_D0eC0Oq_EeuMzos2n42msw)/ClassType'}
+        tableTestId={testIdOverride ?? '_D04SgOq_EeuMzos2n42msw'}
         crudOperationsDisplayed={1}
         transferOperationsDisplayed={0}
         containerIsSelector={isSelector}

@@ -34,10 +34,11 @@
             </Grid>
         {{/ if }}
         <Grid size={ { xs: 12, sm: 12 } }>
-            <Grid data-testid="{{ getXMIID child }}" container direction="column" alignItems="stretch" justifyContent="flex-start">
+            <Grid data-testid={buildFieldTestId('{{ getElementId child }}')} container direction="column" alignItems="stretch" justifyContent="flex-start">
                 {{# unless (isTableTag child) }}
                 <{{ componentName child }}
                     uniqueId={'{{ getXMIID child }}'}
+                    testIdOverride={selectorOwnerId}
                     actions={actions}
                     dataPath={dataPath ? (dataPath + '.{{ child.dataElement.name }}') : '{{ child.dataElement.name }}'}
                     {{# if container.table }}

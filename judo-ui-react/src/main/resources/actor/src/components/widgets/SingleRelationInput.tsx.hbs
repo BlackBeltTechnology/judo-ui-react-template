@@ -24,6 +24,7 @@ import { debounceInputs } from '~/config';
 import { exists } from '../../utilities';
 import { SingleRelationInputButtonProps } from '../../utilities/application';
 import { MdiIcon } from '../MdiIcon';
+import { buildFieldTestId } from '~/utilities/transfer-id';
 import { useAutocompleteHintPaper } from './AutocompleteNoResultsHint';
 
 interface SingleRelationInputProps<T> {
@@ -131,6 +132,15 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
   };
   const effectiveReadOnly = readOnly || !onAutoCompleteSearch || !onSet;
 
+  // Derived and composition relations offer no inline actions at all. Rendering
+  // their action bar anyway would leave an empty landmark that the runtime engine
+  // does not produce, so it is only mounted when it actually holds something.
+  const relationActionButtons = buttonProps
+    .filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create')
+    .filter(a => !a.visible || a.visible(value));
+  const hasRelationActions =
+    loading || relationActionButtons.length > 0 || (exists(value) && (onDelete || onSet || onUnSet));
+
   // initial load
   useEffect(() => {
     if (!isEager) {
@@ -176,7 +186,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
           slots={ { paper: paperSlot } }
           freeSolo={true}
           forcePopupIcon={!!onAutoCompleteSearch}
-          data-testid={id}
+          data-testid={buildFieldTestId(id, 'autocomplete')}
           disabled={!effectiveReadOnly && disabled}
           readOnly={effectiveReadOnly}
           onOpen={ () => {
@@ -197,7 +207,7 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
             <TextField
               {...params}
               name={name}
-              data-testid={id}
+              inputProps={ { ...params.inputProps, 'data-testid': buildFieldTestId(id, 'input') } }
               required={required}
               label={label}
               error={error}
@@ -215,8 +225,10 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                 startAdornment: icon && <InputAdornment position="start" style={ { marginTop: 0 } }>{icon}</InputAdornment>,
                 endAdornment: (
                   <InputAdornment position="end">
+                    {hasRelationActions && (
                     <ButtonGroup
                       ref={anchorRef}
+                      data-testid={buildFieldTestId(id, 'actions')}
                       aria-label="link button group"
                       className={clsx({
                         'AggregationInputButtonGroup': true,
@@ -224,11 +236,10 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                       })}
                     >
                       {loading ? <CircularProgress color="inherit" size='1rem' className="AggregationInputLoading" /> : null}
-                      { buttonProps
-                        .filter(a => a.name === 'set' || a.name === 'view' || a.name === 'create')
-                        .filter(a => !a.visible || a.visible(value))
+                      { relationActionButtons
                         .map((buttonProp) => (
                           <IconButton
+                            data-testid={buildFieldTestId(id, `button::${buttonProp.name}`)}
                             className={buttonProp.className}
                             disabled={buttonProp.disabled}
                             onClick={(event: any) => {
@@ -243,11 +254,12 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
                         ))
                       }
                       {exists(value) && (onDelete || onSet || onUnSet) && (
-                        <IconButton className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
+                        <IconButton data-testid={buildFieldTestId(id, 'dropdown')} className={`${name}-dropdown`} disabled={disabled} onClick={handleDropdownToggle}>
                           <MdiIcon path="chevron-down" />
                         </IconButton>
                       )}
                     </ButtonGroup>
+                    )}
                   </InputAdornment>
                 ),
               } }
@@ -279,12 +291,13 @@ export const SingleRelationInput: FC<SingleRelationInputProps<any>> = <T,>({
         >
           <Paper>
             <ClickAwayListener onClickAway={handleDropdownClose}>
-              <MenuList data-testid={`${name}-menu`} autoFocusItem>
+              <MenuList data-testid={buildFieldTestId(id, 'menu')} autoFocusItem>
                 { buttonProps
                   .filter(a => a.name === 'set' || a.name === 'delete' || a.name === 'unset')
                   .filter(a => !a.dropDownButtonIsVisible || a.dropDownButtonIsVisible(value))
                   .map((buttonProp) => (
                     <MenuItem
+                      data-testid={buildFieldTestId(id, `button::${buttonProp.name}`)}
                       className={buttonProp.className}
                       disabled={buttonProp.disabled}
                       onClick={(event: any) => {

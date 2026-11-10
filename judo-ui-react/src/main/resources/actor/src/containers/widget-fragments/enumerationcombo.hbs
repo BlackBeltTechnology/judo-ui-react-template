@@ -20,7 +20,7 @@
     <Box display="flex" alignItems="center">
     {{/ if }}
     <Autocomplete
-      data-testid="{{ getXMIID child }}"
+      data-testid={buildFieldTestId('{{ getElementId child }}')}
       autoHighlight
       value={data.{{ child.attributeType.name }} || null}
       disabled={actions?.is{{ firstToUpper child.attributeType.name }}Disabled ? actions.is{{ firstToUpper child.attributeType.name }}Disabled(data, editMode, isLoading) : ({{# if child.enabledBy }}!data.{{ child.enabledBy.name }} ||{{/ if }} isLoading)}
@@ -34,6 +34,11 @@
       ]}
       isOptionEqualToValue={ (option) => option.value === data.{{ child.attributeType.name }} }
       getOptionKey={(option: any) => option.key }
+      renderOption={({ key, ...props }: any, option: any) => (
+        <li key={key} {...props} data-testid={buildFieldTestId('{{ getElementId child }}', `option::${option.value}`)}>
+          {option.label}
+        </li>
+      )}
       getOptionLabel={(option: any) => {
         if (typeof option === 'string') {
           const o = effective{{ firstToUpper child.attributeType.name }}Options.find(o => o.value === option)!;

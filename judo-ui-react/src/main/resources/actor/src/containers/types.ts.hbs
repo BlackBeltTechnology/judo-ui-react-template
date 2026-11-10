@@ -83,6 +83,7 @@
   export interface {{ containerComponentName container }}PageProps {
     {{# unless (containerIsEmptyDashboard container) }}
       ownerData: any; // This is only here to maintain consistency in the container API. At the time of writing, not used for table pages.
+      selectorOwnerId?: string;
       actions: {{ containerComponentName container }}PageActions;
       isLoading: boolean;
       editMode: boolean;
@@ -124,6 +125,8 @@
 
   export interface {{ containerComponentName container }}DialogProps {
     ownerData: any;
+    /** Canonical id of the field that opened this dialog as its selector, when it has one. */
+    selectorOwnerId?: string;
     onClose: () => Promise<void>;
     {{# if (hasOperationFormCallerPages container application) }}
       formFor: FormFor{{ containerComponentName container }};
@@ -157,6 +160,7 @@
 
 export interface {{ containerComponentName container }}Props {
   {{# unless (containerIsEmptyDashboard container) }}
+    selectorOwnerId?: string;
     refreshCounter: number;
     isLoading: boolean;
     actions: {{ pageContainerActionDefinitionTypeName container }};

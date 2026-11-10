@@ -8,6 +8,7 @@ import Typography from '@mui/material/Typography';
 import { useState, forwardRef, useImperativeHandle } from 'react';
 import { MdiIcon } from '~/components';
 import { FilterType } from '~/components-api';
+import { resolveTransferId } from '~/utilities/transfer-id';
 import { useTranslation } from 'react-i18next';
 
 export interface ContextMenuProps<T, P extends JudoStored<T>> {
@@ -49,7 +50,7 @@ export const ContextMenu = forwardRef<ContextMenuApi, ContextMenuProps<any, any>
 
     const handleContextMenu = (event: MouseEvent<HTMLElement>): void => {
       const row = event.currentTarget.parentElement!.getAttribute('data-id')!;
-      const rowData = data.find((d) => d.__identifier === row);
+      const rowData = data.find((d) => resolveTransferId(d as any) === row);
       const field: keyof P = event.currentTarget.dataset.field! as keyof P;
       const value: any = rowData ? rowData[field] : undefined;
       const column = columns.find(c => c.field === field)!;
