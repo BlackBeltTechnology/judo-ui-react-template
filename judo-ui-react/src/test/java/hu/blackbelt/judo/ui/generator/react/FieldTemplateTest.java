@@ -90,6 +90,20 @@ class FieldTemplateTest {
     }
 
     /**
+     * An enumeration combo is an {@code Autocomplete} whose typable element is the inner
+     * {@code <input>}; the runtime puts {@code field::<id>::input} there
+     * ({@code EnumerationComboComponent} htmlInput slot). Autocomplete's own input props
+     * (ref, value, handlers) must be kept, so the role is merged into {@code params.inputProps}.
+     */
+    @Test
+    void enumerationComboEmitsTheCanonicalNativeInputId() throws IOException {
+        String template = read("/actor/src/containers/widget-fragments/enumerationcombo.hbs");
+        assertTrue(template.contains(
+                "inputProps={ { ...params.inputProps, 'data-testid': buildFieldTestId('{{ getElementId child }}', 'input') } }"),
+                "the combo's native input must carry the canonical input role");
+    }
+
+    /**
      * Date-like widgets keep MUI X's sectioned field, like the runtime on MUI X v9.
      * {@code field::<id>} sits on the text field root (the click target for keyboard
      * entry) and {@code field::<id>::input} on the hidden input holding the formatted
