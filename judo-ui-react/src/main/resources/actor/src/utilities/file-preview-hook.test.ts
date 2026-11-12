@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { composeFilePreviewProviders, type FilePreviewInput, safely } from './file-preview-hook';
 
-const input = (fileName: string): FilePreviewInput => ({ fileName, blob: new Blob(['x']), height: 100 });
+const input = (fileName: string): FilePreviewInput => ({ fileName, fileType: '', blob: new Blob(['x']), height: 100 });
 const xyz = ({ fileName }: FilePreviewInput) => (/\.xyz$/i.test(fileName) ? 'XYZ VIEWER' : undefined);
 
 describe('file preview hook', () => {

@@ -17,6 +17,11 @@ export const FILE_PREVIEW_HOOK_INTERFACE_KEY = 'file-preview-hook-interface-key'
 
 export interface FilePreviewInput {
   fileName: string;
+  /**
+   * The content type the uploader claimed. A CLAIM, not a fact: use it only to pick a viewer (e.g. `message/rfc822`
+   * for a mail without a `.eml` name), never to build a URL or an element type.
+   */
+  fileType: string;
   /** The downloaded bytes. Use these, not a URL: the uploader's content type is a claim, not a fact. */
   blob: Blob;
   /** Height in pixels the preview should fit. */

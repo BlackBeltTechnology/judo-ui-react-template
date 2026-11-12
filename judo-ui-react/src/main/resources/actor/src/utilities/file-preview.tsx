@@ -29,7 +29,7 @@ export interface FilePreviewProps {
 export function FilePreview({ blob, fileName, fileType }: FilePreviewProps) {
   const height = document.body.scrollHeight * 0.6;
   const { service: provider } = useTrackService<FilePreviewProvider>(`(${OBJECTCLASS}=${FILE_PREVIEW_HOOK_INTERFACE_KEY})`);
-  const custom = safely(provider, { fileName, blob, height });
+  const custom = safely(provider, { fileName, fileType, blob, height });
   if (custom !== undefined && custom !== null) {
     return <>{custom}</>;
   }
