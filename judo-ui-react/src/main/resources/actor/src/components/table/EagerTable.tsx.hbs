@@ -277,18 +277,18 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     ];
     {{# if isMUILicensePlanPro }}
       if (columnState.length) {
-        const adjusted = columnState
+        const known = [...columnState]
           .sort((a, b) => a.index - b.index)
-          .map((c) => cols.find((t) => t.field === c.field)!);
-
-        for (const c of adjusted) {
-          const colWithWidth = columnState.find(x => x.field === c.field && x.width !== undefined)
-          if (colWithWidth) {
+          .map((s) => cols.find((t) => t.field === s.field))
+          .filter((c): c is GridColDef<T> => !!c);
+        for (const c of known) {
+          const w = columnState.find((x) => x.field === c.field && x.width !== undefined)?.width;
+          if (w !== undefined) {
             // mutate in place
-            c.width = colWithWidth.width;
+            c.width = w;
           }
         }
-        return adjusted;
+        return [...known, ...cols.filter((c) => !known.includes(c))];
       }
     {{/ if }}
     return cols;
