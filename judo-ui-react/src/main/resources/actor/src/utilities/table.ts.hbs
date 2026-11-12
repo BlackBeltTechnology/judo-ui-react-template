@@ -58,6 +58,13 @@ export interface ToolBarActionProps<T> {
     rowModesModel?: GridRowModesModel,
   ) => boolean;
   isBulk: boolean;
+  /**
+   * Marks an implicit bulk toolbar entry derived from a batchable row action.
+   * When true and `isBulk` is also true, the runtime fans the per-row action out
+   * across `selectedRows.current` sequentially instead of passing the whole array
+   * to a BulkX function.
+   */
+  bulkFromRowAction?: boolean;
   confirmation?: string;
   confirmationCondition?: boolean;
 }

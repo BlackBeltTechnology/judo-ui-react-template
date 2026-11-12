@@ -812,10 +812,22 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
                               actions[toolBarAction.name]!(processedQueryCustomizer);
                             } else {
                               if (toolBarAction.isBulk) {
-                                const { result: bulkResult } = await actions[toolBarAction.name]!(selectedRows.current);
-                                const reason: DialogResultReason = bulkResult;
-                                if (reason === 'submit' || reason === 'delete') {
-                                  handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                                if (toolBarAction.bulkFromRowAction) {
+                                  // Implicit bulk toolbar entry derived from a batchable row action.
+                                  // Fan out the per-row action across the selection sequentially.
+
+                                  for (const row of selectedRows.current) {
+                                    await actions[toolBarAction.name]!(row);
+                                  }
+                                  handleOnSelection([]);
+                                } else {
+                                  const { result: bulkResult } = await actions[toolBarAction.name]!(
+                                    selectedRows.current,
+                                  );
+                                  const reason: DialogResultReason = bulkResult;
+                                  if (reason === 'submit' || reason === 'delete') {
+                                    handleOnSelection([]); // not resetting on refreshes because refreshes would always remove selections...
+                                  }
                                 }
                               } else {
                                 if (toolBarAction.name === calculateActionName(relationName, 'clearAction')) {
