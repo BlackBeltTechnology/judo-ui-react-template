@@ -18,11 +18,11 @@
 ## 4. Integration and release
 
 - [x] 4.1 Validate this change: `openspec validate fix-pro-table-stale-column-state --strict` passes.
-- [ ] 4.2 Commit on `feature/JNG-6433_pro_table_stale_column_state` with a `JNG-6433` message (after user go-ahead), push, and open the PR against `develop`. Verify: CI build of the branch is green.
-- [ ] 4.3 Publish a feature-branch build per `.github/CIFLOW.md`. Verify: the `judo-ui-react` artifact version string is recorded in this task line and resolvable from Nexus.
-- [ ] 4.4 Downstream check in rackinspect (`enable-mui-x-pro` task 4.2): bump `judo-ui-react-template-version` to the 4.3 build. Verify: its E2E tasks 3.10 and 3.11 (seeded `sessionStorage` `<uniqueId>-columnState`) turn GREEN.
+- [x] 4.2 Commit on `feature/JNG-6433_pro_table_stale_column_state` with a `JNG-6433` message (after user go-ahead), push, and open the PR against `develop`. Verify: CI build of the branch is green. Done: commit `b8104f62`, PR #609, CI run 42823473882 green.
+- [x] 4.3 Publish a feature-branch build per `.github/CIFLOW.md`. Verify: the `judo-ui-react` artifact version string is recorded in this task line and resolvable from Nexus. Done: `1.0.0.20261110_131949_b8104f62_feature_JNG_6433_pro_table_stale_column_state` (judong Nexus `maven-judong-snapshots`, tag `v1.0.0.20261110_131949_b8104f62_feature_JNG_6433_pro_table_stale_column_state`).
 
 ## Workflow follow-up
 
-- Sync the delta spec into `openspec/specs/data-tables/spec.md` and archive this change after the PR is merged.
+- Downstream, tracked in rackinspect `enable-mui-x-pro` task 4.2: bump `judo-ui-react-template-version` to the 4.3 build. Verify: its E2E tasks 3.10 and 3.11 (seeded `sessionStorage` `<uniqueId>-columnState`) turn GREEN.
+- Delta specs synced into `openspec/specs/{data-tables,integration-testing}/spec.md` and change archived on the PR branch (JNG-6433).
 - Possible follow-up (not in scope): make the itest POMs run `pnpm test` so the generated vitest specs (`src/utilities/*.test.ts`) execute.
