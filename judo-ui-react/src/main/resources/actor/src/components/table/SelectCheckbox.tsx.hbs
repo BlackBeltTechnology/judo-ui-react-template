@@ -1,0 +1,33 @@
+{{> fragment.header.hbs }}
+
+import { forwardRef } from 'react';
+import Checkbox from '@mui/material/Checkbox';
+
+declare module '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}' {
+  interface BaseCheckboxPropsOverrides {
+    testIdPrefix?: string;
+  }
+}
+
+export interface SelectCheckboxProps {
+  testIdPrefix?: string;
+  rowId?: string | number;
+  __identifier?: string;
+  [key: string]: any;
+}
+
+export const CustomCheckbox = forwardRef<HTMLButtonElement, SelectCheckboxProps>(
+  ({ testIdPrefix, rowId, __identifier, ...rest }, ref) => {
+    const prefix = testIdPrefix ?? '';
+    const isRowCell = !(rowId === undefined || rowId === null || rowId === '');
+    let testId: string;
+    if (isRowCell) {
+      testId = `${prefix}-select-row-${rowId}`;
+    } else if (__identifier) {
+      testId = `${prefix}-select-row-${__identifier}`;
+    } else {
+      testId = `${prefix}-select-all`;
+    }
+    return <Checkbox {...(rest as any)} ref={ref} data-testid={testId} />;
+  },
+) as any;

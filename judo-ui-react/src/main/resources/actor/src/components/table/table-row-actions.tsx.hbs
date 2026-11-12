@@ -47,6 +47,8 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
   ownerData?: any,
   options?: ColumnsActionsOptions,
 ): GridActionsColDef[] => {
+  const buildRowTestId = (actionId: string, rowIdentifier: string | undefined): string =>
+    rowIdentifier ? `${actionId}-${rowIdentifier}` : actionId;
   const safeOptions: ColumnsActionsOptions = {
     crudOperationsDisplayed: options?.crudOperationsDisplayed ?? 2,
     transferOperationsDisplayed: options?.transferOperationsDisplayed ?? 2,
@@ -76,7 +78,7 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           {splitActions.filter(a => !a.hidden(params.row)).map((a) => (
             <Tooltip title={a.tooltip} key={a.id}>
               <Button
-                data-testid={a.id}
+                data-testid={buildRowTestId(a.id, params.row.__identifier)}
                 variant="text"
                 startIcon={a.icon}
                 disabled={a.disabled ? a.disabled(params.row, isLoading, isRowInEditMode(params.row, rowModesModel), getSelectedRows, ownerData) : false}
@@ -88,10 +90,12 @@ export const columnsActionCalculator: ColumnActionsProvider<any, any> = (
           ))}
           {dropdownActions.length ? <DropdownButton
             id={id}
+            testId={buildRowTestId(id, params.row.__identifier)}
             variant="text"
             showDropdownIcon={false}
             menuItems={dropdownActions.filter(a => !a.hidden(params.row)).map((action) => ({
               id: action.id,
+              testId: buildRowTestId(action.id, params.row.__identifier),
               key: action.id,
               label: action.label,
               startIcon: action.icon,

@@ -26,6 +26,7 @@ import { Filter, FilterOption } from '~/components-api';
 import {
   ContextMenu,
   ContextMenuApi,
+  CustomCheckbox,
   StripedDataGrid,
   columnsActionCalculator,
 } from '~/components/table';
@@ -525,6 +526,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
+          baseCheckbox: { testIdPrefix: uniqueId },
         } }
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -569,6 +571,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
         slots={ {
+          baseCheckbox: CustomCheckbox,
           toolbar: () => (
             <GridToolbarContainer sx={ { justifyContent: 'flex-start' } }>
               {

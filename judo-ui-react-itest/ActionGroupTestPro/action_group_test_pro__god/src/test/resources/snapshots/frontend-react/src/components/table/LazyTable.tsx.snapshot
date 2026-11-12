@@ -49,6 +49,7 @@ import { MdiIcon } from '~/components/MdiIcon';
 import {
   ContextMenu,
   ContextMenuApi,
+  CustomCheckbox,
   columnsActionCalculator,
   FixedTableFilters,
   RowHighlightLegend,
@@ -699,6 +700,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           filterPanel: {
             logicOperators: [GridLogicOperator.And],
           },
+          baseCheckbox: { testIdPrefix: uniqueId },
         }}
         getRowId={getRowIdentifier}
         loading={isLoading}
@@ -738,6 +740,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         filterDebounceMs={filterDebounceMs}
         rowCount={rowsPerPage}
         slots={{
+          baseCheckbox: CustomCheckbox,
           toolbar: () => (
             <GridToolbarContainer sx={{ justifyContent: 'flex-start' }}>
               {toolBarActions.map((toolBarAction: ToolBarActionProps<T>) =>
