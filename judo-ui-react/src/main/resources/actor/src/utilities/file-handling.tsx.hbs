@@ -12,6 +12,8 @@ import { MdiIcon } from '~/components';
 import { useDialog } from '~/components/dialog';
 import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
 import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
+import { FilePreview } from '~/utilities/file-preview';
+import { saveAsDownload } from '~/utilities/file-preview-model';
 
 export type FileHandlingHook = () => {
     downloadFile: (data: any, attributeName: string, disposition: 'inline' | 'attachment') => Promise<void>,
@@ -28,19 +30,11 @@ export const fileHandling: FileHandlingHook = () => {
     const exportFile = (response: any) => {
       if (response && response.status === 200) {
         const fileName = response.headers['content-disposition'].match(/filename=\"(.*)\"/)[1];
-        const fileType = response.headers['content-type'];
-        const url = window.URL.createObjectURL(new Blob([response.data], { type: fileType }));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', fileName);
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
+        saveAsDownload(response.data, fileName);
       } else {
         throw new Error('Error processing download response: ' + response);
       }
     }
-
 
     const downloadFile = async (data: any, attributeName: string, disposition: 'inline' | 'attachment') => {
         const response = await accessServiceImpl.downloadFile(data[attributeName], disposition);
@@ -48,7 +42,6 @@ export const fileHandling: FileHandlingHook = () => {
         if (response && response.status === 200) {
             const fileName = response.headers['content-disposition'].match(/filename=\"(.*)\"/)[1];
             const fileType = response.headers['content-type'];
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: fileType }));
 
 
             if (response.headers['content-disposition'].includes('inline')) {
@@ -80,7 +73,7 @@ export const fileHandling: FileHandlingHook = () => {
                             </DialogTitle>
                             <DialogContent dividers>
                                 <Box>
-                                    <iframe src={url} width={'100%'} height={document.body.scrollHeight * 0.6} style={ { border: 0 } } />
+                                    <FilePreview blob={response.data} fileName={fileName} fileType={fileType} />
                                 </Box>
                             </DialogContent>
                             <DialogActions>
@@ -92,12 +85,7 @@ export const fileHandling: FileHandlingHook = () => {
                     ),
                 });
             } else {
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', fileName);
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+                saveAsDownload(response.data, fileName);
             }
         } else {
             throw new Error('Error processing download response: ' + response);
