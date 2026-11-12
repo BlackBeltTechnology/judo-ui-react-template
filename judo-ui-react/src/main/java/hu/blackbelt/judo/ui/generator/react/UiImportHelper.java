@@ -59,6 +59,7 @@ public class UiImportHelper {
             Map.entry("textarea", Set.of("TextField", "InputAdornment")),
             Map.entry("textinput", Set.of("TextField", "InputAdornment")),
             Map.entry("timeinput", Set.of("TextField", "InputAdornment")),
+            Map.entry("switch", Set.of("FormGroup", "FormControlLabel", "Switch", "FormControl", "FormHelperText")),
             Map.entry("trinarylogiccombo", Set.of("TextField", "MenuItem", "InputAdornment"))
     );
 
