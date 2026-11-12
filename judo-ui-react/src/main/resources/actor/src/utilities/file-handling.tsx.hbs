@@ -44,7 +44,9 @@ export const fileHandling: FileHandlingHook = () => {
             const fileType = response.headers['content-type'];
 
 
-            if (response.headers['content-disposition'].includes('inline')) {
+            // the REQUESTED disposition decides, not the response header: a hardened server answers an inline request for
+            // active content (HTML, SVG, XML) with `attachment`, and that must show "No preview" + Download, not a silent download
+            if (disposition === 'inline') {
                 createDialog({
                     fullWidth: true,
                     maxWidth: 'lg',
