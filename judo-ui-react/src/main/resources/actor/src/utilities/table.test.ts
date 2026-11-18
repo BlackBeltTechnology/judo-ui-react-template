@@ -102,12 +102,12 @@ describe('isRowSelectable', () => {
 });
 
 describe('pinColumns', () => {
-    const cols = [
+    const cols: Parameters<typeof pinColumns>[0] = [
         { field: 'note', flex: 1, minWidth: 150 },
         { field: 'total', width: 120 },
         { field: 'name', width: 200 },
         { field: 'code', width: 100 },
-        { field: 'actions', minWidth: 80 },
+        { field: 'actions', type: 'actions', minWidth: 80 },
     ];
 
     it('moves pins to their edge, offsets them by the pinned widths and keeps actions outermost right', () => {
@@ -150,7 +150,7 @@ describe('pinColumns', () => {
     });
 
     it('pins only the actions column when nothing is modelled', () => {
-        const { sx, columns } = pinColumns([{ field: 'name' }, { field: 'actions', width: 90 }], {});
+        const { sx, columns } = pinColumns([{ field: 'name' }, { field: 'actions', type: 'actions', width: 90 }], {});
 
         expect(sx).toEqual({ '& [data-field="actions"]': { right: 0 } });
         expect(columns.map((c) => c.field)).toEqual(['name', 'actions']);
