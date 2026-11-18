@@ -4,6 +4,7 @@ import { type CSSProperties, useEffect, useMemo, useState } from 'react';
 import { AccessServiceImpl } from '~/services/data-axios/AccessServiceImpl';
 import { judoAxiosProvider } from '~/services/data-axios/JudoAxiosProvider';
 import { fileHandling } from '~/utilities/file-handling';
+import { previewKind, toDataUrl } from '~/utilities/file-preview-model';
 
 export interface ImageDisplayProps {
   token: string;
@@ -21,27 +22,47 @@ export function ImageDisplay({ token, imageCSS, sx, fallbackUrl }: ImageDisplayP
   const accessServiceImpl = useMemo(() => new AccessServiceImpl(judoAxiosProvider), []);
 
   useEffect(() => {
+    let alive = true;
+    let objectUrl: string | null = null;
     (async () => {
-      if (token) {
-        try {
-          const response = await accessServiceImpl.downloadFile(token, 'inline');
-
-          if (response && response.status === 200) {
-            const fileType = response.headers['content-type'];
-            const url = window.URL.createObjectURL(new Blob([response.data], { type: fileType }));
-            setImageUrl(url);
-            setAltText(extractFileNameFromToken(token));
+      if (!token) return;
+      try {
+        const response = await accessServiceImpl.downloadFile(token, 'inline');
+        if (!alive) return;
+        if (response && response.status === 200) {
+          // The stored type is the uploader's claim: show only an allow-listed image, typed by us.
+          const fileName = extractFileNameFromToken(token);
+          const plan = previewKind(fileName, response.headers['content-type']);
+          if (plan.kind === 'svg') {
+            // `data:`, not `blob:`: an SVG opened from a blob URL would run on the app origin.
+            const bytes = new Uint8Array(await new Blob([response.data]).arrayBuffer());
+            if (!alive) return;
+            setImageUrl(toDataUrl(plan.type, bytes));
+            setAltText(fileName);
+          } else if (plan.kind === 'image') {
+            objectUrl = window.URL.createObjectURL(new Blob([response.data], { type: plan.type }));
+            setImageUrl(objectUrl);
+            setAltText(fileName);
           } else {
             setImageUrl(null);
             setAltText(null);
           }
-        } catch (error) {
-          console.error(error);
+        } else {
+          setImageUrl(null);
+          setAltText(null);
+        }
+      } catch (error) {
+        console.error(error);
+        if (alive) {
           setImageUrl(null);
           setAltText(null);
         }
       }
     })();
+    return () => {
+      alive = false;
+      if (objectUrl) window.URL.revokeObjectURL(objectUrl);
+    };
   }, [token]);
 
   const effectiveImageUrl: string | undefined = useMemo(() => imageUrl || fallbackUrl, [imageUrl, fallbackUrl]);

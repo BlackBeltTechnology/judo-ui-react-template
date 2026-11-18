@@ -1890,6 +1890,30 @@ await downloadFile(data, 'attachment', 'attachment');
 const fileName = extractFileNameFromToken(data.attachment, 'unnamed');
 ----
 
+==== Safe preview and opening custom formats
+
+The inline preview shows files by an allow-list of types, never by the type the uploader claimed: PDF in an iframe,
+photos and SVG as `<img>` (SVG as a `data:` URL, so its script never runs), video / audio in a player, text as plain
+text. HTML, XML and every unknown type show "No preview" with a *Download* button. Every download is a generic copy
+started from a click handler, and object URLs are freed after use.
+
+The framework knows no application-specific format (for example `.eml`). To open one, register a provider under
+`FILE_PREVIEW_HOOK_INTERFACE_KEY`. It receives the file name and the downloaded bytes and returns a viewer, or
+`undefined` to leave the file to the default preview. The default can not be replaced, so a provider only adds
+handling. A provider that throws counts as declining. A provider that renders HTML itself must sandbox it.
+
+[source,typescriptjsx]
+----
+import { FILE_PREVIEW_HOOK_INTERFACE_KEY, composeFilePreviewProviders } from '~/utilities/file-preview-hook';
+import type { FilePreviewProvider } from '~/utilities/file-preview-hook';
+
+const xyzProvider: FilePreviewProvider = ({ fileName, blob, height }) =>
+  /\.xyz$/i.test(fileName) ? <XyzViewer blob={blob} height={height} /> : undefined;
+
+// in the application customizer:
+context.registerService(FILE_PREVIEW_HOOK_INTERFACE_KEY, composeFilePreviewProviders(xyzProvider, otherProvider));
+----
+
 === Client-side data store
 
 The generated `useDataStore` hook (type `UseDataStoreHook`, exported from `~/hooks/useDataStore`) provides typed access
