@@ -103,26 +103,43 @@ describe('isRowSelectable', () => {
 
 describe('pinColumns', () => {
     const cols = [
+        { field: 'note', flex: 1, minWidth: 150 },
+        { field: 'total', width: 120 },
         { field: 'name', width: 200 },
         { field: 'code', width: 100 },
-        { field: 'note' },
-        { field: 'total', width: 120 },
         { field: 'actions', minWidth: 80 },
     ];
 
-    it('offsets left pins by preceding pinned widths and keeps actions outermost right', () => {
+    it('moves pins to their edge, offsets them by the pinned widths and keeps actions outermost right', () => {
         const { sx, columns } = pinColumns(cols, { left: ['name', 'code'], right: ['total'] });
 
+        expect(columns.map((c) => c.field)).toEqual(['name', 'code', 'note', 'total', 'actions']);
         expect(sx).toEqual({
             '& [data-field="name"]': { left: 0 },
             '& [data-field="code"]': { left: 200 },
             '& [data-field="actions"]': { right: 0 },
             '& [data-field="total"]': { right: 80 },
         });
-        expect(columns[0].cellClassName).toBe('MuiDataGrid-cell--pinnedLeft');
-        expect(columns[0].headerClassName).toBe('MuiDataGrid-columnHeader--pinnedLeft');
-        expect(columns[2]).toBe(cols[2]);
-        expect(columns[4].cellClassName).toBe('MuiDataGrid-cell--pinnedRight');
+    });
+
+    it('gives pinned columns a fixed width and MUI pinned classes, leaves the rest untouched', () => {
+        const { columns } = pinColumns(cols, { left: ['name'] });
+
+        expect(columns[0]).toMatchObject({
+            field: 'name',
+            width: 200,
+            cellClassName: 'MuiDataGrid-cell--pinnedLeft',
+            headerClassName: 'MuiDataGrid-columnHeader--pinnedLeft',
+        });
+        expect(columns.find((c) => c.field === 'actions')).toMatchObject({ width: 80, cellClassName: 'MuiDataGrid-cell--pinnedRight' });
+        expect(columns.find((c) => c.field === 'note')).toBe(cols[0]);
+    });
+
+    it('drops flex from a pinned column', () => {
+        const { columns } = pinColumns([{ field: 'note', flex: 1, minWidth: 150 }], { left: ['note'] });
+
+        expect(columns[0].flex).toBeUndefined();
+        expect(columns[0].width).toBe(150);
     });
 
     it('keeps existing class names', () => {
@@ -133,8 +150,9 @@ describe('pinColumns', () => {
     });
 
     it('pins only the actions column when nothing is modelled', () => {
-        const { sx } = pinColumns([{ field: 'name' }, { field: 'actions', width: 90 }], {});
+        const { sx, columns } = pinColumns([{ field: 'name' }, { field: 'actions', width: 90 }], {});
 
         expect(sx).toEqual({ '& [data-field="actions"]': { right: 0 } });
+        expect(columns.map((c) => c.field)).toEqual(['name', 'actions']);
     });
 });

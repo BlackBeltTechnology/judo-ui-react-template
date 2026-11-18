@@ -150,9 +150,11 @@ const withClass = <P,>(original: string | ((params: P) => string) | undefined, e
   typeof original === 'function' ? (params: P) => `${original(params)} ${extra}` : original ? `${original} ${extra}` : extra;
 
 // Column pinning without MUI Pro. The community grid already styles its pinned classes (sticky, opaque theme
-// background, hover/selected), so pinned columns get those classes plus a sticky offset: the summed widths of
-// the pinned columns between the column and its edge, in column order. `actions` is always the outermost right column.
-// ponytail: columns without a fixed width use MUI's default (100); add flex support when a pinned flex column shows up.
+// background, hover/selected), so pinned columns get those classes, a fixed width instead of flex, and a sticky
+// offset: the summed widths of the pinned columns between the column and its edge. Pinned columns move to their
+// edge (LEFT first, RIGHT last, in model order) so a sticky column never scrolls off the other side.
+// `actions` is always the outermost right column.
+// ponytail: columns without width/minWidth use MUI's default (100); add flex support when a pinned flex column shows up.
 export const pinColumns = <T extends GridValidRowModel>(
   columns: GridColDef<T>[],
   pinned: PinnedColumns,
@@ -161,29 +163,32 @@ export const pinColumns = <T extends GridValidRowModel>(
   (pinned.left ?? []).forEach((f) => sides.set(f, 'left'));
   [...(pinned.right ?? []), 'actions'].forEach((f) => sides.set(f, 'right'));
 
-  const sx: Record<string, object> = {};
-  const place = (cols: GridColDef<T>[], side: 'left' | 'right') => {
-    let offset = 0;
-    for (const c of cols) {
-      if (sides.get(c.field) !== side) continue;
-      sx[`& [data-field="${c.field}"]`] = { [side]: offset };
-      offset += c.width ?? c.minWidth ?? 100;
-    }
+  const pin = (c: GridColDef<T>, side: 'left' | 'right'): GridColDef<T> => {
+    const suffix = side === 'left' ? 'Left' : 'Right';
+    const { flex: _flex, ...rest } = c;
+    return {
+      ...rest,
+      width: c.width ?? c.minWidth ?? 100,
+      cellClassName: withClass(c.cellClassName, `MuiDataGrid-cell--pinned${suffix}`),
+      headerClassName: withClass(c.headerClassName, `MuiDataGrid-columnHeader--pinned${suffix}`),
+    };
   };
-  place(columns, 'left');
-  place([...columns].reverse(), 'right');
+  const left = columns.filter((c) => sides.get(c.field) === 'left').map((c) => pin(c, 'left'));
+  const right = columns.filter((c) => sides.get(c.field) === 'right' && c.field !== 'actions').map((c) => pin(c, 'right'));
+  const actions = columns.filter((c) => c.field === 'actions').map((c) => pin(c, 'right'));
+  const middle = columns.filter((c) => !sides.has(c.field));
 
-  return {
-    sx,
-    columns: columns.map((c) => {
-      const side = sides.get(c.field);
-      if (!side) return c;
-      const suffix = side === 'left' ? 'Left' : 'Right';
-      return {
-        ...c,
-        cellClassName: withClass(c.cellClassName, `MuiDataGrid-cell--pinned${suffix}`),
-        headerClassName: withClass(c.headerClassName, `MuiDataGrid-columnHeader--pinned${suffix}`),
-      };
-    }),
-  };
+  const sx: Record<string, object> = {};
+  let offset = 0;
+  for (const c of left) {
+    sx[`& [data-field="${c.field}"]`] = { left: offset };
+    offset += c.width ?? 100;
+  }
+  offset = 0;
+  for (const c of [...right, ...actions].reverse()) {
+    sx[`& [data-field="${c.field}"]`] = { right: offset };
+    offset += c.width ?? 100;
+  }
+
+  return { sx, columns: [...left, ...middle, ...right, ...actions] };
 };
