@@ -28,7 +28,12 @@ export interface FilePreviewInput {
   height: number;
 }
 
-/** Returns a viewer for the file, or `undefined` when this provider does not handle it. */
+/**
+ * Returns a viewer for the file, or `undefined` when this provider does not handle it.
+ *
+ * A provider is a PLAIN FUNCTION that is called while `FilePreview` renders: it must not call React hooks, and it
+ * must be cheap and synchronous. Put any state or effects into the component it returns.
+ */
 export type FilePreviewProvider = (input: FilePreviewInput) => ReactNode | undefined;
 
 /** Chains providers: the first one that returns a viewer wins. Use when an app has several formats. */

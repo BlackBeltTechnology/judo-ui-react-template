@@ -71,7 +71,9 @@ const DOWNLOAD: PreviewPlan = { kind: 'download', type: '' };
 
 export const previewKind = (fileName: string, fileType: string): PreviewPlan => {
   const stored = (fileType ?? '').split(';')[0].trim().toLowerCase();
-  const extension = (fileName ?? '').toLowerCase().split('.').pop() ?? '';
+  const name = (fileName ?? '').toLowerCase();
+  // a name without a dot has no extension (`pdf` is not a `.pdf`)
+  const extension = name.includes('.') ? (name.split('.').pop() ?? '') : '';
   const type = stored && stored !== 'application/octet-stream' ? stored : (TYPE_BY_EXTENSION.get(extension) ?? '');
 
   if (type === 'application/pdf') return { kind: 'pdf', type };

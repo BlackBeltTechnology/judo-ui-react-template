@@ -36,7 +36,7 @@ export function FilePreview({ blob, fileName, fileType }: FilePreviewProps) {
   return <TypedPreview blob={blob} fileName={fileName} plan={previewKind(fileName, fileType)} height={height} />;
 }
 
-interface TypedPreviewProps {
+export interface TypedPreviewProps {
   blob: Blob;
   fileName: string;
   plan: PreviewPlan;
@@ -44,7 +44,7 @@ interface TypedPreviewProps {
 }
 
 /** `content`: an object URL (pdf / image / video / audio), a `data:` URL (svg) or the text (text). */
-function TypedPreview({ blob, fileName, plan: { kind, type }, height }: TypedPreviewProps) {
+export function TypedPreview({ blob, fileName, plan: { kind, type }, height }: TypedPreviewProps) {
   const { t } = useTranslation();
   const [content, setContent] = useState<string>();
   const [failed, setFailed] = useState(false);

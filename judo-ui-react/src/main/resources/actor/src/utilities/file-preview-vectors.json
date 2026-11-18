@@ -1,5 +1,5 @@
 {
-  "_doc": "Contract for harden-native-file-preview. (fileName, storedType) -> display kind and the Blob type the preview forces. Run by the React template and the runtime unit tests. Copies must be identical: scripts/check-file-preview-vectors.sh.",
+  "_doc": "Contract for the inline file preview: (fileName, storedType) -> display kind and the Blob type the preview forces. The React template and the runtime (judo-frontend-runtime, packages/components/src/file-preview) keep an identical copy of this file and both run it in their unit tests.",
   "vectors": [
     { "fileName": "a.pdf", "storedType": "application/pdf", "kind": "pdf", "forcedType": "application/pdf" },
     { "fileName": "a.pdf", "storedType": "application/pdf; charset=binary", "kind": "pdf", "forcedType": "application/pdf" },
@@ -37,6 +37,8 @@
     { "fileName": "a.mp4", "storedType": "video/mp4,text/html", "kind": "download", "forcedType": "", "note": "a type list is never accepted, even when the extension says mp4" },
     { "fileName": "constructor", "storedType": "", "kind": "download", "forcedType": "", "note": "no prototype keys" },
     { "fileName": "a.__proto__", "storedType": "", "kind": "download", "forcedType": "" },
-    { "fileName": "a.eml", "storedType": "message/rfc822", "kind": "download", "forcedType": "", "note": "the framework default; an app provider may render it" }
+    { "fileName": "a.eml", "storedType": "message/rfc822", "kind": "download", "forcedType": "", "note": "the framework default; an app provider may render it" },
+    { "fileName": "pdf", "storedType": "", "kind": "download", "forcedType": "" },
+    { "fileName": "svg", "storedType": "application/octet-stream", "kind": "download", "forcedType": "" }
   ]
 }
