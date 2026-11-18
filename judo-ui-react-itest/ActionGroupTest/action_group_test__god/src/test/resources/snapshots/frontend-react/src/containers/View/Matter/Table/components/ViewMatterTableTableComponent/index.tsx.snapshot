@@ -61,6 +61,7 @@ import type {
   ColumnCustomizerHook,
   DialogResult,
   FiltersSerializer,
+  PinnedColumns,
   SidekickComponentProps,
   TableRowAction,
   ToolBarActionProps,
@@ -84,6 +85,11 @@ import type { ViewMatterTableTableComponentActionDefinitions, ViewMatterTableTab
 
 export const VIEW_MATTER_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
   'ViewMatterTableTableComponentSidekickComponent';
+
+const pinnedColumns: PinnedColumns = {
+  left: [],
+  right: [],
+};
 
 export const filtersSerializer: FiltersSerializer = {
   serialize: (filters: Filter[]) =>
@@ -512,6 +518,7 @@ export function ViewMatterTableTableComponent(props: ViewMatterTableTableCompone
         onRowEditCanceled={onRowEditCanceled}
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
+        pinnedColumns={pinnedColumns}
       />
     </div>
   );

@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 import type { MutableRefObject } from 'react';
-import type { GridSortModel, GridFilterModel, GridRowSelectionModel, GridRowModesModel, GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type { GridSortModel, GridFilterModel, GridRowSelectionModel, GridRowModesModel, GridColDef, GridValidRowModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { Filter } from '../components-api';
 import { OverridableStringUnion } from '@mui/types';
@@ -135,4 +135,55 @@ export const getUpdatedRowsSelected = (selectedRows: MutableRefObject<any[]>, da
 
   // since we created a new whitelist of selections, removed selections are left out
   return newSelectedRows;
+};
+
+// Column virtualisation would drop off-screen pinned columns from the DOM.
+// ponytail: tables are paged (5-50 rows), so a large buffer is cheap; measure before lowering it.
+export const pinnedColumnBufferPx = 10000;
+
+export interface PinnedColumns {
+  left?: string[];
+  right?: string[];
+}
+
+const withClass = <P,>(original: string | ((params: P) => string) | undefined, extra: string) =>
+  typeof original === 'function' ? (params: P) => `${original(params)} ${extra}` : original ? `${original} ${extra}` : extra;
+
+// Column pinning without MUI Pro. The community grid already styles its pinned classes (sticky, opaque theme
+// background, hover/selected), so pinned columns get those classes plus a sticky offset: the summed widths of
+// the pinned columns between the column and its edge, in column order. `actions` is always the outermost right column.
+// ponytail: columns without a fixed width use MUI's default (100); add flex support when a pinned flex column shows up.
+export const pinColumns = <T extends GridValidRowModel>(
+  columns: GridColDef<T>[],
+  pinned: PinnedColumns,
+): { columns: GridColDef<T>[]; sx: Record<string, object> } => {
+  const sides = new Map<string, 'left' | 'right'>();
+  (pinned.left ?? []).forEach((f) => sides.set(f, 'left'));
+  [...(pinned.right ?? []), 'actions'].forEach((f) => sides.set(f, 'right'));
+
+  const sx: Record<string, object> = {};
+  const place = (cols: GridColDef<T>[], side: 'left' | 'right') => {
+    let offset = 0;
+    for (const c of cols) {
+      if (sides.get(c.field) !== side) continue;
+      sx[`& [data-field="${c.field}"]`] = { [side]: offset };
+      offset += c.width ?? c.minWidth ?? 100;
+    }
+  };
+  place(columns, 'left');
+  place([...columns].reverse(), 'right');
+
+  return {
+    sx,
+    columns: columns.map((c) => {
+      const side = sides.get(c.field);
+      if (!side) return c;
+      const suffix = side === 'left' ? 'Left' : 'Right';
+      return {
+        ...c,
+        cellClassName: withClass(c.cellClassName, `MuiDataGrid-cell--pinned${suffix}`),
+        headerClassName: withClass(c.headerClassName, `MuiDataGrid-columnHeader--pinned${suffix}`),
+      };
+    }),
+  };
 };

@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import type { JudoStored } from '~/services/data-api/common';
-import { isRowSelectable } from './table';
+import { isRowSelectable, pinColumns } from './table';
 
 interface TestType extends JudoStored<TestType>{
     name: string
@@ -98,5 +98,43 @@ describe('isRowSelectable', () => {
                 expect(isRowSelectable(rangeResultRowSelected, false)).toBe(false);
             });
         });
+    });
+});
+
+describe('pinColumns', () => {
+    const cols = [
+        { field: 'name', width: 200 },
+        { field: 'code', width: 100 },
+        { field: 'note' },
+        { field: 'total', width: 120 },
+        { field: 'actions', minWidth: 80 },
+    ];
+
+    it('offsets left pins by preceding pinned widths and keeps actions outermost right', () => {
+        const { sx, columns } = pinColumns(cols, { left: ['name', 'code'], right: ['total'] });
+
+        expect(sx).toEqual({
+            '& [data-field="name"]': { left: 0 },
+            '& [data-field="code"]': { left: 200 },
+            '& [data-field="actions"]': { right: 0 },
+            '& [data-field="total"]': { right: 80 },
+        });
+        expect(columns[0].cellClassName).toBe('MuiDataGrid-cell--pinnedLeft');
+        expect(columns[0].headerClassName).toBe('MuiDataGrid-columnHeader--pinnedLeft');
+        expect(columns[2]).toBe(cols[2]);
+        expect(columns[4].cellClassName).toBe('MuiDataGrid-cell--pinnedRight');
+    });
+
+    it('keeps existing class names', () => {
+        const { columns } = pinColumns([{ field: 'name', width: 10, headerClassName: 'data-grid-column-header', cellClassName: () => 'x' }], { left: ['name'] });
+
+        expect(columns[0].headerClassName).toBe('data-grid-column-header MuiDataGrid-columnHeader--pinnedLeft');
+        expect((columns[0].cellClassName as (p: unknown) => string)({})).toBe('x MuiDataGrid-cell--pinnedLeft');
+    });
+
+    it('pins only the actions column when nothing is modelled', () => {
+        const { sx } = pinColumns([{ field: 'name' }, { field: 'actions', width: 90 }], {});
+
+        expect(sx).toEqual({ '& [data-field="actions"]': { right: 0 } });
     });
 });
