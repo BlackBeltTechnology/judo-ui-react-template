@@ -332,9 +332,12 @@ export const attachPinnedColumns = (root: HTMLElement): (() => void) => {
     });
     const lefts = slots.filter((s) => s.el.className.includes('--pinnedLeft'));
     const rights = slots.filter((s) => s.el.className.includes('--pinnedRight'));
-    const width = (list: typeof slots) => list.reduce((sum, s) => sum + s.right - s.left, 0);
-    const leftEdge = width(lefts);
-    const rightEdge = scroller.clientWidth - width(rights);
+    // The opposite stack is only the pins that really stick (out of their slot); a pin still in its slot is no edge.
+    const origin = scroller.getBoundingClientRect().left;
+    const drawnLeft = (el: HTMLElement) => el.getBoundingClientRect().left - origin;
+    const isStuck = (s: (typeof slots)[number]) => Math.abs(drawnLeft(s.el) - s.left) > 1.5;
+    const leftEdge = Math.max(0, ...lefts.filter(isStuck).map((s) => drawnLeft(s.el) + s.right - s.left));
+    const rightEdge = Math.min(scroller.clientWidth, ...rights.filter(isStuck).map((s) => drawnLeft(s.el)));
     const toMax = scroller.scrollWidth - scroller.clientWidth - scroller.scrollLeft;
 
     const shown = new Map<string, number>();
@@ -358,7 +361,6 @@ export const attachPinnedColumns = (root: HTMLElement): (() => void) => {
     }
 
     // Innermost stuck pin per side: a pin out of its slot, or a stand-in that shows.
-    const origin = scroller.getBoundingClientRect().left;
     const stuck = (list: typeof slots) =>
       list.flatMap((s) => {
         const ghost = row.querySelector<HTMLElement>(`[data-field="${s.field}${PIN_GHOST_SUFFIX}"]`);
@@ -367,11 +369,9 @@ export const attachPinnedColumns = (root: HTMLElement): (() => void) => {
         const left = rect.left - origin;
         return el === ghost || Math.abs(left - s.left) > 1.5 ? [{ el, left, right: left + rect.width }] : [];
       });
-    const all = [...stuck(lefts), ...stuck(rights)];
-    root.setAttribute('data-pin-stuck', fieldsOf(all.map((s) => s.el)));
-    const half = (a: { left: number; right: number }) => a.left + (a.right - a.left) / 2 < scroller.clientWidth / 2;
-    const leftStack = all.filter(half).sort((a, b) => b.right - a.right);
-    const rightStack = all.filter((a) => !half(a)).sort((a, b) => a.left - b.left);
+    const leftStack = stuck(lefts).sort((a, b) => b.right - a.right);
+    const rightStack = stuck(rights).sort((a, b) => a.left - b.left);
+    root.setAttribute('data-pin-stuck', fieldsOf([...leftStack, ...rightStack].map((s) => s.el)));
     root.setAttribute('data-pin-edge-l', fieldsOf(leftStack.slice(0, 1).map((s) => s.el)));
     root.setAttribute('data-pin-edge-r', fieldsOf(rightStack.slice(0, 1).map((s) => s.el)));
   };
