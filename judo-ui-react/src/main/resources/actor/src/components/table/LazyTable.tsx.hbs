@@ -51,7 +51,7 @@ import {
   arrayToSelectionModel,
   selectionModelToArray,
   pinColumns,
-  attachPinShadow,
+  attachPinnedColumns,
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -337,8 +337,8 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
 
   useEffect(() => {
     const root = apiRef.current?.rootElementRef?.current;
-    return root ? attachPinShadow(root) : undefined;
-  }, [apiRef]);
+    return root ? attachPinnedColumns(root) : undefined;
+  }, [apiRef, data.length]);
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {
