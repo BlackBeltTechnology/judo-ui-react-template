@@ -64,7 +64,13 @@ import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import { X_JUDO_COUNT } from '~/services/data-api/rest/headers';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 import { transformRowStylings } from '~/theme/table-row-highlighting';
-import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
+import type {
+  DialogResultReason,
+  FiltersSerializer,
+  PersistedColumnInfo,
+  PinnedColumns,
+  TableRowAction,
+} from '~/utilities';
 import {
   arrayToSelectionModel,
   calculateActionName,
@@ -75,6 +81,8 @@ import {
   mapAllFiltersToQueryCustomizerProperties,
   mapFilterModelToFilters,
   mapFilterToFilterModel,
+  pinColumns,
+  pinnedColumnBufferPx,
   processQueryCustomizer,
   selectionModelToArray,
   simpleCloneDeep,
@@ -125,6 +133,7 @@ interface LazyTableProps<T extends GridValidRowModel, TStored extends GridValidR
   applyRowEdit?: (rowData: TStored) => Promise<any>;
   onRowEditCanceled?: (rowId: string) => void;
   actionsColumnWidth?: number;
+  pinnedColumns?: PinnedColumns;
   annotations?: string[];
   containerIsForm?: boolean;
 }
@@ -175,6 +184,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     applyRowEdit,
     onRowEditCanceled,
     actionsColumnWidth,
+    pinnedColumns,
     annotations = [],
     containerIsForm,
   } = props;
@@ -311,7 +321,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     [tableRowActions, rowModesModel, applyRowEdit],
   );
 
-  const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
+  const orderedTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...(columns as GridColDef<T>[]),
       ...(columnsActionCalculator(
@@ -352,6 +362,11 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     rowModesModel,
     columnState,
   ]);
+
+  const { columns: effectiveTableColumns, sx: pinnedColumnsSx } = useMemo(
+    () => pinColumns(orderedTableColumns, pinnedColumns ?? {}),
+    [orderedTableColumns, pinnedColumns],
+  );
 
   const onColumnsChanged = () => {
     // Handles column resizing and re-ordering
@@ -684,12 +699,13 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
-        initialState={{ pinnedColumns: { right: ['actions'] } }}
+        columnBufferPx={pinnedColumnBufferPx}
         pageSizeOptions={pageSizeOptions}
         sx={{
           overflow: 'hidden',
           display: 'grid',
           border: (theme) => (props.validationError ? `2px solid ${theme.palette.error.main}` : undefined),
+          ...pinnedColumnsSx,
         }}
         editMode="row"
         processRowUpdate={processRowUpdate}

@@ -87,7 +87,7 @@ import {
   isErrorNestedValidationError,
   extractRelationErrorList,
 } from '~/utilities';
-import type { SidekickComponentProps, DialogResult, TableRowAction, ToolBarActionProps, ColumnCustomizerHook, FiltersSerializer{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
+import type { SidekickComponentProps, DialogResult, TableRowAction, ToolBarActionProps, ColumnCustomizerHook, FiltersSerializer, PinnedColumns{{# if isMUILicensePlanPro }}, PersistedColumnInfo{{/ if }} } from '~/utilities';
 import { OBJECTCLASS } from '@pandino/pandino-api';
 import { useTrackComponent, ComponentProxy } from '@pandino/react-hooks';
 {{# if (stringValueIsTrue useTableRowHighlighting) }}
@@ -108,6 +108,11 @@ import { {{ classDataName column.representsRelation.target 'Stored' }} } from '~
 {{/ each }}
 
 export const {{ camelCaseNameToInterfaceKey (componentName table) }}_SIDEKICK_COMPONENT_INTERFACE_KEY = '{{ componentName table }}SidekickComponent';
+
+const pinnedColumns: PinnedColumns = {
+  left: [{{# each (pinnedColumnFields table 'LEFT') as |field| }}'{{ field }}', {{/ each }}],
+  right: [{{# each (pinnedColumnFields table 'RIGHT') as |field| }}'{{ field }}', {{/ each }}],
+};
 
 export const filtersSerializer: FiltersSerializer = {
   serialize: (filters: Filter[]) => serializeFilters<{{ classDataName (getReferenceClassType table) 'Stored' }}>(filters, {{ classDataName (getReferenceClassType table) 'StoredSerializer' }}.getInstance()),
@@ -332,6 +337,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         applyRowEdit={applyRowEdit}
         onRowEditCanceled={onRowEditCanceled}
         {{# if table.actionColumnWidth }}actionsColumnWidth={ {{ table.actionColumnWidth }} } {{/ if }}
+        pinnedColumns={pinnedColumns}
         />
       {{ else }}
         <LazyTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
@@ -401,6 +407,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
         {{# if table.actionColumnWidth }}actionsColumnWidth={ {{ table.actionColumnWidth }} } {{/ if }}
+        pinnedColumns={pinnedColumns}
         />
       {{/ if }}
     </div>
