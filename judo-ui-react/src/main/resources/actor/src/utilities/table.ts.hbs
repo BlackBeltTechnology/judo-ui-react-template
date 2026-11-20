@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 import type { MutableRefObject } from 'react';
-import type { GridSortModel, GridFilterModel, GridRowSelectionModel, GridRowModesModel, GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type { GridSortModel, GridFilterModel, GridRowSelectionModel, GridRowModesModel, GridColDef, GridValidRowModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { Filter } from '../components-api';
 import { OverridableStringUnion } from '@mui/types';
@@ -135,4 +135,65 @@ export const getUpdatedRowsSelected = (selectedRows: MutableRefObject<any[]>, da
 
   // since we created a new whitelist of selections, removed selections are left out
   return newSelectedRows;
+};
+
+// Column virtualisation would drop off-screen pinned columns from the DOM.
+// ponytail: tables are paged (5-50 rows), so a large buffer is cheap; measure before lowering it.
+export const pinnedColumnBufferPx = 10000;
+
+export interface PinnedColumns {
+  left?: string[];
+  right?: string[];
+}
+
+const withClass = <P,>(original: string | ((params: P) => string) | undefined, extra: string) =>
+  typeof original === 'function' ? (params: P) => `${original(params)} ${extra}` : original ? `${original} ${extra}` : extra;
+
+// Column pinning without MUI Pro. The community grid already styles its pinned classes (sticky, opaque theme
+// background, hover/selected), so pinned columns get those classes, a fixed width instead of flex, and a sticky
+// offset: the summed widths of the pinned columns between the column and its edge. Pinned columns move to their
+// edge (LEFT first, RIGHT last, in model order) so a sticky column never scrolls off the other side.
+// The row actions column (`type: 'actions'`) is always the outermost right column.
+// ponytail: columns without width/minWidth use MUI's default (100); add flex support when a pinned flex column shows up.
+const isActionsColumn = (c: GridColDef<any>) => c.type === 'actions';
+
+export const pinColumns = <T extends GridValidRowModel>(
+  columns: GridColDef<T>[],
+  pinned: PinnedColumns,
+): { columns: GridColDef<T>[]; sx: Record<string, object> } => {
+  const sides = new Map<string, 'left' | 'right'>();
+  (pinned.left ?? []).forEach((f) => sides.set(f, 'left'));
+  (pinned.right ?? []).forEach((f) => sides.set(f, 'right'));
+  columns.filter(isActionsColumn).forEach((c) => sides.set(c.field, 'right'));
+
+  const pin = (c: GridColDef<T>, side: 'left' | 'right'): GridColDef<T> => {
+    const suffix = side === 'left' ? 'Left' : 'Right';
+    const { flex: _flex, ...rest } = c;
+    return {
+      ...rest,
+      width: c.width ?? c.minWidth ?? 100,
+      cellClassName: withClass(c.cellClassName, `MuiDataGrid-cell--pinned${suffix}`),
+      headerClassName: withClass(c.headerClassName, `MuiDataGrid-columnHeader--pinned${suffix}`),
+    };
+  };
+  const left = columns.filter((c) => sides.get(c.field) === 'left').map((c) => pin(c, 'left'));
+  const right = columns.filter((c) => sides.get(c.field) === 'right' && !isActionsColumn(c)).map((c) => pin(c, 'right'));
+  const actions = columns.filter(isActionsColumn).map((c) => pin(c, 'right'));
+  const middle = columns.filter((c) => !sides.has(c.field));
+
+  const sx: Record<string, object> = {};
+  let offset = 0;
+  for (const c of left) {
+    sx[`& [data-field="${c.field}"]`] = c === left[left.length - 1] ? { left: offset, boxShadow: '4px 0 6px -3px rgba(0, 0, 0, 0.25)' } : { left: offset };
+    offset += c.width ?? 100;
+  }
+  offset = 0;
+  const rightPins = [...right, ...actions];
+  for (const c of [...rightPins].reverse()) {
+    // The innermost right pin gets the soft edge shadow MUI Pro draws.
+    sx[`& [data-field="${c.field}"]`] = c === rightPins[0] ? { right: offset, boxShadow: '-4px 0 6px -3px rgba(0, 0, 0, 0.25)' } : { right: offset };
+    offset += c.width ?? 100;
+  }
+
+  return { sx, columns: [...left, ...middle, ...right, ...actions] };
 };

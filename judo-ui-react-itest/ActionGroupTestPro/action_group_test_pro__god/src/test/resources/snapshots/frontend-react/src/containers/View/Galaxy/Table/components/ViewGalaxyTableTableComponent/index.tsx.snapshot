@@ -61,6 +61,7 @@ import type {
   DialogResult,
   FiltersSerializer,
   PersistedColumnInfo,
+  PinnedColumns,
   SidekickComponentProps,
   TableRowAction,
   ToolBarActionProps,
@@ -86,6 +87,11 @@ import type { ViewGalaxyTableTableComponentActionDefinitions, ViewGalaxyTableTab
 
 export const VIEW_GALAXY_TABLE_TABLE_COMPONENT_SIDEKICK_COMPONENT_INTERFACE_KEY =
   'ViewGalaxyTableTableComponentSidekickComponent';
+
+const pinnedColumns: PinnedColumns = {
+  left: [],
+  right: [],
+};
 
 export const filtersSerializer: FiltersSerializer = {
   serialize: (filters: Filter[]) =>
@@ -812,6 +818,7 @@ export function ViewGalaxyTableTableComponent(props: ViewGalaxyTableTableCompone
         onRowEditCanceled={onRowEditCanceled}
         selectionDiff={selectionDiff}
         setSelectionDiff={setSelectionDiff}
+        pinnedColumns={pinnedColumns}
       />
     </div>
   );

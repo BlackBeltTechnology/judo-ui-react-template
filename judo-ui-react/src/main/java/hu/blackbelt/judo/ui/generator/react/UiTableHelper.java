@@ -422,6 +422,18 @@ public class UiTableHelper {
         return table.getColumns().stream().anyMatch(c -> c.getRepresentsRelation() != null);
     }
 
+    /**
+     * Grid field names of the columns pinned to the given side ("LEFT" or "RIGHT"), in column order.
+     * The field is the column's attribute type name, the same value the table container emits as {@code field}.
+     */
+    public static List<String> pinnedColumnFields(Table table, String side) {
+        Pin pin = Pin.get(side);
+        return table.getColumns().stream()
+                .filter(c -> c.getPinned() == pin && c.getAttributeType() != null)
+                .map(c -> c.getAttributeType().getName())
+                .toList();
+    }
+
     public static List<Column> getColumnsRepresentsRelation(Table table) {
         return table.getColumns().stream().filter(c -> c.getRepresentsRelation() != null).toList();
     }
