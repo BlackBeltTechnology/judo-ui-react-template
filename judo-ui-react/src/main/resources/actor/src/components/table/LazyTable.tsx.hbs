@@ -51,7 +51,6 @@ import {
   arrayToSelectionModel,
   selectionModelToArray,
   pinColumns,
-  pinnedColumnBufferPx,
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -666,7 +665,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
         showToolbar
-        columnBufferPx={pinnedColumnBufferPx}
+        disableVirtualization
         pageSizeOptions={pageSizeOptions}
         sx={ {
           overflow: 'hidden',

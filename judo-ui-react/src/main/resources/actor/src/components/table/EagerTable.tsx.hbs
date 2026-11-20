@@ -47,7 +47,6 @@ import {
   arrayToSelectionModel,
   selectionModelToArray,
   pinColumns,
-  pinnedColumnBufferPx,
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -509,7 +508,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
         showToolbar
-        columnBufferPx={pinnedColumnBufferPx}
+        disableVirtualization
         pageSizeOptions={pageSizeOptions}
         sx={ {
           overflow: 'hidden',
