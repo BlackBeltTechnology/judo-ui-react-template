@@ -110,24 +110,26 @@ describe('pinColumns', () => {
         { field: 'actions', type: 'actions', minWidth: 80 },
     ];
 
-    it('moves pins to their edge, offsets them by the pinned widths and keeps actions outermost right', () => {
+    it('keeps model order, offsets pins by the pinned widths and shadows a pin only while it is stuck', () => {
         const { sx, columns } = pinColumns(cols, { left: ['name', 'code'], right: ['total'] });
 
-        expect(columns.map((c) => c.field)).toEqual(['name', 'code', 'note', 'total', 'actions']);
+        expect(columns.map((c) => c.field)).toEqual(['note', 'total', 'name', 'code', 'actions']);
         expect(sx).toEqual({
             '& [data-field="name"]': { left: 0 },
+            '&[data-pin-stuck~="name"] [data-field="name"]': { boxShadow: '3px 0 5px -3px rgba(0, 0, 0, 0.14)' },
             '& [data-field="code"]': { left: 200 },
-            '&[data-pin-left] [data-field="code"]': { boxShadow: '3px 0 5px -3px rgba(0, 0, 0, 0.14)' },
+            '&[data-pin-stuck~="code"] [data-field="code"]': { boxShadow: '3px 0 5px -3px rgba(0, 0, 0, 0.14)' },
             '& [data-field="actions"]': { right: 0 },
+            '&[data-pin-stuck~="actions"] [data-field="actions"]': { boxShadow: '-3px 0 5px -3px rgba(0, 0, 0, 0.14)' },
             '& [data-field="total"]': { right: 80 },
-            '&[data-pin-right] [data-field="total"]': { boxShadow: '-3px 0 5px -3px rgba(0, 0, 0, 0.14)' },
+            '&[data-pin-stuck~="total"] [data-field="total"]': { boxShadow: '-3px 0 5px -3px rgba(0, 0, 0, 0.14)' },
         });
     });
 
     it('gives pinned columns a fixed width and MUI pinned classes, leaves the rest untouched', () => {
         const { columns } = pinColumns(cols, { left: ['name'] });
 
-        expect(columns[0]).toMatchObject({
+        expect(columns.find((c) => c.field === 'name')).toMatchObject({
             field: 'name',
             width: 200,
             cellClassName: 'MuiDataGrid-cell--pinnedLeft',
@@ -156,7 +158,7 @@ describe('pinColumns', () => {
 
         expect(sx).toEqual({
             '& [data-field="actions"]': { right: 0 },
-            '&[data-pin-right] [data-field="actions"]': { boxShadow: '-3px 0 5px -3px rgba(0, 0, 0, 0.14)' },
+            '&[data-pin-stuck~="actions"] [data-field="actions"]': { boxShadow: '-3px 0 5px -3px rgba(0, 0, 0, 0.14)' },
         });
         expect(columns.map((c) => c.field)).toEqual(['name', 'actions']);
     });
