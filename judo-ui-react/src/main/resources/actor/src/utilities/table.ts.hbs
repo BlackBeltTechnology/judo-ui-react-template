@@ -184,12 +184,14 @@ export const pinColumns = <T extends GridValidRowModel>(
   const sx: Record<string, object> = {};
   let offset = 0;
   for (const c of left) {
-    sx[`& [data-field="${c.field}"]`] = { left: offset };
+    sx[`& [data-field="${c.field}"]`] = c === left[left.length - 1] ? { left: offset, boxShadow: '4px 0 6px -3px rgba(0, 0, 0, 0.25)' } : { left: offset };
     offset += c.width ?? 100;
   }
   offset = 0;
-  for (const c of [...right, ...actions].reverse()) {
-    sx[`& [data-field="${c.field}"]`] = { right: offset };
+  const rightPins = [...right, ...actions];
+  for (const c of [...rightPins].reverse()) {
+    // The innermost right pin gets the soft edge shadow MUI Pro draws.
+    sx[`& [data-field="${c.field}"]`] = c === rightPins[0] ? { right: offset, boxShadow: '-4px 0 6px -3px rgba(0, 0, 0, 0.25)' } : { right: offset };
     offset += c.width ?? 100;
   }
 

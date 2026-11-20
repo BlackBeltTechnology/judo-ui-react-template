@@ -116,9 +116,9 @@ describe('pinColumns', () => {
         expect(columns.map((c) => c.field)).toEqual(['name', 'code', 'note', 'total', 'actions']);
         expect(sx).toEqual({
             '& [data-field="name"]': { left: 0 },
-            '& [data-field="code"]': { left: 200 },
+            '& [data-field="code"]': { left: 200, boxShadow: '4px 0 6px -3px rgba(0, 0, 0, 0.25)' },
             '& [data-field="actions"]': { right: 0 },
-            '& [data-field="total"]': { right: 80 },
+            '& [data-field="total"]': { right: 80, boxShadow: '-4px 0 6px -3px rgba(0, 0, 0, 0.25)' },
         });
     });
 
@@ -152,7 +152,7 @@ describe('pinColumns', () => {
     it('pins only the actions column when nothing is modelled', () => {
         const { sx, columns } = pinColumns([{ field: 'name' }, { field: 'actions', type: 'actions', width: 90 }], {});
 
-        expect(sx).toEqual({ '& [data-field="actions"]': { right: 0 } });
+        expect(sx).toEqual({ '& [data-field="actions"]': { right: 0, boxShadow: '-4px 0 6px -3px rgba(0, 0, 0, 0.25)' } });
         expect(columns.map((c) => c.field)).toEqual(['name', 'actions']);
     });
 });
