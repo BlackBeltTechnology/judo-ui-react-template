@@ -181,16 +181,53 @@ export const pinColumns = <T extends GridValidRowModel>(
   const sx: Record<string, object> = {};
   let offset = 0;
   for (const c of left) {
-    sx[`& [data-field="${c.field}"]`] = c === left[left.length - 1] ? { left: offset, boxShadow: '4px 0 6px -3px rgba(0, 0, 0, 0.25)' } : { left: offset };
+    sx[`& [data-field="${c.field}"]`] = { left: offset };
+    if (c === left[left.length - 1]) sx[`&[data-pin-left] [data-field="${c.field}"]`] = { boxShadow: '3px 0 5px -3px rgba(0, 0, 0, 0.14)' };
     offset += c.width ?? 100;
   }
   offset = 0;
   const rightPins = [...right, ...actions];
   for (const c of [...rightPins].reverse()) {
-    // The innermost right pin gets the soft edge shadow MUI Pro draws.
-    sx[`& [data-field="${c.field}"]`] = c === rightPins[0] ? { right: offset, boxShadow: '-4px 0 6px -3px rgba(0, 0, 0, 0.25)' } : { right: offset };
+    sx[`& [data-field="${c.field}"]`] = { right: offset };
+    // The innermost right pin gets the soft edge shadow, shown only while content scrolls under it.
+    if (c === rightPins[0]) sx[`&[data-pin-right] [data-field="${c.field}"]`] = { boxShadow: '-3px 0 5px -3px rgba(0, 0, 0, 0.14)' };
     offset += c.width ?? 100;
   }
 
   return { sx, columns: [...left, ...middle, ...right, ...actions] };
+};
+
+// True while a scrolling (unpinned) cell is really tucked under the pinned edge on that side. A pinned column that
+// still sits in its natural slot touches its neighbour and casts no shadow.
+const isTuckedUnderPin = (row: Element, side: 'left' | 'right'): boolean => {
+  const cells = Array.from(row.querySelectorAll('.MuiDataGrid-cell'));
+  const isPinned = (c: Element | undefined) => !!c && c.className.includes('--pinned');
+  const edgeCells = cells.filter((c) => c.className.includes(side === 'left' ? '--pinnedLeft' : '--pinnedRight'));
+  const edge = side === 'left' ? edgeCells[edgeCells.length - 1] : edgeCells[0];
+  if (!edge) return false;
+  const neighbour = cells[cells.indexOf(edge) + (side === 'left' ? 1 : -1)];
+  if (!neighbour || isPinned(neighbour)) return false;
+  const gap =
+    side === 'left'
+      ? neighbour.getBoundingClientRect().left - edge.getBoundingClientRect().right
+      : edge.getBoundingClientRect().left - neighbour.getBoundingClientRect().right;
+  return gap < -0.5;
+};
+
+// Sets data-pin-left / data-pin-right on the grid root while scrolled content is really under a pinned column, so the
+// edge shadow only shows then. Returns the cleanup. Scroll events do not bubble, hence the capture listener.
+export const attachPinShadow = (root: HTMLElement): (() => void) => {
+  const sync = () => {
+    const row = root.querySelector('.MuiDataGrid-row');
+    root.toggleAttribute('data-pin-left', !!row && isTuckedUnderPin(row, 'left'));
+    root.toggleAttribute('data-pin-right', !!row && isTuckedUnderPin(row, 'right'));
+  };
+  sync();
+  root.addEventListener('scroll', sync, { capture: true, passive: true });
+  const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(sync);
+  observer?.observe(root);
+  return () => {
+    root.removeEventListener('scroll', sync, { capture: true });
+    observer?.disconnect();
+  };
 };

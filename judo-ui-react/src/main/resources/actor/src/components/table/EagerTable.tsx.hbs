@@ -47,6 +47,7 @@ import {
   arrayToSelectionModel,
   selectionModelToArray,
   pinColumns,
+  attachPinShadow,
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -301,6 +302,11 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     () => pinColumns(orderedTableColumns, pinnedColumns ?? {}),
     [orderedTableColumns, pinnedColumns],
   );
+
+  useEffect(() => {
+    const root = apiRef.current?.rootElementRef?.current;
+    return root ? attachPinShadow(root) : undefined;
+  }, [apiRef]);
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {
