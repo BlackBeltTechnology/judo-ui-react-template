@@ -23,6 +23,8 @@ export interface SingleValueFilterComponentProps<T> {
   col: number;
   icon?: string;
   enumValues?: Array<FilterEnumValue>;
+  /** Canonical `table::<id>::fixed-filter::<attributeName>`, on the field root. */
+  testId: string;
 }
 
 export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>> = ({
@@ -35,6 +37,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
   col,
   icon,
   enumValues,
+  testId,
 }) => {
   const { t } = useTranslation();
   const fallbackFilter: Filter = buildFilter(filterType, operator, attributeName as string, null, label, icon);
@@ -115,6 +118,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 value={inputValue ?? null}
                 onChange={(newValue: any) => setInputValue(newValue)}
                 icon={filter.filterOption.icon}
+                testId={testId}
               />
 
             );
@@ -174,6 +178,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                       {...params}
                       label={filter.filterOption.label ?? filter.filterOption.attributeName}
                       variant="standard"
+                      data-testid={testId}
                       InputProps={ {
                         ...params.InputProps,
                         startAdornment: (
@@ -203,6 +208,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 type="number"
                 variant="standard"
+                data-testid={testId}
                 value={inputValue ?? ''}
                 onChange={(event) => {
                   const value = event.target.value;
@@ -223,6 +229,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 label={filter.filterOption.label ?? filter.filterOption.attributeName}
                 value={inputValue ?? ''}
                 variant="standard"
+                data-testid={testId}
                 onChange={(event) => setInputValue(event.target.value)}
                 InputProps={ {
                   startAdornment: (
@@ -240,6 +247,7 @@ export const SingleValueFilterComponent: FC<SingleValueFilterComponentProps<any>
                 value={inputValue ?? ''}
                 onChange={(newValue: any) => setInputValue(newValue)}
                 icon={filter.filterOption.icon}
+                testId={testId}
               />
             );
         }

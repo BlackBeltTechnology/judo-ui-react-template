@@ -9,8 +9,10 @@ import {
   getOperationFromFilterOperationType,
 } from '~/utilities';
 import { SingleValueFilterComponent } from '~/components/table/SingleValueFilterComponent';
+import { buildFixedFilterTestId, buildFixedFiltersTestId } from '~/utilities/transfer-id';
 
 interface FixedTableFiltersProps<T extends GridValidRowModel, TStored extends GridValidRowModel> {
+  tableTestId: string;
   tableFilterOptions: FilterOption[];
   filters: Filter[];
   ownerData?: any;
@@ -21,17 +23,18 @@ interface FixedTableFiltersProps<T extends GridValidRowModel, TStored extends Gr
 export function FixedTableFilters<T extends GridValidRowModel, TStored extends T, S extends QueryCustomizer<T>>(
   props: FixedTableFiltersProps<T, TStored>,
 ) {
-  const { tableFilterOptions, filters, ownerData, filtersSerializer, onFiltersChange } = props;
+  const { tableTestId, tableFilterOptions, filters, ownerData, filtersSerializer, onFiltersChange } = props;
   const fixedTableFilterOptions = tableFilterOptions.filter(f => f.alwaysShown);
 
   if (fixedTableFilterOptions.length > 0) {
     return (
-      <Grid container>
+      <Grid container data-testid={buildFixedFiltersTestId(tableTestId)}>
         <Grid size={12}>
           <Grid container spacing={2} alignItems="flex-end">
             {fixedTableFilterOptions.map((f) => (
               <SingleValueFilterComponent
                 key={f.id}
+                testId={buildFixedFilterTestId(tableTestId, f.attributeName)}
                 attributeName={f.attributeName as keyof T}
                 filterType={f.filterType}
                 operator={getOperationFromFilterOperationType(f, f.defaultOperationType)}

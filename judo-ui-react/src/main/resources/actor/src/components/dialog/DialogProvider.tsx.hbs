@@ -80,13 +80,19 @@ export const DialogProvider = ({ children }: DialogProviderProps) => {
     return false;
   };
 
-  const handleOpenFilterDialog = async (id: string, filterOptions: FilterOption[], filters?: Filter[]) => {
+  const handleOpenFilterDialog = async (
+    id: string,
+    tableTestId: string,
+    filterOptions: FilterOption[],
+    filters?: Filter[],
+  ) => {
     setIsOpenFilterDialog(true);
 
     return new Promise<Filter[]>((resolve) => {
       setFilterDialog(
         <FilterDialog
           id={id}
+          tableTestId={tableTestId}
           filters={filters}
           filterOptions={filterOptions}
           handleClose={handleCloseFilterDialog}

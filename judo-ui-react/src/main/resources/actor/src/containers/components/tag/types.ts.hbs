@@ -28,7 +28,7 @@ export interface {{ componentName table }}ActionDefinitions {
   {{/ if }}
 {{# each table.tableActionDefinitions as |actionDefinition| }}
   {{# if actionDefinition.isFilterAction }}
-    {{ simpleActionDefinitionName actionDefinition }}?: (id: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
+    {{ simpleActionDefinitionName actionDefinition }}?: (id: string, tableTestId: string, filterOptions: FilterOption[], model?: GridFilterModel, filters?: Filter[]) => Promise<{ model?: GridFilterModel; filters?: Filter[] }>;
   {{ else }}
     {{# if actionDefinition.isRefreshAction }}
       {{ simpleActionDefinitionName actionDefinition }}?: (queryCustomizer: {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}) => Promise<JudoRestResponse<{{ classDataName (getReferenceClassType table) 'Stored' }}[]>>;
@@ -65,6 +65,8 @@ export interface {{ componentName table }}ActionDefinitions {
 
 export interface {{ componentName table }}Props {
   uniqueId: string;
+  /** Overrides the table identity when this table is a relation field selector. */
+  testIdOverride?: string;
   actions: {{ componentName table }}ActionDefinitions;
   dataPath?: string;
   isOwnerLoading?: boolean;
