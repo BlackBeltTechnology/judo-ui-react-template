@@ -50,10 +50,17 @@ import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import type { RowStylerConfigured, TableRowHighlightingHook } from '~/theme/table-row-highlighting';
 import { transformRowStylings } from '~/theme/table-row-highlighting';
-import type { DialogResultReason, FiltersSerializer, PersistedColumnInfo, TableRowAction } from '~/utilities';
+import type {
+  DialogResultReason,
+  FiltersSerializer,
+  PersistedColumnInfo,
+  PinnedColumns,
+  TableRowAction,
+} from '~/utilities';
 import {
   applyInMemoryFilters,
   arrayToSelectionModel,
+  attachPinnedColumns,
   calculateActionName,
   createEmptySelectionModel,
   fileHandling,
@@ -61,6 +68,7 @@ import {
   mapAllFiltersToQueryCustomizerProperties,
   mapFilterModelToFilters,
   mapFilterToFilterModel,
+  pinColumns,
   processQueryCustomizer,
   selectionModelToArray,
   ToolBarActionProps,
@@ -102,6 +110,7 @@ interface EagerTableProps<T extends GridValidRowModel, TStored extends GridValid
   applyRowEdit?: (rowData: TStored) => Promise<any>;
   onRowEditCanceled?: (rowId: string) => void;
   actionsColumnWidth?: number;
+  pinnedColumns?: PinnedColumns;
   annotations?: string[];
   containerIsForm?: boolean;
 }
@@ -144,6 +153,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     applyRowEdit,
     onRowEditCanceled,
     actionsColumnWidth,
+    pinnedColumns,
     annotations = [],
     containerIsForm,
   } = props;
@@ -268,7 +278,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     [tableRowActions, rowModesModel, applyRowEdit],
   );
 
-  const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
+  const orderedTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...(columns as GridColDef<T>[]),
       ...(columnsActionCalculator(
@@ -309,6 +319,16 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     rowModesModel,
     columnState,
   ]);
+
+  const { columns: effectiveTableColumns, sx: pinnedColumnsSx } = useMemo(
+    () => pinColumns(orderedTableColumns, pinnedColumns ?? {}),
+    [orderedTableColumns, pinnedColumns],
+  );
+
+  useEffect(() => {
+    const root = apiRef.current?.rootElementRef?.current;
+    return root ? attachPinnedColumns(root) : undefined;
+  }, [apiRef, data.length]);
 
   const onColumnsChanged = () => {
     // Handles column resizing and re-ordering
@@ -510,12 +530,13 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
-        initialState={{ pinnedColumns: { right: ['actions'] } }}
+        disableVirtualization
         pageSizeOptions={pageSizeOptions}
         sx={{
           overflow: 'hidden',
           display: 'grid',
           border: (theme) => (props.validationError ? `2px solid ${theme.palette.error.main}` : undefined),
+          ...pinnedColumnsSx,
         }}
         editMode="row"
         processRowUpdate={processRowUpdate}

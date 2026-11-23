@@ -1,7 +1,7 @@
 {{> fragment.header.hbs }}
 
 import type { MutableRefObject } from 'react';
-import type { GridSortModel, GridFilterModel, GridRowSelectionModel, GridRowModesModel, GridColDef } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
+import type { GridSortModel, GridFilterModel, GridRowSelectionModel, GridRowModesModel, GridColDef, GridValidRowModel } from '@mui/x-data-grid{{ getMUIDataGridPlanSuffix }}';
 import type { JudoStored } from '~/services/data-api/common/JudoStored';
 import type { Filter } from '../components-api';
 import { OverridableStringUnion } from '@mui/types';
@@ -135,4 +135,252 @@ export const getUpdatedRowsSelected = (selectedRows: MutableRefObject<any[]>, da
 
   // since we created a new whitelist of selections, removed selections are left out
   return newSelectedRows;
+};
+
+
+export interface PinnedColumns {
+  left?: string[];
+  right?: string[];
+}
+
+const withClass = <P,>(original: string | ((params: P) => string) | undefined, extra: string) =>
+  typeof original === 'function' ? (params: P) => `${original(params)} ${extra}` : original ? `${original} ${extra}` : extra;
+
+// Column pinning without MUI Pro. The community grid already styles its pinned classes (sticky, opaque theme
+// background, hover/selected), so pinned columns get those classes, a fixed width instead of flex, and a sticky
+// offset: the summed widths of the pinned columns between the column and its edge. Pinned columns keep their model
+// position: they scroll normally while visible and stick to their side only once they would leave the view. When a
+// pin's slot goes under the opposite stack (a RIGHT pin scrolling out on the left, or a LEFT pin on the right), a
+// stand-in column (`PIN_GHOST_SUFFIX`) shows it on its own side instead (see `attachPinnedColumns`).
+// The row actions column (`type: 'actions'`) is always the outermost right column.
+// ponytail: columns without width/minWidth use MUI's default (100); add flex support when a pinned flex column shows up.
+// ponytail: stand-ins are copies refreshed on scroll/resize, so a value edited in place shows in the stand-in after the
+// next scroll; render them from React if that matters.
+const isActionsColumn = (c: GridColDef<any>) => c.type === 'actions';
+
+const PIN_SHADOW_RIGHT = '3px 0 5px -3px rgba(0, 0, 0, 0.14)';
+const PIN_SHADOW_LEFT = '-3px 0 5px -3px rgba(0, 0, 0, 0.14)';
+/** Field suffix of the stand-in column a pin shows on its own side while its slot is under the opposite stack. */
+export const PIN_GHOST_SUFFIX = '__pin';
+/** CSS custom property: how much of a pin's stand-in is still hidden. */
+const hideVar = (field: string) => `--pin-hide-${field.replace(/[^\w-]/g, '_')}`;
+const fieldsOf = (cells: HTMLElement[]) => cells.map((c) => c.dataset.field ?? '').join(' ');
+
+export const pinColumns = <T extends GridValidRowModel>(
+  columns: GridColDef<T>[],
+  pinned: PinnedColumns,
+): { columns: GridColDef<T>[]; sx: Record<string, object> } => {
+  const sides = new Map<string, 'left' | 'right'>();
+  (pinned.left ?? []).forEach((f) => sides.set(f, 'left'));
+  (pinned.right ?? []).forEach((f) => sides.set(f, 'right'));
+  columns.filter(isActionsColumn).forEach((c) => sides.set(c.field, 'right'));
+
+  const pin = (c: GridColDef<T>, side: 'left' | 'right'): GridColDef<T> => {
+    const suffix = side === 'left' ? 'Left' : 'Right';
+    const { flex: _flex, ...rest } = c;
+    return {
+      ...rest,
+      width: c.width ?? c.minWidth ?? 100,
+      cellClassName: withClass(c.cellClassName, `MuiDataGrid-cell--pinned${suffix}`),
+      headerClassName: withClass(c.headerClassName, `MuiDataGrid-columnHeader--pinned${suffix}`),
+    };
+  };
+  const result = columns.map((c) => {
+    const side = sides.get(c.field);
+    return side ? pin(c, side) : c;
+  });
+  // Stand-in per pin (not the actions column, which is already outermost): 1px in MUI's layout, widened by CSS, and a
+  // negative margin of its full width, so it takes no room in the row and the pins never shift.
+  const ghost = (c: GridColDef<T>, side: 'left' | 'right'): GridColDef<T> =>
+    pin(
+      {
+        field: c.field + PIN_GHOST_SUFFIX,
+        headerName: '',
+        width: 1,
+        minWidth: 1,
+        sortable: false,
+        filterable: false,
+        hideable: false,
+        resizable: false,
+        disableColumnMenu: true,
+        disableReorder: true,
+        renderHeader: () => null,
+        renderCell: () => null,
+      },
+      side,
+    );
+  const ghostsOf = (side: 'left' | 'right') =>
+    result.filter((c) => sides.get(c.field) === side && !isActionsColumn(c)).map((c) => ghost(c, side));
+
+  const sx: Record<string, object> = {};
+  const layers = (field: string) => {
+    sx[`&[data-pin-edge-l~="${field}"] [data-field="${field}"]`] = { boxShadow: PIN_SHADOW_RIGHT };
+    sx[`&[data-pin-edge-r~="${field}"] [data-field="${field}"]`] = { boxShadow: PIN_SHADOW_LEFT };
+    // A pin scrolling in its slot passes under the stuck ones (MUI puts all pinned cells at 30 / 40).
+    sx[`& .MuiDataGrid-cell[data-field="${field}"]`] = { zIndex: 29 };
+    sx[`& .MuiDataGrid-columnHeader[data-field="${field}"]`] = { zIndex: 39 };
+    sx[`&[data-pin-stuck~="${field}"] .MuiDataGrid-cell[data-field="${field}"]`] = { zIndex: 31 };
+    sx[`&[data-pin-stuck~="${field}"] .MuiDataGrid-columnHeader[data-field="${field}"]`] = { zIndex: 41 };
+  };
+  const ghostSx = (field: string, w: number, side: 'left' | 'right', offset: number) => {
+    const g = field + PIN_GHOST_SUFFIX;
+    const hide = `var(${hideVar(g)}, ${w}px)`;
+    const shown = `calc(${w}px - ${hide}) !important`;
+    // Only the shown part takes width, so the shadow sits on its visible inner edge; the margin cancels it in the row.
+    // MUI's cell padding would keep 20px of an empty stand-in visible; its borders (row lines) stay.
+    sx[`& [data-field="${g}"]`] = {
+      [side]: offset,
+      width: shown,
+      minWidth: shown,
+      maxWidth: shown,
+      [side === 'right' ? 'marginLeft' : 'marginRight']: `calc(${hide} - ${w}px)`,
+      padding: 0,
+    };
+    layers(g);
+    // Above the pin itself while it still scrolls in its slot under the same stack.
+    sx[`& .MuiDataGrid-cell[data-field="${g}"]`] = { zIndex: 31 };
+    sx[`& .MuiDataGrid-columnHeader[data-field="${g}"]`] = { zIndex: 41 };
+  };
+  let offset = 0;
+  for (const c of result.filter((col) => sides.get(col.field) === 'left')) {
+    const w = c.width ?? 100;
+    sx[`& [data-field="${c.field}"]`] = { left: offset };
+    layers(c.field);
+    ghostSx(c.field, w, 'left', offset);
+    offset += w;
+  }
+  offset = 0;
+  for (const c of result.filter((col) => sides.get(col.field) === 'right').reverse()) {
+    const w = c.width ?? 100;
+    sx[`& [data-field="${c.field}"]`] = { right: offset };
+    layers(c.field);
+    if (!isActionsColumn(c)) ghostSx(c.field, w, 'right', offset);
+    offset += w;
+  }
+
+  return { sx, columns: [...ghostsOf('left'), ...result, ...ghostsOf('right')] };
+};
+
+/**
+ * How much of a pin's stand-in shows on its own side: as much as the pin itself has gone under the opposite stack
+ * (`under`), sped up when the scroll has less than `width` left (`underMax`), so it is whole at the scroll end.
+ */
+export const ghostShown = (under: number, underMax: number, width: number): number => {
+  if (under <= 0 || underMax <= 0.5) return 0;
+  return Math.min(width, (under * width) / Math.min(width, underMax));
+};
+
+// Copies a cell's content into its stand-in, without test ids, so locators never find a pin twice. The copy lives in
+// an overlay span the stand-in owns, because the stand-in's own children belong to React.
+const fillGhost = (ghost: HTMLElement, source: HTMLElement | undefined, show: boolean) => {
+  ghost.setAttribute('aria-hidden', 'true');
+  ghost.style.overflow = 'hidden';
+  let overlay = ghost.querySelector<HTMLElement>(':scope > [data-pin-ghost]');
+  if (!show || !source) {
+    overlay?.remove();
+    return;
+  }
+  if (overlay && overlay.textContent === source.textContent) return;
+  if (!overlay) {
+    overlay = document.createElement('span');
+    overlay.setAttribute('data-pin-ghost', '');
+    overlay.style.cssText =
+      'position:absolute;top:0;bottom:0;display:flex;align-items:center;padding:0 10px;overflow:hidden;background:inherit';
+    ghost.append(overlay);
+  }
+  // Full column width, anchored to the stack side, so the stand-in slides in from behind that stack.
+  overlay.style.setProperty(ghost.className.includes('--pinnedRight') ? 'right' : 'left', '0');
+  overlay.style.width = `${source.offsetWidth}px`;
+  const copy = Array.from(source.childNodes).map((n) => n.cloneNode(true));
+  for (const n of copy) {
+    if (n instanceof Element) {
+      for (const e of [n, ...Array.from(n.querySelectorAll('[data-testid]'))]) e.removeAttribute('data-testid');
+    }
+  }
+  // A header title starts at the left like in any header; a cell keeps its own alignment (numbers right, icons centre).
+  overlay.style.justifyContent = source.classList.contains('MuiDataGrid-columnHeaderTitleContainer')
+    ? 'flex-start'
+    : getComputedStyle(source).justifyContent;
+  overlay.replaceChildren(...copy);
+};
+
+/**
+ * Keeps pinned columns honest while the grid scrolls. A pin always stays in its own slot and scrolls normally; while
+ * the slot goes under the opposite stack, its stand-in shows the same amount on the pin's own side, so nothing jumps
+ * and no gap opens. Stuck pins and stand-ins are listed in `data-pin-stuck` (they paint above pins still scrolling in
+ * their slot), and the innermost per side in `data-pin-edge-l` / `data-pin-edge-r`, which casts the shadow.
+ * Returns the cleanup. Scroll events do not bubble, hence the capture listener.
+ */
+export const attachPinnedColumns = (root: HTMLElement): (() => void) => {
+  const sync = () => {
+    const scroller = root.querySelector<HTMLElement>('.MuiDataGrid-virtualScroller');
+    const row = root.querySelector('.MuiDataGrid-row');
+    if (!scroller || !row) return;
+    // Natural slot of every cell relative to the visible area. A stand-in is not a slot, but its layout (width plus
+    // negative margin) still counts for the cells after it.
+    let x = -scroller.scrollLeft;
+    const slots = Array.from(row.children).flatMap((el) => {
+      if (!(el instanceof HTMLElement)) return [];
+      if (el.dataset.field?.endsWith(PIN_GHOST_SUFFIX)) {
+        const style = getComputedStyle(el);
+        x += el.offsetWidth + (parseFloat(style.marginLeft) || 0) + (parseFloat(style.marginRight) || 0);
+        return [];
+      }
+      const slot = { el, field: el.dataset.field ?? '', left: x, right: x + el.offsetWidth };
+      x = slot.right;
+      return [slot];
+    });
+    const lefts = slots.filter((s) => s.el.className.includes('--pinnedLeft'));
+    const rights = slots.filter((s) => s.el.className.includes('--pinnedRight'));
+    // The opposite stack is only the pins that really stick (out of their slot); a pin still in its slot is no edge.
+    const origin = scroller.getBoundingClientRect().left;
+    const drawnLeft = (el: HTMLElement) => el.getBoundingClientRect().left - origin;
+    const isStuck = (s: (typeof slots)[number]) => Math.abs(drawnLeft(s.el) - s.left) > 1.5;
+    const leftEdge = Math.max(0, ...lefts.filter(isStuck).map((s) => drawnLeft(s.el) + s.right - s.left));
+    const rightEdge = Math.min(scroller.clientWidth, ...rights.filter(isStuck).map((s) => drawnLeft(s.el)));
+    const toMax = scroller.scrollWidth - scroller.clientWidth - scroller.scrollLeft;
+
+    const shown = new Map<string, number>();
+    for (const s of rights) shown.set(s.field, ghostShown(leftEdge - s.left, leftEdge - s.left + toMax, s.right - s.left));
+    for (const s of lefts) {
+      shown.set(s.field, ghostShown(s.right - rightEdge, s.right - rightEdge + scroller.scrollLeft, s.right - s.left));
+    }
+    for (const s of [...lefts, ...rights]) {
+      const k = shown.get(s.field) ?? 0;
+      const ghostField = s.field + PIN_GHOST_SUFFIX;
+      root.style.setProperty(hideVar(ghostField), `${s.right - s.left - k}px`);
+      root.querySelectorAll<HTMLElement>('.MuiDataGrid-row').forEach((r) => {
+        const ghost = r.querySelector<HTMLElement>(`[data-field="${ghostField}"]`);
+        if (ghost) fillGhost(ghost, r.querySelector<HTMLElement>(`[data-field="${s.field}"]`) ?? undefined, k > 0.5);
+      });
+      const header = root.querySelector<HTMLElement>(`.MuiDataGrid-columnHeader[data-field="${ghostField}"]`);
+      const title = root.querySelector<HTMLElement>(
+        `.MuiDataGrid-columnHeader[data-field="${s.field}"] .MuiDataGrid-columnHeaderTitleContainer`,
+      );
+      if (header) fillGhost(header, title ?? undefined, k > 0.5);
+    }
+
+    // Innermost stuck pin per side: a pin out of its slot, or a stand-in that shows.
+    const stuck = (list: typeof slots) =>
+      list.flatMap((s) => {
+        const ghost = row.querySelector<HTMLElement>(`[data-field="${s.field}${PIN_GHOST_SUFFIX}"]`);
+        const el = ghost && (shown.get(s.field) ?? 0) > 0.5 ? ghost : s.el;
+        const rect = el.getBoundingClientRect();
+        const left = rect.left - origin;
+        return el === ghost || Math.abs(left - s.left) > 1.5 ? [{ el, left, right: left + rect.width }] : [];
+      });
+    const leftStack = stuck(lefts).sort((a, b) => b.right - a.right);
+    const rightStack = stuck(rights).sort((a, b) => a.left - b.left);
+    root.setAttribute('data-pin-stuck', fieldsOf([...leftStack, ...rightStack].map((s) => s.el)));
+    root.setAttribute('data-pin-edge-l', fieldsOf(leftStack.slice(0, 1).map((s) => s.el)));
+    root.setAttribute('data-pin-edge-r', fieldsOf(rightStack.slice(0, 1).map((s) => s.el)));
+  };
+  sync();
+  root.addEventListener('scroll', sync, { capture: true, passive: true });
+  const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(sync);
+  observer?.observe(root);
+  return () => {
+    root.removeEventListener('scroll', sync, { capture: true });
+    observer?.disconnect();
+  };
 };
