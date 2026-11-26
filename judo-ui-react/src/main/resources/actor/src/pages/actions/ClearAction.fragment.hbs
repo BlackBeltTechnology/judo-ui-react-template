@@ -1,5 +1,15 @@
 // ClearAction: {{ getXMIID action }}
 const {{ simpleActionDefinitionName action.actionDefinition }} = async () => {
+  // Clearing removes every element of the collection in a single click, so it
+  // asks first. Unsetting a single relation deliberately does not.
+  const confirmed = await openConfirmDialog(
+    'clear-action',
+    t('judo.modal.confirm.confirm-clear', { defaultValue: 'Are you sure you would like to clear the collection?' }) as string,
+    t('judo.modal.confirm.confirm-title', { defaultValue: 'Confirm action' }) as string,
+  );
+  if (!confirmed) {
+    return;
+  }
   {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
     {{# if table.isEager }}
       storeDiff('{{ table.dataElement.name }}', []);
