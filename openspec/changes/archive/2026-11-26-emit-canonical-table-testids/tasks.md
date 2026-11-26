@@ -44,14 +44,14 @@
 - [x] 5.3 Implement the memoized `TestIdCell` wrapper adding `buildCellTestId(tableId, props.row, props.column.field, <data index>)`, mirroring `TableRenderer.tsx:803` including its index source. Confirm the selection column's `__check__` field name flows through unchanged so the selection cell needs no special case. (transfer-identity: Canonical selection-cell test ID; design D3)
 - [x] 5.4 Implement the memoized `TestIdFilterPanel` wrapper stamping the panel div and passing `columnInputProps`/`operatorInputProps`/`valueInputProps` through `filterFormProps`, preserving the existing `logicOperators: [GridLogicOperator.And]` restriction. (data-tables: Filter-panel slot stamps inputs through filter-form properties)
 - [x] 5.5 Register all three slots in both components without disturbing the existing conditional `toolbar` slot and `panel` anchoring. (data-tables: Slot registration applies to both table variants)
-- [ ] 5.6 Verify behavioral neutrality: sorting, filtering, pagination, inline editing, row selection and virtualization unchanged in the generated apps. (data-tables: Row and cell slots stamp IDs without changing behavior)
+- [x] 5.6 Verify behavioral neutrality: sorting, filtering, pagination, inline editing, row selection and virtualization unchanged in the generated apps. (data-tables: Row and cell slots stamp IDs without changing behavior) Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
 - [x] 5.7 Confirm both MUI license tiers still generate and build, since the Pro path adds pinned action columns. (data-tables: Pro and community license tiers both emit canonical IDs)
 
 ## 6. Integration build and snapshot refresh
 
 - [x] 6.1 `mvn clean install -DskipPrepareNodeJS --fail-at-end`; catalogue which of the six itests drift. Expect all six (every table container changes). (proposal: Impact)
 - [x] 6.2 Refresh snapshots with `-DforceSnapshotOverwrite=true`, then run the D6 audit: `grep -rc 'data-testid' … > /tmp/testid-counts.after.txt` and diff against the baseline. Row/cell/filter emission is additive and row actions are 1:1, so **no file's count may decrease**; a decrease blocks the commit. (design D6)
-- [ ] 6.3 Spot-check refreshed snapshots for a table page: assert presence of `::row::`, `::cell::`, `::cell::__check__` (where checkbox selection is on), `::filter-panel::value`, and `::action::delete`; assert absence of any `::row::…::button::` form. (transfer-identity: all)
+- [x] 6.3 Spot-check refreshed snapshots for a table page: assert presence of `::row::`, `::cell::`, `::cell::__check__` (where checkbox selection is on), `::filter-panel::value`, and `::action::delete`; assert absence of any `::row::…::button::` form. (transfer-identity: all) Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
 - [x] 6.4 `mvn clean install -DskipPrepareNodeJS` with no force flag — `checkDiffs` reports zero drift and all six Vite builds pass.
 
 ## 7. Validation and handoff
@@ -59,4 +59,4 @@
 - [x] 7.1 `openspec validate emit-canonical-table-testids --strict --no-interactive`; repair any failures.
 - [x] 7.2 Install this template locally as `1.0.0-SNAPSHOT` (`./mvnw install`) so the paired tatami change can consume it. (proposal: Impact)
 - [x] 7.3 Record in `docs/DATA_IDENTITY.md` the canonical row/cell/selection/filter grammar, the row-action role vocabulary, and the two documented cross-engine divergences (OQ1 inline-edit controls, OQ2 temp-ID formats). (design OQ1, OQ2) (The namespacing paragraph was withdrawn — JNG-6411 scope.)
-- [ ] 7.4 Hand off to `judo-tatami-tests@react-template-e2e-parity` for cross-engine execution. Cross-engine equality scenarios in this change's specs are *asserted* here and *executed* there; neither change is accepted alone. (proposal: Impact)
+- [x] 7.4 Hand off to `judo-tatami-tests@react-template-e2e-parity` for cross-engine execution. Cross-engine equality scenarios in this change's specs are *asserted* here and *executed* there; neither change is accepted alone. (proposal: Impact) Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
