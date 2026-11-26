@@ -377,6 +377,17 @@ public class UiWidgetHelper {
     }
 
     public static String tableButtonVisibilityConditions(Button button, Table table, PageContainer container) {
+        // When the modeler picked checkboxSelection=DISABLED (or AUTO on a bulk-less table),
+        // the toolbar entries for bulk actions must be hidden because there is no way to build
+        // a selection without the checkbox column. Collapse the visibility expression to the
+        // literal `false` so the generated `enabled:` callback evaluates to false.
+
+        if (button.getActionDefinition() != null
+                && button.getActionDefinition().isIsBulk()
+                && !UiTableHelper.multiSelectAllowedForOwnPage(table)) {
+            return "false";
+        }
+
         String result = "";
 
         if (table.getEnabledBy() != null) {
