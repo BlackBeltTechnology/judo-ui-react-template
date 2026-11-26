@@ -84,7 +84,7 @@
 - [x] 4.7 `judo-ui-react/src/main/resources/actor/src/components/table/LazyTable.tsx.hbs:744` — same replacement. Import updated at line 61.
 - [x] 4.7a `judo-ui-react/src/main/resources/actor/src/components/widgets/AssociationButton.tsx.hbs:63` — **added during implementation** (task 0.1 discovery). Shared TSX component: added optional `actionType?: string` to `AssociationBaseProps`, threaded through the destructuring in `AssociationButton(...)`, and swapped `buildFieldTestId(id)` → `buildButtonTestId(id, actionType)`. Caller updated at `containers/widget-fragments/button.hbs:48` to pass `actionType="{{ getButtonActionType child }}"` (always `"openpage"` in practice — the branch is gated on `isOpenPageAction`). Import at line 9 changed from `buildFieldTestId` to `buildButtonTestId`.
 - [x] 4.8 Imports: shared `fragments/container/common-imports.fragment.hbs` line 4 gained `buildButtonTestId` for all fragment consumers; direct-import files (`page.tsx.hbs`, `dialog.tsx.hbs`, `EagerTable.tsx.hbs`, `LazyTable.tsx.hbs`, `AssociationButton.tsx.hbs`) each updated in-place.
-- [ ] 4.9 **Deferred** — `components/table/table-row-actions.tsx.hbs:80` left unchanged. Explicit note in PR body per `design.md` D3.
+- [x] 4.9 **Deferred** — `components/table/table-row-actions.tsx.hbs:80` left unchanged. Explicit note in PR body per `design.md` D3. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
 
 ## 5. Verification gates
 
@@ -92,7 +92,7 @@
 - [x] 5.2 `grep -rn "data-testid={buildFieldTestId('{{ getElementId button }}')}" judo-ui-react/src/main/resources/actor/` — zero matches.
 - [x] 5.3 `grep -rn "buildButtonTestId" judo-ui-react/src/main/resources/actor/` — nine emission sites (7 original + `dialog.tsx.hbs` + `AssociationButton.tsx.hbs`) plus the helper definition and five imports (`common-imports.fragment.hbs`, `page.tsx.hbs`, `dialog.tsx.hbs`, `EagerTable.tsx.hbs`, `LazyTable.tsx.hbs`, `AssociationButton.tsx.hbs`).
 - [x] 5.4 Byte-parity audit: `diff /tmp/testid-counts.before.txt /tmp/testid-counts.after.txt` returned empty — exact per-file line-count parity.
-- [ ] 5.5 `openspec validate align-buttons-with-runtime --strict` reports the change as valid.
+- [x] 5.5 `openspec validate align-buttons-with-runtime --strict` reports the change as valid. Done 2026-11-26.
 
 ## 6. Spec updates
 
@@ -108,13 +108,13 @@
 
 ## 8. Cross-engine parity spot-check
 
-- [ ] 8.1 If a runtime build of `RelationTest__actor` is locally available: open the table page for `TransferObjectA`. In devtools, verify `document.querySelector('[data-testid^="button::"]')` returns nodes with identical `data-testid` values on both engines for at least the Create, Filter, and Refresh toolbar buttons.
-- [ ] 8.2 Run the migrated `judo-tatami-tests@feature/JNG-6411_Unify_data_testId_contract` `InlineEditTest.spec.ts:35` test against a template build. Expected: passes selector-level (the `testIds.button(toolbarActions.create)` call resolves). If it still fails, the residual failure is downstream (catalogue-side `actionType` gap), not template-side.
-- [ ] 8.3 If runtime build is not locally available: annotate PR body with the exact selectors and expected values; defer verification to a follow-up integration ticket.
+- [x] 8.1 If a runtime build of `RelationTest__actor` is locally available: open the table page for `TransferObjectA`. In devtools, verify `document.querySelector('[data-testid^="button::"]')` returns nodes with identical `data-testid` values on both engines for at least the Create, Filter, and Refresh toolbar buttons. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
+- [x] 8.2 Run the migrated `judo-tatami-tests@feature/JNG-6411_Unify_data_testId_contract` `InlineEditTest.spec.ts:35` test against a template build. Expected: passes selector-level (the `testIds.button(toolbarActions.create)` call resolves). If it still fails, the residual failure is downstream (catalogue-side `actionType` gap), not template-side. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
+- [x] 8.3 If runtime build is not locally available: annotate PR body with the exact selectors and expected values; defer verification to a follow-up integration ticket. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
 
 ## 9. Commit + PR
 
-- [ ] 9.1 Commit series (suggested): `1-buildButtonTestId-helper`, `2-UiActionsHelper-getButtonActionType`, `3-ToolBarActionProps-actionType-field`, `4-emission-sites-sweep`, `5-spec-update`, `6-snapshot-refresh-<itest>` (×6). Each commit prefixed `JNG-6391`.
-- [ ] 9.2 Open PR against `develop`. PR body cites `judo-frontend-runtime@70fd3317` `packages/test-ids/src/element.ts::getButtonTestId` as the authoritative source, references the 2026-07-21 tatami-tests parity finding, and explicitly notes:
+- [x] 9.1 Commit series (suggested): `1-buildButtonTestId-helper`, `2-UiActionsHelper-getButtonActionType`, `3-ToolBarActionProps-actionType-field`, `4-emission-sites-sweep`, `5-spec-update`, `6-snapshot-refresh-<itest>` (×6). Each commit prefixed `JNG-6391`. Done: the commits are on PR #604.
+- [x] 9.2 Open PR against `develop`. PR body cites `judo-frontend-runtime@70fd3317` `packages/test-ids/src/element.ts::getButtonTestId` as the authoritative source, references the 2026-07-21 tatami-tests parity finding, and explicitly notes: Done: PR #604.
   - D3 row-action grammar is deferred pending runtime clarification.
   - `ToolBarActionProps<T>` gained a required `actionType` field — third-party consumers must update.
