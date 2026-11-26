@@ -52,6 +52,7 @@ import {
   selectionModelToArray,
   NO_PINNED_COLUMNS,
   pinnedColumnFields,
+  orderPinnedColumns,
   {{# unless isMUILicensePlanPro }}
   usePinnedColumns,
   {{/ unless }}
@@ -333,8 +334,10 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     return cols;
   }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
+  const pinnedFields = useMemo(() => pinnedColumnFields(pinnedColumns, effectiveTableColumns), [pinnedColumns, effectiveTableColumns]);
+  const gridColumns = useMemo(() => orderPinnedColumns(effectiveTableColumns, pinnedFields), [effectiveTableColumns, pinnedFields]);
   {{# unless isMUILicensePlanPro }}
-  usePinnedColumns(apiRef, pinnedColumns, effectiveTableColumns);
+  usePinnedColumns(apiRef, pinnedFields);
   {{/ unless }}
 
   {{# if isMUILicensePlanPro }}
@@ -669,7 +672,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         { ...baseTableConfig }
         showToolbar
         {{# if isMUILicensePlanPro }}
-        initialState={ { pinnedColumns: pinnedColumnFields(pinnedColumns, effectiveTableColumns) } }
+        initialState={ { pinnedColumns: pinnedFields } }
         {{/ if }}
         pageSizeOptions={pageSizeOptions}
         sx={ {
@@ -714,7 +717,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
           }
           return styles.join(' ');
         } }
-        columns={effectiveTableColumns}
+        columns={gridColumns}
         {{# if isMUILicensePlanPro }}
           onColumnOrderChange={onColumnsChanged}
           onColumnWidthChange={onColumnsChanged}

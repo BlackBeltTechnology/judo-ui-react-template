@@ -68,6 +68,7 @@ import {
   mapFilterModelToFilters,
   mapFilterToFilterModel,
   NO_PINNED_COLUMNS,
+  orderPinnedColumns,
   pinnedColumnFields,
   processQueryCustomizer,
   selectionModelToArray,
@@ -320,6 +321,15 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     columnState,
   ]);
 
+  const pinnedFields = useMemo(
+    () => pinnedColumnFields(pinnedColumns, effectiveTableColumns),
+    [pinnedColumns, effectiveTableColumns],
+  );
+  const gridColumns = useMemo(
+    () => orderPinnedColumns(effectiveTableColumns, pinnedFields),
+    [effectiveTableColumns, pinnedFields],
+  );
+
   const onColumnsChanged = () => {
     // Handles column resizing and re-ordering
     // skip selector column
@@ -520,7 +530,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
-        initialState={{ pinnedColumns: pinnedColumnFields(pinnedColumns, effectiveTableColumns) }}
+        initialState={{ pinnedColumns: pinnedFields }}
         pageSizeOptions={pageSizeOptions}
         sx={{
           overflow: 'hidden',
@@ -550,7 +560,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
           }
           return styles.join(' ');
         }}
-        columns={effectiveTableColumns}
+        columns={gridColumns}
         onColumnOrderChange={onColumnsChanged}
         onColumnWidthChange={onColumnsChanged}
         disableRowSelectionOnClick

@@ -146,32 +146,43 @@ export type PinnedColumns = GridPinnedColumnFields;
 
 export const NO_PINNED_COLUMNS: PinnedColumns = {};
 
+// Value of MUI's GRID_CHECKBOX_SELECTION_FIELD; importing the constant pulls the grid's CSS into unit tests.
+const CHECKBOX_FIELD = '__check__';
+
 /**
  * Pinned fields for the grid: the model pins, plus the row actions column (`type: 'actions'`) as the outermost right
- * column.
+ * column. With left pins the selection checkbox is pinned first, so it stays at the left edge.
  */
 export const pinnedColumnFields = <T extends GridValidRowModel>(
   pinned: PinnedColumns,
   columns: GridColDef<T>[],
 ): Required<GridPinnedColumnFields> => ({
-  left: pinned.left ?? [],
+  left: pinned.left?.length ? [CHECKBOX_FIELD, ...pinned.left] : [],
   right: [...(pinned.right ?? []), ...columns.filter((c) => c.type === 'actions').map((c) => c.field)],
 });
+
+/** Columns in grid order: left pins first, right pins last. The grid renders its pinned sections from the edges. */
+export const orderPinnedColumns = <T extends GridValidRowModel>(
+  columns: GridColDef<T>[],
+  pinned: Required<GridPinnedColumnFields>,
+): GridColDef<T>[] => {
+  const pick = (fields: string[]) =>
+    fields.flatMap((field) => columns.find((c) => c.field === field) ?? []);
+  const left = pick(pinned.left);
+  const right = pick(pinned.right);
+  return [...left, ...columns.filter((c) => !left.includes(c) && !right.includes(c)), ...right];
+};
 {{# unless isMUILicensePlanPro }}
 
 /**
  * Column pinning on the community grid. The community grid already renders pinned columns (sticky sections, offsets,
  * shadows, virtualisation) from `state.pinnedColumns`; only the Pro hook that fills that state is missing, so this
- * sets it. `state.pinnedColumns` is MUI internal state: a rename in a MUI update fails type-checking here.
+ * sets it. Columns must be in `orderPinnedColumns` order. `state.pinnedColumns` is MUI internal state: the update is
+ * typed `GridState`, so a rename in a MUI update fails type-checking here.
  */
-export const usePinnedColumns = <T extends GridValidRowModel>(
-  apiRef: RefObject<GridApi | null>,
-  pinned: PinnedColumns,
-  columns: GridColDef<T>[],
-) => {
+export const usePinnedColumns = (apiRef: RefObject<GridApi | null>, pinnedColumns: Required<GridPinnedColumnFields>) => {
   useLayoutEffect(() => {
-    const pinnedColumns = pinnedColumnFields(pinned, columns);
     apiRef.current?.setState((state: GridState): GridState => ({ ...state, pinnedColumns }));
-  }, [apiRef, pinned, columns]);
+  }, [apiRef, pinnedColumns]);
 };
 {{/ unless }}

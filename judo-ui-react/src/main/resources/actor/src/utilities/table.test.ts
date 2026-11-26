@@ -1,6 +1,6 @@
 import { expect, describe, it } from 'vitest';
 import type { JudoStored } from '~/services/data-api/common';
-import { isRowSelectable, pinnedColumnFields } from './table';
+import { isRowSelectable, orderPinnedColumns, pinnedColumnFields } from './table';
 
 interface TestType extends JudoStored<TestType>{
     name: string
@@ -102,10 +102,10 @@ describe('isRowSelectable', () => {
 });
 
 describe('pinnedColumnFields', () => {
-    it('keeps the model pins and puts the row actions column outermost right', () => {
+    it('keeps the model pins, pins the checkbox before left pins and the row actions outermost right', () => {
         const columns = [{ field: 'name' }, { field: 'code' }, { field: 'rowActions', type: 'actions' as const }];
         expect(pinnedColumnFields({ left: ['name'], right: ['code'] }, columns)).toEqual({
-            left: ['name'],
+            left: ['__check__', 'name'],
             right: ['code', 'rowActions'],
         });
     });
@@ -122,3 +122,10 @@ describe('pinnedColumnFields', () => {
     });
 });
 
+describe('orderPinnedColumns', () => {
+    it('moves left pins first and right pins last, in pin order, keeping the rest in model order', () => {
+        const columns = ['a', 'name', 'b', 'discovered', 'c', 'actions'].map((field) => ({ field }));
+        const ordered = orderPinnedColumns(columns, { left: ['__check__', 'name'], right: ['discovered', 'actions'] });
+        expect(ordered.map((c) => c.field)).toEqual(['name', 'a', 'b', 'c', 'discovered', 'actions']);
+    });
+});
