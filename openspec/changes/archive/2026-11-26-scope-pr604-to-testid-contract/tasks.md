@@ -22,7 +22,7 @@
 
 ## 3. Hand-off
 
-- [ ] 3.1 Force-push; PR checks green; update the PR body: scope (ids only), the mirror table, and that acceptance is the Tatami run on the React stack. Take it out of draft once runtime PR A is up for review.
-- [ ] 3.2 Give Tatami #287 the new feature build version for its CI override (`react-template-e2e-parity` task 7.2b).
-- [ ] 3.3 Parity check: after runtime PR A's rebase, compare this template's test-id builder output with `@judo/test-ids` on a shared fixture (field roles, row/cell/`__check__`, action roles, operation names, `confirmation`, `boolean-*`); every difference is a bug on one side (review #10).
-- [ ] 3.4 Acceptance on the React stack: build a Tatami model with `frontendType=react` from this branch plus `feature/react-followups`, run the suite on `/{model}/{actor}` with `--retries=0`, and compare with the runtime (A+B) results (`react-template-e2e-parity` 6.1–6.8). Fix each one-sided failure in the engine that owns it. RelationTest first.
+- [x] 3.1 Force-push; PR checks green; update the PR body: scope (ids only), the mirror table, and that acceptance is the Tatami run on the React stack. Take it out of draft once runtime PR A is up for review. Done 2026-11-10 (pushed, out of draft).
+- [x] 3.2 Give Tatami #287 the new feature build version for its CI override (`react-template-e2e-parity` task 7.2b). Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
+- [x] 3.3 Parity check: after runtime PR A's rebase, compare this template's test-id builder output with `@judo/test-ids` on a shared fixture (field roles, row/cell/`__check__`, action roles, operation names, `confirmation`, `boolean-*`); every difference is a bug on one side (review #10). Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
+- [x] 3.4 Acceptance on the React stack: build a Tatami model with `frontendType=react` from this branch plus `feature/react-followups`, run the suite on `/{model}/{actor}` with `--retries=0`, and compare with the runtime (A+B) results (`react-template-e2e-parity` 6.1–6.8). Fix each one-sided failure in the engine that owns it. RelationTest first. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.

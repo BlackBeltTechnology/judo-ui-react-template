@@ -79,8 +79,6 @@ survive MUI's internal rendering.
 - **THEN** its panel and input test IDs carry that table's own identity
 - **AND** they do not match the other table's panel selectors
 
-## MODIFIED Requirements
-
 ### Requirement: Row-action buttons use the canonical row-scoped action grammar
 
 Row-action buttons SHALL carry `table::<table-id>::row::<resolved-transfer-id>::action::<role>`,

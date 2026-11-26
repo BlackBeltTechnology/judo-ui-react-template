@@ -21,7 +21,7 @@
 
 ## 4. Generated application check
 
-- [ ] 4.1 Build the template (`mvn -pl judo-ui-react install`). Generate the Tatami `ActionGroupTest` model with `frontendType=react` from this branch, then run its TypeScript build. Verify that the build exits 0 with no picker prop type errors, and that an autofocus date field takes focus on page open.
+- [x] 4.1 Build the template (`mvn -pl judo-ui-react install`). Generate the Tatami `ActionGroupTest` model with `frontendType=react` from this branch, then run its TypeScript build. Verify that the build exits 0 with no picker prop type errors, and that an autofocus date field takes focus on page open. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
 
 ## Workflow follow-up
 
