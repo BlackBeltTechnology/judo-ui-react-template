@@ -536,6 +536,27 @@ public class UiActionsHelper {
         return table != null && table.isIsEager();
     }
 
+    /**
+     * Whether a create through an eager link on a view page goes to the relation's own
+     * {@code ~create} endpoint once the owner is saved, instead of being staged into the owner.
+     * Mirrors the runtime's {@code LinkRenderer.stagesCreateLocally}: only a composition is staged
+     * on a saved owner; the server refuses a new object nested into any other relation
+     * ("On association there can be any attribute / reference inside the payload").
+     * Whether the owner is saved is a runtime fact, so the template still stages while {@code isDraft}.
+     * The set selector's create follows the same rule ({@code LinkRenderer.handleSelectorCreate}).
+     */
+    public static boolean isLinkCreatePersistedOnSavedOwner(PageDefinition pageDefinition, Action action) {
+        ActionDefinition definition = action.getActionDefinition();
+        if (!pageDefinition.getContainer().isView()
+                || !(definition.getIsOpenCreateFormAction() || definition.getIsOpenSetSelectorAction())
+                || getTableParentForActionDefinition(action.getActionDefinition()) != null) {
+            return false;
+        }
+        Link link = getLinkParentForActionDefinition(action.getActionDefinition());
+        return link != null && link.isIsEager()
+                && link.getRelationType() != null && !link.getRelationType().getIsRelationKindComposition();
+    }
+
     public static boolean isRefreshPageInitializer(Action action, PageDefinition page) {
         if (action.getIsRefreshAction()) {
             return page.getContainer().getOnInit() != null && page.getContainer().getOnInit().equals(action.getActionDefinition());

@@ -301,6 +301,15 @@ A generated widget SHALL put `field::<id>::input` on the input element that carr
 - **WHEN** the same model element is rendered by the generated app and by the runtime
 - **THEN** both editable elements carry the same `field::<id>::input`
 
+### Requirement: Enumeration combo carries the canonical input role
+
+An `EnumerationCombo` SHALL mark its root `field::<id>` and its native `<input>` `field::<id>::input`, both built with `buildFieldTestId`. The input role SHALL be merged into the `TextField`'s `inputProps` after Autocomplete's own `params.inputProps`. This mirrors the runtime's `EnumerationComboComponent`.
+
+#### Scenario: Enumeration combo on a view
+
+- **WHEN** a view renders an `EnumerationCombo` `type` with source id `_S0SVYHtTEeusor6jyLynzw`
+- **THEN** its `<input>` carries `data-testid="field::_S0SVYHtTEeusor6jyLynzw::input"` and holds the selected option's label
+
 ## Integration Test Coverage
 
 - **ActionGroupTest**: TextFields, Checkboxes, DateTimePickers, Dropdowns in Galaxy/Matter forms

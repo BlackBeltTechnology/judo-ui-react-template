@@ -400,6 +400,61 @@ A generated table's always-shown filter bar SHALL carry `table::<id>::fixed-filt
 - **WHEN** the table renders
 - **THEN** the filter's root carries `data-testid="table::<id>::fixed-filter::name"` inside `table::<id>::fixed-filters`
 
+### Requirement: Bulk actions act only on checked rows
+
+After a bulk action completes or the table is cleared, a table SHALL reset its selection with an empty selection model, so `selectedRows` and the grid selection hold no row. A later bulk action SHALL receive only the rows that are checked at that moment.
+
+#### Scenario: Re-added row is not removed again
+
+- **WHEN** the user bulk-removes row `dark`, re-adds `dark` through the Add selector, checks two other rows and clicks bulk Remove
+- **THEN** the remove request contains only the two checked rows
+- **AND** `dark` stays in the table
+
+#### Scenario: Clear resets the selection
+
+- **WHEN** the user clicks Clear on a table that has checked rows
+- **THEN** no row stays selected and bulk actions that need a selection are disabled
+
+### Requirement: Enum filter value carries canonical test ids
+
+The enumeration value editor of a filter dialog row SHALL carry `table::<id>::filter-panel::row::<i>::value` on its clickable Select display (`role="combobox"`). Each option SHALL carry `::value::option::<member>`, where `<member>` is the enum member sent to the server. String and numeric editors SHALL keep `::value` on their input. The ids SHALL NOT change behaviour or the operator list.
+
+#### Scenario: Opening the enum value menu
+
+- **WHEN** row 0 of the filter dialog of table `_T1` filters an enumeration attribute
+- **THEN** the element with `role="combobox"` carries `data-testid="table::_T1::filter-panel::row::0::value"`
+- **AND** clicking it opens the option menu
+
+#### Scenario: Picking an enum member
+
+- **WHEN** the value menu of row 1 is open and the enum has the member `dark` labelled "Dark matter"
+- **THEN** the option carries `data-testid="table::_T1::filter-panel::row::1::value::option::dark"`
+
+#### Scenario: Text value input
+
+- **WHEN** row 0 filters a string attribute
+- **THEN** the text `input` element carries `data-testid="table::_T1::filter-panel::row::0::value"`
+
+### Requirement: Table pager carries canonical test ids
+
+The footer pager of an `EagerTable` and a `LazyTable` SHALL mark its root, previous and next buttons, rows-per-page combobox and each rows-per-page option with `table::<id>::pagination`, `::previous`, `::next`, `::page-size` and `::page-size::option::<n>`, built by `buildTablePaginationTestId` from the table id of `table::<id>::grid`. The ids SHALL NOT change the pager's behaviour. Without a `tableTestId`, `CustomTablePagination` SHALL emit no pager ids.
+
+#### Scenario: Eager table pager
+
+- **WHEN** an `EagerTable` with table id `_T1` renders its footer pager
+- **THEN** the pager root carries `data-testid="table::_T1::pagination"` and its buttons carry `table::_T1::pagination::previous` and `table::_T1::pagination::next`
+- **AND** the rows-per-page combobox carries `table::_T1::pagination::page-size`
+
+#### Scenario: Lazy table page-size options
+
+- **WHEN** the user opens the rows-per-page menu of a `LazyTable` with table id `_T2` and page-size options 10 and 20
+- **THEN** the options carry `table::_T2::pagination::page-size::option::10` and `table::_T2::pagination::page-size::option::20`
+
+#### Scenario: Pager without a table id
+
+- **WHEN** `CustomTablePagination` is rendered without `tableTestId`
+- **THEN** it emits no `table::…::pagination` ids and behaves as before
+
 ## Integration Test Coverage
 
 - **ActionGroupTest** (Community): LazyTable, EagerTable, table pages with filters, sorting, row actions, Galaxy domain tables

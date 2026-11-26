@@ -105,9 +105,23 @@ export function buildButtonTestId(buttonId: TestIdKey, actionType?: string): str
   return actionType ? `button::${key}::${actionType}` : `button::${key}`;
 }
 
+/** Mirrors `getButtonGroupTestId` of `@judo/test-ids`; a dropdown trigger appends `::dropdown`. */
+export function buildButtonGroupTestId(groupId: TestIdKey): string {
+  return `button-group::${stringifyKey(groupId)}`;
+}
+
 /** Build the outer `data-testid` for a table. */
 export function buildTableTestId(tableId: TestIdKey): string {
   return `table::${stringifyKey(tableId)}`;
+}
+
+/**
+ * Build the `data-testid` for a table's footer pager (`table::<id>::pagination`) or one of its parts:
+ * `previous`, `next`, `page-size`, `page-size::option::<n>`.
+ */
+export function buildTablePaginationTestId(tableId: TestIdKey, part?: string): string {
+  const pagination = `${buildTableTestId(tableId)}::pagination`;
+  return part ? `${pagination}::${part}` : pagination;
 }
 
 /** Build the `data-testid` for a table's column header (the sort handle). */
@@ -218,6 +232,16 @@ export function buildFilterPanelOperatorInputTestId(tableId: TestIdKey, index?: 
 export function buildFilterPanelValueInputTestId(tableId: TestIdKey, index?: number): string {
   const scope = index === undefined ? buildFilterPanelTestId(tableId) : buildFilterPanelRowTestId(tableId, index);
   return `${scope}::value`;
+}
+
+/**
+ * Build the `data-testid` for one option of an enumeration filter value.
+ *
+ * `member` is the enum member sent to the server (`dark`), never the
+ * translated label. Runtime parity: `table::<id>::filter-panel::row::<n>::value::option::<member>`.
+ */
+export function buildFilterPanelValueOptionTestId(tableId: TestIdKey, index: number, member: string): string {
+  return `${buildFilterPanelValueInputTestId(tableId, index)}::option::${member}`;
 }
 
 /** Build the `data-testid` for a table's always-shown filter bar. Runtime parity: `table::<id>::fixed-filters`. */
