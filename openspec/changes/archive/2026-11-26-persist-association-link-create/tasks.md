@@ -14,4 +14,4 @@
 
 ## 2. Dual-engine check
 
-- [ ] 2.1 Run Tatami ActionGroupTest `AstronomerSingleAggregationViewPage.spec.ts` and `GalaxyAttributesAndSingleRelation.spec.ts` on React with retries off. Verify that the create calls `~update/astronomer/~create` and all three cases pass.
+- [x] 2.1 Run Tatami ActionGroupTest `AstronomerSingleAggregationViewPage.spec.ts` and `GalaxyAttributesAndSingleRelation.spec.ts` on React with retries off. Verify that the create calls `~update/astronomer/~create` and all three cases pass. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.

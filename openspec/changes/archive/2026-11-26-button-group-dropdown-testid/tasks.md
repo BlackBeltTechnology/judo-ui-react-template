@@ -8,4 +8,4 @@
 
 ## 2. Dual-engine check
 
-- [ ] 2.1 Run Tatami ActionGroupTest `MatterOperationsAndCollection.spec.ts` on React with retries off. Verify that it opens `button-group::<id>::dropdown` and clicks the canonical button.
+- [x] 2.1 Run Tatami ActionGroupTest `MatterOperationsAndCollection.spec.ts` on React with retries off. Verify that it opens `button-group::<id>::dropdown` and clicks the canonical button. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.

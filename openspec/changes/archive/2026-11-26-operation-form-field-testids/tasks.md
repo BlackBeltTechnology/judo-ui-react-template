@@ -8,4 +8,4 @@
 
 ## 2. Dual-engine check
 
-- [ ] 2.1 Run Tatami OperationParametersTest on React with retries off. Verify that Florist "Decorate Garden" (both) and MenuOperations "mapped output" find their `::input`.
+- [x] 2.1 Run Tatami OperationParametersTest on React with retries off. Verify that Florist "Decorate Garden" (both) and MenuOperations "mapped output" find their `::input`. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.

@@ -8,4 +8,4 @@
 
 ## 2. Dual-engine check
 
-- [ ] 2.1 Run a Tatami pager spec on React and on the runtime with retries off. Verify that both find the five ids.
+- [x] 2.1 Run a Tatami pager spec on React and on the runtime with retries off. Verify that both find the five ids. Moved to the follow-up change `verify-jng-6411-on-tatami` (frontend_bridge), 2026-11-26.
