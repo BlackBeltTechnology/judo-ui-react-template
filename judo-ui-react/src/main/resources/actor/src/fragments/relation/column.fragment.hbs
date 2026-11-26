@@ -4,8 +4,8 @@ type: '{{ columnType column }}',
 editable: true,
 renderEditCell: (props: GridRenderEditCellParams) => {
   let error: string | undefined;
-  if (props.row && rowValidation.current.has(props.row.__identifier)) {
-    const errors = rowValidation.current.get(props.row.__identifier);
+  if (props.row && rowValidation.current.has(resolveTransferId(props.row))) {
+    const errors = rowValidation.current.get(resolveTransferId(props.row));
     error = errors?.get('{{ column.attributeType.name }}');
   }
   return (
@@ -26,11 +26,11 @@ filterOperators: stringColumnOperators,
 align: 'center',
 renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
   if (params.row.{{ column.attributeType.name }} === null || params.row.{{ column.attributeType.name }} === undefined) {
-    return <MdiIcon className="undefined" path="minus" color="#ddd" />;
+    return <MdiIcon className="undefined" path="minus" color="#ddd" testId="boolean-null" />;
   } else if (params.row.{{ column.attributeType.name }}) {
-    return <MdiIcon className="true" path="check-circle" color="green" />;
+    return <MdiIcon className="true" path="check-circle" color="green" testId="boolean-true" />;
   }
-  return <MdiIcon className="false" path="close-circle" color="red" />;
+  return <MdiIcon className="false" path="close-circle" color="red" testId="boolean-false" />;
 },
 {{# if isUseInlineColumnFilters }}
 filterOperators: booleanColumnOperators,
@@ -104,7 +104,7 @@ align: 'left',
 renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceClassType ref) 'Stored' }}>) => {
   return params.row.{{ column.attributeType.name }}
     ? <ButtonGroup size="small" variant="outlined">
-        <Button data-testid="{{ createId column }}-download" startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} onClick={ (event: any) => {
+        <Button data-testid={`${buildCellTestId('{{ getElementId ref }}', params.row, '{{ column.name }}')}::button::download`} startIcon={<MdiIcon path="file-document-outline" {{# neq column.attributeType.dataType.mimeTypes.size 0 }}mimeType={ { type: '{{ column.attributeType.dataType.mimeTypes.[0].type }}', subType: '{{ column.attributeType.dataType.mimeTypes.[0].subType }}' } }{{/ neq }} />} onClick={ (event: any) => {
           event.preventDefault();
           event.stopPropagation();
           downloadFile(params.row, '{{ column.attributeType.name }}', 'attachment');
@@ -112,7 +112,7 @@ renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceCla
           { extractFileNameFromToken(params.row.{{ column.attributeType.name }}) }
         </Button>
         <Button
-          data-testid="{{ createId column }}-view"
+          data-testid={`${buildCellTestId('{{ getElementId ref }}', params.row, '{{ column.name }}')}::button::view`}
           onClick={ (event: any) => {
             event.preventDefault();
             event.stopPropagation();
@@ -156,7 +156,6 @@ renderCell: (params: GridRenderCellParams<any, {{ classDataName (getReferenceCla
           readOnly={true}
           editMode={false}
           autoCompleteAttribute={'{{ column.representationOfRelation.name }}'}
-          identifierAttribute={'__identifier'}
         />
       </Box>
     );

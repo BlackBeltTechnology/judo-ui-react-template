@@ -66,6 +66,48 @@ public class UiGeneralHelper {
         return getXMIID(element).replaceAll("@", "");
     }
 
+    /**
+     * Resolve the identity of an EObject for {@code data-testid} emission.
+     *
+     * <p>Mirrors the runtime's {@code getElementTestId} in
+     * {@code @judo/test-ids/src/element.ts}: prefers a non-empty {@code sourceId}
+     * on the underlying {@link NamedElement}, otherwise falls back to the sanitized
+     * xmi:id (via {@link #createId(EObject)}). Used exclusively for {@code data-testid}
+     * emission — non-testid identity uses (Pandino keys, i18n keys, container-name
+     * detection) continue to call {@code getXMIID} directly.
+     */
+    public static String getElementId(EObject element) {
+        if (element == null) return "unknown";
+        String sourceId = (element instanceof NamedElement)
+                ? ((NamedElement) element).getSourceId()
+                : null;
+        String xmiIdRaw = null;
+        try {
+            xmiIdRaw = getXMIID(element);
+        } catch (RuntimeException ignored) {
+            // getXMIID requires an XMIResource; if the element is detached, fall through.
+        }
+        return resolveElementId(sourceId, xmiIdRaw);
+    }
+
+    /**
+     * Pure-function core of {@link #getElementId(EObject)}. Package-private for
+     * unit testability without EMF setup.
+     *
+     * @param sourceId the element's {@code sourceId} attribute value, or {@code null}
+     * @param xmiIdRaw the raw xmi:id (possibly containing {@code @}), or {@code null}
+     * @return the id to emit into {@code data-testid} strings
+     */
+    static String resolveElementId(String sourceId, String xmiIdRaw) {
+        if (sourceId != null && !sourceId.isEmpty()) {
+            return sourceId;
+        }
+        if (xmiIdRaw == null) {
+            return "unknown";
+        }
+        return xmiIdRaw.replaceAll("@", "");
+    }
+
     public static Boolean isNavItemAGroup(NavigationItem navigationItem) {
         return navigationItem.getTarget() == null;
     }

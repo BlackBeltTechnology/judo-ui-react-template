@@ -9,7 +9,7 @@ const {{ simpleActionDefinitionName action.actionDefinition }} = async (target: 
     if (confirmed) {
       {{# if (isActionParentEagerElement action) }}
         {{# with (getTableParentForActionDefinition action.actionDefinition) as |table| }}
-          const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => c.__identifier !== target.__identifier);
+          const newList = (data?.{{ table.dataElement.name }} ?? []).filter((c: any) => resolveTransferId(c) !== resolveTransferId(target));
           storeDiff('{{ table.dataElement.name }}', newList);
         {{/ with }}
         {{# with (getLinkParentForActionDefinition action.actionDefinition) as |link| }}

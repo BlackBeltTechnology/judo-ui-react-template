@@ -100,6 +100,7 @@ import { CellEditInput } from '~/components/table';
 {{/ if }}
 import type { {{ componentName table }}ActionDefinitions, {{ componentName table }}Props } from './types';
 import { {{ classDataName (getReferenceClassType table) 'StoredSerializer' }} } from '~/services/data-api/rest/{{ classDataName (getReferenceClassType table) 'Serializer' }}';
+import { resolveTransferId, buildTableTestId, buildColumnHeaderTestId, buildRowTestId, buildCellTestId } from '~/utilities/transfer-id';
 {{# if (tableHasRelationColumn table) }}
 import { Tags } from '~/components/widgets';
 {{/ if }}
@@ -119,6 +120,7 @@ export const filtersSerializer: FiltersSerializer = {
 export function {{ componentName table }}(props: {{ componentName table }}Props) {
   const {
     uniqueId,
+    testIdOverride,
     actions,
     dataPath,
     refreshCounter,
@@ -156,27 +158,27 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   const applyRowEdit = useCallback(async (rowData: {{ classDataName (getReferenceClassType table) 'Stored' }}) => {
     try {
       await actions.apply{{ firstToUpper table.relationName }}RowEdit!(rowData);
-      rowValidation.current.delete(rowData.__identifier!);
+      rowValidation.current.delete(resolveTransferId(rowData));
     } catch(e: any) {
       if (e?.response?.status === 400) {
         const errorMap: Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string> = new Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>();
         {{# if table.isEager }}
         // can be -1 if row is not yet written into ownerData
-        const rowIdx = (ownerData?.{{ table.dataElement.name }} || []).findIndex(r => r.__identifier === rowData.__identifier);
+        const rowIdx = (ownerData?.{{ table.dataElement.name }} || []).findIndex(r => resolveTransferId(r) === resolveTransferId(rowData));
         {{/ if }}
         const errorList = isErrorNestedValidationError(e, dataPath) ? extractRelationErrorList<any, {{ classDataName (getReferenceClassType table) 'Stored' }}>(e.response.data, dataPath!{{# if table.isEager }}, rowIdx === -1 ? 0 : rowIdx{{/ if }}) : e.response.data as ServerError<{{ classDataName (getReferenceClassType table) 'Stored' }}>[];
         if (errorList && errorList.length && errorList[0].location) {
           validateWithNestedErrors(errorList, errorMap, t);
         }
         const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(rowValidation.current);
-        copy.set(rowData.__identifier!, errorMap);
+        copy.set(resolveTransferId(rowData), errorMap);
         rowValidation.current = copy;
       } else {
         const copy = new Map<string, Map<keyof {{ classDataName (getReferenceClassType table) 'Stored' }}, string>>(rowValidation.current);
-        copy.delete(rowData.__identifier!);
+        copy.delete(resolveTransferId(rowData));
         rowValidation.current = copy;
       }
-      throw(rowData.__identifier);
+      throw(resolveTransferId(rowData));
     }
   }, [actions]);
 
@@ -196,6 +198,13 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     ...baseColumnConfig,
     field: '{{ column.attributeType.name }}',
     headerName: t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string,
+    // The canonical header role is the engine-neutral sort handle; without it a
+    // shared spec would depend on MUI's `.MuiDataGrid-columnHeaderTitle` class.
+    renderHeader: () => (
+      <span data-testid={buildColumnHeaderTestId(testIdOverride ?? '{{ getElementId table }}', '{{ column.attributeType.name }}')}>
+        {t('{{ getTranslationKeyForVisualElement column }}', { defaultValue: '{{ column.label }}' }) as string}
+      </span>
+    ),
     headerClassName: 'data-grid-column-header',
     {{# if isDebugPrint }}// include: actor/src/fragments/relation/column.fragment.hbs{{/ if }}
     {{> actor/src/fragments/relation/column.fragment.hbs column=column ref=table name=table.name }}
@@ -217,6 +226,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
     {
       name: "{{ simpleActionDefinitionName actionDefinition }}",
       id: "{{ getXMIID button }}",
+      actionType: "{{ getButtonActionType button }}",
       {{# if button.icon }}
       startIcon: "{{ button.icon.iconName }}",
       {{/ if }}
@@ -241,9 +251,10 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
 
   const rowActions: TableRowAction<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}>[] = [
     {{# each table.rowActionButtonGroup.buttons as |button| }}
-    {{# unless button.actionDefinition.isOpenPageAction }}
     {
       id: '{{ getXMIID button }}',
+      testId: '{{ getButtonRole button }}',
+      actionType: '{{ getButtonActionType button }}',
       {{# if button.label }}
       label: t('{{ getTranslationKeyForVisualElement button }}', { defaultValue: '{{ button.label }}' }) as string,
       {{/ if }}
@@ -265,7 +276,6 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         await actions.{{ simpleActionDefinitionName button.actionDefinition }}!(rowData{{# if button.actionDefinition.isOpenPageAction }}, isDraft{{/ if }});
       } : undefined,
     },
-    {{/ unless }}
     {{/ each }}
   ];
 
@@ -277,7 +287,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
   ];
 
   return (
-    <div data-testid="{{ getXMIID table }}" data-table-name="{{ table.name }}">
+    <div data-testid={buildTableTestId(testIdOverride ?? '{{ getElementId table }}')} data-table-name="{{ table.name }}">
       {{# if table.isEager }}
         <EagerTable<{{# with (getReferenceClassType table) as |classType| }}{{# if classType.isMapped }}{{ classDataName (getReferenceClassType table) 'Stored' }}{{ else }}{{ classDataName (getReferenceClassType table) '' }}{{/ if }}{{/ with }}, {{ classDataName (getReferenceClassType table) 'Stored' }}, {{ classDataName (getReferenceClassType table) 'QueryCustomizer' }}>
         uniqueId={`{{ createId table }}-${uniqueId}`}
@@ -299,7 +309,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         validationError={validationError}
         actions={actions}
         allowSelectMultiple={allowSelectMultiple}
-        dataElementId={ '{{ createId table.dataElement }}' }
+        tableTestId={testIdOverride ?? '{{ getElementId table }}'}
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
         {{# unless (checkboxSelectionEnabled table) }}
@@ -357,7 +367,7 @@ export function {{ componentName table }}(props: {{ componentName table }}Props)
         {{# unless (checkboxSelectionEnabled table) }}
         checkboxSelection={ false }
         {{/ unless }}
-        dataElementId={ '{{ createId table.dataElement }}' }
+        tableTestId={testIdOverride ?? '{{ getElementId table }}'}
         crudOperationsDisplayed={ {{ table.crudOperationsDisplayed }} }
         transferOperationsDisplayed={ {{ table.transferOperationsDisplayed }} }
         containerIsSelector={isSelector}
