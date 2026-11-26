@@ -60,7 +60,6 @@ import type {
 import {
   applyInMemoryFilters,
   arrayToSelectionModel,
-  attachPinnedColumns,
   calculateActionName,
   createEmptySelectionModel,
   fileHandling,
@@ -68,7 +67,8 @@ import {
   mapAllFiltersToQueryCustomizerProperties,
   mapFilterModelToFilters,
   mapFilterToFilterModel,
-  pinColumns,
+  NO_PINNED_COLUMNS,
+  pinnedColumnFields,
   processQueryCustomizer,
   selectionModelToArray,
   ToolBarActionProps,
@@ -153,7 +153,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     applyRowEdit,
     onRowEditCanceled,
     actionsColumnWidth,
-    pinnedColumns,
+    pinnedColumns = NO_PINNED_COLUMNS,
     annotations = [],
     containerIsForm,
   } = props;
@@ -278,7 +278,7 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     [tableRowActions, rowModesModel, applyRowEdit],
   );
 
-  const orderedTableColumns = useMemo<GridColDef<T>[]>(() => {
+  const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...(columns as GridColDef<T>[]),
       ...(columnsActionCalculator(
@@ -319,16 +319,6 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     rowModesModel,
     columnState,
   ]);
-
-  const { columns: effectiveTableColumns, sx: pinnedColumnsSx } = useMemo(
-    () => pinColumns(orderedTableColumns, pinnedColumns ?? {}),
-    [orderedTableColumns, pinnedColumns],
-  );
-
-  useEffect(() => {
-    const root = apiRef.current?.rootElementRef?.current;
-    return root ? attachPinnedColumns(root) : undefined;
-  }, [apiRef, data.length]);
 
   const onColumnsChanged = () => {
     // Handles column resizing and re-ordering
@@ -530,13 +520,12 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
         apiRef={apiRef as unknown as any}
         {...baseTableConfig}
         showToolbar
-        disableVirtualization
+        initialState={{ pinnedColumns: pinnedColumnFields(pinnedColumns, effectiveTableColumns) }}
         pageSizeOptions={pageSizeOptions}
         sx={{
           overflow: 'hidden',
           display: 'grid',
           border: (theme) => (props.validationError ? `2px solid ${theme.palette.error.main}` : undefined),
-          ...pinnedColumnsSx,
         }}
         editMode="row"
         processRowUpdate={processRowUpdate}

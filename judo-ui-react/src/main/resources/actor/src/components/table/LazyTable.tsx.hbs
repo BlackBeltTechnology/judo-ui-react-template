@@ -50,8 +50,11 @@ import {
   createEmptySelectionModel,
   arrayToSelectionModel,
   selectionModelToArray,
-  pinColumns,
-  attachPinnedColumns,
+  NO_PINNED_COLUMNS,
+  pinnedColumnFields,
+  {{# unless isMUILicensePlanPro }}
+  usePinnedColumns,
+  {{/ unless }}
   {{# if isUseInlineColumnFilters }}
   mapFilterModelToFilters,
   mapFilterToFilterModel,
@@ -170,7 +173,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     applyRowEdit,
     onRowEditCanceled,
     actionsColumnWidth,
-    pinnedColumns,
+    pinnedColumns = NO_PINNED_COLUMNS,
     annotations = [],
     containerIsForm,
   } = props;
@@ -306,7 +309,7 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     },
   ], [tableRowActions, rowModesModel, applyRowEdit]);
 
-  const orderedTableColumns = useMemo<GridColDef<T>[]>(() => {
+  const effectiveTableColumns = useMemo<GridColDef<T>[]>(() => {
     const cols: GridColDef<T>[] = [
       ...columns as GridColDef<T>[],
       ...columnsActionCalculator(dataElementId, [...(editable ? editActions: []), ...tableRowActions], t, isLoading, editable, rowModesModel, getSelectedRows, ownerData, { crudOperationsDisplayed, transferOperationsDisplayed, actionsColumnWidth }) as GridColDef<T>[]
@@ -330,15 +333,9 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     return cols;
   }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
-  const { columns: effectiveTableColumns, sx: pinnedColumnsSx } = useMemo(
-    () => pinColumns(orderedTableColumns, pinnedColumns ?? {}),
-    [orderedTableColumns, pinnedColumns],
-  );
-
-  useEffect(() => {
-    const root = apiRef.current?.rootElementRef?.current;
-    return root ? attachPinnedColumns(root) : undefined;
-  }, [apiRef, data.length]);
+  {{# unless isMUILicensePlanPro }}
+  usePinnedColumns(apiRef, pinnedColumns, effectiveTableColumns);
+  {{/ unless }}
 
   {{# if isMUILicensePlanPro }}
     const onColumnsChanged = () => {
@@ -671,13 +668,14 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
         apiRef={apiRef as unknown as any}
         { ...baseTableConfig }
         showToolbar
-        disableVirtualization
+        {{# if isMUILicensePlanPro }}
+        initialState={ { pinnedColumns: pinnedColumnFields(pinnedColumns, effectiveTableColumns) } }
+        {{/ if }}
         pageSizeOptions={pageSizeOptions}
         sx={ {
           overflow: 'hidden',
           display: 'grid',
           border: (theme) => props.validationError ? `2px solid ${theme.palette.error.main}` : undefined,
-          ...pinnedColumnsSx,
           {{# if (stringValueIsTrue useTableRowHighlighting) }}
             ...transformRowStylings(rowStylings),
           {{/ if }}
