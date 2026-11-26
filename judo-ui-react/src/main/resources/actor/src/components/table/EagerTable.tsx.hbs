@@ -63,6 +63,8 @@ import type { QueryCustomizer } from '~/services/data-api/common/QueryCustomizer
 import { draftIdentifierPrefix } from '~/services/data-api/common/utils';
 import { MdiIcon } from '~/components/MdiIcon';
 import Box from '@mui/material/Box';
+import type { Theme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import Tooltip from '@mui/material/Tooltip';
@@ -302,7 +304,13 @@ export function EagerTable<T extends GridValidRowModel, TStored extends T, S ext
     return cols;
   }, [columns, editActions, tableRowActions, getSelectedRows, ownerData, isLoading, editable, rowModesModel{{# if isMUILicensePlanPro }}, columnState{{/ if }}]);
 
-  const pinnedFields = useMemo(() => pinnedColumnFields(pinnedColumns, effectiveTableColumns), [pinnedColumns, effectiveTableColumns]);
+  // Below the sm breakpoint pinned columns would cover most of the table, so nothing is pinned there.
+  // noSsr: the first render already knows the viewport, so Pro's initialState gets the right pins.
+  const isPhone = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'), { noSsr: true });
+  const pinnedFields = useMemo(
+    () => pinnedColumnFields(isPhone ? NO_PINNED_COLUMNS : pinnedColumns, isPhone ? [] : effectiveTableColumns),
+    [isPhone, pinnedColumns, effectiveTableColumns],
+  );
   const gridColumns = useMemo(() => orderPinnedColumns(effectiveTableColumns, pinnedFields), [effectiveTableColumns, pinnedFields]);
   {{# unless isMUILicensePlanPro }}
   usePinnedColumns(apiRef, pinnedFields);

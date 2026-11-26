@@ -8,8 +8,10 @@
 
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
+import type { Theme } from '@mui/material/styles';
 import Tooltip from '@mui/material/Tooltip';
 import Typography from '@mui/material/Typography';
+import useMediaQuery from '@mui/material/useMediaQuery';
 import {
   GridColDef,
   GridEventListener,
@@ -364,9 +366,12 @@ export function LazyTable<T extends GridValidRowModel, TStored extends T, S exte
     columnState,
   ]);
 
+  // Below the sm breakpoint pinned columns would cover most of the table, so nothing is pinned there.
+  // noSsr: the first render already knows the viewport, so Pro's initialState gets the right pins.
+  const isPhone = useMediaQuery((theme: Theme) => theme.breakpoints.down('sm'), { noSsr: true });
   const pinnedFields = useMemo(
-    () => pinnedColumnFields(pinnedColumns, effectiveTableColumns),
-    [pinnedColumns, effectiveTableColumns],
+    () => pinnedColumnFields(isPhone ? NO_PINNED_COLUMNS : pinnedColumns, isPhone ? [] : effectiveTableColumns),
+    [isPhone, pinnedColumns, effectiveTableColumns],
   );
   const gridColumns = useMemo(
     () => orderPinnedColumns(effectiveTableColumns, pinnedFields),
