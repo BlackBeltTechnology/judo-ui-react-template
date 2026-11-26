@@ -1,7 +1,7 @@
 # transfer-identity Specification
 
 ## Purpose
-TBD - created by archiving change unify-data-id-and-testid-with-runtime. Update Purpose after archive.
+How a generated page identifies a transfer (row keys, new-row seeding) and the `data-testid` grammar it emits for fields, tables, rows, cells, buttons, dialogs, tabs, navigation and breadcrumbs. The grammar is shared with `judo-frontend-runtime` (`@judo/test-ids`), so one Playwright locator works on both engines.
 
 ## Requirements
 
